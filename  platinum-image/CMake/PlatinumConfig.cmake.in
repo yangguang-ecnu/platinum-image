@@ -1,0 +1,8 @@
+# The platinum source tree.
+SET(Platinum_SOURCE_DIR "@Platinum_SOURCE_DIR@")
+SET(Platinum_INCLUDE_DIR "@Platinum_SOURCE_DIR@")
+
+SET(Platinum_LIBRARY_DIR "@Platinum_BINARY_DIR@")
+
+#include Platinum's dependencies for client projects
+INCLUDE("@Platinum_LIBRARY_DEPENDS_FILE@")
