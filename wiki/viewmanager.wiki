@@ -2,7 +2,7 @@
 
 Viewmanager lists the available viewports and allows access through viewport [IDs] and various ways of requesting updates.
 
-===Plans===
+=Plans=
 
 {{{
 Example of a SINGLE virtual view 
