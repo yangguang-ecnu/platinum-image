@@ -1,6 +1,6 @@
 #summary Decription of the four managers
 
-Platinum is composed of four "manager" objects that collect and process data based on the model-view-controller (MVC) pattern.  This architecture had been selected prior to project onset – the MVC pattern was introduced subsequently to guide development, as well as to impart familiarity to developers who may get involved at a later stage.
+Platinum is composed of four "manager" objects that collect and process data based on the model-view-controller (MVC) pattern.  This architecture had been selected prior to project onset – the MVC pattern was introduced subsequently to guide development, as well as to impart familiarity to developers who may get involved at a later stage. All object exchange between these managers is governed by [IDs].
 
 ==Datamanager==
 [datamanager] manages the creation, deletion and retrieval of volume data sets – model.
