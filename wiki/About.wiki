@@ -1,4 +1,5 @@
 #summary Project origins and goals
+#labels Featured
 
 The Platinum project started at the [http://www.radiol.uu.se/ Image- and function center of Uppsala university hospital] and is now being further developed in collaboration with !AstraZeneca.
 
