@@ -7,7 +7,7 @@ Abstraction of widget containing controls and image pane (implemented in FLTKvie
 *FLTKviewport*
 FLTK implementation of the central pane of each viewport that displays the rendered image and can be clicked/dragged in.
 
-'[viewmanager]'
+[viewmanager]
 Viewmanager lists the available viewports and allows access through viewport ID and various ways of requesting updates.
 
 *Renderer_base*
@@ -94,3 +94,6 @@ Overlay to viewports that displays a segmentation preview for the 2D histogram s
 
 *FLTK2Dregionofinterest* 
 Overlay to viewports that displays region of interest information, including a rectangular selection and threshold_overlay segmentation previews.
+
+
+
