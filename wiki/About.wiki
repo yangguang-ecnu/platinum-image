@@ -8,5 +8,4 @@ In hospital and corporate clinical imaging environments, image processing algori
 The Platinum library is written in C++, using templates and many components of the Standard Template Library. It is intended to operate in Linux, Windows and Mac OS X environments and is built using CMake.
 
 == Licensing ==
-_See Licensing_
-
+_See License_
