@@ -29,7 +29,7 @@ Rendergeometry stores rendering coordinates (look at, orientation and zoom) for 
 Keeps a list of renderer objects and handles communication between viewport and renderer.
 
 =Data handling=
-*Point_base* 
+_*Point_base*_
 The untemplated base class for point collections.
 
 *Datamanager*
@@ -48,13 +48,13 @@ Image type with scalar voxel/pixel values. Mostly the same as image_general.
 *Image_multi*
 Base class for images with multispectral data, such as vectors or complex.
 
-*Image_complex*
+_*Image_complex*_
 Image class with complex voxels.
 
 *Image_integer*
 Image type with integer values, in itself and as base for more task-specific subclasses.
 
-*Image_label
+_*Image_label*_
 Image type with integer values signifying distinct classes or "labels" (i.e. not continuous values). Can be described as multiple binary volumes rolled into one. 0 (zero) carries special meaning as empty/background.
 
 =User interaction=
@@ -70,13 +70,13 @@ Base class for numerous parameter widgets populating userIO blocks. Handles valu
 Maintains a list of userIO blocks, and relays all operations on blocks and their parameters. The interface to this class is independent of the FL toolkit.
 
 =Helper classes=
-*Color*
+_*Color*_
 Color storage class.
 
-*Colormap* 
+_*Colormap*_ 
 Interpolated color map class.
 
-*Cursor3D* 
+_*Cursor3D*_ 
 3D cursor that could be implemented as a point3D.
 
 *Histogram_base* 
