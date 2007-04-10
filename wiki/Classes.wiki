@@ -1,0 +1,72 @@
+#summary Description of Platinum classes
+Classes in _italics_ are planned (some prototyped), but not implemented.
+==View & rendering==
+*Viewport*
+Abstraction of widget containing controls and image pane (implemented in FLTKviewport) for each viewpoint of data.
+
+===FLTKviewport*
+FLTK implementation of the central pane of each viewport that displays the rendered image and can be clicked/dragged in.
+
+*Viewmanager*
+Viewmanager lists the available viewports and allows access through viewport ID and various ways of requesting updates.
+
+*Renderer_base*
+Renderers produce a 2D viewport pixmap out of images and point sets. The base class has virtual functions for coordinate storage conversion, common to different renderer types.
+
+*RendererMPR*
+MPR renderer subclass which also renders thumbnails via a static function. Like other possible renderers it also converts between local and global coordinate systems.
+
+*Rendercombination*
+Stores list of volumes and blend mode(s) for renderers.
+
+*Rendergeometry*
+Rendergeometry stores rendering coordinates (look at, orientation and zoom) for renderers.
+
+*Rendermanager*
+Keeps a list of renderer objects and handles communication between viewport and renderer.
+
+==Data handling==
+*Image_base*
+Untemplated base class for image storage, including volumes, contains 3D position and orientation information.
+
+*Image3D*
+Volume image class templated over voxel data type.
+
+*Point_base* 
+The untemplated base class for point collections.
+
+*Datamanager*
+The datamanager maintains a list of work data loaded or created at runtime. It has functions for loading and saving data (that invoke functions in the relevant classes).
+
+==User interaction==
+*Datawidget* 
+The datawidget is the GUI representation of a dataset (image/point). It provides controls for saving, deleting and shows the thumbnail. 
+
+*UserIO* 
+Class defining an operation on data presented to the user in a list.
+*FLTKuserIOparameter_base*
+Base class for numerous parameter widgets populating userIO blocks. Handles value retrieval, updates and creation/deletion.
+ 
+*UserIOmanager*
+Maintains a list of userIO blocks, and relays all operations on blocks and their parameters. The interface to this class is independent of the FL toolkit.
+==Helper classes==
+Color 
+Color storage class.
+Colormap 
+Interpolated color map class. 
+Cursor3D 
+3D cursor that could be implemented as a point3D.
+Histogram_base 
+Base class for processing of histograms in 1-3D (separated from user interface).
+Histogram_2D 
+Displays and does area higlights of a 2D histogram.
+Thresholdparvalue 
+N-dimensional threshold values with optional shape variations. Includes a function for creating a new volume through thresholding. 
+2D histogram segmentation specials
+Threshold_overlay 
+Overlay to viewports that displays a segmentation preview for the 2D histogram segmentation project. 
+FLTK2Dregionofinterest 
+Overlay to viewports that displays region of interest information, including a rectangular selection and threshold_overlay segmentation previews. 
+
+
+
