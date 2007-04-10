@@ -7,7 +7,7 @@ Abstraction of widget containing controls and image pane (implemented in FLTKvie
 *FLTKviewport*
 FLTK implementation of the central pane of each viewport that displays the rendered image and can be clicked/dragged in.
 
-'[Viewmanager]'
+'[viewmanager]'
 Viewmanager lists the available viewports and allows access through viewport ID and various ways of requesting updates.
 
 *Renderer_base*
