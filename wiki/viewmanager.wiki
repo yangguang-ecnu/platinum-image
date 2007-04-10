@@ -1,6 +1,6 @@
 #summary viewmanager class
 
-Viewmanager lists the available viewports and allows access through viewport IDs and various ways of requesting updates.
+Viewmanager lists the available viewports and allows access through viewport [IDs] and various ways of requesting updates.
 
 ===Plans===
 
