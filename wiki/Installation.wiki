@@ -6,18 +6,18 @@
 # Install a development environment, such as VS.net
 
 # Download the following additional source code:
-  *[http://www.cmake.org/HTML/Download.html CMake 2.4.6]
+  *[CMake 2.4.6 http://www.cmake.org/HTML/Download.html]
   *[http://www.fltk.org/software.php FLTK 1.1.7]
   *[http://www.itk.org/HTML/Download.php ITK 3.0.1] - you'll have to fill in the questionnaire
   *[http://www.vtk.org/get-software.php#latest VTK 5.0.2]
 #Get yourself an SVN client like TortoiseCVS, http://subversion.tigris.org/links.html#clients
 
-= 2 install=
+=2. install=
 
 #CMake
 #Your SVN client
 
-=3 build (Windows)=
+=3. build (Windows)=
 
 #Decompress ”InsightToolkit-3.0.1.zip” _(suggested location: C:\Lib\InsightToolkit-3.0.1)_ 
 #Run CMake
@@ -47,9 +47,6 @@
   * itkzlib 
  
 #Build FLTK:
-
-
-
 #Decompress fltk-1.1.7-source.zip” _(suggested location: C:\Lib\fltk-1.1.7)_ 
 #Run CMake
 #Set source: ”C:\Lib\fltk-1.1.7”
@@ -60,74 +57,31 @@
   * Disable BUILD_SHARED_LIBS
   * Disable BUILD_TESTING
 #Press `Configure…` again (may take some time)
-#Press `OK` (Nu skapas byggfilerna i mappen ”C:\LIB\ITK301BIN”) 
-#Open `ITK.sln`
-#Select ”Build All_Build” in VS.net. wait… (appr. 15 min)
-
-
-
-
-
-Packa först upp ” fltk-1.1.7-source.zip” (förslagsvis till C:\LIB\FLTK117) 
-
-Starta CMake
-
-Välj Source: ”C:\LIB\FLTK117”
-
-Välj tex Build: ”C:\LIB\FLTK117BIN”
-
-Configure… (vänta…) 
-
-Gör sedan följande val:
-
-* Disable BUILD_EXAMPLES
-
-* Disable BUILD_SHARED_LIBS
-
-* Disable BUILD_TESTING
-
-Din webbläsare kanske inte stöder visning av den här bilden.
-
-Configure… (vänta…)
-
-OK (Nu skapas byggfilerna i mappen ”C:\LIB\FLTK117BIN”) 
-
-Öppna FLTK.sln
-
-Välj ”Build All_Build” i Visual Studio… vänta… (ca 2 min) 
-
+#Press `OK` (build files will be written to ”C:\Lib\Bin\FLTK”) 
+#Open `FLTK.sln`
+#Select ”Build All_Build” in VS.net. wait… (appr. 2 min)
  
 
-6 Checka ut och kompilera Platinum: (Detta måsta man ha inloggningsuppgifter för, vilket vi ordnar när vi ses!) 
+#Check out and build Platinum.
 
-Skapa en mapp (förslagsvis till C:\Code\Platinum)
+#Create a folder for the Platinum source (suggestion: `C:\Lib\Platinum`)
+Check out (download) the latest Platinum source by right-clicking in the new source folder and selecting "SVN checkout..."
 
-Checka ut den senaste versionen av Platinum-koden genom att högerklicka i den nya mappen och välj CVS Checkout… 
+TortoiseSVN settings:
 
-Inställningar i TortoiseSVN:
-
-# Installera en SVN-klient, förslagsvis TortoiseSVN som fungerar på ett bekant sätt ;-) (det finns även klienter som integreras i VS.NET om man gillar det!) Här finns en mängd klienter inklusive dessa: http://subversion.tigris.org/links.html#clients
-# Gå till http://code.google.com/p/platinum-image/source , där får du både SVN-adressen och ditt lösenord
-# Välj en lämplig mapp på din dator att ha koden i
-# Höger-klicka där, välj SVN checkout...
-# Mata in adressen som finns på Google-sidan, sen kommer den fråga efter namn och lösen
-# Vänta lite
-# Klart, använd på samma sätt som TortoiseSVN
-
-Det är bara koden i mappen platinumlib som är intressant 
-
-Starta CMake
-
-Välj Source: ”C:\Code\Platinum\matrix\platinumlib”
-
-Välj tex Build: ”C:\Code\PlatinumBin” Din webbläsare kanske inte stöder visning av den här bilden.
-
-Configure… (vänta…)
-
-OK (Nu skapas byggfilerna i mappen ” C:\Code\PlatinumBin”) 
-
-Öppna PLATINUM.sln
-
-Välj ”Build All_Build” i Visual Studio… vänta… (ca 2 min) 
-
-Nu är det bara resten kvar… 
+If you are not going to contribute to the platinum source, you can use this address for SVN:
+http://platinum-image.googlecode.com/svn/trunk/platinum-image
+If you are going to contribute, you will need to access SVN with your Google account. #Contact one of the project administrators and give them your Google account name to be added as a member.
+#enter address from this page: http://code.google.com/p/platinum-image/source
+# Press `OK`, you will now be asked for name and password (also on the above page)
+# Please wait...
+# You now have the Platinum source
+#Run CMake
+#Set source: ”C:\Lib\Platinum”
+#Set build: ”C:\Lib\Bin\Platinum”
+#(no options need to be changed)
+#Press `Configure…` (may take some time)
+#Press `OK` (build files will be written to ”C:\Lib\Bin\Platinum”) 
+#Öppna Platinum.sln
+#Select ”Build All_Build” in VS.net. wait… (appr. 2 min)
+#Enjoy!
