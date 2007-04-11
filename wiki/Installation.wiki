@@ -3,86 +3,108 @@
 
 =1. download=
 
-# Install a development environment, such as VS.net
-
-# Download the following additional source code:
-  *[http://www.cmake.org/HTML/Download.html CMake 2.4.6]
-  *[http://www.fltk.org/software.php FLTK 1.1.7]
-  *[http://www.itk.org/HTML/Download.php ITK 3.0.1] - you'll have to fill in the questionnaire
-  *[http://www.vtk.org/get-software.php#latest VTK 5.0.2]
-#Get yourself an SVN client like TortoiseCVS, http://subversion.tigris.org/links.html#clients
+  # Install a development environment, such as VS.net
+  # Download the following additional source code:
+    * [http://www.cmake.org/HTML/Download.html CMake 2.4.6]
+    * [http://www.fltk.org/software.php FLTK 1.1.7]
+    * [http://www.itk.org/HTML/Download.php ITK 3.0.1] - you'll have to fill in the questionnaire
+    * [http://www.vtk.org/get-software.php#latest VTK 5.0.2]
+  # Get yourself an SVN client like TortoiseCVS, http://subversion.tigris.org/links.html#clients
 
 =2. install=
 
-#CMake
-#The SVN client
+  * CMake
+  * The SVN client
 
 =3. build (Windows)=
+==ITK==
+  # Decompress ”InsightToolkit-3.0.1.zip” _(suggested location:   C:\Lib\InsightToolkit-3.0.1)_ 
+  # Run CMake
+  # Set source: ”C:\Lib\InsightToolkit-3.0.1”
+  # Set build: ”C:\Lib\Bin\ITK”
+    # Press `Configure…` (may take some time)
+  # Set the following options:
+    * Disable BUILD_EXAMPLES
+    * Disable BUILD_SHARED_LIBS
+    * Disable BUILD_TESTING
+  # Press `Configure…` again (may take some time)
+  # Press `OK` (build files will be written to ”C:\Lib\Bin\ITK”) 
+  # Open `ITK.sln`
+  # Select ”Build !All_Build” in VS.net. wait… (appr. 15 min)
 
-#Decompress ”InsightToolkit-3.0.1.zip” _(suggested location: C:\Lib\InsightToolkit-3.0.1)_ 
-#Run CMake
-#Set source: ”C:\Lib\InsightToolkit-3.0.1”
-#Set build: ”C:\Lib\Bin\ITK”
-#Press `Configure…` (may take some time)
-#Set the following options:
-  * Disable BUILD_EXAMPLES
-  * Disable BUILD_SHARED_LIBS
-  * Disable BUILD_TESTING
-#Press `Configure…` again (may take some time)
-#Press `OK` (build files will be written to ”C:\Lib\Bin\ITK”) 
-#Open `ITK.sln`
-#Select ”Build All_Build” in VS.net. wait… (appr. 15 min)
+  #Ensure that the following library files were built (ligger i mappen `C:\Lib\Bin\ITK\bin\debug`)
 
-#Ensure that the following library files were built (ligger i mappen `C:\Lib\Bin\ITK\bin\debug`)
+    * ITKAlgorithms
+    * ITKBasicFilters
+    * ITKCommon
+    * ITKFEM
+    * ITKIO
+    * ITKMetaIO
+    * ITKNumerics
+    * itkpng
+    * ITKStatistics
+    * itkzlib
 
-  * ITKAlgorithms
-  * ITKBasicFilters
-  * ITKCommon
-  * ITKFEM
-  * ITKIO
-  * ITKMetaIO
-  * ITKNumerics
-  * itkpng
-  * ITKStatistics
-  * itkzlib 
- 
-#Build FLTK:
-#Decompress fltk-1.1.7-source.zip” _(suggested location: C:\Lib\fltk-1.1.7)_ 
-#Run CMake
-#Set source: ”C:\Lib\fltk-1.1.7”
-#Set build: ”C:\Lib\Bin\FLTK”
-#Press `Configure…` (may take some time)
-#Set the following options:
-  * Disable BUILD_EXAMPLES
-  * Disable BUILD_SHARED_LIBS
-  * Disable BUILD_TESTING
-#Press `Configure…` again (may take some time)
-#Press `OK` (build files will be written to ”C:\Lib\Bin\FLTK”) 
-#Open `FLTK.sln`
-#Select ”Build All_Build” in VS.net. wait… (appr. 2 min)
- 
+==VTK==
+_VTK will be used in Platinum, however it is not necessary at the moment_
+  # Decompress "VTK-5.0.1.zip” _(suggested location:   C:\Lib\InsightToolkit-3.0.1)_ 
+  # Run CMake
+  # Set source: ”C:\Lib\VTK-5.0.1”
+  # Set build: ”C:\Lib\Bin\VTK”
+    # Press `Configure…` (may take some time)
+  # Set the following options:
+    * Disable BUILD_EXAMPLES
+    * Disable BUILD_SHARED_LIBS
+    * Disable BUILD_TESTING
+  # Press `Configure…` again (may take some time)
+  # Press `OK` (build files will be written to ”C:\Lib\Bin\VTK”) 
+  # Open `ITK.sln`
+  # Select ”Build !All_Build” in VS.net. Wait…
 
-#Check out and build Platinum.
 
-#Create a folder for the Platinum source (suggestion: `C:\Lib\Platinum`)
+==FLTK==
+  # Build FLTK:
+  # Decompress fltk-1.1.7-source.zip” _(suggested location: C:\Lib\fltk-1.1.7)_ 
+  # Run CMake
+  # Set source: ”C:\Lib\fltk-1.1.7”
+  # Set build: ”C:\Lib\Bin\FLTK”
+  # Press `Configure…` (may take some time)
+  # Set the following options:
+    * Disable BUILD_EXAMPLES
+    * Disable BUILD_SHARED_LIBS
+    * Disable BUILD_TESTING
+  # Press `Configure…` again (may take some time)
+  # Press `OK` (build files will be written to ”C:\Lib\Bin\FLTK”) 
+  # Open `FLTK.sln`
+  # Select ”Build !All_Build” in VS.net. wait… (appr. 2 min)
+
+==Platinum==
+  # Check out and build Platinum.
+
+  # Create a folder for the Platinum source (suggestion: `C:\Lib\Platinum`)
 Check out (download) the latest Platinum source by right-clicking in the new source folder and selecting "SVN checkout..."
 
-TortoiseSVN settings:
+  # TortoiseSVN settings:
 
-If you are not going to contribute to the platinum source, you can use this address for SVN:
-http://platinum-image.googlecode.com/svn/trunk/platinum-image
-If you are going to contribute, you will need to access SVN with your Google account. #Contact one of the project administrators and give them your Google account name to be added as a member.
-#enter address from this page: http://code.google.com/p/platinum-image/source
-# Press `OK`, you will now be asked for name and password (also on the above page)
-# Please wait...
-# You now have the Platinum source
-#Run CMake
-#Set source: ”C:\Lib\Platinum”
-#Set build: ”C:\Lib\Bin\Platinum”
-#(no options need to be changed)
-#Press `Configure…` (may take some time)
-#Press `OK` (build files will be written to ”C:\Lib\Bin\Platinum”) 
-#Öppna Platinum.sln
-#Select ”Build All_Build” in VS.net. wait… (appr. 2 min)
-#Enjoy!
+    * If you don not plan to contribute to the platinum source, you can use this address for SVN:
+    http://platinum-image.googlecode.com/svn/trunk/platinum-image
+    * If you are going to contribute, you will need to access SVN with your Google account. #Contact one of the project administrators and give them your Google account name to be added as a member.
+  # enter address from this page: http://code.google.com/p/platinum-image/source
+  # Press `OK`, you will now be asked for name and password (also on the above page)
+  # Please wait...
+  # You now have the Platinum source
+  # Run CMake
+  # Set source: ”C:\Lib\Platinum”
+  # Set build: ”C:\Lib\Bin\Platinum”
+  # (no options need to be changed)
+  # Press `Configure…` (may take some time)
+  # Press `OK` (build files will be written to ”C:\Lib\Bin\Platinum”) 
+  # Öppna Platinum.sln
+  # Select ”Build !All_Build” in VS.net. wait… (appr. 2 min)
+  # Enjoy!
+
+
+
+
+
 
