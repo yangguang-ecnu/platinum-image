@@ -1,7 +1,7 @@
 #summary How to install and build Platinum
 #labels Phase-Deploy
 
-=1. download=
+=1. Download=
 
   # Install a development environment, such as VS.net
   # Download the following additional source code:
@@ -11,12 +11,12 @@
     * [http://www.vtk.org/get-software.php#latest VTK 5.0.2]
   # Get yourself an SVN client like TortoiseCVS, http://subversion.tigris.org/links.html#clients
 
-=2. install=
+=2. Install=
 
   * CMake
   * The SVN client
 
-=3. build (Windows)=
+=3. Build (Windows)=
 ==ITK==
   # Decompress ”!InsightToolkit-3.0.1.zip” _(suggested location:   C:\Lib\InsightToolkit-3.0.1)_ 
   # Run CMake
@@ -99,7 +99,6 @@ _VTK will be used in Platinum, however it is not necessary at the moment_
   # Öppna Platinum.sln
   # Select ”Build !All_Build” in VS.net. wait… (appr. 2 min)
   # Enjoy!
-
 
 
 
