@@ -96,10 +96,9 @@ _VTK will be used in Platinum, however it is not necessary at the moment_
   # (no options need to be changed)
   # Press `Configure…` (may take some time)
   # Press `OK` (build files will be written to ”C:\Lib\Bin\Platinum”) 
-  # Öppna Platinum.sln
+  # Open `Platinum.sln`
   # Select ”Build !All_Build” in VS.net. wait… (appr. 2 min)
   # Enjoy!
-
 
 
 
