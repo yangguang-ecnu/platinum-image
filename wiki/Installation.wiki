@@ -18,9 +18,9 @@
 
 =3. build (Windows)=
 ==ITK==
-  # Decompress ”InsightToolkit-3.0.1.zip” _(suggested location:   C:\Lib\InsightToolkit-3.0.1)_ 
+  # Decompress ”!InsightToolkit-3.0.1.zip” _(suggested location:   C:\Lib\InsightToolkit-3.0.1)_ 
   # Run CMake
-  # Set source: ”C:\Lib\InsightToolkit-3.0.1”
+  # Set source: ”C:\Lib\!InsightToolkit-3.0.1”
   # Set build: ”C:\Lib\Bin\ITK”
     # Press `Configure…` (may take some time)
   # Set the following options:
@@ -47,7 +47,7 @@
 
 ==VTK==
 _VTK will be used in Platinum, however it is not necessary at the moment_
-  # Decompress "VTK-5.0.1.zip” _(suggested location:   C:\Lib\InsightToolkit-3.0.1)_ 
+  # Decompress "VTK-5.0.1.zip” _(suggested location:   C:\Lib\VTK-5.0.1)_ 
   # Run CMake
   # Set source: ”C:\Lib\VTK-5.0.1”
   # Set build: ”C:\Lib\Bin\VTK”
@@ -80,12 +80,9 @@ _VTK will be used in Platinum, however it is not necessary at the moment_
 
 ==Platinum==
   # Check out and build Platinum.
-
   # Create a folder for the Platinum source (suggestion: `C:\Lib\Platinum`)
-Check out (download) the latest Platinum source by right-clicking in the new source folder and selecting "SVN checkout..."
-
+  # Check out (download) the latest Platinum source by right-clicking in the new source folder and selecting "SVN checkout..."
   # TortoiseSVN settings:
-
     * If you don not plan to contribute to the platinum source, you can use this address for SVN:
     http://platinum-image.googlecode.com/svn/trunk/platinum-image
     * If you are going to contribute, you will need to access SVN with your Google account. #Contact one of the project administrators and give them your Google account name to be added as a member.
@@ -102,6 +99,7 @@ Check out (download) the latest Platinum source by right-clicking in the new sou
   # Öppna Platinum.sln
   # Select ”Build !All_Build” in VS.net. wait… (appr. 2 min)
   # Enjoy!
+
 
 
 
