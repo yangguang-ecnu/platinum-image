@@ -1,0 +1,143 @@
+#summary One-sentence summary of this page.
+#labels Phase-Deploy
+
+# Install a development environment, such as VS.net
+
+# Download the following additional source code:
+
+Namn URL  Aktuell Version
+
+[http://www.cmake.org/HTML/Download.html CMake 2.4.6]
+
+[http://www.fltk.org/software.php FLTK 1.1.7]
+
+[http://www.itk.org/HTML/Download.php ITK 3.0.1] - you'll have to fill in the questionnaire
+
+[http://www.vtk.org/get-software.php#latest VTK 5.0.2]
+
+CVS-klient www.tortoisecvs.org 1.8.30 
+
+3 Installera:
+
+CMake
+
+CVS-klienten 
+
+4 Kompilera ITK:
+
+Packa först upp ”InsightToolkit-3.0.1.zip” (förslagsvis till C:\LIB\ITK301) 
+
+Nu skall vi skapa .Net specifika bygg-filer för ITK:
+
+Starta CMake
+
+Välj Source: ”C:\LIB\ITK301”
+
+Välj tex Build: ”C:\LIB\ITK301BIN”
+
+Configure… (vänta…) 
+
+Gör sedan följande val:
+
+* Disable BUILD_EXAMPLES
+
+* Disable BUILD_SHARED_LIBS
+
+* Disable BUILD_TESTING
+
+Configure… (vänta…)
+
+OK (Nu skapas byggfilerna i mappen ”C:\LIB\ITK301BIN”) 
+
+Öppna ITK.sln
+
+Välj ”Build All_Build” i Visual Studio… vänta… (ca 15 min)
+
+Verifiera att följande lib-filer har byggts korrekt (ligger i mappen \bin\debug)
+
+* ITKAlgorithms
+
+* ITKBasicFilters
+
+* ITKCommon
+
+* ITKFEM
+
+* ITKIO
+
+* ITKMetaIO
+
+* ITKNumerics
+
+* itkpng
+
+* ITKStatistics
+
+* itkzlib 
+ 
+
+5 Kompilera FLTK:
+
+Packa först upp ” fltk-1.1.7-source.zip” (förslagsvis till C:\LIB\FLTK117) 
+
+Starta CMake
+
+Välj Source: ”C:\LIB\FLTK117”
+
+Välj tex Build: ”C:\LIB\FLTK117BIN”
+
+Configure… (vänta…) 
+
+Gör sedan följande val:
+
+* Disable BUILD_EXAMPLES
+
+* Disable BUILD_SHARED_LIBS
+
+* Disable BUILD_TESTING
+
+Din webbläsare kanske inte stöder visning av den här bilden.
+
+Configure… (vänta…)
+
+OK (Nu skapas byggfilerna i mappen ”C:\LIB\FLTK117BIN”) 
+
+Öppna FLTK.sln
+
+Välj ”Build All_Build” i Visual Studio… vänta… (ca 2 min) 
+
+ 
+
+6 Checka ut och kompilera Platinum: (Detta måsta man ha inloggningsuppgifter för, vilket vi ordnar när vi ses!) 
+
+Skapa en mapp (förslagsvis till C:\Code\Platinum)
+
+Checka ut den senaste versionen av Platinum-koden genom att högerklicka i den nya mappen och välj CVS Checkout… 
+
+Inställningar i TortoiseSVN:
+
+# Installera en SVN-klient, förslagsvis TortoiseSVN som fungerar på ett bekant sätt ;-) (det finns även klienter som integreras i VS.NET om man gillar det!) Här finns en mängd klienter inklusive dessa: http://subversion.tigris.org/links.html#clients
+# Gå till http://code.google.com/p/platinum-image/source , där får du både SVN-adressen och ditt lösenord
+# Välj en lämplig mapp på din dator att ha koden i
+# Höger-klicka där, välj SVN checkout...
+# Mata in adressen som finns på Google-sidan, sen kommer den fråga efter namn och lösen
+# Vänta lite
+# Klart, använd på samma sätt som TortoiseSVN
+
+Det är bara koden i mappen platinumlib som är intressant 
+
+Starta CMake
+
+Välj Source: ”C:\Code\Platinum\matrix\platinumlib”
+
+Välj tex Build: ”C:\Code\PlatinumBin” Din webbläsare kanske inte stöder visning av den här bilden.
+
+Configure… (vänta…)
+
+OK (Nu skapas byggfilerna i mappen ” C:\Code\PlatinumBin”) 
+
+Öppna PLATINUM.sln
+
+Välj ”Build All_Build” i Visual Studio… vänta… (ca 2 min) 
+
+Nu är det bara resten kvar… 
