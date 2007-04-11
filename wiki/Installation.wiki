@@ -6,7 +6,7 @@
 # Install a development environment, such as VS.net
 
 # Download the following additional source code:
-  *[CMake 2.4.6 http://www.cmake.org/HTML/Download.html]
+  *[http://www.cmake.org/HTML/Download.html CMake 2.4.6]
   *[http://www.fltk.org/software.php FLTK 1.1.7]
   *[http://www.itk.org/HTML/Download.php ITK 3.0.1] - you'll have to fill in the questionnaire
   *[http://www.vtk.org/get-software.php#latest VTK 5.0.2]
@@ -15,7 +15,7 @@
 =2. install=
 
 #CMake
-#Your SVN client
+#The SVN client
 
 =3. build (Windows)=
 
@@ -85,3 +85,4 @@ If you are going to contribute, you will need to access SVN with your Google acc
 #Öppna Platinum.sln
 #Select ”Build All_Build” in VS.net. wait… (appr. 2 min)
 #Enjoy!
+
