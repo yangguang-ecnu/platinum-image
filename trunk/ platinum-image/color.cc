@@ -16,3 +16,18 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "color.h"
+
+void color_base::set_rgb(int position, float r_, float g_, float b_)
+    {
+    r((IMGELEMCOMPTYPE)(r_*IMGELEMCOMPMAX));
+    g((IMGELEMCOMPTYPE)(g_*IMGELEMCOMPMAX));
+    b((IMGELEMCOMPTYPE)(b_*IMGELEMCOMPMAX));
+    }
+
+void color_base::rgb(float &r_, float &g_, float &b_)
+    {
+    r_=static_cast<float>(r()/IMGELEMCOMPMAX);
+    g_=static_cast<float>(g()/IMGELEMCOMPMAX);
+    b_=static_cast<float>(b()/IMGELEMCOMPMAX);
+    }
+    
