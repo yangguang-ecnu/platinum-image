@@ -1,5 +1,5 @@
 #summary How to install and build Platinum
-#labels Phase-Deploy
+#labels Phase-Deploy,Featured
 
 =1. Download=
 
@@ -32,7 +32,7 @@
   # Open `ITK.sln`
   # Select ”Build !All_Build” in VS.net. wait… (appr. 15 min)
 
-  #Ensure that the following library files were built (ligger i mappen `C:\Lib\Bin\ITK\bin\debug`)
+  #Ensure that the following library files were built (in dir `C:\Lib\Bin\ITK\bin\debug`)
 
     * ITKAlgorithms
     * ITKBasicFilters
@@ -85,7 +85,7 @@ _VTK will be used in Platinum, however it is not necessary at the moment_
   # TortoiseSVN settings:
     * If you don not plan to contribute to the platinum source, you can use this address for SVN:
     http://platinum-image.googlecode.com/svn/trunk/platinum-image
-    * If you are going to contribute, you will need to access SVN with your Google account. #Contact one of the project administrators and give them your Google account name to be added as a member.
+    * If you are going to contribute, you will need to access SVN with your _GMail_ account. Contact one of the project administrators and give them your Google account name to be added as a member.
   # enter address from this page: http://code.google.com/p/platinum-image/source
   # Press `OK`, you will now be asked for name and password (also on the above page)
   # Please wait...
