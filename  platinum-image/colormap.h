@@ -39,7 +39,7 @@
 class colormap
     {
     private:
-        std::vector<color> colors;
+//        std::vector<colornode> colors;
     public:
         void set_color(int position, float r, float g, float b);    // glöm inte att sortera/stoppa in på rätt plats
         void get_color(int position, float &r, float &g, float &b); // returns RGB at the interpolated position
