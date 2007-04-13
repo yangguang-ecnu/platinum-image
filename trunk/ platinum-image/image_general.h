@@ -42,6 +42,7 @@ template<int IMAGEDIM>
 #include "itkImageFileWriter.h"
 
 #include "global.h"
+#include "color.h"
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_general : public image_base
