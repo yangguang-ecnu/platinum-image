@@ -41,6 +41,8 @@
 
 #include "global.h"
 
+#include "image_label.h"
+
 //Kullberg's volume tools
 //#include "../../Src/ITK/Volume.h"
 
@@ -96,11 +98,11 @@ void diff_volumes (int u,int p)
     if (p == USERIO_CB_OK)
         {
         image_base * truth = 
-            datamanagement.get_volumehandler(userIOmanagement.get_parameter<volumeIDtype>(u,0));
+            datamanagement.get_image(userIOmanagement.get_parameter<volumeIDtype>(u,0));
         image_base * test = 
-            datamanagement.get_volumehandler(userIOmanagement.get_parameter<volumeIDtype>(u,1));
+            datamanagement.get_image(userIOmanagement.get_parameter<volumeIDtype>(u,1));
         image_base * mask = 
-            datamanagement.get_volumehandler(userIOmanagement.get_parameter<volumeIDtype>(u,2));
+            datamanagement.get_image(userIOmanagement.get_parameter<volumeIDtype>(u,2));
 
         if (truth!=NULL && test != NULL && truth->same_size(test))
             {
@@ -124,7 +126,7 @@ void diff_volumes (int u,int p)
                 { cout << "with mask " << mask->name(); }
             cout << endl;
 
-            image3D<unsigned char> * result = (image3D<unsigned char> *)truth->alike(VOLDATA_UCHAR);
+            image_scalar<unsigned char> * result = (image_scalar<unsigned char> *)truth->alike(VOLDATA_UCHAR);
 
             for (short z = 0; z < size[2];z++)
                 {
@@ -193,12 +195,12 @@ void threshold_artifact_process (int u,int p)
     if (p == USERIO_CB_OK)
         {
         image_base * input_vol = 
-            datamanagement.get_volumehandler(userIOmanagement.get_parameter<volumeIDtype>(u,0));
+            datamanagement.get_image(userIOmanagement.get_parameter<volumeIDtype>(u,0));
 
         // *** get ITK image from input parameter
-        input_vol->make_volume_an_itk_reader();
+        input_vol->make_image_an_itk_reader();
         theBinaryImagePointer input;
-        input = ((image3D<theBinaryPixelType > * )input_vol)->itk_image();
+        input = ((image_label<3> * )input_vol)->itk_image();
 
         int radius = userIOmanagement.get_parameter<long>(u,1);
 
@@ -317,9 +319,9 @@ void threshold_artifact_process (int u,int p)
         masker->Update();
         theBinaryImagePointer final = masker->GetOutput ();
 
-        // *** convert result to a volumehandler ***
+        // *** convert result to an image ***
 
-        datamanagement.add( new image3D<theBinaryPixelType > (final));
+        datamanagement.add( new image_label<3> (final));
         }
     }
 
