@@ -34,6 +34,8 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
     {
     public:
         image_integer ():image_scalar<ELEMTYPE, IMAGEDIM>() {}
+
+    image_integer (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i):image_scalar<ELEMTYPE, IMAGEDIM>(i) {}
         
         template<class SOURCETYPE>
             image_integer(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true): image_scalar<ELEMTYPE, IMAGEDIM>(old_volume, copyData)

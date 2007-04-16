@@ -49,7 +49,7 @@ class image_general : public image_base
     {
     private:
         image_general<ELEMTYPE, IMAGEDIM>(int w, int h, int d, ELEMTYPE *ptr = NULL);
-        image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
+
     protected:
         ELEMTYPE *volumeptr;
         unsigned short datasize[IMAGEDIM]; //volume size
@@ -65,10 +65,10 @@ class image_general : public image_base
 
         // *** Constructors & factories ***
         image_general<ELEMTYPE, IMAGEDIM>();
-      
+        image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
         template<class SOURCETYPE> 
             image_general(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true);
-        
+
         void set_parameters ();                                                     //reset & calculate parameters
         void set_parameters (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
         void set_parameters (image_general<ELEMTYPE, IMAGEDIM> * from_volume);            //clone parameters from another image
@@ -117,7 +117,7 @@ class image_general : public image_base
         RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>);
         //const RGBvalue get_display_voxel(int x, int y, int z=0);
         unsigned char get_display_voxel(int x, int y, int z=0);  
-        void get_display_voxel(RGBvalue &val,int x, int y, int z=0); 
+        virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0);
 
         ELEMTYPE get_voxel_by_dir(int u, int v, int w, int direction=2);
 

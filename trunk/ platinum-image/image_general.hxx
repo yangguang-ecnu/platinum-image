@@ -470,6 +470,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(unsigned long offset, ELEMTYPE
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z)
+    {
+    val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
 unsigned char image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(int x, int y, int z)
     {
     if (maxvalue != minvalue)

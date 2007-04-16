@@ -28,6 +28,7 @@
 #include "data_base.h"
 
 #include "global.h"
+#include "color.h"
 
 enum imageDataType
     {
@@ -70,6 +71,7 @@ class image_base : public data_base
         virtual unsigned char get_display_voxel(int x, int y, int z)    //get unsigned char scaled to data
                                                                         //type range, for display purposes
                     = 0;   
+        virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) = 0;
         virtual float get_number_voxel(int x, int y, int z) //get value as float for onscreen display in numbers
             = 0;
                                                                     //when other kinds than 3D volumes are implemented,
