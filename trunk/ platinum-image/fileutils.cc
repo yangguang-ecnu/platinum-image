@@ -20,14 +20,20 @@
 //currently, a dirent replacement for WIN32 is used
 //the (incomplete) windows-specific routines can be activated
 //with WIN32_replace_dirent 
+
 #ifdef WIN32
+//Windows
+
 //#define WIN32_replace_dirent
+#include "dirent.h"
+
+#else
+//UNIX
+#include <dirent.h>
 #endif
 
 #ifdef WIN32_replace_dirent
 #include <windows.h>
-#else
-#include "dirent.h"
 #endif
 
 std::vector<std::string> get_dir_entries (std::string path)
