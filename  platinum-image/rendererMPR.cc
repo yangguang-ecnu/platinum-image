@@ -166,6 +166,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                 {pixels[p] = pixels[p + 1] = pixels[p + 2]=0;}
         }
 
+
     // *** Per-volume render loop ***
 
     Vector3D data_size;
@@ -200,11 +201,12 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             fill_y_start,
             fill_y_end;
 
-                //position to read in voxel data grid
+        //position to read in voxel data grid
         Vector3D vox;
 
-        //voxel value in loop
-        unsigned char value=0;
+        //RGB value in loop
+        RGBvalue value = RGBvalue();
+        bool threshold_value = false;
 
         Matrix3D render_dir=where->dir;
 
@@ -349,94 +351,94 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 
                     //pixpos_comp[0][0]=vp [0]*render_dir[0][0];
                     //pixpos_comp[0][1]=vp [0]*render_dir[0][1];
-                   
-                        //position in rgb pixmap
 
-                        /*rgb_x=pixpos_comp[0][0]+pixpos_comp[1][0]+pixpos_comp[2][0]+ view_offset[0];
-                        rgb_y=pixpos_comp[0][1]+pixpos_comp[1][1]+pixpos_comp[2][1]+ view_offset[1];*/
+                    //position in rgb pixmap
 
-                        //the position to which the current voxel stretches in rgb pixmap
-                        //at where->zoom*scale below 1, this max not be an entire pixel step
-                        //hence vp is incremented by at least 1 in their respective loops
+                    /*rgb_x=pixpos_comp[0][0]+pixpos_comp[1][0]+pixpos_comp[2][0]+ view_offset[0];
+                    rgb_y=pixpos_comp[0][1]+pixpos_comp[1][1]+pixpos_comp[2][1]+ view_offset[1];*/
 
-                        //float rgb_dir_x = render_dir[0][0]+render_dir[1][0]+render_dir[2][0] == (-1) ? -.5 : 0;
-                        //float rgb_dir_y = render_dir[0][1]+render_dir[1][1]+render_dir[2][1] == (-1) ? -.5 : 0;
+                    //the position to which the current voxel stretches in rgb pixmap
+                    //at where->zoom*scale below 1, this max not be an entire pixel step
+                    //hence vp is incremented by at least 1 in their respective loops
 
-                        //rgb_x_next=static_cast<long>((render_dir[0][0]*(vox[0]+1) *the_volume_pointer->voxel_resize[0][0]+render_dir[1][0]*(vox[1]+1)*the_volume_pointer->voxel_resize[1][1]+render_dir[2][0]*(vox[2]+1)*the_volume_pointer->voxel_resize[2][2])*scale*where->zoom);
+                    //float rgb_dir_x = render_dir[0][0]+render_dir[1][0]+render_dir[2][0] == (-1) ? -.5 : 0;
+                    //float rgb_dir_y = render_dir[0][1]+render_dir[1][1]+render_dir[2][1] == (-1) ? -.5 : 0;
 
-                        //rgb_y_next=static_cast<long>((render_dir[0][1]*(vox[0]+1)*the_volume_pointer->voxel_resize[0][0]+render_dir[1][1]*(vox[1]+1)*the_volume_pointer->voxel_resize[1][1]+render_dir[2][1]*(vox[2]+1)*the_volume_pointer->voxel_resize[2][2])*scale*where->zoom);
+                    //rgb_x_next=static_cast<long>((render_dir[0][0]*(vox[0]+1) *the_volume_pointer->voxel_resize[0][0]+render_dir[1][0]*(vox[1]+1)*the_volume_pointer->voxel_resize[1][1]+render_dir[2][0]*(vox[2]+1)*the_volume_pointer->voxel_resize[2][2])*scale*where->zoom);
 
-
-                        //#ifdef _DEBUG
-                        //                    for (int d =0;d< 3 && print;d++)
-                        //                        {cout << "vp [" << d << "] = " << vp[d] << "; ";}
-                        //                    cout << endl;
-                        //#endif
-
-                        // X
-                        fill_x_start    = vp [rgb_x_index];
-                        fill_x_end      = fill_x_start + vp_delta [rgb_x_index];
-
-                        if (render_dir [rgb_x_index][0] < 0)
-                            {
-                            //reverse coordinates, view_offset will compensate for the reversed direction
-                            fill_x_start    =  - fill_x_start;
-                            fill_x_end      =  - fill_x_end;
-                            }
-
-                        fill_x_start    += view_offset[0];
-                        fill_x_end      += view_offset[0];
-
-                        fill_x_start    = max ((long)0, min ((long)rgb_sx, fill_x_start));
-                        fill_x_end      = max ((long)0, min ((long)rgb_sx, fill_x_end));
-
-                        if (fill_x_start > fill_x_end)
-                            {t_swap (fill_x_start, fill_x_end); }
-
-                        // Y
-                        fill_y_start    = vp [rgb_y_index];
-                        fill_y_end      = fill_y_start + vp_delta [rgb_y_index];
-
-                        if (render_dir [rgb_y_index][1] < 1)
-                            {
-                            fill_y_start    =  - fill_y_start;
-                            fill_y_end      =  - fill_y_end;
-                            }
-
-                        fill_y_start    += view_offset[1];
-                        fill_y_end      += view_offset[1];
-
-                        fill_y_start    = max ((long)1, min ((long)rgb_sy, fill_y_start));
-                        fill_y_end      = max ((long)1, min ((long)rgb_sy, fill_y_end));
-
-                        if (fill_y_start > fill_y_end)
-                            {t_swap (fill_y_start, fill_y_end); }
+                    //rgb_y_next=static_cast<long>((render_dir[0][1]*(vox[0]+1)*the_volume_pointer->voxel_resize[0][0]+render_dir[1][1]*(vox[1]+1)*the_volume_pointer->voxel_resize[1][1]+render_dir[2][1]*(vox[2]+1)*the_volume_pointer->voxel_resize[2][2])*scale*where->zoom);
 
 
-                        //    if (render_dir [rgb_x_index][0] < 0)
-                        //        {
-                        //        fill_x_start  = max ((long)0, min ((long)rgb_sx, (long)(rgb_sx - vp [rgb_x_index])+ view_offset[0])));
-                        //        }
+                    //#ifdef _DEBUG
+                    //                    for (int d =0;d< 3 && print;d++)
+                    //                        {cout << "vp [" << d << "] = " << vp[d] << "; ";}
+                    //                    cout << endl;
+                    //#endif
 
-                        //long fill_x_start
-                        //    = max ((long)0, min ((long)rgb_sx, (long)(vp [rgb_x_index]+ view_offset[0])));
-                        //long fill_x_end
-                        //    = min ((long)rgb_sx, max((long)0, (long)(vp [rgb_x_index] + vp_delta [rgb_x_index]+ view_offset[0])));
+                    // X
+                    fill_x_start    = vp [rgb_x_index];
+                    fill_x_end      = fill_x_start + vp_delta [rgb_x_index];
 
-                        //long fill_y_start
-                        //    = max ((long)0, min ((long)rgb_sy, (long)(vp [rgb_y_index]+ view_offset[1])) );
-                        //long fill_y_end
-                        //    = min ((long)rgb_sy, max((long)0, (long)(vp [rgb_y_index] + vp_delta [rgb_y_index]+ view_offset[1])));
+                    if (render_dir [rgb_x_index][0] < 0)
+                        {
+                        //reverse coordinates, view_offset will compensate for the reversed direction
+                        fill_x_start    =  - fill_x_start;
+                        fill_x_end      =  - fill_x_end;
+                        }
 
-                        /*long fill_y_start
-                        = max ((long)0, min ((long)rgb_sy, (long)(rgb_y)));
-                        long fill_y_end
-                        = min ((long)rgb_sy, max((long)0, (long)(rgb_y_next)));
+                    fill_x_start    += view_offset[0];
+                    fill_x_end      += view_offset[0];
 
-                        long fill_x_start
-                        = max ((long)0, min ((long)rgb_sx, (long)(rgb_x)));
-                        long fill_x_end
-                        = min ((long)rgb_sx, max((long)0, (long)(rgb_x_next)));*/
+                    fill_x_start    = max ((long)0, min ((long)rgb_sx, fill_x_start));
+                    fill_x_end      = max ((long)0, min ((long)rgb_sx, fill_x_end));
+
+                    if (fill_x_start > fill_x_end)
+                        {t_swap (fill_x_start, fill_x_end); }
+
+                    // Y
+                    fill_y_start    = vp [rgb_y_index];
+                    fill_y_end      = fill_y_start + vp_delta [rgb_y_index];
+
+                    if (render_dir [rgb_y_index][1] < 1)
+                        {
+                        fill_y_start    =  - fill_y_start;
+                        fill_y_end      =  - fill_y_end;
+                        }
+
+                    fill_y_start    += view_offset[1];
+                    fill_y_end      += view_offset[1];
+
+                    fill_y_start    = max ((long)1, min ((long)rgb_sy, fill_y_start));
+                    fill_y_end      = max ((long)1, min ((long)rgb_sy, fill_y_end));
+
+                    if (fill_y_start > fill_y_end)
+                        {t_swap (fill_y_start, fill_y_end); }
+
+
+                    //    if (render_dir [rgb_x_index][0] < 0)
+                    //        {
+                    //        fill_x_start  = max ((long)0, min ((long)rgb_sx, (long)(rgb_sx - vp [rgb_x_index])+ view_offset[0])));
+                    //        }
+
+                    //long fill_x_start
+                    //    = max ((long)0, min ((long)rgb_sx, (long)(vp [rgb_x_index]+ view_offset[0])));
+                    //long fill_x_end
+                    //    = min ((long)rgb_sx, max((long)0, (long)(vp [rgb_x_index] + vp_delta [rgb_x_index]+ view_offset[0])));
+
+                    //long fill_y_start
+                    //    = max ((long)0, min ((long)rgb_sy, (long)(vp [rgb_y_index]+ view_offset[1])) );
+                    //long fill_y_end
+                    //    = min ((long)rgb_sy, max((long)0, (long)(vp [rgb_y_index] + vp_delta [rgb_y_index]+ view_offset[1])));
+
+                    /*long fill_y_start
+                    = max ((long)0, min ((long)rgb_sy, (long)(rgb_y)));
+                    long fill_y_end
+                    = min ((long)rgb_sy, max((long)0, (long)(rgb_y_next)));
+
+                    long fill_x_start
+                    = max ((long)0, min ((long)rgb_sx, (long)(rgb_x)));
+                    long fill_x_end
+                    = min ((long)rgb_sx, max((long)0, (long)(rgb_x_next)));*/
 
 #else
 
@@ -499,170 +501,162 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                 //    && (vox[2]>0) && (vox[2]<data_size[2]))
 
                 //    {
-                    fill_x_end=fill_x_start+1;
+                fill_x_end=fill_x_start+1;
 
 #endif
-                    //get actual value in data, this has been scaled to fit the range of unsigned char
-                    if (vox[0] >= 0 && vox[1] >= 0 && vox[2] >= 0 && vox[0] < data_size[0] && vox[1] < data_size[1] && vox[2] < data_size[2])
+                //get actual value in data, this has been scaled to fit the range of unsigned char
+                if (vox[0] >= 0 && vox[1] >= 0 && vox[2] >= 0 && vox[0] < data_size[0] && vox[1] < data_size[1] && vox[2] < data_size[2])
+                    {
+                    if (blend_mode == RENDER_THRESHOLD)
                         {
-                        if (blend_mode == RENDER_THRESHOLD)
+                        float t_value [2];
+
+                        t_value[0] = the_volume_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
+                        t_value[1] = the_other_volume_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
+
+                        //rect threshold
+                        threshold_value = ( t_value[0] > threshold->low[0] && t_value[0] < threshold->high[0] &&
+                            t_value[1] > threshold->low[1] && t_value[1] < threshold->high[1]);
+
+                        if (threshold_value && threshold->mode==THRESHOLD_2D_MODE_OVAL)
                             {
-                            float t_value [2];
-
-                            t_value[0] = the_volume_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
-                            t_value[1] = the_other_volume_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
-
-                            //rect threshold
-                            value = t_value[0] > threshold->low[0] && t_value[0] < threshold->high[0] &&
-                                t_value[1] > threshold->low[1] && t_value[1] < threshold->high[1];
-
-                            if (value == 1 && threshold->mode==THRESHOLD_2D_MODE_OVAL)
-                                {
-                                //oval threshold
-                                value = value && (sqrt(powf((t_value[0]-((threshold->high[0]+threshold->low[0])/2.0))/((threshold->high[0]-threshold->low[0])/(threshold->high[1]-threshold->low[1])),2.0)+powf(t_value[1]-((threshold->high[1]+threshold->low[1])/2.0),2.0) ) <= (threshold->high[1]+threshold->low[1])/2.0);
-                                }
+                            //oval threshold
+                            //value = value && (sqrt(powf((t_value[0]-((threshold->high[0]+threshold->low[0])/2.0))/((threshold->high[0]-threshold->low[0])/(threshold->high[1]-threshold->low[1])),2.0)+powf(t_value[1]-((threshold->high[1]+threshold->low[1])/2.0),2.0) ) <= (threshold->high[1]+threshold->low[1])/2.0);
+                            threshold_value = (sqrt(powf((t_value[0]-((threshold->high[0]+threshold->low[0])/2.0))/((threshold->high[0]-threshold->low[0])/(threshold->high[1]-threshold->low[1])),2.0)+powf(t_value[1]-((threshold->high[1]+threshold->low[1])/2.0),2.0) ) <= (threshold->high[1]+threshold->low[1])/2.0);
                             }
-                        else
-                            { value = the_volume_pointer->get_display_voxel(vox[0],vox[1],vox[2]); }
+                        }
+                    else
+                        { the_volume_pointer->get_display_voxel(value,vox[0],vox[1],vox[2]);}
 
 
-                        for (long rgb_fill_y=fill_y_start; (rgb_fill_y <  fill_y_end);rgb_fill_y++)
+                    for (long rgb_fill_y=fill_y_start; (rgb_fill_y <  fill_y_end);rgb_fill_y++)
+                        {
+                        for (long rgb_fill_x=fill_x_start;(rgb_fill_x < fill_x_end);rgb_fill_x++)
                             {
-                            for (long rgb_fill_x=fill_x_start;(rgb_fill_x < fill_x_end);rgb_fill_x++)
+                            switch (blend_mode)
                                 {
-                                switch (blend_mode)
-                                    {
-                                    case BLEND_OVERWRITE:
-                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] = value;
+                                case BLEND_OVERWRITE:
+                                    value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
+                                    break;
 
-                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = value; 
-                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = value; 
-                                        break;
+                                case BLEND_MIN:
+                                    if (pixels[RGBpixmap_bytesperpixel *
 
-                                    case BLEND_MIN:
-                                        if (pixels[RGBpixmap_bytesperpixel *
+                                        (rgb_fill_x+rgb_sx*rgb_fill_y)] >= value.mono())
 
-                                            (rgb_fill_x+rgb_sx*rgb_fill_y)] >= value)
-
-                                            {
-                                            //we can assume that the R value represents total pixel intensity
-                                            //because previous pixel value was set with the same mode
-
-                                            //more than or equal (>=) above is important because
-                                            //we want to replace the background even for the r=255 case
-                                            //to mask out background color
-
-                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] = value; 
-                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = value; 
-                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = value;
-                                            }
-                                        break;
-
-                                    case BLEND_MAX:
-                                        if (pixels[RGBpixmap_bytesperpixel *
-                                            (rgb_fill_x+rgb_sx*rgb_fill_y)] < value)
-                                            {
-                                            //we can assume that the R value represents total pixel intensity
-                                            //because previous pixel value was set with the same mode
-
-                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] = value; 
-                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = value;
-                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = value;
-                                            }
-                                        break;
-
-                                    case BLEND_AVG:
                                         {
-                                        /*unsigned char prevval[3];
-                                        for (int c=0;c < 3;c++)
-                                        {prevval[c]=pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + c]; }
-                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] = prevval[0] + value/vol_count;
-                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = prevval[1] + value/vol_count;
-                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = prevval[2] + value/vol_count;*/
+                                        //we can assume that the R value represents total pixel intensity
+                                        //because previous pixel value was set with the same mode
 
-                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] += value/vol_count;
-                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += value/vol_count;
-                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += value/vol_count;
+                                        //more than or equal (>=) above is important because
+                                        //we want to replace the background even for the r=255 case
+                                        //to mask out background color
+
+                                        value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
                                         }
                                     break;
 
-                                    case BLEND_TINT:
-                                        pixels[RGBpixmap_bytesperpixel *
-                                            (rgb_fill_x+rgb_sx*rgb_fill_y)] += tint_r*value;
-                                        pixels[RGBpixmap_bytesperpixel *
-                                            (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += tint_g*value;
-                                        pixels[RGBpixmap_bytesperpixel *
-                                            (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += tint_b*value;
-                                        break;
-
-                                    case RENDER_THRESHOLD:
-                                        if (value > 0)
-                                            {
-                                            pixels[RGBApixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)]     = 255; 
-                                            pixels[RGBApixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = 0;
-                                            pixels[RGBApixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = 0;
-                                            pixels[RGBApixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 3] = value == 255;
-                                            }
-                                        break;
-                                    default:
+                                case BLEND_MAX:
+                                    if (pixels[RGBpixmap_bytesperpixel *
+                                        (rgb_fill_x+rgb_sx*rgb_fill_y)] < value.mono())
                                         {
-                                            //suppress GCC enum warning
+                                        //we can assume that the R value represents total pixel intensity
+                                        //because previous pixel value was set with the same mode
+
+                                        value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
                                         }
-                                    } // switch (blend_mode)
+                                    break;
 
-                                } //rgb_fill_x loop
+                                case BLEND_AVG:
+                                    {
+                                    /*unsigned char prevval[3];
+                                    for (int c=0;c < 3;c++)
+                                    {prevval[c]=pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + c]; }
+                                    pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] = prevval[0] + value/vol_count;
+                                    pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = prevval[1] + value/vol_count;
+                                    pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = prevval[2] + value/vol_count;*/
 
-                            } //rgb_fill_y loop
-                        
-                        } //if within data bounds
+                                    pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] += value.r()/vol_count;
+                                    pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += value.g()/vol_count;
+                                    pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += value.b()/vol_count;
+                                    }
+                                break;
+
+                                case BLEND_TINT:
+                                    pixels[RGBpixmap_bytesperpixel *
+                                        (rgb_fill_x+rgb_sx*rgb_fill_y)] += tint_r*value.mono();
+                                    pixels[RGBpixmap_bytesperpixel *
+                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += tint_g*value.mono();
+                                    pixels[RGBpixmap_bytesperpixel *
+                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += tint_b*value.mono();
+                                    break;
+
+                                case RENDER_THRESHOLD:
+                                    if (threshold_value)
+                                        {
+                                        RGBAvalue value = RGBAvalue (IMGELEMCOMPMAX,0,0, IMGELEMCOMPMAX);
+                                        value.write(pixels+RGBApixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
+                                        }
+                                    break;
+                                default:
+                                    {
+                                    //suppress GCC enum warning
+                                    }
+                                } // switch (blend_mode)
+
+                            } //rgb_fill_x loop
+
+                        } //rgb_fill_y loop
+
+                    } //if within data bounds
 #ifndef USE_ARBITRARY
-                        
-                    vp [0]+=rgb_delta[0];
-                    }while (vp [0] < end[0] && rgb_delta [0] != 0 );
 
-                vp [1]+=rgb_delta[1];
+                vp [0]+=rgb_delta[0];
+                }while (vp [0] < end[0] && rgb_delta [0] != 0 );
+
+            vp [1]+=rgb_delta[1];
             }while (vp [1] < end[1] && rgb_delta [1] != 0 );
 
-            vp [2]+=rgb_delta[2];
-            }while (vp [2] < end[2] && rgb_delta [2] != 0 );
-        
+        vp [2]+=rgb_delta[2];
+        }while (vp [2] < end[2] && rgb_delta [2] != 0 );
+
 #else
-                    vox+=slope_x;
+                vox+=slope_x;
                 } //fill_x_start loop
             } //fill_y_start loop
 #endif
-    if (blend_mode== BLEND_MIN)
-        {
-        for (long p=0; p < rgb_sx*rgb_sy*RGBpixmap_bytesperpixel; p +=RGBpixmap_bytesperpixel )
+        if (blend_mode== BLEND_MIN)
             {
-            if (pixels[p] != pixels[p+1])
+            for (long p=0; p < rgb_sx*rgb_sy*RGBpixmap_bytesperpixel; p +=RGBpixmap_bytesperpixel )
                 {
-                //unaltered background, fill with final background color
+                if (pixels[p] != pixels[p+1])
+                    {
+                    //unaltered background, fill with final background color
 
-                pixels[p] = pixels[p + 1] = 0;
-                pixels[p + 2] = 127;
+                    pixels[p] = pixels[p + 1] = 0;
+                    pixels[p + 2] = 127;
+                    }
                 }
             }
-        }
 
-    }   //per-volume loop
+        }   //per-volume loop
 
-}//render_ function
+    }//render_ function
 
-    void rendererMPR::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int w, int h, int rgb_sx, int value){
+void rendererMPR::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int w, int h, int rgb_sx, int value){
 
-        for (int rgb_y=y; rgb_y < y+h; rgb_y++){
+    for (int rgb_y=y; rgb_y < y+h; rgb_y++){
 
-            for (int rgb_x=x; rgb_x < x+w; rgb_x++){
+        for (int rgb_x=x; rgb_x < x+w; rgb_x++){
 
-                rgb[RGBpixmap_bytesperpixel * (rgb_x+rgb_sx*rgb_y)] = value;
+            rgb[RGBpixmap_bytesperpixel * (rgb_x+rgb_sx*rgb_y)] = value;
 
-                rgb[RGBpixmap_bytesperpixel * (rgb_x+rgb_sx*rgb_y) + 1] = value;
+            rgb[RGBpixmap_bytesperpixel * (rgb_x+rgb_sx*rgb_y) + 1] = value;
 
-                rgb[RGBpixmap_bytesperpixel * (rgb_x+rgb_sx*rgb_y) + 2] = value;
-
-                }
+            rgb[RGBpixmap_bytesperpixel * (rgb_x+rgb_sx*rgb_y) + 2] = value;
 
             }
 
         }
+
+    }

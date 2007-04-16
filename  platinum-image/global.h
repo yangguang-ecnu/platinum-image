@@ -42,29 +42,12 @@
 #define RGBpixmap_bytesperpixel 3
 #define RGBApixmap_bytesperpixel 4
 
-//#define RPIXEL 0
-//#define GPIXEL 1
-//#define BPIXEL 2
-
-//#define RGBvaluePtr unsigned char*
-//#define RGBAvaluePtr unsigned char*
-//#define RGBvalue unsigned char[RGBpixmap_bytesperpixel]
-//#define RGBAvalue unsigned char[RGBApixmap_bytesperpixel]
-
-//struct RGBvalue
-//    {
-//    unsigned short r;
-//    unsigned short g;
-//    unsigned short b;
-//    };
-
-//struct RGBAvalue
-//    {
-//    unsigned short r;
-//    unsigned short g;
-//    unsigned short b;
-//    unsigned short a;
-//    };
+#define IMGELEMCOMPTYPE unsigned char
+#define IMGELEMCOMPMAX 255.0
+#define RADDR 0
+#define GADDR 1
+#define BADDR 2
+#define AADDR 3
 
 #define FILEPOSTYPE char
 

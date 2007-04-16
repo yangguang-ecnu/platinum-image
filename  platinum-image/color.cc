@@ -17,17 +17,52 @@
 
 #include "color.h"
 
-void color_base::set_rgb(int position, float r_, float g_, float b_)
+#include <cmath>
+
+void color_base::set_rgb(const IMGELEMCOMPTYPE r_, const IMGELEMCOMPTYPE g_, const IMGELEMCOMPTYPE b_)
     {
-    r((IMGELEMCOMPTYPE)(r_*IMGELEMCOMPMAX));
-    g((IMGELEMCOMPTYPE)(g_*IMGELEMCOMPMAX));
-    b((IMGELEMCOMPTYPE)(b_*IMGELEMCOMPMAX));
+    r(r_);
+    g(g_);
+    b(b_);
     }
 
-void color_base::rgb(float &r_, float &g_, float &b_)
+void color_base::rgb(IMGELEMCOMPTYPE &r_, IMGELEMCOMPTYPE &g_, IMGELEMCOMPTYPE &b_)
     {
-    r_=static_cast<float>(r()/IMGELEMCOMPMAX);
-    g_=static_cast<float>(g()/IMGELEMCOMPMAX);
-    b_=static_cast<float>(b()/IMGELEMCOMPMAX);
+    r_ = r();
+    g_ = g();
+    b_ = b();
     }
-    
+
+color_base::color_base(const IMGELEMCOMPTYPE i)
+    {
+    this->set_mono(i);
+    }
+
+const IMGELEMCOMPTYPE RGBvalue::mono()
+    {
+    return (floor(0.3*r()+0.6*g()+0.1*b()));
+    }
+
+RGBvalue::RGBvalue(const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_): color_base()
+    {
+    r(r_);
+    g(g_);
+    b(b_);
+    }
+
+void color_base::set_mono (const IMGELEMCOMPTYPE i)
+    {
+    r(i);
+    g(i);
+    b(i);
+    }
+
+RGBAvalue::RGBAvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_, IMGELEMCOMPTYPE a_):RGBvalue(r_,g_,b_)
+    {
+    a(a_);
+    }
+
+RGBAvalue::RGBAvalue (const IMGELEMCOMPTYPE i, const IMGELEMCOMPTYPE a_): RGBvalue (i)
+    {
+    a(a_);
+    }

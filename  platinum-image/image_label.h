@@ -38,6 +38,8 @@ class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
     {
     public:
         image_label ():image_integer<IMGLABELTYPE, IMAGEDIM>() {}
+
+    image_label (itk::SmartPointer< itk::Image<IMGLABELTYPE, IMAGEDIM > > &i):image_integer<IMGLABELTYPE, IMAGEDIM>(i) {}
         
         template<class SOURCETYPE>
             image_label(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true): image_integer<IMGLABELTYPE, IMAGEDIM>(old_volume, copyData)
