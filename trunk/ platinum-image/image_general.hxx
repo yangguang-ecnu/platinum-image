@@ -59,7 +59,7 @@ using namespace std;
 template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>::image_general() : image_base ()
     {
-    volumeptr = NULL;
+    imageptr = NULL;
     minvalue=std::numeric_limits<ELEMTYPE>::min();
     maxvalue=std::numeric_limits<ELEMTYPE>::max();
     }
@@ -214,10 +214,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
         num_elements *= datasize[i];
         }
 
-    volumeptr = new ELEMTYPE[num_elements];
+    imageptr = new ELEMTYPE[num_elements];
 
     if (ptr!=NULL)
-        {memcpy(volumeptr,ptr,sizeof(ELEMTYPE)*num_elements);}
+        {memcpy(imageptr,ptr,sizeof(ELEMTYPE)*num_elements);}
 
     set_parameters();
     }
@@ -416,7 +416,7 @@ void  image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader()
     ITKimportfilter->SetOrigin(itk_origin);
     ITKimportfilter->SetSpacing(itk_spacing);
 
-    ITKimportfilter->SetImportPointer( volumeptr, num_elements, false);
+    ITKimportfilter->SetImportPointer( imageptr, num_elements, false);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -447,26 +447,32 @@ bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other)
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z)
     {
-    return volumeptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
+    return imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(unsigned long offset)
     {
-    return volumeptr[offset];
+    return imageptr[offset];
     }
 
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE voxelvalue)
     {
-    volumeptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
+    imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(unsigned long offset, ELEMTYPE voxelvalue)
     {
-    volumeptr[offset] = voxelvalue;
+    imageptr[offset] = voxelvalue;
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::erase ()
+    {
+    memset (imageptr, 0, sizeof(ELEMTYPE) * num_elements);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
