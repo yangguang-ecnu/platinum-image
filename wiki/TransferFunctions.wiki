@@ -1,6 +1,5 @@
 #summary plans for transfer function implementation
-
-
+#labels Phase-Design
 
 =Integration=
 The transfer objects's main function operates on an [image_general] iterator. It may also need access to min/max values (or not, this is a design issue). Transfer functions are implemented as objects attached to image objects. Their UI is a subclass to Fl_group, displayed through the image's dataWidget.
