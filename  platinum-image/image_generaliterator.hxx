@@ -77,10 +77,10 @@ ELEMTYPE* image_general<ELEMTYPE,IMAGEDIM>::iterator::operator->()
 
 template<class ELEMTYPE, int IMAGEDIM >
 typename image_general<ELEMTYPE,IMAGEDIM>::iterator image_general<ELEMTYPE,IMAGEDIM>::begin() {
-    return(iterator(volumeptr));
+    return(iterator(imageptr));
 }
 
 template<class ELEMTYPE, int IMAGEDIM >
 typename image_general<ELEMTYPE,IMAGEDIM>::iterator image_general<ELEMTYPE,IMAGEDIM>::end() {
-    return(iterator(volumeptr + num_elements));
+    return(iterator(imageptr + num_elements));
 }

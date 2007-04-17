@@ -51,7 +51,7 @@ class image_general : public image_base
         image_general<ELEMTYPE, IMAGEDIM>(int w, int h, int d, ELEMTYPE *ptr = NULL);
 
     protected:
-        ELEMTYPE *volumeptr;
+        ELEMTYPE *imageptr;
         unsigned short datasize[IMAGEDIM]; //volume size
         unsigned long num_elements;        //volume size in # pixels/voxels
 
@@ -132,6 +132,7 @@ class image_general : public image_base
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();
+        void erase ();
         
         // *** iterator ***        
         class iterator : public std::iterator<std::forward_iterator_tag, ELEMTYPE>
