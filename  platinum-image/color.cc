@@ -18,6 +18,7 @@
 #include "color.h"
 
 #include <cmath>
+#include <iostream>
 
 void color_base::set_rgb(const IMGELEMCOMPTYPE r_, const IMGELEMCOMPTYPE g_, const IMGELEMCOMPTYPE b_)
     {
@@ -38,9 +39,9 @@ color_base::color_base(const IMGELEMCOMPTYPE i)
     this->set_mono(i);
     }
 
-const IMGELEMCOMPTYPE RGBvalue::mono()
+const IMGELEMCOMPTYPE color_base::mono()
     {
-    return (floor(0.3*r()+0.6*g()+0.1*b()));
+    return (static_cast<IMGELEMCOMPTYPE>(0.3*r()+0.6*g()+0.1*b()));
     }
 
 RGBvalue::RGBvalue(const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_): color_base()
@@ -50,6 +51,21 @@ RGBvalue::RGBvalue(const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGEL
     b(b_);
     }
 
+RGBvalue::RGBvalue (const IMGELEMCOMPTYPE* p)
+    {
+    set_rgb (p);
+    }
+
+void RGBvalue::set_rgb (const IMGELEMCOMPTYPE * p)
+    {
+    memcpy (values,p,sizeof (IMGELEMCOMPTYPE)*3);
+    }
+
+void RGBAvalue::set_rgba (const IMGELEMCOMPTYPE * p)
+    {
+    memcpy (values,p,sizeof (IMGELEMCOMPTYPE)*4);
+    }
+
 void color_base::set_mono (const IMGELEMCOMPTYPE i)
     {
     r(i);
@@ -57,12 +73,15 @@ void color_base::set_mono (const IMGELEMCOMPTYPE i)
     b(i);
     }
 
-RGBAvalue::RGBAvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_, IMGELEMCOMPTYPE a_):RGBvalue(r_,g_,b_)
+RGBAvalue::RGBAvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_, IMGELEMCOMPTYPE a_): color_base()
     {
+    r(r_);
+    g(g_);
+    b(b_);
     a(a_);
     }
 
-RGBAvalue::RGBAvalue (const IMGELEMCOMPTYPE i, const IMGELEMCOMPTYPE a_): RGBvalue (i)
+RGBAvalue::RGBAvalue (const IMGELEMCOMPTYPE i, const IMGELEMCOMPTYPE a_): color_base(i)
     {
     a(a_);
     }

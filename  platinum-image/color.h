@@ -48,7 +48,7 @@ class color_base
         /*virtual const float h() = 0;
         virtual const float s() = 0;
         virtual const float v() = 0;*/
-        virtual const IMGELEMCOMPTYPE mono() = 0;
+        virtual const IMGELEMCOMPTYPE mono();
 
         // *** set functions *** 
         /*virtual void set_hsv(const float r,const  float g,const float b) = 0; // convert to HSV */
@@ -68,57 +68,72 @@ class HSVvalue:public color_base
         float h,s,v;
     };
 
+/*class RGB_base:public color_base  //abstract base with common parts of RGB and RGBA
+    {
+    protected:
+        RGB_base () {};
+        RGB_base (const IMGELEMCOMPTYPE i) : color_base (i) {};
+    };*/
+
 class RGBvalue:public color_base
     {
     protected:
         IMGELEMCOMPTYPE values [3];
     public:
         RGBvalue () {}
-        RGBvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_);
-        RGBvalue (const IMGELEMCOMPTYPE i) : color_base (i) {};
-        // *** get functions ***
-        const IMGELEMCOMPTYPE r()
-            {return values[RADDR];}
-        const IMGELEMCOMPTYPE g()
-            {return values[GADDR];}
-        const IMGELEMCOMPTYPE b()
-            {return values[BADDR];}
-        const IMGELEMCOMPTYPE mono();
-        void write (IMGELEMCOMPTYPE * addr)  //write value at address
-            { memcpy (addr,values,sizeof (IMGELEMCOMPTYPE)*3);}    
+    RGBvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_);
+    RGBvalue (const IMGELEMCOMPTYPE i) : color_base (i) {};
+    RGBvalue (const IMGELEMCOMPTYPE* p); //pixel pointer constructor
 
-        // *** set functions ***
-        void r(const IMGELEMCOMPTYPE r_)
-            {values[RADDR] = r_;}
-        void g(const IMGELEMCOMPTYPE g_)
-            {values[GADDR] = g_;}
-        void b(const IMGELEMCOMPTYPE b_)
-            {values[BADDR] = b_;}
+    // *** get functions ***
+    virtual const IMGELEMCOMPTYPE r()
+        {return values[RADDR];}
+    virtual const IMGELEMCOMPTYPE g()
+        {return values[GADDR];}
+    virtual const IMGELEMCOMPTYPE b()
+        {return values[BADDR];}
+    virtual void write (IMGELEMCOMPTYPE * addr)  //write value at address
+        { memcpy (addr,values,sizeof (IMGELEMCOMPTYPE)*3);}    
 
-        float h();
-        float s();
-        float v();
-
-        // *** set functions *** 
-        void h (float);
-        void s (float);
-        void v (float);
-
+    // *** set functions ***
+    void set_rgb (const IMGELEMCOMPTYPE * p);
+    virtual void r(const IMGELEMCOMPTYPE r_)
+        {values[RADDR] = r_;}
+    virtual void g(const IMGELEMCOMPTYPE g_)
+        {values[GADDR] = g_;}
+    virtual void b(const IMGELEMCOMPTYPE b_)
+        {values[BADDR] = b_;}
     };
 
-class RGBAvalue:public RGBvalue
+class RGBAvalue:public color_base
     {
     protected:
         IMGELEMCOMPTYPE values [4];
     public:
         RGBAvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_, IMGELEMCOMPTYPE a_ = IMGELEMCOMPMAX);
         RGBAvalue (const IMGELEMCOMPTYPE i,const IMGELEMCOMPTYPE a_ = IMGELEMCOMPMAX); //intensity + alpha constructor
-        IMGELEMCOMPTYPE a()
+        virtual const IMGELEMCOMPTYPE r()
+            {return values[RADDR];}
+        virtual const IMGELEMCOMPTYPE g()
+            {return values[GADDR];}
+        virtual const IMGELEMCOMPTYPE b()
             {return values[BADDR];}
-        void a(IMGELEMCOMPTYPE a_)
-            {values[AADDR] = a_;}
+        virtual const IMGELEMCOMPTYPE a()
+            {return values[AADDR];}
+       
         void write (IMGELEMCOMPTYPE * addr)
             {memcpy (addr,values,sizeof (IMGELEMCOMPTYPE)*4);}
+
+        // *** set functions ***
+        void set_rgba (const IMGELEMCOMPTYPE * p);
+        virtual void r(const IMGELEMCOMPTYPE r_)
+            {values[RADDR] = r_;}
+        virtual void g(const IMGELEMCOMPTYPE g_)
+            {values[GADDR] = g_;}
+        virtual void b(const IMGELEMCOMPTYPE b_)
+            {values[BADDR] = b_;} 
+        virtual void a(IMGELEMCOMPTYPE a_)
+            {values[AADDR] = a_;}
     };
 
 class colornode:public HSVvalue
