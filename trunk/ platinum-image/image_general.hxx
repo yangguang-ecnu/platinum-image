@@ -57,7 +57,7 @@ using namespace std;
 #define theStatsFilterPointerType theStatsFilterType::Pointer
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_general<ELEMTYPE, IMAGEDIM>::image_general() : image_base ()
+image_general<ELEMTYPE, IMAGEDIM>::image_general() : image_storage<ELEMTYPE > ()
     {
     imageptr = NULL;
     minvalue=std::numeric_limits<ELEMTYPE>::min();
@@ -450,11 +450,11 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z)
     return imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
     }
 
-template <class ELEMTYPE, int IMAGEDIM>
+/*template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(unsigned long offset)
     {
     return imageptr[offset];
-    }
+    }*/
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -463,17 +463,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE 
     imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
     }
 
-template <class ELEMTYPE, int IMAGEDIM>
+/*template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(unsigned long offset, ELEMTYPE voxelvalue)
     {
     imageptr[offset] = voxelvalue;
-    }
-
-template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::erase ()
-    {
-    memset (imageptr, 0, sizeof(ELEMTYPE) * num_elements);
-    }
+    }*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z)

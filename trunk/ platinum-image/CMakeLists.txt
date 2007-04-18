@@ -46,7 +46,7 @@ IF(WIN32)
     SET(WIN32_DIRENT_HEAD dirent.h)
 ENDIF(WIN32)
 
-ADD_LIBRARY(platinumlib STATIC color.h colormap.h cursor3D.h data_base.h ${WIN32_DIRENT_HEAD} datamanager.h datawidget.h fileutils.h FLTK2Dregionofinterest.h FLTKuserIOparameters.h FLTKviewport.h global.h histogram.h image_base.h image_binary.h image_complex.h image_general.h image_integer.h image_label.h image_multi.h image_scalar.h platinumprogram.h point_base.h point3D.h rawimporter.h renderer_base.h renderer_VTK.h rendererMPR.h rendergeometry.h rendercombination.h rendermanager.h ptmath.h threshold.h transfer.h userIO.h userIOmanager.h viewport.h viewmanager.h color.cc colormap.cc cursor3D.cc data_base.cc datamanager.cc datawidget.cc ${WIN32_DIRENT_SRC} fileutils.cc FLTK2Dregionofinterest.cc FLTKuserIOparameters.cc FLTKviewport.cc histogram.cc image_base.cc image_binary.hxx image_complex.hxx image_general.hxx image_generalfile.hxx image_generaliterator.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx point_base.cc rawimporter.cc renderer_base.cc rendererMPR.cc renderer_VTK.cc  rendergeometry.cc rendercombination.cc rendermanager.cc threshold.cc transfer.hxx userIO.cc userIOmanager.cc viewport.cc viewmanager.cc ${WIN32_DIRENT_SRC} CMakeLists.txt)
+ADD_LIBRARY(platinumlib STATIC color.h colormap.h cursor3D.h data_base.h ${WIN32_DIRENT_HEAD} datamanager.h datawidget.h fileutils.h FLTK2Dregionofinterest.h FLTKuserIOparameters.h FLTKviewport.h global.h histogram.h image_base.h  image_binary.h image_complex.h image_general.h image_integer.h image_label.h image_multi.h image_scalar.h image_storage.h platinumprogram.h point_base.h point3D.h rawimporter.h renderer_base.h renderer_VTK.h rendererMPR.h rendergeometry.h rendercombination.h rendermanager.h ptmath.h threshold.h transfer.h userIO.h userIOmanager.h viewport.h viewmanager.h color.cc colormap.cc cursor3D.cc data_base.cc datamanager.cc datawidget.cc ${WIN32_DIRENT_SRC} fileutils.cc FLTK2Dregionofinterest.cc FLTKuserIOparameters.cc FLTKviewport.cc histogram.cc image_base.cc image_binary.hxx image_complex.hxx image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx image_storage.hxx point_base.cc rawimporter.cc renderer_base.cc rendererMPR.cc renderer_VTK.cc  rendergeometry.cc rendercombination.cc rendermanager.cc threshold.cc transfer.hxx userIO.cc userIOmanager.cc viewport.cc viewmanager.cc ${WIN32_DIRENT_SRC} CMakeLists.txt)
 LINK_DIRECTORIES (${Platinum_BINARY_DIR})
 
 IF(NOT CMAKE_BUILD_TYPE)
@@ -105,7 +105,7 @@ SOURCE_GROUP(Headers REGULAR_EXPRESSION ".*[.]h$")
 
 SOURCE_GROUP(ImageVarieties FILES image_binary.hxx image_complex.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx)
 
-SOURCE_GROUP(Data FILES datamanager.cc data_base.cc image_base.cc image_general.hxx image_generalfile.hxx image_generaliterator.hxx point_base.cc rawimporter.cc)
+SOURCE_GROUP(Data FILES datamanager.cc data_base.cc image_base.cc image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_storage.hxx point_base.cc rawimporter.cc)
 
 SOURCE_GROUP(View FILES viewport.cc FLTKviewport.cc viewmanager.cc renderer_base.cc renderer_VTK.cc rendererMPR.cc rendercombination.cc rendergeometry.cc rendermanager.cc transfer.hxx)
 
