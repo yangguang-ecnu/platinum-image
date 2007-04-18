@@ -13,13 +13,13 @@ userIOmanagement.get_parameter<float>(1,0);`
 ==Requesting type==
 When using images not generated in Platinum (i.e. loaded, by user, from file) the template parameters of the image are not determined at compile time. For example, an algorithm doing processing on binary images would need a binary image for input. However, when aquiring an image through 'get_image(id)' the returned type will be image_base. The solution is to use the dynamic_cast in the following way:
 
-`image_binary * my_binary_pointer = dynamic_cast<image_binary<3>>datamanagement.get_image(id);`
+`image_binary * my_binary_pointer = dynamic_cast<image_binary<3> >datamanagement.get_image(id);`
 
-If the loaded image did not match, the cast will fail and return 0 (`NULL`) which is how it differs from an ordinary casting operation. 
+If the loaded image did not match, the cast will fail and return 0 (`NULL`) which is how it differs from an ordinary casting operation. _Note: remember to put spaces between the ">" signs or they will be interpreted as the stream operator (`>>`) and cause trouble._
 
-The above code also has us assuming the image is 3-dimensional. The following gets a dimension-independent image pointer:
+The above code also has us assuming the image is 3-dimensional. The following gets a dimension-independent image pointer, which you can use an iterator on:
 
-`image_storage * my_pointer_to_a_bunch_of_voxels = dynamic_cast<storage >datamanagement.get_image(id);`
+`image_storage * my_pointer_to_a_bunch_of_voxels = dynamic_cast<image_storage >datamanagement.get_image(id);`
 
 
 
