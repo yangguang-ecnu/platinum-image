@@ -27,7 +27,7 @@
 #ifndef __image_general__
 #define __image_general__
 
-#include "image_base.h"
+#include "image_storage.h"
 
 template<int IMAGEDIM>
     class image_binary;
@@ -45,18 +45,13 @@ template<int IMAGEDIM>
 #include "color.h"
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
-class image_general : public image_base
+class image_general : public image_storage <ELEMTYPE >
     {
     private:
         image_general<ELEMTYPE, IMAGEDIM>(int w, int h, int d, ELEMTYPE *ptr = NULL);
 
     protected:
-        ELEMTYPE *imageptr;
         unsigned short datasize[IMAGEDIM]; //volume size
-        unsigned long num_elements;        //volume size in # pixels/voxels
-
-        ELEMTYPE maxvalue;
-        ELEMTYPE minvalue;
 
         typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM>::Pointer   ITKimportfilter;
         typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer                ITKimportimage;
@@ -112,7 +107,7 @@ class image_general : public image_base
         // *** element access methods ***
 
         ELEMTYPE get_voxel(int x, int y, int z=0);  
-        ELEMTYPE get_voxel(unsigned long offset); //deprecated: use iterator!
+        //ELEMTYPE get_voxel(unsigned long offset); //deprecated: use iterator!
 
         RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>);
         //const RGBvalue get_display_voxel(int x, int y, int z=0);
@@ -127,32 +122,11 @@ class image_general : public image_base
         float get_min();
 
         void set_voxel(int x, int y, int z, ELEMTYPE);
-        void set_voxel(unsigned long offset, ELEMTYPE); //deprecated: use iterator!
+        //void set_voxel(unsigned long offset, ELEMTYPE); //deprecated: use iterator!
 		void set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction=2);
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();
-        void erase ();
-        
-        // *** iterator ***        
-        class iterator : public std::iterator<std::forward_iterator_tag, ELEMTYPE>
-            {
-            public:
-                iterator(ELEMTYPE* i);                
-                ~iterator() {}
-                iterator& operator=(const iterator& other);                
-                bool operator==(const iterator& other);                
-                bool operator!=(const iterator& other);                
-                iterator& operator++();                
-                iterator& operator++(int);                
-                ELEMTYPE& operator*();                
-                ELEMTYPE* operator->();                
-            private:
-                    ELEMTYPE* ptr;
-            };
-        
-        iterator begin();        
-        iterator end();
         
         // *** size functions ***
         unsigned short get_size_by_dim(int dim);
@@ -178,7 +152,6 @@ class image_general : public image_base
     };
 
 //with C++ templates, declaration and definition go together
-#include "image_generaliterator.hxx"
 #include "image_general.hxx"
 #include "image_generalfile.hxx"
 
