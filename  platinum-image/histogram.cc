@@ -76,8 +76,8 @@ void histogram_2D_plot::render_(uchar * image, unsigned int w,unsigned int h)
 
     if (!volumesdifferinsize)
         {
-        float pixfactor_h=w/vol_h->get_max(),
-            pixfactor_v=h/vol_v->get_max();
+        float pixfactor_h=w/vol_h->get_max_float(),
+            pixfactor_v=h/vol_v->get_max_float();
         //position scaled based on char (0-255)
         //display pixel input 
         //TODO: take min value into account
@@ -145,11 +145,11 @@ thresholdparvalue histogram_2D::get_threshold (float h_min,float h_max, float v_
 
     if (vol_v != NULL && vol_h != NULL)
         {
-        threshold.low [0]=h_min*vol_h->get_max();
-        threshold.low [1]=v_min*vol_v->get_max();
+        threshold.low [0]=h_min*vol_h->get_max_float();
+        threshold.low [1]=v_min*vol_v->get_max_float();
 
-        threshold.high [0]=h_max*vol_h->get_max();
-        threshold.high [1]=v_max*vol_v->get_max();
+        threshold.high [0]=h_max*vol_h->get_max_float();
+        threshold.high [1]=v_max*vol_v->get_max_float();
         }
     else
         {
@@ -207,8 +207,8 @@ void histogram_2D::calculate(int new_num_buckets)
         {
         //ready to calculate, actually
 
-        float scalefactor_h=(num_buckets-1)/vol_h->get_max(),
-            scalefactor_v=(num_buckets-1)/vol_v->get_max();
+        float scalefactor_h=(num_buckets-1)/vol_h->get_max_float(),
+            scalefactor_v=(num_buckets-1)/vol_v->get_max_float();
         float value_h, value_v;
         unsigned short bucketpos_x, bucketpos_y;
         unsigned short voxpos [3];
@@ -282,8 +282,8 @@ void histogram_2D::calculate(int new_num_buckets)
                     }
                 }
 
-            float scalefactor_h=(num_buckets-1)/vol_h->get_max(),
-                scalefactor_v=(num_buckets-1)/vol_v->get_max();
+            float scalefactor_h=(num_buckets-1)/vol_h->get_max_float(),
+                scalefactor_v=(num_buckets-1)/vol_v->get_max_float();
             float value_h, value_v;
             unsigned short bucketpos_x, bucketpos_y;
             unsigned short voxpos [3];

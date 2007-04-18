@@ -68,9 +68,9 @@ class image_base : public data_base
         static void load(std::vector<std::string> files);  //load files in supported formats
                                                     //as selected in "files" vector
 
-        virtual unsigned char get_display_voxel(int x, int y, int z)    //get unsigned char scaled to data
+        //virtual unsigned char get_display_voxel(int x, int y, int z) = 0;      //get unsigned char scaled to data
                                                                         //type range, for display purposes
-                    = 0;   
+                    
         virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) = 0;
         virtual float get_number_voxel(int x, int y, int z) //get value as float for onscreen display in numbers
             = 0;
@@ -78,8 +78,8 @@ class image_base : public data_base
                                                                     //one might want to make these dimensionality-independent 
                                                                     //like get_size_by_dim(int dim)
         
-        virtual float get_max() = 0;    //return max/min values in type-independent form     
-        virtual float get_min() = 0;
+        virtual float get_max_float() = 0;    //return max/min values in type-independent form     
+        virtual float get_min_float() = 0;
             
         virtual void testpattern() = 0 ;
 

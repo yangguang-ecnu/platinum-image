@@ -59,7 +59,7 @@ class image_general : public image_storage <ELEMTYPE >
         //typename itk::ImageFileWriter<theImageType>::Pointer       ITKwriterfilter; //get the writer to write in this here array
 
         // *** Constructors & factories ***
-        image_general<ELEMTYPE, IMAGEDIM>();
+        image_general<ELEMTYPE, IMAGEDIM>():image_storage<ELEMTYPE>() {};
         image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
         template<class SOURCETYPE> 
             image_general(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true);
@@ -111,15 +111,13 @@ class image_general : public image_storage <ELEMTYPE >
 
         RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>);
         //const RGBvalue get_display_voxel(int x, int y, int z=0);
-        unsigned char get_display_voxel(int x, int y, int z=0);  
+        //unsigned char get_display_voxel(int x, int y, int z=0);  
         virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0);
 
         ELEMTYPE get_voxel_by_dir(int u, int v, int w, int direction=2);
 
         //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
         float get_number_voxel(int x, int y, int z);
-        float get_max();
-        float get_min();
 
         void set_voxel(int x, int y, int z, ELEMTYPE);
         //void set_voxel(unsigned long offset, ELEMTYPE); //deprecated: use iterator!

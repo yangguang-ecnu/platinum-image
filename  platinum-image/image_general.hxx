@@ -57,14 +57,6 @@ using namespace std;
 #define theStatsFilterPointerType theStatsFilterType::Pointer
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_general<ELEMTYPE, IMAGEDIM>::image_general() : image_storage<ELEMTYPE > ()
-    {
-    imageptr = NULL;
-    minvalue=std::numeric_limits<ELEMTYPE>::min();
-    maxvalue=std::numeric_limits<ELEMTYPE>::max();
-    }
-
-template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<ELEMTYPE, IMAGEDIM> * from_volume)
     {
     short size [IMAGEDIM];
@@ -174,7 +166,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::copy_image (image_general<inType, IMAGED
 
 template <class ELEMTYPE, int IMAGEDIM>
     template<class SOURCETYPE>
-image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData)
+    image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData) : image_storage<ELEMTYPE > ()
     {
     initialize_dataset(old_volume->get_size_by_dim(0), old_volume->get_size_by_dim(1), old_volume->get_size_by_dim(2), false);
 
@@ -183,13 +175,13 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGE
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_general<ELEMTYPE, IMAGEDIM>::image_general(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i)
+image_general<ELEMTYPE, IMAGEDIM>::image_general(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i) : image_storage<ELEMTYPE >()
     {
     replicate_itk_to_volume(i);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_general<ELEMTYPE, IMAGEDIM>::image_general(int w, int h, int d, ELEMTYPE *ptr)
+image_general<ELEMTYPE, IMAGEDIM>::image_general(int w, int h, int d, ELEMTYPE *ptr) : image_storage<ELEMTYPE >()
     {
     initialize_dataset( w,  h,  d, NULL);
     }
@@ -472,10 +464,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(unsigned long offset, ELEMTYPE
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z)
     {
-    val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
+    tfunction->get(get_voxel (x, y, z),val);
+    //val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
     }
 
-template <class ELEMTYPE, int IMAGEDIM>
+/*template <class ELEMTYPE, int IMAGEDIM>
 unsigned char image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(int x, int y, int z)
     {
     if (maxvalue != minvalue)
@@ -489,7 +482,7 @@ unsigned char image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(int x, int y,
             {return static_cast<unsigned char>(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));}
         }
     return 0;
-    }
+    }*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z)
@@ -521,18 +514,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_by_dir(int u, int v, int w, EL
 	if(direction==2)//Loop over z
 		set_voxel(u,v,w,value);
 	}
-
-template <class ELEMTYPE, int IMAGEDIM>
-float image_general<ELEMTYPE, IMAGEDIM>::get_min()
-    {
-    return minvalue;
-    }
-
-template <class ELEMTYPE, int IMAGEDIM>
-float image_general<ELEMTYPE, IMAGEDIM>::get_max()
-    {
-    return maxvalue;
-    }
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::testpattern()

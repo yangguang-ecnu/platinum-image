@@ -18,13 +18,14 @@
 #include "transfer.h"
 
 template <class ELEMTYPE >
-transfer_base::transfer_base ()
+transfer_base<ELEMTYPE >::transfer_base (image_storage<ELEMTYPE > * s)
     {
+    source=s;
     pane = new Fl_Group (0,0,300,80);
     }
 
 template <class ELEMTYPE >
-transfer_base::~transfer_base ()
+transfer_base<ELEMTYPE >::~transfer_base ()
     {
     delete pane;
     }
@@ -38,14 +39,36 @@ void transfer_base::finish ()
 // *** transfer_brightnesscontrast ***
 
 template <class ELEMTYPE >
-transfer_brightnesscontrast::transfer_brightnesscontrast () : transfer_base()
+transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_storage<ELEMTYPE > * s) : transfer_base(s)
     {
+    ELEMTYPE intrange = source->get_max()-source->get_min();
+    float contrange =4 * (std::numeric_limits<ELEMTYPE>::max() - std::numeric_limits<ELEMTYPE>::min())/intrange; //4 is arbitrary, the formula gives some basic headroom
 
-    //finish();
+    label ("Intensity/contrast");
+    intensity = 0;
+    contrast = 1.0;
+
+    intensity_ctrl = new Fl_Slider (FL_HORIZONTAL,0,20,300,16,"Intensity");
+    intensity_ctrl->value (intensity);
+    intensity_ctrl->bounds(-intrange,intrange);
+
+    contrast_ctrl = new Fl_Slider (FL_HORIZONTAL,0,50,300,16,"Contrast");
+    intensity_ctrl->value (intensity);
+    intensity_ctrl->bounds(-contrange,contrange);
     }
 
 template <class ELEMTYPE >
-void transfer_brightnesscontrast::get (const ELEMTYPE v, RGBvalue &p)
+void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
     {
+    p.r(v * intensity + contrast);
+    p.g(v * intensity + contrast);
+    p.b(v * intensity + contrast);
+    }
 
+// *** transfer_default ***
+
+template <class ELEMTYPE >
+void transfer_default<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
+    {
+    p.set_mono(255*(v-source->get_min())/(source->get_max()-source->get_min()));
     }
