@@ -15,6 +15,53 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+
+template <class ELEMTYPE >
+image_storage<ELEMTYPE >::image_storage() : image_base ()
+    {
+    imageptr = NULL;
+    tfunction = new transfer_default<ELEMTYPE >(this);
+
+    minvalue=std::numeric_limits<ELEMTYPE>::min();
+    maxvalue=std::numeric_limits<ELEMTYPE>::max();
+    }
+
+template <class ELEMTYPE >
+image_storage<ELEMTYPE >::~image_storage()
+    {
+    if (imageptr != NULL)
+        {delete imageptr;}
+
+    delete tfunction;
+
+    minvalue=std::numeric_limits<ELEMTYPE>::min();
+    maxvalue=std::numeric_limits<ELEMTYPE>::max();
+    }
+
+template <class ELEMTYPE >
+float image_storage<ELEMTYPE >::get_min_float()
+    {
+    return minvalue;
+    }
+
+template <class ELEMTYPE >
+ELEMTYPE image_storage<ELEMTYPE >::get_min()
+    {
+    return minvalue;
+    }
+
+template <class ELEMTYPE >
+float image_storage<ELEMTYPE >::get_max_float()
+    {
+    return maxvalue;
+    }
+
+template <class ELEMTYPE >
+ELEMTYPE image_storage<ELEMTYPE >::get_max()
+    {
+    return maxvalue;
+    }
+
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::erase ()
     {

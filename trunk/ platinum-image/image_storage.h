@@ -26,20 +26,29 @@
 #ifndef __image_storage__
 #define __image_storage__
 
+#include "transfer.h"
+
 template<class ELEMTYPE>
 class image_storage : public image_base
     {
     protected:
-        image_storage() : image_base() {}
+        image_storage();
+        
+        transfer_base<ELEMTYPE> * tfunction;
         ELEMTYPE *imageptr;
+        unsigned long num_elements;        //volume size in # pixels/voxels
 
         ELEMTYPE maxvalue;
         ELEMTYPE minvalue;
 
-        unsigned long num_elements;        //volume size in # pixels/voxels
-
     public:
+        virtual ~image_storage();
+
         void erase ();
+        float get_max_float();
+        float get_min_float();
+        ELEMTYPE get_max();
+        ELEMTYPE get_min();
 
         // *** iterator ***        
         class iterator : public std::iterator<std::forward_iterator_tag, ELEMTYPE>
