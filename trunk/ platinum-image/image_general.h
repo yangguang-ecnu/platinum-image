@@ -52,21 +52,24 @@ class image_general : public image_storage <ELEMTYPE >
 
     protected:
         unsigned short datasize[IMAGEDIM]; //volume size
-
+        
+        Matrix3D voxel_resize;             //voxel size
+        
         typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM>::Pointer   ITKimportfilter;
         typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer                ITKimportimage;
-
+        
         //typename itk::ImageFileWriter<theImageType>::Pointer       ITKwriterfilter; //get the writer to write in this here array
-
+        
         // *** Constructors & factories ***
-        image_general<ELEMTYPE, IMAGEDIM>():image_storage<ELEMTYPE>() {};
+        image_general<ELEMTYPE, IMAGEDIM>();
         image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
         template<class SOURCETYPE> 
             image_general(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true);
-
+        
         void set_parameters ();                                                     //reset & calculate parameters
         void set_parameters (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
         void set_parameters (image_general<ELEMTYPE, IMAGEDIM> * from_volume);            //clone parameters from another image
+        
         void calc_transforms ();                                            //used by set_parameters(...) functions
                                                                             //to recalculate cached transform(s)
 
@@ -131,6 +134,8 @@ class image_general : public image_storage <ELEMTYPE >
         unsigned short get_size_by_dim_and_dir(int dim, int direction);
         bool same_size (image_base * other);    //test whether other volume
                                                 //has same voxel dimensions
+        
+        Matrix3D get_voxel_resize ();           //return voxel size matrix
 
         void make_image_an_itk_reader();               //initialize ITKimportfilter
 

@@ -40,7 +40,6 @@ image_base::image_base() {
 
     from_file(false);
 
-    voxel_resize.SetIdentity();
     origin.Fill(0);
     direction.SetIdentity();
 

@@ -37,7 +37,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
     
     //set voxel size, will be used to calculate
     //unit_to_voxel when initialize_dataset is called
-    voxel_resize.Fill(0);
+    this->voxel_resize.Fill(0);
     for (int d=0;d < 3;d++)
         { voxel_resize[d][d] = voxelSize[d]; }
     
@@ -85,15 +85,15 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         unsigned long depth = (fileSize - headerSize) / (sliceSize*sizeof (ELEMTYPE));
         
         initialize_dataset(width, height, depth);
-        ELEMTYPE* writepointer = imageptr;
-        num_elements = datasize[0]*datasize[1]*datasize[2];
+        ELEMTYPE* writepointer = this->imageptr;
+        this->num_elements = datasize[0]*datasize[1]*datasize[2];
         
         ifstream stackFile (files.front().c_str(), ios::in | ios::binary);
         stackFile.seekg (headerSize);
         
         stackFile.read ((FILEPOSTYPE*)writepointer, sizeof (ELEMTYPE) * datasize[0]*datasize[1]*datasize[2]);
         
-        adjust_endian (imageptr, num_elements,bigEndian);
+        adjust_endian (this->imageptr, this->num_elements,bigEndian);
         
         stackFile.close();
         }
@@ -102,12 +102,12 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         {
         unsigned long depth = files.size();
         initialize_dataset(width, height, depth);
-        ELEMTYPE* writepointer = imageptr;
-        num_elements = datasize[0]*datasize[1]*datasize[2];
+        ELEMTYPE* writepointer = this->imageptr;
+        this->num_elements = datasize[0]*datasize[1]*datasize[2];
         
         std::vector<std::string>::iterator fileItr = files.begin();
         
-        while (fileItr != files.end() && writepointer < (imageptr + num_elements))
+        while (fileItr != files.end() && writepointer < (this->imageptr + this->num_elements))
             {
             //Multiple files, each containing one slice
             ifstream imageFile ((*fileItr).c_str(), ios::in | ios::binary);
@@ -124,10 +124,10 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
                 imageFile.close();
                 }
             }
-        adjust_endian (imageptr, num_elements,bigEndian);
+        adjust_endian (this->imageptr, this->num_elements,bigEndian);
         }
     
-    if (imageptr != NULL)
+    if (this->imageptr != NULL)
         {
         name_from_path (files.front());
         
@@ -222,7 +222,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(string dir
 
     name(namestring.str());
 
-    from_file(true);
+    this->from_file(true);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -235,7 +235,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_image_to_VTK_file(string file_path)
     for (unsigned int d=0;d<3;d++)
         {
         for (unsigned int c=0;c<3;c++)
-            {itk_orientation[d][c]=direction[d][c];}
+            {itk_orientation[d][c]=this->direction[d][c];}
         }
 
     make_image_an_itk_reader();
@@ -272,5 +272,5 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_p
 
     replicate_itk_to_volume(image);
 
-    name_from_path (file_path);
+    this->name_from_path (file_path);
     }

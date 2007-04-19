@@ -39,8 +39,11 @@
 
 #define RENDER_ORTHOGONALLY_ONLY
 
+//forward declarations, needed with GCC for unknown reasons
 template<class ELEMTYPE, int IMAGEDIM>
-    class image_scalar; //forward declaration, needed with GCC for unknown reasons
+    class image_integer;
+template<class ELEMTYPE, int IMAGEDIM>
+    class image_scalar; 
 
 using namespace std;
 
@@ -69,17 +72,17 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<ELEMTYPE, 
     ITKimportfilter=NULL;
     ITKimportimage=NULL;
 
-    volumename = "Copy of " + from_volume->volumename;
+    this->volumename = "Copy of " + from_volume->volumename;
 
-    maxvalue        = from_volume->maxvalue;
-    minvalue        = from_volume->minvalue;
+    this->maxvalue        = from_volume->maxvalue;
+    this->minvalue        = from_volume->minvalue;
 
-    origin          = from_volume->origin;
-    direction       = from_volume->direction;
-    voxel_resize    = from_volume->voxel_resize;
+    this->origin          = from_volume->origin;
+    this->direction       = from_volume->direction;
+    this->voxel_resize    = from_volume->voxel_resize;
 
-    unit_center     = from_volume->unit_center;
-    unit_to_voxel   = from_volume->unit_to_voxel;
+    this->unit_center     = from_volume->unit_center;
+    this->unit_to_voxel   = from_volume->unit_to_voxel;
 
     // *ID, from_file, volumename and widget are assigned in image_base constructor
     }
@@ -146,9 +149,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::copy_image (image_general<inType, IMAGED
             }*/
         
         typename image_general<inType, IMAGEDIM>::iterator i = in->begin();
-        iterator o = begin();
+        typename image_storage<ELEMTYPE >::iterator o = this->begin();
         
-        while (i != in->end() && o != end())
+        while (i != in->end() && o != this->end())
             {
             *o = *i;
             
@@ -162,6 +165,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::copy_image (image_general<inType, IMAGED
         cout << "Copying image data: image sizes don't match" << endl;
 #endif
         }
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+    image_general<ELEMTYPE, IMAGEDIM>::image_general():image_storage<ELEMTYPE>()
+    {   
+    voxel_resize.SetIdentity();
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -200,16 +209,16 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
     datasize[0] = w; datasize[1] = h; datasize[2] = d;
     
     //dimension-indepent loop that may be lifted outside this function
-    num_elements=1;
+    this->num_elements=1;
     for (unsigned short i = 0; i < IMAGEDIM; i++) 
         {
-        num_elements *= datasize[i];
+        this->num_elements *= datasize[i];
         }
 
-    imageptr = new ELEMTYPE[num_elements];
+    this->imageptr = new ELEMTYPE[this->num_elements];
 
     if (ptr!=NULL)
-        {memcpy(imageptr,ptr,sizeof(ELEMTYPE)*num_elements);}
+        {memcpy(this->imageptr,ptr,sizeof(ELEMTYPE)*this->num_elements);}
 
     set_parameters();
     }
@@ -222,7 +231,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool mm_refresh)
     //widget->refresh_thumbnail();
 
     //data changed, no longer available in a file (not that Mr. Platinum knows of, anyway)
-    from_file(false);
+    this->from_file(false);
 
     //recalculate min/max
     //with ITK volume data, this is preferrably done with
@@ -247,8 +256,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool mm_refresh)
             }
         }*/
     
-    iterator itr = begin();
-    while (itr != end())
+    typename image_storage<ELEMTYPE>::iterator itr = this->begin();
+    while (itr != this->end())
         {
         val=*itr;
         
@@ -262,8 +271,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool mm_refresh)
     //that would be an empty/zero volume
     if (pre_min < pre_max)
         {
-        maxvalue=pre_max;
-        minvalue=pre_min;
+        this->maxvalue=pre_max;
+        this->minvalue=pre_min;
         }
 
     //clear ITK connection
@@ -313,12 +322,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::calc_transforms ()
     Matrix3D re_resize;
     unsigned short datasize_max_norm= max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
 
-    re_resize=voxel_resize.GetInverse();
-    unit_to_voxel=re_resize*datasize_max_norm;
+    re_resize=this->voxel_resize.GetInverse();
+    this->unit_to_voxel=re_resize*datasize_max_norm;
     
     //center of data in unit coordinates where longest edge = 1
     for (unsigned int d=0;d<3;d++)
-        {unit_center[d]=voxel_resize[d][d]*datasize[d]/(datasize_max_norm*2);}
+        {this->unit_center[d]=this->voxel_resize[d][d]*datasize[d]/(datasize_max_norm*2);}
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -327,7 +336,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters()
     unsigned short datasize_max_norm= max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
 
     for (unsigned int d=0;d<3;d++)
-        {unit_center[d]=(float)datasize[d]/(datasize_max_norm*2);}
+        {this->unit_center[d]=(float)datasize[d]/(datasize_max_norm*2);}
 
     calc_transforms();
     }
@@ -396,8 +405,8 @@ void  image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader()
 
     for (unsigned int d=0;d<3;d++)
         {
-        itk_spacing[d]=voxel_resize[d][d];
-        itk_origin[d]=origin[d];
+        itk_spacing[d]=this->voxel_resize[d][d];
+        itk_origin[d]=this->origin[d];
         }
 
     ITKstart.Fill( 0 );
@@ -408,7 +417,7 @@ void  image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader()
     ITKimportfilter->SetOrigin(itk_origin);
     ITKimportfilter->SetSpacing(itk_spacing);
 
-    ITKimportfilter->SetImportPointer( imageptr, num_elements, false);
+    ITKimportfilter->SetImportPointer( this->imageptr, this->num_elements, false);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -437,9 +446,15 @@ bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other)
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+    Matrix3D image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize ()
+    {
+    return voxel_resize;
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z)
     {
-    return imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
+    return this->imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
     }
 
 /*template <class ELEMTYPE, int IMAGEDIM>
@@ -452,7 +467,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(unsigned long offset)
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE voxelvalue)
     {
-    imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
+    this->imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
     }
 
 /*template <class ELEMTYPE, int IMAGEDIM>
@@ -464,7 +479,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(unsigned long offset, ELEMTYPE
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z)
     {
-    tfunction->get(get_voxel (x, y, z),val);
+    this->tfunction->get(get_voxel (x, y, z),val);
     //val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
     }
 
@@ -535,7 +550,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     typename itk::Image<ELEMTYPE,IMAGEDIM>::PointType             itk_origin;
     typename itk::Image<ELEMTYPE,IMAGEDIM>::DirectionType         itk_orientation;
 
-    voxel_resize.Fill(0);
+    this->voxel_resize.Fill(0);
 
     itk_vox_size=i->GetSpacing();
     itk_origin=i->GetOrigin ();
@@ -546,12 +561,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
         {
         spacing_min_norm=min(spacing_min_norm,static_cast<float>(itk_vox_size[d]));
         voxel_resize[d][d]=itk_vox_size[d];
-        origin[d]=itk_origin[d];
+        this->origin[d]=itk_origin[d];
 
         //orthogonal-only renderer can't handle arbitrary volume orientations
 #ifdef RENDER_ORTHOGONALLY_ONLY
         for (unsigned int c=0;c<3;c++)
-            {direction[d][c]=round(itk_orientation[d][c]);}
+            {this->direction[d][c]=round(itk_orientation[d][c]);}
 #else
         for (unsigned int c=0;c<3;c++)
             {direction[d][c]=itk_orientation[d][c];}
@@ -585,7 +600,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     statsFilter->SetInput(i);
     statsFilter->Update();
 
-    minvalue            = statsFilter->GetMinimum();
+    this->minvalue            = statsFilter->GetMinimum();
     ELEMTYPE new_max  = statsFilter->GetMaximum();
 
     //we don't want to lose pixel-data correspondence by scaling chars,
@@ -597,13 +612,13 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     //volumes with just a few classes (20) starting with 0
     //(eg. binary) still get their scaling
 
-    if (new_max - minvalue > 255 || (minvalue ==0 && new_max -minvalue < 20) )
+    if (new_max - this->minvalue > 255 || (this->minvalue ==0 && new_max - this->minvalue < 20) )
         {
-        maxvalue=new_max;
+        this->maxvalue=new_max;
         }
     else
         {
-        maxvalue=minvalue + 255;
+        this->maxvalue = this->minvalue + 255;
         }
     }
 
@@ -624,11 +639,11 @@ image_binary<IMAGEDIM> * image_general<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE l
 		else
 			output->set_voxel(i,!object_value);
 		}*/
-    
-    iterator i = begin();
-    typename image_binary<IMAGEDIM>::iterator o = output->begin();
-    
-    while (i != end()) //images are same size and
+        
+        typename image_storage<ELEMTYPE >::iterator i = this->begin();
+        typename image_binary<IMAGEDIM>::iterator o = output->begin();
+        
+        while (i != this->end()) //images are same size and
                        //should necessarily end at the same time
         {
         if(*i>=low && *i<=high)
