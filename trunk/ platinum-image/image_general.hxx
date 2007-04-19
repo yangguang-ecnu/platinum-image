@@ -39,12 +39,6 @@
 
 #define RENDER_ORTHOGONALLY_ONLY
 
-//forward declarations, needed with GCC for unknown reasons
-template<class ELEMTYPE, int IMAGEDIM>
-    class image_integer;
-template<class ELEMTYPE, int IMAGEDIM>
-    class image_scalar; 
-
 using namespace std;
 
 //GCC does not support templated typedefs

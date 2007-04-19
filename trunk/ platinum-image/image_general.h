@@ -29,8 +29,15 @@
 
 #include "image_storage.h"
 
+//forward declarations, needed with GCC for unknown reasons
+template<class ELEMTYPE, int IMAGEDIM>
+    class image_integer;
+template<class ELEMTYPE, int IMAGEDIM>
+    class image_scalar; 
 template<int IMAGEDIM>
     class image_binary;
+template<class ELEMTYPE, int IMAGEDIM>
+    class image_multi; 
 
 #include <string>
 #include <vector>
