@@ -37,6 +37,7 @@ class color_base
     protected:
         color_base() {}
         color_base (const IMGELEMCOMPTYPE i);   //monochrome constructor
+        virtual ~color_base() {}
     public:
         // *** get functions ***
         /*virtual void hsv(float &h, float &s, float &v) = 0;*/
@@ -81,28 +82,28 @@ class RGBvalue:public color_base
         IMGELEMCOMPTYPE values [3];
     public:
         RGBvalue () {}
-    RGBvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_);
-    RGBvalue (const IMGELEMCOMPTYPE i) : color_base (i) {};
-    RGBvalue (const IMGELEMCOMPTYPE* p); //pixel pointer constructor
+        RGBvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_);
+        RGBvalue (const IMGELEMCOMPTYPE i) : color_base (i) {};
+        RGBvalue (const IMGELEMCOMPTYPE* p); //pixel pointer constructor
 
-    // *** get functions ***
-    virtual const IMGELEMCOMPTYPE r()
-        {return values[RADDR];}
-    virtual const IMGELEMCOMPTYPE g()
-        {return values[GADDR];}
-    virtual const IMGELEMCOMPTYPE b()
-        {return values[BADDR];}
-    virtual void write (IMGELEMCOMPTYPE * addr)  //write value at address
-        { memcpy (addr,values,sizeof (IMGELEMCOMPTYPE)*3);}    
+        // *** get functions ***
+        virtual const IMGELEMCOMPTYPE r()
+            {return values[RADDR];}
+        virtual const IMGELEMCOMPTYPE g()
+            {return values[GADDR];}
+        virtual const IMGELEMCOMPTYPE b()
+            {return values[BADDR];}
+        virtual void write (IMGELEMCOMPTYPE * addr)  //write value at address
+            { memcpy (addr,values,sizeof (IMGELEMCOMPTYPE)*3);}    
 
-    // *** set functions ***
-    void set_rgb (const IMGELEMCOMPTYPE * p);
-    virtual void r(const IMGELEMCOMPTYPE r_)
-        {values[RADDR] = r_;}
-    virtual void g(const IMGELEMCOMPTYPE g_)
-        {values[GADDR] = g_;}
-    virtual void b(const IMGELEMCOMPTYPE b_)
-        {values[BADDR] = b_;}
+        // *** set functions ***
+        void set_rgb (const IMGELEMCOMPTYPE * p);
+        virtual void r(const IMGELEMCOMPTYPE r_)
+            {values[RADDR] = r_;}
+        virtual void g(const IMGELEMCOMPTYPE g_)
+            {values[GADDR] = g_;}
+        virtual void b(const IMGELEMCOMPTYPE b_)
+            {values[BADDR] = b_;}
     };
 
 class RGBAvalue:public color_base

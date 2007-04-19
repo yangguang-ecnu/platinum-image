@@ -93,10 +93,11 @@ class image_base : public data_base
             { return ID; }
 
         Vector3D get_unit_to_voxel(Vector3D pos);
+        
+        virtual Matrix3D get_voxel_resize () = 0;
 
         virtual void image_has_changed(bool min_max_refresh = false) {};
 
-        Matrix3D voxel_resize;     //voxel size
         Matrix3D unit_to_voxel;    //cached transform from unit space to voxels this volume
 
         //Volume parameters

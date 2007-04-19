@@ -39,12 +39,12 @@ void transfer_base::finish ()
 // *** transfer_brightnesscontrast ***
 
 template <class ELEMTYPE >
-transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_storage<ELEMTYPE > * s) : transfer_base(s)
+transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_storage<ELEMTYPE > * s) : transfer_base<ELEMTYPE >(s)
     {
-    ELEMTYPE intrange = source->get_max()-source->get_min();
+    ELEMTYPE intrange = this->source->get_max() - this->source->get_min();
     float contrange =4 * (std::numeric_limits<ELEMTYPE>::max() - std::numeric_limits<ELEMTYPE>::min())/intrange; //4 is arbitrary, the formula gives some basic headroom
 
-    label ("Intensity/contrast");
+    this->pane->label ("Intensity/contrast");
     intensity = 0;
     contrast = 1.0;
 
@@ -70,5 +70,5 @@ void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 template <class ELEMTYPE >
 void transfer_default<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
     {
-    p.set_mono(255*(v-source->get_min())/(source->get_max()-source->get_min()));
+    p.set_mono(255*(v- this->source->get_min())/(this->source->get_max()- this->source->get_min()));
     }
