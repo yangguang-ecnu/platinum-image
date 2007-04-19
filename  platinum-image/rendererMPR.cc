@@ -225,7 +225,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         //is based on, since it allows us to step through voxel space for
         //each rendered pixel with integers representing the position
 
-        start=the_volume_pointer->voxel_resize*voxel_offset[the_volume]*where->zoom*scale;
+        start=the_volume_pointer->get_voxel_resize()*voxel_offset[the_volume]*where->zoom*scale;
 
         Matrix3D reverse_dir;
         Vector3D view_offset;
@@ -298,7 +298,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         for (int d = 0; d <3; d ++)
             {
             //if (d == rgb_x_index || d == rgb_y_index)
-                {vp_delta[d] = max ((float)1,scale*where->zoom*the_volume_pointer->voxel_resize[d][d]);}
+                {vp_delta[d] = max ((float)1,scale*where->zoom*the_volume_pointer->get_voxel_resize()[d][d]);}
             // else
             // {vp_delta[d] = 0; }
             }
@@ -308,12 +308,11 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 
         // *** Do rendering ***
 
-        //most of the expressions here stay constant at some time and can be stored to speed things up
-
+        //most of the expressions here stay constant at some time and can be stored to speed things u
         //each loop must be passed through at least once, hence do{}while loops
 
         do{ //iterate z
-            /*vox[2]=floor (vp [2]/(scale*where->zoom*the_volume_pointer->voxel_resize[2][2]));*/
+            /*vox[2]=floor (vp [2]/(scale*where->zoom*the_volume_pointer->get_voxel_resize()[2][2]));*/
             if (vp_delta [2] != 0)
                 {vox[2] = vp [2]/vp_delta[2];}
 
@@ -323,7 +322,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             vp [1]=static_cast<long>(start[1]);
 
             do{ //iterate y
-                /*vox[1]=floor (vp [1]/(scale*where->zoom*the_volume_pointer->voxel_resize[1][1]));*/
+                /*vox[1]=floor (vp [1]/(scale*where->zoom*the_volume_pointer->get_voxel_resize()[1][1]));*/
                 if (vp_delta [1] != 0)
                     {vox[1]= vp [1]/vp_delta[1];}
 
@@ -335,7 +334,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 
                     //position in voxel space
 
-                    /*vox[0]=floor (vp [0]/(scale*where->zoom*the_volume_pointer->voxel_resize[0][0]));*/
+                    /*vox[0]=floor (vp [0]/(scale*where->zoom*the_volume_pointer->get_voxel_resize()[0][0]));*/
                     if (vp_delta [0] != 0)
                         {vox[0]=vp [0]/vp_delta[0];}
 
@@ -345,9 +344,9 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 
 
                     //TODO: flytta 1 och 2 till yttre loopar
-                    /*vp_delta [0] = max ((long)1,(long)((vox[0]+1) * the_volume_pointer->voxel_resize[0][0]*scale) - vp[0]);
-                    vp_delta [1] = max ((long)1,(long)((vox[1]+1) * the_volume_pointer->voxel_resize[1][1]*scale) - vp[1]);
-                    vp_delta [2] = max ((long)1,(long)((vox[2]+1) * the_volume_pointer->voxel_resize[2][2]*scale) - vp[2]);*/
+                    /*vp_delta [0] = max ((long)1,(long)((vox[0]+1) * the_volume_pointer->get_voxel_resize()[0][0]*scale) - vp[0]);
+                    vp_delta [1] = max ((long)1,(long)((vox[1]+1) * the_volume_pointer->get_voxel_resize()[1][1]*scale) - vp[1]);
+                    vp_delta [2] = max ((long)1,(long)((vox[2]+1) * the_volume_pointer->get_voxel_resize()[2][2]*scale) - vp[2]);*/
 
                     //pixpos_comp[0][0]=vp [0]*render_dir[0][0];
                     //pixpos_comp[0][1]=vp [0]*render_dir[0][1];
@@ -364,9 +363,9 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                     //float rgb_dir_x = render_dir[0][0]+render_dir[1][0]+render_dir[2][0] == (-1) ? -.5 : 0;
                     //float rgb_dir_y = render_dir[0][1]+render_dir[1][1]+render_dir[2][1] == (-1) ? -.5 : 0;
 
-                    //rgb_x_next=static_cast<long>((render_dir[0][0]*(vox[0]+1) *the_volume_pointer->voxel_resize[0][0]+render_dir[1][0]*(vox[1]+1)*the_volume_pointer->voxel_resize[1][1]+render_dir[2][0]*(vox[2]+1)*the_volume_pointer->voxel_resize[2][2])*scale*where->zoom);
+                    //rgb_x_next=static_cast<long>((render_dir[0][0]*(vox[0]+1) *the_volume_pointer->get_voxel_resize()[0][0]+render_dir[1][0]*(vox[1]+1)*the_volume_pointer->get_voxel_resize()[1][1]+render_dir[2][0]*(vox[2]+1)*the_volume_pointer->get_voxel_resize()[2][2])*scale*where->zoom);
 
-                    //rgb_y_next=static_cast<long>((render_dir[0][1]*(vox[0]+1)*the_volume_pointer->voxel_resize[0][0]+render_dir[1][1]*(vox[1]+1)*the_volume_pointer->voxel_resize[1][1]+render_dir[2][1]*(vox[2]+1)*the_volume_pointer->voxel_resize[2][2])*scale*where->zoom);
+                    //rgb_y_next=static_cast<long>((render_dir[0][1]*(vox[0]+1)*the_volume_pointer->get_voxel_resize()[0][0]+render_dir[1][1]*(vox[1]+1)*the_volume_pointer->get_voxel_resize()[1][1]+render_dir[2][1]*(vox[2]+1)*the_volume_pointer->get_voxel_resize()[2][2])*scale*where->zoom);
 
 
                     //#ifdef _DEBUG
@@ -449,7 +448,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         Vector3D slope_x, slope_y;
 
         Matrix3D pix_to_vox;
-        pix_to_vox = the_volume_pointer->voxel_resize.GetInverse();
+        pix_to_vox = the_volume_pointer->get_voxel_resize().GetInverse();
 
         slope_x.Fill(0);
         slope_x[0]=1;
