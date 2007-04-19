@@ -36,14 +36,17 @@ class image_multi : public image_general <ELEMTYPE, IMAGEDIM>
     {
     //redundant declaration of constructor, since those cannot be inherited
     public:
-        image_multi ();
-        image_multi (std::vector<std::string>, long , long , bool = false, long  = 0, Vector3D  = Vector3D (1,1,4), unsigned int = 1,unsigned int = 1);
+        image_multi ():image_general<ELEMTYPE, IMAGEDIM>() {}
+        
+        template<class SOURCETYPE>
+        image_multi(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_volume, copyData)
+        {} //copy constructor
+        
+        image_multi (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
     };
 
 // templates in standard C++ requires entire class definition in header
-#ifndef __image_multi__hxx__
-#define __image_multi__hxx__
+
 #include "image_multi.hxx"
-#endif
 
 #endif

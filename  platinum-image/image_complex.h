@@ -31,18 +31,20 @@
 #include <complex>
 
 template<class CMPTYPE, int IMAGEDIM = 3>
-class image_complex : public image_multi <complex<CMPTYPE>, IMAGEDIM>
-    {
+class image_complex : public image_multi <complex<CMPTYPE > , IMAGEDIM>
+{
     //redundant declaration of constructor, since those cannot be inherited
-    public:
-        image_complex ();
-        image_complex (std::vector<std::string>, long , long , bool = false, long  = 0, Vector3D  = Vector3D (1,1,4), unsigned int = 1,unsigned int = 1);
-    };
-
+public:
+    image_complex ():image_multi<complex<CMPTYPE > , IMAGEDIM>() {}
+    
+    template<class SOURCETYPE>
+    image_complex(image_multi<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true): image_multi<complex<CMPTYPE > , IMAGEDIM>(old_volume, copyData)
+    {} //copy constructor
+    
+    image_complex (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_multi<complex<CMPTYPE > , IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
+};
 // templates in standard C++ requires entire class definition in header
-#ifndef __image_complex__hxx__
-#define __image_complex__hxx__
+
 #include "image_complex.hxx"
-#endif
 
 #endif

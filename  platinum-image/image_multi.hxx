@@ -14,12 +14,3 @@
 //    You should have received a copy of the GNU Lesser General Public License
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-template <class ELEMTYPE, int IMAGEDIM>
-image_multi<ELEMTYPE, IMAGEDIM>::image_multi ()
-    {}
-
-template <class ELEMTYPE, int IMAGEDIM>
-image_multi<ELEMTYPE, IMAGEDIM>::image_multi(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile,unsigned int increment) : image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment)
-    {
-    }

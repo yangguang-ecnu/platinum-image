@@ -28,6 +28,10 @@
 
 #include "transfer.h"
 
+class image_base;
+
+#include "image_base.h"
+
 template<class ELEMTYPE>
 class image_storage : public image_base
     {
