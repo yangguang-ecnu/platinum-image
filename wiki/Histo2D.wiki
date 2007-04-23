@@ -5,7 +5,7 @@
 Histo2D (abbreviation for "2D histogram segmentation") is an application that uses Platinum to perform semi-automatic segmentation using bi-spectral images. It was developed as part of a master thesis project involving development of Platinum.
 
 =Purpose=
-The Histo2D program is a way to explore multispectral image segmentation, and serves as an example of application development with Platinum, including [Templates templates], [image_general image objects] use of [userIO] controls.
+The Histo2D program is a way to explore multispectral image segmentation, and serves as an example of application development with Platinum, including [Templates templates], [image_general image objects] and the use of [userIO] controls.
 
 =Build and run=
 The directory `Apps/Histo2D/` contains a CMake file that will build the [Histo2D] application.
