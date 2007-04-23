@@ -3,3 +3,11 @@
 
 =Integration=
 The transfer objects's main function operates on an [image_general] iterator. It may also need access to min/max values (or not, this is a design issue). Transfer functions are implemented as objects attached to image objects. Their UI is a subclass to Fl_group, displayed through the image's dataWidget.
+
+==Classes==
+
+*[transfer_mapcolor]*
+Assigns unique colors to few (16 or less) consecutive integer values, like on a map. If it turns out to be applicable only to the [image_label] class, this class should be renamed transfer_label.
+
+*[transfer_default]*
+The default transfer function, maps values into grayscales with lowest value in image being black and highest white.
