@@ -21,7 +21,7 @@ The mapping is done as follows:
 || 8-13 || darker variations ||
 || 14-20 || lighter variations ||
 
-This color cycle, sans black and white, is then repeated with 1. darker variations 2. lighter variations. This yields 19 distinct colors + black, although light-yellow and light-cyan will be hard to distinguish and thus less usable.
+This color cycle, sans black and white, is then repeated with 1. darker variations 2. lighter variations. This yields 19 distinct colors + black, although light-yellow and light-cyan will be hard to distinguish and thus less usable. The color scale, with numbers, is displayed in the [TransferFunctions transfer function] control area.
 
 =Design rationale=
 The color scale is designed to yield maximum contrast for 2 (binary), 4 and 16-value images while allowing scaling between these spans without added complexity. The spectrum is deliberately intermixed to increase contrast between adjacent values to maximize separation when fewer values are used, and to reduce the impact of dyschromatopsia.
