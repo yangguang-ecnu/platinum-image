@@ -68,7 +68,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<ELEMTYPE, 
 
     this->volumename = "Copy of " + from_volume->volumename;
 
-    this->maxvalue        = from_volume->maxvalue;
+    maxvalue        = from_volume->maxvalue;
     this->minvalue        = from_volume->minvalue;
 
     this->origin          = from_volume->origin;
@@ -93,7 +93,8 @@ image_base * image_general<ELEMTYPE, IMAGEDIM>::alike (imageDataType unit)
         case VOLDATA_BOOL:      new_volume = new image_binary<IMAGEDIM>(this,false);             
             break;
         case VOLDATA_CHAR:      new_volume = new image_integer<char, IMAGEDIM > (this,false);              break;
-        case VOLDATA_UCHAR:     new_volume = new image_integer<unsigned char, IMAGEDIM > (this,false);     break;
+        case VOLDATA_UCHAR:     new_volume = new image_integer<unsigned char, IMAGEDIM > (this,false);
+            break;
         case VOLDATA_SHORT:     new_volume = new image_integer<short, IMAGEDIM >(this,false);              break;
         case VOLDATA_USHORT:    new_volume = new image_integer<unsigned short, IMAGEDIM >(this,false);     break;
         case VOLDATA_DOUBLE:    new_volume = new image_scalar<double, IMAGEDIM >(this,false);             break;
