@@ -20,7 +20,7 @@ The mapping is done as follows:
 
 || 8-13 || darker variations ||
 || 14-19 || lighter variations ||
-|| < 1, > 19 || gray ||
+|| > 19, < 1 || gray ||
 
 This color cycle, sans black and white, is then repeated with 1. darker variations 2. lighter variations. This yields 19 distinct colors + black, although light-yellow and light-cyan will be hard to distinguish and thus less usable. Values outside the scale are displayed as gray. The color scale, with numbers, is displayed in the [TransferFunctions transfer function] control area.
 
