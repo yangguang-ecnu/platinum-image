@@ -20,3 +20,5 @@ If the loaded image did not match, the cast will fail and return 0 (`NULL`) whic
 The above code also has us assuming the image is 3-dimensional. The following gets a dimension-independent pointer to the same image, which you can use an iterator on:
 
 `image_storage * my_pointer_to_a_bunch_of_voxels = dynamic_cast<image_storage<bool> >(datamanagement.get_image(id));`
+
+Several examples of specifying type and requesting type using dynamic_cast can be found in the Histo2D source code.
