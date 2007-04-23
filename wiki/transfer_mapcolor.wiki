@@ -8,7 +8,7 @@ _For more information about labeled images, see [image_label]._
 
 =Mapping=
 The mapping is done as follows:
-|| *Value* || Color ||
+|| *Value* || *Color* ||
 || 0 || black, signifies void in the image ||
 || 1 || white ||
 || 2 || red ||
@@ -19,9 +19,10 @@ The mapping is done as follows:
 || 7 || cyan ||
 
 || 8-13 || darker variations ||
-|| 14-20 || lighter variations ||
+|| 14-19 || lighter variations ||
+|| < 1, > 19 || gray ||
 
-This color cycle, sans black and white, is then repeated with 1. darker variations 2. lighter variations. This yields 19 distinct colors + black, although light-yellow and light-cyan will be hard to distinguish and thus less usable. The color scale, with numbers, is displayed in the [TransferFunctions transfer function] control area.
+This color cycle, sans black and white, is then repeated with 1. darker variations 2. lighter variations. This yields 19 distinct colors + black, although light-yellow and light-cyan will be hard to distinguish and thus less usable. Values outside the scale are displayed as gray. The color scale, with numbers, is displayed in the [TransferFunctions transfer function] control area.
 
 =Design rationale=
 The color scale is designed to yield maximum contrast for 2 (binary), 4 and 16-value images while allowing scaling between these spans without added complexity. The spectrum is deliberately intermixed to increase contrast between adjacent values to maximize separation when fewer values are used, and to reduce the impact of dyschromatopsia.
