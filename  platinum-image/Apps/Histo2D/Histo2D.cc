@@ -126,7 +126,7 @@ void diff_volumes (int u,int p)
                 { cout << "with mask " << mask->name(); }
             cout << endl;
 
-            image_scalar<unsigned char> * result = (image_scalar<unsigned char> *)truth->alike(VOLDATA_UCHAR);
+            image_scalar<unsigned char> * result = dynamic_cast<image_scalar<unsigned char> *>(truth->alike(VOLDATA_UCHAR));
 
             for (short z = 0; z < size[2];z++)
                 {
@@ -200,7 +200,7 @@ void threshold_artifact_process (int u,int p)
         // *** get ITK image from input parameter
         input_vol->make_image_an_itk_reader();
         theBinaryImagePointer input;
-        input = ((image_label<3> * )input_vol)->itk_image();
+        input = (dynamic_cast<image_label<3> * >(input_vol))->itk_image();
 
         int radius = userIOmanagement.get_parameter<long>(u,1);
 
