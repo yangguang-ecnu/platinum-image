@@ -30,15 +30,19 @@ data_base::~data_base()
     delete widget;
     }
 
-void data_base::name (string n)
+void data_base::name (const string n)
 {
-    volumename=n;
-    widget->set_name(n);
+    widget->name(n);
 }
 
-string data_base::name()
+const string data_base::name()
     {
-    return volumename;
+    if (widget != NULL)
+        {
+        return widget->name();
+        }
+
+    return ( "(untitled)" );
     }
 
 void data_base::from_file(bool f)

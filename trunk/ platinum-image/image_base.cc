@@ -47,7 +47,7 @@ image_base::image_base() {
     namestream << "3D volume (" << ID << ")";
 
     widget=new datawidget(DATAHANDLER_VOLUME_3D,ID,namestream.str());
-    volumename=namestream.str();
+    name(namestream.str());
 
     cout << "image_base-kontruktör " << namestream.str() << endl; 
     }
