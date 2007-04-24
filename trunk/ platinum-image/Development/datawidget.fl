@@ -1,0 +1,36 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0107 
+header_name {.h} 
+code_name {.cxx}
+Function {} {open selected
+} {
+  Fl_Window ignore {open
+    xywh {1124 456 316 162} type Double visible
+  } {
+    Fl_Pack {} {open
+      xywh {25 25 270 115} labelsize 11
+      class datawidget
+    } {
+      Fl_Pack {} {open
+        xywh {30 25 240 25} type HORIZONTAL
+      } {
+        Fl_Input filenamebutton {
+          user_data this
+          callback change_name_callback
+          xywh {30 25 210 25} color 50 align 0
+        }
+        Fl_Menu_Button featuremenu {open
+          xywh {240 25 30 25} box THIN_UP_BOX
+        } {}
+      }
+      Fl_Box thumbnail {
+        xywh {30 50 240 50}
+        code0 {image( new Fl_RGB_Image(thumbnail, thumbnail_size, thumbnail_size, 1));}
+        code1 {image( NULL);}
+      }
+      Fl_Pack extras {open
+        xywh {30 90 240 50}
+      } {}
+    }
+  }
+} 
