@@ -51,6 +51,7 @@ class datawidget
 
         const static int thumbnail_size;
         uchar * thumbnail;
+        std::string _name;
 
     public:
         ~datawidget ();
@@ -58,7 +59,8 @@ class datawidget
         Fl_Group * get_widget(); //use with care
         void refresh_thumbnail ();
         int get_volume_id();
-        void set_name(std::string n);
+        void name(std::string n);
+        const std::string name();
         static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);
     };
 #endif

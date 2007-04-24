@@ -110,7 +110,7 @@ datawidget::datawidget (int datatype,int vol_id,std::string n)
     ((Fl_Input *)filenamebutton)->callback(change_name_callback, this);
     ((Fl_Input *)filenamebutton)->when(FL_WHEN_RELEASE);
 
-    set_name(n);
+    name(n);
     filenamebutton->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
 
     featuremenu = new Fl_Menu_Button(75,0,25,25,"");
@@ -174,8 +174,15 @@ int datawidget::get_volume_id()
     return volume_id;
     }
 
-void datawidget::set_name(std::string n)
+const string datawidget::name()
     {
+    return _name;
+    }
+
+void datawidget::name(std::string n)
+    {
+    _name = n;
+
     ((Fl_Input *)filenamebutton)->value(NULL);
     ((Fl_Input *)filenamebutton)->value(n.c_str());
 

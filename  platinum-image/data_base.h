@@ -35,7 +35,6 @@
 class data_base // We MUST have a virtual base class
     {
     protected:
-        std::string volumename; //remove, use datawidget's
         int ID;
         datawidget * widget;
         bool fromFile; //indicates whether the data was created inside
@@ -66,8 +65,8 @@ class data_base // We MUST have a virtual base class
         //virtual data_base * alike () = 0;
 
         // *** Metadata ***
-        virtual void name (std::string n);   //set name
-        virtual std::string name ();         //get name
+        virtual void name (const std::string n);          //set name
+        virtual const std::string name ();          //get name
         void from_file(bool f); //set "from file" status
     };
 
