@@ -19,14 +19,15 @@ template <int IMAGEDIM>
 image_binary<IMAGEDIM>::image_binary():image_integer<bool, IMAGEDIM>() 
     {
     delete this->tfunction;
-    this->tfunction = new transfer_mapcolor<ELEMTYPE >(this);
+    this->tfunction = new transfer_mapcolor<bool >(this);
     }
 
 template <int IMAGEDIM>
-image_binary<IMAGEDIM>::image_binary(int w, int h, int d, bool *ptr = NULL):image_integer<bool, IMAGEDIM>(w, h, d, ptr)
+image_binary<IMAGEDIM>::image_binary(int w, int h, int d, bool *ptr
+                                    ):image_integer<bool, IMAGEDIM>(w, h, d, ptr)
     {
     delete this->tfunction;
-    this->tfunction = new transfer_mapcolor<ELEMTYPE >(this);
+    this->tfunction = new transfer_mapcolor<bool >(this);
     }
 
 // *** Logical operations ***
@@ -36,10 +37,10 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_or(image_binary<IMAGEDI
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
-    iterator i1 = begin();
-    iterator i2 = input->begin();
-    iterator o = output->begin();
-    while (i != end()) //images are same size and should necessarily end at the same time
+    image_storage<bool>::iterator i1 = this->begin();
+    image_storage<bool>::iterator i2 = input->begin();
+    image_storage<bool>::iterator o = output->begin();
+    while (i1 != this->end()) //images are same size and should necessarily end at the same time
         {
         if(*i1 == object_value || *i2 == object_value)
             {*o=object_value;}
@@ -55,10 +56,10 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and(image_binary<IMAGED
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
-    iterator i1 = begin();
-    iterator i2 = input->begin();
-    iterator o = output->begin();
-    while (i != end()) //images are same size and should necessarily end at the same time
+    image_storage<bool>::iterator i1 = this->begin();
+    image_storage<bool>::iterator i2 = input->begin();
+    image_storage<bool>::iterator o = output->begin();
+    while (i1 != this->end()) //images are same size and should necessarily end at the same time
         {
         if(*i1 == object_value && *i2 == object_value)
             {*o=object_value;}
@@ -74,10 +75,10 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_xor(image_binary<IMAGED
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
-    iterator i1 = begin();
-    iterator i2 = input->begin();
-    iterator o = output->begin();
-    while (i != end()) //images are same size and should necessarily end at the same time
+    image_storage<bool>::iterator i1 = this->begin();
+    image_storage<bool>::iterator i2 = input->begin();
+    image_storage<bool>::iterator o = output->begin();
+    while (i1 != this->end()) //images are same size and should necessarily end at the same time
         {
         if((*i1 == object_value && *i2 != object_value) || (*i1 != object_value && *i2 == object_value))
             {*o=object_value;}

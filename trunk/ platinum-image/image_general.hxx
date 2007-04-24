@@ -68,7 +68,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<ELEMTYPE, 
 
     this->volumename = "Copy of " + from_volume->volumename;
 
-    maxvalue        = from_volume->maxvalue;
+    this->maxvalue        = from_volume->maxvalue;
     this->minvalue        = from_volume->minvalue;
 
     this->origin          = from_volume->origin;

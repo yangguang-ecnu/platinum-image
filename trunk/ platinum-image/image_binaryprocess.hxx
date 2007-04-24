@@ -46,7 +46,7 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, bool object_value)
 			{
 			for(u=0; u<max_u; u++)
 				{
-				p=get_voxel_by_dir(u,v,w,direction);
+				p=this->get_voxel_by_dir(u,v,w,direction);
 				if(p!=object_value)//Note: we want to label bkg-objects in order to remove holes
 					{
 					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
@@ -132,9 +132,9 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
-	max_u=get_size_by_dim_and_dir(0,direction);
-	max_v=get_size_by_dim_and_dir(1,direction);
-	max_w=get_size_by_dim_and_dir(2,direction);
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
 		
 	bool p;//pixel value
 	int label,up,left;//neighbour labels 
@@ -149,7 +149,7 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
 			{
 			for(u=0; u<max_u; u++)
 				{
-				p=get_voxel_by_dir(u,v,w,direction);
+				p=this->get_voxel_by_dir(u,v,w,direction);
 				if(p==object_value)//Note: we want to label bkg-objects in order to remove holes
 					{
 					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
@@ -238,9 +238,9 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
 				{
 				label=label_image->get_voxel(u,v,w);
 				if(lut[label]==max_label)//First label is background
-					set_voxel_by_dir(u,v,w,object_value,direction);
+					this->set_voxel_by_dir(u,v,w,object_value,direction);
 				else //all other labels are object
-					set_voxel_by_dir(u,v,w,!object_value,direction);
+					this->set_voxel_by_dir(u,v,w,!object_value,direction);
 				}
 			}
 		}				
@@ -251,9 +251,9 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
-	max_u=get_size_by_dim_and_dir(0,direction);
-	max_v=get_size_by_dim_and_dir(1,direction);
-	max_w=get_size_by_dim_and_dir(2,direction);
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
 		
 	bool p;//pixel value
 	int label,up,left;//neighbour labels 
@@ -268,7 +268,7 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool
 			{
 			for(u=0; u<max_u; u++)
 				{
-				p=get_voxel_by_dir(u,v,w,direction);
+				p=this->get_voxel_by_dir(u,v,w,direction);
 				if(p==object_value)//Note: we want to label bkg-objects in order to remove holes
 					{
 					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
@@ -347,9 +347,9 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool
 				{
 				label=label_image->get_voxel(u,v,w);
 				if(tot_sizes[lut[label]]>=min_size)
-					set_voxel_by_dir(u,v,w,object_value,direction);
+					this->set_voxel_by_dir(u,v,w,object_value,direction);
 				else
-					set_voxel_by_dir(u,v,w,!object_value,direction);
+					this->set_voxel_by_dir(u,v,w,!object_value,direction);
 				}
 			}
 		}				
@@ -360,9 +360,9 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
-	max_u=get_size_by_dim_and_dir(0,direction);
-	max_v=get_size_by_dim_and_dir(1,direction);
-	max_w=get_size_by_dim_and_dir(2,direction);
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
 		
 	bool p,m;//pixel value
 	int label,up,left;//neighbour labels 
@@ -377,7 +377,7 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 			{
 			for(u=0; u<max_u; u++)
 				{
-				p=get_voxel_by_dir(u,v,w,direction);
+				p=this->get_voxel_by_dir(u,v,w,direction);
 				if(p==object_value)//Note: we want to label bkg-objects in order to remove holes
 					{
 					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
@@ -434,9 +434,9 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 		int* lut=new int[number_of_objects];
 		int* tot_sizes=new int[number_of_objects];
 		memset(tot_sizes, 0, sizeof(int)*number_of_objects);
-		double cog_u[]=new double[number_of_objects];
+		double *cog_u=new double[number_of_objects];
 		memset(cog_u, 0, sizeof(double)*number_of_objects);
-		double cog_v[]=new double[number_of_objects];
+		double *cog_v=new double[number_of_objects];
 		memset(cog_v, 0, sizeof(double)*number_of_objects);
 		new_label=1;
 		for(i=1; i<number_of_objects; i++)
@@ -559,7 +559,7 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 						{
 						//Diagonals
 						double step_u;
-						double step_u;
+						double step_v;
 						double u2;
 						double v2;
 						int r;
@@ -665,9 +665,9 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 				{
 				label=label_image->get_voxel(u,v,w);
 				if(tot_sizes[lut[label]]>0)
-					set_voxel_by_dir(u,v,w,object_value,direction);
+					this->set_voxel_by_dir(u,v,w,object_value,direction);
 				else
-					set_voxel_by_dir(u,v,w,!object_value,direction);
+					this->set_voxel_by_dir(u,v,w,!object_value,direction);
 				}
 			}
 		}				
@@ -679,9 +679,9 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 	image_integer<short, IMAGEDIM>* output = new image_integer<short,IMAGEDIM> (this,false);
 	int u,v,w;
 	int max_u, max_v, max_w;
-	max_u=get_size_by_dim_and_dir(0,direction);
-	max_v=get_size_by_dim_and_dir(1,direction);
-	max_w=get_size_by_dim_and_dir(2,direction);
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
     int veryhigh = std::numeric_limits<int>::max()-5;
 	int initvalue=(edge_is_object)?veryhigh:0;
 	bool p;//pixel value
@@ -697,8 +697,8 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 			ur=(v>0 && u<max_u-1)? output->get_voxel(u+1,v-1,w) : initvalue;
 			for(u=0; u<max_u; u++)
 				{
-				p=get_voxel_by_dir(u,v,w,direction);
-				d=(p==object_value)?min(min(4+ul,3+um),min(4+ur,3+ml)):0;
+				p=this->get_voxel_by_dir(u,v,w,direction);
+				d=(p==object_value)?std::min(std::min(4+ul,3+um),std::min(4+ur,3+ml)):0;
 				output->set_voxel(u,v,w,d);
 				ml=d;
 				ul=um;
@@ -717,7 +717,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 				{
 				d=output->get_voxel(u,v,w);
 				if(d>0)
-					d=min(d,min(min(4+ll,3+lm),min(4+lr,3+mr)));
+					d=std::min(d,std::min(std::min(4+ll,3+lm),std::min(4+lr,3+mr)));
 				output->set_voxel(u,v,w,d);
 				mr=d;
 				lr=lm;
@@ -736,9 +736,9 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
-	max_u=get_size_by_dim(0);
-	max_v=get_size_by_dim(1);
-	max_w=get_size_by_dim(2);
+	max_u=this->get_size_by_dim(0);
+	max_v=this->get_size_by_dim(1);
+	max_w=this->get_size_by_dim(2);
 		
 	bool p;//pixel value
 	int label,above,up,left;//neighbour labels 
@@ -753,7 +753,7 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 			{
 			for(u=0; u<max_u; u++)
 				{
-				p=get_voxel(u,v,w);
+				p=this->get_voxel(u,v,w);
 				if(p!=object_value)//Note: we want to label bkg-objects in order to remove holes
 					{
 					above=(w>0)? label_image->get_voxel(u,v,w-1) : 0;
@@ -842,9 +842,9 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 				{
 				label=label_image->get_voxel(u,v,w);
 				if(lut[label]==1)//First label is background
-					set_voxel(u,v,w,!object_value);
+					this->set_voxel(u,v,w,!object_value);
 				else //all other labels are object
-					set_voxel(u,v,w,object_value);
+					this->set_voxel(u,v,w,object_value);
 				}
 			}
 		}				
