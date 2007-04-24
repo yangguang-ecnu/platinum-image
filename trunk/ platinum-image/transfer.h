@@ -68,6 +68,15 @@ class transfer_brightnesscontrast: public transfer_base <ELEMTYPE >
     };
 
 template <class ELEMTYPE >
+class transfer_mapcolor: public transfer_base <ELEMTYPE >
+    {
+    public:
+        transfer_mapcolor (image_storage <ELEMTYPE > * s): transfer_base <ELEMTYPE > (s) {}
+        void get (const ELEMTYPE v, RGBvalue &p);
+    };
+
+
+template <class ELEMTYPE >
 class transfer_default: public transfer_base <ELEMTYPE >
     {
     public:

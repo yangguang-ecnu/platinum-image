@@ -98,6 +98,7 @@ class RGBvalue:public color_base
 
         // *** set functions ***
         void set_rgb (const IMGELEMCOMPTYPE * p);
+        void set_rgb(const IMGELEMCOMPTYPE r_, const IMGELEMCOMPTYPE g_, const IMGELEMCOMPTYPE b_);
         virtual void r(const IMGELEMCOMPTYPE r_)
             {values[RADDR] = r_;}
         virtual void g(const IMGELEMCOMPTYPE g_)

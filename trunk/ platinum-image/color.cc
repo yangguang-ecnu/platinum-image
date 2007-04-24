@@ -61,6 +61,13 @@ void RGBvalue::set_rgb (const IMGELEMCOMPTYPE * p)
     memcpy (values,p,sizeof (IMGELEMCOMPTYPE)*3);
     }
 
+void RGBvalue::set_rgb(const IMGELEMCOMPTYPE r_, const IMGELEMCOMPTYPE g_, const IMGELEMCOMPTYPE b_)
+    {
+    r(r_);
+    g(g_);
+    b(b_);
+    }
+
 void RGBAvalue::set_rgba (const IMGELEMCOMPTYPE * p)
     {
     memcpy (values,p,sizeof (IMGELEMCOMPTYPE)*4);
