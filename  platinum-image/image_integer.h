@@ -33,15 +33,17 @@ template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
     {
     public:
-        image_integer ():image_scalar<ELEMTYPE, IMAGEDIM>() {}
+        image_integer ():image_scalar<ELEMTYPE, IMAGEDIM>()
+            {}
+        image_integer(int w, int h, int d, ELEMTYPE *ptr = NULL):image_scalar<ELEMTYPE, IMAGEDIM>(w, h, d, ptr) {};
 
     image_integer (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i):image_scalar<ELEMTYPE, IMAGEDIM>(i) {}
-        
-        template<class SOURCETYPE>
-            image_integer(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true): image_scalar<ELEMTYPE, IMAGEDIM>(old_volume, copyData)
+
+    template<class SOURCETYPE>
+    image_integer(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true): image_scalar<ELEMTYPE, IMAGEDIM>(old_volume, copyData)
         {} //copy constructor
-        
-        image_integer (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_scalar<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
+
+    image_integer (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_scalar<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
     };
 
 //with C++ templates, declaration and definition go together

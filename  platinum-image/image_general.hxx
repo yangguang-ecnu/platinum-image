@@ -624,7 +624,7 @@ image_binary<IMAGEDIM> * image_general<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE l
     
     /*unsigned long i;
 	unsigned long n_voxels=get_n_voxels()*/
-        ELEMTYPE p;
+    //    ELEMTYPE p;
     
 	/*for(i=0; i<n_voxels; i++)
 		{

@@ -21,13 +21,13 @@ template <class ELEMTYPE >
 transfer_base<ELEMTYPE >::transfer_base (image_storage<ELEMTYPE > * s)
     {
     source=s;
-    pane = new Fl_Group (0,0,300,80);
+    //pane = new Fl_Group (0,0,300,80);
     }
 
 template <class ELEMTYPE >
 transfer_base<ELEMTYPE >::~transfer_base ()
     {
-    delete pane;
+    //delete pane;
     }
 
 /*template <class ELEMTYPE >
@@ -63,6 +63,85 @@ void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
     p.r(v * intensity + contrast);
     p.g(v * intensity + contrast);
     p.b(v * intensity + contrast);
+    }
+
+
+// *** transfer_mapcolor ***
+
+template <class ELEMTYPE >
+void transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
+    {
+    switch (v)
+        {
+        case 0 :
+            p.set_rgb (0,0,0);
+            break;
+        case 1:
+            p.set_rgb (255,255,255);
+            break;
+        case 2:
+            p.set_rgb (255,0,0);
+            break;
+        case 3:
+            p.set_rgb (0,0,255);
+            break;
+        case 4:
+            p.set_rgb (0,255,0);
+            break;
+        case 5:
+            p.set_rgb (255,0,255);
+            break;
+        case 6:
+            p.set_rgb (255,255,0);
+            break;
+        case 7:
+            p.set_rgb (255,0,255);
+            break;
+
+            // *** darker ***
+        case 8:
+            p.set_rgb (127,0,0);
+            break;
+        case 9:
+            p.set_rgb (0,0,127);
+            break;
+        case 10:
+            p.set_rgb (0,127,0);
+            break;
+        case 11:
+            p.set_rgb (127,0,127);
+            break;
+        case 12:
+            p.set_rgb (127,127,0);
+            break;
+        case 13:
+            p.set_rgb (127,0,127);
+            break;
+
+            // *** lighter ***
+        case 14:
+            p.set_rgb (255,127,127);
+            break;
+        case 15:
+            p.set_rgb (127,127,255);
+            break;
+        case 16:
+            p.set_rgb (127,255,127);
+            break;
+        case 17:
+            p.set_rgb (255,127,255);
+            break;
+        case 18:
+            p.set_rgb (255,255,127);
+            break;
+        case 19:
+            p.set_rgb (255,127,255);
+            break;
+
+        default:
+            //gray indicates that the scale is exceeded
+            p.set_rgb (127,127,127);
+        }
     }
 
 // *** transfer_default ***

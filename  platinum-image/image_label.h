@@ -37,7 +37,7 @@ template<int IMAGEDIM = 3>
 class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
     {
     public:
-        image_label ():image_integer<IMGLABELTYPE, IMAGEDIM>() {}
+        image_label ();
 
     image_label (itk::SmartPointer< itk::Image<IMGLABELTYPE, IMAGEDIM > > &i):image_integer<IMGLABELTYPE, IMAGEDIM>(i) {}
         

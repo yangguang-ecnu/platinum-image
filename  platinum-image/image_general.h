@@ -54,10 +54,9 @@ template<class ELEMTYPE, int IMAGEDIM>
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_general : public image_storage <ELEMTYPE >
     {
-    private:
+    protected:
         image_general<ELEMTYPE, IMAGEDIM>(int w, int h, int d, ELEMTYPE *ptr = NULL);
 
-    protected:
         unsigned short datasize[IMAGEDIM]; //volume size
         
         Matrix3D voxel_resize;             //voxel size
