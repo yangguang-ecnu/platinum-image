@@ -2,160 +2,157 @@
 version 1.0107 
 header_name {.hh} 
 code_name {.cxx}
-Function {} {open
+widget_class importDialog {open selected
+  xywh {482 172 478 307} type Single
+  class Fl_window visible
 } {
-  Fl_Window {} {open
-    xywh {310 364 478 307} type Single labelsize 12 hide
-    class importDialog
+  Fl_Value_Input imagesizex {
+    label {Image x size}
+    callback cb_field_changed
+    xywh {94 16 70 25} labelsize 10 when 3 minimum 1 maximum 65535 step 1 value 1 textsize 12
+  }
+  Fl_Box {} {
+    label Preview
+    xywh {334 19 128 128} box DOWN_BOX color 0 labelsize 10 align 1 deactivate
+  }
+  Fl_Value_Input imagesizey {
+    label {Image y size}
+    callback cb_field_changed
+    xywh {94 41 70 25} labelsize 10 when 3 minimum 1 maximum 65535 step 1 value 1 textsize 12
+  }
+  Fl_Group voxeltypegroup {
+    label {Voxel type}
+    tooltip {For interleaved series: where to start and what to skip} xywh {95 67 228 98} box THIN_DOWN_FRAME labelsize 10 align 4
   } {
-    Fl_Value_Input imagesizex {
-      label {Image x size}
+    Fl_Choice voxeltypemenu {
+      callback cb_field_changed open
+      xywh {102 73 136 25} down_box BORDER_BOX labelsize 10 when 1 textsize 12
+    } {
+      MenuItem {} {
+        label {Bool (1-bit)}
+        user_data VOLDATA_BOOL user_data_type long
+        xywh {15 15 100 20} labelsize 12 deactivate
+      }
+      MenuItem {} {
+        label {Char (8-bit)}
+        user_data VOLDATA_UCHAR user_data_type long
+        xywh {15 15 100 20} labelsize 12
+      }
+      MenuItem {} {
+        label {Short (16-bit)}
+        user_data VOLDATA_USHORT user_data_type long
+        xywh {15 15 100 20} labelsize 12
+      }
+      MenuItem {} {
+        label {Long (32-bit)}
+        user_data VOLDATA_ULONG user_data_type long
+        xywh {15 15 100 20} labelsize 12
+      }
+      MenuItem {} {
+        label {Double (32-bit float)}
+        user_data VOLDATA_DOUBLE user_data_type long
+        xywh {15 15 100 20} labelsize 12
+      }
+    }
+    Fl_Button guessvoxeltype {
+      label {@<}
       callback cb_field_changed
-      xywh {95 16 70 25} labelsize 10 when 3 minimum 1 maximum 65535 step 1 value 1 textsize 12
+      xywh {238 78 17 15} box NO_BOX labelsize 9
     }
-    Fl_Box {} {
-      label Preview
-      xywh {335 19 128 128} box DOWN_BOX color 0 labelsize 10 align 1 deactivate
-    }
-    Fl_Value_Input imagesizey {
-      label {Image y size}
-      callback cb_field_changed
-      xywh {95 41 70 25} labelsize 10 when 3 minimum 1 maximum 65535 step 1 value 1 textsize 12
-    }
-    Fl_Group voxeltypegroup {
-      label {Voxel type}
-      tooltip {For interleaved series: where to start and what to skip} xywh {96 67 228 98} box THIN_DOWN_FRAME labelsize 10 align 4
-    } {
-      Fl_Choice voxeltypemenu {
-        callback cb_field_changed open
-        xywh {103 73 136 25} down_box BORDER_BOX labelsize 10 when 1 textsize 12
-      } {
-        MenuItem {} {
-          label {Bool (1-bit)}
-          user_data VOLDATA_BOOL user_data_type long
-          xywh {10 10 100 20} labelsize 12 deactivate
-        }
-        MenuItem {} {
-          label {Char (8-bit)}
-          user_data VOLDATA_UCHAR user_data_type long
-          xywh {10 10 100 20} labelsize 12
-        }
-        MenuItem {} {
-          label {Short (16-bit)}
-          user_data VOLDATA_USHORT user_data_type long
-          xywh {10 10 100 20} labelsize 12
-        }
-        MenuItem {} {
-          label {Long (32-bit)}
-          user_data VOLDATA_ULONG user_data_type long
-          xywh {10 10 100 20} labelsize 12
-        }
-        MenuItem {} {
-          label {Double (32-bit float)}
-          user_data VOLDATA_DOUBLE user_data_type long
-          xywh {10 10 100 20} labelsize 12
-        }
-      }
-      Fl_Button guessvoxeltype {
-        label {@<}
-        callback cb_field_changed
-        xywh {239 78 17 15} box NO_BOX labelsize 9
-      }
-      Fl_Check_Button signedbtn {
-        label Signed
-        xywh {256 73 65 25} down_box DOWN_BOX labelsize 12 when 0
-      }
-      Fl_Group {} {
-        label {Byte order} open
-        xywh {103 116 156 43} box ENGRAVED_FRAME labelsize 10
-      } {
-        Fl_Round_Button endianbigbtn {
-          label {Big endian}
-          xywh {108 117 85 25} type Radio down_box ROUND_DOWN_BOX labelsize 12 when 0
-        }
-        Fl_Round_Button endianlittlebtn {
-          label {Little-endian (Intel)}
-          xywh {108 136 151 23} type Radio down_box ROUND_DOWN_BOX labelsize 12 when 0
-        }
-      }
-    }
-    Fl_Group headersizegroup {open
-      xywh {30 166 152 25} labelsize 11 when 0
-    } {
-      Fl_Input headersizefield {
-        label {Header size}
-        callback cb_field_changed
-        tooltip {Size of each file's header (in bytes)} xywh {95 166 70 25} type Int labelsize 10 when 1 textsize 12
-      }
-      Fl_Button guessheadersize {
-        label {@<}
-        callback cb_field_changed
-        xywh {165 172 17 15} box NO_BOX labelsize 9
-      }
-    }
-    Fl_Group series_group {
-      label {Series settings} open
-      tooltip {For interleaved series: where to start and what to skip} xywh {95 192 189 65} box THIN_DOWN_FRAME labelsize 10 align 4
-    } {
-      Fl_Group numzgroup {open
-        xywh {101 197 183 26} labelsize 11 when 0
-      } {
-        Fl_Value_Input imagenumz {
-          label {Number of images}
-          callback cb_field_changed
-          tooltip {Number of slices} xywh {189 198 70 25} labelsize 10 when 0 minimum 1 maximum 65535 step 1 value 1 textsize 12
-        }
-        Fl_Button guessnumz {
-          label {@<}
-          callback cb_field_changed selected
-          xywh {259 205 17 12} box NO_BOX labelsize 9 hide deactivate
-        }
-      }
-      Fl_Group interleave_group {open
-        xywh {101 230 155 20}
-      } {
-        Fl_Spinner startfield {
-          label Start
-          xywh {128 230 35 20} labelsize 10 textsize 12
-        }
-        Fl_Spinner incrementfield {
-          label Increment
-          xywh {221 230 35 20} labelsize 10 textsize 12
-        }
-      }
+    Fl_Check_Button signedbtn {
+      label Signed
+      xywh {255 73 65 25} down_box DOWN_BOX labelsize 12 when 0
     }
     Fl_Group {} {
-      label {Voxel aspect ratio}
-      tooltip {Proportions for voxel size (no scale, will be normalized)} xywh {95 258 189 32} box THIN_DOWN_FRAME labelsize 10 align 4
+      label {Byte order} open
+      xywh {102 116 156 43} box ENGRAVED_FRAME labelsize 10
     } {
-      Fl_Input voxsizex {
-        label x
-        xywh {111 264 35 20} type Float labelsize 10 when 0 textsize 12
-        code0 {o->value ("1");}
+      Fl_Round_Button endianbigbtn {
+        label {Big endian}
+        xywh {107 117 85 25} type Radio down_box ROUND_DOWN_BOX labelsize 12 when 0
       }
-      Fl_Input voxsizey {
-        label y
-        xywh {165 264 35 20} type Float labelsize 10 when 0 textsize 12
-        code0 {o->value ("1");}
-      }
-      Fl_Input voxsizez {
-        label z
-        xywh {219 264 35 20} type Float labelsize 10 when 0 textsize 12
-        code0 {o->value ("4");}
+      Fl_Round_Button endianlittlebtn {
+        label {Little-endian (Intel)}
+        xywh {107 136 151 23} type Radio down_box ROUND_DOWN_BOX labelsize 12 when 0
       }
     }
-    Fl_Button rawimportcancel {
-      label Cancel
-      callback {Fl_Window * importwindow = o->window();
+  }
+  Fl_Group headersizegroup {open
+    xywh {29 166 152 25} labelsize 11 when 0
+  } {
+    Fl_Input headersizefield {
+      label {Header size}
+      callback cb_field_changed
+      tooltip {Size of each file's header (in bytes)} xywh {94 166 70 25} type Int labelsize 10 when 1 textsize 12
+    }
+    Fl_Button guessheadersize {
+      label {@<}
+      callback cb_field_changed
+      xywh {164 172 17 15} box NO_BOX labelsize 9
+    }
+  }
+  Fl_Group series_group {
+    label {Series settings} open
+    tooltip {For interleaved series: where to start and what to skip} xywh {94 192 189 65} box THIN_DOWN_FRAME labelsize 10 align 4
+  } {
+    Fl_Group numzgroup {open
+      xywh {100 197 183 26} labelsize 11 when 0
+    } {
+      Fl_Value_Input imagenumz {
+        label {Number of images}
+        callback cb_field_changed
+        tooltip {Number of slices} xywh {188 198 70 25} labelsize 10 when 0 minimum 1 maximum 65535 step 1 value 1 textsize 12
+      }
+      Fl_Button guessnumz {
+        label {@<}
+        callback cb_field_changed
+        xywh {258 205 17 12} box NO_BOX labelsize 9 hide deactivate
+      }
+    }
+    Fl_Group interleave_group {open
+      xywh {100 230 155 20}
+    } {
+      Fl_Spinner startfield {
+        label Start
+        xywh {127 230 35 20} labelsize 10 textsize 12
+      }
+      Fl_Spinner incrementfield {
+        label Increment
+        xywh {220 230 35 20} labelsize 10 textsize 12
+      }
+    }
+  }
+  Fl_Group {} {
+    label {Voxel aspect ratio}
+    tooltip {Proportions for voxel size (no scale, will be normalized)} xywh {94 258 189 32} box THIN_DOWN_FRAME labelsize 10 align 4
+  } {
+    Fl_Input voxsizex {
+      label x
+      xywh {110 264 35 20} type Float labelsize 10 when 0 textsize 12
+      code0 {o->value ("1");}
+    }
+    Fl_Input voxsizey {
+      label y
+      xywh {164 264 35 20} type Float labelsize 10 when 0 textsize 12
+      code0 {o->value ("1");}
+    }
+    Fl_Input voxsizez {
+      label z
+      xywh {218 264 35 20} type Float labelsize 10 when 0 textsize 12
+      code0 {o->value ("4");}
+    }
+  }
+  Fl_Button rawimportcancel {
+    label Cancel
+    callback {Fl_Window * importwindow = o->window();
 importwindow->hide();
 
 Fl::delete_widget(importwindow);}
-      xywh {306 265 60 25}
-    }
-    Fl_Return_Button rawimportok {
-      label Import
-      callback {rawimporter * importer = o->window();}
-      xywh {376 265 84 25}
-    }
+    xywh {305 265 60 25}
+  }
+  Fl_Return_Button rawimportok {
+    label Import
+    callback {rawimporter * importer = o->window();}
+    xywh {375 265 84 25}
   }
 } 
