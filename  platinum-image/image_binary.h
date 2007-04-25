@@ -55,6 +55,7 @@ class image_binary : public image_integer <bool, IMAGEDIM>
     void fill_holes_3D(bool object_value=true);
 
     image_integer<short, IMAGEDIM> * distance_34_2D(bool edge_is_object=false, int direction=2, bool object_value=true);
+    image_integer<short, IMAGEDIM> * distance_345_3D(bool edge_is_object=false, bool object_value=true);
     };
 
 //with C++ templates, declaration and definition go together
