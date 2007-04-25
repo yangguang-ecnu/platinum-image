@@ -849,3 +849,125 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 			}
 		}				
 	}	
+		
+template <int IMAGEDIM>
+image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool edge_is_object, bool object_value)
+	{
+	image_integer<short, IMAGEDIM>* output = new image_integer<short,IMAGEDIM> (this,false);
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=get_size_by_dim(0);
+	max_v=get_size_by_dim(1);
+	max_w=get_size_by_dim(2);
+    int veryhigh = std::numeric_limits<int>::max()-6;
+	int initvalue=(edge_is_object)?veryhigh:0;
+	bool p;//pixel value
+	int d,ul,um,ur,ml,mr,ll,lm,lr,aul,aum,aur,aml,amm,amr,all,alm,alr;//neighbour labels 
+	for(w=0; w<max_w; w++)
+		{
+		//Forward pass
+		for(v=0; v<max_v; v++)
+			{
+			ml=initvalue;
+			ul=initvalue;
+			aml=initvalue;
+			aul=initvalue;
+			all=initvalue;
+			um=(v>0)? output->get_voxel(u,v-1,w) : initvalue;
+			aum=(v>0 && w>0)? output->get_voxel(u,v-1,w-1) : initvalue;
+			amm=(w>0)? output->get_voxel(u,v,w-1) : initvalue;
+			alm=(v<max_v && w>0)? output->get_voxel(u,v+1,w-1) : initvalue;
+			for(u=0; u<max_u; u++)
+				{
+				p=get_voxel(u,v,w);
+				ur=(u<max_u-1 && v>0)? output->get_voxel(u+1,v-1,w) : initvalue;
+				aur=(u<max_u-1 && v>0 && w>0)? output->get_voxel(u+1,v-1,w-1) : initvalue;
+				amr=(u<max_u-1 && w>0)? output->get_voxel(u+1,v,w-1) : initvalue;
+				alr=(u<max_u-1 && v<max_v-1 && w>0)? output->get_voxel(u+1,v+1,w-1) : initvalue;
+				d=(p==object_value)?min(
+										min(
+											min(
+												min(5+aul,4+aum),
+												min(5+aur,4+aml)
+												),
+											min(
+												min(3+amm,4+amr),
+												min(5+all,4+alm)
+												)
+											),
+										min(
+											min(
+												min(5+alr,4+ul),
+												min(3+um,4+ur)
+												),
+											3+ml
+											)
+										):0;
+				output->set_voxel(u,v,w,d);
+				ml=d;
+				ul=um;
+				um=ur;
+				aul=aum;
+				aum=aur;
+				aml=amm;
+				amm=amr;
+				all=alm;
+				alm=alr;
+				}
+			}
+		}
+	//Backward pass
+	for(w=max_w-1; w>=0; w--)
+		{
+		for(v=max_v-1; v>=0; v--)
+			{
+			mr=initvalue;
+			ur=initvalue;
+			amr=initvalue;
+			aur=initvalue;
+			alr=initvalue;
+			lm=(v<max_v-1)? output->get_voxel(u,v+1,w) : initvalue;
+			aum=(v>0 && w<max_w-1)? output->get_voxel(u,v-1,w+1) : initvalue;
+			amm=(w<max_w-1)? output->get_voxel(u,v,w+1) : initvalue;
+			alm=(v<max_v && w<max_w-1)? output->get_voxel(u,v+1,w+1) : initvalue;
+			for(u=max_u-1; u>=0; u--)
+				{
+				p=get_voxel(u,v,w);
+				ll=(u>0 && v<max_v-1)? output->get_voxel(u-1,v+1,w) : initvalue;
+				aul=(u>0 && v>0 && w<max_w-1)? output->get_voxel(u+1,v-1,w-1) : initvalue;
+				aml=(u>0 && w<max_w-1)? output->get_voxel(u+1,v,w-1) : initvalue;
+				all=(u>0 && v<max_v-1 && w<max_w-1)? output->get_voxel(u+1,v+1,w-1) : initvalue;
+				d=(p==object_value)?min(
+										min(
+											min(
+												min(5+aul,4+aum),
+												min(5+aur,4+aml)
+												),
+											min(
+												min(3+amm,4+amr),
+												min(5+all,4+alm)
+												)
+											),
+										min(
+											min(
+												min(5+alr,4+ll),
+												min(3+lm,4+lr)
+												),
+											min(d,3+mr)
+											)
+										):0;
+				output->set_voxel(u,v,w,d);
+				mr=d;
+				lr=lm;
+				lm=ll;
+				aur=aum;
+				aum=aul;
+				amr=amm;
+				amm=aml;
+				alr=alm;
+				alm=all;
+				}
+			}
+		}
+	return output;
+	}
