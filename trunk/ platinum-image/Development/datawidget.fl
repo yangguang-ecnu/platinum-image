@@ -1,32 +1,64 @@
 # data file for the Fltk User Interface Designer (fluid)
 version 1.0107 
 header_name {.h} 
-code_name {.cxx}
-widget_class datawidget {open selected
-  xywh {836 469 270 130} type Double visible
+code_name {.cc}
+widget_class datawidget {open
+  private xywh {609 537 270 130} type Double hide
 } {
   Fl_Pack {} {open
-    xywh {0 0 270 130} labelsize 11
+    private xywh {0 0 270 130} labelsize 11
   } {
     Fl_Pack {} {open
-      xywh {0 0 270 25} type HORIZONTAL
+      private xywh {0 0 270 25} type HORIZONTAL
     } {
       Fl_Input filenamebutton {
         user_data this
-        callback change_name_callback
-        xywh {0 0 240 25} color 50 align 0
+        callback {datamanagement.set_volume_name(volume_id,string(filenamebutton->value()));}
+        private xywh {0 0 240 25} color 50 align 20
       }
-      Fl_Menu_Button featuremenu {open
-        xywh {240 0 30 25} box THIN_UP_BOX
-      } {}
+      Fl_Menu_Button featuremenu {
+        user_data this open
+        private xywh {240 0 30 25} box THIN_UP_BOX
+      } {
+        MenuItem remove_mi {
+          label Remove user_data_type {long*}
+          callback {datamanager::removedata_callback}
+          xywh {0 0 100 20} labelsize 14
+        }
+        MenuItem save_vtk_mi {
+          label {Save as VTK...}
+          callback {datamanager::save_vtk_volume_callback}
+          xywh {0 0 100 20} labelsize 14
+        }
+        MenuItem duplicate_mi {
+          label Duplicate
+          xywh {0 0 100 20} labelsize 14 deactivate
+        }
+        MenuItem transferfunction_mi {
+          label {Transfer function}
+          xywh {0 0 100 20} labelsize 14
+        }
+      }
     }
     Fl_Box thumbnail {
-      xywh {0 25 270 50}
-      code0 {image( new Fl_RGB_Image(thumbnail, thumbnail_size, thumbnail_size, 1));}
+      private xywh {0 25 270 50}
+      code0 {image( new Fl_RGB_Image(thumbnail_image, thumbnail_size, thumbnail_size, 1));}
       code1 {image( NULL);}
     }
     Fl_Pack extras {open
       xywh {0 70 270 60}
     } {}
+  }
+  decl {int volume_id;} {}
+  decl {const static int thumbnail_size;} {}
+  decl {uchar * thumbnail_image;} {}
+  decl {std::string _name;} {}
+  decl {enum {remove_mi_num=0,save_mi_num, dup_mi_num};} {}
+  Function {datawidget(int datatype,int id, std::string n):Fl_Group(0,0,270,130)} {open
+  } {
+    code {volume_id = id; name(n);
+thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
+    code {resizable(filenamebutton);
+datamanagement.add_datawidget(this);} {}
   }
 } 
