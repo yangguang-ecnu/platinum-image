@@ -20,7 +20,9 @@ template <class ELEMTYPE >
 image_storage<ELEMTYPE >::image_storage() : image_base ()
     {
     imageptr = NULL;
-    tfunction = new transfer_default<ELEMTYPE >(this);
+    tfunction = NULL;
+
+    transfer_function();  //set default transfer function
 
     minvalue=std::numeric_limits<ELEMTYPE>::min();
     maxvalue=std::numeric_limits<ELEMTYPE>::max();
@@ -36,6 +38,18 @@ image_storage<ELEMTYPE >::~image_storage()
 
     minvalue=std::numeric_limits<ELEMTYPE>::min();
     maxvalue=std::numeric_limits<ELEMTYPE>::max();
+    }
+
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)
+    {
+   if (tfunction != NULL)
+        {delete tfunction;}
+
+    if (t == NULL)
+        { tfunction = new transfer_default<ELEMTYPE >(this); }
+    else
+        { tfunction = t; }
     }
 
 template <class ELEMTYPE >

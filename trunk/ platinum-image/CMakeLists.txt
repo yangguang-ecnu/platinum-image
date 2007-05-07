@@ -46,7 +46,17 @@ IF(WIN32)
     SET(WIN32_DIRENT_HEAD dirent.h)
 ENDIF(WIN32)
 
-ADD_LIBRARY(platinumlib STATIC color.h colormap.h cursor3D.h data_base.h ${WIN32_DIRENT_HEAD} datamanager.h datawidget.h fileutils.h FLTK2Dregionofinterest.h FLTKuserIOparameters.h FLTKviewport.h global.h histogram.h image_base.h  image_binary.h image_complex.h image_general.h image_integer.h image_label.h image_multi.h image_scalar.h image_storage.h platinumprogram.h point_base.h point3D.h rawimporter.h renderer_base.h renderer_VTK.h rendererMPR.h rendergeometry.h rendercombination.h rendermanager.h ptmath.h threshold.h transfer.h userIO.h userIOmanager.h viewport.h viewmanager.h color.cc colormap.cc cursor3D.cc data_base.cc datamanager.cc datawidget.cc ${WIN32_DIRENT_SRC} fileutils.cc FLTK2Dregionofinterest.cc FLTKuserIOparameters.cc FLTKviewport.cc histogram.cc image_base.cc image_binary.hxx image_binaryprocess.hxx image_complex.hxx image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx image_storage.hxx point_base.cc rawimporter.cc renderer_base.cc rendererMPR.cc renderer_VTK.cc  rendergeometry.cc rendercombination.cc rendermanager.cc threshold.cc transfer.hxx userIO.cc userIOmanager.cc viewport.cc viewmanager.cc ${WIN32_DIRENT_SRC} CMakeLists.txt)
+OPTION(BUILD_SHARED "Build Platinum as a shared library"
+         OFF)
+
+SET (PLATINUM_SOURCE_FILES color.h colormap.h cursor3D.h data_base.h ${WIN32_DIRENT_HEAD} datamanager.h datawidget.h fileutils.h FLTK2Dregionofinterest.h FLTKuserIOparameters.h FLTKviewport.h global.h histogram.h image_base.h  image_binary.h image_complex.h image_general.h image_integer.h image_label.h image_multi.h image_scalar.h image_storage.h platinumprogram.h point_base.h point3D.h rawimporter.h renderer_base.h renderer_VTK.h rendererMPR.h rendergeometry.h rendercombination.h rendermanager.h ptmath.h threshold.h transfer.h userIO.h userIOmanager.h viewport.h viewmanager.h color.cc colormap.cc cursor3D.cc data_base.cc datamanager.cc datawidget.cc ${WIN32_DIRENT_SRC} fileutils.cc FLTK2Dregionofinterest.cc FLTKuserIOparameters.cc FLTKviewport.cc histogram.cc image_base.cc image_binary.hxx image_binaryprocess.hxx image_complex.hxx image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx image_storage.hxx point_base.cc rawimporter.cc renderer_base.cc rendererMPR.cc renderer_VTK.cc  rendergeometry.cc rendercombination.cc rendermanager.cc threshold.cc transfer.hxx userIO.cc userIOmanager.cc viewport.cc viewmanager.cc ${WIN32_DIRENT_SRC} CMakeLists.txt)
+
+IF(BUILD_SHARED)
+  ADD_LIBRARY(platinumlib SHARED ${PLATINUM_SOURCE_FILES})
+ELSE(BUILD_SHARED)
+  ADD_LIBRARY(platinumlib STATIC ${PLATINUM_SOURCE_FILES})
+ENDIF(BUILD_SHARED)
+
 LINK_DIRECTORIES (${Platinum_BINARY_DIR})
 
 IF(NOT CMAKE_BUILD_TYPE)

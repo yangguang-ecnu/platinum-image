@@ -52,6 +52,8 @@ class transfer_base
         virtual ~transfer_base ();
 
         virtual void get (const ELEMTYPE v, RGBvalue &p) = 0;
+        virtual void refresh()
+            {}
     };
 
 template <class ELEMTYPE >
@@ -71,7 +73,7 @@ template <class ELEMTYPE >
 class transfer_mapcolor: public transfer_base <ELEMTYPE >
     {
     public:
-        transfer_mapcolor (image_storage <ELEMTYPE > * s): transfer_base <ELEMTYPE > (s) {}
+        transfer_mapcolor (image_storage <ELEMTYPE > * s);
         void get (const ELEMTYPE v, RGBvalue &p);
     };
 
@@ -79,9 +81,13 @@ class transfer_mapcolor: public transfer_base <ELEMTYPE >
 template <class ELEMTYPE >
 class transfer_default: public transfer_base <ELEMTYPE >
     {
+    protected:
+        Fl_Box *white;
+        Fl_Box *black;
     public:
-        transfer_default (image_storage <ELEMTYPE > * s) : transfer_base <ELEMTYPE > (s) {};
+        transfer_default (image_storage <ELEMTYPE > * s);
         void get (const ELEMTYPE v, RGBvalue &p);
+        virtual void refresh();
     };
 
 

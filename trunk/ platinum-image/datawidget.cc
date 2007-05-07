@@ -17,16 +17,6 @@
 
 #include "datawidget.h"
 
-#include <FL/Fl_Pack.H>
-#include <FL/Fl_File_Chooser.H>
-#include <FL/Fl.H>
-#include <FL/Fl_Box.H>
-#include <FL/Fl_Image.H>
-#include <FL/Fl_Button.H>
-#include <FL/Fl_Widget.H>
-#include <FL/Fl_Scroll.H>
-#include <FL/Fl_Group.H>
-
 #include "datamanager.h"
 #include "rendermanager.h"
 
@@ -38,114 +28,103 @@ extern uchar *animage; //defined in datamanager.cc
 
 const int datawidget::thumbnail_size = 128;
 
-const int num_colormenu_items=2;
-Fl_Menu_Item colorpopup[] = {
-    {"Edit",	FL_ALT+'e'},
-    {"Load",	FL_ALT+'l'},
-    {0}
-    };
+// *** begin FLUID ***
 
-const int num_featuremenu_items=3;
-Fl_Menu_Item featurepopup[] = {
-    {"Remove",	0},
-    {"Save as VTK...",	0},
-    {"Duplicate",	0},
-    {0}
-    };
+void datawidget::cb_filenamebutton_i(Fl_Input*, void*) {
+    datamanagement.set_volume_name(volume_id,string(filenamebutton->value()));
+    }
+void datawidget::cb_filenamebutton(Fl_Input* o, void* v) {
+    ((datawidget*)(o->parent()->parent()->parent()))->cb_filenamebutton_i(o,v);
+    }
 
-enum {remove_mi_num=0,
-    save_mi_num,
-    dup_mi_num};
+Fl_Menu_Item datawidget::menu_featuremenu[] = {
+ {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save as VTK...", 0,  (Fl_Callback*)datamanager::save_vtk_volume_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Duplicate", 0,  0, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Transfer function", 0,  (Fl_Callback*)toggle_tfunction, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0}
+};
+Fl_Menu_Item* datawidget::remove_mi = datawidget::menu_featuremenu + 0;
+Fl_Menu_Item* datawidget::save_vtk_mi = datawidget::menu_featuremenu + 1;
+Fl_Menu_Item* datawidget::duplicate_mi = datawidget::menu_featuremenu + 2;
+Fl_Menu_Item* datawidget::transferfunction_mi = datawidget::menu_featuremenu + 3;
 
-void datawidget::change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget)
-{
-    datamanagement.set_volume_name(((datawidget *)thisdatawidget)->volume_id,string(((Fl_Input *)callingwidget)->value()));
+datawidget::datawidget(int datatype,int id, std::string n): Fl_Group(0,0,270,130,NULL) {
+    std::cout << "datawidget::datawidget " << n << endl; 
+    volume_id = id;
+    thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];
+
+  datawidget *o = this;
+o->box(FL_FLAT_BOX);
+o->color(FL_BACKGROUND_COLOR);
+o->selection_color(FL_BACKGROUND_COLOR);
+o->labeltype(FL_NO_LABEL);
+o->labelfont(0);
+o->labelsize(14);
+o->labelcolor(FL_FOREGROUND_COLOR);
+o->align(FL_ALIGN_TOP);
+o->when(FL_WHEN_RELEASE);
+{ Fl_Pack* o = hpacker = new Fl_Pack(0, 0, 270, 25);
+  o->type(1);
+  { Fl_Input* o = filenamebutton = new Fl_Input(0, 0, 240, 25);
+    o->color(FL_LIGHT1);
+    o->callback((Fl_Callback*)cb_filenamebutton, (void*)(this));
+    o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    Fl_Group::current()->resizable(o);
+  }
+  { Fl_Menu_Button* o = featuremenu = new Fl_Menu_Button(240, 0, 30, 25);
+    o->box(FL_THIN_UP_BOX);
+    o->user_data((void*)(this));
+    o->menu(menu_featuremenu);
+  }
+  resizable(filenamebutton);
+  o->end();
+}
+{ Fl_Box* o = thumbnail = new Fl_Box(0, 25, 270, 65);
+  o->hide();
+  Fl_Group::current()->resizable(o);
+  image( new Fl_RGB_Image(thumbnail_image, thumbnail_size, thumbnail_size, 1));
+  image( NULL);
+}
+{ Fl_Pack* o = extras = new Fl_Pack(0, 90, 270, 40);
+  { Fl_Group* o = tfunction_ = new Fl_Group(0, 90, 270, 40);
+    o->box(FL_THIN_DOWN_BOX);
+    o->labelsize(11);
+    o->align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    o->end();
+    Fl_Group::current()->resizable(o);
+  }
+  resizable(this);
+  o->end();
+}
+type(0);
+datamanagement.add_datawidget(this);
+name(n);
+end();
 }
 
-//remove some confusing placeholders
-#define USERTEST
+// *** end FLUID ***
 
-datawidget::datawidget (int datatype,int vol_id,std::string n)
+Fl_Group * datawidget::reset_tf_controls()
     {
-    Fl_Widget *featuremenu;
+    tfunction_->clear();
+    return tfunction_;
+    }
 
-    volume_id=vol_id;
+void datawidget::toggle_tfunction(Fl_Widget* callingwidget, void*)
+    {
+    datawidget * the_datawidget=(datawidget *)(callingwidget->user_data());
 
-#ifndef USERTEST
-    Fl_RGB_Image *thisimage;
-    Fl_Widget *priobutton,
-        *maxbutton,
-        *minbutton,
-        *colormenu;
-    packer = new Fl_Group(0,0,100,50,"");
-
-    //// min/max...
-    //
-    priobutton = new Fl_Button(0,0,60,25);
-    priobutton->color(FL_YELLOW);
-
-    //// ..and priobutton on the SAME space (we will use only one of them at a time)
-    //
-    maxbutton = new Fl_Button(0,25,30,25, "max");
-    minbutton = new Fl_Button(30,25,30,25, "min");
-
-    //not used right now, deactivate
-    maxbutton->deactivate();
-    minbutton->deactivate();
-
-#else
-    packer = new Fl_Group(0,0,100,25,"");
-#endif
-
-    thumbnail = new unsigned char [thumbnail_size*thumbnail_size];
-
-    //thumbnail image, deactivated for now
-    packer->image( new Fl_RGB_Image(thumbnail, thumbnail_size, thumbnail_size, 1));
-    packer->image( NULL);
-
-    filenamebutton = new Fl_Input(0,0,75,25);
-    ((Fl_Input *)filenamebutton)->labeltype(FL_NO_LABEL);
-    ((Fl_Input *)filenamebutton)->box(FL_THIN_DOWN_BOX);
-    ((Fl_Input *)filenamebutton)->color(FL_BACKGROUND_COLOR); 
-    ((Fl_Input *)filenamebutton)->callback(change_name_callback, this);
-    ((Fl_Input *)filenamebutton)->when(FL_WHEN_RELEASE);
-
-    name(n);
-    filenamebutton->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-
-    featuremenu = new Fl_Menu_Button(75,0,25,25,"");
-    ((Fl_Menu_Button *)featuremenu)->align(FL_ALIGN_CENTER|FL_ALIGN_CLIP);
-    ((Fl_Menu_Button *)featuremenu)->box(FL_THIN_UP_BOX);
-
-    featuremenu->user_data(this);    //reference to this object so callbacks can know what to delete etc.
-
-    ((Fl_Menu_Button *)featuremenu)->copy(featurepopup);
-    Fl_Menu_Item* local_featuremenu;
-
-    local_featuremenu=(Fl_Menu_Item*)((Fl_Menu_Button *)featuremenu)->menu();
-    local_featuremenu[remove_mi_num].callback(datamanager::removedata_callback,&datamanagement);
-    local_featuremenu[save_mi_num].callback(datamanager::save_vtk_volume_callback,&datamanagement);
-
-    //Duplicate is not implemented, deactivate
-    local_featuremenu[dup_mi_num].deactivate();
-
-#ifndef USERTEST
-    colormenu = new Fl_Menu_Button(60,25,40,25,"Color");
-    ((Fl_Menu_Button *)colormenu)->align(FL_ALIGN_BOTTOM|FL_ALIGN_INSIDE|FL_ALIGN_TEXT_OVER_IMAGE|FL_ALIGN_CLIP);
-    ((Fl_Menu_Button *)colormenu)->box(FL_THIN_UP_BOX);
-    for (int i=0;i < num_colormenu_items; i++)
-        {colorpopup[i].deactivate();}
-    ((Fl_Menu_Button *)colormenu)->copy(colorpopup);
-
-    thisimage = new Fl_RGB_Image(animage, 40, 25, RGBApixmap_bytesperpixel);
-    colormenu->image(thisimage);
-#endif
-
-    packer->end();
-
-    packer->resizable(filenamebutton);
-
-    datamanagement.add_datawidget(this);
+    if (the_datawidget->tfunction_->parent() != NULL)
+        {
+        the_datawidget->extras->remove(the_datawidget->tfunction_); 
+        //the_datawidget->extras->size(the_datawidget->extras->w(),0);
+        }
+    else
+        { 
+        the_datawidget->extras->add(the_datawidget->tfunction_);
+        //the_datawidget->extras->size(the_datawidget->extras->w(),the_datawidget->tfunction_->h());
+        }
     }
 
 datawidget::~datawidget ()
@@ -154,10 +133,10 @@ datawidget::~datawidget ()
 
     if (datamanagement.FLTK_running())
         {
-        packer->hide();   //packer must be hidden before removal (strangely enough)
+        hide();   //packer must be hidden before removal (strangely enough)
         //or it will cause an exception
-        delete packer->image();
-        packer->image(NULL);
+        delete image();
+        image(NULL);
         }
     
     datamanagement.remove_datawidget(this);
@@ -166,7 +145,7 @@ datawidget::~datawidget ()
 
 void datawidget::refresh_thumbnail ()
     {
-    rendermanagement.render_thumbnail(thumbnail, thumbnail_size, thumbnail_size, volume_id);
+    rendermanagement.render_thumbnail(thumbnail_image, thumbnail_size, thumbnail_size, volume_id);
     }
 
 int datawidget::get_volume_id()
@@ -176,21 +155,22 @@ int datawidget::get_volume_id()
 
 const string datawidget::name()
     {
-    return _name;
+    return std::string(_name);
     }
 
 void datawidget::name(std::string n)
     {
-    _name = n;
+    _name.assign(n);
 
-    ((Fl_Input *)filenamebutton)->value(NULL);
-    ((Fl_Input *)filenamebutton)->value(n.c_str());
+    //filenamebutton->value(NULL);
+    //((Fl_Input *)filenamebutton)->value(n.c_str());
+    filenamebutton->value(_name.c_str());
 
     //when interactively changed, redrawing widget is
     //done elsewhere (most notably in datamanagement.set_volume_name( ... )
     }
 
-Fl_Group* datawidget::get_widget()
-    {
-    return packer;
-    }
+//Fl_Group* datawidget::get_widget()
+//    {
+//    return packer;
+//    }

@@ -21,13 +21,12 @@ template <class ELEMTYPE >
 transfer_base<ELEMTYPE >::transfer_base (image_storage<ELEMTYPE > * s)
     {
     source=s;
-    //pane = new Fl_Group (0,0,300,80);
+    pane = source->widget->reset_tf_controls();
     }
 
 template <class ELEMTYPE >
 transfer_base<ELEMTYPE >::~transfer_base ()
     {
-    //delete pane;
     }
 
 /*template <class ELEMTYPE >
@@ -67,6 +66,53 @@ void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 
 
 // *** transfer_mapcolor ***
+
+template <class ELEMTYPE >
+transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
+    {
+    pane->resize(0,0,270,35);
+    pane->resizable(NULL);
+
+    pane->begin();
+
+        {
+        int top = 5;
+        int left = 5;
+        RGBvalue vcolor = RGBvalue();
+        ostringstream label;
+
+        for (int c=0;c<20;c++)
+            {
+
+
+            if (c > 0 && c % 8 == 0)
+                {
+                left = 5;
+                top+=25;
+                }
+
+            label << c ;
+
+            Fl_Box * b = new Fl_Box (left,top,left+ 15, top + 15);
+
+            b->copy_label(label.str().c_str());
+            label.flush();
+
+            get(c,vcolor);
+
+            b->color(fl_rgb_color(vcolor.r(), vcolor.g(),vcolor.b()));
+            if (vcolor.mono() < 80)
+                { b->color(FL_WHITE); }
+
+            left += 20;
+            }
+
+        }
+
+    pane->end();
+
+    refresh();
+    }
 
 template <class ELEMTYPE >
 void transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
@@ -147,7 +193,47 @@ void transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 // *** transfer_default ***
 
 template <class ELEMTYPE >
+transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
+    {
+    pane->resize(0,0,270,35);
+    pane->resizable(NULL);
+
+    pane->begin();
+
+    // *** FLUID ***
+        { Fl_Box* o = white = new Fl_Box(10, 10, 15, 15, "high");
+        o->box(FL_THIN_DOWN_BOX);
+        o->color(FL_WHITE);
+        o->align(FL_ALIGN_RIGHT);
+        }
+        { Fl_Box* o = black = new Fl_Box(90, 10, 15, 15, "low");
+        o->box(FL_THIN_DOWN_BOX);
+        o->color(FL_FOREGROUND_COLOR);
+        o->align(FL_ALIGN_RIGHT);
+        }
+    // *** end of FLUID ***
+
+    pane->end();
+
+    refresh();
+    }
+
+template <class ELEMTYPE >
 void transfer_default<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
     {
     p.set_mono(255*(v- this->source->get_min())/(this->source->get_max()- this->source->get_min()));
+    }
+
+template <class ELEMTYPE >
+void transfer_default<ELEMTYPE >::refresh()
+    {
+    ostringstream label;
+    label.flags( ios::boolalpha | ios::dec );
+
+    label << this->source->get_min();
+    black->copy_label(label.str().c_str());
+    label.flush();
+
+    label << this->source->get_max();
+    white->copy_label(label.str().c_str());
     }

@@ -35,10 +35,17 @@ class image_base;
 template<class ELEMTYPE>
 class image_storage : public image_base
     {
+    friend transfer_base<ELEMTYPE>;
+
     protected:
         image_storage();
-        
+
         transfer_base<ELEMTYPE> * tfunction;
+
+        virtual void transfer_function(transfer_base<ELEMTYPE> * t = NULL);
+        //allows subclasses to set a different default transfer function, and
+        //to reject unsuitable choices
+
         ELEMTYPE *imageptr;
         unsigned long num_elements;        //volume size in # pixels/voxels
 

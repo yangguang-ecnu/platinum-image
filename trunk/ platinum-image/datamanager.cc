@@ -388,10 +388,9 @@ bool datamanager::FLTK_running ()
     return !closing;
     }
 
-void datamanager::add_datawidget(datawidget * the_widget)
+void datamanager::add_datawidget(datawidget * data_widget)
     {
     //add FLTK widget belonging to datawidget object to the list
-    Fl_Widget * data_widget=the_widget->get_widget();
 
     data_widget_box->interior->add(data_widget);
     data_widget->resize (data_widget_box->interior->x(),data_widget_box->interior->y(),data_widget_box->interior->w(),data_widget->h());
@@ -404,17 +403,15 @@ void datamanager::refresh_datawidgets()
     data_widget_box->redraw();
     }
 
-void datamanager::remove_datawidget(datawidget * the_widget)
+void datamanager::remove_datawidget(datawidget * the_fl_widget)
     {
     //remove FLTK widget belonging to datawidget object from list,
     //and delete it eventually
 
     if (FLTK_running ())   //see comment on closing in header
         {
-        Fl_Widget* the_fl_widget=the_widget->get_widget();
-
         data_widget_box->interior->remove(the_fl_widget);
-        Fl::delete_widget(the_fl_widget);
+        //Fl::delete_widget(the_fl_widget);
         }
     }
 
