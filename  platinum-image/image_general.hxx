@@ -89,7 +89,6 @@ image_base * image_general<ELEMTYPE, IMAGEDIM>::alike (imageDataType unit)
 
     switch (unit)
         {
-        //TODO: make image_integer (or whatev) class and call that for all int types
         case VOLDATA_BOOL:      new_volume = new image_binary<IMAGEDIM>(this,false);             
             break;
         case VOLDATA_CHAR:      new_volume = new image_integer<char, IMAGEDIM > (this,false);              break;

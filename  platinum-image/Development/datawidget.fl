@@ -3,62 +3,75 @@ version 1.0107
 header_name {.h} 
 code_name {.cc}
 widget_class datawidget {open
-  private xywh {609 537 270 130} type Double hide
+  private xywh {811 484 270 130} type Double resizable
+  code0 {type(0);}
+  code1 {datamanagement.add_datawidget(this);}
+  code2 {name(n);}
+  class Fl_Pack visible
 } {
-  Fl_Pack {} {open
-    private xywh {0 0 270 130} labelsize 11
-  } {
-    Fl_Pack {} {open
-      private xywh {0 0 270 25} type HORIZONTAL
-    } {
-      Fl_Input filenamebutton {
-        user_data this
-        callback {datamanagement.set_volume_name(volume_id,string(filenamebutton->value()));}
-        private xywh {0 0 240 25} color 50 align 20
-      }
-      Fl_Menu_Button featuremenu {
-        user_data this open
-        private xywh {240 0 30 25} box THIN_UP_BOX
-      } {
-        MenuItem remove_mi {
-          label Remove user_data_type {long*}
-          callback {datamanager::removedata_callback}
-          xywh {0 0 100 20} labelsize 14
-        }
-        MenuItem save_vtk_mi {
-          label {Save as VTK...}
-          callback {datamanager::save_vtk_volume_callback}
-          xywh {0 0 100 20} labelsize 14
-        }
-        MenuItem duplicate_mi {
-          label Duplicate
-          xywh {0 0 100 20} labelsize 14 deactivate
-        }
-        MenuItem transferfunction_mi {
-          label {Transfer function}
-          xywh {0 0 100 20} labelsize 14
-        }
-      }
-    }
-    Fl_Box thumbnail {
-      private xywh {0 25 270 50}
-      code0 {image( new Fl_RGB_Image(thumbnail_image, thumbnail_size, thumbnail_size, 1));}
-      code1 {image( NULL);}
-    }
-    Fl_Pack extras {open
-      xywh {0 70 270 60}
-    } {}
-  }
   decl {int volume_id;} {}
   decl {const static int thumbnail_size;} {}
   decl {uchar * thumbnail_image;} {}
   decl {std::string _name;} {}
   decl {enum {remove_mi_num=0,save_mi_num, dup_mi_num};} {}
-  Function {datawidget(int datatype,int id, std::string n):Fl_Group(0,0,270,130)} {open
+  Function {datawidget(int datatype,int id, std::string n):datawidget(0,0,270,130)} {open
   } {
-    code {volume_id = id; name(n);
+    code {volume_id = id;
 thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
-    code {resizable(filenamebutton);
-datamanagement.add_datawidget(this);} {}
   }
+  Function {tfunction(Fl_Group * t);} {open return_type void
+  } {}
+  Function {toggle_tfunction(Fl_Widget* callingwidget, void*)} {open return_type {static void}
+  } {}
+  Fl_Pack hpacker {open selected
+    private xywh {0 0 270 25} type HORIZONTAL
+    code0 {resizable(filenamebutton);}
+  } {
+    Fl_Input filenamebutton {
+      user_data this
+      callback {datamanagement.set_volume_name(volume_id,string(filenamebutton->value()));}
+      private xywh {0 0 240 25} color 50 align 20 resizable
+    }
+    Fl_Menu_Button featuremenu {
+      user_data this open
+      private xywh {240 0 30 25} box THIN_UP_BOX
+    } {
+      MenuItem remove_mi {
+        label Remove
+        user_data {&datamanagement}
+        callback {datamanager::removedata_callback}
+        xywh {5 5 100 20} labelsize 14
+      }
+      MenuItem save_vtk_mi {
+        label {Save as VTK...}
+        user_data {&datamanagement}
+        callback {datamanager::save_vtk_volume_callback}
+        xywh {5 5 100 20} labelsize 14
+      }
+      MenuItem duplicate_mi {
+        label Duplicate
+        xywh {5 5 100 20} labelsize 14 deactivate
+      }
+      MenuItem transferfunction_mi {
+        label {Transfer function}
+        callback toggle_tfunction
+        xywh {5 5 100 20} labelsize 14
+      }
+    }
+  }
+  Fl_Box thumbnail {
+    private xywh {0 25 270 65} hide resizable
+    code0 {image( new Fl_RGB_Image(thumbnail_image, thumbnail_size, thumbnail_size, 1));}
+    code1 {image( NULL);}
+  }
+  Fl_Pack extras {open
+    xywh {0 90 270 40}
+    code0 {resizable(this);}
+  } {
+    Fl_Group tfunction_ {open
+      private xywh {0 90 270 40} box THIN_DOWN_BOX labelsize 11 align 16 resizable
+    } {}
+  }
+  Function {reset_tf_controls()} {open return_type {Fl_Group *}
+  } {}
 } 

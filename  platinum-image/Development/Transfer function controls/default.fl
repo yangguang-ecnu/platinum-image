@@ -1,0 +1,17 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0107 
+header_name {.h} 
+code_name {.cc}
+widget_class pane {open
+  xywh {105 327 270 35} type Double
+  class Fl_Group visible
+} {
+  Fl_Box white {
+    label high
+    xywh {10 10 15 15} box THIN_DOWN_BOX color 255 align 8
+  }
+  Fl_Box black {
+    label low
+    xywh {90 10 15 15} box THIN_DOWN_BOX color 0 align 8
+  }
+} 

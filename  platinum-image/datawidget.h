@@ -28,9 +28,14 @@
 #define __datawidget__
 
 #include <string>
+
+#include <FL/Fl.H>
+#include <FL/Fl_Group.H>
 #include <FL/Fl_Pack.H>
-#include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Input.H>
+#include <FL/Fl_Menu_Button.H>
+#include <FL/Fl_Box.H>
+
 
 #define DATAHANDLER_VOLUME_3D 1
 #define DATAHANDLER_VECTOR_3D 2
@@ -38,29 +43,47 @@
 
 #include "global.h"
 
-//Class handling a dataset's entry in the list
+#define MAXDATANAME 512
 
-class datawidget 
-    {
-    private:
-        Fl_Group *packer;    //the toolkit-dependent "outer" widget
-                            //that this object represents
+class datawidget : public Fl_Group {
+public:
+  datawidget(int X, int Y, int W, int H, const char *L = 0);
+private:
+  int volume_id;
+  const static int thumbnail_size;
+  uchar * thumbnail_image;
+  std::string _name;
+  enum {remove_mi_num=0,save_mi_num, dup_mi_num};
+  Fl_Group * tfunction_;
+  Fl_Pack *hpacker;
+  Fl_Input *filenamebutton;
+  void cb_filenamebutton_i(Fl_Input*, void*);
+  static void cb_filenamebutton(Fl_Input*, void*);
+  Fl_Menu_Button *featuremenu;
+  static Fl_Menu_Item menu_featuremenu[];
+public:
+  static Fl_Menu_Item *remove_mi;
+  static Fl_Menu_Item *save_vtk_mi;
+  static Fl_Menu_Item *duplicate_mi;
+  static Fl_Menu_Item *transferfunction_mi;
+private:
+  Fl_Box *thumbnail;
+public:
+  Fl_Pack *extras;
+public:
+  datawidget(int datatype,int id, std::string n);
+  void tfunction(Fl_Group * t);;
+  static void toggle_tfunction(Fl_Widget* callingwidget, void*);
+  Fl_Group * reset_tf_controls();
 
-        int volume_id;      //its associated volume
-        Fl_Widget * filenamebutton;
+    // *** end of Fluid ***
 
-        const static int thumbnail_size;
-        uchar * thumbnail;
-        std::string _name;
-
-    public:
-        ~datawidget ();
-        datawidget (int datatype,int vol_id,std::string name);
-        Fl_Group * get_widget(); //use with care
-        void refresh_thumbnail ();
-        int get_volume_id();
-        void name(std::string n);
-        const std::string name();
-        static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);
+    ~datawidget ();
+    void refresh_thumbnail ();
+    int get_volume_id();
+    void name(std::string n);
+    const std::string name();
+    static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);
     };
+
 #endif
