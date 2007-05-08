@@ -31,7 +31,7 @@ Keeps a list of renderer objects and handles communication between viewport and 
 
 ==Transfer functions==
 
-_See TransferFunctions_
+_See TransferFunctions _
 
 *[transfer_mapcolor]*
 Assigns unique colors to few (16 or less) consecutive integer values, like on a map. If it turns out to be applicable only to the [image_label] class, this class should be renamed transfer_label.
