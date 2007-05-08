@@ -31,7 +31,6 @@
 #include <FL/Fl_Widget.H>
 
 #include "userIOmanager.h"
-#include "histogram.h"
 
 #include "global.h"
 

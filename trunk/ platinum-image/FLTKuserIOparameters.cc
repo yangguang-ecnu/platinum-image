@@ -24,6 +24,7 @@
 #include "userIOmanager.h"
 #include "datamanager.h"
 #include "viewmanager.h"
+#include "histogram.h"
 
 extern datamanager datamanagement;
 extern viewmanager viewmanagement;
