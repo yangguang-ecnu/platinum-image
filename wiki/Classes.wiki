@@ -29,11 +29,33 @@ Rendergeometry stores rendering coordinates (look at, orientation and zoom) for 
 *Rendermanager*
 Keeps a list of renderer objects and handles communication between viewport and renderer.
 
-*Transfer_base*
-Base class for transfer functions.
+==Transfer functions==
 
-*Transfer_default*
-Default transfer function which simply linearly fits the image intensity range to screen range.
+_See TransferFunctions_
+
+*[transfer_mapcolor]*
+Assigns unique colors to few (16 or less) consecutive integer values, like on a map. If it turns out to be applicable only to the [image_label] class, this class should be renamed transfer_label.
+
+*[transfer_CT]*
+Special _computed tomography_ transfer function with several avaiable presets for the Hounsfield values of various tissue types, including a possible multi-color scheme for muscle, bone, fat etc.
+
+*[transfer_brightnesscontrast]*
+Simple brightness and contrast sliders.
+
+*[transfer_linear]*
+As above, but implemented as a line graph on a histogram.
+
+*[transfer_spline]*
+Spline interpolated transfer curve.
+
+*[transfer_default]*
+The default transfer function, maps values into grayscales with lowest value in image being black and highest white.
+
+*[transfer_base]*
+Abstract base for all transfer functions
+
+*[transfer_interpolated]*
+Abstract base for transfer functions using curves/lines drawn on a histogram, with lookup table (transfer_spline, transfer_linear)
 
 =Data handling=
 _*Point_base*_
@@ -104,4 +126,5 @@ Overlay to viewports that displays a segmentation preview for the 2D histogram s
 
 *FLTK2Dregionofinterest* 
 Overlay to viewports that displays region of interest information, including a rectangular selection and threshold_overlay segmentation previews.
+
 
