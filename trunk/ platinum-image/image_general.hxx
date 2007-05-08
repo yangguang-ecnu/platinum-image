@@ -499,7 +499,6 @@ float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z)
     return static_cast<float>(get_voxel (x, y, z));
     }
 
-// Direction=2 -> u=x, v=y, w=z Direction=1 -> u=x, v=z, w=y Direction=0 -> u=y, v=z, w=x
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_by_dir(int u, int v, int w, int direction)
 {	
@@ -515,7 +514,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_by_dir(int u, int v, int w, EL
 {
 	if(direction==0)//Loop over x
 		set_voxel(w,u,v,value);
-	if(direction==1)//Loop over y
+	else if(direction==1)//Loop over y
 		set_voxel(v,w,u,value);
 	else
 		set_voxel(u,v,w,value);//Loop over z
@@ -617,24 +616,11 @@ template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM> * image_general<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold)
 {
     image_binary<IMAGEDIM> * output = new image_binary<IMAGEDIM> (this,false);
-    
-    /*unsigned long i;
-	unsigned long n_voxels=get_n_voxels()*/
-    //    ELEMTYPE p;
-    
-	/*for(i=0; i<n_voxels; i++)
-		{
-		p=input->get_voxel(i);
-		if(p>=low && p<=high)
-			output->set_voxel(i,object_value);
-		else
-			output->set_voxel(i,!object_value);
-		}*/
         
-        typename image_storage<ELEMTYPE >::iterator i = this->begin();
-        typename image_binary<IMAGEDIM>::iterator o = output->begin();
-        
-        while (i != this->end()) //images are same size and
+    typename image_storage<ELEMTYPE >::iterator i = this->begin();
+    typename image_binary<IMAGEDIM>::iterator o = output->begin();
+    
+    while (i != this->end()) //images are same size and
                        //should necessarily end at the same time
         {
         if(*i>=low && *i<=high)
