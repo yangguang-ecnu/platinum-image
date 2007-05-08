@@ -90,7 +90,31 @@ class transfer_default: public transfer_base <ELEMTYPE >
         virtual void refresh();
     };
 
+template <class ELEMTYPE >
+    class transfer_interpolated: public transfer_base <ELEMTYPE >
+    {
+public:
+        transfer_interpolated (image_storage <ELEMTYPE > * s);
+        void get (const ELEMTYPE v, RGBvalue &p) = 0;
+    };
 
+template <class ELEMTYPE >
+    class transfer_linear: public transfer_interpolated <ELEMTYPE >
+    {
+public:
+        transfer_linear (image_storage <ELEMTYPE > * s);
+        void get (const ELEMTYPE v, RGBvalue &p);
+    };
+
+template <class ELEMTYPE >
+    class transfer_spline: public transfer_interpolated <ELEMTYPE >
+    {
+public:
+        transfer_spline (image_storage <ELEMTYPE > * s);
+        void get (const ELEMTYPE v, RGBvalue &p);
+    };
+    
 #include "transfer.hxx"
+#include "transfer_interpolated.hxx"
 
 #endif

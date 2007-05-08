@@ -23,11 +23,11 @@ image_label<IMAGEDIM >::image_label ():image_integer<IMGLABELTYPE, IMAGEDIM>()
 template<int IMAGEDIM >
 void image_label<IMAGEDIM >:: transfer_function(transfer_base<IMGLABELTYPE > * t)
     {
-    if (tfunction != NULL)
-        {delete tfunction;}
+    if (this->tfunction != NULL)
+        {delete this->tfunction;}
 
     if (t == NULL)
-        tfunction = new transfer_mapcolor<IMGLABELTYPE >(this);
+        this->tfunction = new transfer_mapcolor<IMGLABELTYPE >(this);
     else
-        tfunction = t;
+        this->tfunction = t;
     }
