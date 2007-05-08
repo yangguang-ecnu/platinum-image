@@ -7,7 +7,7 @@ The transfer objects's main function operates on an [image_general] iterator. It
 ==Classes==
 
 *[transfer_mapcolor]*
-Assigns unique colors to few (16 or less) consecutive integer values, like on a map. If it turns out to be applicable only to the [image_label] class, this class should be renamed transfer_label.
+Assigns unique colors to few (20 or less) consecutive integer values, like on a map. If it turns out to be applicable only to the [image_label] class, this class should be renamed transfer_label.
 
 *[transfer_CT]*
 Special _computed tomography_ transfer function with several avaiable presets for the Hounsfield values of various tissue types, including a possible multi-color scheme for muscle, bone, fat etc.
