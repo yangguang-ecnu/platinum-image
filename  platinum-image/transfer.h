@@ -29,6 +29,7 @@
 #ifndef __transfer__
 #define __transfer__
 
+#include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Slider.H>
 
@@ -93,9 +94,11 @@ class transfer_default: public transfer_base <ELEMTYPE >
 template <class ELEMTYPE >
     class transfer_interpolated: public transfer_base <ELEMTYPE >
     {
+protected:
+        IMGELEMCOMPTYPE lookup [0xFFFFFFF]; //accomodates unsigned long
 public:
         transfer_interpolated (image_storage <ELEMTYPE > * s);
-        void get (const ELEMTYPE v, RGBvalue &p) = 0;
+        void get (const ELEMTYPE v, RGBvalue &p);
     };
 
 template <class ELEMTYPE >
@@ -103,7 +106,6 @@ template <class ELEMTYPE >
     {
 public:
         transfer_linear (image_storage <ELEMTYPE > * s);
-        void get (const ELEMTYPE v, RGBvalue &p);
     };
 
 template <class ELEMTYPE >
@@ -111,7 +113,6 @@ template <class ELEMTYPE >
     {
 public:
         transfer_spline (image_storage <ELEMTYPE > * s);
-        void get (const ELEMTYPE v, RGBvalue &p);
     };
     
 #include "transfer.hxx"

@@ -17,10 +17,9 @@
 
 #include "histogram.h"
 
-#include "datamanager.h"
 #include "image_base.h"
 
-extern datamanager datamanagement;
+// *** histogram_base ***
 
 void histogram_base::clear_pixmap (uchar * image, unsigned int w,unsigned int h)
     {
@@ -44,6 +43,7 @@ int histogram_base::volume_ID (int axis)
     return threshold.get_id (axis);
     }
 
+// *** histogram_2D ***
 
 void histogram_2D_plot::volumes (int volume_hor,int volume_vert)
     {

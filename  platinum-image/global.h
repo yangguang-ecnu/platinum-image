@@ -53,4 +53,6 @@
 
 #define VOLUMEMAXDIMENSION 3
 
+enum ROImode {ROI_RECT, ROI_CIRCLE};
+
 #endif

@@ -20,6 +20,12 @@ template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::transfer_interpolated(image_storage <ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
 {}
 
+template <class ELEMTYPE>
+void transfer_interpolated<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
+{
+    p.set_mono(lookup[v]);
+}
+
 // *** transfer_linear ***
 
 template <class ELEMTYPE >

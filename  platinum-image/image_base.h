@@ -49,8 +49,6 @@ enum imageDataType
 
 class image_base : public data_base
     {
-    protected:
-        
     public:
         image_base();
         virtual image_base * alike (imageDataType unit) = 0;

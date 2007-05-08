@@ -46,8 +46,6 @@ enum RENDERER_TYPES { RENDERER_MPR=0, NUM_RENDERER_TYPES, NUM_RENDERER_TYPES_PLU
 //name strings for renderer types
 const std::string renderer_labels[] = {"MPR renderer"};
 
-//extern datamanager datamanagement;
-
 class renderer_base
     {
     protected:

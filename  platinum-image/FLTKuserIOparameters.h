@@ -40,7 +40,11 @@
 //#include <FL/Fl_Menu_Button.H>
 
 #include "ptmath.h"
-#include "histogram.h"
+
+class histogram_base;
+class histogram_2D;
+class regionofinterest;
+#include "threshold.h"
 
 #include "global.h"
 

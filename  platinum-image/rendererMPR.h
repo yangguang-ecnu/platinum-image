@@ -35,8 +35,6 @@
 
 #include "global.h"
 
-//extern datamanager datamanagement;
-
 //Complimentary vector functions (TODO: unuse and remove)
 Vector3D mult_elems( const Vector3D & one, const Vector3D & other );
 Vector3D div_elems( const Vector3D & numer, const Vector3D & denom );

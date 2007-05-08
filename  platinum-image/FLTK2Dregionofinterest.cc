@@ -21,6 +21,8 @@
 
 #include <FL/fl_draw.H>
 
+#include "histogram.h"
+
 #include "rendermanager.h"
 
 extern userIOmanager userIOmanagement;
