@@ -36,16 +36,16 @@ _See TransferFunctions _
 *[transfer_mapcolor]*
 Assigns unique colors to few (16 or less) consecutive integer values, like on a map. If it turns out to be applicable only to the [image_label] class, this class should be renamed transfer_label.
 
-*[transfer_CT]*
+_*[transfer_CT]*_
 Special _computed tomography_ transfer function with several avaiable presets for the Hounsfield values of various tissue types, including a possible multi-color scheme for muscle, bone, fat etc.
 
-*[transfer_brightnesscontrast]*
+_*[transfer_brightnesscontrast]*_
 Simple brightness and contrast sliders.
 
-*[transfer_linear]*
+_*[transfer_linear]*_
 As above, but implemented as a line graph on a histogram.
 
-*[transfer_spline]*
+_*[transfer_spline]*_
 Spline interpolated transfer curve.
 
 *[transfer_default]*
@@ -54,7 +54,7 @@ The default transfer function, maps values into grayscales with lowest value in 
 *[transfer_base]*
 Abstract base for all transfer functions
 
-*[transfer_interpolated]*
+_*[transfer_interpolated]*_
 Abstract base for transfer functions using curves/lines drawn on a histogram, with lookup table (transfer_spline, transfer_linear)
 
 =Data handling=
@@ -86,7 +86,7 @@ Image class with complex voxels.
 *Image_integer*
 Image type with integer values, in itself and as base for more task-specific subclasses.
 
-_*Image_label*_
+*Image_label*
 Image type with integer values signifying distinct classes or "labels" (i.e. not continuous values). Can be described as multiple binary volumes rolled into one. 0 (zero) carries special meaning as empty/background.
 
 =User interaction=
@@ -126,5 +126,4 @@ Overlay to viewports that displays a segmentation preview for the 2D histogram s
 
 *FLTK2Dregionofinterest* 
 Overlay to viewports that displays region of interest information, including a rectangular selection and threshold_overlay segmentation previews.
-
 
