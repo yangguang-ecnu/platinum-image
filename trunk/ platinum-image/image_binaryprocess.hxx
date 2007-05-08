@@ -682,7 +682,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 	max_u=this->get_size_by_dim_and_dir(0,direction);
 	max_v=this->get_size_by_dim_and_dir(1,direction);
 	max_w=this->get_size_by_dim_and_dir(2,direction);
-    int veryhigh = std::numeric_limits<int>::max()-5;
+	int veryhigh = std::max(max_u,max_v)*2;//std::numeric_limits<int>::max()-9;
 	int initvalue=(edge_is_object)?veryhigh:0;
 	bool p;//pixel value
 	int d,ul,um,ur,ml,mr,ll,lm,lr;//neighbour labels 
@@ -691,38 +691,37 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 		//Forward pass
 		for(v=0; v<max_v; v++)
 			{
+			u=0;
 			ml=initvalue;
 			ul=initvalue;
 			um=(v>0)? output->get_voxel(u,v-1,w) : initvalue;
-			ur=(v>0 && u<max_u-1)? output->get_voxel(u+1,v-1,w) : initvalue;
 			for(u=0; u<max_u; u++)
 				{
 				p=this->get_voxel_by_dir(u,v,w,direction);
+				ur=(v>0 && u<max_u-1)? output->get_voxel(u+1,v-1,w) : initvalue;
 				d=(p==object_value)?std::min(std::min(4+ul,3+um),std::min(4+ur,3+ml)):0;
 				output->set_voxel(u,v,w,d);
 				ml=d;
 				ul=um;
 				um=ur;
-				ur=(v>0 && u<max_u-1)? output->get_voxel(u+1,v-1,w) : initvalue;
 				}
 			}
 		//Backward pass
-		for(v=max_v-1; w>=0; v--)
+		for(v=max_v-1; v>=0; v--)
 			{
+			u=max_u-1;
 			mr=initvalue;
 			lr=initvalue;
 			lm=(v<max_v-1)? output->get_voxel(u,v+1,w) : initvalue;
-			ll=(v<max_v-1 && u>0)? output->get_voxel(u-1,v+1,w) : initvalue;
 			for(u=max_u-1; u>=0; u--)
 				{
 				d=output->get_voxel(u,v,w);
-				if(d>0)
-					d=std::min(d,std::min(std::min(4+ll,3+lm),std::min(4+lr,3+mr)));
+				ll=(v<max_v-1 && u>0)? output->get_voxel(u-1,v+1,w) : initvalue;
+				d=std::min(d,std::min(std::min(4+ll,3+lm),std::min(4+lr,3+mr)));
 				output->set_voxel(u,v,w,d);
 				mr=d;
 				lr=lm;
 				lm=ll;
-				ll=(v<max_v-1 && u>0)? output->get_voxel(u-1,v+1,w) : initvalue;
 				}
 			}
 		}
@@ -742,7 +741,6 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 		
 	bool p;//pixel value
 	int label,above,up,left;//neighbour labels 
-	//image_general<int, IMAGEDIM> label_image(max_u, max_v, max_w);
     image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
 	int new_label;
 	//init labels
@@ -859,7 +857,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 	max_u=this->get_size_by_dim(0);
 	max_v=this->get_size_by_dim(1);
 	max_w=this->get_size_by_dim(2);
-    int veryhigh = std::numeric_limits<int>::max()-6;
+	int veryhigh = (std::max(max_w,std::max(max_u,max_v))*5)/2;//std::numeric_limits<int>::max()-11;
 	int initvalue=(edge_is_object)?veryhigh:0;
 	bool p;//pixel value
 	int d,ul,um,ur,ml,mr,ll,lm,lr,aul,aum,aur,aml,amm,amr,all,alm,alr;//neighbour labels 
@@ -868,6 +866,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 		//Forward pass
 		for(v=0; v<max_v; v++)
 			{
+			u=0;
 			ml=initvalue;
 			ul=initvalue;
 			aml=initvalue;
@@ -921,6 +920,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 		{
 		for(v=max_v-1; v>=0; v--)
 			{
+			u=max_u-1;
 			mr=initvalue;
 			ur=initvalue;
 			amr=initvalue;
@@ -970,4 +970,167 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 			}
 		}
 	return output;
+	}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
+	{
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=get_size_by_dim(0);
+	max_v=get_size_by_dim(1);
+	max_w=get_size_by_dim(2);
+		
+	bool p;//pixel value
+	int label,above,up,left;//neighbour labels 
+    image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
+	int new_label;
+	//init labels
+	int number_of_objects=1;
+	for(w=0; w<max_w; w++)
+		{
+		for(v=0; v<max_v; v++)
+			{
+			for(u=0; u<max_u; u++)
+				{
+				p=get_voxel(u,v,w);
+				if(p!=object_value)//Note: we want to label bkg-objects in order to remove holes
+					{
+					above=(w>0)? label_image->get_voxel(u,v,w-1) : 0;
+					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
+					left=(u>0)? label_image->get_voxel(u-1,v,w) : 0;
+					new_label=number_of_objects;
+					if(above>0 && above<new_label)
+						new_label=above;
+					if(up>0 && up<new_label)
+						new_label=up;
+					if(left>0 && left<new_label)
+						new_label=left;
+					if(new_label==number_of_objects)
+						number_of_objects++;
+					label_image->set_voxel(u,v,w,new_label);
+					}
+				else
+					label_image->set_voxel(u,v,w,0);
+				}
+			}
+		}
+	int* changes=new int[number_of_objects];
+	int i;
+	for(i=0; i<number_of_objects; i++)
+		changes[i]=i;
+	//merge labels
+	for(w=0; w<max_w; w++)
+		{
+		for(v=0; v<max_v; v++)
+			{
+			for(u=0; u<max_u; u++)
+				{
+				label=label_image->get_voxel(u,v,w);
+				if(label>0)
+					{
+					above=(w>0)? label_image->get_voxel(u,v,w-1) : 0;
+					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
+					left=(u>0)? label_image->get_voxel(u-1,v,w) : 0;
+					while(label!=changes[label])
+						label=changes[label];
+					while(above!=changes[above])
+						above=changes[above];
+					while(up!=changes[up])
+						up=changes[up];
+					while(left!=changes[left])
+						left=changes[left];
+					new_label=label;
+					if(above>0 && above<new_label)
+						new_label=above;
+					if(up>0 && up<new_label)
+						new_label=up;
+					if(left>0 && left<new_label)
+						new_label=left;
+					changes[label]=new_label;
+					if(above>0)
+						changes[above]=new_label;
+					if(up>0)
+						changes[up]=new_label;
+					if(left>0)
+						changes[left]=new_label;						
+					}
+				}
+			}
+		}
+	int* lut=new int[number_of_objects];
+	int* tot_sizes=new int[number_of_objects];
+	memset(tot_sizes, 0, sizeof(int)*number_of_objects);
+	new_label=1;
+	for(i=1; i<number_of_objects; i++)
+		{
+		label=i;
+		while(label!=changes[label])
+			label=changes[label];
+		if(label==i)
+			{
+			lut[i]=new_label;
+			new_label++;
+			}
+		else
+			lut[i]=lut[label];
+		tot_sizes[lut[i]]+=sizes[i];
+		}
+	int max_size=0;
+	int max_label=1;
+	for(i=1; i<new_label; i++)
+		{
+		if(tot_sizes[i]>max_size)
+			{
+			max_size=tot_sizes[i];
+			max_label=i;
+			}
+		}
+	//set all labels !=1 -> obj
+	for(w=0; w<max_w; w++)
+		{
+		for(v=0; v<max_v; v++)
+			{
+			for(u=0; u<max_u; u++)
+				{
+				label=label_image->get_voxel(u,v,w);
+				if(lut[label]==max_label)//First label is background
+					set_voxel(u,v,w,object_value);
+				else //all other labels are object
+					set_voxel(u,v,w,!object_value);
+				}
+			}
+		}
+	}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::erode_2D(int step, int direction, bool object_value)
+	{		
+	bool edge_is_object=false;
+    image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, object_value);
+	this->copy_image(distance_image->threshold(step, distance_image->get_max(), object_value));
+	}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::dilate_2D(int step, int direction, bool object_value)
+	{		
+	bool edge_is_object=true;
+    image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, !object_value);
+	this->copy_image(distance_image->threshold(0, step, object_value));
+	}
+	
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::erode_3D(int step, bool object_value)
+	{		
+	bool edge_is_object=false;
+    image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, object_value);
+	this->copy_image(distance_image->threshold(step, distance_image->get_max(), object_value));
+	}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::dilate_3D(int step, bool object_value)
+	{		
+	bool edge_is_object=true;
+    image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, !object_value);
+	this->copy_image(distance_image->threshold(0, step, object_value));
 	}
