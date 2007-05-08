@@ -70,16 +70,16 @@ void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 template <class ELEMTYPE >
 transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
     {
-    pane->resize(0,0,270,35);
-    pane->resizable(NULL);
+    this->pane->resize(0,0,270,35);
+    this->pane->resizable(NULL);
 
-    pane->begin();
+    this->pane->begin();
 
         {
         int top = 5;
         int left = 5;
         RGBvalue vcolor = RGBvalue();
-        ostringstream label;
+        std::ostringstream label;
 
         for (int c=0;c<20;c++)
             {
@@ -109,9 +109,9 @@ transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):
 
         }
 
-    pane->end();
+    this->pane->end();
 
-    refresh();
+    this->refresh();
     }
 
 template <class ELEMTYPE >
@@ -195,10 +195,10 @@ void transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 template <class ELEMTYPE >
 transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
     {
-    pane->resize(0,0,270,35);
-    pane->resizable(NULL);
+    this->pane->resize(0,0,270,35);
+    this->pane->resizable(NULL);
 
-    pane->begin();
+    this->pane->begin();
 
     // *** FLUID ***
         { Fl_Box* o = white = new Fl_Box(10, 10, 15, 15, "high");
@@ -213,9 +213,9 @@ transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):tr
         }
     // *** end of FLUID ***
 
-    pane->end();
+    this->pane->end();
 
-    refresh();
+    this->refresh();
     }
 
 template <class ELEMTYPE >
@@ -227,8 +227,8 @@ void transfer_default<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 template <class ELEMTYPE >
 void transfer_default<ELEMTYPE >::refresh()
     {
-    ostringstream label;
-    label.flags( ios::boolalpha | ios::dec );
+    std::ostringstream label;
+    label.flags( std::ios::boolalpha | std::ios::dec );
 
     label << this->source->get_min();
     black->copy_label(label.str().c_str());

@@ -35,7 +35,7 @@ class image_base;
 template<class ELEMTYPE>
 class image_storage : public image_base
     {
-    friend transfer_base<ELEMTYPE>;
+    friend class transfer_base<ELEMTYPE>;
 
     protected:
         image_storage();
