@@ -1,9 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  FLTK userIO parameters
+//  FLTK userIO parameters $Revision$
 //  
 //  Widgets that present and allow setting values for userIO blocks
-//
+//    
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
@@ -43,7 +44,7 @@
 
 class histogram_base;
 class histogram_2D;
-class regionofinterest;
+struct regionofinterest;
 #include "threshold.h"
 
 #include "global.h"
