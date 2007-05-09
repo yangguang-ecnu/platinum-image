@@ -27,6 +27,7 @@
 #ifndef __image_general__
 #define __image_general__
 
+#define PI 3.1415926536
 #include "image_storage.h"
 
 //forward declarations, needed with GCC for unknown reasons
@@ -158,6 +159,7 @@ class image_general : public image_storage <ELEMTYPE >
 
         // *** processing ***
         image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold=true);
+		ELEMTYPE gauss_fit2();
     };
 
 //with C++ templates, declaration and definition go together
