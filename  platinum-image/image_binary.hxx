@@ -1,4 +1,4 @@
-$Id $
+//$Id $
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -26,13 +26,14 @@ image_binary<IMAGEDIM>::image_binary(int w, int h, int d, bool *ptr
                                     ):image_integer<bool, IMAGEDIM>(w, h, d, ptr)
     {}
 
+template <int IMAGEDIM>
 void image_binary<IMAGEDIM >:: transfer_function(transfer_base<bool > * t)
     {
     if (this->tfunction != NULL)
         {delete this->tfunction;}
 
     if (t == NULL)
-        this->tfunction = new transfer_mapcolor<IMGLABELTYPE >(this);
+        this->tfunction = new transfer_mapcolor<bool >(this);
     else
         this->tfunction = t;
     }
