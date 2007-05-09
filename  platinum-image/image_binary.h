@@ -1,10 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Image_binary
+//  Image_binary $Revision$
 //
 //  Image type with binary voxel/pixel values
 //
-//
+//  $LastChangedBy$
+//  
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -42,10 +43,15 @@ class image_binary : public image_integer <bool, IMAGEDIM>
 
     image_binary (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_integer<bool, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
 
+    void transfer_function(transfer_base<bool > * t);
+
+    // *** operations ***
+
     image_binary<IMAGEDIM> * logical_or(image_binary<IMAGEDIM> *input, bool object_value=true);
     image_binary<IMAGEDIM> * logical_and(image_binary<IMAGEDIM> *input, bool object_value=true);
     image_binary<IMAGEDIM> * logical_xor(image_binary<IMAGEDIM> *input, bool object_value=true);
-    // *** processing ***
+
+    // *** applications ***
 
     // 2D operations in image_binaryprocess
     void fill_holes_2D(int direction=2, bool object_value=true);
