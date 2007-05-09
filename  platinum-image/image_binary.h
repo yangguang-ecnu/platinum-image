@@ -58,15 +58,17 @@ class image_binary : public image_integer <bool, IMAGEDIM>
     void largest_object_2D(int direction=2, bool object_value=true);
     void threshold_size_2D(int min_size, int direction=2, bool object_value=true);
     void cog_inside_2D(image_binary<IMAGEDIM>* mask, int direction=2, bool object_value=true);
-	void erode_2D(int step=3, int direction=2, bool object_value=true);
-	void dilate_2D(int step=3, int direction=2, bool object_value=true);
+	void erode_2D(int thickness=3, int direction=2, bool object_value=true);
+	void dilate_2D(int thickness=3, int direction=2, bool object_value=true);
+	void outline_2D(int thickness=3, int direction=2, bool object_value=true);
     image_integer<short, IMAGEDIM> * distance_34_2D(bool edge_is_object=false, int direction=2, bool object_value=true);
 
     // 3D operations in image_binaryprocess
     void fill_holes_3D(bool object_value=true);
 	void largest_object_3D(bool object_value=true);
-	void erode_3D(int step=3, bool object_value=true);
-	void dilate_3D(int step=3, bool object_value=true);
+	void erode_3D(int thickness=3, bool object_value=true);
+	void dilate_3D(int thickness=3, bool object_value=true);
+	void outline_3D(int thickness=3, bool object_value=true);
     image_integer<short, IMAGEDIM> * distance_345_3D(bool edge_is_object=false, bool object_value=true);
     };
 
