@@ -1,3 +1,5 @@
+$Id $
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -17,17 +19,22 @@
 
 template <int IMAGEDIM>
 image_binary<IMAGEDIM>::image_binary():image_integer<bool, IMAGEDIM>() 
-    {
-    delete this->tfunction;
-    this->tfunction = new transfer_mapcolor<bool >(this);
-    }
+    {}
 
 template <int IMAGEDIM>
 image_binary<IMAGEDIM>::image_binary(int w, int h, int d, bool *ptr
                                     ):image_integer<bool, IMAGEDIM>(w, h, d, ptr)
+    {}
+
+void image_binary<IMAGEDIM >:: transfer_function(transfer_base<bool > * t)
     {
-    delete this->tfunction;
-    this->tfunction = new transfer_mapcolor<bool >(this);
+    if (this->tfunction != NULL)
+        {delete this->tfunction;}
+
+    if (t == NULL)
+        this->tfunction = new transfer_mapcolor<IMGLABELTYPE >(this);
+    else
+        this->tfunction = t;
     }
 
 // *** Logical operations ***
