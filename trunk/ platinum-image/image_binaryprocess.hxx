@@ -1104,33 +1104,49 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 	}
 
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::erode_2D(int step, int direction, bool object_value)
+void image_binary<IMAGEDIM>::erode_2D(int thickness, int direction, bool object_value)
 	{		
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, object_value);
-	this->copy_image(distance_image->threshold(step, distance_image->get_max(), object_value));
+	this->copy_image(distance_image->threshold(thickness, distance_image->get_max(), object_value));
 	}
 
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::dilate_2D(int step, int direction, bool object_value)
+void image_binary<IMAGEDIM>::dilate_2D(int thickness, int direction, bool object_value)
 	{		
 	bool edge_is_object=true;
     image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, !object_value);
-	this->copy_image(distance_image->threshold(0, step, object_value));
-	}
-	
-template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::erode_3D(int step, bool object_value)
-	{		
-	bool edge_is_object=false;
-    image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, object_value);
-	this->copy_image(distance_image->threshold(step, distance_image->get_max(), object_value));
+	this->copy_image(distance_image->threshold(0, thickness, object_value));
 	}
 
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::dilate_3D(int step, bool object_value)
+void image_binary<IMAGEDIM>::outline_2D(int thickness, int direction, bool object_value)
+	{		
+	bool edge_is_object=false;
+    image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, object_value);
+	this->copy_image(distance_image->threshold(3, thickness, object_value));
+	}
+	
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::erode_3D(int thickness, bool object_value)
+	{		
+	bool edge_is_object=false;
+    image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, object_value);
+	this->copy_image(distance_image->threshold(thickness, distance_image->get_max(), object_value));
+	}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::dilate_3D(int thickness, bool object_value)
 	{		
 	bool edge_is_object=true;
     image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, !object_value);
-	this->copy_image(distance_image->threshold(0, step, object_value));
+	this->copy_image(distance_image->threshold(0, thickness, object_value));
+	}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::outline_3D(int thickness, bool object_value)
+	{		
+	bool edge_is_object=false;
+    image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, object_value);
+	this->copy_image(distance_image->threshold(3, thickness, object_value));
 	}
