@@ -1,5 +1,5 @@
 //
-// "$Id: list_visuals.cxx,v 1.1 2007/01/16 14:28:19 joel Exp $"
+// "$Id$"
 //
 // Visual list utility for the Fast Light Tool Kit (FLTK).
 //
@@ -235,5 +235,5 @@ int main(int argc, char **argv) {
 #endif
 
 //
-// End of "$Id: list_visuals.cxx,v 1.1 2007/01/16 14:28:19 joel Exp $".
+// End of "$Id$".
 //
