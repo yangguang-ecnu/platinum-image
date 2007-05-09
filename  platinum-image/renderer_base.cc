@@ -115,8 +115,8 @@ std::vector<float> renderer_base::get_values(Vector3D unitPos)
         {
         //center-based to top-left-back,
         //add particular volume's geometric center
-        tlb=unitPos+volumestorender->rendervolume_pointers[i]->unit_center;
-        tlb=volumestorender->rendervolume_pointers[i]->unit_to_voxel*tlb;
+        tlb=unitPos+volumestorender->rendervolume_pointers[i]->unit_center();
+        tlb=volumestorender->rendervolume_pointers[i]->unit_to_voxel()*tlb;
         if ( tlb[0] >= 0 && tlb[1] >= 0 && tlb[2] >= 0 && tlb[0] < volumestorender->rendervolume_pointers[i]->get_size_by_dim(0) && tlb[1] < volumestorender->rendervolume_pointers[i]->get_size_by_dim(1) && tlb[2] < volumestorender->rendervolume_pointers[i]->get_size_by_dim(2))
             {
             v.push_back(volumestorender->rendervolume_pointers[i]->get_number_voxel(tlb[0],tlb[1],tlb[2]));

@@ -67,7 +67,7 @@ Vector3D rendererMPR::view_to_unit(int vx, int vy,int sx,int sy)
 
 Vector3D rendererMPR::view_to_voxel(int volumeID, int vx, int vy,int sx,int sy)
     {
-    return datamanagement.get_image(volumeID)->get_unit_to_voxel (view_to_unit(vx, vy,sx,sy));
+    return datamanagement.get_image(volumeID)->transform_unit_to_voxel (view_to_unit(vx, vy,sx,sy));
     }
 
 int rendererMPR::renderer_type()
@@ -218,7 +218,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         //derived from these
 
         //start position in volume
-        voxel_offset[the_volume]=(the_volume_pointer->unit_to_voxel)*(where->look_at+the_volume_pointer->unit_center-((render_dir*unit_screen_center)/where->zoom));
+        voxel_offset[the_volume]=(the_volume_pointer->unit_to_voxel())*(where->look_at+the_volume_pointer->unit_center()-((render_dir*unit_screen_center)/where->zoom));
 
 #ifndef USE_ARBITRARY
         //transform start to pixel units & voxel space which the renderer

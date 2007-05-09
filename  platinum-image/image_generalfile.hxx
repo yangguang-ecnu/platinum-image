@@ -1,9 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  image_generalfile.hxx
+//  image_generalfile.hxx $Revision $
 //
 //  File I/O functions implemented in image_general
 //
+//  $LastChangedBy $
 //
 
 // This file is part of the Platinum library.

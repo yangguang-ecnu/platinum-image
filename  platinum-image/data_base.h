@@ -1,8 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
+//  Data_base $Revision $
+//
 //  Untemplated base class for all data objects that are loadable/saveable
 //  and may show up in the data list widgets (and others!)
 //
+//  $LastChangedBy $
 //
 
 // This file is part of the Platinum library.
@@ -34,6 +37,8 @@
 
 class data_base // We MUST have a virtual base class
     {
+    private:
+        void set_parameters();
     protected:
         int ID;
         datawidget * widget;
@@ -42,8 +47,10 @@ class data_base // We MUST have a virtual base class
         //should be indicated by some kind of widget
 
         void name_from_path(std::string filepath);   //sets image name from name portion of path
-
-    public:       
+    
+        data_base ();
+        data_base (data_base *);
+    public:
         virtual ~data_base();
 
         //virtual const data_base &operator=(const data_base &k) { return k; }
@@ -62,11 +69,13 @@ class data_base // We MUST have a virtual base class
 
         Vector3D origin; //make protected, use access methods instead
         Matrix3D direction;
+
         //virtual data_base * alike () = 0;
 
         // *** Metadata ***
         virtual void name (const std::string n);          //set name
         virtual const std::string name ();          //get name
+        bool from_file();
         void from_file(bool f); //set "from file" status
     };
 
