@@ -39,6 +39,8 @@ class image_storage : public image_base
 
     protected:
         image_storage();
+        template<class SOURCETYPE>
+        image_storage(image_storage<SOURCETYPE> * s):image_base (s){};
 
         transfer_base<ELEMTYPE> * tfunction;
 

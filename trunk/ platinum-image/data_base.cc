@@ -1,3 +1,5 @@
+// $Id $
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -23,17 +25,22 @@
 
 using namespace std;
 
-static int maxvolumeID = 0;
-
 data_base::~data_base()
     {
     delete widget;
     }
 
 void data_base::name (const string n)
-{
-    widget->name(n);
-}
+    {
+    if (widget != NULL)
+        { widget->name(n); }
+#ifdef _DEBUG
+    else
+        {
+        cout << "Attempt to set name(const string) on a widget-less data object" << endl;
+        }
+#endif
+    }
 
 const string data_base::name()
     {
@@ -43,6 +50,29 @@ const string data_base::name()
         }
 
     return ( "(untitled)" );
+    }
+
+data_base::data_base()
+    {
+    widget = NULL;
+    from_file(false);
+
+    origin.Fill(0);
+    direction.SetIdentity();
+    }
+
+data_base::data_base (data_base * source)
+    {
+    widget = NULL;
+    from_file(source->from_file());
+
+    origin = source->origin;
+    direction = source->direction;
+    }
+
+bool data_base::from_file()
+    {
+    return (fromFile);
     }
 
 void data_base::from_file(bool f)

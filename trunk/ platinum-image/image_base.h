@@ -1,8 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
+//  Image_base $Revision $
+//
 //  Untemplated base class for image storage, including volumes
 //  contains 3D position and orientation information
 //
+//  $LastChangedBy $
 //
 
 // This file is part of the Platinum library.
@@ -49,8 +52,22 @@ enum imageDataType
 
 class image_base : public data_base
     {
-    public:
+    private:
+        void set_parameters ();
+    protected:
         image_base();
+        image_base(image_base* s);
+
+        // *** cached data ***
+
+        Matrix3D unit_to_voxel_;    //cached transform from unit space to voxels this volume
+
+        //Volume parameters
+        //TODO: obtain from functions instead of storing
+
+        Vector3D unit_center_;    //computation aid: vector representing offset from
+        //bottomleft to centered unit coordinate system
+    public:
         virtual image_base * alike (imageDataType unit) = 0;
        
         // image_base(const image_base &k) { *this=k; ::image_base(); }
@@ -90,19 +107,17 @@ class image_base : public data_base
         int get_id()
             { return ID; }
 
-        Vector3D get_unit_to_voxel(Vector3D pos);
+        Vector3D transform_unit_to_voxel(Vector3D pos);
         
+        virtual void image_has_changed(bool min_max_refresh = false) {};
+        // *** access methods ***
+
         virtual Matrix3D get_voxel_resize () = 0;
 
-        virtual void image_has_changed(bool min_max_refresh = false) {};
-
-        Matrix3D unit_to_voxel;    //cached transform from unit space to voxels this volume
-
-        //Volume parameters
-        //TODO: obtain from functions instead of storing
-
-        Vector3D unit_center;    //computation aid: vector representing offset from
-                                 //bottomleft to centered unit coordinate system
+        Matrix3D unit_to_voxel()
+            {  return unit_to_voxel_; }
+        Vector3D unit_center()
+            { return unit_center_; }
     };
 
 #endif

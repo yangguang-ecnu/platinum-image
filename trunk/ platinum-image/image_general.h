@@ -1,10 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Image_general
+//  Image_general $Revision $
 //
 //  Abstract base class for the various image classes, templated over
 //  dimension and voxel data type
 //
+//  $LastChangedBy $
 //
 
 // This file is part of the Platinum library.
@@ -72,13 +73,14 @@ class image_general : public image_storage <ELEMTYPE >
         image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
         template<class SOURCETYPE> 
             image_general(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true);
-        
+
         void set_parameters ();                                                     //reset & calculate parameters
         void set_parameters (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
-        void set_parameters (image_general<ELEMTYPE, IMAGEDIM> * from_volume);            //clone parameters from another image
-        
+        template <class sourceType>
+            void set_parameters (image_general<sourceType, IMAGEDIM> * from_volume);         //clone parameters from another image
+
         void calc_transforms ();                                            //used by set_parameters(...) functions
-                                                                            //to recalculate cached transform(s)
+        //to recalculate cached transform(s)
 
     public:                                                    
         //virtual image_base * alike ();

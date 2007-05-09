@@ -2,6 +2,7 @@
 //
 //  Test application for Platinum development
 //
+//  $LastChangedBy $
 //
 
 //    The Platinum library is free software; you can redistribute it and/or modify

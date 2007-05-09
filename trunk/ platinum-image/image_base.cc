@@ -1,3 +1,5 @@
+// $Id $
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -31,33 +33,39 @@ extern datamanager datamanagement;
 extern rendermanager rendermanagement;
 extern viewmanager viewmanagement;
 
-static int maxvolumeID = 0;
+static int imagemaxID = 1;
 
-image_base::image_base() {
+image_base::image_base():data_base()
+    {set_parameters ();}
+image_base::image_base(image_base* s):data_base(s)
+    {
+    set_parameters ();
+    //setting copy name at the root would be neat,
+    //but is not possible since the widget isn't
+    //created yet
+
+    name ("Copy of " + s->name());
+    }
+
+void image_base::set_parameters ()    
+    {
     ostringstream namestream;
-    
-    ID=++maxvolumeID;
 
-    from_file(false);
-
-    origin.Fill(0);
-    direction.SetIdentity();
+    ID = imagemaxID++;
 
     //constructor: add "Untitled" name and ID
-    namestream << "3D volume (" << ID << ")";
+    namestream << "3D image (" << ID << ")";
 
     widget=new datawidget(DATAHANDLER_VOLUME_3D,ID,namestream.str());
     name(namestream.str());
-
-    cout << "image_base-kontruktör " << namestream.str() << endl; 
     }
 
-Vector3D image_base::get_unit_to_voxel(Vector3D pos)
+Vector3D image_base::transform_unit_to_voxel(Vector3D pos)
     {
     Vector3D vox;
 
-    vox=pos+unit_center;
-    vox=unit_to_voxel*vox;
+    vox=pos+unit_center_;
+    vox=unit_to_voxel_*vox;
 
     return vox;
     }

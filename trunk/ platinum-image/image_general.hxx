@@ -1,3 +1,5 @@
+//$Id $
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -54,29 +56,28 @@ using namespace std;
 #define theStatsFilterPointerType theStatsFilterType::Pointer
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<ELEMTYPE, IMAGEDIM> * from_volume)
+template <class sourceType>
+void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType, IMAGEDIM> * sourceImage)
     {
+    //this function only works when image dimensionality matches
+
     short size [IMAGEDIM];
 
     for (int d=0; d < IMAGEDIM; d++)
-        { size[d]=from_volume->datasize[d]; }
+        { size[d]=sourceImage->get_size_by_dim(d); }
 
     initialize_dataset(size[0],size[1],size[2]);
 
     ITKimportfilter=NULL;
     ITKimportimage=NULL;
 
-    this->volumename = "Copy of " + from_volume->volumename;
+    this->maxvalue        = sourceImage->get_max();
+    this->minvalue        = sourceImage->get_min();
 
-    this->maxvalue        = from_volume->maxvalue;
-    this->minvalue        = from_volume->minvalue;
+    this->voxel_resize    = sourceImage->get_voxel_resize();
 
-    this->origin          = from_volume->origin;
-    this->direction       = from_volume->direction;
-    this->voxel_resize    = from_volume->voxel_resize;
-
-    this->unit_center     = from_volume->unit_center;
-    this->unit_to_voxel   = from_volume->unit_to_voxel;
+    this->unit_center_     = sourceImage->unit_center();
+    this->unit_to_voxel_   = sourceImage->unit_to_voxel();
 
     // *ID, from_file, volumename and widget are assigned in image_base constructor
     }
@@ -125,8 +126,8 @@ image_base * image_general<ELEMTYPE, IMAGEDIM>::alike (imageDataType unit)
 //    new_volume->direction       = direction;
 //    new_volume->voxel_resize    = voxel_resize;
 //
-//    new_volume->unit_center     = unit_center;
-//    new_volume->unit_to_voxel   = unit_to_voxel;
+//    new_volume->unit_center_     = unit_center;
+//    new_volume->unit_to_voxel   = unit_to_voxel_;
 //
 //    return new_volume;
 //    }
@@ -169,12 +170,14 @@ template <class ELEMTYPE, int IMAGEDIM>
 
 template <class ELEMTYPE, int IMAGEDIM>
     template<class SOURCETYPE>
-    image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData) : image_storage<ELEMTYPE > ()
+    image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData) : image_storage<ELEMTYPE > (old_volume) //copy constructor
     {
-    initialize_dataset(old_volume->get_size_by_dim(0), old_volume->get_size_by_dim(1), old_volume->get_size_by_dim(2), false);
+    initialize_dataset(old_volume->get_size_by_dim(0), old_volume->get_size_by_dim(1), old_volume->get_size_by_dim(2), NULL);
 
     if (copyData)
         { copy_image (old_volume); }
+
+    set_parameters(old_volume);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -202,7 +205,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
     {
     datasize[0] = w; datasize[1] = h; datasize[2] = d;
     
-    //dimension-indepent loop that may be lifted outside this function
+    //dimension-independent loop that may be lifted outside this function
     this->num_elements=1;
     for (unsigned short i = 0; i < IMAGEDIM; i++) 
         {
@@ -317,11 +320,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::calc_transforms ()
     unsigned short datasize_max_norm= max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
 
     re_resize=this->voxel_resize.GetInverse();
-    this->unit_to_voxel=re_resize*datasize_max_norm;
+    this->unit_to_voxel_=re_resize*datasize_max_norm;
     
     //center of data in unit coordinates where longest edge = 1
     for (unsigned int d=0;d<3;d++)
-        {this->unit_center[d]=this->voxel_resize[d][d]*datasize[d]/(datasize_max_norm*2);}
+        {this->unit_center_[d]=this->voxel_resize[d][d]*datasize[d]/(datasize_max_norm*2);}
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -330,7 +333,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters()
     unsigned short datasize_max_norm= max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
 
     for (unsigned int d=0;d<3;d++)
-        {this->unit_center[d]=(float)datasize[d]/(datasize_max_norm*2);}
+        {this->unit_center_[d]=(float)datasize[d]/(datasize_max_norm*2);}
 
     calc_transforms();
     }
@@ -540,7 +543,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     typename itk::Image<ELEMTYPE,IMAGEDIM>::PointType             itk_origin;
     typename itk::Image<ELEMTYPE,IMAGEDIM>::DirectionType         itk_orientation;
 
-    this->voxel_resize.Fill(0);
+    this->voxel_resize.SetIdentity();
 
     itk_vox_size=i->GetSpacing();
     itk_origin=i->GetOrigin ();
@@ -549,8 +552,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     float spacing_min_norm=static_cast<float>(itk_vox_size[0]);
     for (unsigned int d=0;d<IMAGEDIM;d++)
         {
-        spacing_min_norm=min(spacing_min_norm,static_cast<float>(itk_vox_size[d]));
-        voxel_resize[d][d]=itk_vox_size[d];
+        if (itk_vox_size[d] > 0)
+            {
+            voxel_resize[d][d]=itk_vox_size[d];
+            spacing_min_norm=min(spacing_min_norm,static_cast<float>(itk_vox_size[d]));
+            }
         this->origin[d]=itk_origin[d];
 
         //orthogonal-only renderer can't handle arbitrary volume orientations
@@ -563,8 +569,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
 #endif
         }
 
-    //scale to shortest dimension=1
-    voxel_resize/=spacing_min_norm;
+    //scale to shortest dimension=1. If condition is not met,
+    //voxel_resize will be an identity matrix
+    if (spacing_min_norm > 0)
+        {voxel_resize/=spacing_min_norm;}
 
     //longest edge
     unsigned short datasize_max_norm=max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
