@@ -2,7 +2,7 @@
 version 1.0107 
 header_name {.hh} 
 code_name {.cxx}
-widget_class importDialog {open selected
+widget_class importDialog {open
   xywh {482 172 478 307} type Single
   class Fl_window visible
 } {
@@ -137,9 +137,9 @@ widget_class importDialog {open selected
       code0 {o->value ("1");}
     }
     Fl_Input voxsizez {
-      label z
+      label z selected
       xywh {218 264 35 20} type Float labelsize 10 when 0 textsize 12
-      code0 {o->value ("4");}
+      code0 {o->value ("1");}
     }
   }
   Fl_Button rawimportcancel {
