@@ -43,7 +43,7 @@ class image_binary : public image_integer <bool, IMAGEDIM>
 
     image_binary (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_integer<bool, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
 
-    void transfer_function(transfer_base<bool > * t);
+    virtual void transfer_function(transfer_base<bool > * t);
 
     // *** operations ***
 
