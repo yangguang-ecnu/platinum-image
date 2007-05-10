@@ -507,7 +507,7 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
             o->labelsize(10);
             o->textsize(12);
             o->when(FL_WHEN_NEVER);
-            o->value ("4");
+            o->value ("1");
             }
         o->end();
         }
