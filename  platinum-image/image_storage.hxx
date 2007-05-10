@@ -24,7 +24,6 @@ image_storage<ELEMTYPE >::image_storage() : image_base ()
     imageptr = NULL;
     tfunction = NULL;
     
-    tfunction=NULL;
     transfer_function();  //set default transfer function
 
     minvalue=std::numeric_limits<ELEMTYPE>::min();
