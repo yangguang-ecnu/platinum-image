@@ -646,8 +646,8 @@ template <class ELEMTYPE, int IMAGEDIM>
 //int image_general<ELEMTYPE, IMAGEDIM>::gauss_fit2(image_binary<IMAGEDIM> *mask, bool object_value)
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::gauss_fit2()
     {
-	ELEMTYPE min_val=get_min_float();
-	ELEMTYPE max_val=get_max_float();
+	ELEMTYPE min_val=this->get_min();
+	ELEMTYPE max_val=this->get_max();
 	ELEMTYPE errMinInd=max_val;
 	double* hist=new double[1+max_val-min_val];
 	memset(hist, 0, sizeof(double)*(1+max_val-min_val));
