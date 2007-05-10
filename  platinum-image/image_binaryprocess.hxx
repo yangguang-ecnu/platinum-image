@@ -977,9 +977,9 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
-	max_u=this->get_size_by_dim(0);
-	max_v=this->get_size_by_dim(1);
-	max_w=this->get_size_by_dim(2);
+	max_u=get_size_by_dim(0);
+	max_v=get_size_by_dim(1);
+	max_w=get_size_by_dim(2);
 		
 	bool p;//pixel value
 	int label,above,up,left;//neighbour labels 
@@ -993,7 +993,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 			{
 			for(u=0; u<max_u; u++)
 				{
-				p=this->get_voxel(u,v,w);
+				p=get_voxel(u,v,w);
 				if(p!=object_value)//Note: we want to label bkg-objects in order to remove holes
 					{
 					above=(w>0)? label_image->get_voxel(u,v,w-1) : 0;
@@ -1017,6 +1017,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 		}
 	int* changes=new int[number_of_objects];
 	int i;
+	int* sizes=new int[number_of_objects];
 	for(i=0; i<number_of_objects; i++)
 		changes[i]=i;
 	//merge labels
@@ -1053,7 +1054,8 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 					if(up>0)
 						changes[up]=new_label;
 					if(left>0)
-						changes[left]=new_label;						
+						changes[left]=new_label;
+					sizes[new_label]++;									
 					}
 				}
 			}
@@ -1074,7 +1076,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 			}
 		else
 			lut[i]=lut[label];
-		tot_sizes[lut[i]]+=tot_sizes[i]; //NOTE: sizes changed to tot_sizes
+		tot_sizes[lut[i]]+=sizes[i];
 		}
 	int max_size=0;
 	int max_label=1;
@@ -1095,9 +1097,9 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 				{
 				label=label_image->get_voxel(u,v,w);
 				if(lut[label]==max_label)//First label is background
-					this->set_voxel(u,v,w,object_value);
+					set_voxel(u,v,w,object_value);
 				else //all other labels are object
-					this->set_voxel(u,v,w,!object_value);
+					set_voxel(u,v,w,!object_value);
 				}
 			}
 		}
