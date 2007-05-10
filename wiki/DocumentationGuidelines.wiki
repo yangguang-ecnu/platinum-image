@@ -1,0 +1,37 @@
+#summary Instructions and guidelines for providing documentation in code, SVN and Wiki
+#labels Phase-Design
+
+= Introduction =
+
+Add your content here.
+
+
+==Code comments==
+In the future Platinum may adapt [http://doxygen.org Doxygen] for generating automatic documentation. To support this - and to get a common style - comments should be made in a [http://www.stack.nl/~dimitri/doxygen/docblocks.html Doxygen-compatible syntax]:
+
+===Header files===
+The header file should start with a brief description like this example:
+{{{
+/////////////////////////////////////////////////
+///
+/// The_class $Revision $
+///
+/// Class that does its thing. Used with The_other_class.
+/// $LastChangedBy $
+///
+}}}
+A more thorough description, plans et.c. should be put in this wiki. Use these tags:
+||For||Tag||Page name||
+||Description of an entire class, including info on functions||!ClassDescription||Class name (sentence caps, e.g. My_class)||
+||Page about a single function||!FunctionDescription||Function name (sentence caps, e.g. !ItsFunction)||
+
+==SVN commit comments==
+
+==Google Code Wiki==
+
+
+
+
+
+
+
