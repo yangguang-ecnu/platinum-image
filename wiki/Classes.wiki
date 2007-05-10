@@ -86,6 +86,9 @@ Image class with complex voxels.
 *Image_integer*
 Image type with integer values, in itself and as base for more task-specific subclasses.
 
+*[Image_binary]*
+Binary image type, subclass of image_integer.
+
 *Image_label*
 Image type with integer values signifying distinct classes or "labels" (i.e. not continuous values). Can be described as multiple binary volumes rolled into one. 0 (zero) carries special meaning as empty/background.
 
@@ -126,4 +129,3 @@ Overlay to viewports that displays a segmentation preview for the 2D histogram s
 
 *FLTK2Dregionofinterest* 
 Overlay to viewports that displays region of interest information, including a rectangular selection and threshold_overlay segmentation previews.
-
