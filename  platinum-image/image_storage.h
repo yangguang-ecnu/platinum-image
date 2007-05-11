@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////
 //
 //  Image_storage
-//
-//  Abstract base class storing image data as a stream
-//
+///
+/// Abstract base class storing image data as a stream
+///
 //
 
 // This file is part of the Platinum library.
@@ -37,10 +37,13 @@ class image_storage : public image_base
     {
     friend class transfer_base<ELEMTYPE>;
 
+    private:
+        void set_parameters ();
+
     protected:
         image_storage();
         template<class SOURCETYPE>
-        image_storage(image_storage<SOURCETYPE> * s):image_base (s){};
+        image_storage(image_storage<SOURCETYPE> * s);
 
         transfer_base<ELEMTYPE> * tfunction;
 
