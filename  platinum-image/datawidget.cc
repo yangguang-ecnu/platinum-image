@@ -131,17 +131,11 @@ void datawidget::toggle_tfunction(Fl_Widget* callingwidget, void*)
 
 datawidget::~datawidget ()
     {
-    //this might be executed after window and all is deleted, check for widget existence some way!
-
-   //if (datamanagement.FLTK_running())
-        {
-        //hide();   //packer must be hidden before removal (strangely enough)
-        //or it will cause an exception
-        delete image();
-        image(NULL);
-        }
-
     datamanagement.remove_datawidget(this);
+
+    delete image();
+    image(NULL);
+
     delete [] thumbnail;
     }
 
