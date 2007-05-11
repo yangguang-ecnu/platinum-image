@@ -407,16 +407,12 @@ void datamanager::refresh_datawidgets()
 
 void datamanager::remove_datawidget(datawidget * the_fl_widget)
     {
-    //remove FLTK widget belonging to datawidget object from list,
-    //and delete it eventually
+    //remove FLTK widget belonging to datawidget object from list
+    //the datawidget itself is deleted by its owner data_base
 
     the_fl_widget->hide();
 
-    //if (FLTK_running ())   //see comment on closing in header
-        {
-        data_widget_box->interior->remove(the_fl_widget);
-        //Fl::delete_widget(the_fl_widget);
-        }
+    data_widget_box->interior->remove(the_fl_widget);
     }
 
 void datamanager::image_has_changed (int volume_ID, bool recalibrate)

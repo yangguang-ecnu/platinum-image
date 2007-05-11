@@ -31,7 +31,8 @@ data_base::~data_base()
     //it would crash if deleted with delete(...)
     //Fl::delete_widget is designed to avoid this
 
-    Fl::delete_widget (widget);
+    if (widget != NULL)
+        {Fl::delete_widget (widget); }
     }
 
 void data_base::name (const string n)
