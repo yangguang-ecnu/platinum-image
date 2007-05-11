@@ -42,9 +42,6 @@ class data_base // We MUST have a virtual base class
     protected:
         int ID;
         datawidget * widget;
-        bool fromFile; //indicates whether the data was created inside
-        //the program and perhaps needs to be saved;
-        //should be indicated by some kind of widget
 
         void name_from_path(std::string filepath);   //sets image name from name portion of path
     

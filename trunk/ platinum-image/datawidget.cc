@@ -166,7 +166,12 @@ void datawidget::name(std::string n)
     //done elsewhere (most notably in datamanagement.set_volume_name( ... )
     }
 
-//Fl_Group* datawidget::get_widget()
-//    {
-//    return packer;
-//    }
+void datawidget::from_file(bool f)
+    {
+    fromFile = f;
+    }
+
+bool datawidget::from_file()
+    {
+    return fromFile;
+    }

@@ -2,7 +2,7 @@
 version 1.0107 
 header_name {.h} 
 code_name {.cc}
-widget_class datawidget {open
+widget_class datawidget {open selected
   private xywh {811 484 270 130} type Double resizable
   code0 {type(0);}
   code1 {datamanagement.add_datawidget(this);}
@@ -23,7 +23,7 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
   } {}
   Function {toggle_tfunction(Fl_Widget* callingwidget, void*)} {open return_type {static void}
   } {}
-  Fl_Pack hpacker {open selected
+  Fl_Pack hpacker {open
     private xywh {0 0 270 25} type HORIZONTAL
     code0 {resizable(filenamebutton);}
   } {
