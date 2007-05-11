@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -408,7 +410,9 @@ void datamanager::remove_datawidget(datawidget * the_fl_widget)
     //remove FLTK widget belonging to datawidget object from list,
     //and delete it eventually
 
-    if (FLTK_running ())   //see comment on closing in header
+    the_fl_widget->hide();
+
+    //if (FLTK_running ())   //see comment on closing in header
         {
         data_widget_box->interior->remove(the_fl_widget);
         //Fl::delete_widget(the_fl_widget);

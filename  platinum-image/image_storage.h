@@ -1,9 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Image_storage
+//   Image_storage $Revision$
 ///
-/// Abstract base class storing image data as a stream
+///  Abstract base class storing image data as a stream
 ///
+//   $LastChangedBy$
 //
 
 // This file is part of the Platinum library.

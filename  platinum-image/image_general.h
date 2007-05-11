@@ -1,11 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Image_general $Revision $
-//
-//  Abstract base class for the various image classes, templated over
-//  dimension and voxel data type
-//
-//  $LastChangedBy $
+//   Image_general $Revision$
+///
+///  Abstract base class for the various image classes, templated over
+///  dimension and voxel data type
+///
+//   $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
