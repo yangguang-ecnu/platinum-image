@@ -17,9 +17,8 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-
 template <class ELEMTYPE >
-image_storage<ELEMTYPE >::image_storage() : image_base ()
+void image_storage<ELEMTYPE >::set_parameters()
     {
     imageptr = NULL;
     tfunction = NULL;
@@ -28,6 +27,19 @@ image_storage<ELEMTYPE >::image_storage() : image_base ()
 
     minvalue=std::numeric_limits<ELEMTYPE>::min();
     maxvalue=std::numeric_limits<ELEMTYPE>::max();
+    }
+
+template <class ELEMTYPE >
+image_storage<ELEMTYPE >::image_storage() : image_base ()
+    {
+    set_parameters();
+    }
+
+template <class ELEMTYPE >
+template<class SOURCETYPE>
+image_storage<ELEMTYPE >::image_storage(image_storage<SOURCETYPE> * s):image_base (s)
+    {
+    set_parameters();
     }
 
 template <class ELEMTYPE >
