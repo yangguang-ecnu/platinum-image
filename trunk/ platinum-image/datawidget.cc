@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -34,7 +36,7 @@ void datawidget::cb_filenamebutton_i(Fl_Input*, void*) {
     datamanagement.set_volume_name(volume_id,string(filenamebutton->value()));
     }
 void datawidget::cb_filenamebutton(Fl_Input* o, void* v) {
-    ((datawidget*)(o->parent()->parent()->parent()))->cb_filenamebutton_i(o,v);
+    ((datawidget*)(o->parent()->parent()))->cb_filenamebutton_i(o,v);
     }
 
 Fl_Menu_Item datawidget::menu_featuremenu[] = {
@@ -131,14 +133,14 @@ datawidget::~datawidget ()
     {
     //this might be executed after window and all is deleted, check for widget existence some way!
 
-    if (datamanagement.FLTK_running())
+   //if (datamanagement.FLTK_running())
         {
-        hide();   //packer must be hidden before removal (strangely enough)
+        //hide();   //packer must be hidden before removal (strangely enough)
         //or it will cause an exception
         delete image();
         image(NULL);
         }
-    
+
     datamanagement.remove_datawidget(this);
     delete [] thumbnail;
     }

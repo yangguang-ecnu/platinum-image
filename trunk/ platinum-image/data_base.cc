@@ -1,4 +1,4 @@
-// $Id $
+// $Id$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -27,7 +27,11 @@ using namespace std;
 
 data_base::~data_base()
     {
-    delete widget;
+    //destructor may be called from a menu choice in widget,
+    //it would crash if deleted with delete(...)
+    //Fl::delete_widget is designed to avoid this
+
+    Fl::delete_widget (widget);
     }
 
 void data_base::name (const string n)

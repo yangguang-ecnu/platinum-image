@@ -1,11 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Data_base $Revision $
-//
-//  Untemplated base class for all data objects that are loadable/saveable
-//  and may show up in the data list widgets (and others!)
-//
-//  $LastChangedBy $
+//   Data_base $Revision$
+///
+///  Untemplated base class for all data objects that are loadable/saveable
+///  and may show up in the data list widgets (and others!)
+///
+//   $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
