@@ -77,12 +77,22 @@ data_base::data_base (data_base * source)
 
 bool data_base::from_file()
     {
-    return (fromFile);
+    if (widget !=NULL)
+        { return (widget->from_file()); }
+    else
+        { return false; }
     }
 
 void data_base::from_file(bool f)
     {
-    fromFile=f;
+    if (widget !=NULL)
+        { widget->from_file(f); }
+#ifdef _DEBUG
+    else
+        {
+        cout << "Attempt to set from_file(bool) on a widget-less data object" << endl;
+        }
+#endif
     }
 
 void data_base::name_from_path(string file_path)

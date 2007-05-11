@@ -136,53 +136,60 @@ void platinum_init ()
 
     }
 
-void platinum_setup (Fl_Window & window, int viewports_h = 2, int viewports_v = 2)
+void platinum_setup (Fl_Window & window, int num_viewports_h = 2, int num_viewports_v = 2,int tool_area_w = 250)
     {
-    const int w_margin=15*2;
-    int wwidth = window.w()-w_margin;
-    int wheight = window.h()-w_margin;
+    const int win_margin=15*2;
+    int win_w = window.w()-win_margin;
+    int win_h = window.h()-win_margin;
+    int view_w = win_w - tool_area_w;
+    int view_h = win_h;
 
-    //set up the window
+    //set up the window;
+    window.size (win_w,win_h);
     window.resizable(&window);
-    window.size (wwidth,wheight);
 
     //allows resizing the proportions of views & data/tools
-    Fl_Tile * leftrighttile = new Fl_Tile(0,0,wwidth,wheight);
+    Fl_Tile * viewsNtools = new Fl_Tile(0,0,win_w,win_h);
 
-    //// skapa ett antal viewports
+    //Fl_Tile * views = new Fl_Tile(0,0,view_w,view_h);
+
+    // *** skapa ett antal views ***
     //
-    const int antalvp = viewports_h * viewports_v;
-    for (int i=0;i < antalvp; i++) // create some viewports w/ renderers
+    const int antalvp = num_viewports_h * num_viewports_v;
+    for (int i=0;i < antalvp; i++) // create some views w/ renderers
         {
         viewmanagement.create_viewport();
         }
 
-    //// Ge viewmanager och datamanager lämpliga FLTK-pekare och initiera
-    //
+    // *** Ge viewmanager och datamanager lämpliga FLTK-pekare och initiera ***
+
     // viewmanagement.demo_setup_tiles(); // initialize tile layout; could as well load from file or ...
-    viewmanagement.setup_regular_tiles (viewports_h, viewports_v);  //initialize regular tile layout
+    viewmanagement.setup_regular_tiles (num_viewports_h, num_viewports_v);  //initialize regular tile layout
     viewmanagement.erase_all_connections(); // only do this once...
     viewmanagement.connect_views_viewports(); // kopplar ev. lediga VPs till behövande views
 
-    //// Create all viewport widgets
-    //
-    int viewxsize = 550;
-    int viewysize = wheight;
-    viewmanagement.setup_views(0, viewxsize, viewysize); // 0...antal som används-1
+    // *** Create viewport widgets ***
+
+    viewmanagement.setup_views(0, view_w, view_h); // 0...antal som används-1
 
     viewmanagement.listviewports();
 
-    Fl_Tile * rightsidegroup = new Fl_Tile(viewxsize,0,wwidth - viewxsize,wheight);   //group containing datawidgets and feedback,
-    //so they'll be resized properly
+    //views->resizable(views);
+    //views->end();
+
+    Fl_Tile * tool_area = new Fl_Tile(view_w,0,tool_area_w,win_h);   //group containing datawidgets and feedback, so they'll be resized properly
     datamanagement.datawidgets_setup();
 
     userIOmanagement.setup();
 
-    rightsidegroup->box(FL_BORDER_BOX);
-    rightsidegroup->resizable(rightsidegroup);
-    rightsidegroup->end();
+    tool_area->box(FL_BORDER_BOX);
+    tool_area->resizable(tool_area);
+    tool_area->end();
 
-    leftrighttile->end();
+    viewsNtools->resizable(viewsNtools);
+    viewsNtools->end();
+
+    window.resizable(viewsNtools);
     }
 
 /*int platinum_run (int argc, char *argv[])

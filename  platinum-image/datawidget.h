@@ -78,12 +78,20 @@ public:
 
     // *** end of Fluid ***
 
+protected:
+    bool fromFile; ///indicates whether the data was created inside the program and perhaps needs to be saved;
+public:
     ~datawidget ();
     void refresh_thumbnail ();
+    
+    static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);
+
+    // *** access methods ***
     int get_volume_id();
     void name(std::string n);
     const std::string name();
-    static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);
+    void from_file(bool);
+    bool from_file();
     };
 
 #endif
