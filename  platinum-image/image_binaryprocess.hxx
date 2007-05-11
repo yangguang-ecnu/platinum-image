@@ -1110,7 +1110,7 @@ void image_binary<IMAGEDIM>::erode_2D(int thickness, int direction, bool object_
 	{		
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, object_value);
-	this->copy_image(distance_image->threshold(thickness, distance_image->get_max(), object_value));
+	this->copy_image(distance_image->threshold(thickness+1, std::numeric_limits<short>::max(), object_value));
 	}
 
 template <int IMAGEDIM>
@@ -1134,7 +1134,7 @@ void image_binary<IMAGEDIM>::erode_3D(int thickness, bool object_value)
 	{		
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, object_value);
-	this->copy_image(distance_image->threshold(thickness, distance_image->get_max(), object_value));
+	this->copy_image(distance_image->threshold(thickness+1, std::numeric_limits<short>::max(), object_value));
 	}
 
 template <int IMAGEDIM>
