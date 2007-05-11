@@ -36,10 +36,10 @@ When committing changes with [SVN], try to make the following information availa
 ==Google Code Wiki==
 A more thorough description of a class, plans et.c. should be put in this wiki. Use these tags:
 ||For||Tag||Page name||
-||Description of an entire class, including info on functions||!ClassDescription||Class name (sentence caps, e.g. My_class)||
-||Page about a single function||!FunctionDescription||Function name (sentence caps, e.g. !ItsFunction)||
+||Description of an entire class, including info on functions||!ClassDescription||Class name||
+||Page about a single function||!FunctionDescription||Function name||
 
-
+When mentioning a class name, use `[ ]` to link to its page like this: `[viewmanager]` becomes [viewmanager].
 
 
 
