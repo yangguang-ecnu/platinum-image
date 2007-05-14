@@ -201,6 +201,8 @@ horizresizeablescroll::horizresizeablescroll (int x, int y, int w, int h, const 
     interior=new Fl_Pack(x,y,w-FLTK_SCROLLBAR_SIZE,h);
     type(Fl_Scroll::VERTICAL_ALWAYS);
     interior->type(FL_VERTICAL);
+    box(FL_FLAT_BOX);
+    interior->box(FL_NO_BOX);
     }
 
 void horizresizeablescroll::begin ()

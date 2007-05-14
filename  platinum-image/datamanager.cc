@@ -148,13 +148,18 @@ void datamanager::datawidgets_setup()
 
     data_widget_box->end();
 
+    Fl_Group* buttongroup = new Fl_Group(xpos,ypos+data_widget_box->h(),width,BUTTONHEIGHT+margin*2);
+
     load_button = new Fl_Button(xpos,data_widget_box->y()+data_widget_box->h()+margin,120,BUTTONHEIGHT, "Load volume...");
-    load_button->callback(loadvolume_callback,this);    //joel
+    load_button->callback(loadvolume_callback,this);
+
+    buttongroup->resizable(NULL);
+    buttongroup->end();
 
     Fl_Box * toolslabel = new Fl_Box(xpos,load_button->y()+load_button->h()+margin,width,LISTHEADERHEIGHT,"Tools");
     toolslabel->labelfont(FL_HELVETICA_BOLD );
 
-    outergroup->resizable(data_widget_box);
+    outergroup->resizable(outergroup);
     outergroup->box(FL_FLAT_BOX);
     outergroup->end();
     }

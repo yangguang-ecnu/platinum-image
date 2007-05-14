@@ -51,59 +51,61 @@ Fl_Menu_Item* datawidget::save_vtk_mi = datawidget::menu_featuremenu + 1;
 Fl_Menu_Item* datawidget::duplicate_mi = datawidget::menu_featuremenu + 2;
 Fl_Menu_Item* datawidget::transferfunction_mi = datawidget::menu_featuremenu + 3;
 
-datawidget::datawidget(int datatype,int id, std::string n): Fl_Group(0,0,270,130,NULL) {
-    std::cout << "datawidget::datawidget " << n << endl; 
+datawidget::datawidget(int datatype,int id, std::string n): Fl_Pack(0,0,270,130,NULL) {
+
     volume_id = id;
     thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];
+    //type(VERTICAL);
 
-  datawidget *o = this;
-o->box(FL_FLAT_BOX);
-o->color(FL_BACKGROUND_COLOR);
-o->selection_color(FL_BACKGROUND_COLOR);
-o->labeltype(FL_NO_LABEL);
-o->labelfont(0);
-o->labelsize(14);
-o->labelcolor(FL_FOREGROUND_COLOR);
-o->align(FL_ALIGN_TOP);
-o->when(FL_WHEN_RELEASE);
-{ Fl_Pack* o = hpacker = new Fl_Pack(0, 0, 270, 25);
-  o->type(1);
-  { Fl_Input* o = filenamebutton = new Fl_Input(0, 0, 240, 25);
-    o->color(FL_LIGHT1);
-    o->callback((Fl_Callback*)cb_filenamebutton, (void*)(this));
-    o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-    Fl_Group::current()->resizable(o);
-  }
-  { Fl_Menu_Button* o = featuremenu = new Fl_Menu_Button(240, 0, 30, 25);
-    o->box(FL_THIN_UP_BOX);
-    o->user_data((void*)(this));
-    o->menu(menu_featuremenu);
-  }
-  resizable(filenamebutton);
-  o->end();
-}
-{ Fl_Box* o = thumbnail = new Fl_Box(0, 25, 270, 65);
-  o->hide();
-  Fl_Group::current()->resizable(o);
-  image( new Fl_RGB_Image(thumbnail_image, thumbnail_size, thumbnail_size, 1));
-  image( NULL);
-}
-{ Fl_Pack* o = extras = new Fl_Pack(0, 90, 270, 40);
-  { Fl_Group* o = tfunction_ = new Fl_Group(0, 90, 270, 40);
-    o->box(FL_THIN_DOWN_BOX);
-    o->labelsize(11);
-    o->align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    datawidget *o = this;
+    o->box(FL_THIN_DOWN_FRAME);
+    o->color(FL_BACKGROUND_COLOR);
+    o->selection_color(FL_BACKGROUND_COLOR);
+    o->labeltype(FL_NO_LABEL);
+    o->labelfont(0);
+    o->labelsize(14);
+    o->labelcolor(FL_FOREGROUND_COLOR);
+    o->align(FL_ALIGN_TOP);
+    o->when(FL_WHEN_RELEASE);
+        { Fl_Pack* o = hpacker = new Fl_Pack(0, 0, 270, 25);
+        o->type(1);
+            { Fl_Input* o = filenamebutton = new Fl_Input(0, 0, 240, 25);
+            o->color(FL_LIGHT1);
+            o->callback((Fl_Callback*)cb_filenamebutton, (void*)(this));
+            o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+            Fl_Group::current()->resizable(o);
+            }
+            { Fl_Menu_Button* o = featuremenu = new Fl_Menu_Button(240, 0, 30, 25);
+            o->box(FL_THIN_UP_BOX);
+            o->user_data((void*)(this));
+            o->menu(menu_featuremenu);
+            }
+        resizable(filenamebutton);
+        o->end();
+        }
+        { Fl_Box* o = thumbnail = new Fl_Box(0, 25, 270, 65);
+        o->box(FL_EMBOSSED_BOX);
+        o->hide();
+        image( new Fl_RGB_Image(thumbnail_image, thumbnail_size, thumbnail_size, 1));
+        image( NULL);
+        }
+        { Fl_Pack* o = extras = new Fl_Pack(0, 90, 270, 40);
+        { Fl_Group* o = tfunction_ = new Fl_Group(0, 90, 270, 40);
+        o->box(FL_EMBOSSED_FRAME);
+        o->labelsize(11);
+        o->align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+        o->hide();
+        o->end();
+        }
     o->end();
-    Fl_Group::current()->resizable(o);
-  }
-  resizable(this);
-  o->end();
-}
-type(0);
-datamanagement.add_datawidget(this);
-name(n);
-end();
-}
+        }
+    type(VERTICAL);
+    resizable(extras);
+    name(n);
+    datamanagement.add_datawidget(this);
+    end();
+    }
+
 
 // *** end FLUID ***
 
@@ -117,16 +119,17 @@ void datawidget::toggle_tfunction(Fl_Widget* callingwidget, void*)
     {
     datawidget * the_datawidget=(datawidget *)(callingwidget->user_data());
 
-    if (the_datawidget->tfunction_->parent() != NULL)
+    if (the_datawidget->tfunction_->visible())
         {
-        the_datawidget->extras->remove(the_datawidget->tfunction_); 
-        //the_datawidget->extras->size(the_datawidget->extras->w(),0);
+        the_datawidget->tfunction_->hide();
         }
     else
         { 
-        the_datawidget->extras->add(the_datawidget->tfunction_);
-        //the_datawidget->extras->size(the_datawidget->extras->w(),the_datawidget->tfunction_->h());
+        the_datawidget->extras->size(the_datawidget->extras->w(),the_datawidget->extras->h()+the_datawidget->tfunction_->h());
+        the_datawidget->tfunction_->show();
         }
+
+    the_datawidget->parent()->parent()->redraw();
     }
 
 datawidget::~datawidget ()

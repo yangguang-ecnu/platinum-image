@@ -45,36 +45,37 @@
 
 #define MAXDATANAME 512
 
-class datawidget : public Fl_Group {
+class datawidget : public Fl_Pack {
 public:
-  datawidget(int X, int Y, int W, int H, const char *L = 0);
+    datawidget(int X, int Y, int W, int H, const char *L = 0);
 private:
-  int volume_id;
-  const static int thumbnail_size;
-  uchar * thumbnail_image;
-  std::string _name;
-  enum {remove_mi_num=0,save_mi_num, dup_mi_num};
-  Fl_Group * tfunction_;
-  Fl_Pack *hpacker;
-  Fl_Input *filenamebutton;
-  void cb_filenamebutton_i(Fl_Input*, void*);
-  static void cb_filenamebutton(Fl_Input*, void*);
-  Fl_Menu_Button *featuremenu;
-  static Fl_Menu_Item menu_featuremenu[];
+    int volume_id;
+    const static int thumbnail_size;
+    uchar * thumbnail_image;
+    std::string _name;
+    enum {remove_mi_num=0,save_mi_num, dup_mi_num};
+    Fl_Pack *hpacker;
+    Fl_Input *filenamebutton;
+    void cb_filenamebutton_i(Fl_Input*, void*);
+    static void cb_filenamebutton(Fl_Input*, void*);
+    Fl_Menu_Button *featuremenu;
+    static Fl_Menu_Item menu_featuremenu[];
 public:
-  static Fl_Menu_Item *remove_mi;
-  static Fl_Menu_Item *save_vtk_mi;
-  static Fl_Menu_Item *duplicate_mi;
-  static Fl_Menu_Item *transferfunction_mi;
+    static Fl_Menu_Item *remove_mi;
+    static Fl_Menu_Item *save_vtk_mi;
+    static Fl_Menu_Item *duplicate_mi;
+    static Fl_Menu_Item *transferfunction_mi;
 private:
-  Fl_Box *thumbnail;
+    Fl_Box *thumbnail;
 public:
-  Fl_Pack *extras;
+    Fl_Pack *extras;
+private:
+    Fl_Group *tfunction_;
 public:
-  datawidget(int datatype,int id, std::string n);
-  void tfunction(Fl_Group * t);;
-  static void toggle_tfunction(Fl_Widget* callingwidget, void*);
-  Fl_Group * reset_tf_controls();
+    datawidget(int datatype,int id, std::string n);
+    void tfunction(Fl_Group * t);;
+    static void toggle_tfunction(Fl_Widget* callingwidget, void*);
+    Fl_Group * reset_tf_controls();
 
     // *** end of Fluid ***
 
@@ -83,7 +84,7 @@ protected:
 public:
     ~datawidget ();
     void refresh_thumbnail ();
-    
+
     static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);
 
     // *** access methods ***
