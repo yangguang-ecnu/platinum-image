@@ -1,8 +1,4 @@
-//
-// viewport: Skoter in/utmatning, inklusive knappar, markorer, 
-// koordinatgrafik for en 2D-yta (via FLTK). Bilddata renderas av 
-// klassen "renderer"
-//
+// $Id$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -69,13 +65,13 @@ const char * blend_mode_labels[] =
 
 struct menu_callback_params
     {
-    //for blend & volume callbacks
+    //for blend & image callbacks
     int rend_index;
 
     //for blend callback
     blendmode mode;
 
-    //for volume callback
+    //for image callback
     int vol_id;
 
     //for preset direction callback    
@@ -111,7 +107,7 @@ viewport::viewport()
     cout << "viewport constructor" << ID << endl;
 
     viewport_widget=NULL;
-    volumemenu_button=NULL;
+    imagemenu_button=NULL;
     renderermenu_button=NULL;
     viewport_buttons=NULL;
 
@@ -158,7 +154,7 @@ void viewport::refresh_from_combination(int c)
 
     if (rendererIndex >= 0 && rendermanagement.get_combination_id(rendererIndex) == c)
         {
-        //this call means that the selection of rendered volumes has changed,
+        //this call means that the selection of rendered images has changed,
         //possibly into nothing
         
         clear_rgbpixmap();
@@ -200,7 +196,7 @@ void viewport::refresh()
             if (viewport_widget->thresholder != NULL)
                 {viewport_widget->thresholder->renderer_index(rendermanagement.find_renderer_index(rendererID));}
 
-            update_volume_menu();
+            update_image_menu();
             rebuild_renderer_menu();
             rebuild_blendmode_menu();
 
@@ -239,7 +235,7 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
     if (rendererID != NO_RENDERER_ID)
         {
         int p=0;
-        int rendered_vol_ID=rendermanagement.volume_at_priority (rendererIndex,p);
+        int rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
 
         while (rendered_vol_ID > 0)
             {
@@ -253,7 +249,7 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
                     }
                 }
             p++;
-            rendered_vol_ID=rendermanagement.volume_at_priority (rendererIndex,p);
+            rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
             }
 
         if (viewport_widget->thresholder != NULL)
@@ -382,7 +378,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
             vector<FLTKuserIOpar_histogram2D *>::iterator itr =f->ROI->histograms.begin();  
             while (itr != f->ROI->histograms.end())
                 {
-                int one_vol_ID= (*itr)->histogram_volume_ID(0);     //assumption: same voxel size, dimensions, orientation etc.
+                int one_vol_ID= (*itr)->histogram_image_ID(0);     //assumption: same voxel size, dimensions, orientation etc.
                 // - voxel coordinates for one apply to the other as well
 
                 regionofinterest reg;
@@ -503,7 +499,7 @@ int actionValue = f->callback_action;
         viewport_buttons = new Fl_Pack(xpos,ypos,width,buttonheight,"");
         viewport_buttons->type(FL_HORIZONTAL);
 
-        volumemenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Volumes");
+        imagemenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Volumes");
 
         renderermenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Renderer");
         renderermenu_button->copy(renderermenu_global);
@@ -577,8 +573,8 @@ int actionValue = f->callback_action;
         directionmenu_button->box(FL_THIN_UP_BOX);
         directionmenu_button->labelsize(FLTK_SMALL_LABEL);
 
-        volumemenu_button->box(FL_THIN_UP_BOX);
-        volumemenu_button->labelsize(FLTK_SMALL_LABEL);
+        imagemenu_button->box(FL_THIN_UP_BOX);
+        imagemenu_button->labelsize(FLTK_SMALL_LABEL);
 
         viewport_buttons->end();
 
@@ -597,21 +593,21 @@ int actionValue = f->callback_action;
         viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR));
         }
 
-    void viewport::update_volume_menu()
+    void viewport::update_image_menu()
         {
         int m=0;//
 
         const Fl_Menu_Item * cur_menu, *base_menu;
 
-        Fl_Menu_Item new_menu[datamanager::MAXVOLUMES+1];
+        Fl_Menu_Item new_menu[datamanager::IMAGEVECTORMAX+1];
 
-        base_menu=datamanagement.FLTK_volume_menu_items();
-        cur_menu=volumemenu_button->menu();
+        base_menu=datamanagement.FLTK_image_menu_items();
+        cur_menu=imagemenu_button->menu();
 
         if (cur_menu!=NULL)
             {
             //delete old callback data
-            for(unsigned int i=0;cur_menu[i].label()!=NULL && i < datamanager::MAXVOLUMES;i++)
+            for(unsigned int i=0;cur_menu[i].label()!=NULL && i < datamanager::IMAGEVECTORMAX;i++)
                 {
                 delete ((menu_callback_params*)cur_menu[i].user_data());
                 }
@@ -625,35 +621,35 @@ int actionValue = f->callback_action;
                     {
                     //long v=base_menu[m].argument();
                     //attach menu_callback_params and
-                    //set checkmarks according to displayed volumes
+                    //set checkmarks according to displayed images
 
                     memcpy (&new_menu[m],&base_menu[m],sizeof(Fl_Menu_Item));
 
                     menu_callback_params * p= new menu_callback_params;
                     p->rend_index=rendererIndex;
-                    p->vol_id=base_menu[m].argument();  //volume ID is stored in user data initially
+                    p->vol_id=base_menu[m].argument();  //image ID is stored in user data initially
 
-                    new_menu[m].callback((Fl_Callback *)toggle_volume_callback);
+                    new_menu[m].callback((Fl_Callback *)toggle_image_callback);
                     new_menu[m].user_data(p);
                     new_menu[m].flags=FL_MENU_TOGGLE;
 
-                    if (rendermanagement.volume_rendered(rendererIndex,p->vol_id) !=BLEND_NORENDER)
+                    if (rendermanagement.image_rendered(rendererIndex,p->vol_id) !=BLEND_NORENDER)
                         {
                         //checked
                         new_menu[m].set();
                         }
                     }
-                } while (new_menu[m++].label() !=NULL && m < datamanager::MAXVOLUMES);
+                } while (new_menu[m++].label() !=NULL && m < datamanager::IMAGEVECTORMAX);
 
-                volumemenu_button->copy(new_menu);
+                imagemenu_button->copy(new_menu);
             }
         }
 
-    void viewport::toggle_volume_callback(Fl_Widget *callingwidget, void * params )
+    void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
         {
         menu_callback_params * widget_user_data=(menu_callback_params *)params;
 
-        rendermanagement.toggle_volume(widget_user_data->rend_index,widget_user_data->vol_id);
+        rendermanagement.toggle_image(widget_user_data->rend_index,widget_user_data->vol_id);
         }
 
     void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )

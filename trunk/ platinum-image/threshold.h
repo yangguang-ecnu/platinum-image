@@ -1,7 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Objects for working with n-dimensional threshold values 
-//
+//   threshold.h $Revision$
+///
+///  Objects for working with n-dimensional threshold values $Revision$
+///
+//   $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -35,14 +38,14 @@ enum {THRESHOLD_2D_MODE_RECT,THRESHOLD_2D_MODE_OVAL};
 
 #define THRESHOLDMAXCHANNELS 3
 
-//N-dimensional threshold values with optional shape variations. Includes a function for creating a new volume through thresholding
+//N-dimensional threshold values with optional shape variations. Includes a function for creating a new image through thresholding
 class thresholdparvalue
     {
     public:
         float low [THRESHOLDMAXCHANNELS];       //lo & hi thresholds
         float high [THRESHOLDMAXCHANNELS];
 
-        int id [THRESHOLDMAXCHANNELS];          //volumes for which these were selected, where
+        int id [THRESHOLDMAXCHANNELS];          //images for which these were selected, where
                                                 //applicable (NOT_FOUND_ID otherwise)
 
         int get_id (int axis);                  //return bounds-safe ID
@@ -50,10 +53,10 @@ class thresholdparvalue
         int mode;
 
         thresholdparvalue();
-        int make_threshold_volume ();           //makes a new volume
+        int make_threshold_image ();           //makes a new image
                                                 //(and adds it to datamanager)
                                                 //from the threshold parameter
-                                                //returns ID of the new volume
+                                                //returns ID of the new image
     };
 
 //Overlay to viewports that displays a segmentation preview for the 2D histogram segmentation project.

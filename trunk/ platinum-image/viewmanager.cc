@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -293,7 +295,7 @@ int viewmanager::find_viewport_no_renderer()
     return free_vp_id;
     }
 
-int viewmanager::find_viewport_no_volumes () 
+int viewmanager::find_viewport_no_images () 
     {
     // returns -1 if none found
 
@@ -302,7 +304,7 @@ int viewmanager::find_viewport_no_volumes ()
 
     while (itr != viewports.end())
         {
-        if (rendermanagement.renderer_empty((*itr).get_renderer_id()) == RENDERER_EMPTY) //null if threshold parameter does not match any rendered volume
+        if (rendermanagement.renderer_empty((*itr).get_renderer_id()) == RENDERER_EMPTY) //null if threshold parameter does not match any rendered image
             {return (*itr).get_id();}
         itr++;
         }
@@ -394,7 +396,7 @@ std::vector<threshold_overlay *> viewmanager::get_overlays (thresholdparvalue * 
         threshold_overlay * olay;
 
         olay=(*itr).get_threshold_overlay (threshold);
-        if (olay != NULL) //null if threshold parameter does not match any rendered volume
+        if (olay != NULL) //null if threshold parameter does not match any rendered image
             {result.push_back(olay);}
         itr++;
         }

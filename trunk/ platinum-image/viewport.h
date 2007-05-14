@@ -1,11 +1,12 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Viewport
-//
-//  Abstraction of widget containing controls and image pane
-//  (implemented in FLTKviewport) for each viewpoint of data
-//
-//
+//   Viewport $Revision$
+///
+///  Abstraction of widget containing controls and image pane
+///  (implemented in FLTKviewport) for each viewpoint of data
+///
+//   $LastChangedBy$
+
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -73,11 +74,11 @@ private:
     void clear_rgbpixmap();             //fill for viewport without renderer
 
     FLTKviewport *viewport_widget;      //the frame ("viewport") displaying a rendered image
-    Fl_Menu_Button * volumemenu_button;   
+    Fl_Menu_Button * imagemenu_button;   
     Fl_Menu_Button * directionmenu_button;
     Fl_Menu_Button * renderermenu_button;
     Fl_Menu_Button * blendmenu_button;
-    Fl_Pack *viewport_buttons;          //group containing per-viewport widgets such as the volume menu
+    Fl_Pack *viewport_buttons;          //group containing per-viewport widgets such as the image menu
 
 	// functions called by the main callback
 	// will often call somehing in images (or, maybe it should be layer's, or cursor's) front end
@@ -85,7 +86,7 @@ private:
 	// void  set_cursor(position3D offset);
 
 
-    void update_volume_menu();   //set rendering status for volumes
+    void update_image_menu();   //set rendering status for images
                                   //from rendercombination for this viewport's renderer
     void rebuild_renderer_menu ();//update checkmark for current renderer type
     void rebuild_blendmode_menu ();//update checkmark for current blend mode
@@ -97,13 +98,13 @@ public:
                                                                                     //always redraws
     static void viewport_callback(Fl_Widget *callingwidget, void *thisviewport);    //FLTK callback wrapper
 
-    static void toggle_volume_callback(Fl_Widget *callingwidget, void * params );
+    static void toggle_image_callback(Fl_Widget *callingwidget, void * params );
     static void set_direction_callback(Fl_Widget *callingwidget, void * params );
     static void set_blendmode_callback(Fl_Widget *callingwidget, void * params );
         
     // *** refresh methods ***
     //called when any update of the visual parts of viewport is affected, i.e.
-    //image and/or menu of volumes
+    //image and/or menu of images
 
     void refresh_from_geometry (int g);     //refresh if it uses the geometry specified by argument
     void refresh_from_combination (int c);  //refresh if it uses the geometry specified by argument

@@ -32,7 +32,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
 {
     unsigned long sliceSize = width * height;
     string dirname;
-    volume_load_mode mode = undefined;
+    image_load_mode mode = undefined;
     
     //TODO: start & increment values
     
@@ -136,7 +136,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         }
     else
         {
-        //TODO: if imageptr == NULL at this point, volume has not been read and error has
+        //TODO: if imageptr == NULL at this point, image has not been read and error has
         //to be reported somehow
         }
 }
@@ -180,7 +180,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(string dir
     image = reader->GetOutput();
 
     // *** transfer image data to our platform's data structure ***
-    replicate_itk_to_volume(image);
+    replicate_itk_to_image(image);
 
     // *** get DICOM metadata ***
 
@@ -229,7 +229,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(string dir
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_image_to_VTK_file(string file_path)
     {
-    //replicate volume to ITK image and save it as VTK file
+    //replicate image to ITK image and save it as VTK file
 
     typename theImageType::DirectionType itk_orientation;
 
@@ -271,7 +271,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_p
     r->Update();
     typename theSizeType s = image->GetBufferedRegion().GetSize();
 
-    replicate_itk_to_volume(image);
+    replicate_itk_to_image(image);
 
     this->name_from_path (file_path);
     }

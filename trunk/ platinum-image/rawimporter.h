@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Rawimporter
-//
-//  Window for importing image stacks in raw format, single and multi-file
-//
-//
+//   Rawimporter $Revision$
+///
+///  Window for importing image stacks in raw format, single and multi-file
+///
+//   $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -34,7 +34,7 @@
 
 #include "global.h"
 
-enum volume_load_mode {
+enum image_load_mode {
     undefined,
     multifile,
     single_file};
@@ -118,7 +118,7 @@ class rawimporter : public Fl_Window
         imageDataType               voxeltype;
         signed int                  sliceStart, sliceIncrement;
         unsigned long               fileSize;
-        volume_load_mode            mode;
+        image_load_mode            mode;
     };
 
 #endif

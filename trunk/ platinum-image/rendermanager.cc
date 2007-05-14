@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -38,11 +40,11 @@ void rendermanager::render(int rendererIndex, unsigned char *rgbimage, int rgbXs
     renderers[rendererIndex]->render_position(rgbimage, rgbXsize, rgbYsize);
     }
 
-void rendermanager::render_thumbnail(unsigned char *rgb, int rgb_sx, int rgb_sy, int volume_ID)
+void rendermanager::render_thumbnail(unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID)
     {
     //decision: MPRs are nice for thumbnails
 
-    rendererMPR::render_thumbnail(rgb, rgb_sx, rgb_sy, volume_ID);
+    rendererMPR::render_thumbnail(rgb, rgb_sx, rgb_sy, image_ID);
     }
 
 void rendermanager::render_threshold (int rendererIndex, unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold)
@@ -60,7 +62,7 @@ int rendermanager::find_renderer_index(int uniqueID)
     return -1; // not found
     }
 
-vector<int> rendermanager::combinations_from_volume (int volumeID)
+vector<int> rendermanager::combinations_from_image (int imageID)
     {
     //when thumbnails are implemented, they should be re-rendered at this point
 
@@ -71,7 +73,7 @@ vector<int> rendermanager::combinations_from_volume (int volumeID)
 
     while (itr != renderers.end())
         {
-        if (volume_rendered(index, volumeID) != BLEND_NORENDER)
+        if (image_rendered(index, imageID) != BLEND_NORENDER)
             {
             int combination = get_combination_id(index);
 
@@ -88,7 +90,7 @@ vector<int> rendermanager::combinations_from_volume (int volumeID)
 
 int rendermanager::get_combination_id(int rendererIndex)
     {
-    return renderers[rendererIndex]->volumestorender->get_id();
+    return renderers[rendererIndex]->imagestorender->get_id();
     }
 
 int rendermanager::get_geometry_id(int rendererIndex)
@@ -142,14 +144,14 @@ void rendermanager::remove_renderer (int ID)
     viewmanagement.refresh_viewports();
     }
 
-void rendermanager::toggle_volume (int rendererIndex, int volumeID)
+void rendermanager::toggle_image (int rendererIndex, int imageID)
     {
-    renderers[rendererIndex]->volumestorender->toggle_volume( volumeID);
+    renderers[rendererIndex]->imagestorender->toggle_image( imageID);
     }
 
-int rendermanager::volume_rendered(int rendererIndex, int volID)
+int rendermanager::image_rendered(int rendererIndex, int volID)
     {
-    return renderers[rendererIndex]->volumestorender->volume_rendered(volID);
+    return renderers[rendererIndex]->imagestorender->image_rendered(volID);
     }
 
 int rendermanager::renderer_empty (int rendererID)
@@ -157,7 +159,7 @@ int rendermanager::renderer_empty (int rendererID)
     int rendererIndex = find_renderer_index(rendererID);
 
     if (rendererIndex != -1)
-        {return (renderers[rendererIndex]->volumestorender->volume_ID_by_priority(0) == 0 ? RENDERER_EMPTY : RENDERER_NOT_EMPTY);}
+        {return (renderers[rendererIndex]->imagestorender->image_ID_by_priority(0) == 0 ? RENDERER_EMPTY : RENDERER_NOT_EMPTY);}
 
     return -1;
     }
@@ -181,12 +183,12 @@ vector<float> rendermanager::get_values (int index, int px, int py,int sx, int s
     return v;  //if ID is invalid
     }
 
-Vector3D rendermanager::get_location (int rendererIndex, int volumeID, int px, int py, int sx, int sy)
+Vector3D rendermanager::get_location (int rendererIndex, int imageID, int px, int py, int sx, int sy)
     {
-    return renderers[rendererIndex]->view_to_voxel(volumeID, px, py, sx, sy);
+    return renderers[rendererIndex]->view_to_voxel(imageID, px, py, sx, sy);
     }
 
-void rendermanager::connect_volume_renderer(int rendererID, int imageID)
+void rendermanager::connect_image_renderer(int rendererID, int imageID)
     {
     int renderindex = find_renderer_index(rendererID);
 
@@ -207,13 +209,13 @@ void rendermanager::image_vector_has_changed()
     {
     for (unsigned int v=0;v < renderers.size();v++)
         {
-        renderers[v]->volumestorender->image_vector_has_changed();
-        if (!renderers[v]->volumestorender->volume_remaining(0))
+        renderers[v]->imagestorender->image_vector_has_changed();
+        if (!renderers[v]->imagestorender->image_remaining(0))
             {
-            //renderer has no volumes, we might want to kill it - BUT
+            //renderer has no images, we might want to kill it - BUT
             //the renderer owns the rendercombination object and is thus
-            //the nexus for viewing volumes, and to let users
-            //leave viewports empty and then select volumes to view
+            //the nexus for viewing images, and to let users
+            //leave viewports empty and then select images to view
             //we have to leave the renderer active
 
             //see also end of initialize_viewport
@@ -236,15 +238,15 @@ void rendermanager::set_geometry(int renderer_index,Matrix3D * dir)
 
 int rendermanager::get_blend_mode (int rendererIndex)
     {
-    return renderers[rendererIndex]->volumestorender->blend_mode();
+    return renderers[rendererIndex]->imagestorender->blend_mode();
     }
 
-int rendermanager::volume_at_priority (int rendererIndex, int priority)
+int rendermanager::image_at_priority (int rendererIndex, int priority)
     {
-    return renderers[rendererIndex]->volumestorender->volume_ID_by_priority(priority);
+    return renderers[rendererIndex]->imagestorender->image_ID_by_priority(priority);
     }
 
 void rendermanager::set_blendmode(int renderer_index,blendmode mode)
     {
-    renderers[renderer_index]->volumestorender->blend_mode(mode);
+    renderers[renderer_index]->imagestorender->blend_mode(mode);
     }

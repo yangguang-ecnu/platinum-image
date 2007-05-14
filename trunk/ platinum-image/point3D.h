@@ -1,9 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  point3D
-//
-//  point collection base class specialized on 3D points
-//
+//  point3D $Revision$
+///
+/// point collection base class specialized on 3D points
+///
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
@@ -28,7 +29,7 @@
 
 #include "point_base.h"
 
-template<class VOLUMETYPE>
+template<class imageTYPE>
 class point3D : public point_base
 {
 private:

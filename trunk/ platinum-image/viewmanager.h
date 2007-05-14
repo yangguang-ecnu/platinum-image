@@ -1,10 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Viewmanager
-//
-//  Viewmanager lists the available viewports and allows access through
-//  viewport ID and various ways of requesting updates.
-//
+//  Viewmanager $Revision$
+///
+/// Viewmanager lists the available viewports and allows access through
+/// viewport ID and various ways of requesting updates.
+///
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
@@ -63,7 +64,7 @@ class viewmanager
         int create_viewport();
         int find_viewport_no_renderer();
         int find_viewport_not_in_view(); // returns -1 if none found
-        int find_viewport_no_volumes ();
+        int find_viewport_no_images ();
         int find_viewport_index(int id); // turns ID into INDEX returns NOT_FOUND_ID if none found
         std::vector<threshold_overlay *> get_overlays (thresholdparvalue *);
         void list_connections();

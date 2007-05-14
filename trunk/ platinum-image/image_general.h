@@ -59,7 +59,7 @@ class image_general : public image_storage <ELEMTYPE >
     protected:
         image_general<ELEMTYPE, IMAGEDIM>(int w, int h, int d, ELEMTYPE *ptr = NULL);
 
-        unsigned short datasize[IMAGEDIM]; //volume size
+        unsigned short datasize[IMAGEDIM]; //image size
         
         Matrix3D voxel_resize;             //voxel size
         
@@ -72,12 +72,12 @@ class image_general : public image_storage <ELEMTYPE >
         image_general<ELEMTYPE, IMAGEDIM>();
         image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
         template<class SOURCETYPE> 
-            image_general(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true);
+            image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true);
 
         void set_parameters ();                                                     //reset & calculate parameters
         void set_parameters (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
         template <class sourceType>
-            void set_parameters (image_general<sourceType, IMAGEDIM> * from_volume);         //clone parameters from another image
+            void set_parameters (image_general<sourceType, IMAGEDIM> * from_image);         //clone parameters from another image
 
         void calc_transforms ();                                            //used by set_parameters(...) functions
         //to recalculate cached transform(s)
@@ -107,11 +107,11 @@ class image_general : public image_storage <ELEMTYPE >
         template <class inType>
             void copy_image (image_general<inType, IMAGEDIM> * in);   //copy image data with type conversion
 
-        //initialize volume from ITK image
-        void replicate_itk_to_volume();     //use object's own ITK image pointer
-        void replicate_itk_to_volume(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
+        //initialize image from ITK image
+        void replicate_itk_to_image();     //use object's own ITK image pointer
+        void replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
 
-        void image_has_changed(bool min_max_refresh = false);          //called when volume data has been changed
+        void image_has_changed(bool min_max_refresh = false);          //called when image data has been changed
 
         static image_base * type_from_DICOM_file (std::string file_path);
         static image_base * type_from_VTK_file (std::string file_path);
@@ -141,7 +141,7 @@ class image_general : public image_storage <ELEMTYPE >
         // *** size functions ***
         unsigned short get_size_by_dim(int dim);
         unsigned short get_size_by_dim_and_dir(int dim, int direction);
-        bool same_size (image_base * other);    //test whether other volume
+        bool same_size (image_base * other);    //test whether other image
                                                 //has same voxel dimensions
         
         Matrix3D get_voxel_resize ();           //return voxel size matrix
@@ -151,7 +151,7 @@ class image_general : public image_storage <ELEMTYPE >
         //return ITKimportfilter
         typename itk::ImportImageFilter< ELEMTYPE, IMAGEDIM >::Pointer   itk_import_filter();
 
-        //return ITK image from volume     
+        //return ITK image from image     
         typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer                itk_image();
 
         void load_dataset_from_VTK_file(std::string file_path);

@@ -1,9 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Rendercombination
-//  Stores list of volumes and blend mode(s) for renderers
-//
-//
+//  Rendercombination $Revision$
+///
+/// Stores list of images and blend mode(s) for renderers
+///
+//  $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -22,8 +23,8 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#ifndef __volumerenderinfo__
-#define __volumerenderinfo__
+#ifndef __imagerenderinfo__
+#define __imagerenderinfo__
 #include "colormap.h"
 #include "datamanager.h"
 #include "global.h"
@@ -44,7 +45,7 @@ RENDER_THRESHOLD};  //RENDER_THRESHOLD is not user-selectable, used internally
 class rendercombination
     {
     private:
-        int rendervolumes [MAXRENDERVOLUMES];
+        int renderimages [MAXRENDERVOLUMES];
         //colormap colortable;
         int id; //id to identify this combination in callbacks
         static int new_rc_ID;   //unique id to assign newly created combinations
@@ -52,19 +53,19 @@ class rendercombination
     public:
         rendercombination();
         rendercombination(int ID);  //constructor that populates
-        //the rendervolumes array 
+        //the renderimages array 
         //from the beginning
-        void image_vector_has_changed ();   //volume has been added or removed - update renderlist
-        bool volume_remaining(int priority);        //at priority, is there a volume to render?
-        int volume_ID_by_priority (int priority);
-        image_base* get_volumepointer(int ID);
-        image_base *rendervolume_pointers[MAXRENDERVOLUMES];
-        void add_volume(int ID);
-        void toggle_volume(int volumeID);
-        void remove_volume(int ID);
-        int volume_rendered(int ID);//for updating various widgets: returns nonzero if
-        //the volume ID is included in this combination
-        //may return value indicating per-volume blending mode for this combination
+        void image_vector_has_changed ();   //image has been added or removed - update renderlist
+        bool image_remaining(int priority);        //at priority, is there an image to render?
+        int image_ID_by_priority (int priority);
+        image_base* get_imagepointer(int ID);
+        image_base *renderimage_pointers[MAXRENDERVOLUMES];
+        void add_image(int ID);
+        void toggle_image(int imageID);
+        void remove_image(int ID);
+        int image_rendered(int ID);//for updating various widgets: returns nonzero if
+        //the image ID is included in this combination
+        //may return value indicating per-image blending mode for this combination
         int get_id();
         blendmode blend_mode();          //get blendmoide
         void blend_mode (blendmode b);   //set blendmode

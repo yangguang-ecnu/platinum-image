@@ -1,7 +1,8 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  global constants and macros
+//  global constants and macros $Revision$
 //
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.

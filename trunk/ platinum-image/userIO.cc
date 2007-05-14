@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -170,7 +172,7 @@ int userIO::get_par_num(FLTKuserIOparameter_base * par)
     return -1;
     }
 
-std::vector<FLTKuserIOpar_histogram2D *> userIO::get_histogram_for_volume(int volumeID)
+std::vector<FLTKuserIOpar_histogram2D *> userIO::get_histogram_for_image(int imageID)
     {
     std::vector<FLTKuserIOpar_histogram2D *> result;
 
@@ -178,8 +180,8 @@ std::vector<FLTKuserIOpar_histogram2D *> userIO::get_histogram_for_volume(int vo
 
     while (itr != parameters.end())
         {
-        //match volume ID and ensure histogram is active (both volumes set)
-        if (((*itr)->histogram_volume_ID(0) == volumeID || (*itr)->histogram_volume_ID(1) == volumeID ) && ((*itr)->histogram_volume_ID(0) != NOT_FOUND_ID && (*itr)->histogram_volume_ID(1) != NOT_FOUND_ID ))
+        //match image ID and ensure histogram is active (both images set)
+        if (((*itr)->histogram_image_ID(0) == imageID || (*itr)->histogram_image_ID(1) == imageID ) && ((*itr)->histogram_image_ID(0) != NOT_FOUND_ID && (*itr)->histogram_image_ID(1) != NOT_FOUND_ID ))
             {result.push_back((FLTKuserIOpar_histogram2D *)*itr);}
 
         itr++;

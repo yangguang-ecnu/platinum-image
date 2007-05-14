@@ -1,8 +1,9 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Classes doing the processing of histograms in 1-3D
+//  Classes doing the processing of histograms in 1-3D $Revision$
 //  (separated from user interface)
 //
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
@@ -76,9 +77,9 @@ class histogram_base
     virtual thresholdparvalue get_threshold ()
         {return threshold;}
     virtual bool ready () = 0;                                  //whether histogram has two valid (and compatible)
-                                                                //volumes, and can render
+                                                                //images, and can render
        
-    int volume_ID (int axis);      //return current volume ID, axis 0=h, 1= v and so forth
+    int image_ID (int axis);      //return current image ID, axis 0=h, 1= v and so forth
     };
 
 template <class ELEMTYPE>
@@ -95,7 +96,7 @@ protected:
         void render_(unsigned char * image, unsigned int w,unsigned int h);
 public:
         ~histogram_1D ();
-    void volume (int vol);
+    void image (int vol);
     
     void calculate(int number_of_buckets=0);
     thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
@@ -106,13 +107,13 @@ public:
 
 class histogram_2D_plot : public histogram_base  //TEST: histographic plot
     {
-    bool volumesdifferinsize;
+    bool imagesdifferinsize;
     unsigned short vol_size[VOLUMEMAXDIMENSION];
 
     protected:
         void render_(unsigned char * image, unsigned int w,unsigned int h);
     public:
-        void volumes (int volume_hor,int volume_vert);
+        void images (int image_hor,int image_vert);
         void calculate(int number_of_buckets=0);
 
         bool ready ();
@@ -124,14 +125,14 @@ class histogram_2D : public histogram_base
 
     bool * highlight_data;      //highlighting of region of interest
 
-    int vol_h_ID,vol_v_ID;      //IDs of the two volumes used
+    int vol_h_ID,vol_v_ID;      //IDs of the two images used
     bool readytorender;
 
     protected:
         void render_(unsigned char * image, unsigned int w,unsigned int h);
     public:
         ~histogram_2D ();
-        void volumes (int volume_hor,int volume_vert);
+        void images (int image_hor,int image_vert);
         void calculate(int number_of_buckets=0);
         thresholdparvalue histogram_2D::get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
         void highlight (regionofinterest * region);
@@ -141,7 +142,7 @@ class histogram_2D : public histogram_base
 // *** histogram_1D ***
 
 template <class ELEMTYPE>
-void histogram_1D<ELEMTYPE >::volume (int vol)
+void histogram_1D<ELEMTYPE >::image (int vol)
 {
     threshold.id[0]=vol;
     

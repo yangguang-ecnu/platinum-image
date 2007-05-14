@@ -1,11 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Rendermanager
-//
-//  Keeps a list of renderer objects and handles communication between
-//  viewport and renderer.
-//
-//
+//  Rendermanager $Revision$
+///
+/// Keeps a list of renderer objects and handles communication between
+/// viewport and renderer.
+///
+//  $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -53,16 +53,16 @@ class rendermanager
         int create_renderer(RENDERER_TYPES rendertype);
         void remove_renderer (int ID);
         int find_renderer_index(int uniqueID);
-        void connect_volume_renderer(int rendererID, int imageID);
+        void connect_image_renderer(int rendererID, int imageID);
         void image_vector_has_changed();
         void image_has_changed (int ID);
 
         void move(int rendererIndex, float panX, float panY, float panZ=0, float scale=1);//alter rendergeometry (pan,zoom)
         void render(int rendererIndex, unsigned char *rgbimage, int rgbXsize, int rgbYsize);
-        void render_thumbnail(unsigned char *rgb, int rgb_sx, int rgb_sy, int volume_ID);
+        void render_thumbnail(unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID);
         void render_threshold(int rendererIndex, unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold);
        
-        void toggle_volume (int rendererIndex, int volumeID);   //turn volume on or off in a combination,
+        void toggle_image (int rendererIndex, int imageID);   //turn image on or off in a combination,
                                                                 //triggered by menu selection
 
         int get_renderer_type(int rendererIndex);
@@ -73,26 +73,26 @@ class rendermanager
         int get_geometry_id(int rendererIndex);                 //get id of geometry object associated with
                                                                 //renderer rendererIndex
         void combination_update_callback (int c_id);
-        std::vector<int> combinations_from_volume (int volumeID);    //return any combinations containing the volume with volumeID
+        std::vector<int> combinations_from_image (int imageID);    //return any combinations containing the image with imageID
         void geometry_update_callback (int g_id);
 
-        int volume_rendered(int rendererIndex, int volID);  //pass-through for checking if
-                                                            //a certain volume (id) is part of a combination
+        int image_rendered(int rendererIndex, int volID);  //pass-through for checking if
+                                                            //a certain image (id) is part of a combination
                                                             //for renderer rendererIndex
 
-        int volume_at_priority (int rendererIndex, int priority);   //pass through for getting visible
-                                                                    //volume ID at certain priority (for iterating)
+        int image_at_priority (int rendererIndex, int priority);   //pass through for getting visible
+                                                                    //image ID at certain priority (for iterating)
                                                                     //returns NOT_FOUND_ID past end
 
-        int renderer_empty (int rendererID);       //returns whether renderer has no volumes to render or not
+        int renderer_empty (int rendererID);       //returns whether renderer has no images to render or not
         std::vector<float> get_values (int rendererIndex, int px, int py,int sx, int sy);
-        Vector3D get_location (int rendererIndex, int volumeID, int px, int py, int sx, int sy);
+        Vector3D get_location (int rendererIndex, int imageID, int px, int py, int sx, int sy);
 
         void set_geometry(int renderer_index,Vector3D * dir,Vector3D * look_at,int zoom);
         void set_geometry(int renderer_index,Matrix3D * dir);
 
         void set_blendmode(int rend_index,blendmode mode);   //sets combination-wide blend mode, if blendmode is later defined
-                                                             //for each volume in a combination, this should set all of them
+                                                             //for each image in a combination, this should set all of them
     };
 
 #endif

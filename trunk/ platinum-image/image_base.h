@@ -2,7 +2,7 @@
 //
 //  Image_base $Revision $
 //
-//  Untemplated base class for image storage, including volumes
+//  Untemplated base class for image storage, including images
 //  contains 3D position and orientation information
 //
 //  $LastChangedBy $
@@ -60,9 +60,9 @@ class image_base : public data_base
 
         // *** cached data ***
 
-        Matrix3D unit_to_voxel_;    //cached transform from unit space to voxels this volume
+        Matrix3D unit_to_voxel_;    //cached transform from unit space to voxels this image
 
-        //Volume parameters
+        //image parameters
         //TODO: obtain from functions instead of storing
 
         Vector3D unit_center_;    //computation aid: vector representing offset from
@@ -89,7 +89,7 @@ class image_base : public data_base
         virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) = 0;
         virtual float get_number_voxel(int x, int y, int z) //get value as float for onscreen display in numbers
             = 0;
-                                                                    //when other kinds than 3D volumes are implemented,
+                                                                    //when other kinds than 3D images are implemented,
                                                                     //one might want to make these dimensionality-independent 
                                                                     //like get_size_by_dim(int dim)
         

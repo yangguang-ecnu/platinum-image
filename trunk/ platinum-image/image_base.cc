@@ -124,7 +124,7 @@ void image_base::load(std::vector<std::string> files)
     //load mode
     enum  {
         LOMO_NOTSET,
-        LOMO_ATOMICFILES, //loading individual volume files, such as VTK
+        LOMO_ATOMICFILES, //loading individual image files, such as VTK
         LOMO_DICOM,       //loading DICOM series
         LOMO_RAW          //loading raw series
         }
@@ -137,7 +137,7 @@ vector<string> loaded_series;   //UIDs of the DICOM series loaded during this ca
 
 for ( std::vector<string>::iterator file = files.begin(); file != files.end(); ++file )
     {
-    image_base *avolume=NULL; //the eventually loaded volume(handler)
+    image_base *animage=NULL; //the eventually loaded image(handler)
 
     itk::VTKImageIO::Pointer vtkIO = itk::VTKImageIO::New();
 
@@ -149,7 +149,7 @@ for ( std::vector<string>::iterator file = files.begin(); file != files.end(); +
         //voxel type only
 
         //assumption:
-        //File contains volume data
+        //File contains image data
 
         vtkIO->SetFileName(file->c_str());
 
@@ -168,17 +168,17 @@ for ( std::vector<string>::iterator file = files.begin(); file != files.end(); +
                 switch (componentType)
                     {
                     case itk::ImageIOBase::UCHAR:
-                        avolume = new image_integer<unsigned char>();
-                        ((image_integer<unsigned char>*)avolume)->load_dataset_from_VTK_file(*file);
+                        animage = new image_integer<unsigned char>();
+                        ((image_integer<unsigned char>*)animage)->load_dataset_from_VTK_file(*file);
                         break;
                     case itk::ImageIOBase::USHORT:
-                        avolume = new image_integer<unsigned short>();
-                        ((image_integer<unsigned short>*)avolume)->load_dataset_from_VTK_file(*file);
+                        animage = new image_integer<unsigned short>();
+                        ((image_integer<unsigned short>*)animage)->load_dataset_from_VTK_file(*file);
                         break;
 
                     case itk::ImageIOBase::SHORT:
-                        avolume = new image_integer<short>();
-                        ((image_integer<short>*)avolume)->load_dataset_from_VTK_file(*file);
+                        animage = new image_integer<short>();
+                        ((image_integer<short>*)animage)->load_dataset_from_VTK_file(*file);
                         break;
                     default:
 #ifdef _DEBUG
@@ -191,17 +191,17 @@ for ( std::vector<string>::iterator file = files.begin(); file != files.end(); +
                 switch (componentType)
                     {
                     case itk::ImageIOBase::UCHAR:
-                        avolume = new image_complex<unsigned char>();
-                        ((image_scalar<unsigned char>*)avolume)->load_dataset_from_VTK_file(path_parent(*file));
+                        animage = new image_complex<unsigned char>();
+                        ((image_scalar<unsigned char>*)animage)->load_dataset_from_VTK_file(path_parent(*file));
                         break;
                     case itk::ImageIOBase::USHORT:
-                        avolume = new image_complex<unsigned short>();
-                        ((image_scalar<unsigned short>*)avolume)->load_dataset_from_VTK_file(path_parent(*file));
+                        animage = new image_complex<unsigned short>();
+                        ((image_scalar<unsigned short>*)animage)->load_dataset_from_VTK_file(path_parent(*file));
                         break;
 
                     case itk::ImageIOBase::SHORT:
-                        avolume = new image_complex<short>();
-                        ((image_scalar<short>*)avolume)->load_dataset_from_VTK_file(path_parent(*file));
+                        animage = new image_complex<short>();
+                        ((image_scalar<short>*)animage)->load_dataset_from_VTK_file(path_parent(*file));
                         break;
                     default:
 #ifdef _DEBUG
@@ -276,17 +276,17 @@ for ( std::vector<string>::iterator file = files.begin(); file != files.end(); +
                             switch (componentType)
                                 {
                                 case itk::ImageIOBase::UCHAR:
-                                    avolume = new image_integer<unsigned char>();
-                                    ((image_integer<unsigned char>*)avolume)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
+                                    animage = new image_integer<unsigned char>();
+                                    ((image_integer<unsigned char>*)animage)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
                                     break;
                                 case itk::ImageIOBase::USHORT:
-                                    avolume = new image_integer<unsigned short>();
-                                    ((image_integer<unsigned short>*)avolume)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
+                                    animage = new image_integer<unsigned short>();
+                                    ((image_integer<unsigned short>*)animage)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
                                     break;
 
                                 case itk::ImageIOBase::SHORT:
-                                    avolume = new image_integer<short>();
-                                    ((image_integer<short>*)avolume)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
+                                    animage = new image_integer<short>();
+                                    ((image_integer<short>*)animage)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
                                     break;
                                 default:
 #ifdef _DEBUG
@@ -329,17 +329,17 @@ for ( std::vector<string>::iterator file = files.begin(); file != files.end(); +
         raw_files.push_back (*file);
         }
 
-    if (avolume != NULL)
+    if (animage != NULL)
         {
-        //new volume either way, add to datamanager
+        //new image either way, add to datamanager
 
-        datamanagement.add(avolume);
+        datamanagement.add(animage);
 
 #ifdef _DEBUG
         viewmanagement.list_connections();
         rendermanagement.listrenderers();
 #endif
-        }//avolume != NULL
+        }//animage != NULL
 
 
     }//files for() loop

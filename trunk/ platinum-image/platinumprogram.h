@@ -1,6 +1,8 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Helpers and intializations for programs using Platinum 
+//  Helpers and intializations for programs using Platinum $Revision$
+//
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.

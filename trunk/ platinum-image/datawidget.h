@@ -1,10 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Datawidget
+//  Datawidget $Revision$
 //
 //  The datawidget is the GUI representation of a dataset (image/point).
 //  It provides controls for saving, deleting and shows the thumbnail.
 //
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
@@ -49,7 +50,7 @@ class datawidget : public Fl_Pack {
 public:
     datawidget(int X, int Y, int W, int H, const char *L = 0);
 private:
-    int volume_id;
+    int image_id;
     const static int thumbnail_size;
     uchar * thumbnail_image;
     std::string _name;
@@ -88,7 +89,7 @@ public:
     static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);
 
     // *** access methods ***
-    int get_volume_id();
+    int get_image_id();
     void name(std::string n);
     const std::string name();
     void from_file(bool);

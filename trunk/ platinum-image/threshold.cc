@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -52,10 +54,10 @@ int  thresholdparvalue::get_id(int axis)
     return NOT_FOUND_ID;
     }
 
-int thresholdparvalue::make_threshold_volume ()
+int thresholdparvalue::make_threshold_image ()
     {
     short size[3];
-    int num_volumes=0;
+    int num_images=0;
     int result_vol_ID;
 
     image_base * the_inputs [THRESHOLDMAXCHANNELS];
@@ -65,13 +67,13 @@ int thresholdparvalue::make_threshold_volume ()
     for (int v=0;id[v] != NOT_FOUND_ID;v++)
         {
         the_inputs [v] = datamanagement.get_image(id[v]);
-        num_volumes = v+1;
+        num_images = v+1;
         }
 
-    if (num_volumes == 0)
+    if (num_images == 0)
         {
 #ifdef _DEBUG
-        std::cout << "Segmentation: no volumes selected in threshold" << std::endl;
+        std::cout << "Segmentation: no images selected in threshold" << std::endl;
 #endif
         return NOT_FOUND_ID;
         }
@@ -79,25 +81,25 @@ int thresholdparvalue::make_threshold_volume ()
     for (int d=0; d < 3; d++)
         {size[d]=the_inputs[0]->get_size_by_dim(d);}
 
-    //check that all volumes have same dimensions
-    for (int v = 1; v < num_volumes; v++)
+    //check that all images have same dimensions
+    for (int v = 1; v < num_images; v++)
         {
         for (int d=0; d < 3; d++)
             {
             if (size[d]!=the_inputs[v]->get_size_by_dim(d))
                 {
 #ifdef _DEBUG
-                std::cout << "Segmentation: volume sizes do not match" << std::endl;
+                std::cout << "Segmentation: image sizes do not match" << std::endl;
 #endif
                 return NOT_FOUND_ID;
                 }
             }
         }
 
-    //input volumes are expected to all have the same dimensions, just use the first
+    //input images are expected to all have the same dimensions, just use the first
     //as blueprint for an empty one
 
-    result_vol_ID= datamanagement.create_empty_volume(the_inputs[0], VOLDATA_UCHAR);
+    result_vol_ID= datamanagement.create_empty_image(the_inputs[0], VOLDATA_UCHAR);
     the_result=(image_label<3> *)datamanagement.get_image(result_vol_ID);
 
     for (short z = 0; z < size[2];z++)
@@ -110,7 +112,7 @@ int thresholdparvalue::make_threshold_volume ()
                 bool value=true;
                 float t_value [THRESHOLDMAXCHANNELS];
 
-                for (int v = 0; v < num_volumes && value; v++)
+                for (int v = 0; v < num_images && value; v++)
                     {
                     t_value[v] = the_inputs [v]->get_number_voxel(x,y,z);
 
@@ -118,7 +120,7 @@ int thresholdparvalue::make_threshold_volume ()
                     value = value && t_value[v] > low[v] && t_value[v] < high[v];
                     }
 
-                if (value && num_volumes == 2 && mode==THRESHOLD_2D_MODE_OVAL)
+                if (value && num_images == 2 && mode==THRESHOLD_2D_MODE_OVAL)
                     {
                     //oval threshold
                     value = value && (std::sqrt(powf((t_value[0]-((high[0]+low[0])/2.0))/((high[0]-low[0])/(high[1]-low[1])),2.0)+powf(t_value[1]-((high[1]+low[1])/2.0),2.0) ) <= (high[1]+low[1])/2.0);

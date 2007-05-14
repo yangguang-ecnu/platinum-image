@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -133,12 +135,12 @@ void FLTK2Dregionofinterest::drag (int x_last, int y_last, int dx, int dy,Fl_Wid
      histograms.clear();
 
      int p=0;
-     int rendered_vol_ID=rendermanagement.volume_at_priority (rendererIndex,p);
+     int rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
 
      while (rendered_vol_ID > 0)
          {
          std::vector<FLTKuserIOpar_histogram2D *>  found;
-         found=userIOmanagement.get_histogram_for_volume(rendered_vol_ID);
+         found=userIOmanagement.get_histogram_for_image(rendered_vol_ID);
          std::vector<FLTKuserIOpar_histogram2D *>::iterator fitr =found.begin();
 
          while (fitr != found.end())
@@ -150,7 +152,7 @@ void FLTK2Dregionofinterest::drag (int x_last, int y_last, int dx, int dy,Fl_Wid
              }
 
          p++;
-         rendered_vol_ID=rendermanagement.volume_at_priority (rendererIndex,p);
+         rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
          }
      }
 
