@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  UserIOmanager
+//   UserIOmanager $Revision$
 //
-//  Maintains a list of userIO blocks, and relays all operations on
-//  blocks and their parameters. The interface to this class is
-//  independent of the FL toolkit.
+///  Maintains a list of userIO blocks, and relays all operations on
+///  blocks and their parameters. The interface to this class is
+///  independent of the FL toolkit.
 //
-//
+//   $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -80,14 +80,14 @@ class userIOmanager
         int add_par_int_box(int userIO_ID, std::string new_param_name,long max=255,long min=0);
         int add_par_bool(int userIO_ID, std::string new_param_name,bool init_status = false);
 
-        int add_par_volume(int userIO_ID, std::string new_param_name);
+        int add_par_image(int userIO_ID, std::string new_param_name);
         int add_par_histogram_2D(int userIO_ID, std::string new_param_name);
         int add_par_message(int userIO_ID, std::string new_param_name, std::string message);
 
         template <class ptype>
             ptype get_parameter(int IOblockID, int num);
 
-        std::vector<FLTKuserIOpar_histogram2D *> get_histogram_for_volume (int volumeID);
+        std::vector<FLTKuserIOpar_histogram2D *> get_histogram_for_image (int imageID);
     };
 
 template <class ptype>

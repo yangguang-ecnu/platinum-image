@@ -1,11 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Rendergeometry
-//
-//  Rendergeometry stores rendering coordinates (look at, orientation
-//  and zoom) for renderers
-//
-//
+//  Rendergeometry $Revision$
+///
+/// Rendergeometry stores rendering coordinates (look at, orientation
+/// and zoom) for renderers
+///
+//  $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -45,7 +45,7 @@ class rendergeometry
         // *** NOTE: some render parameter constraints (like not zooming in/out at insane levels)
         //     are implemented in renderer_base::move
 
-        Matrix3D dir;               //view to composite volume matrix
+        Matrix3D dir;               //view to composite image matrix
         //only direction (no scaling) = normal of slice plane
 
         float zoom;                 //user-determined magnification, multiplied with scale to

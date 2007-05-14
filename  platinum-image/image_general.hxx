@@ -79,25 +79,25 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
     this->unit_center_     = sourceImage->unit_center();
     this->unit_to_voxel_   = sourceImage->unit_to_voxel();
 
-    // *ID, from_file, volumename and widget are assigned in image_base constructor
+    // *ID, from_file, imagename and widget are assigned in image_base constructor
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_base * image_general<ELEMTYPE, IMAGEDIM>::alike (imageDataType unit)
     {
     //this alike is called from the template-agnostic image_base class
-    image_base * new_volume = NULL;
+    image_base * new_image = NULL;
 
     switch (unit)
         {
-        case VOLDATA_BOOL:      new_volume = new image_binary<IMAGEDIM>(this,false);             
+        case VOLDATA_BOOL:      new_image = new image_binary<IMAGEDIM>(this,false);             
             break;
-        case VOLDATA_CHAR:      new_volume = new image_integer<char, IMAGEDIM > (this,false);              break;
-        case VOLDATA_UCHAR:     new_volume = new image_integer<unsigned char, IMAGEDIM > (this,false);
+        case VOLDATA_CHAR:      new_image = new image_integer<char, IMAGEDIM > (this,false);              break;
+        case VOLDATA_UCHAR:     new_image = new image_integer<unsigned char, IMAGEDIM > (this,false);
             break;
-        case VOLDATA_SHORT:     new_volume = new image_integer<short, IMAGEDIM >(this,false);              break;
-        case VOLDATA_USHORT:    new_volume = new image_integer<unsigned short, IMAGEDIM >(this,false);     break;
-        case VOLDATA_DOUBLE:    new_volume = new image_scalar<double, IMAGEDIM >(this,false);             break;
+        case VOLDATA_SHORT:     new_image = new image_integer<short, IMAGEDIM >(this,false);              break;
+        case VOLDATA_USHORT:    new_image = new image_integer<unsigned short, IMAGEDIM >(this,false);     break;
+        case VOLDATA_DOUBLE:    new_image = new image_scalar<double, IMAGEDIM >(this,false);             break;
         default :
             {
 #ifdef _DEBUG
@@ -107,29 +107,29 @@ image_base * image_general<ELEMTYPE, IMAGEDIM>::alike (imageDataType unit)
             break;
         }
 
-    return new_volume;
+    return new_image;
     }
 
 //template <class ELEMTYPE, int IMAGEDIM>
 //    template <class newType> 
 //image_general<newType> * image_general<ELEMTYPE, IMAGEDIM>::alike ()
 //    {
-//    image_general<newType, IMAGEDIM> * new_volume = NULL;
+//    image_general<newType, IMAGEDIM> * new_image = NULL;
 //
-//    new_volume = new image_general<newType, IMAGEDIM>();
+//    new_image = new image_general<newType, IMAGEDIM>();
 //
-//    new_volume->initialize_dataset(datasize[0],datasize[1],datasize[2]);
+//    new_image->initialize_dataset(datasize[0],datasize[1],datasize[2]);
 //
 //    ITKimportfilter=NULL;
 //
-//    new_volume->origin          = origin;
-//    new_volume->direction       = direction;
-//    new_volume->voxel_resize    = voxel_resize;
+//    new_image->origin          = origin;
+//    new_image->direction       = direction;
+//    new_image->voxel_resize    = voxel_resize;
 //
-//    new_volume->unit_center_     = unit_center;
-//    new_volume->unit_to_voxel   = unit_to_voxel_;
+//    new_image->unit_center_     = unit_center;
+//    new_image->unit_to_voxel   = unit_to_voxel_;
 //
-//    return new_volume;
+//    return new_image;
 //    }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -170,20 +170,20 @@ template <class ELEMTYPE, int IMAGEDIM>
 
 template <class ELEMTYPE, int IMAGEDIM>
     template<class SOURCETYPE>
-    image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData) : image_storage<ELEMTYPE > (old_volume) //copy constructor
+    image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData) : image_storage<ELEMTYPE > (old_image) //copy constructor
     {
-    initialize_dataset(old_volume->get_size_by_dim(0), old_volume->get_size_by_dim(1), old_volume->get_size_by_dim(2), NULL);
+    initialize_dataset(old_image->get_size_by_dim(0), old_image->get_size_by_dim(1), old_image->get_size_by_dim(2), NULL);
 
     if (copyData)
-        { copy_image (old_volume); }
+        { copy_image (old_image); }
 
-    set_parameters(old_volume);
+    set_parameters(old_image);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>::image_general(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i) : image_storage<ELEMTYPE >()
     {
-    replicate_itk_to_volume(i);
+    replicate_itk_to_image(i);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -231,7 +231,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool mm_refresh)
     this->from_file(false);
 
     //recalculate min/max
-    //with ITK volume data, this is preferrably done with
+    //with ITK image data, this is preferrably done with
     //StatisticsImageFilter
 
     ELEMTYPE val;
@@ -265,7 +265,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool mm_refresh)
         }
 
     //don't change if values don't make sense - 
-    //that would be an empty/zero volume
+    //that would be an empty/zero image
     if (pre_min < pre_max)
         {
         this->maxvalue=pre_max;
@@ -282,7 +282,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool mm_refresh)
 void image_general<ELEMTYPE, IMAGEDIM>::min_max_refresh()
     {
     //recalculate min/max
-    //with ITK volume data, this is preferrably done with
+    //with ITK image data, this is preferrably done with
     //StatisticsImageFilter
 
     ELEMTYPE val;
@@ -305,7 +305,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::min_max_refresh()
         }
 
     //don't change if values don't make sense - 
-    //that would be an empty/zero volume
+    //that would be an empty/zero image
     if (pre_min < pre_max)
         {
         maxvalue=pre_max;
@@ -339,13 +339,13 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters()
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void  image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_volume()
+void  image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image()
     {
-    replicate_itk_to_volume(ITKimportimage);
+    replicate_itk_to_image(ITKimportimage);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void  image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_volume(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i)
+void  image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i)
     {
     //i.IsNotNull () could be used to catch
     //uninitialized use. In that case it should throw an exception
@@ -559,7 +559,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
             }
         this->origin[d]=itk_origin[d];
 
-        //orthogonal-only renderer can't handle arbitrary volume orientations
+        //orthogonal-only renderer can't handle arbitrary image orientations
 #ifdef RENDER_ORTHOGONALLY_ONLY
         for (unsigned int c=0;c<3;c++)
             {this->direction[d][c]=round(itk_orientation[d][c]);}
@@ -581,7 +581,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
         {
         //cubic voxels may indicate that voxel size info is missing, use
         //heuristic:
-        //assume a voxel size that makes the volume as deep as its tallest side,
+        //assume a voxel size that makes the image as deep as its tallest side,
         //without voxel z size exceeding 4
 
         voxel_resize.Fill(0);
@@ -605,9 +605,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     //don't alter max/min in that case
     //note: scaling is for display only
 
-    //we *could* scale dynamically narrow 8-bit volumes as well,
+    //we *could* scale dynamically narrow 8-bit images as well,
     //but it's a question if what the viewer expects
-    //volumes with just a few classes (20) starting with 0
+    //images with just a few classes (20) starting with 0
     //(eg. binary) still get their scaling
 
     if (new_max - this->minvalue > 255 || (this->minvalue ==0 && new_max - this->minvalue < 20) )

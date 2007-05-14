@@ -38,11 +38,11 @@ int arg(int argc, char **argv, int &i) {
 return 0;
     }
 
-void add_demo_volume (int userIO_ID,int par_num)
+void add_demo_image (int userIO_ID,int par_num)
     {
     if (par_num == USERIO_CB_OK)
         {
-        int volID = datamanagement.create_empty_volume(20,20,20,1);
+        int volID = datamanagement.create_empty_image(20,20,20,1);
         datamanagement.get_image(volID)->testpattern();
         datamanagement.image_has_changed(volID);
         }
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
     // *** begin userIO control definitions ***
 
-    int create_vol_demo_ID=userIOmanagement.add_userIO("Add demo volume",add_demo_volume,"Add");
+    int create_vol_demo_ID=userIOmanagement.add_userIO("Add demo image",add_demo_image,"Add");
     userIOmanagement.finish_userIO(create_vol_demo_ID);
 
     // *** end userIO control definitions ***

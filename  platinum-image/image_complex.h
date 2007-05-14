@@ -1,9 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Image_complex
+//  Image_complex $Revision$
 //
 //  Image class with complex voxels
 //
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
@@ -38,7 +39,7 @@ public:
     image_complex ():image_multi<complex<CMPTYPE > , IMAGEDIM>() {}
     
     template<class SOURCETYPE>
-    image_complex(image_multi<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true): image_multi<complex<CMPTYPE > , IMAGEDIM>(old_volume, copyData)
+    image_complex(image_multi<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_multi<complex<CMPTYPE > , IMAGEDIM>(old_image, copyData)
     {} //copy constructor
     
     image_complex (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_multi<complex<CMPTYPE > , IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}

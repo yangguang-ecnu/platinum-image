@@ -61,20 +61,20 @@ int NOOFIDENTIFIERS = 2;
 
 datamanager::datamanager()
 {
-    for (unsigned int m=0; m <datamanager::MAXVOLUMES;m++)
-        {raw_volume_menu[m].label (NULL); }
+    for (unsigned int m=0; m <datamanager::IMAGEVECTORMAX;m++)
+        {raw_image_menu[m].label (NULL); }
     closing = false;
 }
 
 datamanager::~datamanager()
     {
-    //since volumes and vectors are pointer arrays we have to collect garbage ourselves
+    //since images and vectors are pointer arrays we have to collect garbage ourselves
 
     closing = true;
 
-    for (unsigned int i=0; i < volumes.size(); i++)
-        { delete volumes[i]; }
-    volumes.clear();
+    for (unsigned int i=0; i < images.size(); i++)
+        { delete images[i]; }
+    images.clear();
 
     for (unsigned int i=0; i < vectors.size(); i++)
         { delete vectors[i]; }
@@ -84,27 +84,27 @@ datamanager::~datamanager()
 
 void datamanager::removedata_callback(Fl_Widget *callingwidget, void *thisdatamanager)
     {
-    //callback for "Load volume" widget
+    //callback for "Load image" button
 
     datawidget * the_datawidget=(datawidget *)(callingwidget->user_data());
 
-    //here we want to check with the datawidget whether this is volume
+    //here we want to check with the object whether this is image
     //or vector (or other) data
-    //for now, the assumption is volume data
+    //for now, the assumption is image data
 
-    ((datamanager*)thisdatamanager)->remove_volume( the_datawidget->get_volume_id() );
+    ((datamanager*)thisdatamanager)->remove_image( the_datawidget->get_image_id() );
     }
 
-void datamanager::save_vtk_volume_callback(Fl_Widget *callingwidget, void * thisdatamanager)
+void datamanager::save_vtk_image_callback(Fl_Widget *callingwidget, void * thisdatamanager)
     {
     datawidget * the_datawidget=(datawidget *)(callingwidget->user_data());
 #ifdef _DEBUG
-    cout << "Save VTK volume ID=" << the_datawidget->get_volume_id() << endl;
+    cout << "Save VTK image ID=" << the_datawidget->get_image_id() << endl;
 #endif
 
-    int volume_index=((datamanager*)thisdatamanager)->find_image_index(the_datawidget->get_volume_id());
+    int image_index=((datamanager*)thisdatamanager)->find_image_index(the_datawidget->get_image_id());
 
-    Fl_File_Chooser chooser(".","Visualization Toolkit volume (*.vtk)",Fl_File_Chooser::CREATE,"Save VTK volume");
+    Fl_File_Chooser chooser(".","Visualization Toolkit image (*.vtk)",Fl_File_Chooser::CREATE,"Save VTK image");
 
     chooser.ok_label("Save") ;
     chooser.preview(false); 
@@ -120,7 +120,7 @@ void datamanager::save_vtk_volume_callback(Fl_Widget *callingwidget, void * this
         return;
     }
 
-    ((datamanager*)thisdatamanager)->volumes[volume_index]->save_image_to_VTK_file(chooser.value(1));
+    ((datamanager*)thisdatamanager)->images[image_index]->save_image_to_VTK_file(chooser.value(1));
     }
 
 #define LISTHEADERHEIGHT 25
@@ -142,7 +142,7 @@ void datamanager::datawidgets_setup()
     datalabel->labelfont(FL_HELVETICA_BOLD );
 
     //we should create a bitmap here (i.e. the "animage"), and fill it with
-    //color gradient or solid color depending on volume type
+    //color gradient or solid color depending on image type
 
     data_widget_box = new horizresizeablescroll(xpos,ypos+LISTHEADERHEIGHT,width,DATALISTINITHEIGHT-BUTTONHEIGHT-margin*2-LISTHEADERHEIGHT*2);
 
@@ -150,8 +150,8 @@ void datamanager::datawidgets_setup()
 
     Fl_Group* buttongroup = new Fl_Group(xpos,ypos+data_widget_box->h(),width,BUTTONHEIGHT+margin*2);
 
-    load_button = new Fl_Button(xpos,data_widget_box->y()+data_widget_box->h()+margin,120,BUTTONHEIGHT, "Load volume...");
-    load_button->callback(loadvolume_callback,this);
+    load_button = new Fl_Button(xpos,data_widget_box->y()+data_widget_box->h()+margin,120,BUTTONHEIGHT, "Load image...");
+    load_button->callback(loadimage_callback,this);
 
     buttongroup->resizable(NULL);
     buttongroup->end();
@@ -166,28 +166,28 @@ void datamanager::datawidgets_setup()
 
 void datamanager::add(image_base * v)
     {
-    if (volumes.size() < MAXVOLUMES)
+    if (images.size() < IMAGEVECTORMAX)
         {
-        int the_volume_id= v->get_id();
+        int the_image_id= v->get_id();
 
-        if (find_image_index(the_volume_id) == -1)
+        if (find_image_index(the_image_id) == -1)
             {
-            volumes.push_back(v);
+            images.push_back(v);
 
-            int freeViewportID=viewmanagement.find_viewport_no_volumes();
+            int freeViewportID=viewmanagement.find_viewport_no_images();
 
             if (freeViewportID != NOT_FOUND_ID)
                 {
-                rendermanagement.connect_volume_renderer(viewmanagement.get_renderer_id(freeViewportID),the_volume_id);
+                rendermanagement.connect_image_renderer(viewmanagement.get_renderer_id(freeViewportID),the_image_id);
                 }
 
             image_vector_has_changed();
-            image_has_changed(the_volume_id);
+            image_has_changed(the_image_id);
             }
         else
             {
 #ifdef _DEBUG
-            cout << "Trying to re-add volume ID " << the_volume_id << endl;
+            cout << "Trying to re-add image ID " << the_image_id << endl;
 #endif
             }
         }
@@ -195,15 +195,15 @@ void datamanager::add(image_base * v)
         {
 #ifdef _DEBUG
         //This error condition should really never happen, if it does there is
-        //reason to rethink the dependency on a fixed volume capacity the way 
-        //MAXVOLUMES works
+        //reason to rethink the dependency on a fixed image capacity the way 
+        //IMAGEVECTORMAX works
 
-        cout << "Error when adding volume: number of volumes in datamanager exceeds MAXVOLUMES" << endl;
+        cout << "Error when adding image: number of images in datamanager exceeds IMAGEVECTORMAX" << endl;
 #endif
         }
     }
 
-void datamanager::remove_volume (int id)
+void datamanager::remove_image (int id)
     {
     int index;
 
@@ -211,42 +211,42 @@ void datamanager::remove_volume (int id)
 
     if (index >=0)
         {
-        delete volumes[index];
+        delete images[index];
 
-        volumes.erase(volumes.begin()+index);
+        images.erase(images.begin()+index);
         }
 #ifdef _DEBUG
     if (index >=0)
         {
-        cout << "Deleted volume with ID=" << id << ", index=" << index << endl;
-        cout << "There are now " << volumes.size() << " volumes" << endl;
+        cout << "Deleted image with ID=" << id << ", index=" << index << endl;
+        cout << "There are now " << images.size() << " images" << endl;
         }
     else
         {
-        cout << "Danger danger: volume with ID " << id << " not found" << endl;
+        cout << "Danger danger: image with ID " << id << " not found" << endl;
         }
 #endif
 
     image_vector_has_changed();
     }
 
-int datamanager::first_volume()
+int datamanager::first_image()
     {
-    return volumes[0]->get_id();
+    return images[0]->get_id();
     }
 
-int datamanager::next_volume(int id)
+int datamanager::next_image(int id)
 {
     int index=find_image_index(id);
 
     if (index != -1) {
-        if ((index + 1) < (signed int)volumes.size()) {
-            //volume exists and is not last
-            return volumes[index+1]->get_id();
+        if ((index + 1) < (signed int)images.size()) {
+            //image exists and is not last
+            return images[index+1]->get_id();
         }
 
         else {
-            //last volume
+            //last image
             return 0;
         }
     }
@@ -255,36 +255,36 @@ int datamanager::next_volume(int id)
     return -1; 
 }
 
-string datamanager::get_volume_name(int ID)
+string datamanager::get_image_name(int ID)
 {
     int index=find_image_index(ID);
     if (index >=0) {
-        return volumes[index]->name();
+        return images[index]->name();
     }
 
-    string error_string="(volume_name error)";
+    string error_string="(image_name error)";
     return error_string;
 }
 
-void datamanager::set_volume_name(int ID,string n)
+void datamanager::set_image_name(int ID,string n)
 {
     int index=find_image_index(ID);
     if (index >=0)
     {
-        volumes[index]->name(n);
+        images[index]->name(n);
         image_vector_has_changed();
     }
 }
 
-void datamanager::loadvolume_callback(Fl_Widget *callingwidget, void *thisdatamanager)
+void datamanager::loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager)
 // argument must tell us which instance, if multiple
     {
-    ((datamanager*)thisdatamanager)->loadvolumes();	//joel
+    ((datamanager*)thisdatamanager)->loadimages();	//joel
     }
 
-void datamanager::loadvolumes() // argument must tell us which instance, if multiple
+void datamanager::loadimages() // argument must tell us which instance, if multiple
     {
-    Fl_File_Chooser chooser(".","Any file - raw (*)\tVisualization Toolkit volume (*.vtk)\tTyped DICOM file (*.dcm)",Fl_File_Chooser::MULTI,"Load VTK/DICOM volume");
+    Fl_File_Chooser chooser(".","Any file - raw (*)\tVisualization Toolkit image (*.vtk)\tTyped DICOM file (*.dcm)",Fl_File_Chooser::MULTI,"Load VTK/DICOM image");
 
     chooser.show();
 
@@ -323,54 +323,54 @@ void datamanager::loadvolumes() // argument must tell us which instance, if mult
         }
     }
 
-int datamanager::create_empty_volume(int x, int y, int z, int unit) // argument must tell us which instance, if multiple
+int datamanager::create_empty_image(int x, int y, int z, int unit) // argument must tell us which instance, if multiple
     {
-    image_base *avolume = NULL;
+    image_base *animage = NULL;
     
     switch (unit)
         {
-        case VOLDATA_CHAR:      avolume=new image_integer<char>(); break;
-        case VOLDATA_UCHAR:     avolume=new image_integer<unsigned char>(); break;
-        case VOLDATA_SHORT:     avolume=new image_integer<short>(); break;
-        case VOLDATA_USHORT:    avolume=new image_integer<unsigned short>(); break;
-        case VOLDATA_DOUBLE:    avolume=new image_scalar<double>(); break;
+        case VOLDATA_CHAR:      animage=new image_integer<char>(); break;
+        case VOLDATA_UCHAR:     animage=new image_integer<unsigned char>(); break;
+        case VOLDATA_SHORT:     animage=new image_integer<short>(); break;
+        case VOLDATA_USHORT:    animage=new image_integer<unsigned short>(); break;
+        case VOLDATA_DOUBLE:    animage=new image_scalar<double>(); break;
         default: cout << "Unsupported data type\n" << endl;
         }
 
-    avolume->initialize_dataset(x,y,z);
+    animage->initialize_dataset(x,y,z);
 
-    add(avolume);
+    add(animage);
 
-    return avolume->get_id();
+    return animage->get_id();
     }
 
-int datamanager::create_empty_volume(image_base * blueprint, imageDataType unit)
+int datamanager::create_empty_image(image_base * blueprint, imageDataType unit)
     {
-    image_base *avolume = NULL;
+    image_base *animage = NULL;
 
-    avolume = blueprint->alike(unit);
+    animage = blueprint->alike(unit);
 
-    //no initialize_dataset, relevant information (except volume) is taken
+    //no initialize_dataset, relevant information (except image) is taken
     //from blueprint
 
-    add(avolume);
+    add(animage);
 
-    return avolume->get_id();
+    return animage->get_id();
     }
 
 
-void datamanager::listvolumes()
+void datamanager::listimages()
     {
-    cout << "Antal volymer: " << volumes.size() << endl;
+    cout << "Antal volymer: " << images.size() << endl;
 
-    for (unsigned int i=0; i < volumes.size(); i++) { cout << *volumes[i] << endl; } 
+    for (unsigned int i=0; i < images.size(); i++) { cout << *images[i] << endl; } 
     }
 
 int datamanager::find_image_index(int uniqueID)
     {
-    for (unsigned int i=0; i < volumes.size(); i++)
+    for (unsigned int i=0; i < images.size(); i++)
         {
-        if (*volumes[i]==uniqueID)
+        if (*images[i]==uniqueID)
             { return i; }
         }
     return -1; // not found
@@ -378,9 +378,9 @@ int datamanager::find_image_index(int uniqueID)
 
 image_base * datamanager::get_image (int ID)
     {
-    vector<image_base*>::iterator itr=volumes.begin();
+    vector<image_base*>::iterator itr=images.begin();
 
-    while (itr != volumes.end())
+    while (itr != images.end())
         {
         if (**itr == ID)
             { return *itr; }
@@ -420,12 +420,12 @@ void datamanager::remove_datawidget(datawidget * the_fl_widget)
     data_widget_box->interior->remove(the_fl_widget);
     }
 
-void datamanager::image_has_changed (int volume_ID, bool recalibrate)
+void datamanager::image_has_changed (int image_ID, bool recalibrate)
     {
     //when thumbnails are implemented, they should be re-rendered at this point
-    get_image(volume_ID)->image_has_changed(recalibrate);
+    get_image(image_ID)->image_has_changed(recalibrate);
 
-    vector<int> changed_combinations=rendermanagement.combinations_from_volume(volume_ID);
+    vector<int> changed_combinations=rendermanagement.combinations_from_image(image_ID);
     vector<int>::iterator citr=changed_combinations.begin();
 
     citr=changed_combinations.begin();
@@ -438,49 +438,49 @@ void datamanager::image_has_changed (int volume_ID, bool recalibrate)
 
 void datamanager::image_vector_has_changed()
     {
-    rebuild_volume_menu();
+    rebuild_image_menu();
     rendermanagement.image_vector_has_changed();
     userIOmanagement.image_vector_has_changed();
     }
 
-void datamanager::rebuild_volume_menu()
+void datamanager::rebuild_image_menu()
 {
-    int v=first_volume();//volume ID for iteration
+    int v=first_image();//image ID for iteration
     int m=0;
     
     //delete old labels
-    for(int i=0;raw_volume_menu[i].label()!=NULL;i++)
-        {delete raw_volume_menu[i].label();}
+    for(int i=0;raw_image_menu[i].label()!=NULL;i++)
+        {delete raw_image_menu[i].label();}
     
     while (v > 0)
     {
-        if (raw_volume_menu[m].label()!=NULL)
-            {raw_volume_menu[m].label(NULL);}
-        string labelstring=datamanagement.get_volume_name(v);
+        if (raw_image_menu[m].label()!=NULL)
+            {raw_image_menu[m].label(NULL);}
+        string labelstring=datamanagement.get_image_name(v);
         char * menulabel=strdup(labelstring.c_str());
         
-        raw_volume_menu[m].shortcut(0);
-        raw_volume_menu[m].callback((Fl_Callback *)NULL,0);
-        raw_volume_menu[m].argument((long)v);
-        raw_volume_menu[m].flags= 0;
-        raw_volume_menu[m].labeltype(FL_NORMAL_LABEL);
-        raw_volume_menu[m].labelfont(0);
-        raw_volume_menu[m].labelsize(FLTK_LABEL_SIZE);
-        raw_volume_menu[m].labelcolor(FL_BLACK);
+        raw_image_menu[m].shortcut(0);
+        raw_image_menu[m].callback((Fl_Callback *)NULL,0);
+        raw_image_menu[m].argument((long)v);
+        raw_image_menu[m].flags= 0;
+        raw_image_menu[m].labeltype(FL_NORMAL_LABEL);
+        raw_image_menu[m].labelfont(0);
+        raw_image_menu[m].labelsize(FLTK_LABEL_SIZE);
+        raw_image_menu[m].labelcolor(FL_BLACK);
         
-        raw_volume_menu[m].label(menulabel);
+        raw_image_menu[m].label(menulabel);
         
         m++;
-        v=next_volume(v);
+        v=next_image(v);
     }
     
     //terminate menu
-    raw_volume_menu[m].label(NULL);
+    raw_image_menu[m].label(NULL);
 }
 
-const Fl_Menu_Item * datamanager::FLTK_volume_menu_items()
+const Fl_Menu_Item * datamanager::FLTK_image_menu_items()
 {
-    return raw_volume_menu;
+    return raw_image_menu;
 }
 
 // *** planned custom file format ***
@@ -517,7 +517,7 @@ const Fl_Menu_Item * datamanager::FLTK_volume_menu_items()
 
 
 ////////
-// loads spatial info and volumedata
+// loads spatial info and imagedata
 //
 
 void datamanager::parse_and_load_file(char filename[])

@@ -1,10 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Image_multi
-//
-//  Abstract image class for data types with multiple values per voxel,
-//  such as vector, complex and RGB
-//
+//   Image_multi $Revision$
+///
+///  Abstract image class for data types with multiple values per voxel,
+///  such as vector, complex and RGB
+///
+//   $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
@@ -39,7 +40,7 @@ class image_multi : public image_general <ELEMTYPE, IMAGEDIM>
         image_multi ():image_general<ELEMTYPE, IMAGEDIM>() {}
         
         template<class SOURCETYPE>
-        image_multi(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_volume, copyData)
+        image_multi(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_image, copyData)
         {} //copy constructor
         
         image_multi (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}

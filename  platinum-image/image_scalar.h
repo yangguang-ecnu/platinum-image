@@ -1,10 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Image_scalar
-//
-//  Image type with scalar voxel/pixel values
-//  Mostly the same as image_general
-//
+//   Image_scalar $Revision$
+///
+///  Image type with scalar voxel/pixel values
+///  Mostly the same as image_general
+///
+//   $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
@@ -39,7 +40,7 @@ public:
     image_scalar (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i):image_general<ELEMTYPE, IMAGEDIM>(i) {}
     //copy constructor
     template<class SOURCETYPE>
-        image_scalar(image_general<SOURCETYPE, IMAGEDIM> * old_volume, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_volume, copyData)
+        image_scalar(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_image, copyData)
         {};
     //raw constructor
     image_scalar(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile = 1,unsigned int increment = 1) : image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment)

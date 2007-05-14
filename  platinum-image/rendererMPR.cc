@@ -1,9 +1,10 @@
-///////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 //
-// reslice routines for MPR
-// It can convert between local and global coordinates, check sanity et.c.
-//
-//
+//  reslice routines for MPR $Revision$
+///
+/// arbitrary 2D slices rendered by scanline
+///
+//  $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -46,7 +47,7 @@ vector<float> rendererMPR::get_values(int vx, int vy,int sx,int sy)
 void rendererMPR::connect_image(int vHandlerID)
     {
     //TEST: wrapper, this should be done directly by rendermanagement
-    volumestorender->add_volume(vHandlerID);
+    imagestorender->add_image(vHandlerID);
     }
 
 Vector3D rendererMPR::view_to_unit(int vx, int vy,int sx,int sy)
@@ -65,9 +66,9 @@ Vector3D rendererMPR::view_to_unit(int vx, int vy,int sx,int sy)
     return unit;
     }
 
-Vector3D rendererMPR::view_to_voxel(int volumeID, int vx, int vy,int sx,int sy)
+Vector3D rendererMPR::view_to_voxel(int imageID, int vx, int vy,int sx,int sy)
     {
-    return datamanagement.get_image(volumeID)->transform_unit_to_voxel (view_to_unit(vx, vy,sx,sy));
+    return datamanagement.get_image(imageID)->transform_unit_to_voxel (view_to_unit(vx, vy,sx,sy));
     }
 
 int rendererMPR::renderer_type()
@@ -75,9 +76,9 @@ int rendererMPR::renderer_type()
     return RENDERER_MPR;
     }
 
-void rendererMPR::render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, int volume_ID)
+void rendererMPR::render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID)
     {
-    rendercombination r = rendercombination (volume_ID);
+    rendercombination r = rendercombination (image_ID);
     rendergeometry g = rendergeometry ();
 
     render_( rgb, rgb_sx, rgb_sy,&g,&r,NULL);
@@ -85,20 +86,20 @@ void rendererMPR::render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, 
 
 void rendererMPR::render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold)
     {
-    render_( rgba, rgb_sx, rgb_sy,wheretorender,volumestorender,threshold);
+    render_( rgba, rgb_sx, rgb_sy,wheretorender,imagestorender,threshold);
     }
 
 void rendererMPR::render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
     {
-    render_( rgb, rgb_sx, rgb_sy,wheretorender,volumestorender,NULL);
+    render_( rgb, rgb_sx, rgb_sy,wheretorender,imagestorender,NULL);
     }
 
 //render orthogonal slices using memory-order scanline
 void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry * where,rendercombination * what,thresholdparvalue * threshold)
     {
-    if (what->volume_remaining(0)==false)
+    if (what->image_remaining(0)==false)
         {
-        //*** no volumes: exit ***
+        //*** no images: exit ***
         return;
         }
 
@@ -109,18 +110,18 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
     //multiplied with zoom it gives the V/P ratio to render with
     //also taking into account current zoom level
 
-    int vol_count; //number of volumes to render in this call
+    int vol_count; //number of images to render in this call
 
     // *** Volume setup ***
 
-    Vector3D voxel_offset[MAXRENDERVOLUMES]; //offset (translation) from origin in volume
+    Vector3D voxel_offset[MAXRENDERVOLUMES]; //offset (translation) from origin in image
 
     float rgb_min_norm=min(float(rgb_sx),float(rgb_sy));
 
     //renderer_max_norm=0;
     vol_count=0;
 
-    while (what->volume_remaining(vol_count))
+    while (what->image_remaining(vol_count))
         { vol_count++; }
 
     // *** Pixmap rendering parameters ***
@@ -167,33 +168,33 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         }
 
 
-    // *** Per-volume render loop ***
+    // *** Per-image render loop ***
 
     Vector3D data_size;
 
-    for (int the_volume=0;the_volume <vol_count;the_volume++)
+    for (int the_image=0;the_image <vol_count;the_image++)
         {
         for(int d=0; d<3; d++)
-            {data_size[d]=what->rendervolume_pointers[the_volume]->get_size_by_dim(d);}
+            {data_size[d]=what->renderimage_pointers[the_image]->get_size_by_dim(d);}
 
         scale = rgb_min_norm/(max(data_size[0],max(data_size[1],data_size[2])));
 
-        image_base *the_volume_pointer, *the_other_volume_pointer;
+        image_base *the_image_pointer, *the_other_image_pointer;
 
         if (blend_mode == RENDER_THRESHOLD)
             {
-            the_volume_pointer       = datamanagement.get_image (threshold->id[0]);
-            the_other_volume_pointer = datamanagement.get_image (threshold->id[1]);
+            the_image_pointer       = datamanagement.get_image (threshold->id[0]);
+            the_other_image_pointer = datamanagement.get_image (threshold->id[1]);
             }
         else
-            { the_volume_pointer=(image_base *)what->rendervolume_pointers[the_volume]; }
+            { the_image_pointer=(image_base *)what->renderimage_pointers[the_image]; }
 
         // *** loop variables common to scanline and orthogonal renderer ***
 
         //color for tint mode
-        int tint_r=(((the_volume % 3) ==0) ^ (the_volume > 2));
-        int tint_g=(((the_volume % 3) ==1) ^ (the_volume > 2));
-        int tint_b=(((the_volume % 3) ==2) ^ (the_volume > 2));
+        int tint_r=(((the_image % 3) ==0) ^ (the_image > 2));
+        int tint_g=(((the_image % 3) ==1) ^ (the_image > 2));
+        int tint_b=(((the_image % 3) ==2) ^ (the_image > 2));
 
         //pixel fill start & end points, used in common blend mode code
         long fill_x_start,
@@ -210,22 +211,22 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 
         Matrix3D render_dir=where->dir;
 
-        //render_dir*=the_volume_pointer->direction;
+        //render_dir*=the_image_pointer->direction;
 
         Vector3D start,end;
 
         //end of direction vectors and precomputed variables
         //derived from these
 
-        //start position in volume
-        voxel_offset[the_volume]=(the_volume_pointer->unit_to_voxel())*(where->look_at+the_volume_pointer->unit_center()-((render_dir*unit_screen_center)/where->zoom));
+        //start position in image
+        voxel_offset[the_image]=(the_image_pointer->unit_to_voxel())*(where->look_at+the_image_pointer->unit_center()-((render_dir*unit_screen_center)/where->zoom));
 
 #ifndef USE_ARBITRARY
         //transform start to pixel units & voxel space which the renderer
         //is based on, since it allows us to step through voxel space for
         //each rendered pixel with integers representing the position
 
-        start=the_volume_pointer->get_voxel_resize()*voxel_offset[the_volume]*where->zoom*scale;
+        start=the_image_pointer->get_voxel_resize()*voxel_offset[the_image]*where->zoom*scale;
 
         Matrix3D reverse_dir;
         Vector3D view_offset;
@@ -298,7 +299,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         for (int d = 0; d <3; d ++)
             {
             //if (d == rgb_x_index || d == rgb_y_index)
-                {vp_delta[d] = max ((float)1,scale*where->zoom*the_volume_pointer->get_voxel_resize()[d][d]);}
+                {vp_delta[d] = max ((float)1,scale*where->zoom*the_image_pointer->get_voxel_resize()[d][d]);}
             // else
             // {vp_delta[d] = 0; }
             }
@@ -312,7 +313,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         //each loop must be passed through at least once, hence do{}while loops
 
         do{ //iterate z
-            /*vox[2]=floor (vp [2]/(scale*where->zoom*the_volume_pointer->get_voxel_resize()[2][2]));*/
+            /*vox[2]=floor (vp [2]/(scale*where->zoom*the_image_pointer->get_voxel_resize()[2][2]));*/
             if (vp_delta [2] != 0)
                 {vox[2] = vp [2]/vp_delta[2];}
 
@@ -322,7 +323,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             vp [1]=static_cast<long>(start[1]);
 
             do{ //iterate y
-                /*vox[1]=floor (vp [1]/(scale*where->zoom*the_volume_pointer->get_voxel_resize()[1][1]));*/
+                /*vox[1]=floor (vp [1]/(scale*where->zoom*the_image_pointer->get_voxel_resize()[1][1]));*/
                 if (vp_delta [1] != 0)
                     {vox[1]= vp [1]/vp_delta[1];}
 
@@ -334,7 +335,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 
                     //position in voxel space
 
-                    /*vox[0]=floor (vp [0]/(scale*where->zoom*the_volume_pointer->get_voxel_resize()[0][0]));*/
+                    /*vox[0]=floor (vp [0]/(scale*where->zoom*the_image_pointer->get_voxel_resize()[0][0]));*/
                     if (vp_delta [0] != 0)
                         {vox[0]=vp [0]/vp_delta[0];}
 
@@ -344,9 +345,9 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 
 
                     //TODO: flytta 1 och 2 till yttre loopar
-                    /*vp_delta [0] = max ((long)1,(long)((vox[0]+1) * the_volume_pointer->get_voxel_resize()[0][0]*scale) - vp[0]);
-                    vp_delta [1] = max ((long)1,(long)((vox[1]+1) * the_volume_pointer->get_voxel_resize()[1][1]*scale) - vp[1]);
-                    vp_delta [2] = max ((long)1,(long)((vox[2]+1) * the_volume_pointer->get_voxel_resize()[2][2]*scale) - vp[2]);*/
+                    /*vp_delta [0] = max ((long)1,(long)((vox[0]+1) * the_image_pointer->get_voxel_resize()[0][0]*scale) - vp[0]);
+                    vp_delta [1] = max ((long)1,(long)((vox[1]+1) * the_image_pointer->get_voxel_resize()[1][1]*scale) - vp[1]);
+                    vp_delta [2] = max ((long)1,(long)((vox[2]+1) * the_image_pointer->get_voxel_resize()[2][2]*scale) - vp[2]);*/
 
                     //pixpos_comp[0][0]=vp [0]*render_dir[0][0];
                     //pixpos_comp[0][1]=vp [0]*render_dir[0][1];
@@ -363,9 +364,9 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                     //float rgb_dir_x = render_dir[0][0]+render_dir[1][0]+render_dir[2][0] == (-1) ? -.5 : 0;
                     //float rgb_dir_y = render_dir[0][1]+render_dir[1][1]+render_dir[2][1] == (-1) ? -.5 : 0;
 
-                    //rgb_x_next=static_cast<long>((render_dir[0][0]*(vox[0]+1) *the_volume_pointer->get_voxel_resize()[0][0]+render_dir[1][0]*(vox[1]+1)*the_volume_pointer->get_voxel_resize()[1][1]+render_dir[2][0]*(vox[2]+1)*the_volume_pointer->get_voxel_resize()[2][2])*scale*where->zoom);
+                    //rgb_x_next=static_cast<long>((render_dir[0][0]*(vox[0]+1) *the_image_pointer->get_voxel_resize()[0][0]+render_dir[1][0]*(vox[1]+1)*the_image_pointer->get_voxel_resize()[1][1]+render_dir[2][0]*(vox[2]+1)*the_image_pointer->get_voxel_resize()[2][2])*scale*where->zoom);
 
-                    //rgb_y_next=static_cast<long>((render_dir[0][1]*(vox[0]+1)*the_volume_pointer->get_voxel_resize()[0][0]+render_dir[1][1]*(vox[1]+1)*the_volume_pointer->get_voxel_resize()[1][1]+render_dir[2][1]*(vox[2]+1)*the_volume_pointer->get_voxel_resize()[2][2])*scale*where->zoom);
+                    //rgb_y_next=static_cast<long>((render_dir[0][1]*(vox[0]+1)*the_image_pointer->get_voxel_resize()[0][0]+render_dir[1][1]*(vox[1]+1)*the_image_pointer->get_voxel_resize()[1][1]+render_dir[2][1]*(vox[2]+1)*the_image_pointer->get_voxel_resize()[2][2])*scale*where->zoom);
 
 
                     //#ifdef _DEBUG
@@ -441,14 +442,14 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 
 #else
 
-        start = voxel_offset[the_volume];
+        start = voxel_offset[the_image];
 
         //set slope to size of render plane in unit coordinates
 
         Vector3D slope_x, slope_y;
 
         Matrix3D pix_to_vox;
-        pix_to_vox = the_volume_pointer->get_voxel_resize().GetInverse();
+        pix_to_vox = the_image_pointer->get_voxel_resize().GetInverse();
 
         slope_x.Fill(0);
         slope_x[0]=1;
@@ -510,8 +511,8 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                         {
                         float t_value [2];
 
-                        t_value[0] = the_volume_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
-                        t_value[1] = the_other_volume_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
+                        t_value[0] = the_image_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
+                        t_value[1] = the_other_image_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
 
                         //rect threshold
                         threshold_value = ( t_value[0] > threshold->low[0] && t_value[0] < threshold->high[0] &&
@@ -525,7 +526,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                             }
                         }
                     else
-                        { the_volume_pointer->get_display_voxel(value,vox[0],vox[1],vox[2]);}
+                        { the_image_pointer->get_display_voxel(value,vox[0],vox[1],vox[2]);}
 
 
                     for (long rgb_fill_y=fill_y_start; (rgb_fill_y <  fill_y_end);rgb_fill_y++)
@@ -638,7 +639,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                 }
             }
 
-        }   //per-volume loop
+        }   //per-image loop
 
     }//render_ function
 

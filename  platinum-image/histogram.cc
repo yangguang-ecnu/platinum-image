@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -38,17 +40,17 @@ histogram_base::histogram_base ()
     num_buckets=96;
     }
 
-int histogram_base::volume_ID (int axis)
+int histogram_base::image_ID (int axis)
     {
     return threshold.get_id (axis);
     }
 
 // *** histogram_2D ***
 
-void histogram_2D_plot::volumes (int volume_hor,int volume_vert)
+void histogram_2D_plot::images (int image_hor,int image_vert)
     {
-    threshold.id[0]=volume_hor;
-    threshold.id[1]=volume_vert;
+    threshold.id[0]=image_hor;
+    threshold.id[1]=image_vert;
 
     calculate();
     }
@@ -65,7 +67,7 @@ void histogram_2D_plot::calculate(int foo)
 
     if (vol_v != NULL && vol_h != NULL)
         {
-        volumesdifferinsize= ! vol_v->same_size(vol_h);
+        imagesdifferinsize= ! vol_v->same_size(vol_h);
         }
     }
 
@@ -74,7 +76,7 @@ void histogram_2D_plot::render_(uchar * image, unsigned int w,unsigned int h)
     image_base * vol_v= datamanagement.get_image(threshold.id[1]);
     image_base * vol_h= datamanagement.get_image(threshold.id[0]);
 
-    if (!volumesdifferinsize)
+    if (!imagesdifferinsize)
         {
         float pixfactor_h=w/vol_h->get_max_float(),
             pixfactor_v=h/vol_v->get_max_float();
@@ -115,10 +117,10 @@ histogram_2D::~histogram_2D () {
         {delete []buckets; delete []highlight_data;}
     }
 
-void histogram_2D::volumes (int volume_hor,int volume_vert)
+void histogram_2D::images (int image_hor,int image_vert)
     {
-    threshold.id[0]=volume_hor;
-    threshold.id[1]=volume_vert;
+    threshold.id[0]=image_hor;
+    threshold.id[1]=image_vert;
 
     calculate();
     }
@@ -141,7 +143,7 @@ thresholdparvalue histogram_2D::get_threshold (float h_min,float h_max, float v_
     if (vol_v == NULL)
         {threshold.id[1]=NOT_FOUND_ID;}
 
-    //TODO: account for nonzero volume minimum
+    //TODO: account for nonzero image minimum
 
     if (vol_v != NULL && vol_h != NULL)
         {
@@ -189,7 +191,7 @@ void histogram_2D::calculate(int new_num_buckets)
 
     if (vol_v != NULL && vol_h != NULL)
         {
-        //true if volumes have same dimensions
+        //true if images have same dimensions
         readytorender=vol_v->same_size(vol_h);
 
         //reset buckets
@@ -270,7 +272,7 @@ void histogram_2D::calculate(int new_num_buckets)
         if (readytorender!=true)
             {calculate();}
 
-        //if volumes matched, etc, histogram is ready to be highlighted
+        //if images matched, etc, histogram is ready to be highlighted
         if (readytorender==true)
             {
             //reset highlight

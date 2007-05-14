@@ -616,8 +616,8 @@ void rawimporter::cb_rawimportok(Fl_Return_Button* o, void*)
     image_base * new_image = NULL;
 
     //Do import
-    //single-slice volumes can be imported, but the assumption
-    //is that the user wants a 3D volume anyway
+    //single-slice images can be imported, but the assumption
+    //is that the user wants a 3D image anyway
     switch (importer->voxeltype)
         {  
         case VOLDATA_DOUBLE:

@@ -79,7 +79,7 @@ class subclass_type_error : public std::exception
 //width of popup menu boxes
 #define PARMENUWIDTH 75
 
-typedef int volumeIDtype;
+typedef int imageIDtype;
 
 const int par_control_height=20;   //height for each parameter control
 
@@ -87,15 +87,15 @@ typedef void (userIO_callback)(int block_ID,int param_num);
 
 // *** custom widgets ***
 
-class FLTKvolume_choice : public Fl_Choice  //widget for choosing volumes, in FLTKuserIOpar_volume
-                                            //and other widgets using specific volumes, like histograms or points
+class FLTKimage_choice : public Fl_Choice  //widget for choosing images, in FLTKuserIOpar_image
+                                            //and other widgets using specific images, like histograms or points
     {
     public:
-        FLTKvolume_choice (int x, int y);
+        FLTKimage_choice (int x, int y);
 
-        void image_vector_has_changed ();   //update volume menu from datamanager
+        void image_vector_has_changed ();   //update image menu from datamanager
 
-        volumeIDtype id_value ();                   //return selected volume ID
+        imageIDtype id_value ();                   //return selected image ID
     };
 
 class FLTK_histogram_base : public Fl_Widget        //base class for widget displaying a histogram
@@ -141,7 +141,7 @@ class FLTK_histogram_2D : public FLTK_histogram_base
         int handle(int);                           //handle FLTK events
 
         void set_selmode (int);                    //set rectangular/oval selection mode
-        void set_volumes (int hor, int vert);      //set volume IDs and update
+        void set_images (int hor, int vert);      //set image IDs and update
     };
 
 // *** Parameter classes ***
@@ -161,7 +161,7 @@ public:
     static void par_update_callback (Fl_Widget *callingwidget, void *);
 
     virtual void image_vector_has_changed () {}   //trigger updating of parameters depending
-                                                          //on available volumes
+                                                          //on available images
     
     //here are all possible value types in any subclass
     //subclass implements only supported types
@@ -175,8 +175,8 @@ public:
         {throw subclass_type_error("requested long, actual type " + type_name() );}
     virtual void par_value (Vector3D & v)
         {throw subclass_type_error("requested Vector3D, actual type " + type_name() );}
-    virtual void par_value (volumeIDtype & v)
-        {throw subclass_type_error("requested volume ID, actual type " + type_name() );}
+    virtual void par_value (imageIDtype & v)
+        {throw subclass_type_error("requested image ID, actual type " + type_name() );}
     virtual void par_value (bool & v)
         {throw subclass_type_error("requested bool, actual type " + type_name() );}
     virtual void par_value (thresholdparvalue & v)
@@ -186,7 +186,7 @@ public:
         {return "unknown (base)";}
 
     //hack-ish information for histograms
-    virtual int histogram_volume_ID (int )
+    virtual int histogram_image_ID (int )
         {return NOT_FOUND_ID;}
     };
 
@@ -240,16 +240,16 @@ class FLTKuserIOpar_bool : public FLTKuserIOparameter_base    //boolean value (u
         void par_value (bool & v);
     };
 
-class FLTKuserIOpar_volume : public FLTKuserIOparameter_base   //volume selection (using popup menu)
+class FLTKuserIOpar_image : public FLTKuserIOparameter_base   //image selection (using popup menu)
     {
     protected:
-        FLTKvolume_choice * control;
+        FLTKimage_choice * control;
     public:
-        FLTKuserIOpar_volume(std::string name);
+        FLTKuserIOpar_image(std::string name);
 
         void image_vector_has_changed ();
 
-        void par_value(volumeIDtype & v);                     //volume ID
+        void par_value(imageIDtype & v);                     //image ID
 
         const std::string type_name ();
     };
@@ -257,8 +257,8 @@ class FLTKuserIOpar_volume : public FLTKuserIOparameter_base   //volume selectio
 class FLTKuserIOpar_histogram2D : public FLTKuserIOparameter_base 
     {
     protected:
-        FLTKvolume_choice * volume_h;
-        FLTKvolume_choice * volume_v;
+        FLTKimage_choice * image_h;
+        FLTKimage_choice * image_v;
 
         FLTK_histogram_2D * histogram_widget;
 
@@ -270,12 +270,12 @@ class FLTKuserIOpar_histogram2D : public FLTKuserIOparameter_base
         void par_value (thresholdparvalue & v);
         const std::string type_name ();
 
-        static void vol_change_callback (Fl_Widget *callingwidget, void *);       //called when volumes are changed in popup menus
+        static void vol_change_callback (Fl_Widget *callingwidget, void *);       //called when images are changed in popup menus
         static void selmode_change_callback (Fl_Widget *callingwidget, void *);   //called when oval/rect button is pushed
         void image_vector_has_changed ();
-        int histogram_volume_ID (int n);                                          //volume used for axis n in histogram
+        int histogram_image_ID (int n);                                          //image used for axis n in histogram
         void FLTKuserIOpar_histogram2D::highlight_ROI (regionofinterest *);       //highlight region of interest
-        void set_volumes (int hor, int vert);                                     //set volumes in histogram and refresh image
+        void set_images (int hor, int vert);                                     //set images in histogram and refresh image
     };
 
 class FLTKuserIOpar_message : public FLTKuserIOparameter_base                  //message text

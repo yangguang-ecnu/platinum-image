@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  UserIO
+//  UserIO $Revision$
 //
 //  Class defining an operation on data presented to the user in a list
 //
-//
+//  $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -82,7 +82,7 @@ class userIO : public Fl_Pack
 
         void image_vector_has_changed();
 
-        std::vector<FLTKuserIOpar_histogram2D *> get_histogram_for_volume(int volumeID); //histogram special
+        std::vector<FLTKuserIOpar_histogram2D *> get_histogram_for_image(int imageID); //histogram special
     };
 
 template <class ptype>

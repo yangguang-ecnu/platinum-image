@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -186,11 +188,11 @@ const std::string FLTKuserIOpar_bool::type_name ()
     return "boolean";
     }
 
-// *** FLTKuserIOpar_volume ***
+// *** FLTKuserIOpar_image ***
 
-FLTKuserIOpar_volume::FLTKuserIOpar_volume (const std::string name) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
+FLTKuserIOpar_image::FLTKuserIOpar_image (const std::string name) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
     {
-    control = new FLTKvolume_choice(x(),y()+PARTITLEMARGIN);
+    control = new FLTKimage_choice(x(),y()+PARTITLEMARGIN);
     control->callback(par_update_callback);
 
     control->image_vector_has_changed();
@@ -200,30 +202,30 @@ FLTKuserIOpar_volume::FLTKuserIOpar_volume (const std::string name) : FLTKuserIO
     end();
     }
 
-void FLTKuserIOpar_volume::par_value (volumeIDtype & v)
+void FLTKuserIOpar_image::par_value (imageIDtype & v)
     {
     v = control->id_value();
     }
 
-void FLTKuserIOpar_volume::image_vector_has_changed ()
+void FLTKuserIOpar_image::image_vector_has_changed ()
     {
     control->image_vector_has_changed();
     }
 
 
-const std::string FLTKuserIOpar_volume::type_name ()
+const std::string FLTKuserIOpar_image::type_name ()
     {
-    return "volume ID";
+    return "image ID";
     }
 
-// *** General volume choice widget ***
+// *** General image choice widget ***
 
-FLTKvolume_choice::FLTKvolume_choice (int x, int y) : Fl_Choice(x,y,PARMENUWIDTH,STDPARWIDGETHEIGHT-PARTITLEMARGIN)
+FLTKimage_choice::FLTKimage_choice (int x, int y) : Fl_Choice(x,y,PARMENUWIDTH,STDPARWIDGETHEIGHT-PARTITLEMARGIN)
     {
     image_vector_has_changed();
     }
 
-volumeIDtype FLTKvolume_choice::id_value ()
+imageIDtype FLTKimage_choice::id_value ()
     {
     const Fl_Menu_Item *cur_menu=menu();   
     int selected_item=value();
@@ -237,7 +239,7 @@ volumeIDtype FLTKvolume_choice::id_value ()
     return NOT_FOUND_ID;
     }
 
-void FLTKvolume_choice::image_vector_has_changed ()
+void FLTKimage_choice::image_vector_has_changed ()
     {
     //store selection
     int selected_item=value();
@@ -252,9 +254,9 @@ void FLTKvolume_choice::image_vector_has_changed ()
     selected_item=0; //set to no selection if previous selection isn't found below
 
     //rebuild
-    Fl_Menu_Item new_menu[datamanager::MAXVOLUMES+2];
+    Fl_Menu_Item new_menu[datamanager::IMAGEVECTORMAX+2];
 
-    base_menu=datamanagement.FLTK_volume_menu_items();
+    base_menu=datamanagement.FLTK_image_menu_items();
 
     new_menu[0].label("(no selection)");
     new_menu[0].shortcut(0);
@@ -534,7 +536,7 @@ int FLTK_histogram_2D::handle(int event)
         }
     else
         {
-        // < 2 volumes selected, no event processed
+        // < 2 images selected, no event processed
         return 0;
         }
 
@@ -552,9 +554,9 @@ int FLTK_histogram_2D::handle(int event)
         damage (FL_DAMAGE_ALL);
         }
 
-    void FLTK_histogram_2D::set_volumes (int hor, int vert)
+    void FLTK_histogram_2D::set_images (int hor, int vert)
         {
-        ((HISTOGRAM2DVARIETY *)histogram)->volumes(hor,vert);
+        ((HISTOGRAM2DVARIETY *)histogram)->images(hor,vert);
 
         thresholders.clear();
         refresh();
@@ -610,12 +612,12 @@ int FLTK_histogram_2D::handle(int event)
 
         histogram_widget = new FLTK_histogram_2D(x(), y()+STDPARWIDGETHEIGHT, w(), w());
 
-        volume_v= new FLTKvolume_choice(x(),y()+PARTITLEMARGIN);
-        volume_h= new FLTKvolume_choice(x()+w()-PARMENUWIDTH,y()+PARTITLEMARGIN+STDPARWIDGETHEIGHT+w());
+        image_v= new FLTKimage_choice(x(),y()+PARTITLEMARGIN);
+        image_h= new FLTKimage_choice(x()+w()-PARMENUWIDTH,y()+PARTITLEMARGIN+STDPARWIDGETHEIGHT+w());
 
-        volume_h->callback(vol_change_callback);
-        volume_v->callback(vol_change_callback);
-        ((HISTOGRAM2DVARIETY *)histogram_widget->histogram)->volumes(volume_v->id_value(),volume_h->id_value());
+        image_h->callback(vol_change_callback);
+        image_v->callback(vol_change_callback);
+        ((HISTOGRAM2DVARIETY *)histogram_widget->histogram)->images(image_v->id_value(),image_h->id_value());
 
         oval_button=new Fl_Button (x(),y()+PARTITLEMARGIN+STDPARWIDGETHEIGHT+w(),small_widget_size,small_widget_size,"@circle");
         oval_button->labelsize(9);
@@ -638,12 +640,12 @@ int FLTK_histogram_2D::handle(int event)
         {
         FLTKuserIOpar_histogram2D * that = (FLTKuserIOpar_histogram2D *)callingwidget->parent();
 
-        that->set_volumes (that->volume_h->id_value(),that->volume_v->id_value());
+        that->set_images (that->image_h->id_value(),that->image_v->id_value());
         }
 
-    void FLTKuserIOpar_histogram2D::set_volumes (int hor, int vert)
+    void FLTKuserIOpar_histogram2D::set_images (int hor, int vert)
         {
-        histogram_widget->set_volumes (hor,vert);
+        histogram_widget->set_images (hor,vert);
         }
 
     void FLTKuserIOpar_histogram2D ::selmode_change_callback (Fl_Widget *callingwidget, void * foo)
@@ -660,11 +662,11 @@ int FLTK_histogram_2D::handle(int event)
         {
         Fl_Widget::resize(x,y,w,w+STDPARWIDGETHEIGHT*2-PARTITLEMARGIN);
 
-        volume_v->position(this->x(),this->y()+PARTITLEMARGIN);
+        image_v->position(this->x(),this->y()+PARTITLEMARGIN);
 
         histogram_widget->resize(this->x(), this->y()+STDPARWIDGETHEIGHT, this->w(), this->w());
 
-        volume_h->position(this->x()+this->w()-volume_h->w(),this->y()+STDPARWIDGETHEIGHT+histogram_widget->h());
+        image_h->position(this->x()+this->w()-image_h->w(),this->y()+STDPARWIDGETHEIGHT+histogram_widget->h());
 
         oval_button->position(this->x(),this->y()+STDPARWIDGETHEIGHT+histogram_widget->h());
         rect_button->position(this->x()+STDPARWIDGETHEIGHT-PARTITLEMARGIN,this->y()+STDPARWIDGETHEIGHT+histogram_widget->h());
@@ -672,15 +674,15 @@ int FLTK_histogram_2D::handle(int event)
 
     void FLTKuserIOpar_histogram2D::image_vector_has_changed ()
         {
-        volume_h->image_vector_has_changed();
-        volume_v->image_vector_has_changed();
+        image_h->image_vector_has_changed();
+        image_v->image_vector_has_changed();
 
-        set_volumes (volume_h->id_value(),volume_v->id_value());
+        set_images (image_h->id_value(),image_v->id_value());
         }
 
-    int FLTKuserIOpar_histogram2D::histogram_volume_ID (int axis)
+    int FLTKuserIOpar_histogram2D::histogram_image_ID (int axis)
         {
-        return histogram_widget->histogram->volume_ID(axis);
+        return histogram_widget->histogram->image_ID(axis);
         }
 
     void FLTKuserIOpar_histogram2D::highlight_ROI (regionofinterest * region)

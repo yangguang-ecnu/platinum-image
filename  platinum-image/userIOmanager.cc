@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -137,9 +139,9 @@ int userIOmanager::add_par_bool (int userIO_ID, std::string new_param_name,bool 
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
-int userIOmanager::add_par_volume(int userIO_ID, std::string new_param_name)
+int userIOmanager::add_par_image(int userIO_ID, std::string new_param_name)
     {
-    FLTKuserIOparameter_base * par=new FLTKuserIOpar_volume (new_param_name);
+    FLTKuserIOparameter_base * par=new FLTKuserIOpar_image (new_param_name);
 
     return block_from_ID(userIO_ID)->add_par(par);
     }
@@ -169,7 +171,7 @@ void userIOmanager::image_vector_has_changed()
         }
     }
 
-std::vector<FLTKuserIOpar_histogram2D *> userIOmanager::get_histogram_for_volume (int volumeID)
+std::vector<FLTKuserIOpar_histogram2D *> userIOmanager::get_histogram_for_image (int imageID)
     {
     std::vector<FLTKuserIOpar_histogram2D *> result;
 
@@ -179,7 +181,7 @@ std::vector<FLTKuserIOpar_histogram2D *> userIOmanager::get_histogram_for_volume
         {
         std::vector<FLTKuserIOpar_histogram2D *> found;
 
-        found=(*itr)->get_histogram_for_volume(volumeID);
+        found=(*itr)->get_histogram_for_image(imageID);
 
         std::vector<FLTKuserIOpar_histogram2D *>::iterator ritr =found.begin();
 

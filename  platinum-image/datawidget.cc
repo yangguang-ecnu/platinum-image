@@ -33,7 +33,7 @@ const int datawidget::thumbnail_size = 128;
 // *** begin FLUID ***
 
 void datawidget::cb_filenamebutton_i(Fl_Input*, void*) {
-    datamanagement.set_volume_name(volume_id,string(filenamebutton->value()));
+    datamanagement.set_image_name(image_id,string(filenamebutton->value()));
     }
 void datawidget::cb_filenamebutton(Fl_Input* o, void* v) {
     ((datawidget*)(o->parent()->parent()))->cb_filenamebutton_i(o,v);
@@ -41,7 +41,7 @@ void datawidget::cb_filenamebutton(Fl_Input* o, void* v) {
 
 Fl_Menu_Item datawidget::menu_featuremenu[] = {
  {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
- {"Save as VTK...", 0,  (Fl_Callback*)datamanager::save_vtk_volume_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save as VTK...", 0,  (Fl_Callback*)datamanager::save_vtk_image_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Duplicate", 0,  0, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
  {"Transfer function", 0,  (Fl_Callback*)toggle_tfunction, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0}
@@ -53,7 +53,7 @@ Fl_Menu_Item* datawidget::transferfunction_mi = datawidget::menu_featuremenu + 3
 
 datawidget::datawidget(int datatype,int id, std::string n): Fl_Pack(0,0,270,130,NULL) {
 
-    volume_id = id;
+    image_id = id;
     thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];
     //type(VERTICAL);
 
@@ -144,12 +144,12 @@ datawidget::~datawidget ()
 
 void datawidget::refresh_thumbnail ()
     {
-    rendermanagement.render_thumbnail(thumbnail_image, thumbnail_size, thumbnail_size, volume_id);
+    rendermanagement.render_thumbnail(thumbnail_image, thumbnail_size, thumbnail_size, image_id);
     }
 
-int datawidget::get_volume_id()
+int datawidget::get_image_id()
     {
-    return volume_id;
+    return image_id;
     }
 
 const string datawidget::name()
@@ -166,7 +166,7 @@ void datawidget::name(std::string n)
     filenamebutton->value(_name.c_str());
 
     //when interactively changed, redrawing widget is
-    //done elsewhere (most notably in datamanagement.set_volume_name( ... )
+    //done elsewhere (most notably in datamanagement.set_image_name( ... )
     }
 
 void datawidget::from_file(bool f)

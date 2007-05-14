@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  RendererMPR
-//
-//  MPR renderer subclass which also renders thumbnails via a static
-//  function. Like other possible renderers it also converts between
-//  local and global coordinate systems.
-//
-//
+//   RendererMPR $Revision$
+///
+///  MPR renderer subclass which also renders thumbnails via a static
+///  function. Like other possible renderers it also converts between
+///  local and global coordinate systems.
+///
+//   $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -51,11 +51,11 @@ class rendererMPR : public renderer_base
         void connect_image(int vHandlerID); //add image to rendering combination
         int renderer_type();                        //return RENDERER_MPR
 
-        static void render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, int volume_ID);
+        static void render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID);
         void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold);
         void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy);
 
-        Vector3D view_to_voxel(int volumeID, int vx, int vy,int sx,int sy);
+        Vector3D view_to_voxel(int imageID, int vx, int vy,int sx,int sy);
         Vector3D view_to_unit(int vx, int vy,int sx,int sy);
        
         std::vector<float> get_values(int vx, int vy,int sx,int sy);

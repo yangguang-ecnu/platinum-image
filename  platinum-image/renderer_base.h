@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Renderer_base
-//
-//  Renderers produce a 2D viewport pixmap out of images and point sets.
-//  The base class has virtual functions for coordinate storage
-//  conversion, common to different renderer types.
-//
-//
+//   Renderer_base $Revision$
+///
+///  Renderers produce a 2D viewport pixmap out of images and point sets.
+///  The base class has virtual functions for coordinate storage
+///  conversion, common to different renderer types.
+///
+//   $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -51,10 +51,10 @@ class renderer_base
     protected:
         int identitet;
 
-        int volumestorender_id;
+        int imagestorender_id;
         int wheretorender_id;
 
-        image_base *get_volumepointer(int volumeindex);
+        image_base *get_imagepointer(int imageindex);
 
         static int maxrendererID;
 
@@ -83,7 +83,7 @@ class renderer_base
 
         // *** render parameters ***
 
-        rendercombination * volumestorender;    //a list of volumes to render
+        rendercombination * imagestorender;    //a list of images to render
                                                 //public, because it is managed by viewport too
                                                 //could also make renderer and viewport friends
 
@@ -100,12 +100,12 @@ class renderer_base
         //get values from current view, pixel coordinates
         virtual std::vector<float> get_values(int vx, int vy,int sx,int sy) = 0;    
 
-        //get values from composite, unit volume coordinates
+        //get values from composite, unit image coordinates
         virtual std::vector<float> get_values(Vector3D unitPos);             
 
         //convert view coordinates to voxels, virtual since the result depends on what's visible,
         //which in turn depends on how it's rendered
-        virtual Vector3D view_to_voxel(int volumeID, int vx, int vy, int sx, int sy)    
+        virtual Vector3D view_to_voxel(int imageID, int vx, int vy, int sx, int sy)    
             = 0;                                 
 
         void look_at (float x, float y, float z,float zoom=0);

@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -26,8 +28,8 @@ renderer_base::renderer_base()
 
     std::cout << "renderer_base-kontruktör" << std::endl;
 
-    volumestorender=NULL;
-    volumestorender_id=0;
+    imagestorender=NULL;
+    imagestorender_id=0;
 
     wheretorender=NULL;
     wheretorender_id=0;
@@ -39,12 +41,12 @@ void renderer_base::connect_geometry (rendergeometry * g)
     }
 void renderer_base::connect_combination (rendercombination * c)
     {
-    volumestorender=c;
-    volumestorender_id=c->get_id();
+    imagestorender=c;
+    imagestorender_id=c->get_id();
     }
 int renderer_base::combination_id()
     {
-    return volumestorender_id;
+    return imagestorender_id;
     }
 void renderer_base::look_at(float x, float y, float z,float zoom)
     {
@@ -59,7 +61,7 @@ void renderer_base::look_at(float x, float y, float z,float zoom)
 void renderer_base::move( float pan_x, float pan_y, float pan_z, float zoom_d)
     {
     //arguments are relative unit screen coordinates, ie. pan_x==1 moves wheretorender->look_at
-    //to the right the distance of volume's longest edge
+    //to the right the distance of image's longest edge
     //also relative to view orientation, and pan_z is independent of zoom (which is intuitively right)
 
     Vector3D pan,final_pan;
@@ -68,7 +70,7 @@ void renderer_base::move( float pan_x, float pan_y, float pan_z, float zoom_d)
 
     const float min_zoom=0.5;
     const float max_zoom=10;
-    float max_pan=0.5;           //in local coordinates; means panning to composite volume edge
+    float max_pan=0.5;           //in local coordinates; means panning to composite image edge
 
     if ((wheretorender->zoom*zoom_d >= min_zoom && wheretorender->zoom*zoom_d <= max_zoom ) || !use_constraints)
         {wheretorender->zoom*=zoom_d;}
@@ -77,7 +79,7 @@ void renderer_base::move( float pan_x, float pan_y, float pan_z, float zoom_d)
     pan[0]=pan_x/wheretorender->zoom;
     pan[1]=pan_y/wheretorender->zoom;
     pan[2]=pan_z; //ensures that z step is <= one voxel, not too elegant tho
-    //pan[2]=pan_z*voxel_resize[the_volume][2][2]/data_max_norm[the_volume]; //move the equivalent of 1 step in z-resolution
+    //pan[2]=pan_z*voxel_resize[the_image][2][2]/data_max_norm[the_image]; //move the equivalent of 1 step in z-resolution
  
     wheretorender->look_at+=wheretorender->dir*pan;
 
@@ -111,15 +113,15 @@ std::vector<float> renderer_base::get_values(Vector3D unitPos)
     {
     std::vector<float> v;
     Vector3D tlb;
-    for (int i=0; volumestorender->volume_remaining(i);i++)
+    for (int i=0; imagestorender->image_remaining(i);i++)
         {
         //center-based to top-left-back,
-        //add particular volume's geometric center
-        tlb=unitPos+volumestorender->rendervolume_pointers[i]->unit_center();
-        tlb=volumestorender->rendervolume_pointers[i]->unit_to_voxel()*tlb;
-        if ( tlb[0] >= 0 && tlb[1] >= 0 && tlb[2] >= 0 && tlb[0] < volumestorender->rendervolume_pointers[i]->get_size_by_dim(0) && tlb[1] < volumestorender->rendervolume_pointers[i]->get_size_by_dim(1) && tlb[2] < volumestorender->rendervolume_pointers[i]->get_size_by_dim(2))
+        //add particular image's geometric center
+        tlb=unitPos+imagestorender->renderimage_pointers[i]->unit_center();
+        tlb=imagestorender->renderimage_pointers[i]->unit_to_voxel()*tlb;
+        if ( tlb[0] >= 0 && tlb[1] >= 0 && tlb[2] >= 0 && tlb[0] < imagestorender->renderimage_pointers[i]->get_size_by_dim(0) && tlb[1] < imagestorender->renderimage_pointers[i]->get_size_by_dim(1) && tlb[2] < imagestorender->renderimage_pointers[i]->get_size_by_dim(2))
             {
-            v.push_back(volumestorender->rendervolume_pointers[i]->get_number_voxel(tlb[0],tlb[1],tlb[2]));
+            v.push_back(imagestorender->renderimage_pointers[i]->get_number_voxel(tlb[0],tlb[1],tlb[2]));
             }
         else
             {v.push_back(-1);}

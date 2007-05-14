@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -28,31 +30,31 @@ rendercombination::rendercombination()
     {
     //TODO: change the undefined ID from 0 to NOT_FOUND_ID
     id=new_rc_ID++;
-    rendervolumes[0]=0;
+    renderimages[0]=0;
     blend_mode_=BLEND_MAX;
     }
 
 rendercombination::rendercombination(int volID)
     {
     id=new_rc_ID++;
-    rendervolumes[0]=volID;
+    renderimages[0]=volID;
    
     blend_mode_=BLEND_MAX;
     if (volID !=0)
         {
-        rendervolume_pointers[0]=datamanagement.get_image(volID);
+        renderimage_pointers[0]=datamanagement.get_image(volID);
 
-        rendervolumes[1]=0;
+        renderimages[1]=0;
         }
     }
 
-bool rendercombination::volume_remaining(int priority)
+bool rendercombination::image_remaining(int priority)
     {
     for (int i=0;i <= priority;i++)
         {
-        if ( i>= MAXRENDERVOLUMES || rendervolumes [i]==0)
+        if ( i>= MAXRENDERVOLUMES || renderimages [i]==0)
             {
-            //got to end, no volume left
+            //got to end, no image left
             return false;
             }
         }
@@ -60,24 +62,24 @@ bool rendercombination::volume_remaining(int priority)
     return true;
     }
 
-int rendercombination::volume_ID_by_priority (int priority)
+int rendercombination::image_ID_by_priority (int priority)
     {
-    return rendervolumes[priority];
+    return renderimages[priority];
     }
 
-image_base* rendercombination::get_volumepointer(int p)
+image_base* rendercombination::get_imagepointer(int p)
     {
-    return rendervolume_pointers[p];
+    return renderimage_pointers[p];
     }
 
-void rendercombination::add_volume(int volID)
+void rendercombination::add_image(int volID)
     {
     int empty_spot=-1;
 
     //find end of combinations array
     for (int i=0;empty_spot == (-1) && i < MAXRENDERVOLUMES;i++)
         {
-        if (rendervolumes [i]==0)
+        if (renderimages [i]==0)
             {
             empty_spot=i;
             }
@@ -85,64 +87,64 @@ void rendercombination::add_volume(int volID)
 
     if (empty_spot >=0)
         {
-        rendervolumes[empty_spot]=volID;
-        rendervolume_pointers[empty_spot]=datamanagement.get_image(volID);
+        renderimages[empty_spot]=volID;
+        renderimage_pointers[empty_spot]=datamanagement.get_image(volID);
         if (empty_spot< MAXRENDERVOLUMES -1)
             {
-            rendervolumes[empty_spot+1]=0;
+            renderimages[empty_spot+1]=0;
             }
         rendermanagement.combination_update_callback(this->id);
         }
     else
         {
-        std::cout << "Attempted to add volume ID " << volID << ", render list was full" << std::endl;
+        std::cout << "Attempted to add image ID " << volID << ", render list was full" << std::endl;
         }
     }
 
-void rendercombination::toggle_volume(int volumeID)
+void rendercombination::toggle_image(int imageID)
 {
     bool removed=false;
     
-    for (int i=0; i<= MAXRENDERVOLUMES && rendervolumes [i]!=0;i++)
+    for (int i=0; i<= MAXRENDERVOLUMES && renderimages [i]!=0;i++)
     {
-        if (rendervolumes [i]==volumeID)
+        if (renderimages [i]==imageID)
         {
-            remove_volume(volumeID);
+            remove_image(imageID);
             removed=true;
         }
     }
     
     if (!removed)
     {
-        add_volume(volumeID);
+        add_image(imageID);
     }
     
 }
 
-void rendercombination::remove_volume(int ID)
+void rendercombination::remove_image(int ID)
     {
     bool removed=false;
-    for (int i=0; i<= MAXRENDERVOLUMES && rendervolumes [i]!=0;i++)
+    for (int i=0; i<= MAXRENDERVOLUMES && renderimages [i]!=0;i++)
         {
-        if (rendervolumes [i]==ID)
+        if (renderimages [i]==ID)
             {
             removed=true;
             }
         if (removed)
             {
-            rendervolumes[i]=rendervolumes[i+1];
-            rendervolume_pointers[i]=rendervolume_pointers[i+1];
+            renderimages[i]=renderimages[i+1];
+            renderimage_pointers[i]=renderimage_pointers[i+1];
             }
         }
     if (removed)
         {rendermanagement.combination_update_callback(this->id);}
     }
 
-int rendercombination::volume_rendered(int ID)
+int rendercombination::image_rendered(int ID)
     {
-        for (int r=0; r < MAXRENDERVOLUMES && rendervolumes [r]!=0; r++)
+        for (int r=0; r < MAXRENDERVOLUMES && renderimages [r]!=0; r++)
         {
-            if (rendervolumes[r]==ID)
+            if (renderimages[r]==ID)
                 {return blend_mode();}
         }
 
@@ -157,31 +159,31 @@ int rendercombination::get_id()
 void rendercombination::image_vector_has_changed()
     {
     // we cache the vector ID to speed things up - now it must be recomputed
-    //intermediate solution, later a list of volumes to be rendered will be stored in a separate object
+    //intermediate solution, later a list of images to be rendered will be stored in a separate object
     //(rendercombination) and that will be the logical place to keep a cache like this
 
-    //volumes may have been deleted too, we need to update both image ID and image pointer
+    //images may have been deleted too, we need to update both image ID and image pointer
 
-    for (int r=0;r < MAXRENDERVOLUMES && rendervolumes [r]!=0;r++)
+    for (int r=0;r < MAXRENDERVOLUMES && renderimages [r]!=0;r++)
         {
-        int i=datamanagement.find_image_index(abs(rendervolumes[r]));
+        int i=datamanagement.find_image_index(abs(renderimages[r]));
 
         if (i != (-1) )
             {
-            //rebuild cached list of pointers to rendered volumes
+            //rebuild cached list of pointers to rendered images
             //and increment p counter
 
-            rendervolume_pointers[r]=datamanagement.volumes[i];
+            renderimage_pointers[r]=datamanagement.images[i];
             }
         else
             {
             //image at p does not exist
 
-            rendervolumes[r]=0;
+            renderimages[r]=0;
 
-            for (int v=r;rendervolumes [v+1]!=0;v++)
+            for (int v=r;renderimages [v+1]!=0;v++)
                 {
-                rendervolumes[v]=rendervolumes[v+1];
+                renderimages[v]=renderimages[v+1];
                 }
             }
         };

@@ -53,7 +53,7 @@ class image_storage : public image_base
         //to reject unsuitable choices
 
         ELEMTYPE *imageptr;
-        unsigned long num_elements;        //volume size in # pixels/voxels
+        unsigned long num_elements;        //image size in # pixels/voxels
 
         ELEMTYPE maxvalue;
         ELEMTYPE minvalue;
