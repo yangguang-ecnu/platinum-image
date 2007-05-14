@@ -78,7 +78,7 @@ void add_demo_volume (int userIO_ID,int par_num)
         {
         int volID = datamanagement.create_empty_volume(20,20,20,1);
         datamanagement.get_image(volID)->testpattern();
-        datamanagement.volume_has_changed(volID);
+        datamanagement.image_has_changed(volID);
         }
     }
 
