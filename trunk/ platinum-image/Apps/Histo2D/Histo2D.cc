@@ -43,7 +43,7 @@
 
 #include "image_label.h"
 
-//Kullberg's volume tools
+//Kullberg's image tools
 //#include "../../Src/ITK/Volume.h"
 
 //inclusions related to histogram segmentation project
@@ -79,16 +79,16 @@ int arg(int argc, char **argv, int &i) {
 return 0;
     }
 
-void segment_volume (int u,int p)
+void segment_image (int u,int p)
     {
     if (p == USERIO_CB_OK)
         {
         thresholdparvalue t = userIOmanagement.get_parameter<thresholdparvalue>(u,0);
-        t.make_threshold_volume();
+        t.make_threshold_image();
         }
     }
 
-void diff_volumes (int u,int p)
+void diff_images (int u,int p)
     {
     //compare to FA-FCM liver ground truth
 
@@ -98,11 +98,11 @@ void diff_volumes (int u,int p)
     if (p == USERIO_CB_OK)
         {
         image_base * truth = 
-            datamanagement.get_image(userIOmanagement.get_parameter<volumeIDtype>(u,0));
+            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0));
         image_base * test = 
-            datamanagement.get_image(userIOmanagement.get_parameter<volumeIDtype>(u,1));
+            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,1));
         image_base * mask = 
-            datamanagement.get_image(userIOmanagement.get_parameter<volumeIDtype>(u,2));
+            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,2));
 
         if (truth!=NULL && test != NULL && truth->same_size(test))
             {
@@ -180,8 +180,8 @@ void diff_volumes (int u,int p)
             cout << "True positives: " << true_pos_vol << endl;
             cout << "False positives: " << false_pos_vol << endl;
             cout << "False negatives: " << false_neg_vol << endl;
-            cout << "Combined volume: " << combined_vol << endl;
-            cout << "Reference volume: " << ref_vol << endl;
+            cout << "Combined image: " << combined_vol << endl;
+            cout << "Reference image: " << ref_vol << endl;
 
             figures_stream << "True positive: " << TP << "%";
 
@@ -195,7 +195,7 @@ void threshold_artifact_process (int u,int p)
     if (p == USERIO_CB_OK)
         {
         image_base * input_vol = 
-            datamanagement.get_image(userIOmanagement.get_parameter<volumeIDtype>(u,0));
+            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0));
 
         // *** get ITK image from input parameter
         input_vol->make_image_an_itk_reader();
@@ -225,7 +225,7 @@ void threshold_artifact_process (int u,int p)
         deepener->Update();
         theIndexedImagePointer erodedImage = deepener->GetOutput ();*/
 
-        // *** get connected volumes ***
+        // *** get connected images ***
 
         /*itk::ImageDuplicator<theIndexedImageType >::Pointer duplicator = itk::ImageDuplicator<theIndexedImageType >::New ();
         duplicator->SetInputImage (erodedImage);
@@ -261,7 +261,7 @@ void threshold_artifact_process (int u,int p)
         double vol;
 
         theIndexType seed = it.GetIndex();
-        int maxvolume = 1000; //maxvalue
+        int maximage = 1000; //maxvalue
 
         itk::BinaryThresholdImageFunction<theIndexedImageType >::Pointer conVolFromSeedFunc = itk::BinaryThresholdImageFunction<theIndexedImageType >::New();
         conVolFromSeedFunc->SetInputImage(orig);
@@ -271,7 +271,7 @@ void threshold_artifact_process (int u,int p)
         fillIt.GoToBegin();
         vol=0;
         while( !fillIt.IsAtEnd()){
-        if(vol<maxvolume){
+        if(vol<maximage){
         vol++;
         }
         ++fillIt;
@@ -341,19 +341,19 @@ int main(int argc, char *argv[])
 
     // *** 2D histogram project ***
 
-    int segment_ID=userIOmanagement.add_userIO("Histogram segmentation",segment_volume,"Segment");
+    int segment_ID=userIOmanagement.add_userIO("Histogram segmentation",segment_image,"Segment");
     userIOmanagement.add_par_histogram_2D(segment_ID,"2D histogram");
     userIOmanagement.finish_userIO(segment_ID);
 
     int threshold_artifact_process_ID=userIOmanagement.add_userIO("Threshold artifact removal",threshold_artifact_process,"Process");
-    userIOmanagement.add_par_volume(threshold_artifact_process_ID,"Input");
+    userIOmanagement.add_par_image(threshold_artifact_process_ID,"Input");
     userIOmanagement.add_par_int_box(threshold_artifact_process_ID,"Radius",4,1);
     userIOmanagement.finish_userIO(threshold_artifact_process_ID);
 
-    int difference_ID=userIOmanagement.add_userIO("FA FCM comparison",diff_volumes,"Calculate");
-    userIOmanagement.add_par_volume(difference_ID,"Truth");
-    userIOmanagement.add_par_volume(difference_ID,"Test");
-    userIOmanagement.add_par_volume(difference_ID,"Mask (optional)");
+    int difference_ID=userIOmanagement.add_userIO("FA FCM comparison",diff_images,"Calculate");
+    userIOmanagement.add_par_image(difference_ID,"Truth");
+    userIOmanagement.add_par_image(difference_ID,"Test");
+    userIOmanagement.add_par_image(difference_ID,"Mask (optional)");
     userIOmanagement.finish_userIO(difference_ID);
 
     // *** 2D histogram project end ***
