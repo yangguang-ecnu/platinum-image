@@ -2,11 +2,12 @@
 version 1.0107 
 header_name {.h} 
 code_name {.cc}
-widget_class datawidget {open selected
-  private xywh {811 484 270 130} type Double resizable
-  code0 {type(0);}
-  code1 {datamanagement.add_datawidget(this);}
+widget_class {datamanagement.add_datawidget(this);} datawidget {open
+  private xywh {733 481 270 130} type Double box THIN_DOWN_FRAME
+  code0 {type(VERTICAL);}
+  code1 {resizable(extras);}
   code2 {name(n);}
+  code3 {datamanagement.add_datawidget(this);}
   class Fl_Pack visible
 } {
   decl {int volume_id;} {}
@@ -60,16 +61,15 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
     }
   }
   Fl_Box thumbnail {
-    private xywh {0 25 270 65} hide resizable
+    private xywh {0 25 270 65} box EMBOSSED_BOX hide
     code0 {image( new Fl_RGB_Image(thumbnail_image, thumbnail_size, thumbnail_size, 1));}
     code1 {image( NULL);}
   }
   Fl_Pack extras {open
     xywh {0 90 270 40}
-    code0 {resizable(this);}
   } {
     Fl_Group tfunction_ {open
-      private xywh {0 90 270 40} box THIN_DOWN_BOX labelsize 11 align 16 resizable
+      private xywh {0 90 270 40} box EMBOSSED_FRAME labelsize 11 align 16 hide
     } {}
   }
   Function {reset_tf_controls()} {open return_type {Fl_Group *}
