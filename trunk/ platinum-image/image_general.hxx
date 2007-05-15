@@ -55,6 +55,34 @@ using namespace std;
 #define theStatsFilterType itk::StatisticsImageFilter<theImageType >
 #define theStatsFilterPointerType theStatsFilterType::Pointer
 
+template <class ELEM, int DIM, class requestedClass >
+requestedClass* guaranteed_cast (image_base* input)
+    {
+    typename requestedClass* output = dynamic_cast<requestedClass *>(input);
+
+    if (output == NULL)
+        {
+
+            { // *** test for unsigned char ***
+            image_general <unsigned char, DIM>* input_general = dynamic_cast<image_general <unsigned char, DIM> *> (input) ;
+
+            if (input_general == NULL)
+                {throw  (bad_cast());}
+
+            if (output == NULL)
+                {
+                //call copy constructor
+                output = new requestedClass (input_general,true);
+                delete input;
+                } 
+
+            }
+
+        }
+    return output;
+    }
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 template <class sourceType>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType, IMAGEDIM> * sourceImage)
@@ -81,6 +109,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
 
     // *ID, from_file, imagename and widget are assigned in image_base constructor
     }
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_base * image_general<ELEMTYPE, IMAGEDIM>::alike (imageDataType unit)
