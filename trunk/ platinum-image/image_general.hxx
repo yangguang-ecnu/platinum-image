@@ -56,29 +56,58 @@ using namespace std;
 #define theStatsFilterPointerType theStatsFilterType::Pointer
 
 template <class ELEM, int DIM, class requestedClass >
+requestedClass* try_general (image_base* input) //! Helper function to guaranteed_cast
+    {
+    typename requestedClass* output = NULL;
+
+    image_general <unsigned char, DIM>* input_general = dynamic_cast<image_general <unsigned char, DIM> *> (input) ;
+
+    if (output == NULL)
+        {
+        //call copy constructor
+        output = new requestedClass (input_general,true);
+        delete input;
+        } 
+    return output;
+    }
+
+template <class ELEM, int DIM, class requestedClass >
 requestedClass* guaranteed_cast (image_base* input)
     {
     typename requestedClass* output = dynamic_cast<requestedClass *>(input);
 
+    //Try all possible data types
+
     if (output == NULL)
-        {
+        { output = try_general <bool,DIM,requestedClass >(input); }
 
-            { // *** test for unsigned char ***
-            image_general <unsigned char, DIM>* input_general = dynamic_cast<image_general <unsigned char, DIM> *> (input) ;
+    if (output == NULL)
+        { output = try_general <unsigned char,DIM,requestedClass >(input); }
 
-            if (input_general == NULL)
-                {throw  (bad_cast());}
+    if (output == NULL)
+        { output = try_general <signed char,DIM,requestedClass >(input); }
 
-            if (output == NULL)
-                {
-                //call copy constructor
-                output = new requestedClass (input_general,true);
-                delete input;
-                } 
+    if (output == NULL)
+        { output = try_general <unsigned short,DIM,requestedClass >(input); }
 
-            }
+    if (output == NULL)
+        { output = try_general <signed short,DIM,requestedClass >(input); }
 
-        }
+    if (output == NULL)
+        { output = try_general <unsigned long,DIM,requestedClass >(input); }
+
+    if (output == NULL)
+        { output = try_general <signed long,DIM,requestedClass >(input); }
+
+    if (output == NULL)
+        { output = try_general <float,DIM,requestedClass >(input); }
+
+    if (output == NULL)
+        { output = try_general <double,DIM,requestedClass >(input); }
+
+    if (output == NULL)
+        {throw  (bad_cast());}
+
     return output;
     }
 
