@@ -72,16 +72,10 @@ Untemplated base class for image storage, including volumes, contains 3D positio
 Base class templated only by voxel type, which allows operations where the image size and dimensionality is unknown (e.g. voxel-by-voxel operations)
 
 *Image_general*
-Image class templated over voxel data type.
+Image class templated over voxel data type and dimension.
 
 *Image_scalar*
 Image type with scalar voxel/pixel values. Mostly the same as image_general.
-
-*Image_multi*
-Base class for images with multispectral data, such as vectors or complex.
-
-_*Image_complex*_
-Image class with complex voxels.
 
 *Image_integer*
 Image type with integer values, in itself and as base for more task-specific subclasses.
@@ -91,6 +85,13 @@ Binary image type, subclass of image_integer.
 
 *Image_label*
 Image type with integer values signifying distinct classes or "labels" (i.e. not continuous values). Can be described as multiple binary volumes rolled into one. 0 (zero) carries special meaning as empty/background.
+
+
+*Image_multi*
+Base class for images with multispectral data, such as vectors or complex MRI data.
+
+_*Image_complex*_
+Image class with complex valued voxels.
 
 =User interaction=
 *Datawidget* 
@@ -129,3 +130,4 @@ Overlay to viewports that displays a segmentation preview for the 2D histogram s
 
 *FLTK2Dregionofinterest* 
 Overlay to viewports that displays region of interest information, including a rectangular selection and threshold_overlay segmentation previews.
+
