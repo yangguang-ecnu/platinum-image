@@ -38,6 +38,8 @@ template<class ELEMTYPE, int IMAGEDIM>
     class image_scalar; 
 template<int IMAGEDIM>
     class image_binary;
+template<int IMAGEDIM>
+    class image_label;
 template<class ELEMTYPE, int IMAGEDIM>
     class image_multi; 
 
@@ -162,13 +164,13 @@ class image_general : public image_storage <ELEMTYPE >
         // *** processing ***
         image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold=true);
 		ELEMTYPE gauss_fit2();
-
 		ELEMTYPE components_hist_3D();
+        image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, bool object_value=true);
 	
 	private:
 		int findNode(int e, int* par_node);
 		int mergeNodes(int e1, int e2, int* par_node);
-		//void markRecursive(int m, int* par_node, bool* marked);
+		void markRecursive(int m, int* par_node, bool* marked);
 		ELEMTYPE getSeedLevel(int m, int* par_node, bool* marked);
 };
 

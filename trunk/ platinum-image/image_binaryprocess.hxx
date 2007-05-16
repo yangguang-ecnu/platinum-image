@@ -927,16 +927,16 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 			aur=initvalue;
 			alr=initvalue;
 			lm=(v<max_v-1)? output->get_voxel(u,v+1,w) : initvalue;
-			aum=(v>0 && w<max_w-1)? output->get_voxel(u,v-1,w+1) : initvalue;
-			amm=(w<max_w-1)? output->get_voxel(u,v,w+1) : initvalue;
-			alm=(v<max_v && w<max_w-1)? output->get_voxel(u,v+1,w+1) : initvalue;
+			aum=(v>0 && w>0)? output->get_voxel(u,v-1,w-1) : initvalue;
+			amm=(w>0)? output->get_voxel(u,v,w-1) : initvalue;
+			alm=(v<max_v && w>0)? output->get_voxel(u,v+1,w-1) : initvalue;
 			for(u=max_u-1; u>=0; u--)
 				{
 				p=this->get_voxel(u,v,w);
 				ll=(u>0 && v<max_v-1)? output->get_voxel(u-1,v+1,w) : initvalue;
-				aul=(u>0 && v>0 && w<max_w-1)? output->get_voxel(u+1,v-1,w-1) : initvalue;
-				aml=(u>0 && w<max_w-1)? output->get_voxel(u+1,v,w-1) : initvalue;
-				all=(u>0 && v<max_v-1 && w<max_w-1)? output->get_voxel(u+1,v+1,w-1) : initvalue;
+				aul=(u>0 && v>0 && w>0)? output->get_voxel(u-1,v-1,w-1) : initvalue;
+				aml=(u>0 && w>0)? output->get_voxel(u-1,v,w-1) : initvalue;
+				all=(u>0 && v<max_v-1 && w>0)? output->get_voxel(u-1,v+1,w-1) : initvalue;
 				d=(p==object_value)?std::min(
                                              std::min(
 											std::min(
