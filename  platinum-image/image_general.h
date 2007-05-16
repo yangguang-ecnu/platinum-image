@@ -162,7 +162,15 @@ class image_general : public image_storage <ELEMTYPE >
         // *** processing ***
         image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold=true);
 		ELEMTYPE gauss_fit2();
-    };
+
+		ELEMTYPE components_hist_3D();
+	
+	private:
+		int findNode(int e, int* par_node);
+		int mergeNodes(int e1, int e2, int* par_node);
+		//void markRecursive(int m, int* par_node, bool* marked);
+		ELEMTYPE getSeedLevel(int m, int* par_node, bool* marked);
+};
 
 //with C++ templates, declaration and definition go together
 #include "image_general.hxx"

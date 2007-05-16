@@ -84,3 +84,15 @@ template<class ELEMTYPE >
 typename image_storage<ELEMTYPE >::iterator image_storage<ELEMTYPE >::end() {
     return(iterator(imageptr + num_elements));
 }
+
+template<class ELEMTYPE >
+typename image_storage<ELEMTYPE >::iterator& image_storage<ELEMTYPE >::iterator::operator--()
+{
+    ptr--;
+    return *this;
+}
+
+template<class ELEMTYPE >
+typename image_storage<ELEMTYPE >::iterator image_storage<ELEMTYPE >::iterator::operator+(unsigned long n) {
+    return(iterator(ptr + n));
+}

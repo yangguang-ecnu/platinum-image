@@ -706,7 +706,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::gauss_fit2()
     {
 	ELEMTYPE min_val=this->get_min();
 	ELEMTYPE max_val=this->get_max();
-	ELEMTYPE errMinInd=max_val;
+	ELEMTYPE err_min_ind=max_val;
 	double* hist=new double[1+max_val-min_val];
 	memset(hist, 0, sizeof(double)*(1+max_val-min_val));
 
@@ -1275,7 +1275,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::gauss_fit2()
 		}
 	double err;
 	double errMin=cumsum1;
-	errMinInd=max_val;
+	err_min_ind=max_val;
 	for(j=min_val; j<=max_val; j++)
 		{
 		sum1+=gauss1hist[j-min_val];
@@ -1284,10 +1284,263 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::gauss_fit2()
 		if(err<errMin)
 			{
 			errMin=err;
-			errMinInd=j+1;
+			err_min_ind=j+1;
 			}
 		}
-	return errMinInd;
+	return err_min_ind;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::components_hist_3D()
+    {
+	ELEMTYPE min_val=this->get_min();
+	ELEMTYPE max_val=this->get_max();
+	ELEMTYPE err_min_ind=min_val;
+	int x,y,z,x0,y0,z0,x2,y2,z2;
+	int max_x, max_y, max_z;
+	max_x=this->get_size_by_dim(0);
+	max_y=this->get_size_by_dim(1);
+	max_z=this->get_size_by_dim(2);
+	int number_of_voxels=max_x*max_y*max_z;
+
+//Java code
+
+		
+		
+	//Sort points
+//		 create a counting array, counts, with a member for 
+    // each possible discrete value in the input.  
+    // initialize all counts to 0.
+    int distinct_element_count = max_val - min_val + 1;
+    int* counts = new int[distinct_element_count];
+	memset(counts, 0, sizeof(int)*(1+max_val-min_val));
+    // for each value in the unsorted array, increment the
+    // count in the corresponding element of the count array
+    typename image_storage<ELEMTYPE >::iterator iter = this->begin();    
+    while (iter != this->end()) //images are same size and should necessarily end at the same time
+        {
+        counts[*iter-min_val]++;
+        ++iter;
+        }
+    int counts0=counts[0];
+    // accumulate the counts - the result is that counts will hold
+    // the offset into the sorted array for the value associated with that index
+	int i,j,k;
+    for (j=1; j<distinct_element_count; j++)
+    {
+        counts[j] += counts[j-1];
+    }
+    // store the elements in a new ordered array
+    int* sorted_index = new int[number_of_voxels];
+	ELEMTYPE cur_voxel;
+	int rest;
+	for (i=number_of_voxels-1, iter=this->begin(); i>=0; i--)
+		{
+            // decrementing the counts value ensures duplicate values in A
+            // are stored at different indices in sorted.
+			
+			sorted_index[--counts[(*(iter+i))-min_val]] = i;                
+        }
+
+    int* par_node = new int[number_of_voxels];
+    //Init nodes
+    for (j=0; j<number_of_voxels; j++)
+		{
+        par_node[j]=j;
+		}
+        
+    //Search in decreasing order
+    int cur_node;
+    int adj_node;
+	iter = this->end();
+    for (i=number_of_voxels-1; i>=counts0; i--)
+		{
+        j=sorted_index[i];	 
+        cur_node=j;
+        
+        z=j/(max_x*max_y);
+        rest=j-z*(max_x*max_y);
+        y=rest/max_x;
+        x=rest-y*max_x;
+		cur_voxel=this->get_voxel(x,y,z);
+
+        z0=z-1;
+        z2=z+1;
+        y0=y-1;
+        y2=y+1;
+        x0=x-1;
+        x2=x+1;
+
+        //Later neigbours x2,y2,z2
+        if(z2<max_z)
+			{
+			if(this->get_voxel(x,y,z2)>=cur_voxel)
+				{
+        		k=x+max_x*(y+z2*max_y);
+	        	adj_node=findNode(k, par_node);
+	        	if(cur_node!=adj_node)
+	        		cur_node=mergeNodes(adj_node,cur_node, par_node);
+				}
+			}
+        if(y2<max_y)
+			{
+			if(this->get_voxel(x,y2,z)>=cur_voxel)
+				{
+        		k=x+max_x*(y2+z*max_y);
+	        	adj_node=findNode(k, par_node);
+	        	if(cur_node!=adj_node)
+	        		cur_node=mergeNodes(adj_node,cur_node, par_node);
+				}
+			}
+        if(x2<max_x)
+			{
+			if(this->get_voxel(x2,y,z)>=cur_voxel)
+				{
+        		k=x2+max_x*(y+z*max_y);
+	        	adj_node=findNode(k, par_node);
+	        	if(cur_node!=adj_node)
+	        		cur_node=mergeNodes(adj_node,cur_node, par_node);
+				}
+			}
+        //Earlier neighbours x0,y0,z0
+        if(z0>=0)
+			{
+			if(this->get_voxel(x,y,z0)>cur_voxel)
+				{
+        		k=x+max_x*(y+z0*max_y);
+	        	adj_node=findNode(k, par_node);
+	        	if(cur_node!=adj_node)
+	        		cur_node=mergeNodes(adj_node,cur_node, par_node);
+				}
+			}
+        if(y0>=0)
+			{
+			if(this->get_voxel(x,y0,z)>cur_voxel)
+				{
+        		k=x+max_x*(y0+z*max_y);
+	        	adj_node=findNode(k, par_node);
+	        	if(cur_node!=adj_node)
+	        		cur_node=mergeNodes(adj_node,cur_node, par_node);
+				}
+			}
+        if(x0>=0)
+			{
+			if(this->get_voxel(x0,y,z)>cur_voxel)
+				{
+        		k=x0+max_x*(y+z*max_y);
+	        	adj_node=findNode(k, par_node);
+	        	if(cur_node!=adj_node)
+	        		cur_node=mergeNodes(adj_node,cur_node, par_node);
+				}
+			}
+		}
+    double* x_values = new double[1+max_val-min_val];
+    double* y_values = new double[1+max_val-min_val];
+    double* diff = new double[1+max_val-min_val];
+	memset(diff, 0, sizeof(double)*(1+max_val-min_val));	 
+	long cumulative_number_of_objects=0;
+	double max=0;
+
+	for (i=0, iter=this->begin(); i<number_of_voxels; i++)
+		{
+        diff[(*(iter+i))-min_val]++;
+        diff[(*(iter+par_node[i]))-min_val]--;
+		}
+    for(i=max_val; i>=min_val; i--)
+		{
+        cumulative_number_of_objects+=diff[i];
+        y_values[i-min_val]=cumulative_number_of_objects;
+        x_values[i-min_val]=i;
+        if(cumulative_number_of_objects>max)
+        	max=cumulative_number_of_objects;
+		}
+        
+    int min1ind=min_val;
+    double max1;
+    double min1;
+    double dmax=0;
+    i=min_val+1;
+    while(i<max_val)
+		{
+        //find max
+	    while(y_values[i-min_val]>=y_values[i-1-min_val] && i<max_val)
+	        i++;
+	    max1=y_values[i-1-min_val];
+	    //find following min
+	    while(y_values[i-min_val]<=y_values[i-1-min_val] && i<max_val)
+	        i++;
+	    min1=y_values[i-1-min_val];
+	    min1ind=i-1;
+	    if(max1-min1>dmax)
+			{
+	        dmax=max1-min1;
+        	err_min_ind=min1ind;	        	
+			}
+		}
+
+//end Java code
+	return err_min_ind;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+int image_general<ELEMTYPE, IMAGEDIM>::findNode(int e, int* par_node)
+	{
+		if(par_node[e]!=e)
+			return findNode(par_node[e], par_node);
+		else
+			return e;
+	}
+	
+template <class ELEMTYPE, int IMAGEDIM>
+int image_general<ELEMTYPE, IMAGEDIM>::mergeNodes(int e1, int e2, int* par_node)
+	{
+		int res;
+		if((*(this->begin()+e1))==(*(this->begin()+e2)))
+		{
+			res=max(e1,e2);
+			par_node[min(e1,e2)]=res;
+		}
+		else if((*(this->begin()+e1))>(*(this->begin()+e2)))
+		{
+			par_node[e1]=e2;
+			res=e2;			
+		}
+		else
+		{
+			par_node[e2]=e1;
+			res=e1;		
+		}
+		return res;
+	}
+
+//template <class ELEMTYPE, int IMAGEDIM>
+//void image_general<ELEMTYPE, IMAGEDIM>::markRecursive(int m, int* par_node, bool* marked)
+	//{
+	//	if((*(this->begin()+m))>min_val)
+	//	{
+	//		if(!marked[m])
+	//		{
+	//			marked[m]=true;
+	//			if(par_node[m]!=m)
+	//				markRecursive(par_node[m], par_node, marked);
+	//		}
+	//	}
+	//}
+
+template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE getSeedLevel(int m, int* par_node, bool* marked)
+	{
+		if((*(this->begin()+m))>min_val)
+		{
+			if(marked[m])
+				return *(this->begin()+m);
+			else if(par_node[m]!=m)
+				return getSeedLevel(par_node[m], par_node, marked);
+			else
+				return 0;
+		}
+		else
+			return 0;
 	}
 
 #endif

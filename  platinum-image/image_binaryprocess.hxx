@@ -682,7 +682,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 	max_u=this->get_size_by_dim_and_dir(0,direction);
 	max_v=this->get_size_by_dim_and_dir(1,direction);
 	max_w=this->get_size_by_dim_and_dir(2,direction);
-	int veryhigh = std::max(max_u,max_v)*2;//std::numeric_limits<int>::max()-9;
+	int veryhigh = std::max(max_u,max_v)*4;//std::numeric_limits<int>::max()-9;
 	int initvalue=(edge_is_object)?veryhigh:0;
 	bool p;//pixel value
 	int d,ul,um,ur,ml,mr,ll,lm,lr;//neighbour labels 
@@ -857,7 +857,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 	max_u=this->get_size_by_dim(0);
 	max_v=this->get_size_by_dim(1);
 	max_w=this->get_size_by_dim(2);
-	int veryhigh = (std::max(max_w,std::max(max_u,max_v))*5)/2;//std::numeric_limits<int>::max()-11;
+	int veryhigh = (std::max(max_w,std::max(max_u,max_v))*5);//std::numeric_limits<int>::max()-11;
 	int initvalue=(edge_is_object)?veryhigh:0;
 	bool p;//pixel value
 	int d,ul,um,ur,ml,mr,ll,lm,lr,aul,aum,aur,aml,amm,amr,all,alm,alr;//neighbour labels 
