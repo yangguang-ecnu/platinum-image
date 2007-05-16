@@ -79,13 +79,15 @@ class image_storage : public image_base
             iterator& operator++();                
             iterator& operator++(int);                
             ELEMTYPE& operator*();                
-            ELEMTYPE* operator->();                
+            ELEMTYPE* operator->();               
+            iterator& operator--();             
+            iterator operator+(unsigned long n);                                
             private:
                 ELEMTYPE* ptr;
             };
 
         iterator begin();        
-        iterator end() ;   
+        iterator end();   
     };
 
 
