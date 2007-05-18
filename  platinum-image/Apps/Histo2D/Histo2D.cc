@@ -126,7 +126,8 @@ void diff_images (int u,int p)
                 { cout << "with mask " << mask->name(); }
             cout << endl;
 
-            image_scalar<unsigned char> * result = dynamic_cast<image_scalar<unsigned char> *>(truth->alike(VOLDATA_UCHAR));
+            //image_scalar<unsigned char> * result = dynamic_cast<image_scalar<unsigned char> *>(truth->alike(VOLDATA_UCHAR));
+            image_scalar<unsigned char> * result = guaranteed_cast<unsigned char,3,image_scalar<unsigned char> >(truth);
 
             for (short z = 0; z < size[2];z++)
                 {

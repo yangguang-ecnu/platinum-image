@@ -36,7 +36,8 @@
 enum imageDataType
     {
     VOLDATA_UNDEFINED,
-    VOLDATA_DOUBLE      = -8,
+    VOLDATA_DOUBLE      = -16,
+    VOLDATA_FLOAT       = -8,
     VOLDATA_LONG        = -4,
     VOLDATA_SHORT       = -2,
     VOLDATA_CHAR        = -1,

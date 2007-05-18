@@ -75,27 +75,37 @@ class rawimporter : public Fl_Window
     private:
         //Helpers
         void get_input ();                                  //copy FLTK inputs to the
-                                                            //respective variables
+        //respective variables
 
         void update_fields (Fl_Widget*);       //recalculate dependent field
-                                                            //values and widget states
+        //values and widget states
 
-        //Widgets
+        template <class VOXTYPE, template <class, int > class IMGCLASS>
+            void try_allocate (image_base* &i);
+        template <template <class,int > class IMGCLASS>
+            image_base* allocate_image ();
+
+    public:
+        Fl_Value_Input *imagesizex;
+        Fl_Value_Input *imagesizey;
         Fl_Group *voxeltypegroup;
+        Fl_Check_Button *floatbtn;
+ 
+    public:
         Fl_Choice *voxeltypemenu;
+        static Fl_Menu_Item menu_voxeltypemenu[];
         Fl_Button *guessvoxeltype;
         Fl_Check_Button *signedbtn;
+          Fl_Group *byteordergroup;
         Fl_Round_Button *endianbigbtn;
         Fl_Round_Button *endianlittlebtn;
         Fl_Group *headersizegroup;
         Fl_Input *headersizefield;
         Fl_Button *guessheadersize;
-        Fl_Value_Input *imagesizex;
-        Fl_Value_Input *imagesizey;
         Fl_Group *series_group;
         Fl_Group *numzgroup;
-        Fl_Button *guessnumz;
         Fl_Value_Input *imagenumz;
+        Fl_Button *guessnumz;
         Fl_Group *interleave_group;
         Fl_Spinner *startfield;
         Fl_Spinner *incrementfield;
@@ -103,22 +113,34 @@ class rawimporter : public Fl_Window
         Fl_Input *voxsizey;
         Fl_Input *voxsizez;
         Fl_Button *rawimportcancel;
+    public:
         Fl_Return_Button *rawimportok;
-        
-        //Callbacks
-        static void cb_rawimportok(Fl_Return_Button* o, void*);
-        static void cb_rawimportcancel(Fl_Button* o, void*);
-        static void rawimporter::cb_field_changed(Fl_Widget* o, void*);
+
+    private:
+        static void cb_floatbtn(Fl_Check_Button*, void*);
+        void cb_rawimportcancel_i(Fl_Button*, void*);
+        static void cb_rawimportcancel(Fl_Button*, void*);
+        void cb_rawimportok_i(Fl_Return_Button*, void*);
+        static void cb_rawimportok(Fl_Return_Button*, void*);
+        static void cb_field_changed(Fl_Widget* o, void*);
 
         //Data
         std::vector<std::string>    files;
         unsigned long               imageSize [3];
+        
         bool                        bigEndian;
+        bool                        is_float;
+        bool                        is_signed;
+        unsigned int                voxeltype;
+        Vector3D                    voxel_aspect; //!warning: value not set until OK button pressed
+        
         unsigned long               headerSize;
-        imageDataType               voxeltype;
         signed int                  sliceStart, sliceIncrement;
         unsigned long               fileSize;
         image_load_mode            mode;
+
+        //Constants
+#define MAXVOXSIZE 64
     };
 
 #endif

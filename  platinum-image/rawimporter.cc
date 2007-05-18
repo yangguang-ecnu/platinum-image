@@ -28,53 +28,49 @@
 extern datamanager datamanagement;
 #include "image_integer.h"
 
-Fl_Menu_Item menu_voxeltypemenu[] = {
- {"Bool (1-bit)", 0,  0, (void*)(VOLDATA_BOOL), 1, FL_NORMAL_LABEL, 0, 12, 0},
- {"Char (8-bit)", 0,  0, (void*)(VOLDATA_UCHAR), 0, FL_NORMAL_LABEL, 0, 12, 0},
- {"Short (16-bit)", 0,  0, (void*)(VOLDATA_USHORT), 0, FL_NORMAL_LABEL, 0, 12, 0},
- {"Long (32-bit)", 0,  0, (void*)(VOLDATA_ULONG), 0, FL_NORMAL_LABEL, 0, 12, 0},
- {"Double (32-bit float)", 0,  0, (void*)(VOLDATA_DOUBLE), 0, FL_NORMAL_LABEL, 0, 12, 0},
+Fl_Menu_Item rawimporter::menu_voxeltypemenu[] = {
+ {"1", 0,  0, (void*)(1), 1, FL_NORMAL_LABEL, 0, 12, 0},
+ {"8", 0,  0, (void*)(8), 0, FL_NORMAL_LABEL, 0, 12, 0},
+ {"16", 0,  0, (void*)(16), 0, FL_NORMAL_LABEL, 0, 12, 0},
+ {"32", 0,  0, (void*)(32), 0, FL_NORMAL_LABEL, 0, 12, 0},
+ {"64", 0,  0, (void*)(64), 0, FL_NORMAL_LABEL, 0, 12, 0},
  {0,0,0,0,0,0,0,0,0}
 };
 
-
-enum {
-    VOXELMENU_BOOL=0,
-    VOXELMENU_CHAR,
-    VOXELMENU_SHORT,
-    VOXELMENU_LONG,
-    VOXELMENU_DOUBLE
-    };
-
 // *** Helpers ***
 
-unsigned short voxel_byte_size (imageDataType v)
+/*unsigned short voxel_byte_size (imageDataType v)
 {
-    switch (v)
+switch (v)
+    {
+    case VOLDATA_DOUBLE:
+        return (sizeof (double));
+        break;
+    case VOLDATA_FLOAT:
+        return (sizeof (float));
+        break;
+    case VOLDATA_LONG:
+    case VOLDATA_ULONG:
+        return (sizeof (long));
+        break;
+    case VOLDATA_SHORT:
+    case VOLDATA_USHORT:
+        return (sizeof (short));
+        break;
+    case VOLDATA_CHAR:
+    case VOLDATA_UCHAR:
+        return (sizeof (char));
+        break;
+    default:
         {
-        case VOLDATA_DOUBLE:
-            return (sizeof (double));
-            break;
-        case VOLDATA_LONG:
-        case VOLDATA_ULONG:
-            return (sizeof (long));
-            break;
-        case VOLDATA_SHORT:
-        case VOLDATA_USHORT:
-            return (sizeof (short));
-            break;
-        case VOLDATA_CHAR:
-        case VOLDATA_UCHAR:
-            return (sizeof (char));
-            break;
-        default:
-            {
-                //suppress GCC enum warning
-            }
+        //suppress GCC enum warning
         }
-    
+    }
+
     return 0;
-}
+}*/
+
+
 
 //templated string to num conversion
 
@@ -105,13 +101,9 @@ template <class WidgetType>
 void mark_field (WidgetType * w,bool markIt = true)
     {
     if (markIt)
-        {
-        w->textcolor(FL_RED);
-        }
+        { w->textcolor(FL_RED); }
     else
-        {
-        w->textcolor(FL_FOREGROUND_COLOR);
-        }
+        { w->textcolor(FL_FOREGROUND_COLOR); }
     }
         
 void rawimporter::update_fields (Fl_Widget* w)
@@ -135,7 +127,7 @@ void rawimporter::update_fields (Fl_Widget* w)
                 
             case single_file:
             {
-                unsigned long d = imageSize[0] * imageSize[1] * voxel_byte_size (voxeltype);
+                unsigned long d = imageSize[0] * imageSize[1] * voxeltype/8;
                 
                 if (d > 0)
                     {
@@ -156,53 +148,49 @@ void rawimporter::update_fields (Fl_Widget* w)
         }
     }
     
-    if (w == guessvoxeltype)
+if (w == guessvoxeltype)
+    {
+    unsigned long dataSize = (imageSize[0] * imageSize[1] );
+
+    if (mode == single_file)
+        { dataSize *= imageSize[2];}
+
+    unsigned int allegedType = MAXVOXSIZE;
+    bool match = false;
+
+    while (!match)
         {
-        unsigned long dataSize = (imageSize[0] * imageSize[1] );
-        
-        if (mode == single_file)
-            { dataSize *= imageSize[2];}
-        
-        imageDataType allegedType = VOLDATA_UNDEFINED;
-        bool match = false;
-        
-        while (!match)
+        if (dataSize * allegedType <= fileSize)
+            {
+            match = true;
+            voxeltype = allegedType;
+
+            //"guess" header size as well
+            headerSize = fileSize - dataSize * voxeltype/8;
+
+            ease_field (voxeltypemenu);
+            }        
+        if (!match)
             {
             switch (allegedType)   //step through possible data sizes in descending order
                 {
-                case VOLDATA_UNDEFINED:
-                    allegedType = VOLDATA_DOUBLE;
+                case MAXVOXSIZE: //64
+                    allegedType = 32;
                     break;
-                case VOLDATA_DOUBLE:
-                    allegedType = VOLDATA_ULONG;
+                case 32:
+                    allegedType = 16;
                     break;
-                case VOLDATA_ULONG:
-                    allegedType = VOLDATA_USHORT;
+                case 16:
+                    allegedType = 8;
                     break;
-                case VOLDATA_USHORT:
-                    allegedType = VOLDATA_UCHAR;
-                    break;
-                    //case VOLDATA_CHAR:
-                    //                    allegedType = VOLDATA_BOOL;
-                    //                    break;
                 default:
                     //no match
                     match = true;
                     mark_field(voxeltypemenu);
                 }
-            
-            if (dataSize * voxel_byte_size(allegedType) <= fileSize)
-                {
-                match = true;
-                voxeltype = allegedType;
-                
-                //"guess" header size as well
-                headerSize = fileSize - dataSize * voxel_byte_size(voxeltype);
-
-                ease_field (voxeltypemenu);
-                }            
             }
         }
+    }
     else
         {
         ease_field(voxeltypemenu);
@@ -210,7 +198,7 @@ void rawimporter::update_fields (Fl_Widget* w)
 
     if (w == guessheadersize)
         {
-        unsigned long dataSize = (imageSize[0] * imageSize[1] * voxel_byte_size (voxeltype));
+        unsigned long dataSize = (imageSize[0] * imageSize[1] * voxeltype/8);
 
         if (mode == single_file)
             { dataSize *= imageSize[2];}
@@ -238,56 +226,60 @@ void rawimporter::update_fields (Fl_Widget* w)
     imagenumz->value(imageSize[2]);
 
     //voxeltype
+
+    if (voxeltype > 8)
+        {
+        byteordergroup->activate();
+        }
+    else
+        {
+        byteordergroup->deactivate();
+        }
+
+    if (voxeltype == 1 || (voxeltype > 16 && is_float) )
+        { signedbtn->deactivate(); }
+    else
+        { signedbtn->activate(); }
+
+    if (voxeltype > 16)
+        {
+        floatbtn->activate(); 
+        }
+    else
+        {
+        floatbtn->deactivate();
+        }
+
     switch (voxeltype)
         {
-        case VOLDATA_LONG:
-            signedbtn->value (1);
-            signedbtn->activate();
-            voxeltypemenu->value(VOXELMENU_LONG);
+        case 1:
+            voxeltypemenu->value(0);
             break;
 
-        case VOLDATA_ULONG:
-            signedbtn->value (0);
-            signedbtn->activate();
-            voxeltypemenu->value(VOXELMENU_LONG);
+        case 8:
+            voxeltypemenu->value(1);
             break;
 
-        case VOLDATA_SHORT:
-             signedbtn->value (1);
-            signedbtn->activate();
-            voxeltypemenu->value(VOXELMENU_SHORT);
-            break;
-        case VOLDATA_USHORT:
-            signedbtn->value (0);
-            signedbtn->activate();
-            voxeltypemenu->value(VOXELMENU_SHORT);
+        case 16:
+            voxeltypemenu->value(2);
             break;
 
-        case VOLDATA_CHAR:
-            signedbtn->value (1);
-            signedbtn->activate();
-            voxeltypemenu->value(VOXELMENU_CHAR);
-            break;
-        case VOLDATA_UCHAR:
-            signedbtn->value (0);
-            signedbtn->activate();
-            voxeltypemenu->value(VOXELMENU_CHAR);
+        case 32:
+            voxeltypemenu->value(3);
             break;
 
-        case VOLDATA_BOOL:
-            voxeltypemenu->value(VOXELMENU_BOOL);
-            signedbtn->value (0);
-            signedbtn->deactivate();
-            break;
-
-        case VOLDATA_DOUBLE:
-            voxeltypemenu->value(VOXELMENU_DOUBLE);
-            signedbtn->value (1);
-            signedbtn->deactivate();
+        case 64:
+            voxeltypemenu->value(4);
             break;
 
         default: {}
         }
+
+    //Float
+    floatbtn->value(is_float);
+
+    //Signed
+    signedbtn->value(is_signed);
 
     //Endian
     endianbigbtn->value(bigEndian);
@@ -295,7 +287,6 @@ void rawimporter::update_fields (Fl_Widget* w)
 
     //Header size
     dec_to_stringvalue(headersizefield,headerSize);
-
 
     //Interleave settings
     startfield->value(sliceStart);
@@ -318,7 +309,9 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
     sliceIncrement = 1;
     headerSize = 0;
     bigEndian = false;
-    voxeltype = VOLDATA_UCHAR;
+    voxeltype = 8;
+    is_signed = false;
+    is_float = false;
 
     struct stat firstFileStats;
 
@@ -356,8 +349,10 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
     labelsize(12);
     labelcolor(FL_FOREGROUND_COLOR);
     align(FL_ALIGN_TOP);
+
     when(FL_WHEN_RELEASE);
-        { Fl_Value_Input* o = imagesizex = new Fl_Value_Input(95, 16, 70, 25, "Image x size");
+
+        { Fl_Value_Input* o = imagesizex = new Fl_Value_Input(94, 16, 70, 25, "Image x size");
         o->labelsize(10);
         o->minimum(1);
         o->maximum(65535);
@@ -367,14 +362,14 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
         o->callback((Fl_Callback*)cb_field_changed);
         o->when(3);
         }
-        { Fl_Box* o = new Fl_Box(335, 19, 128, 128, "Preview");
+        { Fl_Box* o = new Fl_Box(334, 19, 128, 128, "Preview");
         o->box(FL_DOWN_BOX);
         o->color(FL_FOREGROUND_COLOR);
         o->labelsize(10);
         o->align(FL_ALIGN_TOP);
         o->deactivate();
         }
-        { Fl_Value_Input* o = imagesizey = new Fl_Value_Input(95, 41, 70, 25, "Image y size");
+        { Fl_Value_Input* o = imagesizey = new Fl_Value_Input(94, 41, 70, 25, "Image y size");
         o->labelsize(10);
         o->minimum(1);
         o->maximum(65535);
@@ -384,12 +379,17 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
         o->callback((Fl_Callback*)cb_field_changed);
         o->when(3);
         }
-        { Fl_Group* o = voxeltypegroup = new Fl_Group(96, 67, 228, 98, "Voxel type");
+        { Fl_Group* o = voxeltypegroup = new Fl_Group(95, 67, 228, 102, "Voxel type");
         o->tooltip("For interleaved series: where to start and what to skip");
         o->box(FL_THIN_DOWN_FRAME);
         o->labelsize(10);
         o->align(FL_ALIGN_LEFT);
-            { Fl_Choice* o = voxeltypemenu = new Fl_Choice(103, 73, 136, 25);
+            { Fl_Check_Button* o = floatbtn = new Fl_Check_Button(203, 77, 55, 25, "Float");
+            o->down_box(FL_DOWN_BOX);
+            o->labelsize(12);
+            o->callback((Fl_Callback*)cb_field_changed);
+            }
+            { Fl_Choice* o = voxeltypemenu = new Fl_Choice(123, 77, 58, 25, "Bits");
             o->down_box(FL_BORDER_BOX);
             o->labelsize(10);
             o->textsize(12);
@@ -397,26 +397,26 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
             o->when(FL_WHEN_CHANGED);
             o->menu(menu_voxeltypemenu);
             }
-            { Fl_Button* o = guessvoxeltype = new Fl_Button(239, 78, 17, 15, "@<");
+            { Fl_Button* o = guessvoxeltype = new Fl_Button(182, 82, 17, 15, "@<");
             o->box(FL_NO_BOX);
             o->labelsize(9);
             o->callback((Fl_Callback*)cb_field_changed);
             }
-            { Fl_Check_Button* o = signedbtn = new Fl_Check_Button(256, 73, 65, 25, "Signed");
+            { Fl_Check_Button* o = signedbtn = new Fl_Check_Button(252, 77, 65, 25, "Signed");
             o->down_box(FL_DOWN_BOX);
             o->labelsize(12);
             o->when(FL_WHEN_NEVER);
             }
-            { Fl_Group* o = new Fl_Group(103, 116, 156, 43, "Byte order");
+            { Fl_Group* o = byteordergroup = new Fl_Group(102, 120, 156, 43, "Byte order");
             o->box(FL_ENGRAVED_FRAME);
             o->labelsize(10);
-                { Fl_Round_Button* o = endianbigbtn = new Fl_Round_Button(108, 117, 85, 25, "Big endian");
+                { Fl_Round_Button* o = endianbigbtn = new Fl_Round_Button(107, 121, 85, 25, "Big endian");
                 o->type(102);
                 o->down_box(FL_ROUND_DOWN_BOX);
                 o->labelsize(12);
                 o->when(FL_WHEN_NEVER);
                 }
-                { Fl_Round_Button* o = endianlittlebtn = new Fl_Round_Button(108, 136, 151, 23, "Little-endian (Intel)");
+                { Fl_Round_Button* o = endianlittlebtn = new Fl_Round_Button(107, 140, 151, 23, "Little-endian (Intel)");
                 o->type(102);
                 o->down_box(FL_ROUND_DOWN_BOX);
                 o->labelsize(12);
@@ -426,10 +426,10 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
             }
         o->end();
         }
-        { Fl_Group* o = headersizegroup = new Fl_Group(30, 166, 152, 25);
+        { Fl_Group* o = headersizegroup = new Fl_Group(29, 170, 152, 25);
         o->labelsize(11);
         o->when(FL_WHEN_NEVER);
-            { Fl_Input* o = headersizefield = new Fl_Input(95, 166, 70, 25, "Header size");
+            { Fl_Input* o = headersizefield = new Fl_Input(94, 170, 70, 25, "Header size");
             o->tooltip("Size of each file\'s header (in bytes)");
             o->type(2);
             o->labelsize(10);
@@ -437,22 +437,22 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
             o->callback((Fl_Callback*)cb_field_changed);
             o->when(FL_WHEN_CHANGED);
             }
-            { Fl_Button* o = guessheadersize = new Fl_Button(165, 172, 17, 15, "@<");
+            { Fl_Button* o = guessheadersize = new Fl_Button(164, 176, 17, 15, "@<");
             o->box(FL_NO_BOX);
             o->labelsize(9);
             o->callback((Fl_Callback*)cb_field_changed);
             }
         o->end();
         }
-        { Fl_Group* o = series_group = new Fl_Group(95, 192, 189, 65, "Series settings");
+        { Fl_Group* o = series_group = new Fl_Group(94, 196, 189, 65, "Series settings");
         o->tooltip("For interleaved series: where to start and what to skip");
         o->box(FL_THIN_DOWN_FRAME);
         o->labelsize(10);
         o->align(FL_ALIGN_LEFT);
-            { Fl_Group* o = numzgroup = new Fl_Group(101, 197, 183, 26);
+            { Fl_Group* o = numzgroup = new Fl_Group(100, 201, 183, 26);
             o->labelsize(11);
             o->when(FL_WHEN_NEVER);
-                { Fl_Value_Input* o = imagenumz = new Fl_Value_Input(189, 198, 70, 25, "Number of images");
+                { Fl_Value_Input* o = imagenumz = new Fl_Value_Input(188, 202, 70, 25, "Number of images");
                 o->tooltip("Number of slices");
                 o->labelsize(10);
                 o->minimum(1);
@@ -463,7 +463,7 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
                 o->callback((Fl_Callback*)cb_field_changed);
                 o->when(FL_WHEN_NEVER);
                 }
-                { Fl_Button* o = guessnumz = new Fl_Button(259, 205, 17, 12, "@<");
+                { Fl_Button* o = guessnumz = new Fl_Button(258, 209, 17, 12, "@<");
                 o->box(FL_NO_BOX);
                 o->labelsize(9);
                 o->callback((Fl_Callback*)cb_field_changed);
@@ -472,12 +472,12 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
                 }
             o->end();
             }
-            { Fl_Group* o = interleave_group = new Fl_Group(101, 230, 155, 20);
-            { Fl_Spinner* o = startfield = new Fl_Spinner(128, 230, 35, 20, "Start");
+            { Fl_Group* o = interleave_group = new Fl_Group(100, 234, 155, 20);
+            { Fl_Spinner* o = startfield = new Fl_Spinner(127, 234, 35, 20, "Start");
             o->labelsize(10);
             o->textsize(12);
             }
-            { Fl_Spinner* o = incrementfield = new Fl_Spinner(221, 230, 35, 20, "Increment");
+            { Fl_Spinner* o = incrementfield = new Fl_Spinner(220, 234, 35, 20, "Increment");
             o->labelsize(10);
             o->textsize(12);
             }
@@ -485,53 +485,53 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
             }
         o->end();
         }
-        { Fl_Group* o = new Fl_Group(95, 258, 189, 32, "Voxel aspect ratio");
+        { Fl_Group* o = new Fl_Group(94, 262, 189, 32, "Voxel aspect ratio");
         o->tooltip("Proportions for voxel size (no scale, will be normalized)");
         o->box(FL_THIN_DOWN_FRAME);
         o->labelsize(10);
         o->align(FL_ALIGN_LEFT);
-            { Fl_Input* o = voxsizex = new Fl_Input(111, 264, 35, 20, "x");
+            { Fl_Input* o = voxsizex = new Fl_Input(110, 268, 35, 20, "x");
             o->type(1);
             o->labelsize(10);
             o->textsize(12);
             o->when(FL_WHEN_NEVER);
             o->value ("1");
             }
-            { Fl_Input* o = voxsizey = new Fl_Input(165, 264, 35, 20, "y");
+            { Fl_Input* o = voxsizey = new Fl_Input(164, 268, 35, 20, "y");
             o->type(1);
             o->labelsize(10);
             o->textsize(12);
             o->when(FL_WHEN_NEVER);
             o->value ("1");
             }
-            { Fl_Input* o = voxsizez = new Fl_Input(219, 264, 35, 20, "z");
+            { Fl_Input* o = voxsizez = new Fl_Input(218, 268, 35, 20, "z");
             o->type(1);
             o->labelsize(10);
             o->textsize(12);
             o->when(FL_WHEN_NEVER);
             o->value ("1");
             }
-        o->end();
-        }
-        { Fl_Button* o = rawimportcancel = new Fl_Button(306, 265, 60, 25, "Cancel");
-        o->callback((Fl_Callback*)cb_rawimportcancel);
-        }
-        { Fl_Return_Button* o = rawimportok = new Fl_Return_Button(376, 265, 84, 25, "Import");
-        o->callback((Fl_Callback*)cb_rawimportok);
-        }
-    end();
+    o->end();
+}
+    { Fl_Button* o = rawimportcancel = new Fl_Button(305, 269, 60, 25, "Cancel");
+    o->callback((Fl_Callback*)cb_rawimportcancel);
+    }
+    { Fl_Return_Button* o = rawimportok = new Fl_Return_Button(375, 269, 84, 25, "Import");
+    o->callback((Fl_Callback*)cb_rawimportok);
+    }
+end();
 
-    // *** end FLUID widget declarations ***
+// *** end FLUID widget declarations ***
 
-    if (mode == multifile)
-        {numzgroup->deactivate();}
+if (mode == multifile)
+    {numzgroup->deactivate();}
 
-    if (mode == single_file)
-        {startfield->parent()->deactivate();}
+if (mode == single_file)
+    {startfield->parent()->deactivate();}
 
-    update_fields (NULL);
+update_fields (NULL);
 
-    show();
+show();
     }
 
 template <class intype, class outtype>
@@ -551,20 +551,10 @@ void rawimporter::get_input ()    {
     voxeltype = (imageDataType)voxeltypemenu->mvalue()->argument();
 
     //Signedness
-    if (signedbtn->active() && signedbtn->value() == 1)
-        switch (voxeltype)
-        {
-            case VOLDATA_ULONG:
-                voxeltype = VOLDATA_LONG;
-                break;
-            case VOLDATA_USHORT:
-                voxeltype = VOLDATA_SHORT;
-                break;
-            case VOLDATA_UCHAR:
-                voxeltype = VOLDATA_CHAR;
-                break;
-            default: {}
-        }
+    is_signed = signedbtn->value();
+
+    //Floatiness
+    is_float = floatbtn->value();
 
     //Endian
     bigEndian = endianbigbtn->value() == 1 ? true : false;
@@ -596,19 +586,62 @@ void rawimporter::cb_rawimportcancel(Fl_Button* o, void*) {
     Fl::delete_widget(importwindow);
     }
 
-void rawimporter::cb_rawimportok(Fl_Return_Button* o, void*)
+template <class VOXTYPE, template <class,int=3 > class IMGCLASS>
+void rawimporter::try_allocate (image_base* &i)
     {
-    rawimporter * importer =(rawimporter *) o->window();
+    if (i == NULL && sizeof (VOXTYPE) == voxeltype/8 )
+        i = new IMGCLASS<VOXTYPE> (files, imageSize[0], imageSize[1], bigEndian, headerSize, voxel_aspect);
+    }
+
+template <template <class,int=3 > class IMGCLASS>
+image_base* rawimporter::allocate_image ()
+    {
+    image_base* output = NULL;
+
+    if (is_float)
+        {
+        try_allocate<float,IMGCLASS>(output);
+        try_allocate<double,IMGCLASS>(output);
+        try_allocate<long double,IMGCLASS>(output);
+        }
+    else
+        {
+        if (is_signed)
+            {
+            try_allocate<signed char,IMGCLASS >(output);
+            try_allocate<signed short,IMGCLASS >(output);
+            try_allocate<signed long,IMGCLASS >(output);
+            try_allocate<signed long long,IMGCLASS >(output);
+            }
+        else
+            {
+            try_allocate<unsigned char,IMGCLASS >(output);
+            try_allocate<unsigned short,IMGCLASS >(output);
+            try_allocate<unsigned long,IMGCLASS >(output);
+            try_allocate<long long,IMGCLASS >(output);
+            }
+        }
+
+    return output;
+    }
+
+void rawimporter::cb_rawimportok(Fl_Return_Button* o, void* v)
+    {
+    ((rawimporter*)(o->parent()))->cb_rawimportok_i(o,v);
+    }
+
+void rawimporter::cb_rawimportok_i(Fl_Return_Button* o, void*)
+    {
+    //rawimporter * importer =(rawimporter *) o->window();
 
     // *** copy input & check integrity ***
 
-    importer->get_input();
+    get_input();
 
     //Voxel size
-    Vector3D voxel_aspect;
-    dec_from_string(voxel_aspect[0], importer->voxsizex->value());
-    dec_from_string(voxel_aspect[1], importer->voxsizey->value());
-    dec_from_string(voxel_aspect[2], importer->voxsizez->value());
+    dec_from_string(voxel_aspect[0], voxsizex->value());
+    dec_from_string(voxel_aspect[1], voxsizey->value());
+    dec_from_string(voxel_aspect[2], voxsizez->value());
 
     //voxel_aspect.Normalize();
     min_normalize (voxel_aspect);
@@ -618,32 +651,35 @@ void rawimporter::cb_rawimportok(Fl_Return_Button* o, void*)
     //Do import
     //single-slice images can be imported, but the assumption
     //is that the user wants a 3D image anyway
-    switch (importer->voxeltype)
-        {  
-        case VOLDATA_DOUBLE:
-            new_image = new image_scalar<double> (importer->files, importer->imageSize[0], importer->imageSize[1], importer->bigEndian, importer->headerSize, voxel_aspect);
-            break;
 
-        case VOLDATA_USHORT:
-            new_image = new image_integer<unsigned short> (importer->files, importer->imageSize[0], importer->imageSize[1], importer->bigEndian, importer->headerSize, voxel_aspect);
-            break;
-
-        case VOLDATA_SHORT:
-            new_image = new image_integer<signed short> (importer->files, importer->imageSize[0], importer->imageSize[1], importer->bigEndian, importer->headerSize, voxel_aspect);
-            break;
-
-        case VOLDATA_UCHAR:
-            new_image = new image_integer<unsigned char> (importer->files, importer->imageSize[0], importer->imageSize[1], importer->bigEndian, importer->headerSize, voxel_aspect);
-            break;
-        default:
+    if (voxeltype <= 8)
+        {
+        switch (voxeltype)
             {
-                //suppress GCC enum warning
+            case 8:
+                new_image = allocate_image<image_integer >();
+                break;
+            case 1:
+                //image_binary is set in size and has different template parameters, so it's allocated inline:
+                new_image = new image_binary<> (files, imageSize[0], imageSize[1], bigEndian, headerSize, voxel_aspect);
+                break;
+            }
+        }
+    else
+        {
+        if (is_float)
+            {
+            new_image = allocate_image<image_scalar >();
+            }
+        else
+            {
+            new_image = allocate_image<image_integer >();
             }
         }
 
     if (new_image != NULL)
         {datamanagement.add(new_image);}
 
-    importer->hide();
-    Fl::delete_widget(importer);
+    hide();
+    Fl::delete_widget(this);
     }
