@@ -29,9 +29,9 @@
 #ifndef __image_label__
 #define __image_label__
 
-#include "image_integer.h"
-
 #define IMGLABELTYPE unsigned char
+
+#include "image_integer.h"
 
 template<int IMAGEDIM = 3>
 class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>

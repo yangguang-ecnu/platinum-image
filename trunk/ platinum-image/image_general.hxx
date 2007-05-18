@@ -59,7 +59,7 @@ using namespace std;
 template <class ELEM, int DIM, class requestedClass >
 requestedClass* try_general (image_base* input) //! Helper function to guaranteed_cast
     {
-    typename requestedClass* output = NULL;
+    requestedClass* output = NULL;
 
     image_general <unsigned char, DIM>* input_general = dynamic_cast<image_general <unsigned char, DIM> *> (input) ;
 
@@ -75,7 +75,7 @@ requestedClass* try_general (image_base* input) //! Helper function to guarantee
 template <class ELEM, int DIM, class requestedClass >
 requestedClass* guaranteed_cast (image_base* input)
     {
-    typename requestedClass* output = dynamic_cast<requestedClass *>(input);
+    requestedClass* output = dynamic_cast<requestedClass *>(input);
 
     //Try all possible data types
 
