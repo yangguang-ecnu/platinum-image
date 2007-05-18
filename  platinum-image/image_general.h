@@ -164,7 +164,8 @@ class image_general : public image_storage <ELEMTYPE >
         // *** processing ***
         image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold=true);
 		ELEMTYPE gauss_fit2();
-        //the two functions below assume integer (right?), should be in image_integer
+        
+        //TODO: components_hist_3D and narrowest_passage_3D assume integer (right?), should be in image_integer
 		ELEMTYPE components_hist_3D();
         image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, bool object_value=true);
 	
