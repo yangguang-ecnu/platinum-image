@@ -977,9 +977,9 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
-	max_u=get_size_by_dim(0);
-	max_v=get_size_by_dim(1);
-	max_w=get_size_by_dim(2);
+	max_u=this->get_size_by_dim(0);
+	max_v=this->get_size_by_dim(1);
+	max_w=this->get_size_by_dim(2);
 		
 	bool p;//pixel value
 	int label,above,up,left;//neighbour labels 
@@ -993,7 +993,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 			{
 			for(u=0; u<max_u; u++)
 				{
-				p=get_voxel(u,v,w);
+				p=this->get_voxel(u,v,w);
 				if(p!=object_value)//Note: we want to label bkg-objects in order to remove holes
 					{
 					above=(w>0)? label_image->get_voxel(u,v,w-1) : 0;
@@ -1097,9 +1097,9 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 				{
 				label=label_image->get_voxel(u,v,w);
 				if(lut[label]==max_label)//First label is background
-					set_voxel(u,v,w,object_value);
+					this->set_voxel(u,v,w,object_value);
 				else //all other labels are object
-					set_voxel(u,v,w,!object_value);
+					this->set_voxel(u,v,w,!object_value);
 				}
 			}
 		}
