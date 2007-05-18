@@ -140,9 +140,8 @@ void platinum_init ()
 
 void platinum_setup (Fl_Window & window, int num_viewports_h = 2, int num_viewports_v = 2,int tool_area_w = 250)
     {
-    const int win_margin=15*2;
-    int win_w = window.w()-win_margin;
-    int win_h = window.h()-win_margin;
+    int win_w = window.w();
+    int win_h = window.h();
     int view_w = win_w - tool_area_w;
     int view_h = win_h;
 

@@ -56,55 +56,66 @@ using namespace std;
 #define theStatsFilterType itk::StatisticsImageFilter<theImageType >
 #define theStatsFilterPointerType theStatsFilterType::Pointer
 
-template <class ELEM, int DIM, class requestedClass >
-requestedClass* try_general (image_base* input) //! Helper function to guaranteed_cast
+template <class NEWELEM, class TRYELEM, int DIM, template <class, int> class requestedClass >
+requestedClass<NEWELEM, DIM> * try_general (image_base* input) //! Helper function to guaranteed_cast
     {
-    requestedClass* output = NULL;
+    requestedClass<NEWELEM, DIM> * output = NULL;
 
-    image_general <unsigned char, DIM>* input_general = dynamic_cast<image_general <unsigned char, DIM> *> (input) ;
+    image_general <TRYELEM,DIM>* input_general = dynamic_cast<image_general <TRYELEM, DIM> *> (input) ; //! Try to cast into image_general of try-type
 
-    if (output == NULL)
+    if (input_general != NULL) //! If cast was successful, input had the tried type and input_general can be used in a call to new class' copy constructor
         {
-        //call copy constructor
-        output = new requestedClass (input_general,true);
+        output = new requestedClass<NEWELEM, DIM> (input_general,true);
         delete input;
         } 
     return output;
     }
 
-template <class ELEM, int DIM, class requestedClass >
-requestedClass* guaranteed_cast (image_base* input)
+//Some classes have fixed type and only dimensionality templated
+//these need the function template right below:
+
+/*template <class ELEM, int DIM, template <int> class requestedClass >
+requestedClass<DIM>* guaranteed_cast (image_base* input)
+{
+    requestedClass<DIM> * output = dynamic_cast<requestedClass<DIM > *>(input);
+
+    //try any data type used in classes with fixed type
+
+    return output;
+}
+
+*/
+
+template <template <class, int> class requestedClass, class ELEM, int DIM>
+requestedClass<ELEM, DIM>* guaranteed_cast (image_base* input)
     {
-    requestedClass* output = dynamic_cast<requestedClass *>(input);
+    requestedClass<ELEM, DIM> * output = dynamic_cast<requestedClass<ELEM, DIM > *>(input);
 
     //Try all possible data types
 
     if (output == NULL)
-        { output = try_general <bool,DIM,requestedClass >(input); }
+        { output = try_general <ELEM,unsigned char,DIM,requestedClass >(input); }
 
     if (output == NULL)
-        { output = try_general <unsigned char,DIM,requestedClass >(input); }
+        { output = try_general <ELEM,signed char,DIM,requestedClass >(input); }
 
     if (output == NULL)
-        { output = try_general <signed char,DIM,requestedClass >(input); }
+        { output = try_general <ELEM,unsigned short,DIM,requestedClass >(input); }
 
     if (output == NULL)
-        { output = try_general <unsigned short,DIM,requestedClass >(input); }
+        { output = try_general <ELEM,signed short,DIM,requestedClass >(input); }
 
     if (output == NULL)
-        { output = try_general <signed short,DIM,requestedClass >(input); }
+        { output = try_general <ELEM,unsigned long,DIM,requestedClass >(input); }
 
     if (output == NULL)
-        { output = try_general <unsigned long,DIM,requestedClass >(input); }
+        { output = try_general <ELEM,signed long,DIM,requestedClass >(input); }
 
     if (output == NULL)
-        { output = try_general <signed long,DIM,requestedClass >(input); }
+        { output = try_general <ELEM,float,DIM,requestedClass >(input); }
 
     if (output == NULL)
-        { output = try_general <float,DIM,requestedClass >(input); }
-
-    if (output == NULL)
-        { output = try_general <double,DIM,requestedClass >(input); }
+        { output = try_general <ELEM,double,DIM,requestedClass >(input); }
 
     if (output == NULL)
         {throw  (bad_cast());}

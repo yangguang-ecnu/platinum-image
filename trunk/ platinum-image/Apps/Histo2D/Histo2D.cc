@@ -1,11 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Histo2D
+//  Histo2D $Revision$
 //
 //  Application for doing 2D histogram segmentation
 //  as described in Arvid Rudling's master thesis
 //
-//
+//  $LastChangedBy$
 
 //   Copyright (c) 2007, Arvid Rudling and Uppsala university
 //   All rights reserved.
@@ -42,9 +42,6 @@
 #include "global.h"
 
 #include "image_label.h"
-
-//Kullberg's image tools
-//#include "../../Src/ITK/Volume.h"
 
 //inclusions related to histogram segmentation project
 #include "itkBinaryBallStructuringElement.h" 
@@ -127,7 +124,7 @@ void diff_images (int u,int p)
             cout << endl;
 
             //image_scalar<unsigned char> * result = dynamic_cast<image_scalar<unsigned char> *>(truth->alike(VOLDATA_UCHAR));
-            image_scalar<unsigned char> * result = guaranteed_cast<unsigned char,3,image_scalar<unsigned char> >(truth);
+            image_scalar<unsigned char,3> * result = guaranteed_cast<image_scalar,unsigned char,3>(truth);
 
             for (short z = 0; z < size[2];z++)
                 {
