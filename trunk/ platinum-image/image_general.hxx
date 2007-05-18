@@ -679,6 +679,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
         }
     }
 
+// *** Processing ***
+
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM> * image_general<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold)
 	{
