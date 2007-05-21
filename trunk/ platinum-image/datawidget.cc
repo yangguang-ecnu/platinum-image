@@ -112,6 +112,7 @@ datawidget::datawidget(int datatype,int id, std::string n): Fl_Pack(0,0,270,130,
 Fl_Group * datawidget::reset_tf_controls()
     {
     tfunction_->clear();
+    tfunction_->begin();
     return tfunction_;
     }
 
@@ -139,7 +140,7 @@ datawidget::~datawidget ()
     delete image();
     image(NULL);
 
-    delete [] thumbnail;
+    delete [] thumbnail_image;
     }
 
 void datawidget::refresh_thumbnail ()
