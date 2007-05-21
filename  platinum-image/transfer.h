@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Transfer
+//  Transfer $Revision$
 //
 //  Transfer function classes
 //
-//
+//  
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -34,12 +34,27 @@
 #include <FL/Fl_Slider.H>
 
 #include "color.h"
+#include "listedfactory.h"
 
 template <class ELEMTYPE>
     class image_storage;
 
+class transferfactory;
+
+const std::string tfunctions[] =
+    {"Default",
+    "Brightness/contrast",
+    "Labels",
+    "Linear",
+    "Spline","" };
+
+class transfer_manufactured //! Sub-base class that holds the static factory object
+    {
+    static transferfactory factory;
+    };
+
 template <class ELEMTYPE >
-class transfer_base
+class transfer_base: public transfer_manufactured
     {
     protected:
         image_storage<ELEMTYPE > * source;
@@ -48,13 +63,63 @@ class transfer_base
         //transfer_base (): transfer_base (NULL) {}
         transfer_base (image_storage<ELEMTYPE > * s);
         
-        /* void finish(); */
     public:
         virtual ~transfer_base ();
 
         virtual void get (const ELEMTYPE v, RGBvalue &p) = 0;
         virtual void refresh()
             {}
+    };
+
+class transferfactory //! transfer gets its own object factory type because constructors for templated classes cannot be stored
+    {
+    protected:
+        Fl_Menu * fmenu;
+    public:
+        transferfactory ()
+            {
+            int num_items = 0;
+
+            while  (tfunctions[num_items] != "")
+                { num_items++; }
+
+            fmenu = new Fl_Menu_Item [num_items];
+
+            for (int m=0; m < num_items; m++)
+                {
+                /*dir_menu_items[m].label(preset_direction_labels[m]);
+            dir_menu_items[m].callback(&set_direction_callback);
+            dir_menu_items[m].user_data(cbp);
+            dir_menu_items[m].flags= FL_MENU_RADIO;*/
+                }
+            }
+
+        ~transferfactory()
+            { delete [] fmenu; }
+
+        template <class ELEMTYPE >
+            transfer_base<ELEMTYPE > *Create(factoryIdType unique_id,image_storage<ELEMTYPE > * s)
+            {
+            if (unique_id == tfunctions [0] )
+                {return transfer_default<ELEMTYPE>(s);}
+            }
+
+        Fl_Menu * function_menu ()
+            {
+            
+            }
+    };
+
+template <class ELEMTYPE >
+class transfer_default: public transfer_base <ELEMTYPE >
+    {
+    protected:
+        Fl_Box *white;
+        Fl_Box *black;
+    public:
+        transfer_default (image_storage <ELEMTYPE > * s);
+        void get (const ELEMTYPE v, RGBvalue &p);
+        virtual void refresh();
     };
 
 template <class ELEMTYPE >
@@ -78,18 +143,6 @@ class transfer_mapcolor: public transfer_base <ELEMTYPE >
         void get (const ELEMTYPE v, RGBvalue &p);
     };
 
-
-template <class ELEMTYPE >
-class transfer_default: public transfer_base <ELEMTYPE >
-    {
-    protected:
-        Fl_Box *white;
-        Fl_Box *black;
-    public:
-        transfer_default (image_storage <ELEMTYPE > * s);
-        void get (const ELEMTYPE v, RGBvalue &p);
-        virtual void refresh();
-    };
 
 template <class ELEMTYPE >
     class transfer_interpolated: public transfer_base <ELEMTYPE >

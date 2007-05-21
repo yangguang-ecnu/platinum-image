@@ -30,21 +30,10 @@
 
 #include <list>
 
-#include <FL/Fl_Scroll.H>
+#include "FLTKutilities.h"
 
 #include "ptmath.h"
 #include "userIO.h"
-
-class horizresizeablescroll : public Fl_Scroll  //Fl_Scroll with integrated packer that resizes horizontally
-                                                //(and scrolls/packs vertically)
-    {
-    public:
-        Fl_Pack * interior;                     //the actual list
-        horizresizeablescroll(int x, int y, int w, int h, const char *label = 0);
-        void resize(int x, int y, int w, int h);
-        void begin ();
-        void end ();
-    };
 
 #include "global.h"
 
@@ -59,10 +48,11 @@ class userIOmanager
         //void maintenance ();    //called on idle or other time, to cleanup deleted objects and such
 
     public:
-        userIOmanager();
-        ~userIOmanager();
-        void setup();                               //create FLTK list widget and all
-                                                    //puts associated widgets in Fl_Group::current()
+        userIOmanager::userIOmanager() { }
+
+        userIOmanager::~userIOmanager() //! userIOs are FLTK classes, deleted automatically with their parent
+            { }
+        void setup();                   //create FLTK list widget and all, puts associated widgets in Fl_Group::current()
 
         void image_vector_has_changed();    //triggers rebuild of
 

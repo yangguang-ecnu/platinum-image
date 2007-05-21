@@ -25,15 +25,6 @@ userIOmanager userIOmanagement;
 
 #include <FL/Fl.H>
 
-userIOmanager::userIOmanager()
-    {
-    }
-
-userIOmanager::~userIOmanager()
-    {
-    //userIOs are FLTK classes, deleted automatically with their parent
-    }
-
 void userIOmanager::setup()
     {
     const unsigned int xpos=Fl_Group::current()->x();
@@ -194,35 +185,4 @@ std::vector<FLTKuserIOpar_histogram2D *> userIOmanager::get_histogram_for_image 
         }
 
     return result;
-    }
-
-// resizable scroll group widget
-horizresizeablescroll::horizresizeablescroll (int x, int y, int w, int h, const char *label) : Fl_Scroll (x,y,w,h,label)
-    {
-    //children are deleted automatically with parents, so  
-    interior=new Fl_Pack(x,y,w-FLTK_SCROLLBAR_SIZE,h);
-    type(Fl_Scroll::VERTICAL_ALWAYS);
-    interior->type(FL_VERTICAL);
-    box(FL_FLAT_BOX);
-    interior->box(FL_NO_BOX);
-    }
-
-void horizresizeablescroll::begin ()
-    {
-    interior->begin();
-    }
-
-void horizresizeablescroll::end ()
-    {
-    interior->end();
-    Fl_Scroll::end();
-    }
-
-void horizresizeablescroll::resize (int newx, int newy, int neww, int newh)
-    {
-    int scroll_x=interior->x()-x();
-    int scroll_y=interior->y()-y();
-
-    Fl_Widget::resize(newx, newy, neww, newh);
-    interior->resize(newx+scroll_x,newy+scroll_y,neww-FLTK_SCROLLBAR_SIZE,interior->h());
     }
