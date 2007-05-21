@@ -1,3 +1,5 @@
+// $Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //

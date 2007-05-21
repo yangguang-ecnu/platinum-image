@@ -86,20 +86,7 @@ void viewport::clear_rgbpixmap()
         {
         rgbpixmap[p] = rgbpixmap[p + 1] = rgbpixmap[p + 2] = 0;
         }
-    }
-
-void init_fl_menu_item(Fl_Menu_Item * m)
-    {
-    m->label("");
-    m->shortcut(0);
-    m->callback((Fl_Callback *)NULL,0);
-    m->user_data(NULL);
-    m->flags= 0;
-    m->labeltype(FL_NORMAL_LABEL);
-    m->labelfont(0);
-    m->labelsize(FLTK_LABEL_SIZE);
-    m->labelcolor(FL_BLACK);
-    }
+   } 
 
 viewport::viewport()
     {

@@ -38,7 +38,7 @@
 
 #include "point_base.h"
 #include "datawidget.h"
-#include "userIOmanager.h"  //for horizresizeablescroll class
+#include "FLTKutilities.h"  //for horizresizeablescroll class
 
 #include "global.h"
 
