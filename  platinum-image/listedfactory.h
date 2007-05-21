@@ -42,6 +42,12 @@ typedef std::string factoryIdType;
 //Shape *shape1 = shape_factory.Create("triangle", 10);
 //Shape *shape2 = shape_factory.Create("square", 20);
 
+template<typename BaseClassType, typename ClassType>
+BaseClassType *CreateObject()
+{
+    return new ClassType;
+}
+
 template<typename BaseClassType>
 class listedfactory
 {
