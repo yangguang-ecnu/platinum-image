@@ -15,10 +15,21 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+// *** transferchart ***
+
 // *** transfer_interpolated (base class) ***
 template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::transfer_interpolated(image_storage <ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
-{}
+{
+    chart = new transferchart (this->pane->x(),this->pane->y(),this->pane->w(),this->pane->h());
+    this->pane->end();
+}
+
+template <class ELEMTYPE>
+transfer_interpolated<ELEMTYPE >::~transfer_interpolated()
+{
+    delete chart;
+}
 
 template <class ELEMTYPE>
 void transfer_interpolated<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)

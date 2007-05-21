@@ -73,8 +73,6 @@ transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):
     this->pane->resize(0,0,270,35);
     this->pane->resizable(NULL);
 
-    this->pane->begin();
-
         {
         int top = 5;
         int left = 5;
@@ -197,8 +195,6 @@ transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):tr
     {
     this->pane->resize(0,0,270,35);
     this->pane->resizable(NULL);
-
-    this->pane->begin();
 
     // *** FLUID ***
         { Fl_Box* o = white = new Fl_Box(10, 10, 15, 15, "high");

@@ -40,7 +40,11 @@
 template <class ELEMTYPE>
     class image_storage;
 
+template <class ELEMTYPE >
+class transfer_interpolated;
+
 class transferfactory;
+class transferchart;
 
 const std::string tfunction_names[] =
     {"Default",
@@ -57,6 +61,7 @@ class transfer_manufactured //! Sub-base class that holds the static factory obj
 template <class ELEMTYPE >
 class transfer_base: public transfer_manufactured
     {
+        friend class transferchart;
     protected:
         image_storage<ELEMTYPE > * source;
         Fl_Group*  pane;
@@ -72,6 +77,18 @@ class transfer_base: public transfer_manufactured
             {}
     };
 
+template <class ELEMTYPE >
+class transfer_default: public transfer_base <ELEMTYPE >
+    {
+    protected:
+        Fl_Box *white;
+        Fl_Box *black;
+    public:
+        transfer_default (image_storage <ELEMTYPE > * s);
+        void get (const ELEMTYPE v, RGBvalue &p);
+        virtual void refresh();
+    };
+    
 class transferfactory //! transfer gets its own object factory type because constructors for templated classes cannot be stored
     {
     protected:
@@ -115,17 +132,7 @@ class transferfactory //! transfer gets its own object factory type because cons
             }
     };
 
-template <class ELEMTYPE >
-class transfer_default: public transfer_base <ELEMTYPE >
-    {
-    protected:
-        Fl_Box *white;
-        Fl_Box *black;
-    public:
-        transfer_default (image_storage <ELEMTYPE > * s);
-        void get (const ELEMTYPE v, RGBvalue &p);
-        virtual void refresh();
-    };
+
 
 template <class ELEMTYPE >
 class transfer_brightnesscontrast: public transfer_base <ELEMTYPE >
@@ -149,17 +156,29 @@ class transfer_mapcolor: public transfer_base <ELEMTYPE >
     };
 
 
+
 template <class ELEMTYPE >
     class transfer_interpolated: public transfer_base <ELEMTYPE >
     {
 protected:
         IMGELEMCOMPTYPE lookup [0xFFFFFFF]; //accomodates unsigned long
+        transferchart * chart;
 public:
         transfer_interpolated (image_storage <ELEMTYPE > * s);
+        virtual ~transfer_interpolated();
         void get (const ELEMTYPE v, RGBvalue &p);
+};
+
+class  transferchart : public Fl_Widget
+    {
+protected:
+        //transfer_interpolated<class ELEMTYPE > * tfunction; //! Transfer function to display
+public:
+    //transferchart (int x,int y, int w, int h,transfer_interpolated * f );
+        transferchart (int x,int y, int w, int h);
     };
 
-template <class ELEMTYPE >
+    template <class ELEMTYPE >
     class transfer_linear: public transfer_interpolated <ELEMTYPE >
     {
 public:
