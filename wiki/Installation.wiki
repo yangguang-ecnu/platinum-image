@@ -114,6 +114,6 @@ Repeat these steps for ITK, FLTK and Platinum - respectively, and in that order:
 *NOTE:* the UNIX build process is particular about the compiler used, and that all libraries used were compiled using the same compiler. If the build fails  without a descriptive error message this may be the case. Try setting the compiler manually for all three projects by running `cmake -D CMAKE_CXX_COMPILER:STRING=/usr/bin/c++` (this sets the compiler to `c++`) in each build directory, and then running `make` once again.  
 
 ==XCode==
-If you are on Mac OS X you may use the `-G XCode` flag with CMake (all other instructions as above) to generate an XCode project instead of makefile. Since you won't be editing ITK and FLTK, those are probably easier to build with `make`. Once you have the XCode project file, the project is built by selecting the appropriate command inside XCode.
+If you are on Mac OS X you may use the `-G XCode` flag with CMake (all other instructions as above) to generate Platinum as an XCode project instead of a makefile. Once you have the XCode project file, the project is built by selecting the appropriate command inside XCode. NOTE: since you won't be editing ITK and FLTK, those are probably easier to build with `make`.
 
 You may also use XCode for updating/commiting SVN: select "Configure SCM" from the SCM menu, choose Subversion as SCM system and click "Enable SCM". For this to work, you have to have SCM previously set up in the regular (command-line) way.
