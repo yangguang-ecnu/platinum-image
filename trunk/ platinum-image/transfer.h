@@ -35,13 +35,14 @@
 
 #include "color.h"
 #include "listedfactory.h"
+#include "FLTKutilities.h"
 
 template <class ELEMTYPE>
     class image_storage;
 
 class transferfactory;
 
-const std::string tfunctions[] =
+const std::string tfunction_names[] =
     {"Default",
     "Brightness/contrast",
     "Labels",
@@ -74,39 +75,43 @@ class transfer_base: public transfer_manufactured
 class transferfactory //! transfer gets its own object factory type because constructors for templated classes cannot be stored
     {
     protected:
-        Fl_Menu * fmenu;
+    int num_items;
     public:
         transferfactory ()
             {
-            int num_items = 0;
+            num_items = 0;
 
-            while  (tfunctions[num_items] != "")
+            while  (tfunction_names[num_items] != "")
                 { num_items++; }
-
-            fmenu = new Fl_Menu_Item [num_items];
-
-            for (int m=0; m < num_items; m++)
-                {
-                /*dir_menu_items[m].label(preset_direction_labels[m]);
-            dir_menu_items[m].callback(&set_direction_callback);
-            dir_menu_items[m].user_data(cbp);
-            dir_menu_items[m].flags= FL_MENU_RADIO;*/
-                }
             }
 
         ~transferfactory()
-            { delete [] fmenu; }
+            { }
 
         template <class ELEMTYPE >
             transfer_base<ELEMTYPE > *Create(factoryIdType unique_id,image_storage<ELEMTYPE > * s)
             {
-            if (unique_id == tfunctions [0] )
+            if (unique_id == tfunction_names [0] )
                 {return transfer_default<ELEMTYPE>(s);}
             }
 
-        Fl_Menu * function_menu ()
+        Fl_Menu * function_menu (Fl_Callback * cb) //! get menu 
             {
-            
+            Fl_Menu_Item * fmenu;
+        
+            fmenu = new Fl_Menu_Item [num_items];
+
+            for (int m=0; m < num_items; m++)
+                {
+                init_fl_menu_item(fmenu[m]);
+
+                fmenu[m].label(tfunction_names[m].c_str());
+                fmenu[m].callback(cb);
+                fmenu[m].argument(m);
+                fmenu[m].flags = FL_MENU_RADIO;
+                }
+
+            return fmenu;
             }
     };
 

@@ -112,7 +112,7 @@ viewport::viewport()
         int m;
         for (m=0;m<NUM_RENDERER_TYPES;m++ )
             {
-            init_fl_menu_item(&renderermenu_global[m]);
+            init_fl_menu_item(renderermenu_global[m]);
             renderermenu_global[m].label(renderer_labels[m].c_str());
             renderermenu_global[m].flags= FL_MENU_RADIO;
 
@@ -505,7 +505,7 @@ int actionValue = f->callback_action;
             cbp->direction=(preset_direction)m;
             cbp->vport=this;
 
-            init_fl_menu_item(&dir_menu_items[m]);
+            init_fl_menu_item(dir_menu_items[m]);
 
             dir_menu_items[m].label(preset_direction_labels[m]);
             dir_menu_items[m].callback(&set_direction_callback);
@@ -534,7 +534,7 @@ int actionValue = f->callback_action;
             cbp->mode=(blendmode)m;
             cbp->rend_index=rendererIndex;
 
-            init_fl_menu_item(&blend_menu_items[m]);
+            init_fl_menu_item(blend_menu_items[m]);
 
             blend_menu_items[m].label(blend_mode_labels[m]);
             blend_menu_items[m].callback(&set_blendmode_callback);
