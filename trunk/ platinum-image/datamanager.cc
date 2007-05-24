@@ -165,43 +165,46 @@ void datamanager::datawidgets_setup()
     }
 
 void datamanager::add(image_base * v)
-    {
-    if (images.size() < IMAGEVECTORMAX)
+{
+    if (v != NULL)
         {
-        int the_image_id= v->get_id();
-
-        if (find_image_index(the_image_id) == -1)
+        if (images.size() < IMAGEVECTORMAX)
             {
-            images.push_back(v);
-
-            int freeViewportID=viewmanagement.find_viewport_no_images();
-
-            if (freeViewportID != NOT_FOUND_ID)
+            int the_image_id= v->get_id();
+            
+            if (find_image_index(the_image_id) == -1)
                 {
-                rendermanagement.connect_image_renderer(viewmanagement.get_renderer_id(freeViewportID),the_image_id);
+                images.push_back(v);
+                
+                int freeViewportID=viewmanagement.find_viewport_no_images();
+                
+                if (freeViewportID != NOT_FOUND_ID)
+                    {
+                    rendermanagement.connect_image_renderer(viewmanagement.get_renderer_id(freeViewportID),the_image_id);
+                    }
+                
+                image_vector_has_changed();
+                image_has_changed(the_image_id);
                 }
-
-            image_vector_has_changed();
-            image_has_changed(the_image_id);
+            else
+                {
+#ifdef _DEBUG
+                cout << "Trying to re-add image ID " << the_image_id << endl;
+#endif
+                }
             }
         else
             {
 #ifdef _DEBUG
-            cout << "Trying to re-add image ID " << the_image_id << endl;
+            //This error condition should really never happen, if it does there is
+            //reason to rethink the dependency on a fixed image capacity the way 
+            //IMAGEVECTORMAX works
+            
+            cout << "Error when adding image: number of images in datamanager exceeds IMAGEVECTORMAX" << endl;
 #endif
             }
         }
-    else
-        {
-#ifdef _DEBUG
-        //This error condition should really never happen, if it does there is
-        //reason to rethink the dependency on a fixed image capacity the way 
-        //IMAGEVECTORMAX works
-
-        cout << "Error when adding image: number of images in datamanager exceeds IMAGEVECTORMAX" << endl;
-#endif
-        }
-    }
+}
 
 void datamanager::remove_image (int id)
     {

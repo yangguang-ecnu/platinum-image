@@ -70,7 +70,7 @@ Vector3D image_base::transform_unit_to_voxel(Vector3D pos)
     return vox;
     }
 
-enum fileFormatType {FILE_FORMAT_DICOM,FILE_FORMAT_VTK};
+//enum fileFormatType {FILE_FORMAT_DICOM,FILE_FORMAT_VTK};
 
 // //meta-helper to load templated classes from file format of choice
 //template <class imageClass>
@@ -119,235 +119,310 @@ enum fileFormatType {FILE_FORMAT_DICOM,FILE_FORMAT_VTK};
 //    return newImage;
 //    }
 
-void image_base::load(std::vector<std::string> files)
-    {
-    //load mode
-    enum  {
-        LOMO_NOTSET,
-        LOMO_ATOMICFILES, //loading individual image files, such as VTK
-        LOMO_DICOM,       //loading DICOM series
-        LOMO_RAW          //loading raw series
-        }
-load_mode = LOMO_NOTSET;
-
-vector<string> raw_files;
-vector<string> loaded_series;   //UIDs of the DICOM series loaded during this call,
-//to prevent multiple selected frames
-//from loading the same series multiple times
-
-for ( std::vector<string>::iterator file = files.begin(); file != files.end(); ++file )
-    {
-    image_base *animage=NULL; //the eventually loaded image(handler)
-
-    itk::VTKImageIO::Pointer vtkIO = itk::VTKImageIO::New();
-
-    if ( (load_mode == LOMO_ATOMICFILES || load_mode == LOMO_NOTSET) && vtkIO->CanReadFile (file->c_str()))
+class imageloader
+{
+protected:
+    vector<string> files;
+    vector<string>::iterator file;
+    vector<string> rejected_files;
+    
+public:
+        imageloader(std::vector<std::string> filesarg)
         {
-        load_mode = LOMO_ATOMICFILES;
-
-        //for VTK, we want to know
-        //voxel type only
-
-        //assumption:
-        //File contains image data
-
-        vtkIO->SetFileName(file->c_str());
-
-        vtkIO->ReadImageInformation(); 
-
-        itk::ImageIOBase::IOComponentType componentType = vtkIO->GetComponentType();
-
-        //get voxel type
-        itk::ImageIOBase::IOPixelType pixelType=vtkIO->GetPixelType();
-
-        switch ( pixelType)
-            {
-            case itk::ImageIOBase::SCALAR:
-                //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
-
-                switch (componentType)
-                    {
-                    case itk::ImageIOBase::UCHAR:
-                        animage = new image_integer<unsigned char>();
-                        ((image_integer<unsigned char>*)animage)->load_dataset_from_VTK_file(*file);
-                        break;
-                    case itk::ImageIOBase::USHORT:
-                        animage = new image_integer<unsigned short>();
-                        ((image_integer<unsigned short>*)animage)->load_dataset_from_VTK_file(*file);
-                        break;
-
-                    case itk::ImageIOBase::SHORT:
-                        animage = new image_integer<short>();
-                        ((image_integer<short>*)animage)->load_dataset_from_VTK_file(*file);
-                        break;
-                    default:
-#ifdef _DEBUG
-                        cout << "Load scalar VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
-#endif
-                    }
-                break;
-
-            /*case itk::ImageIOBase::COMPLEX:
-                switch (componentType)
-                    {
-                    case itk::ImageIOBase::UCHAR:
-                        animage = new image_complex<unsigned char>();
-                        ((image_scalar<unsigned char>*)animage)->load_dataset_from_VTK_file(path_parent(*file));
-                        break;
-                    case itk::ImageIOBase::USHORT:
-                        animage = new image_complex<unsigned short>();
-                        ((image_scalar<unsigned short>*)animage)->load_dataset_from_VTK_file(path_parent(*file));
-                        break;
-
-                    case itk::ImageIOBase::SHORT:
-                        animage = new image_complex<short>();
-                        ((image_scalar<short>*)animage)->load_dataset_from_VTK_file(path_parent(*file));
-                        break;
-                    default:
-#ifdef _DEBUG
-                        cout << "Load complex VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
-#endif
-                    }*/
-                break;
-            default:
-#ifdef _DEBUG
-                std::cout << "image_base::load(...): unsupported pixel type: " << vtkIO->GetPixelTypeAsString(pixelType) << endl;
-#endif
-
-            }
+            files = filesarg;
+            file = files.begin();
         }
+    
+    vector<string> rejected()
+        { return rejected_files; }
+        
+//load mode
+//    enum  {
+//        LOMO_NOTSET,
+//        LOMO_ATOMICFILES, //loading individual image files, such as VTK
+//        LOMO_DICOM,       //loading DICOM series
+//        LOMO_BRUKER,      //loading Bruker series
+//        LOMO_RAW          //loading raw series
+//    }
+};
 
-    itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+class vtkloader: public imageloader
+{
+private:
+    itk::VTKImageIO::Pointer vtkIO;
+    
+public:
+    vtkloader (std::vector<std::string> files);
+    image_base * read ();
+};
 
-    //check if it's a DICOM file
-    if ( (load_mode == LOMO_DICOM || load_mode == LOMO_NOTSET) && dicomIO->CanReadFile (file->c_str()))
+class dicomloader: public imageloader
+{
+private:
+    itk::GDCMImageIO::Pointer dicomIO;
+    
+    vector<string> loaded_series; //! UIDs of the DICOM series loaded during this call
+                                  //! to prevent multiple selected frames
+                                  //! from loading the same series multiple times
+public:
+    dicomloader (std::vector<std::string> files);
+    image_base * read ();
+    
+};
+
+
+class brukerloader:public imageloader
+{
+    // Bruker import based on the description at
+    // http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker?highlight=%28bruker%29
+    
+    // check if *dir* is a Bruker run directory (contains "acp", "method" files and lots of other crap
+};
+
+vtkloader::vtkloader(std::vector<std::string> files): imageloader(files)
+{
+    vtkIO = itk::VTKImageIO::New();
+}
+
+image_base *vtkloader::read()
+{    
+    image_base * result = NULL;
+    
+    while (file != files.end() && result == NULL)
         {
-        load_mode = LOMO_DICOM;
-
-        cout << (*file) << " can be read by GDCMImageIO" << endl;
-
-        dicomIO->SetFileName(file->c_str());
-
-        //get basic DICOM header
-        dicomIO->ReadImageInformation();
-
-        //get series UID
-        std::string seriesIdentifier;
-
-        //"0020|000e" - Series Instance UID (series defined by the scanner)
-        //series ID identifies the series (out of possibly multiple series in
-        //one directory)
-        std::string tagkey = "0020|000e";
-
-        std::string labelId;
-        if( itk::GDCMImageIO::GetLabelFromTag( tagkey, labelId ) )
+        if (vtkIO->CanReadFile (file->c_str()))
             {
-            std::cout << labelId << " (" << tagkey << "): ";
-            if( dicomIO->GetValueFromTag(tagkey, seriesIdentifier) )
+            //assumption:
+            //File contains image data
+            
+            vtkIO->SetFileName(file->c_str());
+            
+            vtkIO->ReadImageInformation(); 
+            
+            itk::ImageIOBase::IOComponentType componentType = vtkIO->GetComponentType();
+            
+            //get voxel type
+            itk::ImageIOBase::IOPixelType pixelType=vtkIO->GetPixelType();
+            
+            switch ( pixelType)
                 {
-                //remove one garbage char at end
-                seriesIdentifier.erase(seriesIdentifier.length()-1,seriesIdentifier.length());
-                //check if another file in the same series was part of the
-                //selection (and loaded)
-                vector<string>::const_iterator series_itr=loaded_series.begin();
-                bool already_loaded=false;
-
-                if (find(loaded_series.begin(),loaded_series.end(),seriesIdentifier)
-                    == loaded_series.end())
-                    {loaded_series.push_back(seriesIdentifier);}
-                else
-                    {already_loaded = true; }
-#ifdef _DEBUG
-                std::cout << seriesIdentifier << endl;
-#endif      
-                //get voxel type
-                itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
-
-                if (!already_loaded) 
-                    {
-                    itk::ImageIOBase::IOComponentType componentType = dicomIO->GetComponentType();
-                    switch ( pixelType)
+                case itk::ImageIOBase::SCALAR:
+                    //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
+                    
+                    switch (componentType)
                         {
-                        case itk::ImageIOBase::SCALAR:
-
-
-                            //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
-
-                            switch (componentType)
-                                {
-                                case itk::ImageIOBase::UCHAR:
-                                    animage = new image_integer<unsigned char>();
-                                    ((image_integer<unsigned char>*)animage)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
-                                    break;
-                                case itk::ImageIOBase::USHORT:
-                                    animage = new image_integer<unsigned short>();
-                                    ((image_integer<unsigned short>*)animage)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
-                                    break;
-
-                                case itk::ImageIOBase::SHORT:
-                                    animage = new image_integer<short>();
-                                    ((image_integer<short>*)animage)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
-                                    break;
-                                default:
-#ifdef _DEBUG
-                                    cout << "Unsupported component type: " << dicomIO->GetComponentTypeAsString (componentType) << endl;
-#endif
-                                }
+                        case itk::ImageIOBase::UCHAR:
+                            result =  new image_integer<unsigned char>();
+                            ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(*file);
                             break;
-                        case itk::ImageIOBase::COMPLEX:
+                        case itk::ImageIOBase::USHORT:
+                            result = new image_integer<unsigned short>();
+                            ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(*file);
+                            break;
+                            
+                        case itk::ImageIOBase::SHORT:
+                            result = new image_integer<short>();
+                            ((image_integer<short>*)result)->load_dataset_from_VTK_file(*file);
                             break;
                         default:
 #ifdef _DEBUG
-                            std::cout << "image_base::load(...): unsupported pixel type: " << dicomIO->GetPixelTypeAsString(pixelType) << endl;
+                            cout << "Load scalar VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
 #endif
-
                         }
-
-                    }//not already loaded
-
-                } //found series tag
-
-            }//series tag exists
-        else
-            {
-            //no series identifier, OK if the intention is to just load 1 frame
-            //(DICOM files can only contain 1 frame each)
+                    break;
+                    
+                    /*case itk::ImageIOBase::COMPLEX:
+                    switch (componentType)
+                    {
+                        case itk::ImageIOBase::UCHAR:
+                            result = new image_complex<unsigned char>();
+                            ((image_scalar<unsigned char>*)result)->load_dataset_from_VTK_file(path_parent(*file));
+                            break;
+                        case itk::ImageIOBase::USHORT:
+                            result = new image_complex<unsigned short>();
+                            ((image_scalar<unsigned short>*)result)->load_dataset_from_VTK_file(path_parent(*file));
+                            break;
+                            
+                        case itk::ImageIOBase::SHORT:
+                            result = new image_complex<short>();
+                            ((image_scalar<short>*)result)->load_dataset_from_VTK_file(path_parent(*file));
+                            break;
+                        default:
 #ifdef _DEBUG
-            std::cout << "(No Value Found in File)";
+                            cout << "Load complex VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
 #endif
+                    }*/
+                    break;
+                default:
+#ifdef _DEBUG
+                    std::cout << "image_base::load(...): unsupported pixel type: " << vtkIO->GetPixelTypeAsString(pixelType) << endl;
+#endif
+                    
+                }
             }
-
-        }//can & will read DICOM
-
-
-    if (load_mode == LOMO_RAW || load_mode == LOMO_NOTSET)
-        {
-        //now we start to suspect this is raw
-        //build list of files to send to raw importer
-        load_mode = LOMO_RAW;
-
-        raw_files.push_back (*file);
+        else
+            { rejected_files.push_back ((*file)); }
+        
+        //advance files iterator
+        ++file;
         }
+    
+    return result;
+}
 
-    if (animage != NULL)
+dicomloader::dicomloader (std::vector<std::string> files): imageloader(files)
+{
+    dicomIO = itk::GDCMImageIO::New();
+}
+
+image_base *dicomloader::read()
+{    
+    image_base * result = NULL;
+    
+    while (file != files.end() && result == NULL) // Repeat until one image has been read
         {
-        //new image either way, add to datamanager
-
-        datamanagement.add(animage);
-
+        if (dicomIO->CanReadFile (file->c_str()))
+            {
+            dicomIO->SetFileName(file->c_str());
+            
+            //get basic DICOM header
+            dicomIO->ReadImageInformation();
+            
+            //get series UID
+            std::string seriesIdentifier;
+            
+            //"0020|000e" - Series Instance UID (series defined by the scanner)
+            //series ID identifies the series (out of possibly multiple series in
+            //one directory)
+            std::string tagkey = "0020|000e";
+            
+            std::string labelId;
+            if( itk::GDCMImageIO::GetLabelFromTag( tagkey, labelId ) )
+                {
+                std::cout << labelId << " (" << tagkey << "): ";
+                if( dicomIO->GetValueFromTag(tagkey, seriesIdentifier) )
+                    {
+                    //remove one garbage char at end
+                    seriesIdentifier.erase(seriesIdentifier.length()-1,seriesIdentifier.length());
+                    //check if another file in the same series was part of the
+                    //selection (and loaded)
+                    vector<string>::const_iterator series_itr=loaded_series.begin();
+                    bool already_loaded=false;
+                    
+                    if (find(loaded_series.begin(),loaded_series.end(),seriesIdentifier)
+                        == loaded_series.end())
+                        {loaded_series.push_back(seriesIdentifier);}
+                    else
+                        {already_loaded = true; }
 #ifdef _DEBUG
-        viewmanagement.list_connections();
-        rendermanagement.listrenderers();
+                    std::cout << seriesIdentifier << endl;
+#endif      
+                    //get voxel type
+                    itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
+                    
+                    if (!already_loaded) 
+                        {
+                        itk::ImageIOBase::IOComponentType componentType = dicomIO->GetComponentType();
+                        switch ( pixelType)
+                            {
+                            case itk::ImageIOBase::SCALAR:
+                                
+                                
+                                //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
+                                
+                                switch (componentType)
+                                    {
+                                    case itk::ImageIOBase::UCHAR:
+                                        result = new image_integer<unsigned char>();
+                                        ((image_integer<unsigned char>*)result)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
+                                        break;
+                                    case itk::ImageIOBase::USHORT:
+                                        result = new image_integer<unsigned short>();
+                                        ((image_integer<unsigned short>*)result)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
+                                        break;
+                                        
+                                    case itk::ImageIOBase::SHORT:
+                                        result = new image_integer<short>();
+                                        ((image_integer<short>*)result)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
+                                        break;
+                                    default:
+#ifdef _DEBUG
+                                        cout << "Unsupported component type: " << dicomIO->GetComponentTypeAsString (componentType) << endl;
 #endif
-        }//animage != NULL
+                                    }
+                                break;
+                            case itk::ImageIOBase::COMPLEX:
+                                break;
+                            default:
+#ifdef _DEBUG
+                                std::cout << "image_base::load(...): unsupported pixel type: " << dicomIO->GetPixelTypeAsString(pixelType) << endl;
+#endif
+                                
+                            }
+                        
+                        }//not already loaded
+                    
+                    } //found series tag
+                
+                }//series tag exists
+            else
+                {
+                //no series identifier, OK if the intention is to just load 1 frame
+                //(DICOM files can only contain 1 frame each)
+#ifdef _DEBUG
+                std::cout << "(No Value Found in File)";
+#endif
+                }
+            }
+        else
+            { rejected_files.push_back ((*file)); }
+        
+        //advance files iterator
+        ++file;
+        }
+    
+    return result;
+}
 
-
-    }//files for() loop
-
-if (load_mode == LOMO_RAW)
+void image_base::load(std::vector<std::string> flist)
+{
+    std::vector<std::string> files = flist;
+    
+    image_base *new_image = NULL; //the eventually loaded image
+    
     {
-    new rawimporter (raw_files);
+        vtkloader loader = vtkloader(files);
+        
+        do {
+            new_image = loader.read();
+            if (new_image != NULL)
+                { datamanagement.add(new_image); }
+        }
+        while (new_image != NULL);
+        
+        files = loader.rejected();
     }
-
-    }//load (...)
+    
+    //check if it's a DICOM file
+    {
+        dicomloader loader = dicomloader(files);
+        
+        do {
+            new_image = loader.read();
+            if (new_image != NULL)
+                { datamanagement.add(new_image); }
+        }
+        while (new_image != NULL);
+        
+        files = loader.rejected();
+    }
+    
+    
+    if (files.size() > 0)
+        {
+        //if any files were left, try raw as last resort
+        
+        new rawimporter (files);
+        }
+}
 
