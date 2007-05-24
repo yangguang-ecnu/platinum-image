@@ -145,3 +145,50 @@ std::string path_parent (std::string file_path)
     
     return file_path;
     }
+
+bool file_exists (std::string file_path)
+{
+    struct stat fileStats;
+    
+    if (stat(file_path.c_str(), &fileStats) == 0)
+        {
+        if (!S_ISDIR(fileStats.st_mode))
+            {return true;}
+        else
+            {return false;}
+        }
+    
+    return false;
+
+    //return (access(file_path.c_str(), F_OK) == 1);
+}
+
+bool dir_exists (std::string file_path)
+{
+    struct stat fileStats;
+    
+    if (stat(file_path.c_str(), &fileStats) == 0)
+        {
+        if (S_ISDIR(fileStats.st_mode))
+            {return true;}
+        else
+            {return false;}
+        }
+    
+    return false;
+}
+
+std::vector<std::string> subdirs (std::string dir_path)
+{
+    std::vector<std::string> result = get_dir_entries (dir_path);
+    
+    std::vector<std::string>::iterator dirs = result.begin();
+    
+    while (dirs != result.end())
+        {
+        //sort out items which are not directories
+        if (!dir_exists(*dirs))
+            {result.erase(dirs);}
+        }
+    return result;
+}

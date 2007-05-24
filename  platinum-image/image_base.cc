@@ -167,17 +167,100 @@ private:
 public:
     dicomloader (std::vector<std::string> files);
     image_base * read ();
-    
 };
 
-
-class brukerloader:public imageloader
+class brukerloader: public imageloader
+//! Bruker import based on the description at
+//! http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker?highlight=%28bruker%29
 {
-    // Bruker import based on the description at
-    // http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker?highlight=%28bruker%29
+private:
+    string                     session;
+    vector<string>             runs;
+    vector<string>             reconstructions;
+    vector<string>::iterator   reconstruction;
     
-    // check if *dir* is a Bruker run directory (contains "acp", "method" files and lots of other crap
+    void get_reconstructions(std::string run_dir_path);
+    
+public:
+    brukerloader (std::vector<std::string> files);
+    image_base * read ();
 };
+
+void brukerloader::get_reconstructions(std::string run_dir_path)
+{
+    std::vector<std::string> A = subdirs (run_dir_path + "pdata");
+    
+    reconstructions.insert(reconstructions.end(),A.begin(),A.end());
+    //
+//    std::vector<std::string>::iterator B = A.begin();
+//        
+//    while (B != A.end())
+//        {
+//        reconstructions.push_back (*B);
+//        }
+}
+
+brukerloader::brukerloader(std::vector<std::string> files): imageloader(files)
+{
+    //determine level (session, run, reconstruction)
+    string parent = path_parent (*(files.begin()));
+    
+    if (file_exists (parent + "subject"))
+        {
+        //session level
+        
+        session = parent;
+        
+        runs = subdirs (session);
+     
+        std::vector<std::string>::iterator run = runs.begin();
+        
+        while (run != runs.end())
+            {
+            get_reconstructions (*run);
+            }
+        }
+    
+    else if (file_exists (parent + "imnd"))
+        {
+        //run level
+        
+        runs.push_back(parent);
+        get_reconstructions(parent);
+        }
+    
+    else if (file_exists (parent + "2dseq"))
+        {
+        //reconstruction level
+        
+        reconstructions.push_back(parent);
+        }
+    
+    if (reconstructions.size() > 0)
+        {
+        reconstruction = reconstructions.begin();
+        }
+    else
+        {
+        //guess it wasn't Bruker
+        
+        //bruker selection = selection of directory, so
+        //there should be either all files
+        //or none in the rejected result
+        
+        rejected_files  =  files;
+        }
+}
+
+image_base * brukerloader::read()
+{
+    //1. get metadata from  (*reconstruction + "d3proc") and (*reconstruction + "reco")
+    
+    //2. call image_general<ELEMTYPE, IMAGEDIM> (std::vector<std::string>, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1);
+    //image data is in (*reconstruction + "2dseq")
+    
+    ++reconstruction;
+}
 
 vtkloader::vtkloader(std::vector<std::string> files): imageloader(files)
 {
@@ -390,7 +473,7 @@ void image_base::load(std::vector<std::string> flist)
     
     image_base *new_image = NULL; //the eventually loaded image
     
-    {
+    {//try VTK
         vtkloader loader = vtkloader(files);
         
         do {
@@ -403,7 +486,7 @@ void image_base::load(std::vector<std::string> flist)
         files = loader.rejected();
     }
     
-    //check if it's a DICOM file
+    //try DICOM
     {
         dicomloader loader = dicomloader(files);
         
