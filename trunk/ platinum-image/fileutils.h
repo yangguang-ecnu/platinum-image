@@ -40,7 +40,12 @@
 std::vector<std::string> get_dir_entries (std::string path);    //return string vector
                                                                 //listing contents of directory
 
-std::string path_parent (std::string);      //get parent (full path except file/indicated dir)
-std::string path_end (std::string);         //get file/dir name pointed to without path
+std::string path_parent (std::string);                          //!get parent (full path except file/indicated dir)
+std::string path_end (std::string);                             //!get file/dir name pointed to without path
+std::vector<std::string> subdirs (std::string dir_path);       //!get immediate subdirectories
+
+
+bool file_exists (std::string file_path);   //! return whether file exists.
+                                            //! NOTE: returns false for existing directory
 
 #endif
