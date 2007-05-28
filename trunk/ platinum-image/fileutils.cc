@@ -19,6 +19,8 @@
 
 #include "fileutils.h"
 
+#include <iostream>
+
 //currently, a dirent replacement for WIN32 is used
 //the (incomplete) windows-specific routines can be activated
 //with WIN32_replace_dirent 
@@ -37,6 +39,14 @@
 #ifdef WIN32_replace_dirent
 #include <windows.h>
 #endif
+
+void trailing_slash (std::string &s)
+    {
+    if (*s.rbegin() != '/')
+        {
+        s.append("/");
+        }
+    }
 
 std::vector<std::string> get_dir_entries (std::string path)
     {
@@ -97,7 +107,7 @@ std::string path_end (std::string file_path)
     {
     unsigned int pos;
 
-    pos=file_path.rfind("/",file_path.length()-1);
+    pos=file_path.rfind("/",file_path.length()-2);
     
     if (pos !=std::string::npos)
         {
@@ -179,16 +189,40 @@ bool dir_exists (std::string file_path)
 }
 
 std::vector<std::string> subdirs (std::string dir_path)
-{
+    {
+    trailing_slash(dir_path);
+
     std::vector<std::string> result = get_dir_entries (dir_path);
-    
+
     std::vector<std::string>::iterator dirs = result.begin();
-    
-    while (dirs != result.end())
+
+#ifdef _DEBUG
+    std::cout << "Subdirs of \"" << path_end(dir_path) << "\"" << std::endl;
+#endif
+
+    while (result.size() > 0 && dirs != result.end())
         {
         //sort out items which are not directories
-        if (!dir_exists(*dirs))
-            {result.erase(dirs);}
+        //or circular references
+        if (*dirs == "." || *dirs == ".." || !dir_exists(dir_path + *dirs) )
+            {
+            #ifdef _DEBUG
+            std::cout << "- " << path_end(*dirs) << "" << std::endl;
+#endif
+            result.erase(dirs);
+            }
+        else
+            {
+            (*dirs).insert(0,dir_path);
+            trailing_slash(*dirs);
+#ifdef _DEBUG
+            std::cout << "  " << path_end(*dirs) << "" << std::endl;
+#endif
+
+
+            ++dirs; 
+
+            }
         }
     return result;
-}
+    }

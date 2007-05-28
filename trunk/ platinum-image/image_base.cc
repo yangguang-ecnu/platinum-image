@@ -186,19 +186,6 @@ public:
     image_base * read ();
 };
 
-void brukerloader::get_reconstructions(std::string run_dir_path)
-{
-    std::vector<std::string> A = subdirs (run_dir_path + "pdata");
-    
-    reconstructions.insert(reconstructions.end(),A.begin(),A.end());
-    //
-//    std::vector<std::string>::iterator B = A.begin();
-//        
-//    while (B != A.end())
-//        {
-//        reconstructions.push_back (*B);
-//        }
-}
 
 brukerloader::brukerloader(std::vector<std::string> files): imageloader(files)
 {
@@ -218,10 +205,11 @@ brukerloader::brukerloader(std::vector<std::string> files): imageloader(files)
         while (run != runs.end())
             {
             get_reconstructions (*run);
+            ++run;
             }
         }
     
-    else if (file_exists (parent + "imnd"))
+    else if (file_exists (parent + "acqp"))
         {
         //run level
         
@@ -236,7 +224,7 @@ brukerloader::brukerloader(std::vector<std::string> files): imageloader(files)
         reconstructions.push_back(parent);
         }
     
-    if (reconstructions.size() > 0)
+    if (!reconstructions.empty())
         {
         reconstruction = reconstructions.begin();
         }
@@ -252,6 +240,20 @@ brukerloader::brukerloader(std::vector<std::string> files): imageloader(files)
         }
 }
 
+void brukerloader::get_reconstructions(std::string run_dir_path)
+{
+    std::vector<std::string> A = subdirs (run_dir_path + "pdata");
+    
+    reconstructions.insert(reconstructions.end(),A.begin(),A.end());
+    //
+//    std::vector<std::string>::iterator B = A.begin();
+//        
+//    while (B != A.end())
+//        {
+//        reconstructions.push_back (*B);
+//        }
+}
+
 image_base * brukerloader::read()
 {
     //1. get metadata from  (*reconstruction + "d3proc") and (*reconstruction + "reco")
@@ -260,6 +262,8 @@ image_base * brukerloader::read()
     //image data is in (*reconstruction + "2dseq")
     
     ++reconstruction;
+
+    return NULL;
 }
 
 vtkloader::vtkloader(std::vector<std::string> files): imageloader(files)
@@ -472,6 +476,19 @@ void image_base::load(std::vector<std::string> flist)
     std::vector<std::string> files = flist;
     
     image_base *new_image = NULL; //the eventually loaded image
+
+    {//try Bruker
+        brukerloader loader = brukerloader(files);
+        
+        do {
+            new_image = loader.read();
+            if (new_image != NULL)
+                { datamanagement.add(new_image); }
+        }
+        while (new_image != NULL);
+        
+        files = loader.rejected();
+    }
     
     {//try VTK
         vtkloader loader = vtkloader(files);
@@ -501,7 +518,7 @@ void image_base::load(std::vector<std::string> flist)
     }
     
     
-    if (files.size() > 0)
+    if ( !files.empty() )
         {
         //if any files were left, try raw as last resort
         
