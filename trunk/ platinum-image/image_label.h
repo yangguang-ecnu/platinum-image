@@ -43,7 +43,7 @@ class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
         
         template<class SOURCETYPE>
             image_label(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_integer<IMGLABELTYPE, IMAGEDIM>(old_image, copyData)
-        {} //copy constructor
+        {transfer_function();} //copy constructor
         
         image_label (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_integer<IMGLABELTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
 
