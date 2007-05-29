@@ -160,20 +160,6 @@ class image_general : public image_storage <ELEMTYPE >
         void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier);
 
         void save_image_to_VTK_file(std::string file_path);
-
-        // *** processing ***
-        image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold=true);
-		ELEMTYPE gauss_fit2();
-        
-        //TODO: components_hist_3D and narrowest_passage_3D assume integer (right?), should be in image_integer
-		ELEMTYPE components_hist_3D();
-        image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, bool object_value=true);
-	
-	private:
-		int findNode(int e, int* par_node);
-		int mergeNodes(int e1, int e2, int* par_node);
-		void markRecursive(int m, int* par_node, bool* marked);
-		ELEMTYPE getSeedLevel(int m, int* par_node, bool* marked);
 };
 
 //with C++ templates, declaration and definition go together

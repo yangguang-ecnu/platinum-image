@@ -38,13 +38,28 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
             {}
         image_integer(int w, int h, int d, ELEMTYPE *ptr = NULL):image_scalar<ELEMTYPE, IMAGEDIM>(w, h, d, ptr) {};
 
-    image_integer (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i):image_scalar<ELEMTYPE, IMAGEDIM>(i) {}
+		image_integer (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i):image_scalar<ELEMTYPE, IMAGEDIM>(i) {}
 
-    template<class SOURCETYPE>
-    image_integer(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_scalar<ELEMTYPE, IMAGEDIM>(old_image, copyData)
-        {} //copy constructor
+		template<class SOURCETYPE>
+		image_integer(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_scalar<ELEMTYPE, IMAGEDIM>(old_image, copyData)
+			{} //copy constructor
 
-    image_integer (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_scalar<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
+		image_integer (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_scalar<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
+
+	
+        // *** processing ***
+        image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold=true);
+		ELEMTYPE gauss_fit2();
+        
+        //TODO: components_hist_3D and narrowest_passage_3D assume integer (right?), should be in image_integer
+		ELEMTYPE components_hist_3D();
+        image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, bool object_value=true);
+	
+	private:
+		int findNode(int e, int* par_node);
+		int mergeNodes(int e1, int e2, int* par_node);
+		void markRecursive(int m, int* par_node, bool* marked);
+		ELEMTYPE getSeedLevel(int m, int* par_node, bool* marked);
     };
 
 //with C++ templates, declaration and definition go together
