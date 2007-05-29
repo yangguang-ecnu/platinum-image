@@ -124,7 +124,9 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, bool object_value)
 					this->set_voxel_by_dir(u,v,w,object_value,direction);
 				}
 			}
-		}				
+		}	
+	
+	delete label_image;
 	}
 	
 template <int IMAGEDIM>
@@ -243,7 +245,9 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
 					this->set_voxel_by_dir(u,v,w,!object_value,direction);
 				}
 			}
-		}				
+		}
+	
+	delete label_image;				
 	}
 	
 template <int IMAGEDIM>
@@ -352,7 +356,9 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool
 					this->set_voxel_by_dir(u,v,w,!object_value,direction);
 				}
 			}
-		}				
+		}
+	
+	delete label_image;				
 	}
 	
 template <int IMAGEDIM>
@@ -670,7 +676,9 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 					this->set_voxel_by_dir(u,v,w,!object_value,direction);
 				}
 			}
-		}				
+		}
+	
+	delete label_image;				
 	}
 	
 template <int IMAGEDIM>
@@ -845,7 +853,9 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 					this->set_voxel(u,v,w,object_value);
 				}
 			}
-		}				
+		}
+	
+	delete label_image;				
 	}	
 		
 template <int IMAGEDIM>
@@ -1103,6 +1113,8 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 				}
 			}
 		}
+	
+	delete label_image;
 	}
 
 template <int IMAGEDIM>
