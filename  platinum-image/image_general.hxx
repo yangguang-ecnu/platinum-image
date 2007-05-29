@@ -1509,6 +1509,7 @@ image_label<IMAGEDIM> * image_general<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	max_y=this->get_size_by_dim(1);
 	max_z=this->get_size_by_dim(2);
 	int number_of_voxels=max_x*max_y*max_z;
+	output->erase();
 		
 	//Sort points
 	// create a counting array, counts, with a member for 
