@@ -450,53 +450,36 @@ image_base *dicomloader::read(std::vector<std::string>& files)
     return result;
 }
 
-void image_base::load(const std::vector<std::string> c)
-{
-    std::vector<std::string> chosen_files(c);
-
+template <class LOADERTYPE>
+void try_loader (std::vector<std::string> &f) //! helper for image_base::load
+    {
+    LOADERTYPE loader = LOADERTYPE(f);
     image_base *new_image = NULL; //the eventually loaded image
 
-        {//try Bruker
-        brukerloader loader = brukerloader(chosen_files);
-
-        do {
-            new_image = loader.read(chosen_files);
-            if (new_image != NULL)
-                { datamanagement.add(new_image); }
-            } 
+    do {
+        new_image = loader.read(f);
+        if (new_image != NULL)
+            { datamanagement.add(new_image); }
+        } 
     while (new_image !=NULL);
-        }
+    }
 
-        {//try VTK
-        vtkloader loader = vtkloader(chosen_files);
+void image_base::load(std::vector<std::string> chosen_files)
+    {
+    //try Bruker
+    try_loader<brukerloader>(chosen_files);
 
-        do {
-            new_image = loader.read(chosen_files);
-            if (new_image != NULL)
-                { datamanagement.add(new_image); }
-            }
-    while (new_image != NULL);
-
-        }
+    //try VTK
+    try_loader<vtkloader>(chosen_files);
 
     //try DICOM
-        {
-        dicomloader loader = dicomloader(chosen_files);
+    try_loader<dicomloader>(chosen_files);
 
-        do {
-            new_image = loader.read(chosen_files);
-            if (new_image != NULL)
-                { datamanagement.add(new_image); }
-            }
-    while (new_image != NULL);
-        }
-
-    
     if ( !chosen_files.empty() )
         {
         //if any files were left, try raw as last resort
-        
+
         new rawimporter (chosen_files);
         }
-}
+    }
 
