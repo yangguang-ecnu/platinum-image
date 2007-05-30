@@ -121,29 +121,21 @@ Vector3D image_base::transform_unit_to_voxel(Vector3D pos)
 
 class imageloader
 {
-protected:
-    vector<string> files;
-    vector<string>::iterator file;
-    vector<string> rejected_files;
-    
 public:
-        imageloader(std::vector<std::string> filesarg)
+    imageloader(const std::vector<std::string> f)
         {
-            files = filesarg;
-            file = files.begin();
+        //files.reserve(f.size());
+        //std::copy(f.begin(),f.end(),files.begin());
+        //files.assign (f.begin(),f.end());
+        //files.assign (10,"abababa");
+        //files = f;
+        //files = new vector<string> (f);
+        //file = files.begin();
         }
-    
-    vector<string> rejected()
-        { return rejected_files; }
-        
-//load mode
-//    enum  {
-//        LOMO_NOTSET,
-//        LOMO_ATOMICFILES, //loading individual image files, such as VTK
-//        LOMO_DICOM,       //loading DICOM series
-//        LOMO_BRUKER,      //loading Bruker series
-//        LOMO_RAW          //loading raw series
-//    }
+    ~imageloader()
+        {
+        //delete files;
+        }
 };
 
 class vtkloader: public imageloader
@@ -152,8 +144,8 @@ private:
     itk::VTKImageIO::Pointer vtkIO;
     
 public:
-    vtkloader (std::vector<std::string> files);
-    image_base * read ();
+    vtkloader (const std::vector<std::string>);
+    image_base * read (std::vector<std::string>&);
 };
 
 class dicomloader: public imageloader
@@ -165,8 +157,8 @@ private:
                                   //! to prevent multiple selected frames
                                   //! from loading the same series multiple times
 public:
-    dicomloader (std::vector<std::string> files);
-    image_base * read ();
+    dicomloader (const std::vector<std::string>);
+    image_base * read (std::vector<std::string>&);
 };
 
 class brukerloader: public imageloader
@@ -182,15 +174,15 @@ private:
     void get_reconstructions(std::string run_dir_path);
     
 public:
-    brukerloader (std::vector<std::string> files);
-    image_base * read ();
+    brukerloader (std::vector<std::string>);
+    image_base * read (std::vector<std::string>&);
 };
 
 
-brukerloader::brukerloader(std::vector<std::string> files): imageloader(files)
+brukerloader::brukerloader(const std::vector<std::string> files): imageloader(files)
 {
     //determine level (session, run, reconstruction)
-    string parent = path_parent (*(files.begin()));
+    string parent = path_parent (files.front());
     
     if (file_exists (parent + "subject"))
         {
@@ -228,16 +220,6 @@ brukerloader::brukerloader(std::vector<std::string> files): imageloader(files)
         {
         reconstruction = reconstructions.begin();
         }
-    else
-        {
-        //guess it wasn't Bruker
-        
-        //bruker selection = selection of directory, so
-        //there should be either all files
-        //or none in the rejected result
-        
-        rejected_files  =  files;
-        }
 }
 
 void brukerloader::get_reconstructions(std::string run_dir_path)
@@ -254,119 +236,119 @@ void brukerloader::get_reconstructions(std::string run_dir_path)
 //        }
 }
 
-image_base * brukerloader::read()
-{
-    //1. get metadata from  (*reconstruction + "d3proc") and (*reconstruction + "reco")
-    
-    //2. call image_general<ELEMTYPE, IMAGEDIM> (std::vector<std::string>, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1);
-    //image data is in (*reconstruction + "2dseq")
-    
-    ++reconstruction;
+image_base * brukerloader::read(std::vector<std::string> &files)
+    {
+
+    if (!reconstructions.empty())
+        {
+        //1. get metadata from  (*reconstruction + "d3proc") and (*reconstruction + "reco")
+
+        //2. call image_general<ELEMTYPE, IMAGEDIM> (std::vector<std::string>, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1);
+        //image data is in (*reconstruction + "2dseq")
+
+        files.clear(); //eat all files if load was successful
+        }
 
     return NULL;
-}
+    }
 
-vtkloader::vtkloader(std::vector<std::string> files): imageloader(files)
+vtkloader::vtkloader(const std::vector<std::string> f): imageloader(f)
 {
     vtkIO = itk::VTKImageIO::New();
 }
 
-image_base *vtkloader::read()
-{    
+image_base *vtkloader::read(std::vector<std::string>& files)
+    {    
     image_base * result = NULL;
-    
-    while (file != files.end() && result == NULL)
-        {
-        if (vtkIO->CanReadFile (file->c_str()))
-            {
-            //assumption:
-            //File contains image data
-            
-            vtkIO->SetFileName(file->c_str());
-            
-            vtkIO->ReadImageInformation(); 
-            
-            itk::ImageIOBase::IOComponentType componentType = vtkIO->GetComponentType();
-            
-            //get voxel type
-            itk::ImageIOBase::IOPixelType pixelType=vtkIO->GetPixelType();
-            
-            switch ( pixelType)
-                {
-                case itk::ImageIOBase::SCALAR:
-                    //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
-                    
-                    switch (componentType)
-                        {
-                        case itk::ImageIOBase::UCHAR:
-                            result =  new image_integer<unsigned char>();
-                            ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(*file);
-                            break;
-                        case itk::ImageIOBase::USHORT:
-                            result = new image_integer<unsigned short>();
-                            ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(*file);
-                            break;
-                            
-                        case itk::ImageIOBase::SHORT:
-                            result = new image_integer<short>();
-                            ((image_integer<short>*)result)->load_dataset_from_VTK_file(*file);
-                            break;
-                        default:
-#ifdef _DEBUG
-                            cout << "Load scalar VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
-#endif
-                        }
-                    break;
-                    
-                    /*case itk::ImageIOBase::COMPLEX:
-                    switch (componentType)
-                    {
-                        case itk::ImageIOBase::UCHAR:
-                            result = new image_complex<unsigned char>();
-                            ((image_scalar<unsigned char>*)result)->load_dataset_from_VTK_file(path_parent(*file));
-                            break;
-                        case itk::ImageIOBase::USHORT:
-                            result = new image_complex<unsigned short>();
-                            ((image_scalar<unsigned short>*)result)->load_dataset_from_VTK_file(path_parent(*file));
-                            break;
-                            
-                        case itk::ImageIOBase::SHORT:
-                            result = new image_complex<short>();
-                            ((image_scalar<short>*)result)->load_dataset_from_VTK_file(path_parent(*file));
-                            break;
-                        default:
-#ifdef _DEBUG
-                            cout << "Load complex VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
-#endif
-                    }*/
-                    break;
-                default:
-#ifdef _DEBUG
-                    std::cout << "image_base::load(...): unsupported pixel type: " << vtkIO->GetPixelTypeAsString(pixelType) << endl;
-#endif
-                    
-                }
-            }
-        else
-            { rejected_files.push_back ((*file)); }
-        
-        //advance files iterator
-        ++file;
-        }
-    
-    return result;
-}
 
-dicomloader::dicomloader (std::vector<std::string> files): imageloader(files)
+    std::string file = files.front();
+
+    if (vtkIO->CanReadFile (file.c_str()))
+        {
+        //assumption:
+        //File contains image data
+
+        vtkIO->SetFileName(file.c_str());
+
+        vtkIO->ReadImageInformation(); 
+
+        itk::ImageIOBase::IOComponentType componentType = vtkIO->GetComponentType();
+
+        //get voxel type
+        itk::ImageIOBase::IOPixelType pixelType=vtkIO->GetPixelType();
+
+        switch ( pixelType)
+            {
+            case itk::ImageIOBase::SCALAR:
+                //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
+
+                switch (componentType)
+                    {
+                    case itk::ImageIOBase::UCHAR:
+                        result =  new image_integer<unsigned char>();
+                        ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(file);
+                        break;
+                    case itk::ImageIOBase::USHORT:
+                        result = new image_integer<unsigned short>();
+                        ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(file);
+                        break;
+
+                    case itk::ImageIOBase::SHORT:
+                        result = new image_integer<short>();
+                        ((image_integer<short>*)result)->load_dataset_from_VTK_file(file);
+                        break;
+                    default:
+#ifdef _DEBUG
+                        cout << "Load scalar VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
+#endif
+                    }
+                break;
+
+                /*case itk::ImageIOBase::COMPLEX:
+                switch (componentType)
+                {
+                case itk::ImageIOBase::UCHAR:
+                result = new image_complex<unsigned char>();
+                ((image_scalar<unsigned char>*)result)->load_dataset_from_VTK_file(path_parent(*file));
+                break;
+                case itk::ImageIOBase::USHORT:
+                result = new image_complex<unsigned short>();
+                ((image_scalar<unsigned short>*)result)->load_dataset_from_VTK_file(path_parent(*file));
+                break;
+
+                case itk::ImageIOBase::SHORT:
+                result = new image_complex<short>();
+                ((image_scalar<short>*)result)->load_dataset_from_VTK_file(path_parent(*file));
+                break;
+                default:
+                #ifdef _DEBUG
+                cout << "Load complex VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
+                #endif
+                }*/
+                break;
+            default:
+#ifdef _DEBUG
+                std::cout << "image_base::load(...): unsupported pixel type: " << vtkIO->GetPixelTypeAsString(pixelType) << endl;
+#endif
+
+            }
+
+        files.erase (files.begin()); 
+        }
+
+    return result;
+    }
+
+dicomloader::dicomloader (const std::vector<std::string> f): imageloader(f)
 {
     dicomIO = itk::GDCMImageIO::New();
 }
 
-image_base *dicomloader::read()
+image_base *dicomloader::read(std::vector<std::string>& files)
 {    
     image_base * result = NULL;
     
-    while (file != files.end() && result == NULL) // Repeat until one image has been read
+    for (std::vector<std::string>::const_iterator file = files.begin();file != files.end() && result == NULL;file++) // Repeat until one image has been read
         {
         if (dicomIO->CanReadFile (file->c_str()))
             {
@@ -460,69 +442,61 @@ image_base *dicomloader::read()
                 std::cout << "(No Value Found in File)";
 #endif
                 }
+
+            files.clear(); //! if at least one file can be read, the rest are assumed to be part of the same series (or otherwise superfluos)
             }
-        else
-            { rejected_files.push_back ((*file)); }
-        
-        //advance files iterator
-        ++file;
         }
     
     return result;
 }
 
-void image_base::load(std::vector<std::string> flist)
+void image_base::load(const std::vector<std::string> c)
 {
-    std::vector<std::string> files = flist;
-    
+    std::vector<std::string> chosen_files(c);
+
     image_base *new_image = NULL; //the eventually loaded image
 
-    {//try Bruker
-        brukerloader loader = brukerloader(files);
-        
+        {//try Bruker
+        brukerloader loader = brukerloader(chosen_files);
+
         do {
-            new_image = loader.read();
+            new_image = loader.read(chosen_files);
             if (new_image != NULL)
                 { datamanagement.add(new_image); }
+            } 
+    while (new_image !=NULL);
         }
-        while (new_image != NULL);
-        
-        files = loader.rejected();
-    }
-    
-    {//try VTK
-        vtkloader loader = vtkloader(files);
-        
+
+        {//try VTK
+        vtkloader loader = vtkloader(chosen_files);
+
         do {
-            new_image = loader.read();
+            new_image = loader.read(chosen_files);
             if (new_image != NULL)
                 { datamanagement.add(new_image); }
+            }
+    while (new_image != NULL);
+
         }
-        while (new_image != NULL);
-        
-        files = loader.rejected();
-    }
-    
+
     //try DICOM
-    {
-        dicomloader loader = dicomloader(files);
-        
+        {
+        dicomloader loader = dicomloader(chosen_files);
+
         do {
-            new_image = loader.read();
+            new_image = loader.read(chosen_files);
             if (new_image != NULL)
                 { datamanagement.add(new_image); }
+            }
+    while (new_image != NULL);
         }
-        while (new_image != NULL);
-        
-        files = loader.rejected();
-    }
+
     
-    
-    if ( !files.empty() )
+    if ( !chosen_files.empty() )
         {
         //if any files were left, try raw as last resort
         
-        new rawimporter (files);
+        new rawimporter (chosen_files);
         }
 }
 
