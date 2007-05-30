@@ -81,7 +81,7 @@ class image_base : public data_base
         virtual void initialize_dataset(int w, int h, int d)
             = 0; // create empty dataset
 
-        static void load(std::vector<std::string> files);  //load files in supported formats
+        static void load(const std::vector<std::string> files);  //load files in supported formats
                                                     //as selected in "files" vector
 
         //virtual unsigned char get_display_voxel(int x, int y, int z) = 0;      //get unsigned char scaled to data
