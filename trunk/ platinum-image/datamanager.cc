@@ -320,7 +320,7 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
         files.push_back(chooser.value(t));
         }
 
-    if (files.size() > 0)
+    if (!files.empty())
         {  
         image_base::load(files);
         }
