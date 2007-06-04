@@ -586,43 +586,10 @@ void rawimporter::cb_rawimportcancel(Fl_Button* o, void*) {
     Fl::delete_widget(importwindow);
     }
 
-template <class VOXTYPE, template <class,int=3 > class IMGCLASS>
-void rawimporter::try_allocate (image_base* &i)
-    {
-    if (i == NULL && sizeof (VOXTYPE) == voxeltype/8 )
-        i = new IMGCLASS<VOXTYPE> (files, imageSize[0], imageSize[1], bigEndian, headerSize, voxel_aspect);
-    }
-
 template <template <class,int=3 > class IMGCLASS>
-image_base* rawimporter::allocate_image ()
+image_base* rawimporter::allocate_image_ ()
     {
-    image_base* output = NULL;
-
-    if (is_float)
-        {
-        try_allocate<float,IMGCLASS>(output);
-        try_allocate<double,IMGCLASS>(output);
-        try_allocate<long double,IMGCLASS>(output);
-        }
-    else
-        {
-        if (is_signed)
-            {
-            try_allocate<signed char,IMGCLASS >(output);
-            try_allocate<signed short,IMGCLASS >(output);
-            try_allocate<signed long,IMGCLASS >(output);
-            try_allocate<signed long long,IMGCLASS >(output);
-            }
-        else
-            {
-            try_allocate<unsigned char,IMGCLASS >(output);
-            try_allocate<unsigned short,IMGCLASS >(output);
-            try_allocate<unsigned long,IMGCLASS >(output);
-            try_allocate<long long,IMGCLASS >(output);
-            }
-        }
-
-    return output;
+    return allocate_image< IMGCLASS> (is_float, is_signed, voxeltype, files, imageSize[0], imageSize[1], bigEndian, headerSize, voxel_aspect);
     }
 
 void rawimporter::cb_rawimportok(Fl_Return_Button* o, void* v)
@@ -657,7 +624,7 @@ void rawimporter::cb_rawimportok_i(Fl_Return_Button* o, void*)
         switch (voxeltype)
             {
             case 8:
-                new_image = allocate_image<image_integer >();
+                new_image = allocate_image_<image_integer >();
                 break;
             case 1:
                 //image_binary is set in size and has different template parameters, so it's allocated inline:
@@ -669,11 +636,11 @@ void rawimporter::cb_rawimportok_i(Fl_Return_Button* o, void*)
         {
         if (is_float)
             {
-            new_image = allocate_image<image_scalar >();
+            new_image = allocate_image_<image_scalar >();
             }
         else
             {
-            new_image = allocate_image<image_integer >();
+            new_image = allocate_image_<image_integer >();
             }
         }
 
