@@ -513,10 +513,50 @@ bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other)
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+	void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_resize(float dx, float dy, float dz=0)
+	{
+	voxel_resize[0][0]=dx;	
+	voxel_resize[1][1]=dy;	
+	voxel_resize[2][2]=dz;	
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
     Matrix3D image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize ()
     {
     return voxel_resize;
     }
+
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z)
+	{
+	return (vp_x>=0 && vp_y>=0 && vp_z>=0 && vp_x<datasize[0] && vp_y<datasize[1] && vp_z<datasize[2]);
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D phys_pos)
+	{
+	//ev. phys_vox_pos = origin + direction*voxel_resize*voxel_pos
+	Vector3D phys_pos2 = phys_pos - origin; //now we only need to find out the scalar product of...
+	Matrix3D tmp = direction*voxel_resize;
+	Vector3D tmp2 = {tmp[0][0];tmp[1][1];tmp[2][2]};
+	Vector3D scal = phys_pos2*tmp2;
+	bool was_non_neg = (scal[0]>=0 && scal[1]>=0 && scal[2]>=0)? true:false;
+	bool ret=false;
+	if(was_non_neg)
+		{
+			//test if scal exceeds the faar of dimension...
+		}
+//	direction.
+	return ret;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_from_physical_pos_3D(Vector3D phys_pos)
+	{
+	Matrix3D a = voxel_resize*direction;
+	a = a.GetInverse();
+	return a*(phys_pos - origin);
+	}
 
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z)
@@ -524,11 +564,117 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z)
     return this->imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
     }
 
+template <class ELEMTYPE, int IMAGEDIM> //JK3
+ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos(Vector3D phys_pos)
+    {
+	Vector3D v = get_voxelpos_from_physical_pos_3D(Vector3D phys_pos);
+	return (is_voxelpos_within_image_3D(v[0],v[1],v[2]))? get_voxel(v[0],v[1],v[2]):0;
+    }
+
+template <class ELEMTYPE, int IMAGEDIM> //JK3
+ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos)
+    {
+	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
+	Vector3D cv;
+	cv[0]=int(v[0]); cv[1]=int(v[1]); cv[2]=int(v[2]);	//center voxel to interpolate around...
+
+	ELEMTYPE sum=0;
+	Vector3D tmp;
+	for(int i=-1;i<=1;i++){
+		for(int j=-1;j<=1;j++){
+			for(int k=-1;k<=1;k++){
+				tmp[0]=cv[0]+i;
+				tmp[1]=cv[1]+j;
+				tmp[2]=cv[2]+k;
+				if(is_voxelpos_within_image_3D(tmp[0],tmp[1],tmp[2]))
+					{
+					sum += get_voxel(tmp[0],tmp[1],tmp[2]);
+					}
+				}
+			}
+		}
+	ELEMTYPE res = sum/26.0;
+	cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<endl;
+
+    return res;
+    }
+
+template <class ELEMTYPE, int IMAGEDIM> //JK3
+ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1, float w2, float w3, float w4)
+    {
+	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
+	Vector3D cv;
+	cv[0]=int(v[0]); cv[1]=int(v[1]); cv[2]=int(v[2]);	//center voxel to interpolate around...
+
+	ELEMTYPE sum=0;
+	Vector3D tmp;
+	ELEMTYPE res = 0;
+	
+	if(is_voxelpos_within_image_3D(cv[0],cv[1],cv[2])){
+
+		//Center Pixel
+		sum += w1*get_voxel(cv[0],cv[1],cv[2]);
+
+		//Side Neighbours
+		sum += w2*get_voxel(cv[0]-1,cv[1],cv[2]);	//left
+		sum += w2*get_voxel(cv[0]+1,cv[1],cv[2]);	//right
+		sum += w2*get_voxel(cv[0],cv[1]-1,cv[2]);	//top
+		sum += w2*get_voxel(cv[0],cv[1]+1,cv[2]);	//bottom
+		sum += w2*get_voxel(cv[0],cv[1],cv[2]-1);	//under
+		sum += w2*get_voxel(cv[0],cv[1],cv[2]+1);	//over
+
+		//Edge Neighbours
+		for(int k=-1;k<=1;k=k+2){	//"under" and "over" layers...
+			sum += w3*get_voxel(cv[0]-1,cv[1],cv[2]+k);
+			sum += w3*get_voxel(cv[0]+1,cv[1],cv[2]+k);
+			sum += w3*get_voxel(cv[0],cv[1]-1,cv[2]+k);
+			sum += w3*get_voxel(cv[0],cv[1]+1,cv[2]+k);
+		}
+		//"center" layer...
+		sum += w3*get_voxel(cv[0]-1,cv[1]-1,cv[2]);
+		sum += w3*get_voxel(cv[0]-1,cv[1]+1,cv[2]);
+		sum += w3*get_voxel(cv[0]+1,cv[1]-1,cv[2]);
+		sum += w3*get_voxel(cv[0]+1,cv[1]+1,cv[2]);
+
+
+		//Corner Neighbours
+		for(int i=-1;i<=1;i=i+2){
+			for(int j=-1;j<=1;j=j+2){
+				for(int k=-1;k<=1;k=k+2){
+					tmp[0]=cv[0]+i;	tmp[1]=cv[1]+j;	tmp[2]=cv[2]+k;
+					if(is_voxelpos_within_image_3D(tmp[0],tmp[1],tmp[2])){
+						sum += w4*get_voxel(tmp[0],tmp[1],tmp[2]);
+					}
+				}
+			}
+		}
+	}
+	res = sum/(w1 + 6.0*w2 + 12*w3 + 8*w4);
+	cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<endl;
+
+    return res;
+    }
+
+
+
+
+
+
 /*template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(unsigned long offset)
     {
     return imageptr[offset];
     }*/
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, int y, int z)
+{
+	Vector3D vox_pos; vox_pos[0]=x; vox_pos[1]=y; vox_pos[2]=z;
+	Vector3D phys_pos;
+	phys_pos = this->origin + this->voxel_resize*this->direction*vox_pos;
+	return phys_pos;
+}
+
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -592,6 +738,18 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_by_dir(int u, int v, int w, EL
 	else
 		set_voxel(u,v,w,value);//Loop over z
 }
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::set_value_to_voxels_in_region(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value)
+{
+	for (int k=z; k < z+dz; k++){
+		for (int j=y; j < y+dy; j++){
+			for (int i=x; i < x+dx; i++){
+                set_voxel(i,j,k,value);
+			}
+		}
+	}
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::testpattern()
@@ -605,6 +763,44 @@ void image_general<ELEMTYPE, IMAGEDIM>::testpattern()
                 set_voxel(x,y,z, int(float(x+y+z)*255.0/float(datasize[2]+datasize[1]+datasize[0])));
                 }
     }
+
+//JK3
+template <class ELEMTYPE, int IMAGEDIM>
+template<class TARGETTYPE> 
+void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image)
+{
+	cout<<"image_general::resample_into_this_image"<<endl;
+	cout<<"From: (Origin, direction, voxelsize)"<<endl;
+	cout<<this->origin<<endl;
+	cout<<this->direction<<endl;	
+	cout<<this->voxel_resize<<endl;
+	cout<<"To: (Origin, direction, voxelsize)"<<endl;
+	cout<<new_image->origin<<endl;
+	cout<<new_image->direction<<endl;
+	cout<<new_image->voxel_resize<<endl;
+
+	Vector3D vox_pos;
+	Vector3D phys_pos;
+	float res;
+    for (int z=0; z < new_image->datasize[2]; z++)
+        {
+        for (int y=0; y < new_image->datasize[1]; y++)
+            {
+            for (int x=0; x < new_image->datasize[0]; x++)
+                {  
+				vox_pos[0] = x;	vox_pos[1] = y;	vox_pos[2] = z;
+				phys_pos = new_image->origin + new_image->voxel_resize*new_image->direction*vox_pos;
+//				cout<<"phys_pos="<<phys_pos<<endl;
+				res = get_voxel_in_physical_pos_26NB_weighted(phys_pos,10,2,0,0);
+//				res = get_voxel_in_physical_pos_mean_3D_interp26(phys_pos);
+//				res = get_voxel_in_physical_pos(phys_pos);
+//				cout<<"res="<<res<<endl;
+				new_image->set_voxel(x,y,z,res);
+                }
+            }
+        }
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i)

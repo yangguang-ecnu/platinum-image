@@ -61,29 +61,30 @@ class image_storage : public image_base
     public:
         virtual ~image_storage();
 
-        void erase ();
+        void erase();
         float get_max_float();
         float get_min_float();
         ELEMTYPE get_max();
         ELEMTYPE get_min();
+		void set_value_to_all_voxels(ELEMTYPE value);
 
         // *** iterator ***        
         class iterator : public std::iterator<std::forward_iterator_tag, ELEMTYPE>
             {
-            public:
-                iterator(ELEMTYPE* i);               
-                ~iterator() {}
-            iterator& operator=(const iterator& other);                
-            bool operator==(const iterator& other);                
-            bool operator!=(const iterator& other);                
-            iterator& operator++();                
-            iterator& operator++(int);                
-            ELEMTYPE& operator*();                
-            ELEMTYPE* operator->();               
-            iterator& operator--();             
-            iterator operator+(unsigned long n);                                
             private:
                 ELEMTYPE* ptr;
+			public:
+				iterator(ELEMTYPE* i);               
+				~iterator() {}
+				iterator& operator=(const iterator& other);                
+				bool operator==(const iterator& other);                
+				bool operator!=(const iterator& other);                
+				iterator& operator++();                
+				iterator& operator++(int);                
+				ELEMTYPE& operator*();                
+				ELEMTYPE* operator->();               
+				iterator& operator--();             
+				iterator operator+(unsigned long n);
             };
 
         iterator begin();        

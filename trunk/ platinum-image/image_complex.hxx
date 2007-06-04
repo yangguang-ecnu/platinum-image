@@ -14,3 +14,27 @@
 //    You should have received a copy of the GNU Lesser General Public License
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+template <int IMAGEDIM>
+void image_complex<IMAGEDIM>::silly_test ()
+    {
+	cout<<"* This is a silly test , JK"<<endl;
+	}
+
+/*
+
+
+template <int IMAGEDIM>
+float image_complex<IMAGEDIM>::get_max_float()
+    {
+	cout<<"*** image_complex<ELEMTYPE, IMAGEDIM>::get_max_float() JK***"<<endl;
+    return 0;//abs(maxvalue);		//returns maximum magnitude
+    }
+
+template <int IMAGEDIM>
+float image_complex<IMAGEDIM>::get_min_float()
+    {
+	cout<<"*** image_complex<ELEMTYPE, IMAGEDIM>::get_min_float() JK***"<<endl;
+    return 0;//abs(minvalue);		//returns minimun magnitude
+    }
+*/

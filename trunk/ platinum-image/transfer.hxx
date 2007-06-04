@@ -214,11 +214,21 @@ transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):tr
     this->refresh();
     }
 
+/*
+template <>	//JK2 image_complex testing
+void transfer_default<std::complex<float> >::get (const std::complex<float> v, RGBvalue &p)
+    {
+    p.set_mono(255);
+//    p.set_mono(255*(v- this->source->get_min())/(this->source->get_max()- this->source->get_min()));
+    }
+*/
+
 template <class ELEMTYPE >
 void transfer_default<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
     {
     p.set_mono(255*(v- this->source->get_min())/(this->source->get_max()- this->source->get_min()));
     }
+
 
 template <class ELEMTYPE >
 void transfer_default<ELEMTYPE >::refresh()

@@ -66,23 +66,39 @@ void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)
         { tfunction = t; }
     }
 
+/*
+template <> //JK2 image_complex testing
+float image_storage<std::complex<float> >::get_min_float()
+    {
+    return abs(minvalue);
+    }
+*/
+
 template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_min_float()
     {
     return minvalue;
     }
 
+
 template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_min()
     {
     return minvalue;
     }
-
+/*
+template <> // image_complex testing
+float image_storage<std::complex<float> >::get_max_float()
+    {
+    return abs(maxvalue);
+    }
+*/
 template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_max_float()
     {
     return maxvalue;
     }
+
 
 template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_max()
@@ -90,8 +106,23 @@ ELEMTYPE image_storage<ELEMTYPE >::get_max()
     return maxvalue;
     }
 
+
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::erase ()
+void image_storage<ELEMTYPE >::erase()
     {
     memset (imageptr, 0, sizeof(ELEMTYPE) * num_elements);
     }
+
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::set_value_to_all_voxels(ELEMTYPE value)
+	{
+	typename image_storage<ELEMTYPE>::iterator i = this->begin();
+	while (i != this->end())
+		{
+		*i = value;
+		++i;
+		}
+	}
+
+
+
