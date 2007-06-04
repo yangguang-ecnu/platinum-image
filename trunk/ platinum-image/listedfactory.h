@@ -29,6 +29,8 @@
 
 #include <FL/Fl_Menu.h>
 
+#include <map>
+
 typedef std::string factoryIdType;
 
 //The syntax for using this final implementation of the object factory looks like this:

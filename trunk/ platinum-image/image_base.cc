@@ -19,7 +19,8 @@
 
 #include "image_base.h"
 
-#include <sstream>
+#include "bruker.h"
+
 using namespace std;
 
 //#include "fileutils.h"
@@ -120,25 +121,6 @@ Vector3D image_base::transform_unit_to_voxel(Vector3D pos)
 //    return newImage;
 //    }
 
-class imageloader
-{
-public:
-    imageloader(const std::vector<std::string> f)
-        {
-        //files.reserve(f.size());
-        //std::copy(f.begin(),f.end(),files.begin());
-        //files.assign (f.begin(),f.end());
-        //files.assign (10,"abababa");
-        //files = f;
-        //files = new vector<string> (f);
-        //file = files.begin();
-        }
-    ~imageloader()
-        {
-        //delete files;
-        }
-};
-
 class vtkloader: public imageloader
 {
 private:
@@ -161,97 +143,6 @@ public:
     dicomloader (const std::vector<std::string>);
     image_base * read (std::vector<std::string>&);
 };
-
-class brukerloader: public imageloader
-//! Bruker import based on the description at
-//! http://imaging.mrc-cbu.cam.ac.uk/imaging/FormatBruker?highlight=%28bruker%29
-{
-private:
-    string                     session;
-    vector<string>             runs;
-    vector<string>             reconstructions;
-    vector<string>::iterator   reconstruction;
-    
-    void get_reconstructions(std::string run_dir_path);
-    
-public:
-    brukerloader (std::vector<std::string>);
-    image_base * read (std::vector<std::string>&);
-};
-
-
-brukerloader::brukerloader(const std::vector<std::string> files): imageloader(files)
-{
-    //determine level (session, run, reconstruction)
-    string parent = path_parent (files.front());
-    
-    if (file_exists (parent + "subject"))
-        {
-        //session level
-        
-        session = parent;
-        
-        runs = subdirs (session);
-     
-        std::vector<std::string>::iterator run = runs.begin();
-        
-        while (run != runs.end())
-            {
-            get_reconstructions (*run);
-            ++run;
-            }
-        }
-    
-    else if (file_exists (parent + "acqp"))
-        {
-        //run level
-        
-        runs.push_back(parent);
-        get_reconstructions(parent);
-        }
-    
-    else if (file_exists (parent + "2dseq"))
-        {
-        //reconstruction level
-        
-        reconstructions.push_back(parent);
-        }
-    
-    if (!reconstructions.empty())
-        {
-        reconstruction = reconstructions.begin();
-        }
-}
-
-void brukerloader::get_reconstructions(std::string run_dir_path)
-{
-    std::vector<std::string> A = subdirs (run_dir_path + "pdata");
-    
-    reconstructions.insert(reconstructions.end(),A.begin(),A.end());
-    //
-//    std::vector<std::string>::iterator B = A.begin();
-//        
-//    while (B != A.end())
-//        {
-//        reconstructions.push_back (*B);
-//        }
-}
-
-image_base * brukerloader::read(std::vector<std::string> &files)
-    {
-
-    if (!reconstructions.empty())
-        {
-        //1. get metadata from  (*reconstruction + "d3proc") and (*reconstruction + "reco")
-
-        //2. call image_general<ELEMTYPE, IMAGEDIM> (std::vector<std::string>, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1);
-        //image data is in (*reconstruction + "2dseq")
-
-        files.clear(); //eat all files if load was successful
-        }
-
-    return NULL;
-    }
 
 vtkloader::vtkloader(const std::vector<std::string> f): imageloader(f)
 {
@@ -454,15 +345,18 @@ image_base *dicomloader::read(std::vector<std::string>& files)
 template <class LOADERTYPE>
 void try_loader (std::vector<std::string> &f) //! helper for image_base::load
     {
-    LOADERTYPE loader = LOADERTYPE(f);
-    image_base *new_image = NULL; //the eventually loaded image
+    if (!f.empty())
+        {
+        LOADERTYPE loader = LOADERTYPE(f);
+        image_base *new_image = NULL; //the eventually loaded image
 
-    do {
-        new_image = loader.read(f);
-        if (new_image != NULL)
-            { datamanagement.add(new_image); }
-        } 
+        do {
+            new_image = loader.read(f);
+            if (new_image != NULL)
+                { datamanagement.add(new_image); }
+            } 
     while (new_image !=NULL);
+        }
     }
 
 void image_base::load(std::vector<std::string> chosen_files)

@@ -72,6 +72,12 @@ class rawimporter : public Fl_Window
         template <class intype, class outtype>
             static void raw_convert (intype* &inpointer, outtype* &outpointer, long numVoxels, bool bigEndian);                                           //convert data type and endianness on arrays
 
+        template <template <class,int=3 > class IMGCLASS>
+            static image_base* allocate_image (bool floatType, bool signedType,unsigned int voxel_type, std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4));
+
+        template <class VOXTYPE, template <class,int=3 > class IMGCLASS>
+            static void try_allocate (image_base* &i,unsigned int voxel_type, std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4) );
+
     private:
         //Helpers
         void get_input ();                                  //copy FLTK inputs to the
@@ -80,10 +86,8 @@ class rawimporter : public Fl_Window
         void update_fields (Fl_Widget*);       //recalculate dependent field
         //values and widget states
 
-        template <class VOXTYPE, template <class, int > class IMGCLASS>
-            void try_allocate (image_base* &i);
         template <template <class,int > class IMGCLASS>
-            image_base* allocate_image ();
+            image_base* allocate_image_ ();
 
     public:
         Fl_Value_Input *imagesizex;
@@ -137,10 +141,49 @@ class rawimporter : public Fl_Window
         unsigned long               headerSize;
         signed int                  sliceStart, sliceIncrement;
         unsigned long               fileSize;
-        image_load_mode            mode;
+        image_load_mode             mode;
 
         //Constants
 #define MAXVOXSIZE 64
     };
+
+template <class VOXTYPE, template <class,int=3 > class IMGCLASS>
+static void rawimporter::try_allocate (image_base* &i,unsigned int voxel_type, std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize)
+    {
+    if (i == NULL && sizeof (VOXTYPE) == voxel_type/8 )
+        i = new IMGCLASS<VOXTYPE> (files, width, height, bigEndian, headerSize, voxelSize);
+    }
+
+template <template <class,int=3 > class IMGCLASS>
+static image_base* rawimporter::allocate_image (bool floatType, bool signedType, unsigned int voxel_type, std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize)
+    {
+    image_base* output = NULL;
+
+    if (floatType)
+        {
+        try_allocate<float,IMGCLASS>(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+        try_allocate<double,IMGCLASS>(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+        try_allocate<long double,IMGCLASS>(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+        }
+    else
+        {
+        if (signedType)
+            {
+            try_allocate<signed char,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+            try_allocate<signed short,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+            try_allocate<signed long,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+            try_allocate<signed long long,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+            }
+        else
+            {
+            try_allocate<unsigned char,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+            try_allocate<unsigned short,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+            try_allocate<unsigned long,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+            try_allocate<long long,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+            }
+        }
+
+    return output;
+    }
 
 #endif
