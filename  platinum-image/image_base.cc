@@ -60,6 +60,7 @@ void image_base::set_parameters ()
     name(namestream.str());
     }
 
+
 Vector3D image_base::transform_unit_to_voxel(Vector3D pos)
     {
     Vector3D vox;

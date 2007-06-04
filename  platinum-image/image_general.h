@@ -55,6 +55,9 @@ template<class ELEMTYPE, int IMAGEDIM>
 #include "global.h"
 #include "color.h"
 
+//#include <vnl/vgl_rotation_3d>	
+
+
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_general : public image_storage <ELEMTYPE >
     {
@@ -63,7 +66,7 @@ class image_general : public image_storage <ELEMTYPE >
 
         unsigned short datasize[IMAGEDIM]; //image size
         
-        Matrix3D voxel_resize;             //voxel size
+        Matrix3D voxel_resize;             //voxel size for the default 3D situation
         
         typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM>::Pointer   ITKimportfilter;
         typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer                ITKimportimage;
@@ -118,10 +121,20 @@ class image_general : public image_storage <ELEMTYPE >
         static image_base * type_from_DICOM_file (std::string file_path);
         static image_base * type_from_VTK_file (std::string file_path);
 
-        // *** element access methods ***
+		void set_voxel_resize(float dx, float dy, float dz=0);         //voxel size
 
-        ELEMTYPE get_voxel(int x, int y, int z=0);  
+		bool is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z=0);  
+		bool is_physical_pos_within_image_3D(Vector3D phys_pos);
+		Vector3D get_voxelpos_from_physical_pos_3D(Vector3D phys_pos);
+
+        // *** element access methods ***
+        ELEMTYPE get_voxel(int x, int y, int z=0);
+        ELEMTYPE get_voxel_in_physical_pos(Vector3D phys_pos);  
+        ELEMTYPE get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos);  
+		ELEMTYPE get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1, float w2, float w3, float w4);
         //ELEMTYPE get_voxel(unsigned long offset); //deprecated: use iterator!
+
+		Vector3D get_physical_pos_for_voxel(int x, int y, int z);
 
         RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>);
         //const RGBvalue get_display_voxel(int x, int y, int z=0);
@@ -133,12 +146,16 @@ class image_general : public image_storage <ELEMTYPE >
         //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
         float get_number_voxel(int x, int y, int z);
 
-        void set_voxel(int x, int y, int z, ELEMTYPE);
+        void set_voxel(int x, int y, int z, ELEMTYPE voxelvalue);
         //void set_voxel(unsigned long offset, ELEMTYPE); //deprecated: use iterator!
 		void set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction=2);
+		void set_value_to_voxels_in_region(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();
+
+        template<class TARGETTYPE>	//JK3 Nearest neighbour image re-sampling-test
+		void resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image);
         
         // *** size functions ***
         unsigned short get_size_by_dim(int dim);

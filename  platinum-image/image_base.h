@@ -61,8 +61,8 @@ class image_base : public data_base
 
         // *** cached data ***
 
-        Matrix3D unit_to_voxel_;    //cached transform from unit space to voxels this image
-
+        Matrix3D unit_to_voxel_;    //cached transform from unit space to voxels space
+									
         //image parameters
         //TODO: obtain from functions instead of storing
 
@@ -78,8 +78,7 @@ class image_base : public data_base
         friend std::ostream &operator<<(std::ostream &ut, const image_base &k)
             { ut << "[image_base.ID= " << k.ID << " ]"; return ut; }
 
-        virtual void initialize_dataset(int w, int h, int d)
-            = 0; // create empty dataset
+        virtual void initialize_dataset(int w, int h, int d) = 0; // create empty dataset
 
         static void load(const std::vector<std::string> files);  //load files in supported formats
                                                     //as selected in "files" vector

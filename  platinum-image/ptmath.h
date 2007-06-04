@@ -101,5 +101,45 @@ template <class C, class D> void adjust_endian (D* data, C size,bool DataIsBigEn
         }
     }
 
+//Following rules can be notes about the rotation matrices below:
+// R^(-1)(fi) = R(-fi)
+// R^(-1)(fi) = R^T(fi)
+// R-total = RzRyRx --< R^(-1) = R^(T)
+	class matrix_generator{
+	public:
+		Matrix3D get_rot_x_matrix_3D(float fi)			//fi in radians
+		{
+			Matrix3D r;
+			r[0][0] = 1;	r[1][0] = 0; 		r[2][0] = 0;
+			r[0][1] = 0;	r[1][1] = cos(fi); 	r[2][1] = -sin(fi);
+			r[0][2] = 0;	r[1][2] = sin(fi); 	r[2][2] = cos(fi);
+			return r;
+		}
+
+		Matrix3D get_rot_y_matrix_3D(float fi)			//fi in radians
+		{
+			Matrix3D r;
+			r[0][0] = cos(fi);	r[1][0] = 0; 		r[2][0] = sin(fi);
+			r[0][1] = 0;		r[1][1] = 1;		r[2][1] = 0;
+			r[0][2] = -sin(fi);	r[1][2] = 0;		r[2][2] = cos(fi);
+			return r;
+		}
+
+		Matrix3D get_rot_z_matrix_3D(float fi)			//fi in radians
+		{
+			Matrix3D r;
+			r[0][0] = cos(fi);	r[1][0] = -sin(fi);	r[2][0] = 0;
+			r[0][1] = sin(fi);	r[1][1] = cos(fi);	r[2][1] = 0;
+			r[0][2] = 0;		r[1][2] = 0;		r[2][2] = 1;
+			return r;
+		}
+
+		Matrix3D get_rot_matrix_3D(float fi_z, float fi_y, float fi_x)	//fi_z/y/x in radians
+		{
+			return get_rot_z_matrix_3D(fi_z)*get_rot_y_matrix_3D(fi_y)*get_rot_x_matrix_3D(fi_x);
+		}
+
+
+	};
 
 #endif
