@@ -61,6 +61,7 @@ class image_binary : public image_integer <bool, IMAGEDIM>
 	void erode_2D(int thickness=3, int direction=2, bool object_value=true);
 	void dilate_2D(int thickness=3, int direction=2, bool object_value=true);
 	void outline_2D(int thickness=3, int direction=2, bool object_value=true);
+    void connect_outer_2D(int direction=2, bool object_value=true);
     image_integer<short, IMAGEDIM> * distance_34_2D(bool edge_is_object=false, int direction=2, bool object_value=true);
 
     // 3D operations in image_binaryprocess

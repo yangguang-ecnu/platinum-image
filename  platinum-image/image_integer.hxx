@@ -839,7 +839,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	max_x=this->get_size_by_dim(0);
 	max_y=this->get_size_by_dim(1);
 	max_z=this->get_size_by_dim(2);
-	int number_of_voxels=max_x*max_y*max_z;
+	int number_of_voxels=this->num_elements;//max_x*max_y*max_z;
 	output->erase();
 		
 	//Sort points
@@ -885,6 +885,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
     for (j=0; j<number_of_voxels; j++)
 		{
         par_node[j]=j;
+		(*(output_iter+j))=undef;
 		}
         
     //Search in decreasing order
@@ -895,7 +896,6 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 		{
         j=sorted_index[i];	 
         cur_node=j;
-		(*(output_iter+j))=undef;
         
         z=j/(max_x*max_y);
         rest=j-z*(max_x*max_y);
@@ -1164,4 +1164,56 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::getSeedLevel(int m, int* par_node, b
 		}
 		else
 			return 0;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>	
+void image_integer<ELEMTYPE, IMAGEDIM>::draw_line_2D(int x0, int y0, int x1, int y1, int z, ELEMTYPE value, int direction)
+	{
+	bool steep=abs(y1-y0)>abs(x1-x0);
+	int temp;
+	if(steep)
+		{
+		temp=x0;
+		x0=y0;
+		y0=temp;
+		temp=x1;
+		x1=y1;
+		y1=temp;
+		}
+	if(x0>x1)
+		{
+		temp=x0;
+		x0=x1;
+		x1=temp;
+		temp=y0;
+		y0=y1;
+		y1=temp;
+		}
+	int deltax=x1-x0;
+	int deltay=abs(y1-y0);
+	int error= -deltax/2;
+	int ystep;
+	int y=y0;
+	if(y0<y1)
+		ystep=1;
+	else
+		ystep=-1;
+	int x;
+	for(x=x0; x<=x1; x++)
+		{
+		if(steep)
+			{
+			this->set_voxel_by_dir(y,x,z,value,direction);
+			}
+		else
+			{
+			this->set_voxel_by_dir(x,y,z,value,direction);
+			}
+		error+=deltay;
+		if(error>0)
+			{
+			y+=ystep;
+			error-=deltax;
+			}
+		}
 	}

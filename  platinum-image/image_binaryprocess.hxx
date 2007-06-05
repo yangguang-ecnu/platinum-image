@@ -680,7 +680,144 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 	
 	delete label_image;				
 	}
-	
+		
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::connect_outer_2D(int direction, bool object_value)
+	{
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
+		
+	bool p;//pixel value
+
+	for(w=0; w<max_w; w++)
+		{
+		int number_of_pixels=0;
+		int u_at_min_u=max_u;
+		int u_at_max_u=0;
+		int v_at_min_u=max_v;
+		int v_at_max_u=0;
+		int u_at_min_v=max_u;
+		int u_at_max_v=0;
+		int v_at_min_v=max_v;
+		int v_at_max_v=0;
+		bool found=false;
+		for(v=0; v<max_v; v++)
+			{
+			for(u=0; u<max_u; u++)
+				{
+				p=this->get_voxel_by_dir(u,v,w,direction);
+				if(p==object_value)
+					{
+					found=true;
+					if(u<u_at_min_u) {u_at_min_u=u; v_at_min_u=v;}
+					if(u>u_at_max_u) {u_at_max_u=u; v_at_max_u=v;}
+					if(v<v_at_min_v) {v_at_min_v=v; u_at_min_v=u;}
+					if(v>v_at_max_v) {v_at_max_v=v; u_at_max_v=u;}
+					}
+				}
+			}
+		if(found)
+			{
+			bool hit;
+
+			//Start from upper left
+			int prev_u=u_at_min_v;
+			int prev_v=v_at_min_v;
+			for(v=v_at_min_v+1; v<v_at_min_u; v++)
+				{
+				hit=false;
+				for(u=u_at_min_u; u<prev_u && !hit; )
+					{
+					p=this->get_voxel_by_dir(u,v,w,direction);
+					if(p==object_value)
+						hit=true;
+					else
+						u++;
+					}
+				if(hit)
+					{
+					this->draw_line_2D(u,v,prev_u,prev_v,w,object_value,direction);
+					prev_u=u;
+					prev_v=v;
+					}
+				}
+			this->draw_line_2D(u_at_min_u,v_at_min_u,prev_u,prev_v,w,object_value,direction);
+
+			//Start from lower left
+			prev_u=u_at_max_v;
+			prev_v=v_at_max_v;
+			for(v=v_at_max_v-1; v>v_at_min_u; v--)
+				{
+				hit=false;
+				for(u=u_at_min_u; u<prev_u && !hit; )
+					{
+					p=this->get_voxel_by_dir(u,v,w,direction);
+					if(p==object_value)
+						hit=true;
+					else
+						u++;
+					}
+				if(hit)
+					{
+					this->draw_line_2D(u,v,prev_u,prev_v,w,object_value,direction);
+					prev_u=u;
+					prev_v=v;
+					}
+				}
+			this->draw_line_2D(u_at_min_u,v_at_min_u,prev_u,prev_v,w,object_value,direction);
+
+			//Start from upper right
+			prev_u=u_at_min_v;
+			prev_v=v_at_min_v;
+			for(v=v_at_min_v; v<v_at_max_u; v++)
+				{
+				hit=false;
+				for(u=u_at_max_u; u>prev_u && !hit; )
+					{
+					p=this->get_voxel_by_dir(u,v,w,direction);
+					if(p==object_value)
+						hit=true;
+					else
+						u--;
+					}
+				if(hit)
+					{
+					this->draw_line_2D(u,v,prev_u,prev_v,w,object_value,direction);
+					prev_u=u;
+					prev_v=v;
+					}
+				}
+			this->draw_line_2D(u_at_max_u,v_at_max_u,prev_u,prev_v,w,object_value,direction);
+
+			//Start from lower right
+			prev_u=u_at_max_v;
+			prev_v=v_at_max_v;
+			for(v=v_at_max_v; v>v_at_max_u; v--)
+				{
+				hit=false;
+				for(u=u_at_max_u; u>prev_u && !hit; )
+					{
+					p=this->get_voxel_by_dir(u,v,w,direction);
+					if(p==object_value)
+						hit=true;
+					else
+						u--;
+					}
+				if(hit)
+					{
+					this->draw_line_2D(u,v,prev_u,prev_v,w,object_value,direction);
+					prev_u=u;
+					prev_v=v;
+					}
+				}
+			this->draw_line_2D(u_at_max_u,v_at_max_u,prev_u,prev_v,w,object_value,direction);
+			}
+		}				
+	}
+
 template <int IMAGEDIM>
 image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool edge_is_object, int direction, bool object_value)
 	{
@@ -702,13 +839,13 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 			u=0;
 			ml=initvalue;
 			ul=initvalue;
-			um=(v>0)? output->get_voxel(u,v-1,w) : initvalue;
+			um=(v>0)? output->get_voxel_by_dir(u,v-1,w,direction) : initvalue;
 			for(u=0; u<max_u; u++)
 				{
 				p=this->get_voxel_by_dir(u,v,w,direction);
-				ur=(v>0 && u<max_u-1)? output->get_voxel(u+1,v-1,w) : initvalue;
+				ur=(v>0 && u<max_u-1)? output->get_voxel_by_dir(u+1,v-1,w,direction) : initvalue;
 				d=(p==object_value)?std::min(std::min(4+ul,3+um),std::min(4+ur,3+ml)):0;
-				output->set_voxel(u,v,w,d);
+				output->set_voxel_by_dir(u,v,w,d,direction);
 				ml=d;
 				ul=um;
 				um=ur;
@@ -720,13 +857,13 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 			u=max_u-1;
 			mr=initvalue;
 			lr=initvalue;
-			lm=(v<max_v-1)? output->get_voxel(u,v+1,w) : initvalue;
+			lm=(v<max_v-1)? output->get_voxel_by_dir(u,v+1,w,direction) : initvalue;
 			for(u=max_u-1; u>=0; u--)
 				{
-				d=output->get_voxel(u,v,w);
-				ll=(v<max_v-1 && u>0)? output->get_voxel(u-1,v+1,w) : initvalue;
+				d=output->get_voxel_by_dir(u,v,w,direction);
+				ll=(v<max_v-1 && u>0)? output->get_voxel_by_dir(u-1,v+1,w,direction) : initvalue;
 				d=std::min(d,std::min(std::min(4+ll,3+lm),std::min(4+lr,3+mr)));
-				output->set_voxel(u,v,w,d);
+				output->set_voxel_by_dir(u,v,w,d,direction);
 				mr=d;
 				lr=lm;
 				lm=ll;
