@@ -242,9 +242,9 @@ image_base * brukerloader::read(std::vector<std::string> &files)
             size [0] = tokens ["IM_SIX"].value<int>();
             size [1] = tokens ["IM_SIY"].value<int>();
             size [2] = tokens ["IM_SIZ"].value<int>();
-
-            bigEndian = true; //! according to site above, format is always bigEndian regardless of this value
-            //bigEndian =tokens ["RECO_byte_order"].value<std::string>() != "littleEndian";
+ 
+			//bigEndian = true; //! according to site above, format is always bigEndian regardless of this value !!!!! Seems like it is always littleEndian //PR 070605
+            bigEndian =tokens ["RECO_byte_order"].value<std::string>() != "littleEndian";
 
             //parse the wordtype string
             istringstream byteOrderString (tokens ["RECO_wordtype"].value<std::string>());
