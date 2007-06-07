@@ -54,8 +54,9 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_or(image_binary<IMAGEDI
             {*o=object_value;}
         else
             {*o=!object_value;}
-        ++i1; ++i1; ++o;
+        ++i1; ++i2; ++o;
         }
+	output->image_has_changed();
     return output;
     }
     
@@ -73,8 +74,9 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and(image_binary<IMAGED
             {*o=object_value;}
         else
             {*o=!object_value;}
-        ++i1; ++i1; ++o;
+        ++i1; ++i2; ++o;
         }
+	output->image_has_changed();
     return output;
     }
     
@@ -92,7 +94,8 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_xor(image_binary<IMAGED
             {*o=object_value;}
         else
             {*o=!object_value;}
-        ++i1; ++i1; ++o;
+        ++i1; ++i2; ++o;
         }
+	output->image_has_changed();
     return output;
     }  
