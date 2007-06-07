@@ -222,6 +222,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::copy_image (image_general<inType, IMAGED
             
             ++i; ++o;
             }
+		this->image_has_changed();
         }
     else
         {     
@@ -762,6 +763,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::testpattern()
                 {
                 set_voxel(x,y,z, int(float(x+y+z)*255.0/float(datasize[2]+datasize[1]+datasize[0])));
                 }
+	this->image_has_changed();
     }
 
 //JK3
@@ -799,6 +801,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_genera
                 }
             }
         }
+	new_image->image_has_changed();
 }
 
 

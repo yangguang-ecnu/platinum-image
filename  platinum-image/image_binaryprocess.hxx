@@ -125,7 +125,8 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, bool object_value)
 				}
 			}
 		}	
-	
+
+	this->image_has_changed();
 	delete label_image;
 	}
 	
@@ -246,7 +247,8 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
 				}
 			}
 		}
-	
+
+	this->image_has_changed();
 	delete label_image;				
 	}
 	
@@ -358,6 +360,7 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool
 			}
 		}
 	
+	this->image_has_changed();
 	delete label_image;				
 	}
 	
@@ -678,6 +681,7 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 			}
 		}
 	
+	this->image_has_changed();
 	delete label_image;				
 	}
 		
@@ -815,7 +819,8 @@ void image_binary<IMAGEDIM>::connect_outer_2D(int direction, bool object_value)
 				}
 			this->draw_line_2D(u_at_max_u,v_at_max_u,prev_u,prev_v,w,object_value,direction);
 			}
-		}				
+		}
+	this->image_has_changed();				
 	}
 
 template <int IMAGEDIM>
@@ -870,6 +875,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 				}
 			}
 		}
+	output->image_has_changed();
 	return output;
 	}
 
@@ -992,6 +998,7 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 			}
 		}
 	
+	this->image_has_changed();
 	delete label_image;				
 	}	
 		
@@ -1080,6 +1087,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 			for(u=max_u-1; u>=0; u--)
 				{
 				p=this->get_voxel(u,v,w);
+				d=output->get_voxel(u,v,w);
 				ll=(u>0 && v<max_v-1)? output->get_voxel(u-1,v+1,w) : initvalue;
 				aul=(u>0 && v>0 && w>0)? output->get_voxel(u-1,v-1,w-1) : initvalue;
 				aml=(u>0 && w>0)? output->get_voxel(u-1,v,w-1) : initvalue;
@@ -1116,6 +1124,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 				}
 			}
 		}
+	output->image_has_changed();
 	return output;
 	}
 
@@ -1251,6 +1260,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 			}
 		}
 	
+	this->image_has_changed();
 	delete label_image;
 	}
 
