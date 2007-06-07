@@ -35,12 +35,12 @@ image_binary<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE l
 
         ++i; ++o;
         }
-    
+
+	output->image_has_changed();    
     return output;
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
-//int image_integer<ELEMTYPE, IMAGEDIM>::gauss_fit2(image_binary<IMAGEDIM> *mask, bool object_value)
 ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::gauss_fit2()
     {
 	ELEMTYPE min_val=this->get_min();
@@ -857,7 +857,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	typename image_storage<IMGLABELTYPE >::iterator output_iter = output->begin();   
     while (iter != this->end()) //images are same size and should necessarily end at the same time
         {
-        counts[*iter-min_val]++;
+        counts[(*iter)-min_val]++;
         ++iter;
         }
     counts_cum[0]=counts[0];
@@ -877,7 +877,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
             // decrementing the counts value ensures duplicate values in A
             // are stored at different indices in sorted.
 			
-			sorted_index[--counts[(*(iter+i))-min_val]] = i;                
+			sorted_index[--counts_cum[(*(iter+i))-min_val]] = i;                
         }
 
     int* par_node = new int[number_of_voxels];
@@ -1102,6 +1102,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	delete[] par_node;
 	delete[] npt_array;
 
+	output->image_has_changed();
 	return output;
 	}
 
@@ -1216,4 +1217,5 @@ void image_integer<ELEMTYPE, IMAGEDIM>::draw_line_2D(int x0, int y0, int x1, int
 			error-=deltax;
 			}
 		}
+	this->image_has_changed();
 	}
