@@ -98,6 +98,7 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, bool object_value)
 				}
 			}
 		int* lut=new int[number_of_objects];
+		memset(lut, 0, sizeof(int)*number_of_objects);
 		new_label=1;
 		for(i=1; i<number_of_objects; i++)
 			{
@@ -126,7 +127,7 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, bool object_value)
 			}
 		}	
 
-	this->image_has_changed();
+	//this->image_has_changed();
 	delete label_image;
 	}
 	
@@ -153,7 +154,7 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
 			for(u=0; u<max_u; u++)
 				{
 				p=this->get_voxel_by_dir(u,v,w,direction);
-				if(p==object_value)//Note: we want to label bkg-objects in order to remove holes
+				if(p==object_value)
 					{
 					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
 					left=(u>0)? label_image->get_voxel(u-1,v,w) : 0;
@@ -207,6 +208,7 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
 				}
 			}
 		int* lut=new int[number_of_objects];
+		memset(lut, 0, sizeof(int)*number_of_objects);
 		int* tot_sizes=new int[number_of_objects];
 		memset(tot_sizes, 0, sizeof(int)*number_of_objects);
 		new_label=1;
@@ -248,7 +250,7 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
 			}
 		}
 
-	this->image_has_changed();
+	//this->image_has_changed();
 	delete label_image;				
 	}
 	
@@ -275,7 +277,7 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool
 			for(u=0; u<max_u; u++)
 				{
 				p=this->get_voxel_by_dir(u,v,w,direction);
-				if(p==object_value)//Note: we want to label bkg-objects in order to remove holes
+				if(p==object_value)
 					{
 					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
 					left=(u>0)? label_image->get_voxel(u-1,v,w) : 0;
@@ -329,6 +331,7 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool
 				}
 			}
 		int* lut=new int[number_of_objects];
+		memset(lut, 0, sizeof(int)*number_of_objects);
 		int* tot_sizes=new int[number_of_objects];
 		memset(tot_sizes, 0, sizeof(int)*number_of_objects);
 		new_label=1;
@@ -360,7 +363,7 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool
 			}
 		}
 	
-	this->image_has_changed();
+	//this->image_has_changed();
 	delete label_image;				
 	}
 	
@@ -441,6 +444,7 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 				}
 			}
 		int* lut=new int[number_of_objects];
+		memset(lut, 0, sizeof(int)*number_of_objects);
 		int* tot_sizes=new int[number_of_objects];
 		memset(tot_sizes, 0, sizeof(int)*number_of_objects);
 		double *cog_u=new double[number_of_objects];
@@ -681,7 +685,7 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 			}
 		}
 	
-	this->image_has_changed();
+	//this->image_has_changed();
 	delete label_image;				
 	}
 		
@@ -820,7 +824,7 @@ void image_binary<IMAGEDIM>::connect_outer_2D(int direction, bool object_value)
 			this->draw_line_2D(u_at_max_u,v_at_max_u,prev_u,prev_v,w,object_value,direction);
 			}
 		}
-	this->image_has_changed();				
+	//this->image_has_changed();				
 	}
 
 template <int IMAGEDIM>
@@ -968,6 +972,7 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 			}
 		}
 	int* lut=new int[number_of_objects];
+	memset(lut, 0, sizeof(int)*number_of_objects);
 	new_label=1;
 	for(i=1; i<number_of_objects; i++)
 		{
@@ -998,7 +1003,7 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 			}
 		}
 	
-	this->image_has_changed();
+	//this->image_has_changed();
 	delete label_image;				
 	}	
 		
@@ -1150,7 +1155,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 			for(u=0; u<max_u; u++)
 				{
 				p=this->get_voxel(u,v,w);
-				if(p!=object_value)//Note: we want to label bkg-objects in order to remove holes
+				if(p==object_value)
 					{
 					above=(w>0)? label_image->get_voxel(u,v,w-1) : 0;
 					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
@@ -1174,6 +1179,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 	int* changes=new int[number_of_objects];
 	int i;
 	int* sizes=new int[number_of_objects];
+	memset(sizes, 0, sizeof(int)*number_of_objects);
 	for(i=0; i<number_of_objects; i++)
 		changes[i]=i;
 	//merge labels
@@ -1217,6 +1223,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 			}
 		}
 	int* lut=new int[number_of_objects];
+	memset(lut, 0, sizeof(int)*number_of_objects);
 	int* tot_sizes=new int[number_of_objects];
 	memset(tot_sizes, 0, sizeof(int)*number_of_objects);
 	new_label=1;
@@ -1260,7 +1267,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 			}
 		}
 	
-	this->image_has_changed();
+	//this->image_has_changed();
 	delete label_image;
 	}
 

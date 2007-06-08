@@ -50,6 +50,9 @@ class image_binary : public image_integer <bool, IMAGEDIM>
     image_binary<IMAGEDIM> * logical_or(image_binary<IMAGEDIM> *input, bool object_value=true);
     image_binary<IMAGEDIM> * logical_and(image_binary<IMAGEDIM> *input, bool object_value=true);
     image_binary<IMAGEDIM> * logical_xor(image_binary<IMAGEDIM> *input, bool object_value=true);
+    image_binary<IMAGEDIM> * logical_or_not(image_binary<IMAGEDIM> *input, bool object_value=true);
+    image_binary<IMAGEDIM> * logical_and_not(image_binary<IMAGEDIM> *input, bool object_value=true);
+    void invert();
 
     // *** applications ***
 

@@ -53,9 +53,9 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
         image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold=true);
 		ELEMTYPE gauss_fit2();
         
-        //TODO: components_hist_3D and narrowest_passage_3D assume integer (right?), should be in image_integer
-		ELEMTYPE components_hist_3D();
+        ELEMTYPE components_hist_3D();
         image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, bool object_value=true);
+		void mask_out(image_binary<IMAGEDIM> *mask, bool object_value=true, ELEMTYPE blank=0);
 	
 	private:
 		int findNode(int e, int* par_node);
