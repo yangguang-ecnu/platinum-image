@@ -36,7 +36,7 @@ image_binary<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE l
         ++i; ++o;
         }
 
-	output->image_has_changed();    
+	//output->image_has_changed();    
     return output;
 	}
 
@@ -885,7 +885,6 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
     for (j=0; j<number_of_voxels; j++)
 		{
         par_node[j]=j;
-		(*(output_iter+j))=undef;
 		}
         
     //Search in decreasing order
@@ -896,6 +895,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 		{
         j=sorted_index[i];	 
         cur_node=j;
+		(*(output_iter+j))=undef;
         
         z=j/(max_x*max_y);
         rest=j-z*(max_x*max_y);
@@ -1217,5 +1217,19 @@ void image_integer<ELEMTYPE, IMAGEDIM>::draw_line_2D(int x0, int y0, int x1, int
 			error-=deltax;
 			}
 		}
-	this->image_has_changed();
+	//this->image_has_changed();
 	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, bool object_value, ELEMTYPE blank)
+    {
+    image_storage<ELEMTYPE>::iterator i = this->begin();
+    image_storage<bool>::iterator m = mask->begin();
+    while (i != this->end()) //images are same size and should necessarily end at the same time
+        {
+        if(*m != object_value)
+            {*i=blank;}
+        ++i; ++m;
+        }
+	this->image_has_changed();
+    }
