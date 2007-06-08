@@ -982,7 +982,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	output_iter = output->begin(); 
 	for (i=0; i<number_of_voxels; i++)
 		{
-		if((*(mask_iter+i))==object_value)
+		if((*(mask_iter+i))==object_value && (*(output_iter+i))!=bkg)
 			{
 			markRecursive(i,par_node,marked);
 			(*(output_iter+i))=class1;
