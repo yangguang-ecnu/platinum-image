@@ -53,9 +53,13 @@
 #include "itkCastImageFilter.h"
 #include "itkAndImageFilter.h"
 
+//!binary type for binary ITK images
+//!(ITK does not support true 'bool')
 #define theBinaryPixelType unsigned char
+
 #define theBinaryImageType itk::Image<theBinaryPixelType ,3 >
-#define theIndexedImageType itk::Image<unsigned short ,3 >
+#define theIndexedPixelType unsigned char
+#define theIndexedImageType itk::Image<theIndexedPixelType ,3 >
 #define theBinaryIteratorType itk::ImageRegionIterator<theBinaryImageType >
 #define theIndexedIteratorType itk::ImageRegionIterator<theIndexedImageType >
 #define theIndexType theBinaryImageType::RegionType::IndexType
@@ -94,19 +98,29 @@ void diff_images (int u,int p)
 
     if (p == USERIO_CB_OK)
         {
-        image_base * truth = 
-            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0));
-        image_base * test = 
-            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,1));
-        image_base * mask = 
-            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,2));
+        image_integer<theIndexedPixelType, 3> * truth_in =
+            dynamic_cast<image_integer<theIndexedPixelType, 3> * >(
+            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0)));
+            //using dynamic_cast, reason:
+            //for this application the input is supposed to be an unsigned char
+            //and nothing else.
+            //Note that truth_in is checked below to be != NULL
+        image_binary<3> * test = binary_copycast<3>(
+            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,1)));
+        image_binary<3> * mask = binary_copycast<3> (
+            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,2)));
+            //using binary_copycast for these because:
+            //1. a binary image is desired
+            //2. the input image is binary formatted (1/0 only)
 
-        if (truth!=NULL && test != NULL && truth->same_size(test))
+        image_binary<3>::iterator u = test->begin();
+
+        if (truth_in!=NULL && test != NULL && truth_in->same_size(test))
             {
             short size [3];
 
             for (int d=0; d < 3; d++)
-                {size[d]=truth->get_size_by_dim(d);}
+                {size[d]=truth_in->get_size_by_dim(d);}
 
             unsigned long total_vol=size[0]*size[1]*size[2];
             unsigned long combined_vol = 0;
@@ -116,61 +130,100 @@ void diff_images (int u,int p)
             unsigned long true_pos_vol = 0;
             unsigned long ref_vol = 0;
 
-            cout << "Comparing " << truth->name() << " with " << test->name() << ", ";
+            cout << "Comparing " << truth_in->name() << " with " << test->name() << ", ";
             if (mask == NULL )
                 { cout << "no mask"; }
             else
                 { cout << "with mask " << mask->name(); }
             cout << endl;
 
-            //image_scalar<unsigned char> * result = dynamic_cast<image_scalar<unsigned char> *>(truth->alike(VOLDATA_UCHAR));
-            image_scalar<unsigned char,3> * result = guaranteed_cast<image_scalar,unsigned char,3>(truth);
+            //convert values to image_label notation
+            
+            image_label<3> * truth = new image_label<3>(test,false);
 
-            for (short z = 0; z < size[2];z++)
+            image_integer<theIndexedPixelType, 3>::iterator a = truth_in->begin();
+            image_label<3>::iterator b = truth->begin();
+
+            while (b != truth->end())
                 {
-                for (short y = 0; y < size[1];y++)
+                switch (*a)
                     {
-                    for (short x = 0; x < size[0];x++)
+                    case 100: //liver
+                        *b = 3;
+                        break;
+                    case 225: //muscle
+                        *b = 2;
+                        break;
+                    case 255: //fat
+                        *b = 1;
+                        break;
+
+                    default:
+                        *b = 0;
+                    }
+
+                a++;b++;
+                }
+
+            image_label<3> * result = new image_label<3>(test,false);
+            result->erase();
+
+            image_binary<3>::iterator i = test->begin();
+            image_binary<3>::iterator m = i; //any value would do
+            if (mask != NULL)
+                { m = mask->begin(); }
+            image_label<3>::iterator t = truth->begin();
+            image_label<3>::iterator o = result->begin();
+
+            while (o != result->end())
+                {
+                *o = 0;
+                if (mask == NULL || *m == true)
+                    {
+                    bool liver_truth    = (*t == 3);
+                    bool liver_test     = *i;
+
+                    if (liver_truth)
+                        {ref_vol++;}
+
+                    if (liver_truth && liver_test)
                         {
-                        result->set_voxel(x,y,z,0);
-                        if (mask == NULL || mask->get_number_voxel(x,y,z) == 255)
+                        *o = 3;
+                        true_pos_vol++;
+                        }
+                    else
+                        {
+                        if (liver_truth)
                             {
-                            bool liver_truth    = truth->get_number_voxel(x,y,z) == truth_int;
-                            bool liver_test     = test->get_number_voxel(x,y,z) == test_int;
-                            /*if (test->get_number_voxel(x,y,z) > 0 )
-                            cout << test->get_number_voxel(x,y,z) << endl;*/
+                            *o = 1;
+                            false_neg_vol++;
+                            }
 
-
-                            if (liver_truth)
-                                {ref_vol++;}
-
-                            if (liver_truth && liver_test)
-                                {
-                                result->set_voxel(x,y,z,128);
-                                true_pos_vol++;
-                                }
-                            else
-                                {
-                                if (liver_truth)
-                                    {
-                                    result->set_voxel(x,y,z,64);
-                                    false_neg_vol++;
-                                    }
-
-                                if (liver_test)
-                                    {
-                                    result->set_voxel(x,y,z,192);
-                                    false_pos_vol++;
-                                    }
-                                }
-
-                            if (liver_truth || liver_test)
-                                {combined_vol++;}
+                        if (liver_test)
+                            {
+                            *o = 2;
+                            false_pos_vol++;
                             }
                         }
+
+                    if (liver_truth || liver_test)
+                        {combined_vol++;}
                     }
+
+                i++;o++;t++;m++;
                 }
+
             datamanagement.add(result);
+
+            delete test;        //test was created inside this function using binary_copycast
+            if (mask != NULL)   //mask was created inside this function using binary_copycast
+                { delete mask; }
+            delete truth;       //truth was created with new
+
+            //truth_in is not deleted, since it was only recast with
+            //dynamic_cast and not copied
+
+            //result is not deleted, since it is added into datamanagement
 
             ostringstream figures_stream;
             float TP = 100 * (combined_vol-false_pos_vol-false_neg_vol)/ref_vol;
@@ -192,13 +245,18 @@ void threshold_artifact_process (int u,int p)
     {
     if (p == USERIO_CB_OK)
         {
-        image_base * input_vol = 
-            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0));
+        image_label<3> * input_vol = label_copycast<3>(
+            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0)));
+            //using label_copycast, reason:
+            //a binary image is suitable but
+            //ITK::image cannot handle images with 'bool' value
+            //to convert to these, the source (Platinum) type has to be a bigger scalar type,
+            //image_label is a good choice
 
         // *** get ITK image from input parameter
         input_vol->make_image_an_itk_reader();
         theBinaryImagePointer input;
-        input = (dynamic_cast<image_label<3> * >(input_vol))->itk_image();
+        input = input_vol->itk_image();
 
         int radius = userIOmanagement.get_parameter<long>(u,1);
 
@@ -317,9 +375,11 @@ void threshold_artifact_process (int u,int p)
         masker->Update();
         theBinaryImagePointer final = masker->GetOutput ();
 
+        delete input_vol; //input_vol was created inside this function using label_copycast
+
         // *** convert result to an image ***
 
-        datamanagement.add( new image_label<3> (final));
+        datamanagement.add(new image_label<3> (final));
         }
     }
 

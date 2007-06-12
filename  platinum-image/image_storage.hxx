@@ -17,10 +17,48 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+template <class fromType, class toType>
+void copy_data( image_storage<fromType > * in,image_storage<toType > * out) //!General data copying
+    {
+    typename image_storage<fromType >::iterator i = in->begin();
+    typename image_storage<toType >::iterator   o = out->begin();
+
+    while (i != in->end() && o != out->end())
+        {
+        *o = *i;
+
+        ++i; ++o;
+        }
+
+    /*if (!(i == in->end() && o == out->end()) )
+        {
+        throw ("Image sizes didn't match when copying data");
+        }*/
+    }
+
+
+//template <class fromType>
+//void copy_data( image_storage<fromType > * in,image_storage<IMGBINARYTYPE > * out) //!Data copy specialized for copying *to* boolean
+//    {
+//    typename image_storage<fromType >::iterator i = in->begin();
+//    typename image_storage<IMGBINARYTYPE >::iterator   o = out->begin();
+//
+//    while (i != in->end() && o != out->end())
+//        {
+//        *o = (*i == true);
+//
+//        ++i; ++o;
+//        }
+//
+//    /*if (!(i == in->end() && o == out->end()) )
+//    {
+//    throw ("Image sizes didn't match when copying boolean data");
+//    }*/
+//    }
+
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::set_parameters()
     {
-    imageptr = NULL;
     tfunction = NULL;
     
     transfer_function();  //set default transfer function
@@ -45,8 +83,8 @@ image_storage<ELEMTYPE >::image_storage(image_storage<SOURCETYPE> * s):image_bas
 template <class ELEMTYPE >
 image_storage<ELEMTYPE >::~image_storage()
     {
-    if (imageptr != NULL)
-        {delete imageptr;}
+    if (imagepointer() != NULL)
+        { deallocate(); }
 
     delete tfunction;
 
@@ -110,7 +148,7 @@ ELEMTYPE image_storage<ELEMTYPE >::get_max()
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::erase()
     {
-    memset (imageptr, 0, sizeof(ELEMTYPE) * num_elements);
+    memset (imagepointer(), 0, sizeof(ELEMTYPE) * num_elements);
     }
 
 template <class ELEMTYPE >

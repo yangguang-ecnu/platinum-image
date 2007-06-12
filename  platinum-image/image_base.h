@@ -68,6 +68,15 @@ class image_base : public data_base
 
         Vector3D unit_center_;    //computation aid: vector representing offset from
         //bottomleft to centered unit coordinate system
+
+        void * dataptr;
+        
+        void deallocate ()
+            {
+            delete dataptr;
+            dataptr = NULL;
+            }
+
     public:
         virtual image_base * alike (imageDataType unit) = 0;
        

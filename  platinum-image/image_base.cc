@@ -52,6 +52,8 @@ void image_base::set_parameters ()
     {
     ostringstream namestream;
 
+    dataptr = NULL;
+
     ID = imagemaxID++;
 
     //constructor: add "Untitled" name and ID

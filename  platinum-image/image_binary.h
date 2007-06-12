@@ -3,6 +3,7 @@
 //  Image_binary $Revision$
 //
 //  Image type with binary voxel/pixel values
+//  Implemented like image_label, only that processing expects 0/1 only
 //
 //  $LastChangedBy$
 //  
@@ -30,20 +31,21 @@
 #include "image_integer.h"
 
 template<int IMAGEDIM = 3>
-class image_binary : public image_integer <bool, IMAGEDIM>
+class image_binary : public image_label <IMAGEDIM>
     {
     public:
-        image_binary ();
-
-        image_binary(int w, int h, int d, bool *ptr = NULL);
+        image_binary(int w, int h, int d, IMGBINARYTYPE *ptr = NULL);
 
     template<class SOURCETYPE>
-        image_binary(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_integer<bool, IMAGEDIM>(old_image, copyData)
-        {} //copy constructor
+        image_binary(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_label<IMAGEDIM>(old_image, copyData)
+        { } //!copy constructor
 
-    image_binary (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_integer<bool, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
+    image_binary (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_label<IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
+        {} //!raw file constructor
 
-    virtual void transfer_function(transfer_base<bool > * t);
+    image_binary<IMAGEDIM>(itk::SmartPointer< itk::Image<IMGBINARYTYPE, IMAGEDIM > > &i):
+        image_label<IMAGEDIM>(i)
+            {} //!ITK image constructor
 
     // *** operations ***
 
