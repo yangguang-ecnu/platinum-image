@@ -29,6 +29,9 @@
 
 #include "transfer.h"
 
+#define IMGLABELTYPE unsigned char
+#define IMGBINARYTYPE IMGLABELTYPE
+
 class image_base;
 
 #include "image_base.h"
@@ -52,7 +55,18 @@ class image_storage : public image_base
         //allows subclasses to set a different default transfer function, and
         //to reject unsuitable choices
 
-        ELEMTYPE *imageptr;
+        // *** Image data pointer ***
+
+        ELEMTYPE * imagepointer()
+            { 
+            return reinterpret_cast<ELEMTYPE *> (dataptr);
+            }
+
+        void imagepointer(ELEMTYPE * new_value)
+            {
+            dataptr = new_value;
+            }
+
         unsigned long num_elements;        //image size in # pixels/voxels
 
         ELEMTYPE maxvalue;

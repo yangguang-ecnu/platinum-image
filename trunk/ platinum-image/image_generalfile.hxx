@@ -86,7 +86,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         unsigned long depth = (fileSize - headerSize) / (sliceSize*sizeof (ELEMTYPE));
         
         initialize_dataset(width, height, depth);
-        ELEMTYPE* writepointer = this->imageptr;
+        ELEMTYPE* writepointer = this->imagepointer();
         this->num_elements = datasize[0]*datasize[1]*datasize[2];
         
         ifstream stackFile (files.front().c_str(), ios::in | ios::binary);
@@ -94,7 +94,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         
         stackFile.read ((FILEPOSTYPE*)writepointer, sizeof (ELEMTYPE) * datasize[0]*datasize[1]*datasize[2]);
         
-        adjust_endian (this->imageptr, this->num_elements,bigEndian);
+        adjust_endian (this->imagepointer(), this->num_elements,bigEndian);
         
         stackFile.close();
         }
@@ -103,12 +103,12 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         {
         unsigned long depth = files.size();
         initialize_dataset(width, height, depth);
-        ELEMTYPE* writepointer = this->imageptr;
+        ELEMTYPE* writepointer = this->imagepointer();
         this->num_elements = datasize[0]*datasize[1]*datasize[2];
         
         std::vector<std::string>::iterator fileItr = files.begin();
         
-        while (fileItr != files.end() && writepointer < (this->imageptr + this->num_elements))
+        while (fileItr != files.end() && writepointer < (this->imagepointer() + this->num_elements))
             {
             //Multiple files, each containing one slice
             ifstream imageFile ((*fileItr).c_str(), ios::in | ios::binary);
@@ -125,10 +125,10 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
                 imageFile.close();
                 }
             }
-        adjust_endian (this->imageptr, this->num_elements,bigEndian);
+        adjust_endian (this->imagepointer(), this->num_elements,bigEndian);
         }
     
-    if (this->imageptr != NULL)
+    if (this->imagepointer() != NULL)
         {
         name_from_path (files.front());
         

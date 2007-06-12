@@ -15,9 +15,20 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-template<int IMAGEDIM >
-image_label<IMAGEDIM >::image_label ():image_integer<IMGLABELTYPE, IMAGEDIM>()
+template <int IMAGEDIM>
+image_label<IMAGEDIM>* label_copycast (image_base* input) //! Converts IMGLABELTYPE (uchar) into image_label
     {
+    image_label<IMAGEDIM > * output = NULL;
+
+    image_integer <IMGLABELTYPE,IMAGEDIM>* input_general =
+        dynamic_cast<image_integer <IMGLABELTYPE, IMAGEDIM> *> (input) ; 
+
+    if (input_general != NULL) //! If cast was successful, input had the tried type and input_general can be used in a call to new class' copy constructor
+        {
+        output = new image_label<IMAGEDIM> (input_general,true);
+        }
+
+    return output;
     }
 
 template<int IMAGEDIM >

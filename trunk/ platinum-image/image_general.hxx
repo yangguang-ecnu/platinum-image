@@ -59,37 +59,22 @@ using namespace std;
 template <class NEWELEM, class TRYELEM, int DIM, template <class, int> class requestedClass >
 requestedClass<NEWELEM, DIM> * try_general (image_base* input) //! Helper function to guaranteed_cast
     {
-    requestedClass<NEWELEM, DIM> * output = NULL;
+    requestedClass<NEWELEM, DIM> * output = NULL; //dynamic_cast<requestedClass<NEWELEM, DIM> *> (input);
 
     image_general <TRYELEM,DIM>* input_general = dynamic_cast<image_general <TRYELEM, DIM> *> (input) ; //! Try to cast into image_general of try-type
 
     if (input_general != NULL) //! If cast was successful, input had the tried type and input_general can be used in a call to new class' copy constructor
         {
         output = new requestedClass<NEWELEM, DIM> (input_general,true);
-        delete input;
+        //delete input;
         } 
     return output;
     }
 
-//Some classes have fixed type and only dimensionality templated
-//these need the function template right below:
-
-/*template <class ELEM, int DIM, template <int> class requestedClass >
-requestedClass<DIM>* guaranteed_cast (image_base* input)
-{
-    requestedClass<DIM> * output = dynamic_cast<requestedClass<DIM > *>(input);
-
-    //try any data type used in classes with fixed type
-
-    return output;
-}
-
-*/
-
 template <template <class, int> class requestedClass, class ELEM, int DIM>
-requestedClass<ELEM, DIM>* guaranteed_cast (image_base* input)
+requestedClass<ELEM, DIM>* scalar_copycast (image_base* input)
     {
-    requestedClass<ELEM, DIM> * output = dynamic_cast<requestedClass<ELEM, DIM > *>(input);
+    requestedClass<ELEM, DIM> * output = NULL; //dynamic_cast<requestedClass<ELEM, DIM > *>(input);
 
     //Try all possible data types
 
@@ -117,12 +102,11 @@ requestedClass<ELEM, DIM>* guaranteed_cast (image_base* input)
     if (output == NULL)
         { output = try_general <ELEM,double,DIM,requestedClass >(input); }
 
-    if (output == NULL)
-        {throw  (bad_cast());}
+    /*if (output == NULL)
+        {throw  (bad_cast());}*/
 
     return output;
     }
-
 
 template <class ELEMTYPE, int IMAGEDIM>
 template <class sourceType>
@@ -135,7 +119,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
     for (int d=0; d < IMAGEDIM; d++)
         { size[d]=sourceImage->get_size_by_dim(d); }
 
-    initialize_dataset(size[0],size[1],size[2]);
+    //initialize_dataset(size[0],size[1],size[2]);
 
     ITKimportfilter=NULL;
     ITKimportimage=NULL;
@@ -202,17 +186,12 @@ image_base * image_general<ELEMTYPE, IMAGEDIM>::alike (imageDataType unit)
 //    return new_image;
 //    }
 
-template <class ELEMTYPE, int IMAGEDIM>
+/*template <class ELEMTYPE, int IMAGEDIM>
     template <class inType>
 void image_general<ELEMTYPE, IMAGEDIM>::copy_image (image_general<inType, IMAGEDIM> * in)
     {
     if ( same_size (in))
-        {
-        /*for (unsigned long c= 0; c < static_cast<unsigned short>( in->get_size_by_dim(0)*in->get_size_by_dim(1)*in-> get_size_by_dim(2)); c++)
-            {
-            set_voxel (c,in->get_voxel(c));
-            }*/
-        
+        {  
         typename image_general<inType, IMAGEDIM>::iterator i = in->begin();
         typename image_storage<ELEMTYPE >::iterator o = this->begin();
         
@@ -231,7 +210,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::copy_image (image_general<inType, IMAGED
         cout << "Copying image data: image sizes don't match" << endl;
 #endif
         }
-    }
+    }*/
 
 template <class ELEMTYPE, int IMAGEDIM>
     image_general<ELEMTYPE, IMAGEDIM>::image_general():image_storage<ELEMTYPE>()
@@ -240,13 +219,13 @@ template <class ELEMTYPE, int IMAGEDIM>
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-    template<class SOURCETYPE>
-    image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData) : image_storage<ELEMTYPE > (old_image) //copy constructor
+template<class SOURCETYPE>
+image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData) : image_storage<ELEMTYPE > (old_image) //copy constructor
     {
     initialize_dataset(old_image->get_size_by_dim(0), old_image->get_size_by_dim(1), old_image->get_size_by_dim(2), NULL);
 
     if (copyData)
-        { copy_image (old_image); }
+        { copy_data (old_image,this); }
 
     set_parameters(old_image);
     }
@@ -283,10 +262,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
         this->num_elements *= datasize[i];
         }
 
-    this->imageptr = new ELEMTYPE[this->num_elements];
+    this->imagepointer( new ELEMTYPE[this->num_elements] );
 
-    if (ptr!=NULL)
-        {memcpy(this->imageptr,ptr,sizeof(ELEMTYPE)*this->num_elements);}
+    if (ptr!=NULL) //memcpy is bad karma! Use copy_data(in, out) whenever you know your (input) datatype!
+        {memcpy(this->imagepointer(),ptr,sizeof(ELEMTYPE)*this->num_elements);}
 
     set_parameters();
     }
@@ -485,7 +464,7 @@ void  image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader()
     ITKimportfilter->SetOrigin(itk_origin);
     ITKimportfilter->SetSpacing(itk_spacing);
 
-    ITKimportfilter->SetImportPointer( this->imageptr, this->num_elements, false);
+    ITKimportfilter->SetImportPointer( this->imagepointer(), this->num_elements, false);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -562,7 +541,7 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_from_physical_pos_3D(Ve
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z)
     {
-    return this->imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
+    return this->imagepointer()[x + datasize[0]*y + datasize[0]*datasize[1]*z];
     }
 
 template <class ELEMTYPE, int IMAGEDIM> //JK3
@@ -664,7 +643,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weigh
 /*template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(unsigned long offset)
     {
-    return imageptr[offset];
+    return imagepointer()[offset];
     }*/
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -681,13 +660,13 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, in
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE voxelvalue)
     {
-    this->imageptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
+    this->imagepointer()[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
     }
 
 /*template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(unsigned long offset, ELEMTYPE voxelvalue)
     {
-    imageptr[offset] = voxelvalue;
+    imagepointer()[offset] = voxelvalue;
     }*/
 
 template <class ELEMTYPE, int IMAGEDIM>

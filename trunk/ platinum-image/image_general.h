@@ -109,9 +109,6 @@ class image_general : public image_storage <ELEMTYPE >
         void initialize_dataset(int w, int h, int d);                           //overloading from image_base
         void initialize_dataset(int w, int h, int d, ELEMTYPE *ptr);          //load might happen outside class
 
-        template <class inType>
-            void copy_image (image_general<inType, IMAGEDIM> * in);   //copy image data with type conversion
-
         //initialize image from ITK image
         void replicate_itk_to_image();     //use object's own ITK image pointer
         void replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);

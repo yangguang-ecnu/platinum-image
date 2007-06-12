@@ -33,28 +33,28 @@
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_scalar : public image_general <ELEMTYPE, IMAGEDIM>
-{
-public:
-    image_scalar (): image_general<ELEMTYPE, IMAGEDIM>()
-        {};
-    image_scalar(int w, int h, int d, ELEMTYPE *ptr = NULL):image_general<ELEMTYPE, IMAGEDIM>(w, h, d, ptr) {};
-    image_scalar (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i):image_general<ELEMTYPE, IMAGEDIM>(i) {}
-    //copy constructor
-    template<class SOURCETYPE>
+    {
+    public:
+        image_scalar (): image_general<ELEMTYPE, IMAGEDIM>()
+            {};
+        image_scalar(int w, int h, int d, ELEMTYPE *ptr = NULL):image_general<ELEMTYPE, IMAGEDIM>(w, h, d, ptr) {};
+        image_scalar (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i):image_general<ELEMTYPE, IMAGEDIM>(i) {}
+        //copy constructor
+        template<class SOURCETYPE>
         image_scalar(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_image, copyData)
-        {};
-    //raw constructor
-    image_scalar(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile = 1,unsigned int increment = 1) : image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment)
-        {};
+            {};
+        //raw constructor
+        image_scalar(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile = 1,unsigned int increment = 1) : image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment)
+            {};
 
-	void scale_values(ELEMTYPE new_min=0, ELEMTYPE new_max=255);
+        // *** operations ***
 
-//	void interpolate_bilinear_2D(float phys_x, float phys_y, int vox_z);
-//	void interpolate_trilinear_3D_ITK(float phys_x, float phys_y, float phys_z); //no boundary checks in "itkLinearInterpolateImageFunction.h" 
-	void interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation from vxl package
+        void scale_values(ELEMTYPE new_min=0, ELEMTYPE new_max=255);
 
-
-};
+        //	void interpolate_bilinear_2D(float phys_x, float phys_y, int vox_z);
+        //	void interpolate_trilinear_3D_ITK(float phys_x, float phys_y, float phys_z); //no boundary checks in "itkLinearInterpolateImageFunction.h" 
+        void interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation from vxl package
+    };
 
 // templates in standard C++ requires entire class definition in header
 

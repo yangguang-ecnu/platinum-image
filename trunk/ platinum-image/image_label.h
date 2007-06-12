@@ -29,25 +29,28 @@
 #ifndef __image_label__
 #define __image_label__
 
-#define IMGLABELTYPE unsigned char
-
 #include "image_integer.h"
 
 template<int IMAGEDIM = 3>
 class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
     {
     public:
-        image_label ();
+        image_label (itk::SmartPointer< itk::Image<IMGLABELTYPE, IMAGEDIM > > &i):image_integer<IMGLABELTYPE, IMAGEDIM>(i) {
+            transfer_function();
+            }
 
-    image_label (itk::SmartPointer< itk::Image<IMGLABELTYPE, IMAGEDIM > > &i):image_integer<IMGLABELTYPE, IMAGEDIM>(i) {}
-        
         template<class SOURCETYPE>
             image_label(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_integer<IMGLABELTYPE, IMAGEDIM>(old_image, copyData)
-        {transfer_function();} //copy constructor
+        {
+        transfer_function();
+        } //copy constructor
         
-        image_label (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_integer<IMGLABELTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
+        image_label (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_integer<IMGLABELTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
+            {
+            transfer_function();
+            }
 
-    virtual void transfer_function(transfer_base<IMGLABELTYPE> * t = NULL);
+    virtual void transfer_function(transfer_base<IMGLABELTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
     };
 
 //with C++ templates, declaration and definition go together

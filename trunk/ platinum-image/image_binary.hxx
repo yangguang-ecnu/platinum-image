@@ -17,26 +17,51 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-template <int IMAGEDIM>
-image_binary<IMAGEDIM>::image_binary():image_integer<bool, IMAGEDIM>() 
-    {}
+template <int DIM>
+image_binary<DIM>* binary_copycast (image_base* input) //! Converts might-be binary types into image_binary
+    {
+    image_binary<DIM > * output = NULL;
+
+        {
+        image_integer <unsigned char, DIM>* input_general =
+            dynamic_cast<image_integer <unsigned char, DIM> *> (input) ; 
+
+        if (input_general != NULL) //! If cast was successful, input had the tried type and input_general can be used in a call to new class' copy constructor
+            {
+            output = new image_binary<DIM> (input_general,true);
+            }
+        }
+
+            {
+        image_integer <unsigned short,DIM>* input_general =
+            dynamic_cast<image_integer <unsigned short, DIM> *> (input) ;
+
+        if (input_general != NULL) //! If cast was successful, input had the tried type and input_general can be used in a call to new class' copy constructor
+            {
+            output = new image_binary<DIM> (input_general,true);
+            //delete input;
+            } 
+            }
+
+    return output;
+    }
 
 template <int IMAGEDIM>
-image_binary<IMAGEDIM>::image_binary(int w, int h, int d, bool *ptr
-                                    ):image_integer<bool, IMAGEDIM>(w, h, d, ptr)
+image_binary<IMAGEDIM>::image_binary(int w, int h, int d, IMGBINARYTYPE *ptr
+                                    ):image_label<IMAGEDIM>(w, h, d, ptr)
     {}
 
-template <int IMAGEDIM>
-void image_binary<IMAGEDIM >:: transfer_function(transfer_base<bool > * t)
+/*template <int IMAGEDIM>
+void image_binary<IMAGEDIM >:: transfer_function(transfer_base<IMGBINARYTYPE > * t)
     {
     if (this->tfunction != NULL)
         {delete this->tfunction;}
 
     if (t == NULL)
-        this->tfunction = new transfer_mapcolor<bool >(this);
+        this->tfunction = new transfer_mapcolor<IMGBINARYTYPE >(this);
     else
         this->tfunction = t;
-    }
+    }*/
 
 // *** Logical operations ***
     
@@ -45,9 +70,9 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_or(image_binary<IMAGEDI
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
-    image_storage<bool>::iterator i1 = this->begin();
-    image_storage<bool>::iterator i2 = input->begin();
-    image_storage<bool>::iterator o = output->begin();
+    image_storage<IMGBINARYTYPE >::iterator i1 = this->begin();
+    image_storage<IMGBINARYTYPE >::iterator i2 = input->begin();
+    image_storage<IMGBINARYTYPE >::iterator o = output->begin();
     while (i1 != this->end()) //images are same size and should necessarily end at the same time
         {
         if(*i1 == object_value || *i2 == object_value)
@@ -65,9 +90,9 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and(image_binary<IMAGED
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
-    image_storage<bool>::iterator i1 = this->begin();
-    image_storage<bool>::iterator i2 = input->begin();
-    image_storage<bool>::iterator o = output->begin();
+    image_storage<IMGBINARYTYPE >::iterator i1 = this->begin();
+    image_storage<IMGBINARYTYPE >::iterator i2 = input->begin();
+    image_storage<IMGBINARYTYPE >::iterator o = output->begin();
     while (i1 != this->end()) //images are same size and should necessarily end at the same time
         {
         if(*i1 == object_value && *i2 == object_value)
@@ -85,9 +110,9 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_xor(image_binary<IMAGED
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
-    image_storage<bool>::iterator i1 = this->begin();
-    image_storage<bool>::iterator i2 = input->begin();
-    image_storage<bool>::iterator o = output->begin();
+    image_storage<IMGBINARYTYPE >::iterator i1 = this->begin();
+    image_storage<IMGBINARYTYPE >::iterator i2 = input->begin();
+    image_storage<IMGBINARYTYPE >::iterator o = output->begin();
     while (i1 != this->end()) //images are same size and should necessarily end at the same time
         {
         if((*i1 == object_value && *i2 != object_value) || (*i1 != object_value && *i2 == object_value))
