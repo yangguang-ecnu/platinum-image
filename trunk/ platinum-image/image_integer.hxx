@@ -1102,7 +1102,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	delete[] par_node;
 	delete[] npt_array;
 
-	output->image_has_changed();
+	output->min_max_refresh();
 	return output;
 	}
 
@@ -1231,7 +1231,7 @@ void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, I
             {*i=blank;}
         ++i; ++m;
         }
-	this->image_has_changed();
+	this->min_max_refresh();
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
