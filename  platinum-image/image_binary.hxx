@@ -173,5 +173,5 @@ void image_binary<IMAGEDIM>::invert()
         *i = !(*i);
         ++i;
         }
-	this->image_has_changed();
+	//this->image_has_changed();
     } 
