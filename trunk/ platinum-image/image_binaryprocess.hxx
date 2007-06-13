@@ -25,7 +25,7 @@
 
 // Loops over the dimension given by direction and performs a slice-wise hole filling
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::fill_holes_2D(int direction, bool object_value)
+void image_binary<IMAGEDIM>::fill_holes_2D(int direction, IMGBINARYTYPE object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
@@ -33,7 +33,7 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, bool object_value)
 	max_v=this->get_size_by_dim_and_dir(1,direction);
 	max_w=this->get_size_by_dim_and_dir(2,direction);
 		
-	bool p;//pixel value
+	IMGBINARYTYPE p;//pixel value
 	int label,up,left;//neighbour labels 
 	//image_general<int, IMAGEDIM> label_image(max_u, max_v, max_w);
     image_integer<short, IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
@@ -132,7 +132,7 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, bool object_value)
 	}
 	
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
+void image_binary<IMAGEDIM>::largest_object_2D(int direction, IMGBINARYTYPE object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
@@ -140,7 +140,7 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
 	max_v=this->get_size_by_dim_and_dir(1,direction);
 	max_w=this->get_size_by_dim_and_dir(2,direction);
 		
-	bool p;//pixel value
+	IMGBINARYTYPE p;//pixel value
 	int label,up,left;//neighbour labels 
 	//image_general<int, IMAGEDIM> label_image(max_u, max_v, max_w);
     image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
@@ -255,7 +255,7 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, bool object_value)
 	}
 	
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool object_value)
+void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, IMGBINARYTYPE object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
@@ -263,7 +263,7 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool
 	max_v=this->get_size_by_dim_and_dir(1,direction);
 	max_w=this->get_size_by_dim_and_dir(2,direction);
 		
-	bool p;//pixel value
+	IMGBINARYTYPE p;//pixel value
 	int label,up,left;//neighbour labels 
 	//image_general<int, IMAGEDIM> label_image(max_u, max_v, max_w);
     image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
@@ -368,7 +368,7 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, bool
 	}
 	
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int direction, bool object_value)
+void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int direction, IMGBINARYTYPE object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
@@ -376,7 +376,7 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 	max_v=this->get_size_by_dim_and_dir(1,direction);
 	max_w=this->get_size_by_dim_and_dir(2,direction);
 		
-	bool p,m;//pixel value
+	IMGBINARYTYPE p,m;//pixel value
 	int label,up,left;//neighbour labels 
 	//image_general<int, IMAGEDIM> label_image(max_u, max_v, max_w);
     image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
@@ -690,7 +690,7 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 	}
 		
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::connect_outer_2D(int direction, bool object_value)
+void image_binary<IMAGEDIM>::connect_outer_2D(int direction, IMGBINARYTYPE object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
@@ -698,7 +698,7 @@ void image_binary<IMAGEDIM>::connect_outer_2D(int direction, bool object_value)
 	max_v=this->get_size_by_dim_and_dir(1,direction);
 	max_w=this->get_size_by_dim_and_dir(2,direction);
 		
-	bool p;//pixel value
+	IMGBINARYTYPE p;//pixel value
 
 	for(w=0; w<max_w; w++)
 		{
@@ -828,7 +828,7 @@ void image_binary<IMAGEDIM>::connect_outer_2D(int direction, bool object_value)
 	}
 
 template <int IMAGEDIM>
-image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool edge_is_object, int direction, bool object_value)
+image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool edge_is_object, int direction, IMGBINARYTYPE object_value)
 	{
 	image_integer<short, IMAGEDIM>* output = new image_integer<short,IMAGEDIM> (this,false);
 	int u,v,w;
@@ -838,7 +838,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 	max_w=this->get_size_by_dim_and_dir(2,direction);
 	int veryhigh = std::max(max_u,max_v)*4;//std::numeric_limits<int>::max()-9;
 	int initvalue=(edge_is_object)?veryhigh:0;
-	bool p;//pixel value
+	IMGBINARYTYPE p;//pixel value
 	int d,ul,um,ur,ml,mr,ll,lm,lr;//neighbour labels 
 	for(w=0; w<max_w; w++)
 		{
@@ -886,7 +886,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 //3D functions	
 	
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
+void image_binary<IMAGEDIM>::fill_holes_3D(IMGBINARYTYPE object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
@@ -894,7 +894,7 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 	max_v=this->get_size_by_dim(1);
 	max_w=this->get_size_by_dim(2);
 		
-	bool p;//pixel value
+	IMGBINARYTYPE p;//pixel value
 	int label,above,up,left;//neighbour labels 
     image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
 	int new_label;
@@ -1008,7 +1008,7 @@ void image_binary<IMAGEDIM>::fill_holes_3D(bool object_value)
 	}	
 		
 template <int IMAGEDIM>
-image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool edge_is_object, bool object_value)
+image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool edge_is_object, IMGBINARYTYPE object_value)
 	{
 	image_integer<short, IMAGEDIM>* output = new image_integer<short,IMAGEDIM> (this,false);
 	int u,v,w;
@@ -1018,7 +1018,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 	max_w=this->get_size_by_dim(2);
 	int veryhigh = (std::max(max_w,std::max(max_u,max_v))*5);//std::numeric_limits<int>::max()-11;
 	int initvalue=(edge_is_object)?veryhigh:0;
-	bool p;//pixel value
+	IMGBINARYTYPE p;//pixel value
 	int d,ul,um,ur,ml,mr,ll,lm,lr,aul,aum,aur,aml,amm,amr,all,alm,alr;//neighbour labels 
 	for(w=0; w<max_w; w++)
 		{
@@ -1134,7 +1134,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 	}
 
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
+void image_binary<IMAGEDIM>::largest_object_3D(IMGBINARYTYPE object_value)
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
@@ -1142,7 +1142,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 	max_v=this->get_size_by_dim(1);
 	max_w=this->get_size_by_dim(2);
 		
-	bool p;//pixel value
+	IMGBINARYTYPE p;//pixel value
 	int label,above,up,left;//neighbour labels 
     image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
 	int new_label;
@@ -1272,49 +1272,61 @@ void image_binary<IMAGEDIM>::largest_object_3D(bool object_value)
 	}
 
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::erode_2D(int thickness, int direction, bool object_value)
+void image_binary<IMAGEDIM>::erode_2D(int thickness, int direction, IMGBINARYTYPE object_value)
 	{		
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, object_value);
-	this->copy_image(distance_image->threshold(thickness+1, std::numeric_limits<short>::max(), object_value));
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(thickness+1, std::numeric_limits<short>::max(), object_value); 
+	copy_data(threshold_image,this);
+	delete threshold_image;
 	}
 
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::dilate_2D(int thickness, int direction, bool object_value)
+void image_binary<IMAGEDIM>::dilate_2D(int thickness, int direction, IMGBINARYTYPE object_value)
 	{		
 	bool edge_is_object=true;
     image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, !object_value);
-	this->copy_image(distance_image->threshold(0, thickness, object_value));
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(0, thickness, object_value);
+	copy_data(threshold_image,this);
+	delete threshold_image;
 	}
 
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::outline_2D(int thickness, int direction, bool object_value)
+void image_binary<IMAGEDIM>::outline_2D(int thickness, int direction, IMGBINARYTYPE object_value)
 	{		
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, object_value);
-	this->copy_image(distance_image->threshold(3, thickness, object_value));
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(3, thickness, object_value);
+	copy_data(threshold_image,this);
+	delete threshold_image;
 	}
 	
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::erode_3D(int thickness, bool object_value)
+void image_binary<IMAGEDIM>::erode_3D(int thickness, IMGBINARYTYPE object_value)
 	{		
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, object_value);
-	this->copy_image(distance_image->threshold(thickness+1, std::numeric_limits<short>::max(), object_value));
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(thickness+1, std::numeric_limits<short>::max(), object_value);
+	copy_data(threshold_image,this);
+	delete threshold_image;
 	}
 
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::dilate_3D(int thickness, bool object_value)
+void image_binary<IMAGEDIM>::dilate_3D(int thickness, IMGBINARYTYPE object_value)
 	{		
 	bool edge_is_object=true;
     image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, !object_value);
-	this->copy_image(distance_image->threshold(0, thickness, object_value));
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(0, thickness, object_value);
+	copy_data(threshold_image,this);
+	delete threshold_image;
 	}
 
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::outline_3D(int thickness, bool object_value)
+void image_binary<IMAGEDIM>::outline_3D(int thickness, IMGBINARYTYPE object_value)
 	{		
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, object_value);
-	this->copy_image(distance_image->threshold(3, thickness, object_value));
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(3, thickness, object_value);
+	copy_data(threshold_image,this);
+	delete threshold_image;
 	}

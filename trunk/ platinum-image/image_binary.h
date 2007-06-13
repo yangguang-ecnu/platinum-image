@@ -30,6 +30,9 @@
 
 #include "image_integer.h"
 
+#define TRUE 1
+#define FALSE 0
+
 template<int IMAGEDIM = 3>
 class image_binary : public image_label <IMAGEDIM>
     {
@@ -49,33 +52,33 @@ class image_binary : public image_label <IMAGEDIM>
 
     // *** operations ***
 
-    image_binary<IMAGEDIM> * logical_or(image_binary<IMAGEDIM> *input, bool object_value=true); ///Perform a voxelwise logical A OR B operation
-    image_binary<IMAGEDIM> * logical_and(image_binary<IMAGEDIM> *input, bool object_value=true); ///Perform a voxelwise logical A AND B operation
-    image_binary<IMAGEDIM> * logical_xor(image_binary<IMAGEDIM> *input, bool object_value=true); ///Perform a voxelwise logical A XOR B operation
-    image_binary<IMAGEDIM> * logical_or_not(image_binary<IMAGEDIM> *input, bool object_value=true); ///Perform a voxelwise logical A OR (NOT B) operation
-    image_binary<IMAGEDIM> * logical_and_not(image_binary<IMAGEDIM> *input, bool object_value=true); ///Perform a voxelwise logical A AND (NOT B) operation
+    image_binary<IMAGEDIM> * logical_or(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A OR B operation
+    image_binary<IMAGEDIM> * logical_and(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A AND B operation
+    image_binary<IMAGEDIM> * logical_xor(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A XOR B operation
+    image_binary<IMAGEDIM> * logical_or_not(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A OR (NOT B) operation
+    image_binary<IMAGEDIM> * logical_and_not(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A AND (NOT B) operation
     void invert(); ///Perform a voxelwise inversion
 
     // *** applications ***
 
     // 2D operations in image_binaryprocess
-    void fill_holes_2D(int direction=2, bool object_value=true); ///Fill holes in objects defined by object_value in 2D-planes orthogonal to the axis given by direction.
-    void largest_object_2D(int direction=2, bool object_value=true); ///Keep the largest object (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
-    void threshold_size_2D(int min_size, int direction=2, bool object_value=true); ///Keep all objects (defined by object_value) > min_size voxels for each plane in 2D-planes orthogonal to the axis given by direction.
-    void cog_inside_2D(image_binary<IMAGEDIM>* mask, int direction=2, bool object_value=true); ///Keep all objects (defined by object_value) having their cog within mask in 2D-planes orthogonal to the axis given by direction.
-	void erode_2D(int thickness=3, int direction=2, bool object_value=true); ///Morphological erode up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
-	void dilate_2D(int thickness=3, int direction=2, bool object_value=true); ///Morphological dilate up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
-	void outline_2D(int thickness=3, int direction=2, bool object_value=true); ///Morphological outline up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
-    void connect_outer_2D(int direction=2, bool object_value=true); ///Connect outer contour of objects (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
-    image_integer<short, IMAGEDIM> * distance_34_2D(bool edge_is_object=false, int direction=2, bool object_value=true); ///Compute 34 chamfer distance map for each plane in 2D-planes orthogonal to the axis given by direction. If edge_is_object=true then everything outside the image is regarded to be object voxels.
+    void fill_holes_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Fill holes in objects defined by object_value in 2D-planes orthogonal to the axis given by direction.
+    void largest_object_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
+    void threshold_size_2D(int min_size, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep all objects (defined by object_value) > min_size voxels for each plane in 2D-planes orthogonal to the axis given by direction.
+    void cog_inside_2D(image_binary<IMAGEDIM>* mask, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep all objects (defined by object_value) having their cog within mask in 2D-planes orthogonal to the axis given by direction.
+	void erode_2D(int thickness=3, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological erode up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
+	void dilate_2D(int thickness=3, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological dilate up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
+	void outline_2D(int thickness=3, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological outline up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
+    void connect_outer_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Connect outer contour of objects (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
+    image_integer<short, IMAGEDIM> * distance_34_2D(bool edge_is_object=false, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Compute 34 chamfer distance map for each plane in 2D-planes orthogonal to the axis given by direction. If edge_is_object=true then everything outside the image is regarded to be object voxels.
 
     // 3D operations in image_binaryprocess
-    void fill_holes_3D(bool object_value=true); ///Fill holes in objects defined by object_value.
-	void largest_object_3D(bool object_value=true); ///Keep the largest object (defined by object_value).
-	void erode_3D(int thickness=3, bool object_value=true);///Morphological erode up to distance value=thickness.
-	void dilate_3D(int thickness=3, bool object_value=true); ///Morphological dilate up to distance value=thickness.
-	void outline_3D(int thickness=3, bool object_value=true); ///Morphological outline up to distance value=thickness.
-    image_integer<short, IMAGEDIM> * distance_345_3D(bool edge_is_object=false, bool object_value=true); ///Compute 345 chamfer distance map. If edge_is_object=true then everything outside the image is regarded to be object voxels.
+    void fill_holes_3D(IMGBINARYTYPE object_value=TRUE); ///Fill holes in objects defined by object_value.
+	void largest_object_3D(IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value).
+	void erode_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE);///Morphological erode up to distance value=thickness.
+	void dilate_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE); ///Morphological dilate up to distance value=thickness.
+	void outline_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE); ///Morphological outline up to distance value=thickness.
+    image_integer<short, IMAGEDIM> * distance_345_3D(bool edge_is_object=false, IMGBINARYTYPE object_value=TRUE); ///Compute 345 chamfer distance map. If edge_is_object=true then everything outside the image is regarded to be object voxels.
     };
 
 //with C++ templates, declaration and definition go together
