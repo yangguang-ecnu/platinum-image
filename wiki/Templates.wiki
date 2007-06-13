@@ -13,8 +13,8 @@ Example: to specify the return type `float` for a get_parameter call:
 ===image_base resolution===
 When using images not generated in Platinum (i.e. loaded from file, by user or in code) the template parameters of the image are not determined at compile time. For example, an algorithm doing processing on binary images would need a binary image for input. However, when aquiring an image through 'get_image(id)' the returned type will be [image_base]. The solution is to use one of the functions described below.
 
-||Function||Return type||Pointing to||Expects input||
-||`dynamic_cast<requestedClass<type, dimension>>` ||requestedClass<type, dimension>|| *original*||requestedClass<type, dimension> or related ||
+|| *Function* || *Return type* || *Pointing to* || *Expects input* ||
+||`dynamic_cast<requestedClass<type, dimension>>` ||requestedClass<type, dimension>|| *original*||requestedClass<type, dimension> or subclass||
 ||`scalar_copycast<requestedClass<type, dimension>, type, dimension >`||requestedClass<type, dimension> (must be scalar or scalar subclass)||copy||Any scalar type||
 ||`binary_copycast<dimension >`||image_binary<dimension >||copy||Binary, unsigned char||
 ||`label_copycast<dimension >`||image_label<dimension>||copy||image_integer and subclasses||
