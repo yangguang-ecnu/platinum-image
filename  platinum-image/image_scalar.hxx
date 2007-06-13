@@ -16,24 +16,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
-
-template <class ELEMTYPE, int IMAGEDIM >
-void image_scalar<ELEMTYPE, IMAGEDIM >::scale_values(ELEMTYPE new_min, ELEMTYPE new_max)
-	{
-		if(get_min()==get_max())
-		{
-			set_value_to_all_voxels(0);
-		}else
-		{
-			typename image_storage<ELEMTYPE>::iterator i = this->begin();
-			while (i != this->end())
-			{
-				*i = new_min + (new_max-new_min)/(get_max()-get_min())*(*i);
-				++i;
-			}
-		}
-	}
-
 template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im)
 	{	
