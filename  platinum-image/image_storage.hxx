@@ -169,7 +169,7 @@ void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)
 	{
 		if(get_min()==get_max())
 		{
-			set_value_to_all_voxels(0);
+			fill(0);
 		}else
 		{
 			typename image_storage<ELEMTYPE>::iterator i = this->begin();
