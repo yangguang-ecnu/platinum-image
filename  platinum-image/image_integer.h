@@ -47,14 +47,14 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
 		image_integer (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_scalar<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
 	
 		void draw_line_2D(int x0, int y0, int x1, int y1, int z, ELEMTYPE value, int direction=2); ///Draw a line between (x0,y0) and (x1,y1) in plane z using color described by value. The coordinates are given on the plane orthogonal to the axis given by direction.
-
+		std::vector<POINT> get_distribution();
         // *** processing ***
-        image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold=true); ///Return a image_binary where all voxels with values between low and high gets the value true_inside_threshold.
+        image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, IMGBINARYTYPE true_inside_threshold=TRUE); ///Return a image_binary where all voxels with values between low and high gets the value true_inside_threshold.
 		ELEMTYPE gauss_fit2(); ///Compute optimal threshold value by fitting two gaussian distributions to the histogram.
         
         ELEMTYPE components_hist_3D(); ///Compute optimal threshold value by computing a number of components histogram.
-        image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, bool object_value=true); ///Computing a narrowest passage transform followed by competetive region growing. Assumes the current image to be a distance image and the mask image contains seedpoints for the target.
-		void mask_out(image_binary<IMAGEDIM> *mask, bool object_value=true, ELEMTYPE blank=0); ///All voxels in the current image where the corresponding mask voxels != object_value are set to blank.
+        image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, IMGBINARYTYPE object_value=TRUE); ///Computing a narrowest passage transform followed by competetive region growing. Assumes the current image to be a distance image and the mask image contains seedpoints for the target.
+		void mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value=TRUE, ELEMTYPE blank=0); ///All voxels in the current image where the corresponding mask voxels != object_value are set to blank.
 	
 	private:
 		int findNode(int e, int* par_node); ///Support function to narrowest_passage_3D

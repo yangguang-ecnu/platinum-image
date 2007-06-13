@@ -18,7 +18,7 @@
 // *** Processing ***
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE low, ELEMTYPE high, bool true_inside_threshold)
+image_binary<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE low, ELEMTYPE high, IMGBINARYTYPE true_inside_threshold)
 	{
     image_binary<IMAGEDIM> * output = new image_binary<IMAGEDIM> (this,false);
         
@@ -823,7 +823,7 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::components_hist_3D()
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(image_binary<IMAGEDIM> * mask, bool object_value)
+image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(image_binary<IMAGEDIM> * mask, IMGBINARYTYPE object_value)
     {
     image_label<IMAGEDIM> * output = new image_label<IMAGEDIM> (this,false);
 	IMGLABELTYPE class1=3;
@@ -978,7 +978,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	//Find seeds
 	bool* marked=new bool[number_of_voxels];
 	memset(marked, 0, sizeof(bool)*number_of_voxels);
-	typename image_storage<bool >::iterator mask_iter = mask->begin(); 
+	typename image_storage<IMGBINARYTYPE >::iterator mask_iter = mask->begin(); 
 	output_iter = output->begin(); 
 	for (i=0; i<number_of_voxels; i++)
 		{
@@ -1221,10 +1221,10 @@ void image_integer<ELEMTYPE, IMAGEDIM>::draw_line_2D(int x0, int y0, int x1, int
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, bool object_value, ELEMTYPE blank)
+void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value, ELEMTYPE blank)
     {
     image_storage<ELEMTYPE>::iterator i = this->begin();
-    image_storage<bool>::iterator m = mask->begin();
+    image_storage<IMGBINARYTYPE >::iterator m = mask->begin();
     while (i != this->end()) //images are same size and should necessarily end at the same time
         {
         if(*m != object_value)
@@ -1233,3 +1233,37 @@ void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, b
         }
 	this->image_has_changed();
     }
+
+template <class ELEMTYPE, int IMAGEDIM>
+std::vector<POINT> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
+	{
+	typename image_storage<ELEMTYPE >::iterator iter = this->begin();
+    
+	ELEMTYPE min_val=this->get_min();
+	ELEMTYPE max_val=this->get_max();		
+    int distinct_element_count = max_val - min_val + 1;
+    int* counts = new int[distinct_element_count];
+	memset(counts, 0, sizeof(int)*(1+max_val-min_val));
+    while (iter != this->end()) //images are same size and should necessarily end at the same time
+        {
+        counts[(*iter)-min_val]++;
+        ++iter;
+        }
+
+	ELEMTYPE i;
+	vector<POINT> res;
+	POINT p;        
+    for(i=min_val; i<=max_val; i++)
+		{
+		if(counts[i-min_val]>0)
+			{
+			p.x=i;
+			p.y=counts[i-min_val];
+			res.push_back(p);
+			}
+		}
+
+	delete[] counts;
+
+	return res;
+	}

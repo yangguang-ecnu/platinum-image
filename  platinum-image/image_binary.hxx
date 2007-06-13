@@ -66,7 +66,7 @@ void image_binary<IMAGEDIM >:: transfer_function(transfer_base<IMGBINARYTYPE > *
 // *** Logical operations ***
     
 template <int IMAGEDIM>
-image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_or(image_binary<IMAGEDIM> *input, bool object_value)
+image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_or(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value)
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
@@ -86,7 +86,7 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_or(image_binary<IMAGEDI
     }
     
 template <int IMAGEDIM>
-image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and(image_binary<IMAGEDIM> *input, bool object_value)
+image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value)
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
@@ -106,7 +106,7 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and(image_binary<IMAGED
     }
     
 template <int IMAGEDIM>
-image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_xor(image_binary<IMAGEDIM> *input, bool object_value)
+image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_xor(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value)
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
@@ -125,13 +125,13 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_xor(image_binary<IMAGED
     return output;
     }
 template <int IMAGEDIM>
-image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_or_not(image_binary<IMAGEDIM> *input, bool object_value)
+image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_or_not(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value)
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
-    image_storage<bool>::iterator i1 = this->begin();
-    image_storage<bool>::iterator i2 = input->begin();
-    image_storage<bool>::iterator o = output->begin();
+    image_storage<IMGBINARYTYPE >::iterator i1 = this->begin();
+    image_storage<IMGBINARYTYPE >::iterator i2 = input->begin();
+    image_storage<IMGBINARYTYPE >::iterator o = output->begin();
     while (i1 != this->end()) //images are same size and should necessarily end at the same time
         {
         if(*i1 == object_value || *i2 != object_value)
@@ -145,13 +145,13 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_or_not(image_binary<IMA
     }
     
 template <int IMAGEDIM>
-image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and_not(image_binary<IMAGEDIM> *input, bool object_value)
+image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and_not(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value)
     {
     image_binary<IMAGEDIM> * output = new image_binary (this,false);
     
-    image_storage<bool>::iterator i1 = this->begin();
-    image_storage<bool>::iterator i2 = input->begin();
-    image_storage<bool>::iterator o = output->begin();
+    image_storage<IMGBINARYTYPE >::iterator i1 = this->begin();
+    image_storage<IMGBINARYTYPE >::iterator i2 = input->begin();
+    image_storage<IMGBINARYTYPE >::iterator o = output->begin();
     while (i1 != this->end()) //images are same size and should necessarily end at the same time
         {
         if(*i1 == object_value && *i2 != object_value)
@@ -167,7 +167,7 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and_not(image_binary<IM
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::invert()
     {
-    image_storage<bool>::iterator i = this->begin();
+    image_storage<IMGBINARYTYPE >::iterator i = this->begin();
     while (i != this->end())
         {
         *i = !(*i);
