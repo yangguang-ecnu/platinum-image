@@ -28,11 +28,15 @@
 #define __image_storage__
 
 #include "transfer.h"
+#include "histogram.h"
 
 #define IMGLABELTYPE unsigned char
 #define IMGBINARYTYPE IMGLABELTYPE
 
 class image_base;
+
+template <class ELEMTYPE>
+class histogram_1D;
 
 #include "image_base.h"
 
@@ -50,6 +54,7 @@ class image_storage : public image_base
         image_storage(image_storage<SOURCETYPE> * s);
 
         transfer_base<ELEMTYPE> * tfunction;
+        histogram_1D<ELEMTYPE> * stats;
 
         virtual void transfer_function(transfer_base<ELEMTYPE> * t = NULL);
         //allows subclasses to set a different default transfer function, and
@@ -80,7 +85,7 @@ class image_storage : public image_base
         float get_min_float();
         ELEMTYPE get_max();
         ELEMTYPE get_min();
-		void set_value_to_all_voxels(ELEMTYPE value);
+		void fill(ELEMTYPE value);
 
         // *** iterator ***        
         class iterator : public std::iterator<std::forward_iterator_tag, ELEMTYPE>

@@ -34,8 +34,6 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::scale_values(ELEMTYPE new_min, ELEMTYPE 
 		}
 	}
 
-
-
 template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im)
 	{	

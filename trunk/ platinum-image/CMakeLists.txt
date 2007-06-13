@@ -41,10 +41,12 @@ INCLUDE_DIRECTORIES( ${FLTK_INCLUDE_DIR}  )
 
 LINK_DIRECTORIES(${ITK_LIBRARY_DIR} ${FLTK_LIBRARY_DIR})
 
+INCLUDE_DIRECTORIES( Utilities/ )
+
 IF(WIN32)
-  INCLUDE_DIRECTORIES( dirent-win32 )
-  SET(WIN32_DIRENT_SRC dirent-win32/dirent.c)
-  SET(WIN32_DIRENT_HEAD dirent-win32/dirent.h)
+  INCLUDE_DIRECTORIES( Utilities/dirent-win32 )
+  SET(WIN32_DIRENT_SRC Utilities/dirent-win32/dirent.c)
+  SET(WIN32_DIRENT_HEAD Utilities/dirent-win32/dirent.h)
 ENDIF(WIN32)
 
 OPTION(BUILD_SHARED "Build Platinum as a shared library" OFF)

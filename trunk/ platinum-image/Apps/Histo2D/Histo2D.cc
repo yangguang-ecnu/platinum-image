@@ -245,6 +245,13 @@ void threshold_artifact_process (int u,int p)
     {
     if (p == USERIO_CB_OK)
         {
+        //image_integer<unsigned char, 3> * fat_image = scalar_copycast<image_integer<unsigned char, 3>, unsigned char, 3>(datamanagement.get_image( userIOmanagement.get_parameter<imageIDtype>(u,0)) );
+
+        image_scalar<unsigned char,3> * boo = scalar_copycast<image_scalar,unsigned char,3>(userIOmanagement.get_parameter<imageIDtype>(
+            datamanagement.get_image(
+            userIOmanagement.get_parameter<imageIDtype>(u,0))));
+
+        delete boo;
         image_label<3> * input_vol = label_copycast<3>(
             datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0)));
             //using label_copycast, reason:
@@ -405,7 +412,7 @@ int main(int argc, char *argv[])
 
     int threshold_artifact_process_ID=userIOmanagement.add_userIO("Threshold artifact removal",threshold_artifact_process,"Process");
     userIOmanagement.add_par_image(threshold_artifact_process_ID,"Input");
-    userIOmanagement.add_par_int_box(threshold_artifact_process_ID,"Radius",4,1);
+    userIOmanagement.add_par_longint_box(threshold_artifact_process_ID,"Radius",4,1);
     userIOmanagement.finish_userIO(threshold_artifact_process_ID);
 
     int difference_ID=userIOmanagement.add_userIO("FA FCM comparison",diff_images,"Calculate");
