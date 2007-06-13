@@ -281,8 +281,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool mm_refresh)
     this->from_file(false);
 
     //recalculate min/max
-    //with ITK image data, this is preferrably done with
-    //StatisticsImageFilter
 	if(mm_refresh)
 		this->min_max_refresh();
 
