@@ -270,16 +270,30 @@ image_base * brukerloader::read(std::vector<std::string> &files)
 
             voxelsize.Fill (1);
 
-            newImage = rawimporter::allocate_image<image_scalar> (
-                isFloat,
-                isSigned,
-                bitDepth,
-                std::vector<std::string > (1,*reconstruction + "2dseq"), 
-                size[0], size[1],
-                bigEndian,
-                0, 
-                voxelsize);
-
+			if(isFloat)
+				{
+				newImage = rawimporter::allocate_image<image_scalar> (
+					isFloat,
+					isSigned,
+					bitDepth,
+					std::vector<std::string > (1,*reconstruction + "2dseq"), 
+					size[0], size[1],
+					bigEndian,
+					0, 
+					voxelsize);
+				}
+			else
+				{
+				newImage = rawimporter::allocate_image<image_integer> (
+					isFloat,
+					isSigned,
+					bitDepth,
+					std::vector<std::string > (1,*reconstruction + "2dseq"), 
+					size[0], size[1],
+					bigEndian,
+					0, 
+					voxelsize);
+				}
             newImage->name( tokens ["OWNER"].value<std::string>() + tokens ["RECO_time"].value<std::string>());
 
             files.clear(); //eat all files if (one) load was successful
