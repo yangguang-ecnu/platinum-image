@@ -203,12 +203,12 @@ class FLTKuserIOpar_float : public FLTKuserIOparameter_base    //float value (us
         void par_value (float & v);
     };
 
-class FLTKuserIOpar_int : public FLTKuserIOparameter_base    //integer value (using slider)
+class FLTKuserIOpar_longint : public FLTKuserIOparameter_base    //integer value (using slider)
     {
     protected:
         Fl_Value_Slider * control;
     public:
-        FLTKuserIOpar_int (const std::string name, long ma=255, long mi=0);
+        FLTKuserIOpar_longint (const std::string name, long ma=255, long mi=0);
                                                    //order of parameters reverse of expected,
                                                    //because min is more typically left at default
                                                    //than max
@@ -216,12 +216,12 @@ class FLTKuserIOpar_int : public FLTKuserIOparameter_base    //integer value (us
         void par_value (long & v);
     };
 
-class FLTKuserIOpar_int_box : public FLTKuserIOparameter_base    //integer value (using input box)
+class FLTKuserIOpar_longint_box : public FLTKuserIOparameter_base    //integer value (using input box)
     {
     protected:
         Fl_Value_Input * control;
     public:
-        FLTKuserIOpar_int_box (const std::string name, long ma=255, long mi=0);
+        FLTKuserIOpar_longint_box (const std::string name, long ma=255, long mi=0);
                                                    //order of parameters reverse of expected,
                                                    //because min is more typically left at default
                                                    //than max
