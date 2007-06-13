@@ -101,9 +101,9 @@ const std::string FLTKuserIOpar_float::type_name ()
     return "float";
     }
 
-// *** FLTKuserIOpar_int ***
+// *** FLTKuserIOpar_longint ***
 
-FLTKuserIOpar_int::FLTKuserIOpar_int (const std::string name, long ma, long mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
+FLTKuserIOpar_longint::FLTKuserIOpar_longint (const std::string name, long ma, long mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
     {
     //label set by superclass constructor
     //position & width set by parent userIO later, including margin
@@ -121,19 +121,19 @@ FLTKuserIOpar_int::FLTKuserIOpar_int (const std::string name, long ma, long mi) 
     end();
     }
 
-void FLTKuserIOpar_int::par_value (long & v)
+void FLTKuserIOpar_longint::par_value (long & v)
     {
     v=static_cast<long>(control->value());
     }
 
-const std::string FLTKuserIOpar_int::type_name ()
+const std::string FLTKuserIOpar_longint::type_name ()
     {
     return "long (slider)";
     }
 
-// *** FLTKuserIOpar_int_box ***
+// *** FLTKuserIOpar_longint_box ***
 
-FLTKuserIOpar_int_box::FLTKuserIOpar_int_box (const std::string name, long ma, long mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
+FLTKuserIOpar_longint_box::FLTKuserIOpar_longint_box (const std::string name, long ma, long mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
     {
     //label set by superclass constructor
     //position & width set by parent userIO later, including margin
@@ -150,12 +150,12 @@ FLTKuserIOpar_int_box::FLTKuserIOpar_int_box (const std::string name, long ma, l
     end();
     }
 
-void FLTKuserIOpar_int_box::par_value (long & v)
+void FLTKuserIOpar_longint_box::par_value (long & v)
     {
     v=static_cast<long>(control->value());
     }
 
-const std::string FLTKuserIOpar_int_box::type_name ()
+const std::string FLTKuserIOpar_longint_box::type_name ()
     {
     return "long (slider)";
     }
