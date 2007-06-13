@@ -49,7 +49,6 @@ class image_scalar : public image_general <ELEMTYPE, IMAGEDIM>
 
         // *** operations ***
 
-        void scale_values(ELEMTYPE new_min=0, ELEMTYPE new_max=255);
 
         //	void interpolate_bilinear_2D(float phys_x, float phys_y, int vox_z);
         //	void interpolate_trilinear_3D_ITK(float phys_x, float phys_y, float phys_z); //no boundary checks in "itkLinearInterpolateImageFunction.h" 

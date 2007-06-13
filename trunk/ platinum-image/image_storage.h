@@ -86,6 +86,7 @@ class image_storage : public image_base
         ELEMTYPE get_max();
         ELEMTYPE get_min();
 		void fill(ELEMTYPE value);
+        void scale(ELEMTYPE new_min=0, ELEMTYPE new_max=255);
 
         // *** iterator ***        
         class iterator : public std::iterator<std::forward_iterator_tag, ELEMTYPE>
