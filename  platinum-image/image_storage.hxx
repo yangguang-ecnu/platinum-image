@@ -60,8 +60,9 @@ template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::set_parameters()
     {
     tfunction = NULL;
-    
     transfer_function();  //set default transfer function
+
+    stats = NULL;
 
     minvalue=std::numeric_limits<ELEMTYPE>::min();
     maxvalue=std::numeric_limits<ELEMTYPE>::max();
@@ -152,7 +153,7 @@ void image_storage<ELEMTYPE >::erase()
     }
 
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::set_value_to_all_voxels(ELEMTYPE value)
+void image_storage<ELEMTYPE >::fill(ELEMTYPE value)
 	{
 	typename image_storage<ELEMTYPE>::iterator i = this->begin();
 	while (i != this->end())

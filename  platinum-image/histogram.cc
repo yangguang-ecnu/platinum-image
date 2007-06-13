@@ -19,8 +19,6 @@
 
 #include "histogram.h"
 
-#include "image_base.h"
-
 // *** histogram_base ***
 
 void histogram_base::clear_pixmap (uchar * image, unsigned int w,unsigned int h)
@@ -35,9 +33,15 @@ void histogram_base::clear_pixmap (uchar * image, unsigned int w,unsigned int h)
 
 histogram_base::histogram_base ()
     {
-    buckets=NULL;
+    buckets =NULL;
 
-    num_buckets=96;
+    num_distinct_values =0;
+    }
+
+histogram_base::~histogram_base ()
+    {
+    if (buckets != NULL)
+        {delete []buckets; }
     }
 
 int histogram_base::image_ID (int axis)
@@ -114,7 +118,7 @@ void histogram_2D_plot::render_(uchar * image, unsigned int w,unsigned int h)
 
 histogram_2D::~histogram_2D () {
     if (buckets != NULL)
-        {delete []buckets; delete []highlight_data;}
+        {delete []highlight_data;}
     }
 
 void histogram_2D::images (int image_hor,int image_vert)

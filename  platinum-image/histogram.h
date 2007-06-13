@@ -46,16 +46,21 @@ class histogram_base
     {
     protected:
         unsigned long * buckets ;
-        unsigned short num_buckets;     //buckets per dimension, ie. actual #buckets = num_buckets^2
+        unsigned long num_distinct_values;
+        
+        unsigned short num_buckets;     //buckets per dimension, ie. actual #buckets = num_buckets^2 for 2D histogram
         unsigned long bucket_max;
         unsigned long bucket_mean;
+
+        bool readytorender;
         
         void clear_pixmap (unsigned char * image, unsigned int w,unsigned int h);
         virtual void render_ (unsigned char * image, unsigned int width,unsigned int height) = 0;
         thresholdparvalue threshold;
-    public:
+
         histogram_base();
-        virtual ~histogram_base() {};
+    public:
+        virtual ~histogram_base();
         void render(unsigned char * image, unsigned int width,unsigned int height)   //use calculated data to
                                                                                      //render the histogram image
             {
@@ -83,26 +88,39 @@ class histogram_base
     };
 
 template <class ELEMTYPE>
-class histogram_1D : public histogram_base //horizontal 1D graph histogram
-{
-    float hi_low, hi_hi;
-    
+class histogram_typed :histogram_base //!features common to histograms of different type pertaining to data type
+    {
+    image_storage<ELEMTYPE> * images [THRESHOLDMAXCHANNELS];
+    ELEMTYPE * i_start,i_end;
+    ELEMTYPE max_value, min_value;
+
+    histogram_typed();
+    };
+
+template <class ELEMTYPE>
+class histogram_1D : public histogram_typed //horizontal 1D graph histogram
+    {
+    ELEMTYPE hi_low, hi_hi;
+
     unsigned long render_max;
-    
+
     int vol_ID;      //ID of the image used
-    bool readytorender;
-    
-protected:
+
+    protected:
         void render_(unsigned char * image, unsigned int w,unsigned int h);
-public:
+    public:
+        histogram_1D (image_storage<ELEMTYPE> * i);
+        histogram_1D (ELEMTYPE * start,ELEMTYPE * end);
+
         ~histogram_1D ();
-    void image (int vol);
-    
-    void calculate(int number_of_buckets=0);
-    thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
-    void highlight (regionofinterest * region);
-    bool ready ();
-};
+
+        void image (int vol);
+
+        void calculate(int number_of_buckets=0);
+        thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
+        void highlight (regionofinterest * region);
+        bool ready ();
+    };
 
 
 class histogram_2D_plot : public histogram_base  //TEST: histographic plot
@@ -126,7 +144,6 @@ class histogram_2D : public histogram_base
     bool * highlight_data;      //highlighting of region of interest
 
     int vol_h_ID,vol_v_ID;      //IDs of the two images used
-    bool readytorender;
 
     protected:
         void render_(unsigned char * image, unsigned int w,unsigned int h);
@@ -139,6 +156,18 @@ class histogram_2D : public histogram_base
         bool ready ();
     };
 
+template <class ELEMTYPE>
+histogram_typed<ELEMTYPE >::histogram_typed ():histogram_base()
+    {
+    i_start  = NULL;
+    i_end    = NULL;
+    for (int i = 0; i < THRESHOLDMAXCHANNELS; i++)
+        { images[i] = NULL; }
+
+    max_value = std::numeric_limits<ELEMTYPE>::max();
+    min_value = std::numeric_limits<ELEMTYPE>::min();
+    }
+
 // *** histogram_1D ***
 
 template <class ELEMTYPE>
@@ -148,6 +177,19 @@ void histogram_1D<ELEMTYPE >::image (int vol)
     
     calculate();
 }
+
+template <class ELEMTYPE>
+histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> * i):histogram_typed()
+    {
+    buckets = new unsigned long [max (256,(std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4)];
+    }
+
+template <class ELEMTYPE>
+histogram_1D<ELEMTYPE>::histogram_1D (ELEMTYPE * start,ELEMTYPE * end ):histogram_typed()
+    {
+    //these histograms are typically used for stats
+    buckets = new unsigned long [256];
+    }
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
@@ -164,10 +206,23 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         }
     
     readytorender=false;
+
+    max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
+    min_value = std::numeric_limits<ELEMTYPE>::max();
+    num_distinct_values = 0;
+    bucket_max=0;
+
+    //get pointer to source data
+    if (threshold.id[0] != 0)
+        {images[0] = datamanagement.get_image(threshold.id[0]);}
+
+    if (i_start == NULL)
+        {
+        i_start = images[0]->begin();
+        i_end = images[0]->end();
+        }
     
-    image_storage<ELEMTYPE> * vol= datamanagement.get_image(threshold.id[0]);
-    
-    readytorender=(vol != NULL);
+    readytorender=(i_start != NULL);
     
     if (readytorender)
         {
@@ -183,12 +238,21 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         float scalefactor=(num_buckets-1)/vol->get_max_float();
         unsigned short bucketpos;
         
-        typename image_storage<ELEMTYPE >::iterator voxpos;
-        bucket_max=0;
-        for (voxpos = vol->begin();voxpos != vol->end();++voxpos)
+        typename ELEMTYPE * voxpos;
+        
+        for (voxpos = i_start;voxpos != i_end;++voxpos)
             {
+            //calculate distinct value count
+            if (buckets[bucketpos] == 0)
+                {num_distinct_values++;}
+
             bucketpos=(*voxpos)*scalefactor;
+            //calculate distinct value count
             bucket_max=std::max(buckets[bucketpos]++,bucket_max);
+
+            //calculate min/max
+            min_value = max (min_value,*voxpos);
+            max_value = min (max_value,*voxpos);
             }
         
         bucket_mean=0;
@@ -196,6 +260,10 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
             {
             bucket_mean+=buckets[i]/(num_buckets);
             }
+
+        //if # buckets are less than # values, distinct value count will be incorrect
+        if (num_buckets < std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())
+            {num_distinct_values = 0}
         }
 }
 

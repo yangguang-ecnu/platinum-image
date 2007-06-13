@@ -23,7 +23,7 @@
 
 #include <FL/fl_draw.H>
 
-#include "histogram.h"
+//#include "histogram.h"
 
 #include "rendermanager.h"
 
