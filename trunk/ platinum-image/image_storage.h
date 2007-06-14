@@ -47,6 +47,7 @@ class image_storage : public image_base
 
     private:
         void set_parameters ();
+        ELEMTYPE * dataptr;
 
     protected:
         image_storage();
@@ -67,7 +68,7 @@ class image_storage : public image_base
             if (dataptr == NULL) 
                 { /*throw exception*/ }
             
-            return reinterpret_cast<ELEMTYPE *> (dataptr); 
+            return (dataptr); 
             }
 
         void imagepointer(ELEMTYPE * new_value)
@@ -77,7 +78,7 @@ class image_storage : public image_base
         
         void deallocate ()
             {
-            delete imagepointer();
+            delete dataptr;
             }
 
         unsigned long num_elements;        //image size in # pixels/voxels

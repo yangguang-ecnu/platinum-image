@@ -59,6 +59,8 @@ void copy_data( image_storage<fromType > * in,image_storage<toType > * out) //!G
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::set_parameters()
     {
+    dataptr = NULL;
+    
     tfunction = NULL;
     transfer_function();  //set default transfer function
 
