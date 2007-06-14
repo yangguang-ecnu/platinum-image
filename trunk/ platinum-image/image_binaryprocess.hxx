@@ -879,7 +879,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 				}
 			}
 		}
-	output->min_max_refresh();
+	//output->min_max_refresh();
 	return output;
 	}
 
@@ -1129,7 +1129,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 				}
 			}
 		}
-	output->min_max_refresh();
+	//output->min_max_refresh();
 	return output;
 	}
 

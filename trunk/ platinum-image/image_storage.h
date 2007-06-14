@@ -81,7 +81,8 @@ class image_storage : public image_base
         virtual ~image_storage();
 
         void erase();
-        float get_max_float();
+        void min_max_refresh();
+		float get_max_float();
         float get_min_float();
         ELEMTYPE get_max();
         ELEMTYPE get_min();

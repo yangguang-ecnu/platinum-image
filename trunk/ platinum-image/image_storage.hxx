@@ -167,19 +167,48 @@ void image_storage<ELEMTYPE >::fill(ELEMTYPE value)
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)
 	{
-		if(get_min()==get_max())
+	this->min_max_refresh();
+	if(get_min()==get_max())
 		{
-			fill(0);
-		}else
+		fill(0);
+		}
+	else
 		{
-			typename image_storage<ELEMTYPE>::iterator i = this->begin();
-			while (i != this->end())
+		typename image_storage<ELEMTYPE>::iterator i = this->begin();
+		while (i != this->end())
 			{
-				*i = new_min + (ELEMTYPE) (((*i)-get_min()) * ((new_max-new_min)/(double)(get_max()-get_min())));
-				++i;
+			*i = new_min + (ELEMTYPE) (((*i)-get_min()) * ((new_max-new_min)/(double)(get_max()-get_min())));
+			++i;
 			}
 		}
-		min_max_refresh();
+//		min_max_refresh();
 	}
 
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::min_max_refresh()
+    {
+    ELEMTYPE val;
+
+    ELEMTYPE pre_max=std::numeric_limits<ELEMTYPE>::min();
+    ELEMTYPE pre_min=std::numeric_limits<ELEMTYPE>::max();
+    
+    typename image_storage<ELEMTYPE>::iterator itr = this->begin();
+    while (itr != this->end())
+        {
+        val=*itr;
+        
+        pre_max = max (val, pre_max);
+        pre_min = min (val, pre_min);
+        
+        ++itr;
+        }
+
+    //don't change if values don't make sense - 
+    //that would be an empty/zero image
+    if (pre_min < pre_max)
+        {
+        this->maxvalue=pre_max;
+        this->minvalue=pre_min;
+        }
+    }
 

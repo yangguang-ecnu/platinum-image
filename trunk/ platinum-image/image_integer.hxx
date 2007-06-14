@@ -43,6 +43,7 @@ image_binary<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE l
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::gauss_fit2()
     {
+	this->min_max_refresh();
 	ELEMTYPE min_val=this->get_min();
 	ELEMTYPE max_val=this->get_max();
 	ELEMTYPE err_min_ind=max_val;
@@ -632,6 +633,7 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::gauss_fit2()
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::components_hist_3D()
     {
+	this->min_max_refresh();
 	ELEMTYPE min_val=this->get_min();
 	ELEMTYPE max_val=this->get_max();
 	ELEMTYPE err_min_ind=min_val;
@@ -825,6 +827,7 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::components_hist_3D()
 template <class ELEMTYPE, int IMAGEDIM>
 image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(image_binary<IMAGEDIM> * mask, IMGBINARYTYPE object_value)
     {
+	this->min_max_refresh();
     image_label<IMAGEDIM> * output = new image_label<IMAGEDIM> (this,false);
 	IMGLABELTYPE class1=3;
 	IMGLABELTYPE class2=4;
@@ -1102,7 +1105,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	delete[] par_node;
 	delete[] npt_array;
 
-	output->min_max_refresh();
+	//output->min_max_refresh();
 	return output;
 	}
 
@@ -1231,12 +1234,13 @@ void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, I
             {*i=blank;}
         ++i; ++m;
         }
-	this->min_max_refresh();
+	//this->min_max_refresh();
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
 std::vector<POINT> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
 	{
+	this->min_max_refresh();
 	typename image_storage<ELEMTYPE >::iterator iter = this->begin();
     
 	ELEMTYPE min_val=this->get_min();
