@@ -1235,7 +1235,7 @@ void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, I
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-std::vector<Point3D> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
+std::vector<POINT> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
 	{
 	typename image_storage<ELEMTYPE >::iterator iter = this->begin();
     
@@ -1251,8 +1251,8 @@ std::vector<Point3D> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
         }
 
 	ELEMTYPE i;
-    std::vector<Point3D> res;
-	Point3D p;        
+    std::vector<POINT> res;
+	POINT p;        
     for(i=min_val; i<=max_val; i++)
 		{
 		if(counts[i-min_val]>0)
