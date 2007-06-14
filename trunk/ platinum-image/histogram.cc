@@ -49,6 +49,11 @@ int histogram_base::image_ID (int axis)
     return threshold.get_id (axis);
     }
 
+bool histogram_base::ready ()
+{
+    return readytorender;
+}
+
 // *** histogram_2D ***
 
 void histogram_2D_plot::images (int image_hor,int image_vert)
