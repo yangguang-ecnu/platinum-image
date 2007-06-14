@@ -35,6 +35,8 @@ typedef itk::Vector<float,3> Vector3D;
 //typedef itk::Point<float,3> Point3D;
 typedef struct Point3D
     {float x, y, z;};
+typedef struct HistoPair
+    {long index, count;};
 typedef itk::Matrix<float> Matrix3D;
 
 //not typical tensor functions, just for lack of a better place
