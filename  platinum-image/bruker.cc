@@ -97,15 +97,15 @@ class brukertoken //! helper that reads one Bruker metadata token
             return result;
             }
 
-        template <>
-            string value (int index)
-            {
-            return values[index];
-            }
-
         std::string header ()
             { return header_; }
     };
+
+template <>
+string brukertoken::value (int index)
+    {
+        return values[index];
+    }
 
 std::istream& operator>>(std::istream& in, brukertoken& o)
     {
@@ -272,7 +272,7 @@ image_base * brukerloader::read(std::vector<std::string> &files)
 
 			if(isFloat)
 				{
-				newImage = rawimporter::allocate_image<image_scalar> (
+				newImage = allocate_image<image_scalar> (
 					isFloat,
 					isSigned,
 					bitDepth,
@@ -284,7 +284,7 @@ image_base * brukerloader::read(std::vector<std::string> &files)
 				}
 			else
 				{
-				newImage = rawimporter::allocate_image<image_integer> (
+				newImage = allocate_image<image_integer> (
 					isFloat,
 					isSigned,
 					bitDepth,

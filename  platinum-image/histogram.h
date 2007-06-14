@@ -88,17 +88,17 @@ class histogram_base
     };
 
 template <class ELEMTYPE>
-class histogram_typed :histogram_base //!features common to histograms of different type pertaining to data type
+class histogram_typed : public histogram_base //!features common to histograms of different type pertaining to data type
     {
     image_storage<ELEMTYPE> * images [THRESHOLDMAXCHANNELS];
     ELEMTYPE * i_start,i_end;
     ELEMTYPE max_value, min_value;
-
-    histogram_typed();
+    public:
+        histogram_typed();
     };
 
 template <class ELEMTYPE>
-class histogram_1D : public histogram_typed //horizontal 1D graph histogram
+class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph histogram
     {
     ELEMTYPE hi_low, hi_hi;
 
@@ -157,7 +157,7 @@ class histogram_2D : public histogram_base
     };
 
 template <class ELEMTYPE>
-histogram_typed<ELEMTYPE >::histogram_typed ():histogram_base()
+histogram_typed<ELEMTYPE>::histogram_typed()
     {
     i_start  = NULL;
     i_end    = NULL;
@@ -173,97 +173,97 @@ histogram_typed<ELEMTYPE >::histogram_typed ():histogram_base()
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::image (int vol)
 {
-    threshold.id[0]=vol;
+    this->threshold.id[0]=vol;
     
     calculate();
 }
 
 template <class ELEMTYPE>
-histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> * i):histogram_typed()
+histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> * i):histogram_typed<ELEMTYPE>()
     {
-    buckets = new unsigned long [max (256,(std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4)];
+    this->buckets = new unsigned long [max (256,(std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4)];
     }
 
 template <class ELEMTYPE>
-histogram_1D<ELEMTYPE>::histogram_1D (ELEMTYPE * start,ELEMTYPE * end ):histogram_typed()
+histogram_1D<ELEMTYPE>::histogram_1D (ELEMTYPE * start,ELEMTYPE * end ):histogram_typed<ELEMTYPE>()
     {
     //these histograms are typically used for stats
-    buckets = new unsigned long [256];
+    this->buckets = new unsigned long [256];
     }
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 {
-    if (new_num_buckets !=0 || buckets==NULL)
+    if (new_num_buckets !=0 || this->buckets==NULL)
         {
         if (new_num_buckets !=0)    //change #buckets
-            {num_buckets=new_num_buckets;}
+            {this->num_buckets=new_num_buckets;}
         
         hi_low = 0;
         hi_hi =0;
         
-        buckets=new unsigned long [num_buckets];
+        this->buckets=new unsigned long [this->num_buckets];
         }
     
-    readytorender=false;
+    this->readytorender=false;
 
-    max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
-    min_value = std::numeric_limits<ELEMTYPE>::max();
-    num_distinct_values = 0;
-    bucket_max=0;
+    this->max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
+    this->min_value = std::numeric_limits<ELEMTYPE>::max();
+    this->num_distinct_values = 0;
+    this->bucket_max=0;
 
     //get pointer to source data
-    if (threshold.id[0] != 0)
-        {images[0] = datamanagement.get_image(threshold.id[0]);}
+    if (this->threshold.id[0] != 0)
+        {this->images[0] = datamanagement.get_image(this->threshold.id[0]);}
 
-    if (i_start == NULL)
+    if (this->i_start == NULL)
         {
-        i_start = images[0]->begin();
-        i_end = images[0]->end();
+        this->i_start = this->images[0]->begin();
+        this->i_end = this->images[0]->end();
         }
     
-    readytorender=(i_start != NULL);
+    this->readytorender=(this->i_start != NULL);
     
-    if (readytorender)
+    if (this->readytorender)
         {
         //reset buckets
         
-        for (unsigned short i = 0; i < num_buckets; i++)
+        for (unsigned short i = 0; i < this->num_buckets; i++)
             {
-            buckets[i]=0;
+            this->buckets[i]=0;
             }
         
         //ready to calculate, actually
         
-        float scalefactor=(num_buckets-1)/vol->get_max_float();
+        float scalefactor=(this->num_buckets-1)/(std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min());
         unsigned short bucketpos;
         
-        typename ELEMTYPE * voxpos;
+        ELEMTYPE * voxpos;
         
-        for (voxpos = i_start;voxpos != i_end;++voxpos)
+        for (voxpos = this->i_start;voxpos != this->i_end;++voxpos)
             {
             //calculate distinct value count
-            if (buckets[bucketpos] == 0)
-                {num_distinct_values++;}
+            if (this->buckets[bucketpos] == 0)
+                {this->num_distinct_values++;}
 
-            bucketpos=(*voxpos)*scalefactor;
+            bucketpos=((*voxpos)-std::numeric_limits<ELEMTYPE>::min())*scalefactor;
             //calculate distinct value count
-            bucket_max=std::max(buckets[bucketpos]++,bucket_max);
+            this->bucket_max=std::max(this->buckets[bucketpos]++,this->bucket_max);
 
             //calculate min/max
-            min_value = max (min_value,*voxpos);
-            max_value = min (max_value,*voxpos);
+            this->min_value = std::max (this->min_value,*voxpos);
+            this->max_value = std::min (this->max_value,*voxpos);
             }
         
-        bucket_mean=0;
-        for (unsigned short i = 0; i < num_buckets; i++)
+        this->bucket_mean=0;
+        for (unsigned short i = 0; i < this->num_buckets; i++)
             {
-            bucket_mean+=buckets[i]/(num_buckets);
+            this->bucket_mean+=this->buckets[i]/(this->num_buckets);
             }
 
         //if # buckets are less than # values, distinct value count will be incorrect
-        if (num_buckets < std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())
-            {num_distinct_values = 0}
+        if (this->num_buckets < std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())
+            {this->num_distinct_values = 0;}
         }
 }
 

@@ -462,7 +462,7 @@ bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other)
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-	void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_resize(float dx, float dy, float dz=0)
+	void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_resize(float dx, float dy, float dz)
 	{
 	voxel_resize[0][0]=dx;	
 	voxel_resize[1][1]=dy;	
@@ -485,9 +485,9 @@ template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D phys_pos)
 	{
 	//ev. phys_vox_pos = origin + direction*voxel_resize*voxel_pos
-	Vector3D phys_pos2 = phys_pos - origin; //now we only need to find out the scalar product of...
-	Matrix3D tmp = direction*voxel_resize;
-	Vector3D tmp2 = {tmp[0][0];tmp[1][1];tmp[2][2]};
+	Vector3D phys_pos2 = phys_pos - this->origin; //now we only need to find out the scalar product of...
+	Matrix3D tmp = this->direction*voxel_resize;
+	Vector3D tmp2 = {tmp[0][0],tmp[1][1],tmp[2][2]};
 	Vector3D scal = phys_pos2*tmp2;
 	bool was_non_neg = (scal[0]>=0 && scal[1]>=0 && scal[2]>=0)? true:false;
 	bool ret=false;
@@ -502,9 +502,9 @@ bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_from_physical_pos_3D(Vector3D phys_pos)
 	{
-	Matrix3D a = voxel_resize*direction;
+	Matrix3D a = voxel_resize*this->direction;
 	a = a.GetInverse();
-	return a*(phys_pos - origin);
+	return a*(phys_pos - this->origin);
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -516,7 +516,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z)
 template <class ELEMTYPE, int IMAGEDIM> //JK3
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos(Vector3D phys_pos)
     {
-	Vector3D v = get_voxelpos_from_physical_pos_3D(Vector3D phys_pos);
+	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
 	return (is_voxelpos_within_image_3D(v[0],v[1],v[2]))? get_voxel(v[0],v[1],v[2]):0;
     }
 

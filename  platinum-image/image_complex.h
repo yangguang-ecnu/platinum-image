@@ -36,7 +36,7 @@ class image_complex : public image_multi<complex<float> , IMAGEDIM>
 {
     //redundant declaration of constructor, since those cannot be inherited
 public:
-    image_complex ():image_multi<complex<float>, IMAGEDIM> >()
+    image_complex ():image_multi<complex<float> , IMAGEDIM>()
 	{}
 /*    
     template<class SOURCETYPE>
