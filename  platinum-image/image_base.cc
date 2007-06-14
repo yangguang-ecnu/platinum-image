@@ -355,7 +355,7 @@ void try_loader (std::vector<std::string> &f) //! helper for image_base::load
             if (new_image != NULL)
                 { datamanagement.add(new_image); }
             } 
-    while (new_image !=NULL);
+		while (new_image !=NULL);
         }
     }
 

@@ -238,6 +238,13 @@ int datamanager::first_image()
     return images[0]->get_id();
     }
 
+int datamanager::last_image()
+    {
+	if(images.size()==0)
+		return 0;
+    return images[images.size()-1]->get_id();
+    }
+
 int datamanager::next_image(int id)
 {
     int index=find_image_index(id);
