@@ -193,6 +193,7 @@ image_base *vtkloader::read(std::vector<std::string>& files)
 #ifdef _DEBUG
                         cout << "Load scalar VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
 #endif
+						;
                     }
                 break;
 
@@ -222,6 +223,7 @@ image_base *vtkloader::read(std::vector<std::string>& files)
 #ifdef _DEBUG
                 std::cout << "image_base::load(...): unsupported pixel type: " << vtkIO->GetPixelTypeAsString(pixelType) << endl;
 #endif
+				;
 
             }
 
@@ -310,6 +312,7 @@ image_base *dicomloader::read(std::vector<std::string>& files)
 #ifdef _DEBUG
                                         cout << "Unsupported component type: " << dicomIO->GetComponentTypeAsString (componentType) << endl;
 #endif
+										;
                                     }
                                 break;
                             case itk::ImageIOBase::COMPLEX:
@@ -318,6 +321,7 @@ image_base *dicomloader::read(std::vector<std::string>& files)
 #ifdef _DEBUG
                                 std::cout << "image_base::load(...): unsupported pixel type: " << dicomIO->GetPixelTypeAsString(pixelType) << endl;
 #endif
+								;
                                 
                             }
                         
