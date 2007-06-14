@@ -76,6 +76,12 @@ ELEMTYPE* image_storage<ELEMTYPE >::iterator::operator->()
 }
 
 template<class ELEMTYPE >
+ELEMTYPE* image_storage<ELEMTYPE >::iterator::pointer()
+{
+    return ptr;
+}
+
+template<class ELEMTYPE >
 typename image_storage<ELEMTYPE >::iterator image_storage<ELEMTYPE >::begin() {
     return(iterator(imagepointer()));
 }

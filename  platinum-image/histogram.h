@@ -71,17 +71,13 @@ class histogram_base
         virtual void calculate(int number_of_buckets=0) {}      //do variance, max, choose number of
                                                                 //buckets and the like 
                                                                 //omitting the num_buckets
-                                                                //parameter uses current stored resolution
+                                                                //parameter uses current stored resolution 
 
-    virtual void highlight (regionofinterest * region) {}     //highlight histogram values for supplied
-                                                              //region of interest
-
-    //highlight area indicated by selected threshold
     virtual void render_threshold (unsigned char * image, unsigned int w,unsigned int h) {}; 
 
     virtual thresholdparvalue get_threshold ()
         {return threshold;}
-    virtual bool ready () = 0;                                  //whether histogram has two valid (and compatible)
+    virtual bool ready ();                                  //whether histogram has two valid (and compatible)
                                                                 //images, and can render
        
     int image_ID (int axis);      //return current image ID, axis 0=h, 1= v and so forth
@@ -92,7 +88,7 @@ class histogram_typed : public histogram_base //!features common to histograms o
     {
     protected:
         image_storage<ELEMTYPE> * images [THRESHOLDMAXCHANNELS];
-        ELEMTYPE * i_start,i_end;
+        ELEMTYPE * i_start, *i_end;
         ELEMTYPE max_value, min_value;
     public:
             histogram_typed();
@@ -108,19 +104,20 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
     int vol_ID;      //ID of the image used
 
     protected:
-        void render_(unsigned char * image, unsigned int w,unsigned int h);
+        void render_(unsigned char * image, unsigned int w,unsigned int h)
+            {}
     public:
         histogram_1D (image_storage<ELEMTYPE> * i);
-        histogram_1D (ELEMTYPE * start,ELEMTYPE * end);
+    histogram_1D (ELEMTYPE * start,ELEMTYPE * end );
 
-        ~histogram_1D ();
+            ~histogram_1D () {}
 
-        void image (int vol);
+        //void image (int vol);
 
         void calculate(int number_of_buckets=0);
-        thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
-        void highlight (regionofinterest * region);
-        bool ready ();
+        //thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
+        virtual bool ready ()
+            {return this->readytorender;};   
     };
 
 
@@ -153,7 +150,8 @@ class histogram_2D : public histogram_base
         void images (int image_hor,int image_vert);
         void calculate(int number_of_buckets=0);
         thresholdparvalue histogram_2D::get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
-        void highlight (regionofinterest * region);
+        void highlight (regionofinterest * region); //highlight histogram values for supplied
+                                                    //region of interest
         bool ready ();
     };
 
@@ -171,25 +169,34 @@ histogram_typed<ELEMTYPE>::histogram_typed()
 
 // *** histogram_1D ***
 
-template <class ELEMTYPE>
+/*template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::image (int vol)
 {
     this->threshold.id[0]=vol;
     
     calculate();
-}
+}*/
 
 template <class ELEMTYPE>
 histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> * i):histogram_typed<ELEMTYPE>()
     {
-    this->buckets = new unsigned long [std::max (256,(std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4)];
+    this->images[0] = i;
+    
+    this->buckets = new unsigned long [std::max (static_cast<unsigned long>(256),static_cast<unsigned long>((std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4.0))];
+    
+    calculate();
     }
 
 template <class ELEMTYPE>
 histogram_1D<ELEMTYPE>::histogram_1D (ELEMTYPE * start,ELEMTYPE * end ):histogram_typed<ELEMTYPE>()
     {
+    this->i_start = start;
+    this->i_end = end;
+    
     //these histograms are typically used for stats
     this->buckets = new unsigned long [256];
+    
+    calculate();
     }
 
 template <class ELEMTYPE>
@@ -214,13 +221,20 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
     this->bucket_max=0;
 
     //get pointer to source data
-    if (this->threshold.id[0] != 0)
-        {this->images[0] = datamanagement.get_image(this->threshold.id[0]);}
+    //since histogram_typed is instantiated with a particular type, the commented-out image reference acquisition below may not work at all.
+    /*if (this->threshold.id[0] != 0)
+        {
+        image_base * i = datamanagement.get_image(this->threshold.id[0]);
+        this->images[0] = dynamic_cast<image_storage<ELEMTYPE>>(i);
+        }*/
 
     if (this->i_start == NULL)
         {
-        this->i_start = this->images[0]->begin();
-        this->i_end = this->images[0]->end();
+        // retrieve pointers to image data, iterating pointers are generally a bad idea
+        //but this way histograms can be made straight from data pointers when
+        //there is not yet an image, such as during load of raw files
+        this->i_start = this->images[0]->begin().pointer();
+        this->i_end = this->images[0]->end().pointer();
         }
     
     this->readytorender=(this->i_start != NULL);
