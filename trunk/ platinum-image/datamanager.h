@@ -92,6 +92,7 @@ class datamanager
 
 
         int first_image();         //for iterating through images: returns ID of first image in vector
+        int last_image();         //for iterating through images: returns ID of first image in vector
         int next_image(int index); //for iterating through images: returns next ID in images[],
                                     //0 if argument is last ID and -1 if not found
 
