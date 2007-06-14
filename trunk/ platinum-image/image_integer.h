@@ -47,7 +47,7 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
 		image_integer (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_scalar<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
 	
 		void draw_line_2D(int x0, int y0, int x1, int y1, int z, ELEMTYPE value, int direction=2); ///Draw a line between (x0,y0) and (x1,y1) in plane z using color described by value. The coordinates are given on the plane orthogonal to the axis given by direction.
-		std::vector<Point3D> get_distribution();
+		std::vector<POINT> get_distribution();
         // *** processing ***
         image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, IMGBINARYTYPE true_inside_threshold=true); ///Return a image_binary where all voxels with values between low and high gets the value true_inside_threshold.
 		ELEMTYPE gauss_fit2(); ///Compute optimal threshold value by fitting two gaussian distributions to the histogram.
