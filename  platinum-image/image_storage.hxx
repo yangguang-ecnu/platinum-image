@@ -204,6 +204,9 @@ void image_storage<ELEMTYPE >::min_max_refresh()
         
         ++itr;
         }
+    
+    /*if (stats == NULL)
+        { stats = new histogram_1D<ELEMTYPE >(this); }*/
 
     //don't change if values don't make sense - 
     //that would be an empty/zero image

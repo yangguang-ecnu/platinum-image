@@ -90,11 +90,12 @@ class histogram_base
 template <class ELEMTYPE>
 class histogram_typed : public histogram_base //!features common to histograms of different type pertaining to data type
     {
-    image_storage<ELEMTYPE> * images [THRESHOLDMAXCHANNELS];
-    ELEMTYPE * i_start,i_end;
-    ELEMTYPE max_value, min_value;
+    protected:
+        image_storage<ELEMTYPE> * images [THRESHOLDMAXCHANNELS];
+        ELEMTYPE * i_start,i_end;
+        ELEMTYPE max_value, min_value;
     public:
-        histogram_typed();
+            histogram_typed();
     };
 
 template <class ELEMTYPE>
@@ -181,7 +182,7 @@ void histogram_1D<ELEMTYPE >::image (int vol)
 template <class ELEMTYPE>
 histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> * i):histogram_typed<ELEMTYPE>()
     {
-    this->buckets = new unsigned long [max (256,(std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4)];
+    this->buckets = new unsigned long [std::max (256,(std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4)];
     }
 
 template <class ELEMTYPE>

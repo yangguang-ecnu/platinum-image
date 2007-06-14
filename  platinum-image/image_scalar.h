@@ -29,7 +29,7 @@
 #define __image_scalar__
 
 #include "image_general.h"
-#include "vxl/contrib/mil3d_trilin_interp_3d.h"
+#include "mil3d_trilin_interp_3d.h"
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_scalar : public image_general <ELEMTYPE, IMAGEDIM>
