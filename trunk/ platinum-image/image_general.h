@@ -114,7 +114,6 @@ class image_general : public image_storage <ELEMTYPE >
         void replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
 
         void image_has_changed(bool min_max_refresh = false);          //called when image data has been changed
-        //void min_max_refresh();
 
         static image_base * type_from_DICOM_file (std::string file_path);
         static image_base * type_from_VTK_file (std::string file_path);

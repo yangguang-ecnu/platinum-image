@@ -29,11 +29,12 @@
 #include <FL/Enumerations.H>
 
 #include "viewmanager.h"
-#include "histogram.h"
 
 extern datamanager datamanagement;
 extern rendermanager rendermanagement;
 extern viewmanager viewmanagement;
+
+#include "histogram.h"
 
 using namespace std;
 

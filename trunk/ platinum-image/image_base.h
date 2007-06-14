@@ -70,12 +70,6 @@ class image_base : public data_base
         //bottomleft to centered unit coordinate system
 
         void * dataptr;
-        
-        void deallocate ()
-            {
-            delete dataptr;
-            dataptr = NULL;
-            }
 
     public:
         virtual image_base * alike (imageDataType unit) = 0;

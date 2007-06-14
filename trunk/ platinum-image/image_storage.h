@@ -28,7 +28,6 @@
 #define __image_storage__
 
 #include "transfer.h"
-#include "histogram.h"
 
 #define IMGLABELTYPE unsigned char
 #define IMGBINARYTYPE IMGLABELTYPE
@@ -37,6 +36,7 @@ class image_base;
 
 template <class ELEMTYPE>
 class histogram_1D;
+//NOTE: histogram.h included at bottom of this file due to cross-dependency
 
 #include "image_base.h"
 
@@ -63,13 +63,21 @@ class image_storage : public image_base
         // *** Image data pointer ***
 
         ELEMTYPE * imagepointer()
-            { 
-            return reinterpret_cast<ELEMTYPE *> (dataptr);
+            {
+            if (dataptr == NULL) 
+                { /*throw exception*/ }
+            
+            return reinterpret_cast<ELEMTYPE *> (dataptr); 
             }
 
         void imagepointer(ELEMTYPE * new_value)
             {
             dataptr = new_value;
+            }
+        
+        void deallocate ()
+            {
+            delete imagepointer();
             }
 
         unsigned long num_elements;        //image size in # pixels/voxels
@@ -80,12 +88,13 @@ class image_storage : public image_base
     public:
         virtual ~image_storage();
 
-        void erase();
-        void min_max_refresh();
-		float get_max_float();
+        float get_max_float();
         float get_min_float();
         ELEMTYPE get_max();
         ELEMTYPE get_min();
+        void min_max_refresh();
+
+        void erase();
 		void fill(ELEMTYPE value);
         void scale(ELEMTYPE new_min=0, ELEMTYPE new_max=255);
 
@@ -112,6 +121,7 @@ class image_storage : public image_base
         iterator end();   
     };
 
+#include "histogram.h" //compact definition at beginning of this file
 
 //with C++ templates, declaration and definition go together
 #include "image_storage_iterator.hxx"

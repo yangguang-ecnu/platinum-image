@@ -43,7 +43,6 @@ image_binary<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE l
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::gauss_fit2()
     {
-	this->min_max_refresh();
 	ELEMTYPE min_val=this->get_min();
 	ELEMTYPE max_val=this->get_max();
 	ELEMTYPE err_min_ind=max_val;
@@ -633,7 +632,6 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::gauss_fit2()
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::components_hist_3D()
     {
-	this->min_max_refresh();
 	ELEMTYPE min_val=this->get_min();
 	ELEMTYPE max_val=this->get_max();
 	ELEMTYPE err_min_ind=min_val;
@@ -827,7 +825,6 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::components_hist_3D()
 template <class ELEMTYPE, int IMAGEDIM>
 image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(image_binary<IMAGEDIM> * mask, IMGBINARYTYPE object_value)
     {
-	this->min_max_refresh();
     image_label<IMAGEDIM> * output = new image_label<IMAGEDIM> (this,false);
 	IMGLABELTYPE class1=3;
 	IMGLABELTYPE class2=4;
@@ -1014,11 +1011,11 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	    y=rest/max_x;
 	    x=rest-y*max_x;
 
-		for(z2=std::max(0,z-1); z2<min(max_z,z+2) && n_diff==0; z2++)
+		for(z2=std::max(0,z-1); z2<std::min(max_z,z+2) && n_diff==0; z2++)
 			{
-			for(y2=std::max(0,y-1); y2<min(max_y,y+2) && n_diff==0; y2++)
+			for(y2=std::max(0,y-1); y2<std::min(max_y,y+2) && n_diff==0; y2++)
 				{
-				for(x2=std::max(0,x-1); x2<min(max_x,x+2) && n_diff==0; x2++)
+				for(x2=std::max(0,x-1); x2<std::min(max_x,x+2) && n_diff==0; x2++)
 					{
 			        k=x2+max_x*(y2+z2*max_y);
 				    if(npt_array[k]!=npt_array[j])
@@ -1061,11 +1058,11 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 
 					    nClass1=nClass2=0;
 
-						for(z2=std::max(0,z-1); z2<min(max_z,z+2); z2++)
+						for(z2=std::max(0,z-1); z2<std::min(max_z,z+2); z2++)
 							{
-							for(y2=std::max(0,y-1); y2<min(max_y,y+2); y2++)
+							for(y2=std::max(0,y-1); y2<std::min(max_y,y+2); y2++)
 								{
-								for(x2=std::max(0,x-1); x2<min(max_x,x+2); x2++)
+								for(x2=std::max(0,x-1); x2<std::min(max_x,x+2); x2++)
 									{
 							        k=x2+max_x*(y2+z2*max_y);
 									if((*(output_iter+k))==class1)
@@ -1105,7 +1102,7 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	delete[] par_node;
 	delete[] npt_array;
 
-	//output->min_max_refresh();
+	output->min_max_refresh();
 	return output;
 	}
 
@@ -1125,7 +1122,7 @@ int image_integer<ELEMTYPE, IMAGEDIM>::mergeNodes(int e1, int e2, int* par_node)
 		if((*(this->begin()+e1))==(*(this->begin()+e2)))
 		{
 			res=std::max(e1,e2);
-			par_node[min(e1,e2)]=res;
+			par_node[std::min(e1,e2)]=res;
 		}
 		else if((*(this->begin()+e1))>(*(this->begin()+e2)))
 		{
@@ -1226,7 +1223,7 @@ void image_integer<ELEMTYPE, IMAGEDIM>::draw_line_2D(int x0, int y0, int x1, int
 template <class ELEMTYPE, int IMAGEDIM>
 void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value, ELEMTYPE blank)
     {
-    image_storage<ELEMTYPE>::iterator i = this->begin();
+    typename image_storage<ELEMTYPE>::iterator i = this->begin();
     image_storage<IMGBINARYTYPE >::iterator m = mask->begin();
     while (i != this->end()) //images are same size and should necessarily end at the same time
         {
@@ -1234,13 +1231,12 @@ void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, I
             {*i=blank;}
         ++i; ++m;
         }
-	//this->min_max_refresh();
+	this->min_max_refresh();
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-std::vector<POINT> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
+std::vector<Point3D> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
 	{
-	this->min_max_refresh();
 	typename image_storage<ELEMTYPE >::iterator iter = this->begin();
     
 	ELEMTYPE min_val=this->get_min();
@@ -1255,8 +1251,8 @@ std::vector<POINT> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
         }
 
 	ELEMTYPE i;
-	vector<POINT> res;
-	POINT p;        
+    std::vector<Point3D> res;
+	Point3D p;        
     for(i=min_val; i<=max_val; i++)
 		{
 		if(counts[i-min_val]>0)

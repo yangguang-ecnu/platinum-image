@@ -29,7 +29,7 @@
 #define __image_scalar__
 
 #include "image_general.h"
-#include "Utilities\vxl\contrib\mil3d_trilin_interp_3d.h"
+#include "vxl/contrib/mil3d_trilin_interp_3d.h"
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_scalar : public image_general <ELEMTYPE, IMAGEDIM>
@@ -48,7 +48,6 @@ class image_scalar : public image_general <ELEMTYPE, IMAGEDIM>
             {};
 
         // *** operations ***
-
 
         //	void interpolate_bilinear_2D(float phys_x, float phys_y, int vox_z);
         //	void interpolate_trilinear_3D_ITK(float phys_x, float phys_y, float phys_z); //no boundary checks in "itkLinearInterpolateImageFunction.h" 

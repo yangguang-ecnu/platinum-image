@@ -28,10 +28,10 @@
 #ifndef __image_binary__
 #define __image_binary__
 
-#include "image_integer.h"
-
 #define TRUE 1
 #define FALSE 0
+
+#include "image_integer.h"
 
 template<int IMAGEDIM = 3>
 class image_binary : public image_label <IMAGEDIM>
