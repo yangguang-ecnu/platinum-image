@@ -265,8 +265,12 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
             }
         
         //ready to calculate, actually
+
+        float typeMax = std::numeric_limits<ELEMTYPE>::max();
+        float typeMin = std::numeric_limits<ELEMTYPE>::min();
+
         
-        float scalefactor=(this->num_buckets-1)/(std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min());
+        float scalefactor=(this->num_buckets-1)/(typeMax-typeMin);
         unsigned short bucketpos;
         
         ELEMTYPE * voxpos;
