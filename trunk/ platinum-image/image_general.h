@@ -97,7 +97,10 @@ class image_general : public image_storage <ELEMTYPE >
                                                                     //alike(...) call from base class
         /*image_base * alike ();*/
 
-        image_general<ELEMTYPE, IMAGEDIM> (std::vector<std::string>, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1);
+        image_general(ELEMTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize);
+        //create image from pre-loaded raw data
+
+        image_general (std::vector<std::string>, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1);
         //create image from file set. Notes:
         //A. uses POSIX paths ( / for directories) on all platforms - inlcuding Windows
         //B. Three modes of operation:

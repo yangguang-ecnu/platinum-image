@@ -65,21 +65,17 @@ image_base* allocate_image (bool floatType, bool signedType, unsigned int voxel_
     return output;
 }
 
-template <class ELEMTYPE, int IMAGEDIM>
-image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile,unsigned int increment)
-//raw constructor
-{
-    unsigned long sliceSize = width * height;
+template <class ELEMTYPE>
+ELEMTYPE * load_pixels (unsigned long &num_elements,std::vector<std::string> files, bool bigEndian, long headerSize = 0, unsigned int startFile= 1,unsigned int increment = 1)
+    {
+    ELEMTYPE * output = NULL;
+    num_elements = 0;
+
+    //unsigned long sliceSize = width * height;
     string dirname;
     image_load_mode mode = undefined;
     
     //TODO: start & increment values
-    
-    //set voxel size, will be used to calculate
-    //unit_to_voxel when initialize_dataset is called
-    this->voxel_resize.Fill(0);
-    for (int d=0;d < 3;d++)
-        { voxel_resize[d][d] = voxelSize[d]; }
     
     struct stat fileStats;
     
@@ -117,37 +113,44 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
 #endif
         }
 
+    //size of *first* file
+    unsigned long dataSize = fileStats.st_size - headerSize; //!header size always in bytes
+
+    if (mode == single_file)
+        { num_elements = dataSize/sizeof(ELEMTYPE); }
+
+    if (mode == multifile)
+        { num_elements = files.size()*(dataSize/sizeof(ELEMTYPE)); }
+
+    output = new ELEMTYPE [num_elements];
+    ELEMTYPE * writepointer = output;
+
     if (mode == single_file)
         {
         //One multi-slice file
         
-        unsigned long fileSize = fileStats.st_size;
-        unsigned long depth = (fileSize - headerSize) / (sliceSize*sizeof (ELEMTYPE));
+        //unsigned long depth = (fileSize - headerSize) / (sliceSize*sizeof (ELEMTYPE));
         
-        initialize_dataset(width, height, depth);
-        ELEMTYPE* writepointer = this->imagepointer();
-        this->num_elements = datasize[0]*datasize[1]*datasize[2];
+        //initialize_dataset(width, height, depth);
         
         ifstream stackFile (files.front().c_str(), ios::in | ios::binary);
         stackFile.seekg (headerSize);
         
-        stackFile.read ((FILEPOSTYPE*)writepointer, sizeof (ELEMTYPE) * datasize[0]*datasize[1]*datasize[2]);
+        stackFile.read (reinterpret_cast<FILEPOSTYPE*>(writepointer), sizeof (ELEMTYPE) * num_elements);
         
-        adjust_endian (this->imagepointer(), this->num_elements,bigEndian);
+        adjust_endian (output, num_elements,bigEndian);
         
         stackFile.close();
         }
     
     if (mode == multifile)
         {
-        unsigned long depth = files.size();
-        initialize_dataset(width, height, depth);
-        ELEMTYPE* writepointer = this->imagepointer();
-        this->num_elements = datasize[0]*datasize[1]*datasize[2];
+        //unsigned long depth = files.size();
+        //initialize_dataset(width, height, depth);
         
         std::vector<std::string>::iterator fileItr = files.begin();
         
-        while (fileItr != files.end() && writepointer < (this->imagepointer() + this->num_elements))
+        while (fileItr != files.end() && writepointer < (output + num_elements))
             {
             //Multiple files, each containing one slice
             ifstream imageFile ((*fileItr).c_str(), ios::in | ios::binary);
@@ -158,19 +161,32 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
                 //Note: header size is in bytes (FILEPOSTYPE) regardless of image data type           
                 imageFile.seekg (headerSize);
                 
-                imageFile.read ((FILEPOSTYPE*)writepointer, sizeof (ELEMTYPE) * sliceSize);
-                writepointer +=sliceSize;
+                imageFile.read (reinterpret_cast<FILEPOSTYPE*>(writepointer), sizeof (ELEMTYPE) * dataSize);
+                writepointer +=dataSize;
                 
                 imageFile.close();
                 }
             }
-        adjust_endian (this->imagepointer(), this->num_elements,bigEndian);
+        adjust_endian (output, num_elements,bigEndian);
         }
-    
-    if (this->imagepointer() != NULL)
+
+    return output;
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_general<ELEMTYPE, IMAGEDIM>::image_general(ELEMTYPE * inData, unsigned long numElements, long width, long height, Vector3D voxelSize)
+//raw from data constructor
+    {
+    if (inData != NULL)
         {
-        name_from_path (files.front());
-        
+        //set voxel size, will be used to calculate
+        //unit_to_voxel when initialize_dataset is called
+        this->voxel_resize.Fill(0);
+        for (int d=0;d < 3;d++)
+            { voxel_resize[d][d] = voxelSize[d]; }
+
+        initialize_dataset (width,height,numElements/(width * height),inData);
+
         image_has_changed(true);
         }
     else
@@ -178,7 +194,34 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         //TODO: if imageptr == NULL at this point, image has not been read and error has
         //to be reported somehow
         }
-}
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile,unsigned int increment)
+//raw from file constructor
+    {
+    unsigned long numElements;
+    ELEMTYPE * data = load_pixels<ELEMTYPE>(numElements, files,bigEndian,headerSize,  startFile,increment);
+
+    if (data != NULL)
+        {
+        //set voxel size, will be used to calculate
+        //unit_to_voxel when initialize_dataset is called
+        this->voxel_resize.Fill(0);
+        for (int d=0;d < 3;d++)
+            { voxel_resize[d][d] = voxelSize[d]; }
+        initialize_dataset (width,height,numElements/(width * height),data);
+
+        name_from_path (files.front());
+
+        image_has_changed(true);
+        }
+    else
+        {
+        //TODO: if imageptr == NULL at this point, image has not been read and error has
+        //to be reported somehow
+        }
+    }
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(string dir_path,string seriesIdentifier)
