@@ -81,6 +81,9 @@ class histogram_base
                                                                 //images, and can render
        
     int image_ID (int axis);      //return current image ID, axis 0=h, 1= v and so forth
+
+    unsigned long num_values ()
+        {return num_distinct_values;}
     };
 
 template <class ELEMTYPE>
@@ -91,7 +94,12 @@ class histogram_typed : public histogram_base //!features common to histograms o
         ELEMTYPE * i_start, *i_end;
         ELEMTYPE max_value, min_value;
     public:
-            histogram_typed();
+        histogram_typed();
+
+        ELEMTYPE min ()
+            {return min_value;}
+        ELEMTYPE max ()
+            {return max_value;}
     };
 
 template <class ELEMTYPE>
@@ -101,23 +109,22 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 
     unsigned long render_max;
 
-    int vol_ID;      //ID of the image used
-
     protected:
         void render_(unsigned char * image, unsigned int w,unsigned int h)
             {}
+        void resize (unsigned long);
     public:
         histogram_1D (image_storage<ELEMTYPE> * i);
-    histogram_1D (ELEMTYPE * start,ELEMTYPE * end );
+        histogram_1D (ELEMTYPE * start,ELEMTYPE * end );
 
-            ~histogram_1D () {}
+        ~histogram_1D () {}
 
-        //void image (int vol);
+    //void image (int vol);
 
-        void calculate(int number_of_buckets=0);
-        //thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
-        virtual bool ready ()
-            {return this->readytorender;};   
+    void calculate(int number_of_buckets=0);
+    //thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
+    virtual bool ready ()
+        {return this->readytorender;}   
     };
 
 
@@ -177,14 +184,23 @@ void histogram_1D<ELEMTYPE >::image (int vol)
     calculate();
 }*/
 
+
+template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
+    {
+    this->num_buckets = newNum;
+
+    this->buckets = new unsigned long [this->num_buckets];
+
+    calculate();
+    }
+
 template <class ELEMTYPE>
 histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> * i):histogram_typed<ELEMTYPE>()
     {
     this->images[0] = i;
-    
-    this->buckets = new unsigned long [std::max (static_cast<unsigned long>(256),static_cast<unsigned long>((std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4.0))];
-    
-    calculate();
+
+    resize (std::max (static_cast<unsigned long>(256),static_cast<unsigned long>((std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4.0)));
     }
 
 template <class ELEMTYPE>
@@ -194,15 +210,15 @@ histogram_1D<ELEMTYPE>::histogram_1D (ELEMTYPE * start,ELEMTYPE * end ):histogra
     this->i_end = end;
     
     //these histograms are typically used for stats
-    this->buckets = new unsigned long [256];
-    
-    calculate();
+    resize (256);
     }
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 {
     if (new_num_buckets !=0 || this->buckets==NULL)
+        //resize(...) isn't used here because this function is called from resize,
+        //however the above condition will be false in that case
         {
         if (new_num_buckets !=0)    //change #buckets
             {this->num_buckets=new_num_buckets;}
@@ -258,16 +274,17 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         for (voxpos = this->i_start;voxpos != this->i_end;++voxpos)
             {
             bucketpos=((*voxpos)-std::numeric_limits<ELEMTYPE>::min())*scalefactor;
-            //calculate distinct value count
-            this->bucket_max=std::max(this->buckets[bucketpos]++,this->bucket_max);
 
             //calculate distinct value count
             if (this->buckets[bucketpos] == 0)
                 {this->num_distinct_values++;}
 
+            //increment bucket and update bucket_max
+            this->bucket_max=std::max(this->buckets[bucketpos]++,this->bucket_max);
+
             //calculate min/max
-            this->min_value = std::max (this->min_value,*voxpos);
-            this->max_value = std::min (this->max_value,*voxpos);
+            this->min_value = std::min (this->min_value,*voxpos);
+            this->max_value = std::max (this->max_value,*voxpos);
             }
 
         this->bucket_mean=0;

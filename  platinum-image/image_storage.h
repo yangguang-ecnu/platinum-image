@@ -93,6 +93,8 @@ class image_storage : public image_base
         float get_min_float();
         ELEMTYPE get_max();
         ELEMTYPE get_min();
+        ELEMTYPE get_num_values()
+            { return stats->num_values(); }
         void min_max_refresh();
 
         void erase();
