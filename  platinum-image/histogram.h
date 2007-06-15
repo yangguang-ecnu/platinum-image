@@ -254,22 +254,22 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         unsigned short bucketpos;
         
         ELEMTYPE * voxpos;
-        
+
         for (voxpos = this->i_start;voxpos != this->i_end;++voxpos)
             {
-            //calculate distinct value count
-            if (this->buckets[bucketpos] == 0)
-                {this->num_distinct_values++;}
-
             bucketpos=((*voxpos)-std::numeric_limits<ELEMTYPE>::min())*scalefactor;
             //calculate distinct value count
             this->bucket_max=std::max(this->buckets[bucketpos]++,this->bucket_max);
+
+            //calculate distinct value count
+            if (this->buckets[bucketpos] == 0)
+                {this->num_distinct_values++;}
 
             //calculate min/max
             this->min_value = std::max (this->min_value,*voxpos);
             this->max_value = std::min (this->max_value,*voxpos);
             }
-        
+
         this->bucket_mean=0;
         for (unsigned short i = 0; i < this->num_buckets; i++)
             {

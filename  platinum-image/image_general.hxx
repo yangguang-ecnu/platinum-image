@@ -290,48 +290,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool mm_refresh)
         {ITKimportimage->Delete();}
     }
 
-//template <class ELEMTYPE, int IMAGEDIM>
-//void image_general<ELEMTYPE, IMAGEDIM>::min_max_refresh()
-//    {
-//    ELEMTYPE val;
-//
-//    ELEMTYPE pre_max=std::numeric_limits<ELEMTYPE>::min();
-//    ELEMTYPE pre_min=std::numeric_limits<ELEMTYPE>::max();
-//
-//    /*for (int z=0; z < datasize[2]; z++)
-//        {
-//        for (int y=0; y < datasize[1]; y++)
-//            {
-//            for (int x=0; x < datasize[0]; x++)
-//                {  
-//                val=get_voxel(x,y,z);
-//
-//                pre_max = max (val, pre_max);
-//                pre_min = min (val, pre_min); 
-//                }
-//            }
-//        }*/
-//    
-//    typename image_storage<ELEMTYPE>::iterator itr = this->begin();
-//    while (itr != this->end())
-//        {
-//        val=*itr;
-//        
-//        pre_max = max (val, pre_max);
-//        pre_min = min (val, pre_min);
-//        
-//        ++itr;
-//        }
-//
-//    //don't change if values don't make sense - 
-//    //that would be an empty/zero image
-//    if (pre_min < pre_max)
-//        {
-//        this->maxvalue=pre_max;
-//        this->minvalue=pre_min;
-//        }
-//    }
-
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::calc_transforms ()
     {
