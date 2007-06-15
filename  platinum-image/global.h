@@ -54,6 +54,8 @@
 
 #define VOLUMEMAXDIMENSION 3
 
+#define IMGLABELMAX 19
+
 enum ROImode {ROI_RECT, ROI_CIRCLE};
 
 #endif

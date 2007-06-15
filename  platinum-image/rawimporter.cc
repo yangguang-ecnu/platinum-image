@@ -26,7 +26,7 @@
 #include "fileutils.h"
 #include "datamanager.h"
 extern datamanager datamanagement;
-#include "image_integer.h"
+#include "image_label.h"
 
 Fl_Menu_Item rawimporter::menu_voxeltypemenu[] = {
  {"1", 0,  0, (void*)(1), 1, FL_NORMAL_LABEL, 0, 12, 0},
@@ -624,7 +624,29 @@ void rawimporter::cb_rawimportok_i(Fl_Return_Button* o, void*)
         switch (voxeltype)
             {
             case 8:
-                new_image = allocate_image_<image_integer >();
+                {
+                bool fewValues;
+
+                if (!is_signed)
+                    {
+                    unsigned long datasize = 0;
+                    unsigned char * data = load_pixels <unsigned char>(datasize,files,bigEndian,headerSize);
+
+                    histogram_1D<unsigned char> testHisto (data,data + datasize);
+
+                    if (testHisto.num_values() <= IMGLABELMAX )
+                        { 
+                        new_image = new image_label<>(data,datasize,imageSize[0],imageSize[1],voxel_aspect);
+                        }
+                    else
+                        { new_image = new image_integer<unsigned char>(data,datasize,imageSize[0],imageSize[1],voxel_aspect); }
+                    }
+                else
+                    {
+                    new_image = allocate_image_<image_integer >();
+                    }
+                }
+
                 break;
             case 1:
                 //image_binary is set in size and has different template parameters, so it's allocated inline:

@@ -112,20 +112,20 @@ TARGET_LINK_LIBRARIES(PlatinumTest platinumlib)
 
 ADD_DEPENDENCIES(PlatinumTest platinumlib)
 
-#add header files to project
-SOURCE_GROUP(Headers REGULAR_EXPRESSION ".*[.]h$")
+#SOURCE_GROUP(Headers REGULAR_EXPRESSION ".*[.]h$")
+#SOURCE_GROUP(Headers FILES global.h platinumprogram.h ptmath.h)
 
-SOURCE_GROUP(ImageVarieties FILES image_binary.hxx image_complex.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx)
+SOURCE_GROUP(ImageVarieties FILES image_binary.h image_complex.h image_integer.h image_label.h image_multi.h image_scalar.h image_binary.hxx image_complex.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx)
 
-SOURCE_GROUP(Data FILES datamanager.cc data_base.cc image_base.cc image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_storage.hxx point_base.cc rawimporter.cc)
+SOURCE_GROUP(Data FILES datamanager.h data_base.h image_base.h image_general.h image_storage_iterator.h image_storage.h point_base.h rawimporter.h datamanager.cc data_base.cc image_base.cc image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_storage.hxx point_base.cc point3D.h rawimporter.cc)
 
 SOURCE_GROUP(Processing FILES image_binaryprocess.hxx)
 
-SOURCE_GROUP(View FILES viewport.cc FLTKviewport.cc viewmanager.cc renderer_base.cc renderer_VTK.cc rendererMPR.cc rendercombination.cc rendergeometry.cc rendermanager.cc transfer.hxx transfer_interpolated.hxx)
+SOURCE_GROUP(View FILES viewport.h FLTKviewport.h viewmanager.h renderer_base.h renderer_VTK.h rendererMPR.h rendercombination.h rendergeometry.h rendermanager.h transfer.h viewport.cc FLTKviewport.cc viewmanager.cc renderer_base.cc renderer_VTK.cc rendererMPR.cc rendercombination.cc rendergeometry.cc rendermanager.cc transfer.hxx transfer_interpolated.hxx)
 
-SOURCE_GROUP(Interaction FILES datawidget.cc userIO.cc FLTKuserIOparameters.cc userIOmanager.cc test_app.cc)
+SOURCE_GROUP(Interaction FILES datawidget.h userIO.h FLTKuserIOparameters.h userIOmanager.h datawidget.cc userIO.cc FLTKuserIOparameters.cc userIOmanager.cc test_app.cc)
 
-SOURCE_GROUP(Helpers FILES bruker.cc color.cc colormap.cc cursor3D.cc ${WIN32_DIRENT_SRC} fileutils.cc FLTK2Dregionofinterest.cc FLTKutilities.cc listedfactory.h histogram.cc threshold.cc)
+SOURCE_GROUP(Helpers FILES bruker.h color.h colormap.h cursor3D.h fileutils.h FLTK2Dregionofinterest.h FLTKutilities.h listedfactory.h histogram.h threshold.h bruker.cc color.cc colormap.cc cursor3D.cc ${WIN32_DIRENT_SRC} fileutils.cc FLTK2Dregionofinterest.cc FLTKutilities.cc histogram.cc threshold.cc)
 
 #add CMakelists for inclusion in version control
 SOURCE_GROUP(Scripts CMakeLists.txt)

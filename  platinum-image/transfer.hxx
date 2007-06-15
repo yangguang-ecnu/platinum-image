@@ -116,6 +116,7 @@ transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):
 template <class ELEMTYPE >
 void transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
     {
+    //TODO: repeat colors for v > IMGLABELMAX with modulo
     switch (v)
         {
         case 0 :
@@ -179,7 +180,7 @@ void transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
         case 18:
             p.set_rgb (255,255,127);
             break;
-        case 19:
+        case IMGLABELMAX:
             p.set_rgb (255,127,255);
             break;
 
