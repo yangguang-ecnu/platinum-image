@@ -91,6 +91,9 @@ image_storage<ELEMTYPE >::~image_storage()
 
     delete tfunction;
 
+    if (stats != NULL)
+        { delete stats; }
+
     minvalue=std::numeric_limits<ELEMTYPE>::min();
     maxvalue=std::numeric_limits<ELEMTYPE>::max();
     }
@@ -170,6 +173,7 @@ template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)
 	{
 	this->min_max_refresh();
+
 	if(get_min()==get_max())
 		{
 		fill(0);
@@ -183,13 +187,12 @@ void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)
 			++i;
 			}
 		}
-//		min_max_refresh();
 	}
 
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::min_max_refresh()
     {
-    ELEMTYPE val;
+    /*ELEMTYPE val;
 
     ELEMTYPE pre_max=std::numeric_limits<ELEMTYPE>::min();
     ELEMTYPE pre_min=std::numeric_limits<ELEMTYPE>::max();
@@ -203,19 +206,17 @@ void image_storage<ELEMTYPE >::min_max_refresh()
         pre_min = min (val, pre_min);
         
         ++itr;
-        }
+        }*/
     
-    if (stats == NULL)
-        { stats = new histogram_1D<ELEMTYPE >(this); }
-    
-    
-
+    stats->calculate(); 
+   
     //don't change if values don't make sense - 
     //that would be an empty/zero image
-    if (pre_min < pre_max)
+    if (stats->min() < stats->max())
         {
-        this->maxvalue=pre_max;
-        this->minvalue=pre_min;
+        this->maxvalue=stats->max();
+        this->minvalue=stats->min();
         }
     }
+
 
