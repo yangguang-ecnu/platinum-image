@@ -267,8 +267,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
     if (ptr!=NULL) //memcpy is bad karma! Use copy_data(in, out) whenever you know your (input) datatype!
         {memcpy(this->imagepointer(),ptr,sizeof(ELEMTYPE)*this->num_elements);}
 
-    if (stats == NULL)
-        { stats = new histogram_1D<ELEMTYPE >(this); }
+    if (this->stats == NULL)
+        { this->stats = new histogram_1D<ELEMTYPE >(this); }
 
     set_parameters();
     }
