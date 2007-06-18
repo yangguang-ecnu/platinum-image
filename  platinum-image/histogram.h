@@ -153,6 +153,7 @@ class histogram_2D : public histogram_base
     protected:
         void render_(unsigned char * image, unsigned int w,unsigned int h);
     public:
+        histogram_2D ();
         ~histogram_2D ();
         void images (int image_hor,int image_vert);
         void calculate(int number_of_buckets=0);

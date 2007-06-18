@@ -287,6 +287,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool stat_refresh)
 	if(stat_refresh)
 		this->stats_refresh();
 
+    //refresh transfer function
+    this->tfunction->refresh();
+
     //clear ITK connection
     ITKimportfilter = NULL;
     if (ITKimportimage.IsNotNull())

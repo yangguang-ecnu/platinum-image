@@ -33,13 +33,14 @@ void histogram_base::clear_pixmap (uchar * image, unsigned int w,unsigned int h)
 
 histogram_base::histogram_base ()
     {
-    buckets =NULL;
+    buckets = NULL;
 
     num_distinct_values =0;
     }
 
 histogram_base::~histogram_base ()
     {
+    std::cout << "histogram_base destructor" << std::endl;
     if (buckets != NULL)
         {delete []buckets; }
     }
@@ -54,7 +55,7 @@ bool histogram_base::ready ()
     return readytorender;
 }
 
-// *** histogram_2D ***
+// *** histogram_2D_plot ***
 
 void histogram_2D_plot::images (int image_hor,int image_vert)
     {
@@ -119,6 +120,11 @@ void histogram_2D_plot::render_(uchar * image, unsigned int w,unsigned int h)
                 } while (++voxpos[1] < vol_size[1]);
             } while (++voxpos[2] < vol_size[2]);
         }
+    }
+
+histogram_2D::histogram_2D ():histogram_base()
+    {
+    num_buckets = 96;
     }
 
 histogram_2D::~histogram_2D () {
