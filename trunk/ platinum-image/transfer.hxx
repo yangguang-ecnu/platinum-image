@@ -53,15 +53,15 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
     intensity_ctrl->bounds(-intrange,intrange);
 
     contrast_ctrl = new Fl_Slider (FL_HORIZONTAL,0,50,300,16,"Contrast");
-    intensity_ctrl->value (intensity);
-    intensity_ctrl->bounds(-contrange,contrange);
+    contrast_ctrl->value (contrast);
+    contrast_ctrl->bounds(-contrange,contrange);
     }
 
 template <class ELEMTYPE >
 void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
     {
-    p.r(v * intensity + contrast);
-    p.g(v * intensity + contrast);
+    set_mono(v * intensity + contrast);
+    set_mono(v * intensity + contrast);
     p.b(v * intensity + contrast);
     }
 
@@ -71,44 +71,47 @@ void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 template <class ELEMTYPE >
 transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
     {
-    this->pane->resize(0,0,270,35);
-    this->pane->resizable(NULL);
+    Fl_Group * frame = this->pane;
 
-        {
+    frame->resize(0,0,270,90);
+    frame->resizable(NULL);
+
         int top = 5;
         int left = 5;
-        RGBvalue vcolor = RGBvalue();
-        std::ostringstream label;
-
+        
         for (int c=0;c<20;c++)
             {
-
+            RGBvalue vcolor = RGBvalue();
+            std::ostringstream label;
 
             if (c > 0 && c % 8 == 0)
                 {
                 left = 5;
-                top+=25;
+                top+=30;
                 }
 
             label << c ;
 
-            Fl_Box * b = new Fl_Box (left,top,left+ 15, top + 15);
+            Fl_Box * b = new Fl_Box (frame->x()+left,frame->y()+top,15,15);
 
             b->copy_label(label.str().c_str());
             label.flush();
 
+            b->align(FL_ALIGN_RIGHT);
+            b->box(FL_DOWN_BOX);
+            b->labelsize (9);
+
             get(c,vcolor);
 
             b->color(fl_rgb_color(vcolor.r(), vcolor.g(),vcolor.b()));
-            if (vcolor.mono() < 80)
-                { b->color(FL_WHITE); }
+            /*if (vcolor.mono() < 80)
+                { b->color(FL_WHITE); }*/
 
-            left += 20;
+            left += 30;
             }
 
-        }
 
-    this->pane->end();
+    frame->end();
 
     this->refresh();
     }
@@ -141,47 +144,47 @@ void transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
             p.set_rgb (255,255,0);
             break;
         case 7:
-            p.set_rgb (255,0,255);
+            p.set_rgb (0,255,255);
             break;
 
             // *** darker ***
         case 8:
-            p.set_rgb (127,0,0);
+            p.set_rgb (192,0,0);
             break;
         case 9:
-            p.set_rgb (0,0,127);
+            p.set_rgb (0,0,192);
             break;
         case 10:
-            p.set_rgb (0,127,0);
+            p.set_rgb (0,192,0);
             break;
         case 11:
-            p.set_rgb (127,0,127);
+            p.set_rgb (192,0,192);
             break;
         case 12:
-            p.set_rgb (127,127,0);
+            p.set_rgb (192,192,0);
             break;
         case 13:
-            p.set_rgb (127,0,127);
+            p.set_rgb (0,192,192);
             break;
 
             // *** lighter ***
         case 14:
-            p.set_rgb (255,127,127);
+            p.set_rgb (255,192,192);
             break;
         case 15:
-            p.set_rgb (127,127,255);
+            p.set_rgb (192,192,255);
             break;
         case 16:
-            p.set_rgb (127,255,127);
+            p.set_rgb (192,255,192);
             break;
         case 17:
-            p.set_rgb (255,127,255);
+            p.set_rgb (255,192,255);
             break;
         case 18:
-            p.set_rgb (255,255,127);
+            p.set_rgb (255,255,192);
             break;
         case IMGLABELMAX:
-            p.set_rgb (255,127,255);
+            p.set_rgb (192,255,255);
             break;
 
         default:
@@ -199,12 +202,12 @@ transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):tr
     this->pane->resizable(NULL);
 
     // *** FLUID ***
-        { Fl_Box* o = white = new Fl_Box(10, 10, 15, 15, "high");
+        { Fl_Box* o = white = new Fl_Box(80, 10, 15, 15, "high");
         o->box(FL_THIN_DOWN_BOX);
         o->color(FL_WHITE);
         o->align(FL_ALIGN_RIGHT);
         }
-        { Fl_Box* o = black = new Fl_Box(90, 10, 15, 15, "low");
+        { Fl_Box* o = black = new Fl_Box(15, 10, 15, 15, "low");
         o->box(FL_THIN_DOWN_BOX);
         o->color(FL_FOREGROUND_COLOR);
         o->align(FL_ALIGN_RIGHT);
@@ -233,15 +236,41 @@ void transfer_default<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 
 
 template <class ELEMTYPE >
+std::string templ_to_string (ELEMTYPE t)
+    {
+    std::ostringstream output;
+    output.flags( std::ios::boolalpha | std::ios::dec );
+    output.fill(' ');
+
+    //a true templated function would *not* cast to float,
+    //instead use a specialization for bool and unsigned char,
+    //however that causes a problem with the current structure (see below)
+    output << static_cast<float>(t);
+
+    return output.str();
+    }
+
+//template specialization seems to be treated as regular function body,
+//and creates a link error for being multiply defined here
+
+/*template <>
+std::string templ_to_string (unsigned char t)
+    {
+    std::ostringstream output;
+    output.flags( std::ios::boolalpha | std::ios::dec );
+    output.fill(' ');
+
+    output << static_cast<unsigned char>(t);
+
+    return output.str();
+    }*/
+
+template <class ELEMTYPE >
 void transfer_default<ELEMTYPE >::refresh()
     {
-    std::ostringstream label;
-    label.flags( std::ios::boolalpha | std::ios::dec );
+    string label = templ_to_string (this->source->get_min());
+    black->copy_label(label.c_str());
 
-    label << this->source->get_min();
-    black->copy_label(label.str().c_str());
-    label.flush();
-
-    label << this->source->get_max();
-    white->copy_label(label.str().c_str());
+    label = templ_to_string (this->source->get_max());
+    white->copy_label(label.c_str());
     }

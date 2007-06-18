@@ -247,11 +247,10 @@ void threshold_artifact_process (int u,int p)
         {
         //image_integer<unsigned char, 3> * fat_image = scalar_copycast<image_integer<unsigned char, 3>, unsigned char, 3>(datamanagement.get_image( userIOmanagement.get_parameter<imageIDtype>(u,0)) );
 
-        image_scalar<unsigned char,3> * boo = scalar_copycast<image_scalar,unsigned char,3>(userIOmanagement.get_parameter<imageIDtype>(
-            datamanagement.get_image(
-            userIOmanagement.get_parameter<imageIDtype>(u,0))));
+        /*image_scalar<unsigned char,3> * boo = scalar_copycast<image_scalar,unsigned char,3>(userIOmanagement.get_parameter<imageIDtype>(datamanagement.get_image(userIOmanagement..get_parameter<imageIDtype>(u,0)
+            )));
 
-        delete boo;
+        delete boo;*/
         image_label<3> * input_vol = label_copycast<3>(
             datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0)));
             //using label_copycast, reason:

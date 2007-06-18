@@ -8,10 +8,10 @@ widget_class pane {open
 } {
   Fl_Box white {
     label high
-    xywh {10 10 15 15} box THIN_DOWN_BOX color 255 align 8
+    xywh {80 10 15 15} box THIN_DOWN_BOX color 255 align 8
   }
   Fl_Box black {
     label low
-    xywh {90 10 15 15} box THIN_DOWN_BOX color 0 align 8
+    xywh {15 10 15 15} box THIN_DOWN_BOX color 0 align 8
   }
 } 
