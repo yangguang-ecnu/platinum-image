@@ -1,0 +1,30 @@
+#summary Guidelines for coding syntax and structure.
+
+= Guidelines for coding syntax and structure =
+
+(Try to follow these guidelines where applicable.)
+
+
+== Header file structure (.h) ==
+
+*private:*
+
+*protected:*
+
+*public:*
+
+-Class constructors/destructors
+
+-Access functions (get_/set_)
+
+-Fuctions of more internal caracter (Reordering/Resampling)
+
+-Processing function
+
+== Body file structure (.cc .hxx) ==
+For simplicity, implement functions in the same order as in header files.
+
+
+
+
+
