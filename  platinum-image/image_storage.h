@@ -95,7 +95,9 @@ class image_storage : public image_base
         ELEMTYPE get_min();
         ELEMTYPE get_num_values()
             { return stats->num_values(); }
-        void min_max_refresh();
+        void stats_refresh();
+        void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
+                                    //! for use inside processing functions
 
         void erase();
 		void fill(ELEMTYPE value);

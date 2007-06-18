@@ -274,7 +274,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool mm_refresh)
+void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool stat_refresh)
     {
     //TODO: some outlandish malfunction in rendererMPR
     //when called with render_thumbnail-generated parameters
@@ -284,8 +284,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool mm_refresh)
     this->from_file(false);
 
     //recalculate min/max
-	if(mm_refresh)
-		this->min_max_refresh();
+	if(stat_refresh)
+		this->stats_refresh();
 
     //clear ITK connection
     ITKimportfilter = NULL;
