@@ -268,7 +268,7 @@ std::string templ_to_string (unsigned char t)
 template <class ELEMTYPE >
 void transfer_default<ELEMTYPE >::refresh()
     {
-    string label = templ_to_string (this->source->get_min());
+    std::string label = templ_to_string (this->source->get_min());
     black->copy_label(label.c_str());
 
     label = templ_to_string (this->source->get_max());

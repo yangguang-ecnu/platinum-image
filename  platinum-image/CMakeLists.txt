@@ -70,6 +70,11 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 # _DEBUG flag will be defined when in debug mode
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
+# Relax syntax requirements for GCC, since MSVC cannot shape up 
+IF(NOT MSVC)
+  ADD_DEFINITIONS(-fpermissive)
+ENDIF(MSVC)
+
 IF(WIN32)
   OPTION(FLTK_HAS_DEPENDENT_NAMES "FLtk debug lib is named fltkd" OFF)
   MARK_AS_ADVANCED(FLTK_HAS_DEPENDENT_NAMES)
