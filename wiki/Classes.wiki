@@ -58,11 +58,23 @@ _*[transfer_interpolated]*_
 Abstract base for transfer functions using curves/lines drawn on a histogram, with lookup table (transfer_spline, transfer_linear)
 
 =Data handling=
+*Datamanager*
+The datamanager maintains a list of work data loaded or created at runtime. It has functions for loading and saving data (that invoke functions in the relevant classes).
+
+==Pointwise storage==
 _*Point_base*_
 The untemplated base class for point collections.
 
-*Datamanager*
-The datamanager maintains a list of work data loaded or created at runtime. It has functions for loading and saving data (that invoke functions in the relevant classes).
+_*Points*_
+
+_*Point*_
+A single point is a special case of points
+
+_*PointMesh*_
+Unstructures poit mesh
+
+_*PointSequence*_
+Linear sequence of points
 
 ==Image storage==
 *Image_base*
