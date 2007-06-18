@@ -190,9 +190,23 @@ void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)
 	}
 
 template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::stats_refresh()
+    {
+    stats->calculate(); 
+   
+    //don't change if values don't make sense - 
+    //that would be an empty/zero image
+    if (stats->min() < stats->max())
+        {
+        this->maxvalue=stats->max();
+        this->minvalue=stats->min();
+        }
+    }
+
+template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::min_max_refresh()
     {
-    /*ELEMTYPE val;
+    ELEMTYPE val;
 
     ELEMTYPE pre_max=std::numeric_limits<ELEMTYPE>::min();
     ELEMTYPE pre_min=std::numeric_limits<ELEMTYPE>::max();
@@ -206,16 +220,14 @@ void image_storage<ELEMTYPE >::min_max_refresh()
         pre_min = min (val, pre_min);
         
         ++itr;
-        }*/
-    
-    stats->calculate(); 
+        }
    
     //don't change if values don't make sense - 
     //that would be an empty/zero image
-    if (stats->min() < stats->max())
+    if (pre_min < pre_max)
         {
-        this->maxvalue=stats->max();
-        this->minvalue=stats->min();
+        this->maxvalue=pre_max;
+        this->minvalue=pre_min;
         }
     }
 

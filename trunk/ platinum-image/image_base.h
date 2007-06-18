@@ -110,7 +110,7 @@ class image_base : public data_base
 
         Vector3D transform_unit_to_voxel(Vector3D pos);
         
-        virtual void image_has_changed(bool min_max_refresh = false) {};
+        virtual void image_has_changed(bool stats_refresh = false) {};
         // *** access methods ***
 
         virtual Matrix3D get_voxel_resize () = 0;

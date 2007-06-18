@@ -116,10 +116,10 @@ class image_general : public image_storage <ELEMTYPE >
         void replicate_itk_to_image();     //use object's own ITK image pointer
         void replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
 
-        void image_has_changed(bool min_max_refresh = false);          //called when image data has been changed
+        void image_has_changed(bool stats_refresh = false);          //called when image data has been changed
 
-        static image_base * type_from_DICOM_file (std::string file_path);
-        static image_base * type_from_VTK_file (std::string file_path);
+        /*static image_base * type_from_DICOM_file (std::string file_path);
+        static image_base * type_from_VTK_file (std::string file_path);*/
 
 		void set_voxel_resize(float dx, float dy, float dz=0);         //voxel size
 
@@ -159,7 +159,7 @@ class image_general : public image_storage <ELEMTYPE >
         
         // *** size functions ***
         unsigned short get_size_by_dim(int dim);
-        unsigned short get_size_by_dim_and_dir(int dim, int direction);
+        unsigned short get_size_by_dim_and_dir(int dim, int direction); //! get size in direction orthogonal to direction arg
         bool same_size (image_base * other);    //test whether other image
                                                 //has same voxel dimensions
         
