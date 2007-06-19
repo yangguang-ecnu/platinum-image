@@ -40,8 +40,11 @@
 template <class ELEMTYPE>
     class image_storage;
 
+template <class ELEMTYPE>
+    class histogram_1D;
+
 template <class ELEMTYPE >
-class transfer_interpolated;
+    class transfer_interpolated;
 
 class transferfactory;
 class transferchart;
@@ -61,12 +64,10 @@ class transfer_manufactured //! Sub-base class that holds the static factory obj
 template <class ELEMTYPE >
 class transfer_base: public transfer_manufactured
     {
-        friend class transferchart;
     protected:
         image_storage<ELEMTYPE > * source;
         Fl_Group*  pane;
-
-        //transfer_base (): transfer_base (NULL) {}
+        
         transfer_base (image_storage<ELEMTYPE > * s);
         
     public:
@@ -161,7 +162,26 @@ template <class ELEMTYPE >
     class transfer_interpolated: public transfer_base <ELEMTYPE >
     {
 protected:
-        IMGELEMCOMPTYPE lookup [0xFFFFFFF]; //accomodates unsigned long
+        //IMGELEMCOMPTYPE lookup [0xFFFFFFF]; //accomodates unsigned long
+        
+        class transferchart :protected Fl_Widget
+        {
+            friend class               transfer_interpolated;
+            unsigned long              lookupSize;
+            float                      lookupStart,
+                                       lookupScale;
+            IMGELEMCOMPTYPE            * lookup ;
+            const histogram_1D<ELEMTYPE >    * histogram;
+            //IMGELEMCOMPTYPE            * imgdata;
+            Fl_RGB_Image               * histimg;
+            
+            float leftBound,rightBound;
+public:
+            transferchart (const histogram_1D<ELEMTYPE > *, int, int, int, int);
+            virtual ~transferchart();
+            void draw ();
+        };
+        
         transferchart * chart;
 public:
         transfer_interpolated (image_storage <ELEMTYPE > * s);
@@ -191,8 +211,5 @@ template <class ELEMTYPE >
 public:
         transfer_spline (image_storage <ELEMTYPE > * s);
     };
-    
-#include "transfer.hxx"
-#include "transfer_interpolated.hxx"
 
 #endif

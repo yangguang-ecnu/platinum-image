@@ -19,6 +19,11 @@
 
 #include "histogram.h"
 
+#include "image_base.h"
+
+#include "datamanager.h"
+extern datamanager datamanagement;
+
 // *** histogram_base ***
 
 void histogram_base::clear_pixmap (uchar * image, unsigned int w,unsigned int h)
