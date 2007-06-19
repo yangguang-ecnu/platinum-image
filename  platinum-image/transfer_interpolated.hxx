@@ -51,18 +51,18 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
     fl_rectf(x(), y(),w(),h());*/
     
     //histogram
-    
-    IMGELEMCOMPTYPE * imgdata = NULL;
+   
+    /*IMGELEMCOMPTYPE * imgdata = NULL;
 
     if (histimg != NULL)
         {
         if (histimg->w() != w() || histimg->h() != h())
             {
-            /*Fl_RGB_Image * i = histimg->copy(w(), h()); 
-            
-            delete histimg;
-            
-            histimg = i;*/
+            //Fl_RGB_Image * i = histimg->copy(w(), h()); 
+            //
+            //delete histimg;
+            //
+            //histimg = i;
             
             delete histimg;
             histimg = NULL;
@@ -102,6 +102,7 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
             fl_line(start+p, startY-yScale*lookup[static_cast<unsigned int>(p*xStep)], start+(p+1)*xStep, startY-yScale*lookup[static_cast<unsigned int>((p+1)*xStep)]);
             }
         }
+    */
     }
 
 // *** transfer_interpolated (base class) ***
