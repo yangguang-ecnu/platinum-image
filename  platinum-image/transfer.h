@@ -156,46 +156,36 @@ class transfer_mapcolor: public transfer_base <ELEMTYPE >
         void get (const ELEMTYPE v, RGBvalue &p);
     };
 
-
-
 template <class ELEMTYPE >
-    class transfer_interpolated: public transfer_base <ELEMTYPE >
+class transfer_interpolated: public transfer_base <ELEMTYPE >
     {
-protected:
+    protected:
         //IMGELEMCOMPTYPE lookup [0xFFFFFFF]; //accomodates unsigned long
-        
+
         class transferchart :protected Fl_Widget
-        {
+            {
             friend class               transfer_interpolated;
             unsigned long              lookupSize;
             float                      lookupStart,
-                                       lookupScale;
+                lookupScale;
             IMGELEMCOMPTYPE            * lookup ;
             histogram_1D<ELEMTYPE >    * histogram;
             //IMGELEMCOMPTYPE            * imgdata;
             Fl_RGB_Image               * histimg;
-            
+
             float leftBound,rightBound;
-public:
-            transferchart (histogram_1D<ELEMTYPE > *, int, int, int, int);
-            virtual ~transferchart();
-            void draw ();
-        };
-        
+            public:
+                transferchart (histogram_1D<ELEMTYPE > *, int, int, int, int);
+                virtual ~transferchart();
+                void draw ();
+                int handle(int);
+            };
+
         transferchart * chart;
-public:
+    public:
         transfer_interpolated (image_storage <ELEMTYPE > * s);
         virtual ~transfer_interpolated();
         void get (const ELEMTYPE v, RGBvalue &p);
-};
-
-class  transferchart : public Fl_Widget
-    {
-protected:
-        //transfer_interpolated<class ELEMTYPE > * tfunction; //! Transfer function to display
-public:
-    //transferchart (int x,int y, int w, int h,transfer_interpolated * f );
-        transferchart (int x,int y, int w, int h);
     };
 
     template <class ELEMTYPE >

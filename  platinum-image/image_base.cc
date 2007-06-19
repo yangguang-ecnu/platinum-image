@@ -386,101 +386,102 @@ image_base * analyze_hdrloader::read(std::vector<std::string> &files)
     if (pos !=std::string::npos)
         {
         img_file.erase(pos,img_file.length());
-		pos=img_file.rfind("/",img_file.length()-1);
-		img_name = img_file.substr(pos+1);
-		img_file += ".img";
-        }
-    
-    if (file_exists (img_file) && file_exists (hdr_file))
-        {
-        short size[3];
-        Vector3D voxelsize;
-        bool bigEndian;
-        bool isSigned;
-        bool isFloat;
-        int bitDepth;
+        pos=img_file.rfind("/",img_file.length()-1);
+        img_name = img_file.substr(pos+1);
+        img_file += ".img";
 
-        std::ifstream hdr (std::string(hdr_file).c_str(),ios::in);
-		int count=0;
-		unsigned char readbuf[100];
-		hdr.read((char*)readbuf,4);
-		int sizeof_hdr=buf2int(readbuf);
-		count+=4;
-		hdr.read((char*)readbuf,36); //Skip
-		hdr.read((char*)readbuf,2);
-		short endian=buf2short(readbuf);
-		bigEndian = ((endian >= 0) && (endian <= 15));
-		hdr.read((char*)readbuf,2);
-		size[0]=buf2short(readbuf);
-		hdr.read((char*)readbuf,2);
-		size[1]=buf2short(readbuf);
-		hdr.read((char*)readbuf,2);
-		size[2]=buf2short(readbuf);
-		hdr.read((char*)readbuf,22); //Skip
-		hdr.read((char*)readbuf,2);
-		short datatype=buf2short(readbuf);
-		switch (datatype) {	      
-			case 2:
-			isSigned=false;
-			isFloat=false;
-			bitDepth=8;
-			break;
-			case 4:
-			isSigned=true;
-			isFloat=false;
-			bitDepth=16;
-			break;
-			case 8:
-			isSigned=true;
-			isFloat=false;
-			bitDepth=32;
-			break; 
-			case 16:
-			isSigned=true;
-			isFloat=true;
-			bitDepth=32;
-			break; 
-			case 128:
-			isSigned=false;
-			isFloat=false;
-			bitDepth=24;
-			break; 
-			default:
-			isSigned=false;
-			isFloat=false;
-			bitDepth=8;					// DT_UNKNOWN
-		}
+        if (file_exists (img_file) && file_exists (hdr_file))
+            {
+            short size[3];
+            Vector3D voxelsize;
+            bool bigEndian;
+            bool isSigned;
+            bool isFloat;
+            int bitDepth;
 
-        voxelsize.Fill (1);
+            std::ifstream hdr (std::string(hdr_file).c_str(),ios::in);
+            int count=0;
+            unsigned char readbuf[100];
+            hdr.read((char*)readbuf,4);
+            int sizeof_hdr=buf2int(readbuf);
+            count+=4;
+            hdr.read((char*)readbuf,36); //Skip
+            hdr.read((char*)readbuf,2);
+            short endian=buf2short(readbuf);
+            bigEndian = ((endian >= 0) && (endian <= 15));
+            hdr.read((char*)readbuf,2);
+            size[0]=buf2short(readbuf);
+            hdr.read((char*)readbuf,2);
+            size[1]=buf2short(readbuf);
+            hdr.read((char*)readbuf,2);
+            size[2]=buf2short(readbuf);
+            hdr.read((char*)readbuf,22); //Skip
+            hdr.read((char*)readbuf,2);
+            short datatype=buf2short(readbuf);
+            switch (datatype) {	      
+                case 2:
+                    isSigned=false;
+                    isFloat=false;
+                    bitDepth=8;
+                    break;
+                case 4:
+                    isSigned=true;
+                    isFloat=false;
+                    bitDepth=16;
+                    break;
+                case 8:
+                    isSigned=true;
+                    isFloat=false;
+                    bitDepth=32;
+                    break; 
+                case 16:
+                    isSigned=true;
+                    isFloat=true;
+                    bitDepth=32;
+                    break; 
+                case 128:
+                    isSigned=false;
+                    isFloat=false;
+                    bitDepth=24;
+                    break; 
+                default:
+                    isSigned=false;
+                    isFloat=false;
+                    bitDepth=8;					// DT_UNKNOWN
+                }
 
-		if(isFloat)
-			{
-			newImage = allocate_image<image_scalar> (
-				isFloat,
-				isSigned,
-				bitDepth,
-				std::vector<std::string > (1,img_file), 
-				size[0], size[1],
-				bigEndian,
-				0, 
-				voxelsize);
-			}
-		else
-			{
-			newImage = allocate_image<image_integer> (
-				isFloat,
-				isSigned,
-				bitDepth,
-				std::vector<std::string > (1,img_file), 
-				size[0], size[1],
-				bigEndian,
-				0, 
-				voxelsize);
-			}
-		hdr.close();
-        newImage->name(img_name);
+            voxelsize.Fill (1);
 
-		files.erase (files.begin());
+            if(isFloat)
+                {
+                newImage = allocate_image<image_scalar> (
+                    isFloat,
+                    isSigned,
+                    bitDepth,
+                    std::vector<std::string > (1,img_file), 
+                    size[0], size[1],
+                    bigEndian,
+                    0, 
+                    voxelsize);
+                }
+            else
+                {
+                newImage = allocate_image<image_integer> (
+                    isFloat,
+                    isSigned,
+                    bitDepth,
+                    std::vector<std::string > (1,img_file), 
+                    size[0], size[1],
+                    bigEndian,
+                    0, 
+                    voxelsize);
+                }
+            hdr.close();
+            newImage->name(img_name);
+
+            //file was read - remove from list
+            files.erase (files.begin());
+            }
         }
 
     return newImage;

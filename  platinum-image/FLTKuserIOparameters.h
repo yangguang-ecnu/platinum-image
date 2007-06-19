@@ -46,12 +46,14 @@
 //class histogram_2D;
 struct regionofinterest;
 
+#include "global.h"
+
 #include "histogram.h"
 #include "threshold.h"
 
-#include "global.h"
+#include "error.h"
 
-class subclass_type_error : public std::exception 
+/*class subclass_type_error : public std::exception 
     {
     private:
         std::string _M_msg;
@@ -66,7 +68,7 @@ class subclass_type_error : public std::exception
         virtual const char* 
             what() const throw()
             { return _M_msg.c_str(); }
-    };
+    };*/
 
 // *** layout constants ***
 
@@ -172,17 +174,17 @@ public:
     //(and any additional) par_value functions
 
     virtual void par_value (float & v)
-        {throw subclass_type_error("requested float, actual type " + type_name() );}
+        {throw pt_error("requested float, actual type " + type_name(), pt_error::serious);}
     virtual void par_value (long & v)
-        {throw subclass_type_error("requested long, actual type " + type_name() );}
+        {throw pt_error("requested long, actual type " + type_name(), pt_error::serious );}
     virtual void par_value (Vector3D & v)
-        {throw subclass_type_error("requested Vector3D, actual type " + type_name() );}
+        {throw pt_error("requested Vector3D, actual type " + type_name(), pt_error::serious );}
     virtual void par_value (imageIDtype & v)
-        {throw subclass_type_error("requested image ID, actual type " + type_name() );}
+        {throw pt_error("requested image ID, actual type " + type_name(), pt_error::serious );}
     virtual void par_value (bool & v)
-        {throw subclass_type_error("requested bool, actual type " + type_name() );}
+        {throw pt_error("requested bool, actual type " + type_name(), pt_error::serious );}
     virtual void par_value (thresholdparvalue & v)
-        {throw subclass_type_error("requested thresholds, actual type " + type_name() );}
+        {throw pt_error("requested thresholds, actual type " + type_name(), pt_error::serious );}
 
     virtual const std::string type_name ()
         {return "unknown (base)";}
