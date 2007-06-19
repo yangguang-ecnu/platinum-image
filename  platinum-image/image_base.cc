@@ -346,6 +346,146 @@ image_base *dicomloader::read(std::vector<std::string>& files)
     return result;
 }
 
+class analyze_hdrloader: public imageloader 
+{
+private:
+	int buf2int(unsigned char* buf);
+	short buf2short(unsigned char* buf);
+public:
+    analyze_hdrloader (std::vector<std::string>);
+    image_base * read (std::vector<std::string>&);
+};
+
+analyze_hdrloader::analyze_hdrloader(const std::vector<std::string> files): imageloader(files)
+	{
+	}
+
+int analyze_hdrloader::buf2int(unsigned char* buf)
+	{
+	int res=buf[0]<<24|buf[1]<<16|buf[2]<<8|buf[3];
+	return res;
+	}
+
+short analyze_hdrloader::buf2short(unsigned char* buf)
+	{
+	short res=buf[0]<<8|buf[1];
+	return res;
+	}
+
+image_base * analyze_hdrloader::read(std::vector<std::string> &files)
+    {
+    image_base * newImage = NULL;
+	std::string hdr_file = files.front();
+	std::string img_file = hdr_file;
+	std::string img_name;
+    
+    unsigned int pos;
+    
+    pos=img_file.rfind(".hdr",img_file.length()-1);
+    
+    if (pos !=std::string::npos)
+        {
+        img_file.erase(pos,img_file.length());
+		pos=img_file.rfind("/",img_file.length()-1);
+		img_name = img_file.substr(pos+1);
+		img_file += ".img";
+        }
+    
+    if (file_exists (img_file) && file_exists (hdr_file))
+        {
+        short size[3];
+        Vector3D voxelsize;
+        bool bigEndian;
+        bool isSigned;
+        bool isFloat;
+        int bitDepth;
+
+        std::ifstream hdr (std::string(hdr_file).c_str(),ios::in);
+		int count=0;
+		unsigned char readbuf[100];
+		hdr.read((char*)readbuf,4);
+		int sizeof_hdr=buf2int(readbuf);
+		count+=4;
+		hdr.read((char*)readbuf,36); //Skip
+		hdr.read((char*)readbuf,2);
+		short endian=buf2short(readbuf);
+		bigEndian = ((endian >= 0) && (endian <= 15));
+		hdr.read((char*)readbuf,2);
+		size[0]=buf2short(readbuf);
+		hdr.read((char*)readbuf,2);
+		size[1]=buf2short(readbuf);
+		hdr.read((char*)readbuf,2);
+		size[2]=buf2short(readbuf);
+		hdr.read((char*)readbuf,22); //Skip
+		hdr.read((char*)readbuf,2);
+		short datatype=buf2short(readbuf);
+		switch (datatype) {	      
+			case 2:
+			isSigned=false;
+			isFloat=false;
+			bitDepth=8;
+			break;
+			case 4:
+			isSigned=true;
+			isFloat=false;
+			bitDepth=16;
+			break;
+			case 8:
+			isSigned=true;
+			isFloat=false;
+			bitDepth=32;
+			break; 
+			case 16:
+			isSigned=true;
+			isFloat=true;
+			bitDepth=32;
+			break; 
+			case 128:
+			isSigned=false;
+			isFloat=false;
+			bitDepth=24;
+			break; 
+			default:
+			isSigned=false;
+			isFloat=false;
+			bitDepth=8;					// DT_UNKNOWN
+		}
+
+        voxelsize.Fill (1);
+
+		if(isFloat)
+			{
+			newImage = allocate_image<image_scalar> (
+				isFloat,
+				isSigned,
+				bitDepth,
+				std::vector<std::string > (1,img_file), 
+				size[0], size[1],
+				bigEndian,
+				0, 
+				voxelsize);
+			}
+		else
+			{
+			newImage = allocate_image<image_integer> (
+				isFloat,
+				isSigned,
+				bitDepth,
+				std::vector<std::string > (1,img_file), 
+				size[0], size[1],
+				bigEndian,
+				0, 
+				voxelsize);
+			}
+		hdr.close();
+        newImage->name(img_name);
+
+		files.erase (files.begin());
+        }
+
+    return newImage;
+    }
+
 template <class LOADERTYPE>
 void try_loader (std::vector<std::string> &f) //! helper for image_base::load
     {
@@ -365,6 +505,9 @@ void try_loader (std::vector<std::string> &f) //! helper for image_base::load
 
 void image_base::load(std::vector<std::string> chosen_files)
     {
+    //try Analyze hdr
+    try_loader<analyze_hdrloader>(chosen_files);
+
     //try Bruker
     try_loader<brukerloader>(chosen_files);
 
