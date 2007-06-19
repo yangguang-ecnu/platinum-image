@@ -62,8 +62,7 @@ class image_storage : public image_base
 
         ELEMTYPE * imagepointer()
             {
-            if (dataptr == NULL) 
-                { /*throw exception*/ }
+            pt_error::error_if_null (dataptr,"Attempting to access datapointer while it is NULL", pt_error::fatal );
             
             return (dataptr); 
             }
@@ -93,7 +92,11 @@ class image_storage : public image_base
         ELEMTYPE get_num_values()
             { return stats->num_values(); }
         histogram_1D<ELEMTYPE> * get_histogram()
-            {return stats;}
+            {
+            pt_error::error_if_null(stats,"Trying to get_histogram() which is NULL");
+                
+            return stats;
+            }
         void stats_refresh();
         void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
                                     //! for use inside processing functions

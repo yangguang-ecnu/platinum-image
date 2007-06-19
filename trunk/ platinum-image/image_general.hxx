@@ -330,8 +330,7 @@ void  image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image()
 template <class ELEMTYPE, int IMAGEDIM>
 void  image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i)
     {
-    //i.IsNotNull () could be used to catch
-    //uninitialized use. In that case it should throw an exception
+    pt_error::error_if_false (i.IsNotNull (), "Attempting to create ITK image from unitialized image object", pt_error::fatal ); 
 
     typename theSizeType ITKsize = (i->GetLargestPossibleRegion()).GetSize();
 

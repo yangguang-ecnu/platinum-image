@@ -107,10 +107,7 @@ ELEMTYPE * load_pixels (unsigned long &num_elements,std::vector<std::string> fil
         }
     else
         {
-        //total failure, TODO: throw exception
-#ifdef _DEBUG
-        cout << "Opening raw: couldn't get stat for \"" << files.front() << "\"" << endl;
-#endif
+        throw pt_error ("Opening raw: couldn't get stat for \"" + files.front() + "\"",pt_error::fatal);
         }
 
     //size of *first* file
@@ -191,8 +188,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(ELEMTYPE * inData, unsigned lon
         }
     else
         {
-        //TODO: if imageptr == NULL at this point, image has not been read and error has
-        //to be reported somehow
+        throw ("Image was not created",pt_error::fatal);
         }
     }
 
