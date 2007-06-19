@@ -32,4 +32,16 @@ class point_base : public data_base
     {
     };
 
+///////////////////////////////////////
+// The structure is planned as follows
+// data_base
+//	point_base
+//		points							//multiple points
+//			point						//a single point is a subclass of points
+//			points_unstructured			//point cloud (e.g. seed points)
+//			points_seq					//e.g. contour points
+//				points_seq_closed		//e.g. contour points
+//				points_seq_func			//e.g. contour points
+//			points_mesh					//points in a mesh structure...
+
 #endif

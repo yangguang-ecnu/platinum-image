@@ -34,6 +34,7 @@
 #include "ptmath.h"
 
 #include "global.h"
+#include "itkGDCMImageIO.h"
 
 class data_base // We MUST have a virtual base class
     {
@@ -66,6 +67,10 @@ class data_base // We MUST have a virtual base class
 
         Vector3D origin; //make protected, use access methods instead
         Matrix3D direction;
+
+		bool get_origin_from_dicom_file(std::string dcm_file);
+		bool get_direction_from_dicom_file(std::string dcm_file);
+		void rotate(float fi_z,float fi_y,float fi_x);
 
         //virtual data_base * alike () = 0;
 

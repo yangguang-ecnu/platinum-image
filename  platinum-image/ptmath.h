@@ -22,8 +22,8 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#ifndef __tensor_algebra__
-#define __tensor_algebra__
+#ifndef __ptmath__
+#define __ptmath__
 
 //tensor algebra type defs, dependencies...
 #include "itkVector.h"
@@ -33,115 +33,150 @@
 ///...and types
 typedef itk::Vector<float,3> Vector3D;
 typedef itk::Point<float,3> Point3D;
-typedef struct HistoPair
-    {long index, count;};
+typedef struct HistoPair				//Take a look at the STL map class, it might be the right thing!
+{long index, count;};
 typedef itk::Matrix<float> Matrix3D;
 
 //not typical tensor functions, just for lack of a better place
 
 template<class T>                   
 void t_swap(T & t1, T & t2){        //templated swap functions that's less
-                                    //(not at all) picky on input
-   T tmp(t1); 
-   t1 = t2; 
-   t2  = tmp; 
+	//(not at all) picky on input
+	T tmp(t1); 
+	t1 = t2; 
+	t2  = tmp; 
 }
 
 template <class T>
 T round (T f)   //round to nearest integer
-    {return floor (f + 0.5); }
+{return floor (f + 0.5); }
 
 template <class T>
 T abs_ceil (T f)   //round to nearest higher, ignoring sign
-    {
-    T sign = (f < 0 ? -1 : 1);
-    return sign*ceil (f*sign);
-    }
+{
+	T sign = (f < 0 ? -1 : 1);
+	return sign*ceil (f*sign);
+}
 
 template <class sType, unsigned int vDim>
 void min_normalize (itk::Vector<sType, vDim> &V)     //normalize vector using
-                                                //minimum norm
-    {
-    sType min_norm = V[0];
+//minimum norm
+{
+	sType min_norm = V[0];
 
-    for (unsigned int d=0;d < vDim;d++)
-        {
-        min_norm=min(min_norm,V[d]);
-        }
-    V /=min_norm;
-    }
+	for (unsigned int d=0;d < vDim;d++)
+	{
+		min_norm=min(min_norm,V[d]);
+	}
+	V /=min_norm;
+}
 
 template <class C, class D> void adjust_endian (D* data, C size,bool DataIsBigEndian)
-                                                        //alter endian if supplied value
-                                                        //and system value don't match
-    {
-    bool RunsOnBigEndian;
+//alter endian if supplied value
+//and system value don't match
+{
+	bool RunsOnBigEndian;
 
 #ifdef _MSC_VER
-    short word = 0x4321;
-    RunsOnBigEndian = (*(char *)& word) != 0x21 ;
+	short word = 0x4321;
+	RunsOnBigEndian = (*(char *)& word) != 0x21 ;
 #else
-    RunsOnBigEndian = (htonl(1)==1 );
+	RunsOnBigEndian = (htonl(1)==1 );
 #endif
 
-    unsigned int swapSize = sizeof (D);
+	unsigned int swapSize = sizeof (D);
 
-    if (RunsOnBigEndian ^ DataIsBigEndian)
-        {
-        for (C p =0;p < size;p++)
-            {
-            unsigned char * b = (unsigned char *) &(data[p]);
-            register int i = 0;
-            register int j = swapSize-1;
+	if (RunsOnBigEndian ^ DataIsBigEndian)
+	{
+		for (C p =0;p < size;p++)
+		{
+			unsigned char * b = (unsigned char *) &(data[p]);
+			register int i = 0;
+			register int j = swapSize-1;
 
-            while (i<j)
-                {
-                t_swap(b[i], b[j]);
-                i++, j--;
-                }
-            }
-        }
-    }
+			while (i<j)
+			{
+				t_swap(b[i], b[j]);
+				i++, j--;
+			}
+		}
+	}
+}
+/*
+bool has_only_positive_or_zero_components(Vector3D v)
+{
+for(int i=0;i<=2;i++)
+{
+if(v[i]<0)
+return false;
+}
+return true;
+}
 
+bool has_only_negative_or_zero_components(Vector3D v)
+{
+for(int i=0;i<=2;i++)
+{
+if(v[i]>0)
+return false;
+}
+return true;
+}
+*/
 //Following rules can be notes about the rotation matrices below:
 // R^(-1)(fi) = R(-fi)
 // R^(-1)(fi) = R^T(fi)
 // R-total = RzRyRx --< R^(-1) = R^(T)
-	class matrix_generator{
-	public:
-		Matrix3D get_rot_x_matrix_3D(float fi)			//fi in radians
-		{
-			Matrix3D r;
-			r[0][0] = 1;	r[1][0] = 0; 		r[2][0] = 0;
-			r[0][1] = 0;	r[1][1] = cos(fi); 	r[2][1] = -sin(fi);
-			r[0][2] = 0;	r[1][2] = sin(fi); 	r[2][2] = cos(fi);
-			return r;
-		}
+class matrix_generator{
+public:
+	Matrix3D get_rot_x_matrix_3D(float fi)			//fi in radians
+	{
+		Matrix3D r;
+		r[0][0] = 1;	r[1][0] = 0; 		r[2][0] = 0;
+		r[0][1] = 0;	r[1][1] = cos(fi); 	r[2][1] = -sin(fi);
+		r[0][2] = 0;	r[1][2] = sin(fi); 	r[2][2] = cos(fi);
+		return r;
+	}
 
-		Matrix3D get_rot_y_matrix_3D(float fi)			//fi in radians
-		{
-			Matrix3D r;
-			r[0][0] = cos(fi);	r[1][0] = 0; 		r[2][0] = sin(fi);
-			r[0][1] = 0;		r[1][1] = 1;		r[2][1] = 0;
-			r[0][2] = -sin(fi);	r[1][2] = 0;		r[2][2] = cos(fi);
-			return r;
-		}
+	Matrix3D get_rot_y_matrix_3D(float fi)			//fi in radians
+	{
+		Matrix3D r;
+		r[0][0] = cos(fi);	r[1][0] = 0; 		r[2][0] = sin(fi);
+		r[0][1] = 0;		r[1][1] = 1;		r[2][1] = 0;
+		r[0][2] = -sin(fi);	r[1][2] = 0;		r[2][2] = cos(fi);
+		return r;
+	}
 
-		Matrix3D get_rot_z_matrix_3D(float fi)			//fi in radians
-		{
-			Matrix3D r;
-			r[0][0] = cos(fi);	r[1][0] = -sin(fi);	r[2][0] = 0;
-			r[0][1] = sin(fi);	r[1][1] = cos(fi);	r[2][1] = 0;
-			r[0][2] = 0;		r[1][2] = 0;		r[2][2] = 1;
-			return r;
-		}
+	Matrix3D get_rot_z_matrix_3D(float fi)			//fi in radians
+	{
+		Matrix3D r;
+		r[0][0] = cos(fi);	r[1][0] = -sin(fi);	r[2][0] = 0;
+		r[0][1] = sin(fi);	r[1][1] = cos(fi);	r[2][1] = 0;
+		r[0][2] = 0;		r[1][2] = 0;		r[2][2] = 1;
+		return r;
+	}
 
-		Matrix3D get_rot_matrix_3D(float fi_z, float fi_y, float fi_x)	//fi_z/y/x in radians
-		{
-			return get_rot_z_matrix_3D(fi_z)*get_rot_y_matrix_3D(fi_y)*get_rot_x_matrix_3D(fi_x);
-		}
+	//rotation examples based on the "basic" image processing coordinate system
+	//(x-->right, y-->down and z--> the view direction of the screen)
+	//+fi_z rotates the image volume: "Counterclockwise" of the z-direction
+	//+fi_y rotates the image volume: "Counterclockwise" of the y-direction
+	//+fi_x rotates the image volume: "Counterclockwise" of the x-direction
+	Matrix3D get_rot_matrix_3D(float fi_z, float fi_y, float fi_x)	//fi_z/y/x in radians
+	{
+		return get_rot_z_matrix_3D(fi_z)*get_rot_y_matrix_3D(fi_y)*get_rot_x_matrix_3D(fi_x);
+	}
+};
+
+///////////////////////////////////////////////////////
+// Given x and y vectors of length nSteps, returns 
+// a vector of second derivatives, y2 (natural cubic spline).  Based 
+// on the routine "spline" from Numerical Recipes section 3.3.
+// First, call pt_spline once to generate y2.
+// Then call pt_splint (using y2) to  interpolate values...
 
 
-	};
+void pt_spline1D(float x[],float y[],int n,float yp1,float ypn,float y2[]);
+float pt_splint1D(float xa[],float ya[],float y2a[],int n,float x);
 
-#endif
+
+#endif	//__ptmath.h__

@@ -294,6 +294,8 @@ class FLTKuserIOpar_message : public FLTKuserIOparameter_base                  /
         const std::string type_name ();
     };
 
+
+
 // *** Planned parameters ***
 
 /*class FLTKuserIOpar_point : public FLTKuserIOparameter_base    //selection of a 3D location (global coords)
