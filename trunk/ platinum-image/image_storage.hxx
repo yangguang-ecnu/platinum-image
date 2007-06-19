@@ -105,7 +105,7 @@ void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)
         {delete tfunction;}
 
     if (t == NULL)
-        { tfunction = new transfer_default<ELEMTYPE >(this); }
+        { tfunction = new transfer_linear<ELEMTYPE >(this); }
     else
         { tfunction = t; }
     }
