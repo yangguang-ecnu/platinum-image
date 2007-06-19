@@ -34,8 +34,6 @@ extern datamanager datamanagement;
 extern rendermanager rendermanagement;
 extern viewmanager viewmanagement;
 
-#include "histogram.h"
-
 using namespace std;
 
 int viewport::maxviewportID = 0;

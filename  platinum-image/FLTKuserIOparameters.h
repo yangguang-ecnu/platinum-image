@@ -42,9 +42,11 @@
 
 #include "ptmath.h"
 
-class histogram_base;
-class histogram_2D;
+//class histogram_base;
+//class histogram_2D;
 struct regionofinterest;
+
+#include "histogram.h"
 #include "threshold.h"
 
 #include "global.h"

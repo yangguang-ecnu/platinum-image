@@ -20,6 +20,7 @@
 #include "datamanager.h"
 #include "viewmanager.h"
 #include "rendermanager.h"
+
 #include "rawimporter.h"
 #include "image_integer.h"
 

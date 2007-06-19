@@ -27,18 +27,15 @@
 #ifndef __image_storage__
 #define __image_storage__
 
-#include "transfer.h"
-
 #define IMGLABELTYPE unsigned char
 #define IMGBINARYTYPE IMGLABELTYPE
 
 class image_base;
 
-template <class ELEMTYPE>
-class histogram_1D;
-//NOTE: histogram.h included at bottom of this file due to cross-dependency
-
 #include "image_base.h"
+
+#include "histogram.h"
+#include "transfer.h"
 
 template<class ELEMTYPE>
 class image_storage : public image_base
@@ -95,6 +92,8 @@ class image_storage : public image_base
         ELEMTYPE get_min();
         ELEMTYPE get_num_values()
             { return stats->num_values(); }
+        const histogram_1D<ELEMTYPE> * get_histogram()
+            {return stats;}
         void stats_refresh();
         void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
                                     //! for use inside processing functions
@@ -127,7 +126,10 @@ class image_storage : public image_base
         iterator end();   
     };
 
-#include "histogram.h" //compact definition at beginning of this file
+//template implementation files
+#include "histogram.hxx"
+#include "transfer.hxx"
+#include "transfer_interpolated.hxx"
 
 //with C++ templates, declaration and definition go together
 #include "image_storage_iterator.hxx"

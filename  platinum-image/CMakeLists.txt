@@ -51,7 +51,7 @@ ENDIF(WIN32)
 
 OPTION(BUILD_SHARED "Build Platinum as a shared library" OFF)
 
-SET (PLATINUM_SOURCE_FILES bruker.h color.h colormap.h cursor3D.h data_base.h ${WIN32_DIRENT_HEAD} datamanager.h datawidget.h fileutils.h FLTK2Dregionofinterest.h FLTKuserIOparameters.h FLTKutilities.h FLTKviewport.h global.h histogram.h image_base.h  image_binary.h image_complex.h image_general.h image_integer.h image_label.h image_multi.h image_scalar.h image_storage.h listedfactory.h platinumprogram.h point_base.h point3D.h rawimporter.h renderer_base.h renderer_VTK.h rendererMPR.h rendergeometry.h rendercombination.h rendermanager.h ptmath.h threshold.h transfer.h userIO.h userIOmanager.h viewport.h viewmanager.h bruker.cc color.cc colormap.cc cursor3D.cc data_base.cc datamanager.cc datawidget.cc ${WIN32_DIRENT_SRC} fileutils.cc FLTK2Dregionofinterest.cc FLTKuserIOparameters.cc FLTKutilities.cc FLTKviewport.cc histogram.cc image_base.cc image_binary.hxx image_binaryprocess.hxx image_complex.hxx image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx image_storage.hxx point_base.cc rawimporter.cc renderer_base.cc rendererMPR.cc renderer_VTK.cc  rendergeometry.cc rendercombination.cc rendermanager.cc threshold.cc transfer.hxx transfer_interpolated.hxx userIO.cc userIOmanager.cc viewport.cc viewmanager.cc ${WIN32_DIRENT_SRC} CMakeLists.txt)
+SET (PLATINUM_SOURCE_FILES bruker.h color.h colormap.h cursor3D.h data_base.h ${WIN32_DIRENT_HEAD} datamanager.h datawidget.h fileutils.h FLTK2Dregionofinterest.h FLTKuserIOparameters.h FLTKutilities.h FLTKviewport.h global.h histogram.h image_base.h  image_binary.h image_complex.h image_general.h image_integer.h image_label.h image_multi.h image_scalar.h image_storage.h listedfactory.h platinumprogram.h point_base.h point3D.h rawimporter.h renderer_base.h renderer_VTK.h rendererMPR.h rendergeometry.h rendercombination.h rendermanager.h ptmath.h threshold.h transfer.h userIO.h userIOmanager.h viewport.h viewmanager.h bruker.cc color.cc colormap.cc cursor3D.cc data_base.cc datamanager.cc datawidget.cc ${WIN32_DIRENT_SRC} fileutils.cc FLTK2Dregionofinterest.cc FLTKuserIOparameters.cc FLTKutilities.cc FLTKviewport.cc histogram.cc histogram.hxx image_base.cc image_binary.hxx image_binaryprocess.hxx image_complex.hxx image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx image_storage.hxx point_base.cc rawimporter.cc renderer_base.cc rendererMPR.cc renderer_VTK.cc  rendergeometry.cc rendercombination.cc rendermanager.cc threshold.cc transfer.hxx transfer_interpolated.hxx userIO.cc userIOmanager.cc viewport.cc viewmanager.cc ${WIN32_DIRENT_SRC} CMakeLists.txt)
 
 IF(BUILD_SHARED)
   ADD_LIBRARY(platinumlib SHARED ${PLATINUM_SOURCE_FILES})
@@ -73,7 +73,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 # Relax syntax requirements for GCC, since MSVC cannot shape up 
 IF(NOT MSVC)
   ADD_DEFINITIONS(-fpermissive)
-ENDIF(MSVC)
+ENDIF(NOT MSVC)
 
 IF(WIN32)
   OPTION(FLTK_HAS_DEPENDENT_NAMES "FLtk debug lib is named fltkd" OFF)
@@ -130,7 +130,7 @@ SOURCE_GROUP(View FILES viewport.h FLTKviewport.h viewmanager.h renderer_base.h 
 
 SOURCE_GROUP(Interaction FILES datawidget.h userIO.h FLTKuserIOparameters.h userIOmanager.h datawidget.cc userIO.cc FLTKuserIOparameters.cc userIOmanager.cc test_app.cc)
 
-SOURCE_GROUP(Helpers FILES bruker.h color.h colormap.h cursor3D.h fileutils.h FLTK2Dregionofinterest.h FLTKutilities.h listedfactory.h histogram.h threshold.h bruker.cc color.cc colormap.cc cursor3D.cc ${WIN32_DIRENT_SRC} fileutils.cc FLTK2Dregionofinterest.cc FLTKutilities.cc histogram.cc threshold.cc)
+SOURCE_GROUP(Helpers FILES bruker.h color.h colormap.h cursor3D.h fileutils.h FLTK2Dregionofinterest.h FLTKutilities.h listedfactory.h histogram.h threshold.h bruker.cc color.cc colormap.cc cursor3D.cc ${WIN32_DIRENT_SRC} fileutils.cc FLTK2Dregionofinterest.cc FLTKutilities.cc histogram.cc histogram.hxx threshold.cc)
 
 #add CMakelists for inclusion in version control
 SOURCE_GROUP(Scripts CMakeLists.txt)
