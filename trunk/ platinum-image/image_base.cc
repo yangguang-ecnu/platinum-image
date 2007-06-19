@@ -136,7 +136,7 @@ class dicomloader: public imageloader
 private:
     itk::GDCMImageIO::Pointer dicomIO;
     
-    vector<string> loaded_series; //! UIDs of the DICOM series loaded during this call
+	std::vector<std::string> loaded_series; //! UIDs of the DICOM series loaded during this call
                                   //! to prevent multiple selected frames
                                   //! from loading the same series multiple times
 public:
@@ -247,8 +247,8 @@ image_base *dicomloader::read(std::vector<std::string>& files)
         if (dicomIO->CanReadFile (file->c_str()))
             {
             dicomIO->SetFileName(file->c_str());
-            
-            //get basic DICOM header
+
+			//get basic DICOM header
             dicomIO->ReadImageInformation();
             
             //get series UID
@@ -269,7 +269,7 @@ image_base *dicomloader::read(std::vector<std::string>& files)
                     seriesIdentifier.erase(seriesIdentifier.length()-1,seriesIdentifier.length());
                     //check if another file in the same series was part of the
                     //selection (and loaded)
-                    vector<string>::const_iterator series_itr=loaded_series.begin();
+					std::vector<string>::const_iterator series_itr=loaded_series.begin();
                     bool already_loaded=false;
                     
                     if (find(loaded_series.begin(),loaded_series.end(),seriesIdentifier)
@@ -489,20 +489,20 @@ image_base * analyze_hdrloader::read(std::vector<std::string> &files)
 
 template <class LOADERTYPE>
 void try_loader (std::vector<std::string> &f) //! helper for image_base::load
-    {
-    if (!f.empty())
-        {
-        LOADERTYPE loader = LOADERTYPE(f);
-        image_base *new_image = NULL; //the eventually loaded image
+{
+	if (!f.empty())
+	{
+		LOADERTYPE loader = LOADERTYPE(f);
+		image_base *new_image = NULL; //the eventually loaded image
 
-        do {
-            new_image = loader.read(f);
-            if (new_image != NULL)
-                { datamanagement.add(new_image); }
-            } 
+		do {
+			new_image = loader.read(f);
+			if (new_image != NULL)
+			{ datamanagement.add(new_image); }
+		} 
 		while (new_image !=NULL);
-        }
-    }
+	}
+}
 
 void image_base::load(std::vector<std::string> chosen_files)
     {

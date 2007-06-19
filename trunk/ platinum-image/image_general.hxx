@@ -128,6 +128,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
     this->minvalue        = sourceImage->get_min();
 
     this->voxel_resize    = sourceImage->get_voxel_resize();
+	//origin & direction are copied in data_base... 
 
     this->unit_center_     = sourceImage->unit_center();
     this->unit_to_voxel_   = sourceImage->unit_to_voxel();
@@ -254,7 +255,9 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d,  ELEMTYPE *ptr)
     {
     datasize[0] = w; datasize[1] = h; datasize[2] = d;
-    
+
+	voxel_resize.SetIdentity(); //A default value of the voxel dimension is...
+
     //dimension-independent loop that may be lifted outside this function
     this->num_elements=1;
     for (unsigned short i = 0; i < IMAGEDIM; i++) 
@@ -366,6 +369,9 @@ typename itk::ImportImageFilter< ELEMTYPE, IMAGEDIM >::Pointer image_general<ELE
     return ITKimportfilter;
     }
 
+
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 void  image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader()
     {
@@ -432,6 +438,27 @@ template <class ELEMTYPE, int IMAGEDIM>
 	voxel_resize[2][2]=dz;	
 	}
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize_from_dicom_file(std::string dcm_file)
+{
+	bool succeded = false;
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+
+	if (dicomIO->CanReadFile(dcm_file.c_str()))
+	{
+		dicomIO->SetFileName(dcm_file.c_str());
+		dicomIO->ReadImageInformation();		//get basic DICOM header
+		this->voxel_resize.SetIdentity();
+		this->voxel_resize[0][0] = dicomIO->GetSpacing(0);
+		this->voxel_resize[1][1] = dicomIO->GetSpacing(1);
+		this->voxel_resize[2][2] = dicomIO->GetSpacing(2);
+		succeded = true;
+	}
+	return succeded;
+}
+
+
 template <class ELEMTYPE, int IMAGEDIM>
     Matrix3D image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize ()
     {
@@ -445,29 +472,70 @@ bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D(int vp_x, in
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
+bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D(Vector3D vp)
+	{
+	return is_voxelpos_within_image_3D(vp[0],vp[1],vp[2]);
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_inside_image_border_3D(int vp_x, int vp_y, int vp_z, int dist)
+	{
+	return (vp_x>=dist && vp_y>=dist && vp_z>=dist && vp_x<datasize[0]-dist && vp_y<datasize[1]-dist && vp_z<datasize[2]-dist);
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_inside_image_border_3D(Vector3D vp, int dist)
+	{
+	return is_voxelpos_inside_image_border_3D(vp[0],vp[1],vp[2], dist);
+	}
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D phys_pos)
 	{
-	//ev. phys_vox_pos = origin + direction*voxel_resize*voxel_pos
+	//cout<<" *** is_physical_pos_within_image_3D(Vector3D phys_pos)... *** "<<endl;
+	//ev. phys_pos = origin + direction*voxel_resize*voxel_pos
+	//figure out if (direction*X = phys_pos_of_first_corner) --> are then all X-components positive? and...
+	//figure out if (direction*Y = phys_pos_of_last_corner) --> are then all Y-components positive?
 	Vector3D phys_pos2 = phys_pos - this->origin; //now we only need to find out the scalar product of...
-	Matrix3D tmp = this->direction*voxel_resize;
-	Vector3D tmp2 = {tmp[0][0],tmp[1][1],tmp[2][2]};
-	Vector3D scal = phys_pos2*tmp2;
-	bool was_non_neg = (scal[0]>=0 && scal[1]>=0 && scal[2]>=0)? true:false;
+	Matrix3D dir_inv;
+	dir_inv = this->direction.GetInverse();
+	Vector3D X = dir_inv*phys_pos2;
+//	cout<<"X="<<X<<endl;
 	bool ret=false;
-	if(was_non_neg)
+	if(X[0]>=0 && X[1]>=0 && X[2]>=0)
+	{
+		phys_pos2 = phys_pos - get_physical_pos_for_voxel(datasize[0]-1,datasize[1]-1,datasize[2]-1);
+		X = dir_inv*phys_pos2;
+//		cout<<"X2="<<X<<endl;
+		if(X[0]<=0 && X[1]<=0 && X[2]<=0)
 		{
-			//test if scal exceeds the faar of dimension...
+			ret = true;
 		}
-//	direction.
+	}
+	
 	return ret;
 	}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_from_physical_pos_3D(Vector3D phys_pos)
 	{
-	Matrix3D a = voxel_resize*this->direction;
+	Matrix3D a = this->direction*voxel_resize;
 	a = a.GetInverse();
 	return a*(phys_pos - this->origin);
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos)
+	{
+	Vector3D vox = get_voxelpos_from_physical_pos_3D(phys_pos);
+	Vector3D vox2;
+	vox2[0] = round<float>(vox[0]);
+	vox2[1] = round<float>(vox[1]);
+	vox2[2] = round<float>(vox[2]);
+	return vox2;
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -583,7 +651,7 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, in
 {
 	Vector3D vox_pos; vox_pos[0]=x; vox_pos[1]=y; vox_pos[2]=z;
 	Vector3D phys_pos;
-	phys_pos = this->origin + this->voxel_resize*this->direction*vox_pos;
+	phys_pos = this->origin + this->direction*this->voxel_resize*vox_pos;
 	return phys_pos;
 }
 
@@ -641,6 +709,40 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_by_dir(int u, int v, int w
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+double image_general<ELEMTYPE, IMAGEDIM>::get_num_diff_1storder_central_diff_3D(int x, int y, int z, int direction)
+{	
+	if(direction==0)
+		return 0.5*double(get_voxel(x+1,y,z)-get_voxel(x-1,y,z));
+	if(direction==1)
+		return 0.5*double(get_voxel(x,y+1,z)-get_voxel(x,y-1,z));
+	return 0.5*double(get_voxel(x,y,z+1)-get_voxel(x,y,z-1));
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+double image_general<ELEMTYPE, IMAGEDIM>::get_num_diff_2ndorder_central_diff_3D(int x, int y, int z, int direction1, int direction2)
+{	
+	if(direction2==0)
+		return 0.5*(get_num_diff_1storder_central_diff_3D(x+1,y,z,direction1)-get_num_diff_1storder_central_diff_3D(x-1,y,z,direction1));
+	if(direction2==1)
+		return 0.5*(get_num_diff_1storder_central_diff_3D(x,y+1,z,direction1)-get_num_diff_1storder_central_diff_3D(x,y-1,z,direction1));
+	return 0.5*(get_num_diff_1storder_central_diff_3D(x,y,z+1,direction1)-get_num_diff_1storder_central_diff_3D(x,y,z-1,direction1));
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+double image_general<ELEMTYPE, IMAGEDIM>::get_num_diff_3rdorder_central_diff_3D(int x, int y, int z, int direction1, int direction2, int direction3)
+{	
+	if(direction3==0)
+		return 0.5*(get_num_diff_2ndorder_central_diff_3D(x+1,y,z,direction1,direction2)-get_num_diff_2ndorder_central_diff_3D(x-1,y,z,direction1,direction2));
+	if(direction3==1)
+		return 0.5*(get_num_diff_2ndorder_central_diff_3D(x,y+1,z,direction1,direction2)-get_num_diff_2ndorder_central_diff_3D(x,y-1,z,direction1,direction2));
+	return 0.5*(get_num_diff_2ndorder_central_diff_3D(x,y,z+1,direction1,direction2)-get_num_diff_2ndorder_central_diff_3D(x,y,z-1,direction1,direction2));
+}
+
+
+         
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction)
 {
 	if(direction==0)//Loop over x
@@ -683,14 +785,8 @@ template<class TARGETTYPE>
 void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image)
 {
 	cout<<"image_general::resample_into_this_image"<<endl;
-	cout<<"From: (Origin, direction, voxelsize)"<<endl;
-	cout<<this->origin<<endl;
-	cout<<this->direction<<endl;	
-	cout<<this->voxel_resize<<endl;
-	cout<<"To: (Origin, direction, voxelsize)"<<endl;
-	cout<<new_image->origin<<endl;
-	cout<<new_image->direction<<endl;
-	cout<<new_image->voxel_resize<<endl;
+	this->print_geometry();
+	new_image->print_geometry();
 
 	Vector3D vox_pos;
 	Vector3D phys_pos;
@@ -801,5 +897,63 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     }
 
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::set_geometry(float ox,float oy,float oz,float dx,float dy,float dz,float fi_x,float fi_y,float fi_z)
+{
+	this->origin[0]=ox;
+	this->origin[1]=oy;
+	this->origin[2]=oz;
+	this->set_voxel_resize(dx,dy,dz);
+	this->direction.SetIdentity();
+	this->rotate(fi_z,fi_y,fi_x);
+}
+			
+
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_general<ELEMTYPE, IMAGEDIM>::get_geometry_from_dicom_file(std::string dcm_file)
+{
+	cout<<"get_geometry_from_dicom_file"<<endl;
+	bool b1 = this->get_origin_from_dicom_file(dcm_file);
+	bool b2 = this->get_direction_from_dicom_file(dcm_file);
+	bool b3 = this->get_voxel_resize_from_dicom_file(dcm_file);
+	return b1&&b2&&b3;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::print_geometry()
+{
+	cout<<"************"<<endl;
+	cout<<name()<<"->print_geometry()"<<endl;
+	cout<<"datasize: (";
+	for(int i=0;i<IMAGEDIM;i++)
+		cout<<datasize[i]<<",";
+	cout<<")"<<endl;
+	cout<<"origin:"<<origin<<endl;
+	cout<<"voxel_resize:"<<endl<<get_voxel_resize()<<endl;
+	cout<<"direction:"<<endl;
+	cout<<direction[0][0]<<" "<<direction[1][0]<<" "<<direction[2][0]<<endl;
+	cout<<direction[0][1]<<" "<<direction[1][1]<<" "<<direction[2][1]<<endl;
+	cout<<direction[0][2]<<" "<<direction[1][2]<<" "<<direction[2][2]<<endl;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::print_physical_corner_coords()
+{
+	cout<<"***************************************"<<endl;
+	cout<<name()<<"->print_physical_corner_coords()"<<endl;
+	cout<<		get_physical_pos_for_voxel(0,				0,				datasize[2]-1);
+	cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	0,				datasize[2]-1);
+	cout<<endl;
+	cout<<		get_physical_pos_for_voxel(0,				datasize[1]-1,	datasize[2]-1);
+	cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	datasize[1]-1,	datasize[2]-1);
+	cout<<endl;
+	cout<<endl;
+	cout<<		get_physical_pos_for_voxel(0,				0,				0);
+	cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	0,				0);
+	cout<<endl;
+	cout<<		get_physical_pos_for_voxel(0,				datasize[1]-1,	0);
+	cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	datasize[1]-1,	0);
+	cout<<endl;
+}
 
 #endif

@@ -87,7 +87,7 @@ ELEMTYPE * load_pixels (unsigned long &num_elements,std::vector<std::string> fil
 
             if (S_ISDIR(fileStats.st_mode))
                 {
-                vector<std::string> dir_files = get_dir_entries (dirpath);
+					std::vector<std::string> dir_files = get_dir_entries (dirpath);
 
                 if (dir_files.size() > 0)
                     {

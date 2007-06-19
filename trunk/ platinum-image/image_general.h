@@ -55,7 +55,6 @@ template<class ELEMTYPE, int IMAGEDIM>
 #include "global.h"
 #include "color.h"
 
-//#include <vnl/vgl_rotation_3d>	
 
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
@@ -66,7 +65,7 @@ class image_general : public image_storage <ELEMTYPE >
 
         unsigned short datasize[IMAGEDIM]; //image size
         
-        Matrix3D voxel_resize;             //voxel size for the default 3D situation
+        Matrix3D voxel_resize;	//voxel size for the default 3D situation (not namned voxel_size due to the fact that it is a matrix and not a vector)
         
         typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM>::Pointer   ITKimportfilter;
         typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer                ITKimportimage;
@@ -121,11 +120,16 @@ class image_general : public image_storage <ELEMTYPE >
         /*static image_base * type_from_DICOM_file (std::string file_path);
         static image_base * type_from_VTK_file (std::string file_path);*/
 
-		void set_voxel_resize(float dx, float dy, float dz=0);         //voxel size
+		void set_voxel_resize(float dx, float dy, float dz=0);			//physical voxel size
+		bool get_voxel_resize_from_dicom_file(std::string dcm_file);	//physical voxel size	
 
-		bool is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z=0);  
+		bool is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z);  
+		bool is_voxelpos_within_image_3D(Vector3D vp);  
+		bool is_voxelpos_inside_image_border_3D(int vp_x, int vp_y, int vp_z, int dist=1);
+		bool is_voxelpos_inside_image_border_3D(Vector3D vp, int dist=1);  
 		bool is_physical_pos_within_image_3D(Vector3D phys_pos);
-		Vector3D get_voxelpos_from_physical_pos_3D(Vector3D phys_pos);
+		Vector3D get_voxelpos_from_physical_pos_3D(Vector3D phys_pos);	//no truncation is performed in this function.
+		Vector3D get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos);	//truncation is performed in this function.
 
         // *** element access methods ***
         ELEMTYPE get_voxel(int x, int y, int z=0);
@@ -143,6 +147,11 @@ class image_general : public image_storage <ELEMTYPE >
 
         ELEMTYPE get_voxel_by_dir(int u, int v, int w, int direction=2);
 
+		double get_num_diff_1storder_central_diff_3D(int x, int y, int z, int direction);	//voxel based (i.e. no real dimensions included)
+		double get_num_diff_2ndorder_central_diff_3D(int x, int y, int z, int direction1, int direction2);	//voxel based (i.e. no real dimensions included)
+		double get_num_diff_3rdorder_central_diff_3D(int x, int y, int z, int direction1, int direction2, int direction3); //voxel based (i.e. no real dimensions included)
+
+		
         //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
         float get_number_voxel(int x, int y, int z);
 
@@ -165,6 +174,10 @@ class image_general : public image_storage <ELEMTYPE >
         
         Matrix3D get_voxel_resize ();           //return voxel size matrix
 
+        void filter_image_slw_mean_4NB_3D();
+
+
+
         void make_image_an_itk_reader();               //initialize ITKimportfilter
 
         //return ITKimportfilter
@@ -177,6 +190,12 @@ class image_general : public image_storage <ELEMTYPE >
         void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier);
 
         void save_image_to_VTK_file(std::string file_path);
+
+		void set_geometry(float ox,float oy,float oz,float dx,float dy,float dz,float fi_x,float fi_y,float fi_z);
+        bool get_geometry_from_dicom_file(std::string dcm_file);
+        void print_geometry();
+        void print_physical_corner_coords();
+
 };
 
 //with C++ templates, declaration and definition go together
