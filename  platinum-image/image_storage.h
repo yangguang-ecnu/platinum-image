@@ -92,7 +92,7 @@ class image_storage : public image_base
         ELEMTYPE get_min();
         ELEMTYPE get_num_values()
             { return stats->num_values(); }
-        const histogram_1D<ELEMTYPE> * get_histogram()
+        histogram_1D<ELEMTYPE> * get_histogram()
             {return stats;}
         void stats_refresh();
         void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,

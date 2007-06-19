@@ -171,13 +171,13 @@ protected:
             float                      lookupStart,
                                        lookupScale;
             IMGELEMCOMPTYPE            * lookup ;
-            const histogram_1D<ELEMTYPE >    * histogram;
+            histogram_1D<ELEMTYPE >    * histogram;
             //IMGELEMCOMPTYPE            * imgdata;
             Fl_RGB_Image               * histimg;
             
             float leftBound,rightBound;
 public:
-            transferchart (const histogram_1D<ELEMTYPE > *, int, int, int, int);
+            transferchart (histogram_1D<ELEMTYPE > *, int, int, int, int);
             virtual ~transferchart();
             void draw ();
         };

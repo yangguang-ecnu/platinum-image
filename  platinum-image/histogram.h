@@ -30,7 +30,7 @@
 #include "threshold.h"
 
 template <class ELEMTYPE>
-class image_storage;
+    class image_storage;
 
 #include "global.h"
 

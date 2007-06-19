@@ -18,7 +18,7 @@
 // *** transferchart ***
 
 template <class ELEMTYPE>
-transfer_interpolated<ELEMTYPE >::transferchart::transferchart (const histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h):Fl_Widget (x,y,w,h)
+transfer_interpolated<ELEMTYPE >::transferchart::transferchart (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h):Fl_Widget (x,y,w,h)
     {   
     histimg = NULL;
     histogram = hi;
@@ -78,8 +78,9 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
         imgdata = new unsigned char [w()*h()];
         histimg = new Fl_RGB_Image(imgdata,w(), h(), 3);
         }
-    
-    imgdata = (histimg->data())[0];
+    // http://www.fltk.org/articles.php?L466
+    //unsigned char *img_data = histimg->data()[0];
+    const char *buf = histimg->data()[0];
     
     histogram->render(imgdata,histimg->w(),histimg->h());
     
