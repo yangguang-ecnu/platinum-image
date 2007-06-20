@@ -32,14 +32,16 @@
 #ifndef __points_seq_func1D__
 #define __points_seq_func1D__
 
+#include <map>
 #include "point_base.h"
 
 
 
 template <class KEY_TYPE, class VALUE_TYPE>
-class points_seq_func1D : public point_base{
+class points_seq_func1D{// : public point_base{
 private:
-	map<KEY_TYPE,VALUE_TYPE> themap;
+	std::map<KEY_TYPE,VALUE_TYPE> themap;
+
 
 protected:
 
@@ -49,13 +51,18 @@ public:
 
 	void insert(KEY_TYPE key, VALUE_TYPE val);
 	void erase(KEY_TYPE key);
+	unsigned int size();
+	void get_data(unsigned int map_index, KEY_TYPE &k, VALUE_TYPE &v);
+	VALUE_TYPE get_value(KEY_TYPE k);
+	void set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v, KEY_TYPE k_min=NULL, VALUE_TYPE v_min=NULL, KEY_TYPE k_max=NULL, VALUE_TYPE v_max=NULL);
+	bool is_occupied(KEY_TYPE k);
 
 	float find_dist_to_closest_point2D(KEY_TYPE x, VALUE_TYPE y, KEY_TYPE &closest_key);
+
 	double get_value_interp_linear(double x);	//for now, the x value is assumed to be in the domain
 
-
-	float* get_spline_derivatives();
-	float get_value_interp_spline(float x, float y2[]);
+	float* get_spline_derivatives();		//generates second order derivatives needed in the spline interpolation call (Note the array index 1...n)
+	float get_value_interp_spline(float this_x, float y2[]); //Spline interpolation in point this_x (Note the array index 1...n)
 
 	void printdata();
 };
@@ -63,3 +70,4 @@ public:
 #include "points_seq_func1D.hxx"
 
 #endif
+
