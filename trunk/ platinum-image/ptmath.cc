@@ -25,12 +25,12 @@ void pt_spline1D(float x[],float y[],int n,float yp1,float ypn,float y2[])
 	int i,k;
 	float p,qn,sig,un,*u;
 
-	u = new float[10000];		//Warning, max number of 
+	u = new float[10000];		//JK3 Warning, maximum number of values
 
-	if (yp1 > 0.99e30)
-		y2[1] = u[1] = 0.0;
-	else {
-		y2[1] = -0.5;
+	if (yp1 > 0.99e30)			//The lower boundary condition is set either to be "natural" y2=0...
+		y2[1] = u[1] = 0.0;		
+	else {						//...or else to have a specific first derivative.
+		y2[1] = -0.5;			
 		u[1] = (3.0/(x[2]-x[1]))*((y[2]-y[1])/(x[2]-x[1])-yp1);
 	}
 

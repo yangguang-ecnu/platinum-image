@@ -2,6 +2,8 @@
 //Included in the "MUL" collection
 //Found via Koders.com 2007-06-04
 //Licence: BSD
+//local intentity gradients are estimated using two-point finite differences
+//
 
 // This is mul/mil3d/mil3d_trilin_interp_3d.h
 #ifndef mil3d_trilin_interp_3d_h_
@@ -19,18 +21,20 @@
 template<class T>
 inline double mil3d_trilin_interp_3d(double x, double y, double z,
                                      const T* data,
-                                     int xstep, int ystep, int zstep)
+                                     int xstep, int ystep, int zstep,
+                      float dx, float dy, float dz, float norm_dxdydz)
+
 {
-//	cout<<"*unsafe";
+//	cout<<"**unsafe";
 
   int p1x,p1y,p1z;
   double normx,normy,normz;
   p1x=int(x);
-  normx = x-p1x;
+  normx = (x-p1x)/double(dx);
   p1y=int(y);
-  normy = y-p1y;
+  normy = (y-p1y)/double(dy);
   p1z=int(z);
-  normz = z-p1z;
+  normz = (z-p1z)/double(dz);
 
   const T* row11 = data + p1z*zstep+p1y*ystep + p1x;
   const T* row21 = row11 + ystep;
@@ -57,7 +61,9 @@ inline double mil3d_trilin_interp_3d(double x, double y, double z,
 template<class T>
 inline double mil3d_safe_trilin_interp_3d(double x, double y, double z, const T* data,
                      int nx, int ny, int nz,
-                     int xstep, int ystep, int zstep)
+                     int xstep, int ystep, int zstep,
+                      float dx, float dy, float dz, float norm_dxdydz)
+
 {
 //	cout<<"*safe";
   if (x<0) return 0.0;
@@ -66,7 +72,7 @@ inline double mil3d_safe_trilin_interp_3d(double x, double y, double z, const T*
   if (x>nx-1) return 0.0;
   if (y>ny-1) return 0.0;
   if (z>nz-1) return 0.0;
-  return mil3d_trilin_interp_3d(x,y,z,data,xstep,ystep,zstep);
+  return mil3d_trilin_interp_3d(x,y,z,data,xstep,ystep,zstep,dx,dy,dz,norm_dxdydz);
 }
 
 //: Compute trilinear interpolation at (x,y), with bound checks
