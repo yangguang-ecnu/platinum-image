@@ -85,8 +85,6 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         this->buckets=new unsigned long [this->num_buckets];
         }
     
-    this->readytorender=false;
-    
     this->max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
     this->min_value = std::numeric_limits<ELEMTYPE>::max();
     this->num_distinct_values = 0;
@@ -125,15 +123,14 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         float typeMax = std::numeric_limits<ELEMTYPE>::max();
         float typeMin = std::numeric_limits<ELEMTYPE>::min();
         
-        
         float scalefactor=(this->num_buckets-1)/(typeMax-typeMin);
         unsigned short bucketpos;
         
-        ELEMTYPE * voxpos;
+        ELEMTYPE * voxel;
         
-        for (voxpos = this->i_start;voxpos != this->i_end;++voxpos)
+        for (voxel = this->i_start;voxel != this->i_end;++voxel)
             {
-            bucketpos=((*voxpos)-std::numeric_limits<ELEMTYPE>::min())*scalefactor;
+            bucketpos=((*voxel)-std::numeric_limits<ELEMTYPE>::min())*scalefactor;
             
             //calculate distinct value count
             if (this->buckets[bucketpos] == 0)
@@ -143,8 +140,11 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
             this->bucket_max=std::max(this->buckets[bucketpos]++,this->bucket_max);
             
             //calculate min/max
-            this->min_value = std::min (this->min_value,*voxpos);
-            this->max_value = std::max (this->max_value,*voxpos);
+            if (*voxel != 0 &&  *voxel != 1) //! feature: ignore 0 and true to get more sensible display scaling
+                {
+                this->min_value = std::min (this->min_value,*voxel);
+                this->max_value = std::max (this->max_value,*voxel);
+                }
             }
         
         this->bucket_mean=0;
@@ -165,29 +165,34 @@ void histogram_1D<ELEMTYPE>::render (unsigned char * image, unsigned int width,u
     //about FLTK pixel types:
     // http://www.fltk.org/articles.php?L466
     
-    typedef int RGBpixel[RGBpixmap_bytesperpixel];
+typedef IMGELEMCOMPTYPE RGBpixel[RGBpixmap_bytesperpixel];
+
+    RGBpixel * pixels = reinterpret_cast<RGBpixel *>(image);
     
-    if (this->buckets != NULL)
+    if (this->buckets != NULL && this->bucket_max > 0)
         {
-        RGBpixel * pixels = reinterpret_cast<RGBpixel *>(image);
-        
         for (unsigned int x = 0; x < width; x ++)
             {
-            unsigned int b = (this->buckets[(x*this->num_buckets)/width] * height)/this->bucket_max;
+            unsigned int b = height-(this->buckets[(x*this->num_buckets)/width] * height)/this->bucket_max;
             unsigned int y;
-            
+
             for (y = 0; y < b; y ++)
                 {
-                pixels [x+y*width][RADDR] = 255;
-                pixels [x+y*width][GADDR] = 255;
-                pixels [x+y*width][BADDR] = 255;
+                //background
+                pixels [x+y*width][RADDR] = pixels [x+y*width][GADDR] = pixels [x+y*width][BADDR] = 0;
                 }
             for (y = b; y < height; y ++)
                 {
-                pixels [x+y*width][RADDR] = 0;
-                pixels [x+y*width][GADDR] = 0;
-                pixels [x+y*width][BADDR] = 0;
+                //white
+                pixels [x+y*width][RADDR] = pixels [x+y*width][GADDR] = pixels [x+y*width][BADDR] = 255;
                 }
             }
-        } 
+        }
+    else
+        { //empty histogram
+        for (unsigned short p = 0; p < width * height; p ++)
+            {
+            pixels [p][RADDR] = pixels [p][GADDR] = pixels [p][BADDR] = 0;
+            }
+        }
 }

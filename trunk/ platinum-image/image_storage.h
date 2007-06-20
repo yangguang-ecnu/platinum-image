@@ -57,13 +57,15 @@ class image_storage : public image_base
         //allows subclasses to set a different default transfer function, and
         //to reject unsuitable choices
 
+        void set_stats_histogram(histogram_1D<ELEMTYPE > * h);
+
         // *** Image data pointer ***
 
         ELEMTYPE * dataptr;
 
         ELEMTYPE * imagepointer()
             {
-            pt_error::error_if_null (dataptr,"Attempting to access datapointer while it is NULL", pt_error::fatal );
+            //pt_error::error_if_null (dataptr,"Attempting to access datapointer while it is NULL", pt_error::fatal );
             
             return (dataptr); 
             }

@@ -167,9 +167,9 @@ class transfer_interpolated: public transfer_base <ELEMTYPE >
             float                      lookupStart,
                 lookupScale;
             IMGELEMCOMPTYPE            * lookup ;
-            //histogram_1D<ELEMTYPE >    * histogram;
-            //IMGELEMCOMPTYPE            * imgdata;
-            //Fl_RGB_Image               * histimg;
+            histogram_1D<ELEMTYPE >    * histogram;
+            IMGELEMCOMPTYPE            * imgdata;
+            Fl_RGB_Image               * histimg;
 
             float leftBound,rightBound;
             public:
@@ -180,8 +180,8 @@ class transfer_interpolated: public transfer_base <ELEMTYPE >
             };
 
         transferchart * chart;
-    public:
         transfer_interpolated (image_storage <ELEMTYPE > * s);
+    public:
         virtual ~transfer_interpolated();
         void get (const ELEMTYPE v, RGBvalue &p);
     };

@@ -268,11 +268,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
     this->imagepointer( new ELEMTYPE[this->num_elements] );
 
     if (ptr!=NULL) //memcpy is bad karma! Use copy_data(in, out) whenever you know your (input) datatype!
-        {memcpy(this->imagepointer(),ptr,sizeof(ELEMTYPE)*this->num_elements);}
-
-    if (this->stats == NULL)
-        { this->stats = new histogram_1D<ELEMTYPE >(this); }
-
+        {
+        memcpy(this->imagepointer(),ptr,sizeof(ELEMTYPE)*this->num_elements);
+        
+        image_has_changed(true);
+        }
+        
     set_parameters();
     }
 
@@ -287,11 +288,13 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool stat_refresh)
     this->from_file(false);
 
     //recalculate min/max
-	if(stat_refresh)
-		this->stats_refresh();
+    if(stat_refresh)
+        {
+        this->stats_refresh();
 
-    //refresh transfer function
-    this->tfunction->refresh();
+        //refresh transfer function
+        this->tfunction->refresh();
+        }
 
     //clear ITK connection
     ITKimportfilter = NULL;
@@ -776,7 +779,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::testpattern()
                 {
                 set_voxel(x,y,z, int(float(x+y+z)*255.0/float(datasize[2]+datasize[1]+datasize[0])));
                 }
-	//this->image_has_changed();
+
+	this->image_has_changed(true);
     }
 
 //JK3
@@ -808,7 +812,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_genera
                 }
             }
         }
-	//new_image->image_has_changed();
 }
 
 
