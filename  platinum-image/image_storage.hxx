@@ -117,7 +117,7 @@ void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)
 
     if (t == NULL)
 //        { tfunction = new transfer_default<ELEMTYPE >(this); }
-        { tfunction = new transfer_default<ELEMTYPE >(this); } //JK3
+        { tfunction = new transfer_linear<ELEMTYPE >(this); } //JK3
     else
         { tfunction = t; }
     }
