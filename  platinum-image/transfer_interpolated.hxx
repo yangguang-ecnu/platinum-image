@@ -20,8 +20,8 @@
 template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::transferchart::transferchart (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h):Fl_Widget (x,y,w,h,"")
     {   
-    //histimg = NULL;
-    //histogram = hi;
+    histimg = NULL;
+    histogram = hi;
 
     lookupSize = 256;
     lookupStart = std::numeric_limits<ELEMTYPE>::min();
@@ -65,8 +65,8 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::transferchart::~transferchart ()
     {
-    /*if (histimg != NULL)
-        {delete histimg; }*/
+    if (histimg != NULL)
+        {delete histimg; }
 
     delete [] lookup;
     }
@@ -79,40 +79,44 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
     fl_rectf(x(), y(),w(),h());*/
 
     //histogram
-
-    /*IMGELEMCOMPTYPE * imgdata = NULL;
-
-    if (histimg != NULL)
+    if (histogram != NULL) //image may be uninitialized and have no histogram, just skip
         {
-        if (histimg->w() != w() || histimg->h() != h())
+        if (histimg != NULL)
             {
-            //Fl_RGB_Image * i = histimg->copy(w(), h()); 
-            //
-            //delete histimg;
-            //
-            //histimg = i;
+            if (histimg->w() != w() || histimg->h() != h())
+                {
+                //Fl_RGB_Image * i = histimg->copy(w(), h()); 
+                //
+                //delete histimg;
+                //
+                //histimg = i;
 
-            delete histimg;
-            histimg = NULL;
+                delete histimg;
+                histimg = NULL;
+                }
+            else
+                {
+                histimg->uncache();
+                }
             }
-        else
+
+        if (histimg == NULL)
             {
-            histimg->uncache();
+            imgdata = new IMGELEMCOMPTYPE [w()*h()*RGBpixmap_bytesperpixel];
+            histimg = new Fl_RGB_Image(imgdata,w(), h(), 3);
             }
+
+        // http://www.fltk.org/articles.php?L466
+        //unsigned char *img_data = histimg->data()[0];
+
+        //const char * imgdata = histimg->data()[0];
+
+
+        histogram->render(imgdata,histimg->w(),histimg->h());
+
+        histimg->draw(x(),y()); 
+
         }
-
-    if (histimg == NULL)
-        {
-        imgdata = new unsigned char [w()*h()];
-        histimg = new Fl_RGB_Image(imgdata,w(), h(), 3);
-        }
-    // http://www.fltk.org/articles.php?L466
-    //unsigned char *img_data = histimg->data()[0];
-    const char *buf = histimg->data()[0];
-
-    histogram->render(imgdata,histimg->w(),histimg->h());
-
-    histimg->draw(x(),y()); */
 
     //curve
     /*float xStep = (float)lookupSize/(float)w();
@@ -164,8 +168,13 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
 template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::transfer_interpolated(image_storage <ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
     {
-    chart = new transferchart (this->source->get_histogram(), this->pane->x(),this->pane->y(),this->pane->w(),this->pane->h());
-    this->pane->end();
+    Fl_Group * frame = this->pane;
+
+    frame->resize(0,0,256,128);
+    frame->resizable(frame);
+
+    chart = new transferchart (this->source->get_histogram(), frame->x(),frame->y(),frame->w(),frame->h());
+    frame->end();
     }
 
 template <class ELEMTYPE>

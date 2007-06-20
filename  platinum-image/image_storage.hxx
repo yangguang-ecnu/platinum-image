@@ -60,14 +60,25 @@ template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::set_parameters()
     {
     dataptr = NULL;
-    
-    tfunction = NULL;
-    transfer_function();  //set default transfer function
-
     stats = NULL;
+    tfunction = NULL;
+
+    set_stats_histogram (new histogram_1D<ELEMTYPE >(this));
+    transfer_function();  //set default transfer function
 
     minvalue=std::numeric_limits<ELEMTYPE>::min();
     maxvalue=std::numeric_limits<ELEMTYPE>::max();
+    }
+
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::set_stats_histogram(histogram_1D<ELEMTYPE > * h)
+    {
+    if (stats != NULL)
+        {
+        delete stats;
+        }
+
+    stats = h;
     }
 
 template <class ELEMTYPE >
@@ -194,6 +205,9 @@ template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::stats_refresh()
     {
     stats->calculate(); 
+
+    //TODO:
+    //store #distinct values locally 
    
     //don't change if values don't make sense - 
     //that would be an empty/zero image
