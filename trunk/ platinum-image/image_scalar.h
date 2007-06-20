@@ -29,8 +29,11 @@
 #define __image_scalar__
 
 #include "image_general.h"
+
 #include "Utilities/vxl/contrib/mil3d_trilin_interp_3d.h"
-#include "Utilities\tricubic1.0.0\libtricubic\tricubic.h" //http://www.lekien.com/~francois/software/tricubic/
+
+//Hej Joel! Du har glömt att lägga till nedanstående i SVN, det är bara du själv som har den filen:
+//#include "Utilities/tricubic1.0.0/libtricubic/tricubic.h" //http://www.lekien.com/~francois/software/tricubic/
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_scalar : public image_general <ELEMTYPE, IMAGEDIM>

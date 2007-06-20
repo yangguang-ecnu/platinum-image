@@ -27,7 +27,7 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_1st
 				for (int i=1; i < this->datasize[0]-1; i++){
 					res->set_voxel(i,j,k,0.5* double(get_voxel(i+1,j,k)-get_voxel(i-1,j,k)));	//central diff
 				}
-				res->set_voxel(datasize[0]-1,j,k, double(get_voxel(datasize[0]-1,j,k)-get_voxel(datasize[0]-2,j,k)));//backward diff
+				res->set_voxel(this->datasize[0]-1,j,k, double(get_voxel(this->datasize[0]-1,j,k)-get_voxel(this->datasize[0]-2,j,k)));//backward diff
 			}
 		}
 
@@ -38,7 +38,7 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_1st
 				for (int j=1; j < this->datasize[1]-1; j++){
 					res->set_voxel(i,j,k,0.5* double(get_voxel(i,j+1,k)-get_voxel(i,j-1,k)));	//central diff
 				}
-				res->set_voxel(i,datasize[1]-1,k, double(get_voxel(i,datasize[1]-1,k)-get_voxel(i,datasize[1]-2,k)));//backward diff
+				res->set_voxel(i,this->datasize[1]-1,k, double(get_voxel(i,this->datasize[1]-1,k)-get_voxel(i,this->datasize[1]-2,k)));//backward diff
 			}
 		}
 	}else{  // direction==2
@@ -48,7 +48,7 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_1st
 				for (int k=1; k < this->datasize[2]-1; k++){
 					res->set_voxel(i,j,k,0.5* double(get_voxel(i,j,k+1)-get_voxel(i,j,k-1)));	//central diff
 				}
-				res->set_voxel(i,j,datasize[2]-1, double(get_voxel(i,j,datasize[2]-1)-get_voxel(i,j,datasize[2]-2)));//backward diff
+				res->set_voxel(i,j,this->datasize[2]-1, double(get_voxel(i,j,this->datasize[2]-1)-get_voxel(i,j,this->datasize[2]-2)));//backward diff
 			}
 		}
 	}
@@ -70,7 +70,7 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_2nd
 				for (int i=1; i < this->datasize[0]-1; i++){
 					res->set_voxel(i,j,k,0.5* double(df_dir1->get_voxel(i+1,j,k)-df_dir1->get_voxel(i-1,j,k)));	//central diff
 				}
-				res->set_voxel(datasize[0]-1,j,k, double(df_dir1->get_voxel(datasize[0]-1,j,k)-df_dir1->get_voxel(datasize[0]-2,j,k)));//backward diff
+				res->set_voxel(this->datasize[0]-1,j,k, double(df_dir1->get_voxel(this->datasize[0]-1,j,k)-df_dir1->get_voxel(this->datasize[0]-2,j,k)));//backward diff
 			}
 		}
 	}else if(direction2==1){
@@ -80,7 +80,7 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_2nd
 				for (int j=1; j < this->datasize[1]-1; j++){
 					res->set_voxel(i,j,k,0.5* double(df_dir1->get_voxel(i,j+1,k)-df_dir1->get_voxel(i,j-1,k)));	//central diff
 				}
-				res->set_voxel(i,datasize[1]-1,k, double(df_dir1->get_voxel(i,datasize[1]-1,k)-df_dir1->get_voxel(i,datasize[1]-2,k)));//backward diff
+				res->set_voxel(i,this->datasize[1]-1,k, double(df_dir1->get_voxel(i,this->datasize[1]-1,k)-df_dir1->get_voxel(i,this->datasize[1]-2,k)));//backward diff
 			}
 		}
 	}else{  // direction==2
@@ -90,7 +90,7 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_2nd
 				for (int k=1; k < this->datasize[2]-1; k++){
 					res->set_voxel(i,j,k,0.5* double(df_dir1->get_voxel(i,j,k+1)-df_dir1->get_voxel(i,j,k-1)));	//central diff
 				}
-				res->set_voxel(i,j,datasize[2]-1, double(df_dir1->get_voxel(i,j,datasize[2]-1)-df_dir1->get_voxel(i,j,datasize[2]-2)));//backward diff
+				res->set_voxel(i,j,this->datasize[2]-1, double(df_dir1->get_voxel(i,j,this->datasize[2]-1)-df_dir1->get_voxel(i,j,this->datasize[2]-2)));//backward diff
 			}
 		}
 	}
