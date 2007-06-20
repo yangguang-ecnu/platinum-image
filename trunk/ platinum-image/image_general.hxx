@@ -156,7 +156,7 @@ image_base * image_general<ELEMTYPE, IMAGEDIM>::alike (imageDataType unit)
         default :
             {
 #ifdef _DEBUG
-                cout << "image_general::alike: attempting to create alike as unsupported data type (" << unit << ")" << endl;
+                std::cout << "image_general::alike: attempting to create alike as unsupported data type (" << unit << ")" << std::endl;
 #endif
             }
             break;
@@ -208,7 +208,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::copy_image (image_general<inType, IMAGED
         {     
         //total failure, TODO: throw exception
 #ifdef _DEBUG
-        cout << "Copying image data: image sizes don't match" << endl;
+        cout << "Copying image data: image sizes don't match" << std::endl;
 #endif
         }
     }*/
@@ -497,7 +497,7 @@ bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_inside_image_border_3D(Vecto
 template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D phys_pos)
 	{
-	//cout<<" *** is_physical_pos_within_image_3D(Vector3D phys_pos)... *** "<<endl;
+	//cout<<" *** is_physical_pos_within_image_3D(Vector3D phys_pos)... *** "<<std::endl;
 	//ev. phys_pos = origin + direction*voxel_resize*voxel_pos
 	//figure out if (direction*X = phys_pos_of_first_corner) --> are then all X-components positive? and...
 	//figure out if (direction*Y = phys_pos_of_last_corner) --> are then all Y-components positive?
@@ -505,13 +505,13 @@ bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D
 	Matrix3D dir_inv;
 	dir_inv = this->direction.GetInverse();
 	Vector3D X = dir_inv*phys_pos2;
-//	cout<<"X="<<X<<endl;
+//	cout<<"X="<<X<<std::endl;
 	bool ret=false;
 	if(X[0]>=0 && X[1]>=0 && X[2]>=0)
 	{
 		phys_pos2 = phys_pos - get_physical_pos_for_voxel(datasize[0]-1,datasize[1]-1,datasize[2]-1);
 		X = dir_inv*phys_pos2;
-//		cout<<"X2="<<X<<endl;
+//		cout<<"X2="<<X<<std::endl;
 		if(X[0]<=0 && X[1]<=0 && X[2]<=0)
 		{
 			ret = true;
@@ -577,7 +577,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_mean_3D_in
 			}
 		}
 	ELEMTYPE res = sum/26.0;
-	cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<endl;
+	std::cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<std::endl;
 
     return res;
     }
@@ -633,7 +633,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weigh
 		}
 	}
 	res = sum/(w1 + 6.0*w2 + 12*w3 + 8*w4);
-	cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<endl;
+	std::cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<std::endl;
 
     return res;
     }
@@ -771,7 +771,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_value_to_voxels_in_region(int x, int
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::testpattern()
     {
-    cout << "Testpattern: " << datasize[2] << " " << datasize[1] << " " << datasize[0] << endl;
+    std::cout << "Testpattern: " << datasize[2] << " " << datasize[1] << " " << datasize[0] << std::endl;
     //gradient test pattern
     for (int z=0; z < datasize[2]; z++)
         for (int y=0; y < datasize[1]; y++)
@@ -788,7 +788,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 template<class TARGETTYPE> 
 void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image)
 {
-	cout<<"image_general::resample_into_this_image"<<endl;
+	std::cout<<"image_general::resample_into_this_image"<<std::endl;
 	this->print_geometry();
 	new_image->print_geometry();
 
@@ -803,11 +803,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_genera
                 {  
 				vox_pos[0] = x;	vox_pos[1] = y;	vox_pos[2] = z;
 				phys_pos = new_image->origin + new_image->voxel_resize*new_image->direction*vox_pos;
-//				cout<<"phys_pos="<<phys_pos<<endl;
+//				cout<<"phys_pos="<<phys_pos<<std::endl;
 				res = get_voxel_in_physical_pos_26NB_weighted(phys_pos,10,2,0,0);
 //				res = get_voxel_in_physical_pos_mean_3D_interp26(phys_pos);
 //				res = get_voxel_in_physical_pos(phys_pos);
-//				cout<<"res="<<res<<endl;
+//				cout<<"res="<<res<<std::endl;
 				new_image->set_voxel(x,y,z,res);
                 }
             }
@@ -915,7 +915,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_geometry(float ox,float oy,float oz,
 template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::get_geometry_from_dicom_file(std::string dcm_file)
 {
-	cout<<"get_geometry_from_dicom_file"<<endl;
+	std::cout<<"get_geometry_from_dicom_file"<<std::endl;
 	bool b1 = this->get_origin_from_dicom_file(dcm_file);
 	bool b2 = this->get_direction_from_dicom_file(dcm_file);
 	bool b3 = this->get_voxel_resize_from_dicom_file(dcm_file);
@@ -925,38 +925,38 @@ bool image_general<ELEMTYPE, IMAGEDIM>::get_geometry_from_dicom_file(std::string
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::print_geometry()
 {
-	cout<<"************"<<endl;
-	cout<<name()<<"->print_geometry()"<<endl;
-	cout<<"datasize: (";
+	std::cout<<"************"<<std::endl;
+	std::cout<< this->name()<<"->print_geometry()"<<std::endl;
+	std::cout<<"datasize: (";
 	for(int i=0;i<IMAGEDIM;i++)
-		cout<<datasize[i]<<",";
-	cout<<")"<<endl;
-	cout<<"origin:"<<this->origin<<endl;
-	cout<<"voxel_resize:"<<endl<<get_voxel_resize()<<endl;
-	cout<<"direction:"<<endl;
-	cout<<this->direction[0][0]<<" "<<this->direction[1][0]<<" "<<this->direction[2][0]<<endl;
-	cout<<this->direction[0][1]<<" "<<this->direction[1][1]<<" "<<this->direction[2][1]<<endl;
-	cout<<this->direction[0][2]<<" "<<this->direction[1][2]<<" "<<this->direction[2][2]<<endl;
+		std::cout<<datasize[i]<<",";
+	std::cout<<")"<<std::endl;
+	std::cout<<"origin:"<<this->origin<<std::endl;
+	std::cout<<"voxel_resize:"<<std::endl<<get_voxel_resize()<<std::endl;
+	std::cout<<"direction:"<<std::endl;
+	std::cout<<this->direction[0][0]<<" "<<this->direction[1][0]<<" "<<this->direction[2][0]<<std::endl;
+	std::cout<<this->direction[0][1]<<" "<<this->direction[1][1]<<" "<<this->direction[2][1]<<std::endl;
+	std::cout<<this->direction[0][2]<<" "<<this->direction[1][2]<<" "<<this->direction[2][2]<<std::endl;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::print_physical_corner_coords()
 {
-	cout<<"***************************************"<<endl;
-	cout<<name()<<"->print_physical_corner_coords()"<<endl;
-	cout<<		get_physical_pos_for_voxel(0,				0,				datasize[2]-1);
-	cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	0,				datasize[2]-1);
-	cout<<endl;
-	cout<<		get_physical_pos_for_voxel(0,				datasize[1]-1,	datasize[2]-1);
-	cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	datasize[1]-1,	datasize[2]-1);
-	cout<<endl;
-	cout<<endl;
-	cout<<		get_physical_pos_for_voxel(0,				0,				0);
-	cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	0,				0);
-	cout<<endl;
-	cout<<		get_physical_pos_for_voxel(0,				datasize[1]-1,	0);
-	cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	datasize[1]-1,	0);
-	cout<<endl;
+	std::cout<<"***************************************"<<std::endl;
+	std::cout<<name()<<"->print_physical_corner_coords()"<<std::endl;
+	std::cout<<		get_physical_pos_for_voxel(0,				0,				datasize[2]-1);
+	std::cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	0,				datasize[2]-1);
+	std::cout<<std::endl;
+	std::cout<<		get_physical_pos_for_voxel(0,				datasize[1]-1,	datasize[2]-1);
+	std::cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	datasize[1]-1,	datasize[2]-1);
+	std::cout<<std::endl;
+	std::cout<<std::endl;
+	std::cout<<		get_physical_pos_for_voxel(0,				0,				0);
+	std::cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	0,				0);
+	std::cout<<std::endl;
+	std::cout<<		get_physical_pos_for_voxel(0,				datasize[1]-1,	0);
+	std::cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	datasize[1]-1,	0);
+	std::cout<<std::endl;
 }
 
 #endif

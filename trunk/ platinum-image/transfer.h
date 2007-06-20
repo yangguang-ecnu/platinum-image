@@ -33,7 +33,6 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Slider.H>
-#include <time.h>			//used in FLTK doubble click test 
 
 #include "color.h"
 #include "listedfactory.h"
@@ -171,14 +170,13 @@ class transfer_interpolated: public transfer_base <ELEMTYPE >
             unsigned long              lookupSize;
             float                      lookupStart,
                 lookupScale;
-            IMGELEMCOMPTYPE            * lookup ;
-            histogram_1D<ELEMTYPE >    * histogram;
-            IMGELEMCOMPTYPE            * imgdata;
-			Fl_RGB_Image					* histimg;	//keeps the histogram background layer
+            IMGELEMCOMPTYPE                 * lookup ;
+            histogram_1D<ELEMTYPE >         * histogram;
+            IMGELEMCOMPTYPE                 * imgdata;
+			Fl_RGB_Image			        * histimg;	//keeps the histogram background layer
 			points_seq_func1D<float,float>	intensity_knots;		//used for anchor points handling and interpolation 
 										//knots are of course also wanted for R,G,B, respectively.
 			int								mouse_x,mouse_y;	//buffered mouse positions --> allows DRAG-dx/dy calculations.				
-			clock_t							mouse_click_time;
 
 			float leftBound,rightBound;
 

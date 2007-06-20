@@ -60,25 +60,21 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 		mouse_x = Fl::event_x();
 		mouse_y = Fl::event_y();
 
-		if(mouse_click_time!=NULL)
-		{
-			if( (clock()-mouse_click_time)< 1.0*CLOCKS_PER_SEC)	//double_click - if < 1.0sec since last
-			{
-				t_x = float(mouse_x - x())/w()*float(lookupSize);
-				t_y = float(255) - float(mouse_y - y())/h()*float(255);
-				dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
-
-				//JK3 no boundary checking....
-				intensity_knots.set_data(closest_key,t_x,t_y,0,0,lookupSize-1,255);
-				redraw();
+        if( Fl::event_clicks() == 2) //test for double click
+            {
+            t_x = float(mouse_x - x())/w()*float(lookupSize);
+            t_y = float(255) - float(mouse_y - y())/h()*float(255);
+            dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
+            
+            //JK3 no boundary checking....
+            intensity_knots.set_data(closest_key,t_x,t_y,0,0,lookupSize-1,255);
+            redraw();
 			}
-		}
 
-		mouse_click_time = clock(); //set new "last time mouse was clicked in transfer widget"
 		return 1;
 
 	case FL_DRAG:
-		cout<<"FL_DRAG"<<endl;
+		std::cout<<"FL_DRAG"<<std::endl;
 		//mouse_x / mouse_y  function as buffer for the "last" coordinates...
 		t_x = float(mouse_x - x())/w()*float(lookupSize);
 		t_y = float(255) - float(mouse_y - y())/h()*float(255);
@@ -186,7 +182,8 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
         histogram->render(imgdata,histimg->w(),histimg->h());
 
         histimg->draw(x(),y()); 
-
+        
+        histimg->uncache();
         }
 
     //curve
