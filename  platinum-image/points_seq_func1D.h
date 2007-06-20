@@ -35,13 +35,10 @@
 #include <map>
 #include "point_base.h"
 
-
-
 template <class KEY_TYPE, class VALUE_TYPE>
 class points_seq_func1D{// : public point_base{
 private:
 	std::map<KEY_TYPE,VALUE_TYPE> themap;
-
 
 protected:
 

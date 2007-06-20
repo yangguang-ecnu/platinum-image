@@ -17,6 +17,8 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#define TFUNCTIONTEST transfer_linear
+
 template <class fromType, class toType>
 void copy_data( image_storage<fromType > * in,image_storage<toType > * out) //!General data copying
     {
@@ -30,12 +32,8 @@ void copy_data( image_storage<fromType > * in,image_storage<toType > * out) //!G
         ++i; ++o;
         }
 
-    /*if (!(i == in->end() && o == out->end()) )
-        {
-        throw ("Image sizes didn't match when copying data");
-        }*/
+    pt_error::error_if_false(i == in->end() && o == out->end(),"Image sizes didn't match when copying data",pt_error::serious);
     }
-
 
 //template <class fromType>
 //void copy_data( image_storage<fromType > * in,image_storage<IMGBINARYTYPE > * out) //!Data copy specialized for copying *to* boolean
@@ -116,8 +114,9 @@ void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)
         {delete tfunction;}
 
     if (t == NULL)
-//        { tfunction = new transfer_default<ELEMTYPE >(this); }
-        { tfunction = new transfer_linear<ELEMTYPE >(this); } //JK3
+        {
+        tfunction = new TFUNCTIONTEST<ELEMTYPE >(this);
+        }
     else
         { tfunction = t; }
     }
