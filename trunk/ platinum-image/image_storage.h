@@ -44,8 +44,7 @@ class image_storage : public image_base
 
     private:
         void set_parameters ();
-        ELEMTYPE * dataptr;
-
+        
     protected:
         image_storage();
         template<class SOURCETYPE>
@@ -59,6 +58,8 @@ class image_storage : public image_base
         //to reject unsuitable choices
 
         // *** Image data pointer ***
+
+        ELEMTYPE * dataptr;
 
         ELEMTYPE * imagepointer()
             {
