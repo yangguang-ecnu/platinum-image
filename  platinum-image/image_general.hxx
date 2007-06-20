@@ -541,7 +541,7 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_integers_from_physical_
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z)
     {
-    return this->imagepointer()[x + datasize[0]*y + datasize[0]*datasize[1]*z];
+    return this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
     }
 
 template <class ELEMTYPE, int IMAGEDIM> //JK3
@@ -660,7 +660,7 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, in
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE voxelvalue)
     {
-    this->imagepointer()[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
+    this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
     }
 
 /*template <class ELEMTYPE, int IMAGEDIM>

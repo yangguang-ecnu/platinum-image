@@ -160,8 +160,6 @@ template <class ELEMTYPE >
 class transfer_interpolated: public transfer_base <ELEMTYPE >
     {
     protected:
-        //IMGELEMCOMPTYPE lookup [0xFFFFFFF]; //accomodates unsigned long
-
         class transferchart :protected Fl_Widget
             {
             friend class               transfer_interpolated;
@@ -169,9 +167,9 @@ class transfer_interpolated: public transfer_base <ELEMTYPE >
             float                      lookupStart,
                 lookupScale;
             IMGELEMCOMPTYPE            * lookup ;
-            histogram_1D<ELEMTYPE >    * histogram;
+            //histogram_1D<ELEMTYPE >    * histogram;
             //IMGELEMCOMPTYPE            * imgdata;
-            Fl_RGB_Image               * histimg;
+            //Fl_RGB_Image               * histimg;
 
             float leftBound,rightBound;
             public:

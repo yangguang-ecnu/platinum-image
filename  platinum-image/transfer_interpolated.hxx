@@ -20,16 +20,18 @@
 template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::transferchart::transferchart (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h):Fl_Widget (x,y,w,h,"")
     {   
-    histimg = NULL;
-    histogram = hi;
+    //histimg = NULL;
+    //histogram = hi;
 
     lookupSize = 256;
     lookupStart = std::numeric_limits<ELEMTYPE>::min();
     lookupScale = lookupSize/(std::numeric_limits<ELEMTYPE>::max()-std::numeric_limits<ELEMTYPE>::min());
 
-    lookup = new IMGELEMCOMPTYPE (lookupSize);
+    lookup = new IMGELEMCOMPTYPE [lookupSize];
 
     //test pattern
+    /*for (unsigned int i = 0; i < lookupSize; i++)
+        {lookup[i] = (i*IMGELEMCOMPMAX)/lookupSize;}*/
     for (unsigned int i = 0; i < lookupSize; i++)
         {lookup[i] = ((i*4) % static_cast<int>(IMGELEMCOMPMAX));}
     }
@@ -63,8 +65,8 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::transferchart::~transferchart ()
     {
-    if (histimg != NULL)
-        {delete histimg; }
+    /*if (histimg != NULL)
+        {delete histimg; }*/
 
     delete [] lookup;
     }
@@ -78,7 +80,7 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
 
     //histogram
 
-    IMGELEMCOMPTYPE * imgdata = NULL;
+    /*IMGELEMCOMPTYPE * imgdata = NULL;
 
     if (histimg != NULL)
         {
@@ -110,25 +112,52 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
 
     histogram->render(imgdata,histimg->w(),histimg->h());
 
-    histimg->draw(x(),y()); 
+    histimg->draw(x(),y()); */
 
     //curve
-    float xStep = lookupSize/w();
-    float yScale = h()/IMGELEMCOMPMAX;
+    /*float xStep = (float)lookupSize/(float)w();
+    float yScale = (float)h()/(float)IMGELEMCOMPMAX;
+    float start = x();
+    int p_end = w();
+    float startY = y()+h();
+
+    fl_color(FL_YELLOW);
+
+    if (p_end > 0)
+        {
+        for (int p = 0; p < p_end - 1 ; p++)
+            {
+            fl_line(start+p, startY-yScale*lookup[static_cast<int>(std::floor(p*xStep))],start+(p+1), startY-yScale*lookup[static_cast<int>(std::floor((p+1)*xStep))] );
+            }
+        }*/
+
+    float xStep = (float)lookupSize/(float)w();
+    float yScale = (float)h()/(float)IMGELEMCOMPMAX;
     int start = x();
-    int end = w();
+    int p_end = w();
     int startY = y()+h();
 
     fl_color(FL_YELLOW);
 
-    if (end > 0)
+    int X, nextX,
+        Y, nextY;
+
+    nextX = start;
+    nextY = startY-yScale*lookup[0];
+
+    if (p_end > 0)
         {
-        for (int p = 0; p < end; p++)
+        for (int p = 1; p < p_end ; p++)
             {
-            fl_line(start+p, startY-yScale*lookup[static_cast<unsigned int>(p*xStep)], start+(p+1)*xStep, startY-yScale*lookup[static_cast<unsigned int>((p+1)*xStep)]);
+            X = nextX;
+            Y = nextY;
+
+            nextX = start+p;
+            nextY = startY-yScale*(float)lookup[static_cast<int>(std::floor((float)p*xStep))];
+
+            fl_line(X, Y , nextX, nextY );
             }
         }
-
     }
 
 // *** transfer_interpolated (base class) ***
@@ -142,13 +171,13 @@ transfer_interpolated<ELEMTYPE >::transfer_interpolated(image_storage <ELEMTYPE 
 template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::~transfer_interpolated()
     {
-    delete chart;
+    //chart is deleted by FLTK, don't worry
     }
 
 template <class ELEMTYPE>
 void transfer_interpolated<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
     {
-    p.set_mono(255);
+    //p.set_mono(255); //DEBUG
     p.set_mono(chart->lookup[static_cast<unsigned int>((v-chart->lookupStart)*chart->lookupScale)]);
     }
 
