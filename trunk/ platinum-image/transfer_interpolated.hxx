@@ -148,7 +148,7 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
 	fl_rectf(x(), y(),w(),h());*/
     if (histogram != NULL) //image may be uninitialized and have no histogram, just skip
         {
-        if (histimg != NULL)
+        /*if (histimg != NULL)
             {
             if (histimg->w() != w() || histimg->h() != h())
                 {
@@ -165,7 +165,7 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
                 {
                 histimg->uncache();
                 }
-            }
+            }*/
 
         if (histimg == NULL)
             {
@@ -173,17 +173,15 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
             histimg = new Fl_RGB_Image(imgdata,w(), h(), 3);
             }
 
+        //TODO: find out why uncache doesn't work as expected (crashes) on OSX
+        //and us it to speed this up
         // http://www.fltk.org/articles.php?L466
-        //unsigned char *img_data = histimg->data()[0];
-
-        //const char * imgdata = histimg->data()[0];
-
-
+        
         histogram->render(imgdata,histimg->w(),histimg->h());
-
         histimg->draw(x(),y()); 
         
-        histimg->uncache();
+        delete histimg;
+        histimg = NULL;
         }
 
     //curve
