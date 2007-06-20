@@ -17,7 +17,7 @@
 
 -Access functions (get_/set_)
 
--Fuctions of more internal caracter (Reordering/Resampling)
+-Fuctions of more internal caracter (Reordering/Resampling and draw/handle in case of GUI classes)
 
 -Processing function
 
