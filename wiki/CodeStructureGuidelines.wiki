@@ -1,4 +1,5 @@
 #summary Guidelines for coding syntax and structure.
+#labels Phase-Design
 
 = Guidelines for coding syntax and structure =
 
@@ -23,7 +24,6 @@
 
 == Body file structure (.cc .hxx) ==
 For simplicity, implement functions in the same order as in header files.
-
 
 
 
