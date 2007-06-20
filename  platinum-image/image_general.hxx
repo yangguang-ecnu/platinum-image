@@ -928,12 +928,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::print_geometry()
 	for(int i=0;i<IMAGEDIM;i++)
 		cout<<datasize[i]<<",";
 	cout<<")"<<endl;
-	cout<<"origin:"<<origin<<endl;
+	cout<<"origin:"<<this->origin<<endl;
 	cout<<"voxel_resize:"<<endl<<get_voxel_resize()<<endl;
 	cout<<"direction:"<<endl;
-	cout<<direction[0][0]<<" "<<direction[1][0]<<" "<<direction[2][0]<<endl;
-	cout<<direction[0][1]<<" "<<direction[1][1]<<" "<<direction[2][1]<<endl;
-	cout<<direction[0][2]<<" "<<direction[1][2]<<" "<<direction[2][2]<<endl;
+	cout<<this->direction[0][0]<<" "<<this->direction[1][0]<<" "<<this->direction[2][0]<<endl;
+	cout<<this->direction[0][1]<<" "<<this->direction[1][1]<<" "<<this->direction[2][1]<<endl;
+	cout<<this->direction[0][2]<<" "<<this->direction[1][2]<<" "<<this->direction[2][2]<<endl;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
