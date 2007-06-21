@@ -1110,6 +1110,319 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(image_binary<IMAGEDIM> * mask, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, IMGBINARYTYPE object_value)
+    {
+	this->min_max_refresh();
+    image_label<IMAGEDIM> * output = new image_label<IMAGEDIM> (this,false);
+	IMGLABELTYPE class1=3;
+	IMGLABELTYPE class2=4;
+	IMGLABELTYPE undef=1;
+	IMGLABELTYPE conflict=2;
+	IMGLABELTYPE bkg=0;
+	ELEMTYPE min_val=this->get_min();
+	ELEMTYPE max_val=this->get_max();
+	ELEMTYPE err_min_ind=min_val;
+	int x,y,z,x0,y0,z0,x2,y2,z2;
+	int max_x, max_y, max_z;
+	max_x=this->get_size_by_dim(0);
+	max_y=this->get_size_by_dim(1);
+	max_z=this->get_size_by_dim(2);
+	if(low_x<0)
+		low_x=0;
+	if(low_y<0)
+		low_y=0;
+	if(low_z<0)
+		low_z=0;
+	if(high_x<0 || high_x>max_x)
+		high_x=max_x;
+	if(high_y<0 || high_y>max_y)
+		high_y=max_y;
+	if(high_z<0 || high_z>max_z)
+		high_z=max_z;
+
+	int number_of_voxels=this->num_elements;//max_x*max_y*max_z;
+	output->erase();
+		
+	//Sort points
+	// create a counting array, counts, with a member for 
+    // each possible discrete value in the input.  
+    // initialize all counts to 0.
+    int distinct_element_count = max_val - min_val + 1;
+    int* counts = new int[distinct_element_count];
+	memset(counts, 0, sizeof(int)*(1+max_val-min_val));
+    int* counts_cum = new int[distinct_element_count];
+	memset(counts_cum, 0, sizeof(int)*(1+max_val-min_val));
+    // for each value in the unsorted array, increment the
+    // count in the corresponding element of the count array
+    typename image_storage<ELEMTYPE >::iterator iter = this->begin(); 
+	typename image_storage<IMGLABELTYPE >::iterator output_iter = output->begin();   
+    while (iter != this->end()) //images are same size and should necessarily end at the same time
+        {
+        counts[(*iter)-min_val]++;
+        ++iter;
+        }
+    counts_cum[0]=counts[0];
+    // accumulate the counts - the result is that counts will hold
+    // the offset into the sorted array for the value associated with that index
+	int i,j,k;
+    for (j=1; j<distinct_element_count; j++)
+		{
+        counts_cum[j] = counts_cum[j-1]+counts[j];
+		}
+    // store the elements in a new ordered array
+    int* sorted_index = new int[number_of_voxels];
+	ELEMTYPE cur_voxel;
+	int rest;
+	for (i=number_of_voxels-1, iter=this->begin(); i>=0; i--)
+		{
+            // decrementing the counts value ensures duplicate values in A
+            // are stored at different indices in sorted.
+			
+			sorted_index[--counts_cum[(*(iter+i))-min_val]] = i;                
+        }
+
+    int* par_node = new int[number_of_voxels];
+    //Init nodes
+    for (j=0; j<number_of_voxels; j++)
+		{
+        par_node[j]=j;
+		}
+        
+    //Search in decreasing order
+    int cur_node;
+    int adj_node;
+	iter = this->end();
+    for (i=number_of_voxels-1; i>=counts[0]; i--)
+		{
+        j=sorted_index[i];	 
+        cur_node=j;
+		(*(output_iter+j))=undef;
+        
+        z=j/(max_x*max_y);
+        rest=j-z*(max_x*max_y);
+        y=rest/max_x;
+        x=rest-y*max_x;
+
+		if(x>=low_x && x<high_x && y>=low_y && y<high_y && z>=low_z && z<high_z) 
+			{
+			cur_voxel=this->get_voxel(x,y,z);
+
+			z0=z-1;
+			z2=z+1;
+			y0=y-1;
+			y2=y+1;
+			x0=x-1;
+			x2=x+1;
+
+			//Later neigbours x2,y2,z2
+			if(z2<high_z)
+				{
+				if(this->get_voxel(x,y,z2)>=cur_voxel)
+					{
+        			k=x+max_x*(y+z2*max_y);
+	        		adj_node=findNode(k, par_node);
+	        		if(cur_node!=adj_node)
+	        			cur_node=mergeNodes(adj_node,cur_node, par_node);
+					}
+				}
+			if(y2<high_y)
+				{
+				if(this->get_voxel(x,y2,z)>=cur_voxel)
+					{
+        			k=x+max_x*(y2+z*max_y);
+	        		adj_node=findNode(k, par_node);
+	        		if(cur_node!=adj_node)
+	        			cur_node=mergeNodes(adj_node,cur_node, par_node);
+					}
+				}
+			if(x2<high_x)
+				{
+				if(this->get_voxel(x2,y,z)>=cur_voxel)
+					{
+        			k=x2+max_x*(y+z*max_y);
+	        		adj_node=findNode(k, par_node);
+	        		if(cur_node!=adj_node)
+	        			cur_node=mergeNodes(adj_node,cur_node, par_node);
+					}
+				}
+			//Earlier neighbours x0,y0,z0
+			if(z0>=low_z)
+				{
+				if(this->get_voxel(x,y,z0)>cur_voxel)
+					{
+        			k=x+max_x*(y+z0*max_y);
+	        		adj_node=findNode(k, par_node);
+	        		if(cur_node!=adj_node)
+	        			cur_node=mergeNodes(adj_node,cur_node, par_node);
+					}
+				}
+			if(y0>=low_y)
+				{
+				if(this->get_voxel(x,y0,z)>cur_voxel)
+					{
+        			k=x+max_x*(y0+z*max_y);
+	        		adj_node=findNode(k, par_node);
+	        		if(cur_node!=adj_node)
+	        			cur_node=mergeNodes(adj_node,cur_node, par_node);
+					}
+				}
+			if(x0>=low_x)
+				{
+				if(this->get_voxel(x0,y,z)>cur_voxel)
+					{
+        			k=x0+max_x*(y+z*max_y);
+	        		adj_node=findNode(k, par_node);
+	        		if(cur_node!=adj_node)
+	        			cur_node=mergeNodes(adj_node,cur_node, par_node);
+					}
+				}
+			}
+		}
+
+	//Find seeds
+	bool* marked=new bool[number_of_voxels];
+	memset(marked, 0, sizeof(bool)*number_of_voxels);
+	typename image_storage<IMGBINARYTYPE >::iterator mask_iter = mask->begin(); 
+	output_iter = output->begin(); 
+	for (i=0; i<number_of_voxels; i++)
+		{
+		if((*(mask_iter+i))==object_value && (*(output_iter+i))!=bkg)
+			{
+			markRecursive(i,par_node,marked);
+			(*(output_iter+i))=class1;
+			}
+		}
+
+	//NPT image
+	ELEMTYPE* npt_array = new ELEMTYPE[number_of_voxels];
+	memset(npt_array, 0, sizeof(ELEMTYPE)*number_of_voxels);
+	for (i=number_of_voxels-1; i>=counts[0]; i--)//Skip lowest value
+		{
+	    j=sorted_index[i];
+	    npt_array[j]=getSeedLevel(j, par_node, marked);
+		}
+	    
+	//Equal neighbour
+	bool* eq_neigh=new bool[number_of_voxels];
+	int n_diff;
+	for (i=number_of_voxels-1; i>=counts[0]; i--)//Skip lowest value
+		{
+	    j=sorted_index[i];
+	    n_diff=0;
+	    
+	    z=j/(max_x*max_y);
+	    rest=j-z*(max_x*max_y);
+	    y=rest/max_x;
+	    x=rest-y*max_x;
+
+		if(x>=low_x && x<high_x && y>=low_y && y<high_y && z>=low_z && z<high_z) 
+			{
+			for(z2=std::max(low_z,z-1); z2<std::min(high_z,z+2) && n_diff==0; z2++)
+				{
+				for(y2=std::max(low_y,y-1); y2<std::min(high_y,y+2) && n_diff==0; y2++)
+					{
+					for(x2=std::max(low_x,x-1); x2<std::min(high_x,x+2) && n_diff==0; x2++)
+						{
+						k=x2+max_x*(y2+z2*max_y);
+						if(npt_array[k]!=npt_array[j])
+							{
+							n_diff++;
+							}										
+						}
+					}
+				}
+			if(n_diff==0)
+				{
+				(*(output_iter+j))=class2;
+				}
+			}
+		}
+
+	ELEMTYPE cur_level;
+	int nClass1, nClass2;
+	bool changed=true;
+	bool changedThis;
+	while(changed)
+		{
+		changed=false;
+		for(cur_level=max_val; cur_level>min_val; cur_level--)
+			{
+			//Loop each level until not changed
+			changedThis=true;
+			while(changedThis)
+				{
+				changedThis=false;
+			    for (i=counts_cum[cur_level-min_val]-1; i>=counts_cum[cur_level-1-min_val]; i--)
+					{
+			        j=sorted_index[i];
+				    if((*(output_iter+j))==undef)
+				        {
+					    //Check neighbours
+				        z=j/(max_x*max_y);
+					    rest=j-z*(max_x*max_y);
+					    y=rest/max_x;
+					    x=rest-y*max_x;
+
+						if(x>=low_x && x<high_x && y>=low_y && y<high_y && z>=low_z && z<high_z) 
+							{
+							nClass1=nClass2=0;
+
+							for(z2=std::max(low_z,z-1); z2<std::min(high_z,z+2); z2++)
+								{
+								for(y2=std::max(low_y,y-1); y2<std::min(high_y,y+2); y2++)
+									{
+									for(x2=std::max(low_x,x-1); x2<std::min(high_x,x+2); x2++)
+										{
+										k=x2+max_x*(y2+z2*max_y);
+										if((*(output_iter+k))==class1)
+											nClass1++;
+										else if((*(output_iter+k))==class2)
+											nClass2++;										
+										}
+									}
+								}
+							if(nClass1>0 && nClass2==0)
+								{
+								(*(output_iter+j))=class1;
+								changed=true;
+								changedThis=true;
+								}
+							else if(nClass2>0 && nClass1==0)
+								{
+								(*(output_iter+j))=class2;
+								changed=true;
+								changedThis=true;
+								}
+							else if(nClass2>0 && nClass1>0)
+								{
+								(*(output_iter+j))=conflict;
+								changed=true;
+								changedThis=true;
+								}
+							}
+						else
+							{
+							(*(output_iter+j))=class1;
+							changed=true;
+							changedThis=true;
+							}
+						}
+					}
+				}
+			}		        
+		}  
+
+	delete[] counts;
+	delete[] counts_cum;
+	delete[] sorted_index;
+	delete[] par_node;
+	delete[] npt_array;
+
+	//output->min_max_refresh();
+	return output;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
 int image_integer<ELEMTYPE, IMAGEDIM>::findNode(int e, int* par_node)
 	{
 		if(par_node[e]!=e)
@@ -1238,6 +1551,32 @@ void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, I
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+void image_integer<ELEMTYPE, IMAGEDIM>::mask_out(int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, ELEMTYPE blank)
+    {
+	int x,y,z;
+	int max_x, max_y, max_z;
+	max_x=this->get_size_by_dim(0);
+	max_y=this->get_size_by_dim(1);
+	max_z=this->get_size_by_dim(2);
+	if(low_x<0)
+		low_x=0;
+	if(low_y<0)
+		low_y=0;
+	if(low_z<0)
+		low_z=0;
+	if(high_x<0 || high_x>max_x)
+		high_x=max_x;
+	if(high_y<0 || high_y>max_y)
+		high_y=max_y;
+	if(high_z<0 || high_z>max_z)
+		high_z=max_z;
+	for(z=low_z; z<high_z; z++)
+		for(y=low_y; y<high_y; y++)
+			for(x=low_x; x<high_x; x++)
+				this->set_voxel(x,y,z,blank);
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
 std::vector<HistoPair> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
 	{
 	this->min_max_refresh();
@@ -1268,6 +1607,34 @@ std::vector<HistoPair> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
 		}
 
 	delete[] counts;
+
+	return res;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+std::vector<double> image_integer<ELEMTYPE, IMAGEDIM>::get_slice_sum(int direction)
+	{
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
+	ELEMTYPE p;//pixel value
+	double sum=0;
+    std::vector<double> res;
+	for(w=0; w<max_w; w++)
+		{
+		double sum=0;
+		for(v=0; v<max_v; v++)
+			{
+			for(u=0; u<max_u; u++)
+				{
+				p=this->get_voxel_by_dir(u,v,w,direction);
+				sum+=p;
+				}
+			}
+			res.push_back(sum);
+		}
 
 	return res;
 	}

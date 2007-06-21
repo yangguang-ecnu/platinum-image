@@ -487,6 +487,96 @@ image_base * analyze_hdrloader::read(std::vector<std::string> &files)
     return newImage;
     }
 
+class analyze_objloader: public imageloader 
+{
+public:
+    analyze_objloader (std::vector<std::string>);
+    image_base * read (std::vector<std::string>&);
+};
+
+analyze_objloader::analyze_objloader(const std::vector<std::string> files): imageloader(files)
+	{
+	}
+
+image_base * analyze_objloader::read(std::vector<std::string> &files)
+    {
+    image_base * newImage = NULL;
+	std::string obj_file = files.front();
+	std::string img_name = obj_file;
+    
+    unsigned int pos;
+    
+    pos=img_name.rfind(".obj",img_name.length()-1);
+    
+    if (pos !=std::string::npos)
+        {
+        img_name.erase(pos,img_name.length());
+		pos=img_name.rfind("/",img_name.length()-1);
+		img_name = img_name.substr(pos+1);
+    
+		if (file_exists (obj_file))
+			{
+			short size[3];
+			
+			int nObjects=0;
+			int skip=0;
+
+			int corr=4;//3;//-1; ???????????????????????
+			std::ifstream fobj (std::string(obj_file).c_str());
+			unsigned char  header[20];
+			fobj.read((char*)header,20);
+
+			int data[5];
+			int i;
+			for(i=0; i<5; i++)
+				{
+				data[i]=header[i*4+0]<<24 | header[i*4+1]<<16 | header[i*4+2]<<8 | header[i*4+3];
+				}
+			size[0]=data[1];
+			//size[1]=data[3];//Analyze6
+			//size[2]=data[2];//Analyze6
+			size[1]=data[2];//Analyze7
+			size[2]=data[3];//Analyze7
+			nObjects=data[4];
+			skip=nObjects*152+corr;//TODO: This is not correct		
+			int n_vox=size[0]*size[1]*size[2];
+
+			unsigned char* buf=new unsigned char[n_vox];
+			memset(buf,0,n_vox);
+
+			// Start reading run-lenght encoded data
+			fobj.ignore(skip);
+			int l,b;
+			int j;
+			i=0;
+			while(fobj.good())     // loop while extraction from file is possible
+				{				
+				l=fobj.get();	
+				if(fobj.good())
+					{
+					b=fobj.get();
+					for(j=0; j<l; j++)
+						{
+						buf[i]=b;
+						i++;
+						}
+					}
+				}
+
+			Vector3D voxelsize;
+			voxelsize.Fill(1);
+			newImage = new image_label<>(buf, n_vox, size[0], size[1], voxelsize);
+
+			fobj.close();
+			newImage->name(img_name);
+
+			files.erase (files.begin());
+			}
+		}
+
+    return newImage;
+    }
+
 template <class LOADERTYPE>
 void try_loader (std::vector<std::string> &f) //! helper for image_base::load
 {
@@ -506,6 +596,9 @@ void try_loader (std::vector<std::string> &f) //! helper for image_base::load
 
 void image_base::load(std::vector<std::string> chosen_files)
     {
+    //try Analyze obj
+    try_loader<analyze_objloader>(chosen_files);
+
     //try Analyze hdr
     try_loader<analyze_hdrloader>(chosen_files);
 
