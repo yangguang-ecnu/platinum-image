@@ -44,10 +44,8 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 {
 	float t_x = -1;		//event x position (in transfer (knots) coordinates)
 	float t_y = -1;		//event y position (in transfer (knots) coordinates)
-	float closest_key = -1;
 	float dist = -1;
-	int dx = -1;		//drag dx (in FLTK coordinates)
-	int dy = -1;		//drag dx (in FLTK coordinates)
+	float closest_key = -1;
 	int t_dx = -1;		//drag dx (in transfer (knots) coordinates)
 	int t_dy = -1;		//drag dx (in transfer (knots) coordinates)
 	int t_x_new = -1;	//new knot x (in transfer (knots) coordinates)
@@ -56,60 +54,43 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 	switch(event)
 	{
 	case FL_PUSH:
-		//mouse_x / mouse_y  function as buffer for the "last" coordinates...
-		mouse_x = Fl::event_x();
-		mouse_y = Fl::event_y();
 
-        if( Fl::event_clicks() == 2) //test for double click
-            {
-            t_x = float(mouse_x - x())/w()*float(lookupSize);
-            t_y = float(255) - float(mouse_y - y())/h()*float(255);
-            dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
-            
-            //JK3 no boundary checking....
-            intensity_knots.set_data(closest_key,t_x,t_y,0,0,lookupSize-1,255);
-            redraw();
+		if(Fl::event_clicks() >0) //test for double click ( Fl::event_clicks() --> ...non-zero if the most recent FL_PUSH or FL_KEYBOARD was a "double click"...)
+		{
+			t_x = float(Fl::event_x() - x())/w()*float(lookupSize);
+			t_y = float(255) - float(Fl::event_y() - y())/h()*float(255);
+			dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
+
+			if(!intensity_knots.is_occupied(t_x))	//otherwise, points with same key will overwrite
+			{
+				intensity_knots.set_data(closest_key,t_x,t_y);
 			}
-
+			redraw();
+		}
 		return 1;
 
 	case FL_DRAG:
-		std::cout<<"FL_DRAG"<<std::endl;
-		//mouse_x / mouse_y  function as buffer for the "last" coordinates...
-		t_x = float(mouse_x - x())/w()*float(lookupSize);
-		t_y = float(255) - float(mouse_y - y())/h()*float(255);
-		dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
+		std::cout<<"FL_DRAG dx="<<Fl::event_dx()<<" dy="<<Fl::event_dy()<<endl;
 
-		if(dist<60)
+		if(Fl::event_x()>=x() && Fl::event_x()<=x()+w() && Fl::event_y()>=y() && Fl::event_y()<=y()+h())
 		{
-			dx = Fl::event_x() - mouse_x;
-			dy = Fl::event_y() - mouse_y;
-			t_dx = float(dx)/w()*float(lookupSize);
-			t_dy = float(dy)/h()*float(255);
-			t_x_new = t_x + t_dx;
-			t_y_new = t_y + t_dy;
+			t_x = float(Fl::event_x() - x())/w()*float(lookupSize);
+			t_y = float(255) - float(Fl::event_y() - y())/h()*float(255);
+			dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
 
-			//boundary conditions
-			if(closest_key==0)
-				t_x_new=0;
-
-			if(closest_key==lookupSize-1)
-				t_x_new=lookupSize-1;
-
-			if(t_y_new<0)
-				t_y_new=0;
-
-			if(t_y_new>255)
-				t_y_new=255;
-
-			if(!intensity_knots.is_occupied(t_x_new))	//otherwise, points with same key will overwrite
+			if(dist<70)
 			{
-				intensity_knots.set_data(closest_key,t_x_new,t_y_new,0,0,lookupSize-1,255);
-//				intensity_knots.set_data(closest_key,t_x_new,t_y_new);
-			}
+				t_dx = float(Fl::event_dx())/w()*float(lookupSize);
+				t_dy = float(Fl::event_dy())/h()*float(255);
+				t_x_new = t_x + t_dx;
+				t_y_new = t_y + t_dy;
 
-			mouse_x += dx;
-			mouse_y += dy;
+				if(!intensity_knots.is_occupied(t_x_new))	//otherwise, points with same key will overwrite
+				{
+					intensity_knots.set_data(closest_key,t_x_new,t_y_new);
+				}
+
+			}
 		}
 		redraw();
 		// ...

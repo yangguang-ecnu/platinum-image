@@ -22,9 +22,6 @@
 template <class KEY_TYPE, class VALUE_TYPE>
 points_seq_func1D<KEY_TYPE, VALUE_TYPE>::points_seq_func1D(KEY_TYPE key_min, VALUE_TYPE val_min, KEY_TYPE key_max, VALUE_TYPE val_max, int nr_points)
 {
-#ifdef _DEBUG
-    std::cout<<"Constructor - points_seq_func1D"<< std::endl; //JK1
-#endif
 
 	float dx=float(key_max-key_min)/float(nr_points);
 	float dy=float(val_max-val_min)/float(nr_points);
@@ -77,24 +74,31 @@ VALUE_TYPE points_seq_func1D<KEY_TYPE, VALUE_TYPE>::get_value(KEY_TYPE k)
 	return themap[k];
 }
 
+//template <class KEY_TYPE, class VALUE_TYPE>
+//void points_seq_func1D<KEY_TYPE, VALUE_TYPE>::set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v, KEY_TYPE k_min, VALUE_TYPE v_min, KEY_TYPE k_max, VALUE_TYPE v_max)
 template <class KEY_TYPE, class VALUE_TYPE>
-void points_seq_func1D<KEY_TYPE, VALUE_TYPE>::set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v, KEY_TYPE k_min, VALUE_TYPE v_min, KEY_TYPE k_max, VALUE_TYPE v_max)
+void points_seq_func1D<KEY_TYPE, VALUE_TYPE>::set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v)
 {
-	//JK3 Note that currently, there is no checking if new_k already excists...
-	if(this_key == new_k)
-	{
-		themap[this_key] = new_v;
+	cout<<"set_data"<<this_key<<"\t"<<new_k<<"\t"<<new_v<<endl;
+/*	
+	//make sure values dont go outside given boudaries...
+	if(v_max!=NULL){
+		if(new_k<k_min)
+			new_k=k_min;
+		if(new_v<v_min)
+			new_v=v_min;
+		if(new_k>k_max)
+			new_k=k_max;
+		if(new_v>v_max)
+			new_v=v_max;
 	}
-	else
+*/
+	if(this_key==new_k)
 	{
-		//make sure values dont go outside given boudaries...
-		if(k_min!=NULL){if(new_k<k_min){new_k=k_min;}}		
-		if(v_min!=NULL){if(new_v<v_min){new_v=v_min;}}
-		if(k_max!=NULL){if(new_k>k_max){new_k=k_max;}}
-		if(v_max!=NULL){if(new_v>v_max){new_v=v_max;}}
-
+		themap[this_key]=new_v;
+	}else{
 		erase(this_key);
-		insert(new_k,new_v);
+		insert(new_k,new_v);	//ordered data --> O(n)
 	}
 }
 

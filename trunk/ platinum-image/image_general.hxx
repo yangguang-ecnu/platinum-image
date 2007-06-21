@@ -547,14 +547,14 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z)
     return this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
     }
 
-template <class ELEMTYPE, int IMAGEDIM> //JK3
+template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos(Vector3D phys_pos)
     {
 	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
 	return (is_voxelpos_within_image_3D(v[0],v[1],v[2]))? get_voxel(v[0],v[1],v[2]):0;
     }
 
-template <class ELEMTYPE, int IMAGEDIM> //JK3
+template <class ELEMTYPE, int IMAGEDIM> //JK3 - No boundary checking...
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos)
     {
 	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
@@ -582,7 +582,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_mean_3D_in
     return res;
     }
 
-template <class ELEMTYPE, int IMAGEDIM> //JK3
+template <class ELEMTYPE, int IMAGEDIM> //JK
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1, float w2, float w3, float w4)
     {
 	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
@@ -788,7 +788,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 template<class TARGETTYPE> 
 void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image)
 {
-	std::cout<<"image_general::resample_into_this_image"<<std::endl;
+	std::cout<<"image_general::resample_into_this_image_NN"<<std::endl;
 	this->print_geometry();
 	new_image->print_geometry();
 
@@ -804,9 +804,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_genera
 				vox_pos[0] = x;	vox_pos[1] = y;	vox_pos[2] = z;
 				phys_pos = new_image->origin + new_image->voxel_resize*new_image->direction*vox_pos;
 //				cout<<"phys_pos="<<phys_pos<<std::endl;
-				res = get_voxel_in_physical_pos_26NB_weighted(phys_pos,10,2,0,0);
+//				res = get_voxel_in_physical_pos_26NB_weighted(phys_pos,10,2,0,0);
 //				res = get_voxel_in_physical_pos_mean_3D_interp26(phys_pos);
-//				res = get_voxel_in_physical_pos(phys_pos);
+				res = get_voxel_in_physical_pos(phys_pos);
 //				cout<<"res="<<res<<std::endl;
 				new_image->set_voxel(x,y,z,res);
                 }

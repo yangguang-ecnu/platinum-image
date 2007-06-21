@@ -51,7 +51,8 @@ public:
 	unsigned int size();
 	void get_data(unsigned int map_index, KEY_TYPE &k, VALUE_TYPE &v);
 	VALUE_TYPE get_value(KEY_TYPE k);
-	void set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v, KEY_TYPE k_min=NULL, VALUE_TYPE v_min=NULL, KEY_TYPE k_max=NULL, VALUE_TYPE v_max=NULL);
+//	void set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v, KEY_TYPE k_min=NULL, VALUE_TYPE v_min=NULL, KEY_TYPE k_max=NULL, VALUE_TYPE v_max=NULL);
+	void set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v);
 	bool is_occupied(KEY_TYPE k);
 
 	float find_dist_to_closest_point2D(KEY_TYPE x, VALUE_TYPE y, KEY_TYPE &closest_key);
