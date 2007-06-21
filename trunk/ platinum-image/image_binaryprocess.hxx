@@ -143,7 +143,7 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, IMGBINARYTYPE obje
 	IMGBINARYTYPE p;//pixel value
 	int label,up,left;//neighbour labels 
 	//image_general<int, IMAGEDIM> label_image(max_u, max_v, max_w);
-    image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
+    image_integer<int,IMAGEDIM> * label_image = new image_integer<int, IMAGEDIM> (max_u, max_v, max_w);
 	int new_label;
 	//init labels
 	for(w=0; w<max_w; w++)
@@ -266,7 +266,7 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, IMGB
 	IMGBINARYTYPE p;//pixel value
 	int label,up,left;//neighbour labels 
 	//image_general<int, IMAGEDIM> label_image(max_u, max_v, max_w);
-    image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
+    image_integer<int,IMAGEDIM> * label_image = new image_integer<int, IMAGEDIM> (max_u, max_v, max_w);
 	int new_label;
 	//init labels
 	for(w=0; w<max_w; w++)
@@ -379,7 +379,7 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 	IMGBINARYTYPE p,m;//pixel value
 	int label,up,left;//neighbour labels 
 	//image_general<int, IMAGEDIM> label_image(max_u, max_v, max_w);
-    image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
+    image_integer<int,IMAGEDIM> * label_image = new image_integer<int, IMAGEDIM> (max_u, max_v, max_w);
 	int new_label;
 	//init labels
 	for(w=0; w<max_w; w++)
@@ -896,7 +896,7 @@ void image_binary<IMAGEDIM>::fill_holes_3D(IMGBINARYTYPE object_value)
 		
 	IMGBINARYTYPE p;//pixel value
 	int label,above,up,left;//neighbour labels 
-    image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
+    image_integer<int,IMAGEDIM> * label_image = new image_integer<int, IMAGEDIM> (max_u, max_v, max_w);
 	int new_label;
 	//init labels
 	int number_of_objects=1;
@@ -1144,7 +1144,7 @@ void image_binary<IMAGEDIM>::largest_object_3D(IMGBINARYTYPE object_value)
 		
 	IMGBINARYTYPE p;//pixel value
 	int label,above,up,left;//neighbour labels 
-    image_integer<short,IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
+    image_integer<int,IMAGEDIM> * label_image = new image_integer<int, IMAGEDIM> (max_u, max_v, max_w);
 	int new_label;
 	//init labels
 	int number_of_objects=1;
