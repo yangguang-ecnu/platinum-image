@@ -176,7 +176,6 @@ class transfer_interpolated: public transfer_base <ELEMTYPE >
 			Fl_RGB_Image			        * histimg;	//keeps the histogram background layer
 			points_seq_func1D<float,float>	intensity_knots;		//used for anchor points handling and interpolation 
 										//knots are of course also wanted for R,G,B, respectively.
-			int								mouse_x,mouse_y;	//buffered mouse positions --> allows DRAG-dx/dy calculations.				
 
 			float leftBound,rightBound;
 

@@ -163,7 +163,7 @@ class image_general : public image_storage <ELEMTYPE >
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();
 
-        template<class TARGETTYPE>	//JK3 Nearest neighbour image re-sampling-test
+        template<class TARGETTYPE>	//Nearest neighbour image re-sampling-test
 		void resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image);
         
         // *** size functions ***

@@ -54,14 +54,12 @@ public:
             {};
 
 	//JK- plans to speed "interpolate_tricubic_3D_libtricubic" up by precalculationg num-diffs...
-	//JK --> change to double when validation is finished...
 	image_scalar<double,3>* get_num_diff_image_1storder_central_diff_3D(int direction);	//voxel based (i.e. no real/physical dimensions included),  alpha-tested
 	image_scalar<double,3>* get_num_diff_image_2ndorder_central_diff_3D(image_scalar<double,3>*df_dir1, int direction2);	//voxel based (i.e. no real/physical dimensions included) , alpha-tested
 
 //	void interpolate_bilinear_2D(float phys_x, float phys_y, int vox_z);
 //	void interpolate_trilinear_3D_ITK(float phys_x, float phys_y, float phys_z); //no boundary checks in "itkLinearInterpolateImageFunction.h" 
 	void interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation from vxl package, alpha-tested
-	//JK currently very slow since differential data is calculated 8-multiple times (in the initial testing step...)
 //	void interpolate_tricubic_3D_libtricubic(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation from "libtricubic" package
 
 };
