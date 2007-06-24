@@ -162,46 +162,57 @@ public:
 
 template <class ELEMTYPE >
 class transfer_interpolated: public transfer_base <ELEMTYPE >
+{
+public:
+    class transferchart :protected Fl_Widget
     {
-    protected:
-        class transferchart :protected Fl_Widget
-            {
-            friend class               transfer_interpolated;
-            unsigned long              lookupSize;
-            float                      lookupStart,
-                lookupScale;
-            IMGELEMCOMPTYPE                 * lookup ;
-            histogram_1D<ELEMTYPE >         * histogram;
-            IMGELEMCOMPTYPE                 * imgdata;
-			Fl_RGB_Image			        * histimg;	//keeps the histogram background layer
-			points_seq_func1D<float,float>	intensity_knots;		//used for anchor points handling and interpolation 
-										//knots are of course also wanted for R,G,B, respectively.
-
-			float leftBound,rightBound;
-
-	public:
-		transferchart (histogram_1D<ELEMTYPE > *, int, int, int, int);
-		virtual ~transferchart();
-		void draw ();
+protected:
+        friend class               transfer_interpolated;
+        unsigned long              lookupSize;
+        float                      
+            lookupStart,
+            lookupScale,
+            lookupEnd; //redundant, but allows a faster implementation of get(...)
+        IMGELEMCOMPTYPE                 * lookup ;
+        histogram_1D<ELEMTYPE >         * histogram;
+        IMGELEMCOMPTYPE                 * imgdata;
+        Fl_RGB_Image			        * histimg;	//keeps the histogram background layer
+        points_seq_func1D<float,float>	intensity_knots;		//used for anchor points handling and interpolation 
+                                                                //knots are of course also wanted for R,G,B, respectively.
+        float leftBound,rightBound;
+        
+        transferchart (histogram_1D<ELEMTYPE > *, int, int, int, int);
+public:
+            virtual ~transferchart();
+        
+        void draw ();
 		int handle(int);
+        
+        virtual void render_lookup (IMGELEMCOMPTYPE lookup [],int lookupSize) = 0;
 	};
-
-        transferchart * chart;
-        transfer_interpolated (image_storage <ELEMTYPE > * s);
-//		virtual void recalculate_lookup()=0;
-    public:
+protected:
+    transferchart * chart;
+    transfer_interpolated (image_storage <ELEMTYPE > * s);
+    //		virtual void recalculate_lookup()=0;
+public:
         virtual ~transfer_interpolated();
-        void get (const ELEMTYPE v, RGBvalue &p);
-    };
+    void get (const ELEMTYPE v, RGBvalue &p);
+};
 
 
 template <class ELEMTYPE >
 class transfer_linear: public transfer_interpolated <ELEMTYPE >
 {
+protected:
+    class transferchart_linear: public transfer_interpolated<ELEMTYPE >::transferchart
+    {
 public:
+        transferchart_linear (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h);
+        virtual void render_lookup (IMGELEMCOMPTYPE lookup [],int lookupSize);
+    };
+    
+    public:
 	transfer_linear (image_storage <ELEMTYPE > * s);
-//	void recalculate_lookup();
-
 };
 
 
@@ -210,7 +221,6 @@ class transfer_spline: public transfer_interpolated <ELEMTYPE >
 {
 public:
 	transfer_spline (image_storage <ELEMTYPE > * s);
-//	void recalculate_lookup();
 };
 
 #endif

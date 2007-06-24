@@ -25,16 +25,11 @@ transfer_interpolated<ELEMTYPE >::transferchart::transferchart (histogram_1D<ELE
 	histogram = hi;
 
 	lookupSize = 256;
-	lookupStart = std::numeric_limits<ELEMTYPE>::min();
+	lookupStart = std::numeric_limits<ELEMTYPE>::min(); //TODO: change to using image min/max values
 	lookupScale = lookupSize/(std::numeric_limits<ELEMTYPE>::max()-std::numeric_limits<ELEMTYPE>::min());
-
+    lookupEnd = std::numeric_limits<ELEMTYPE>::max()*lookupScale + lookupStart;
+    
     lookup = new IMGELEMCOMPTYPE [lookupSize];
-
-    //test pattern
-    /*for (unsigned int i = 0; i < lookupSize; i++)
-        {lookup[i] = (i*IMGELEMCOMPMAX)/lookupSize;}*/
-    for (unsigned int i = 0; i < lookupSize; i++)
-        {lookup[i] = ((i*4) % static_cast<int>(IMGELEMCOMPMAX));}
 
 	intensity_knots = points_seq_func1D<float,float>(lookupStart,0,lookupStart+lookupSize,255,5);
 }
@@ -70,7 +65,7 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 		return 1;
 
 	case FL_DRAG:
-		std::cout<<"FL_DRAG dx="<<Fl::event_dx()<<" dy="<<Fl::event_dy()<<endl;
+		std::cout<<"FL_DRAG dx="<<Fl::event_dx()<<" dy="<<Fl::event_dy()<<std::endl;
 
 		if(Fl::event_x()>=x() && Fl::event_x()<=x()+w() && Fl::event_y()>=y() && Fl::event_y()<=y()+h())
 		{
@@ -230,13 +225,8 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
 template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::transfer_interpolated(image_storage <ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
     {
-    Fl_Group * frame = this->pane;
-
-    frame->resize(0,0,256,128);
-    frame->resizable(frame);
-
-    chart = new transferchart (this->source->get_histogram(), frame->x(),frame->y(),frame->w(),frame->h());
-    frame->end();
+    this->pane->resize(0,0,256,128);
+    this->pane->resizable(this->pane);
     }
 
 template <class ELEMTYPE>
@@ -247,16 +237,48 @@ transfer_interpolated<ELEMTYPE >::~transfer_interpolated()
 
 template <class ELEMTYPE>
 void transfer_interpolated<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
-    {
-    //p.set_mono(255); //DEBUG
-    p.set_mono(chart->lookup[static_cast<unsigned int>((v-chart->lookupStart)*chart->lookupScale)]);
-    }
+{
+    if (v >= chart->lookupStart)
+        {
+        if (v < chart->lookupEnd)
+            {
+            p.set_mono(chart->lookup[static_cast<unsigned int>((v-chart->lookupStart)*chart->lookupScale)]);
+            }
+        else
+            {p.set_mono(IMGELEMCOMPMAX);}
+        }
+    else
+        { p.set_mono(0); }
+}
 
 // *** transfer_linear ***
 
 template <class ELEMTYPE >
 transfer_linear<ELEMTYPE >::transfer_linear(image_storage <ELEMTYPE > * s):transfer_interpolated<ELEMTYPE >(s)
-{}
+{
+    Fl_Group * frame = this->pane;
+
+    this->chart = new transferchart_linear (this->source->get_histogram(), frame->x(),frame->y(),frame->w(),frame->h());
+    frame->end();
+}
+
+template <class ELEMTYPE >
+transfer_linear<ELEMTYPE >::transferchart_linear::transferchart_linear (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h): transfer_interpolated<ELEMTYPE >::transferchart (hi, x, y, w, h)
+{
+    //test pattern
+    /*for (unsigned int i = 0; i < lookupSize; i++)
+    {lookup[i] = (i*IMGELEMCOMPMAX)/lookupSize;}*/
+    for (unsigned int i = 0; i < this->lookupSize; i++)
+        {this->lookup[i] = ((i*4) % static_cast<int>(IMGELEMCOMPMAX));}    
+}
+
+template <class ELEMTYPE >
+void transfer_linear<ELEMTYPE >::transferchart_linear::render_lookup (IMGELEMCOMPTYPE lookup [],int lookupSize)
+{
+    //Get value for each knot and the following
+    //do linear interpolation in between
+    //increment and repeat
+}
 
 // *** transfer_spline ***
 
