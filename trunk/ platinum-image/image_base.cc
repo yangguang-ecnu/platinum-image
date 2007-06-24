@@ -152,15 +152,19 @@ vtkloader::vtkloader(const std::vector<std::string> f): imageloader(f)
 image_base *vtkloader::read(std::vector<std::string>& files)
     {    
     image_base * result = NULL;
-
-    std::string file = files.front();
-
-    if (vtkIO->CanReadFile (file.c_str()))
+            
+    int nsize = files.front().size();
+        
+    char * file = new char [nsize];
+    strncpy(file,files.front().c_str(),nsize);
+            
+    if (vtkIO->CanReadFile (file))
         {
+
         //assumption:
         //File contains image data
 
-        vtkIO->SetFileName(file.c_str());
+        vtkIO->SetFileName(file);
 
         vtkIO->ReadImageInformation(); 
 
@@ -168,7 +172,7 @@ image_base *vtkloader::read(std::vector<std::string>& files)
 
         //get voxel type
         itk::ImageIOBase::IOPixelType pixelType=vtkIO->GetPixelType();
-
+        
         switch ( pixelType)
             {
             case itk::ImageIOBase::SCALAR:
@@ -178,16 +182,16 @@ image_base *vtkloader::read(std::vector<std::string>& files)
                     {
                     case itk::ImageIOBase::UCHAR:
                         result =  new image_integer<unsigned char>();
-                        ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(file);
+                        ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(std::string(file));
                         break;
                     case itk::ImageIOBase::USHORT:
                         result = new image_integer<unsigned short>();
-                        ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(file);
+                        ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(std::string(file));
                         break;
 
                     case itk::ImageIOBase::SHORT:
                         result = new image_integer<short>();
-                        ((image_integer<short>*)result)->load_dataset_from_VTK_file(file);
+                        ((image_integer<short>*)result)->load_dataset_from_VTK_file(std::string(file));
                         break;
                     default:
 #ifdef _DEBUG
@@ -226,9 +230,11 @@ image_base *vtkloader::read(std::vector<std::string>& files)
 				;
 
             }
-
-        files.erase (files.begin()); 
+        //file was read - remove from list
+        files.erase (files.begin());
         }
+    
+    delete file;
 
     return result;
     }
@@ -594,8 +600,15 @@ void try_loader (std::vector<std::string> &f) //! helper for image_base::load
 	}
 }
 
-void image_base::load(std::vector<std::string> chosen_files)
+void image_base::load(const std::vector<std::string> f)
     {
+    std::vector<std::string> chosen_files = std::vector<std::string>();
+    
+    chosen_files.resize(f.size());
+    
+    std::copy(f.begin(), f.end(),
+         chosen_files.begin());
+    
     //try Analyze obj
     try_loader<analyze_objloader>(chosen_files);
 

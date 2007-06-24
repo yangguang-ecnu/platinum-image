@@ -79,8 +79,10 @@ VALUE_TYPE points_seq_func1D<KEY_TYPE, VALUE_TYPE>::get_value(KEY_TYPE k)
 template <class KEY_TYPE, class VALUE_TYPE>
 void points_seq_func1D<KEY_TYPE, VALUE_TYPE>::set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v)
 {
-	cout<<"set_data"<<this_key<<"\t"<<new_k<<"\t"<<new_v<<endl;
-/*	
+#ifdef _DEBUG
+    std::cout<<"set_data"<<this_key<<"\t"<<new_k<<"\t"<<new_v<<std::endl;
+#endif
+    /*	
 	//make sure values dont go outside given boudaries...
 	if(v_max!=NULL){
 		if(new_k<k_min)
