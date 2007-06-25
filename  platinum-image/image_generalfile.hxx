@@ -107,7 +107,7 @@ ELEMTYPE * load_pixels (unsigned long &num_elements,std::vector<std::string> fil
         }
     else
         {
-        throw pt_error ("Opening raw: couldn't get stat for \"" + files.front() + "\"",pt_error::fatal);
+        pt_error::error ("Opening raw: couldn't get stat for \"" + files.front() + "\"",pt_error::fatal);
         }
 
     //size of *first* file

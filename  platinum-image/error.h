@@ -32,19 +32,29 @@
 class pt_error : public std::exception 
     {
     public:
-        typedef enum {
-            notice,   //! would have just been written to cout
-            debug,    //! problem, which pertains only to developers
-            warning,  //! non-serious problem of interest to users 
-            serious,  //! error affecting result
-            fatal     //! error affecting result so that the program cannot continue
+        typedef enum { //Important: when changing values here, change the corresponding string in errornames[] too
+
+            notice = 0,   //! would have just been written to cout
+            debug,        //! problem, which pertains only to Platinum developers
+            warning,      //! non-serious problem of interest to users 
+            serious,      //! error affecting result
+            fatal         //! error affecting result so that the program cannot continue
             } errorLevel;
     private:
         std::string _M_msg;
         errorLevel level;
 
     public:
-        explicit 
+        static bool error_if_true (bool condition, std::string message, pt_error::errorLevel l = serious);
+        static bool error_if_false (bool condition, std::string message, pt_error::errorLevel l = serious)
+            {return error_if_true (!condition, message, l);}
+        static bool error_if_null (const void * p, std::string message, pt_error::errorLevel l = fatal)
+            {return error_if_true (p == NULL, message, l);}
+        static void error ( std::string message, pt_error::errorLevel l = serious);
+
+        static const std::string level_name (pt_error::errorLevel l);
+
+        explicit //avoid throwing this directly, rather use error (...) above
             pt_error(const std::string& __arg,errorLevel l = serious);
 
         virtual 
@@ -52,12 +62,6 @@ class pt_error : public std::exception
 
         virtual const char* 
             what() const throw();
-
-        static void error_if_true (bool condition, std::string message, pt_error::errorLevel l = serious);
-        static void error_if_false (bool condition, std::string message, pt_error::errorLevel l = serious)
-            {error_if_true (!condition, message, l);}
-        static void error_if_null (const void * p, std::string message, pt_error::errorLevel l = fatal)
-            {error_if_true (p == NULL, message, l);}
     };
 
 
