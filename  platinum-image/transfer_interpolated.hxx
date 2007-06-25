@@ -31,7 +31,7 @@ transfer_interpolated<ELEMTYPE >::transferchart::transferchart (histogram_1D<ELE
     
     lookup = new IMGELEMCOMPTYPE [lookupSize];
 
-	intensity_knots = points_seq_func1D<float,float>(lookupStart,0,lookupStart+lookupSize,255,5);
+	intensity_knots = points_seq_func1D<float,float>(0,0,lookupSize,255,5);
 }
 
 template <class ELEMTYPE>
@@ -91,7 +91,8 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 		// ...
 		return 1;
 	case FL_RELEASE:
-		// ...
+		render_lookup();
+        //TODO: refresh image
 		return 1;
 	case FL_SHORTCUT:
 		/*if (Fl::event_key() == 'x') {
@@ -266,17 +267,17 @@ template <class ELEMTYPE >
 transfer_linear<ELEMTYPE >::transferchart_linear::transferchart_linear (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h): transfer_interpolated<ELEMTYPE >::transferchart (hi, x, y, w, h)
 {
     //test pattern
-    /*for (unsigned int i = 0; i < lookupSize; i++)
-    {lookup[i] = (i*IMGELEMCOMPMAX)/lookupSize;}*/
-    for (unsigned int i = 0; i < this->lookupSize; i++)
-        {this->lookup[i] = ((i*4) % static_cast<int>(IMGELEMCOMPMAX));}    
+    /*for (unsigned int i = 0; i < this->lookupSize; i++)
+        {this->lookup[i] = ((i*4) % static_cast<int>(IMGELEMCOMPMAX));}*/ 
+    render_lookup(); //must be called here, base class constructor gets the abstract one
 }
 
 template <class ELEMTYPE >
-void transfer_linear<ELEMTYPE >::transferchart_linear::render_lookup (IMGELEMCOMPTYPE lookup [],int lookupSize)
+void transfer_linear<ELEMTYPE >::transferchart_linear::render_lookup ()
     {
-    //TODO: remove lookupSize
-    std::map<float,float>::iterator MITR,MEND;
+    std::map<float,float>::iterator MITR = intensity_knots.begin();
+    std::map<float,float>::iterator MEND = intensity_knots.end();
+
     std::pair<float,float> thisPt,nextPt;
 
     thisPt = *MITR;
@@ -286,15 +287,25 @@ void transfer_linear<ELEMTYPE >::transferchart_linear::render_lookup (IMGELEMCOM
         {
         nextPt = *MITR;
 
-        int deltaX = nextPt.first - thisPt.first;
+        unsigned long deltaX = nextPt.first - thisPt.first;
 
-        for (int x = 0;x < deltaX; x++)
+        float slope = (nextPt.second-thisPt.second)/deltaX;
+
+        for (unsigned long p = 0;p < min(deltaX,lookupSize); p++)
             {
-            lookup [x] = thisPt.second + (x*nextPt.second)/deltaX;
+            int x = p + static_cast<int>(thisPt.first);
+            float value = thisPt.second + (p*slope);
+            lookup [x] = value;
             }
+        /*for (float x = 0;x < min(deltaX, static_cast<float>(lookupSize)); x++)
+            {
+            lookup [static_cast<int>(x)] = thisPt.second;
+            }*/
 
         thisPt = nextPt;
         }
+
+    this->redraw();
     }
 
 // *** transfer_spline ***
