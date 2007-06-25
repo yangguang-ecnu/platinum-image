@@ -61,9 +61,9 @@ void image_base::set_parameters ()
     name(namestream.str());
     }
 
-void image_base::redraw ()
+void image_base::redraw()
     {
-    rendermanagement.combination_update_callback(rendermanagement.get_combination_id(ID));
+    rendermanagement.image_has_changed(ID);
     }
 
 Vector3D image_base::transform_unit_to_voxel(Vector3D pos)

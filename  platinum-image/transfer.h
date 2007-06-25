@@ -51,12 +51,14 @@ class transfer_interpolated;
 class transferfactory;
 class transferchart;
 
+#define REDRAWCALLBACKPTYPE image_storage<ELEMTYPE > * 
+
 const std::string tfunction_names[] =
-{"Default",
-"Brightness/contrast",
-"Labels",
-"Linear",
-"Spline","" };
+    {"Default",
+    "Brightness/contrast",
+    "Labels",
+    "Linear",
+    "Spline","" };
 
 class transfer_manufactured //! Sub-base class that holds the static factory object
 {
@@ -65,20 +67,22 @@ class transfer_manufactured //! Sub-base class that holds the static factory obj
 
 template <class ELEMTYPE >
 class transfer_base: public transfer_manufactured
-{
-protected:
-	image_storage<ELEMTYPE > * source;
-	Fl_Group*  pane;
+    {
+    protected:
+        image_storage<ELEMTYPE > * source;
+        Fl_Group*  pane;
 
-	transfer_base (image_storage<ELEMTYPE > * s);
+        transfer_base (image_storage<ELEMTYPE > * s);
 
-public:
-	virtual ~transfer_base ();
+        static void redraw_image_cb( Fl_Widget* o, void* p );//!redraw associated image after touching a control
 
-	virtual void get (const ELEMTYPE v, RGBvalue &p) = 0;
-	virtual void refresh()
-	{}
-};
+    public:
+        virtual ~transfer_base ();
+
+        virtual void get (const ELEMTYPE v, RGBvalue &p) = 0;
+        virtual void update() //!update t-function controls
+            {}
+    };
 
 template <class ELEMTYPE >
 class transfer_default: public transfer_base <ELEMTYPE >
@@ -89,7 +93,7 @@ protected:
 public:
 	transfer_default (image_storage <ELEMTYPE > * s);
 	void get (const ELEMTYPE v, RGBvalue &p);
-	virtual void refresh();
+	virtual void update();
 };
 
 class transferfactory //! transfer gets its own object factory type because constructors for templated classes cannot be stored
@@ -164,6 +168,7 @@ template <class ELEMTYPE >
 class transfer_interpolated: public transfer_base <ELEMTYPE >
 {
 public:
+
     class transferchart :protected Fl_Widget
     {
 protected:
@@ -179,7 +184,10 @@ protected:
         Fl_RGB_Image			        * histimg;	//keeps the histogram background layer
         points_seq_func1D<float,float>	intensity_knots;		//used for anchor points handling and interpolation 
                                                                 //knots are of course also wanted for R,G,B, respectively.
-        float leftBound,rightBound;
+        //float leftBound,rightBound;
+
+        void calc_lookup_params (int newSize = 0);
+        virtual void update () = 0;
         
         transferchart (histogram_1D<ELEMTYPE > *, int, int, int, int);
 public:
@@ -187,9 +195,8 @@ public:
         
         void draw ();
 		int handle(int);
-        
-        virtual void render_lookup () = 0;
 	};
+
 protected:
     transferchart * chart;
     transfer_interpolated (image_storage <ELEMTYPE > * s);
@@ -197,23 +204,27 @@ protected:
 public:
         virtual ~transfer_interpolated();
     void get (const ELEMTYPE v, RGBvalue &p);
+    virtual void update();
 };
 
 
 template <class ELEMTYPE >
 class transfer_linear: public transfer_interpolated <ELEMTYPE >
-{
-protected:
-    class transferchart_linear: public transfer_interpolated<ELEMTYPE >::transferchart
     {
-public:
-        transferchart_linear (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h);
-        virtual void render_lookup ();
-    };
-    
+    protected:
+        class transferchart_linear: public transfer_interpolated<ELEMTYPE >::transferchart
+            {
+            protected:
+                void render_lookup();
+            public:
+                transferchart_linear (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h);
+
+                virtual void update ();
+            };
+
     public:
-	transfer_linear (image_storage <ELEMTYPE > * s);
-};
+        transfer_linear (image_storage <ELEMTYPE > * s);
+    };
 
 
 template <class ELEMTYPE >

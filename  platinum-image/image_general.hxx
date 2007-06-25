@@ -293,13 +293,15 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool stat_refresh)
         this->stats_refresh();
 
         //refresh transfer function
-        this->tfunction->refresh();
+        this->tfunction->update();
         }
 
     //clear ITK connection
     ITKimportfilter = NULL;
     if (ITKimportimage.IsNotNull())
         {ITKimportimage->Delete();}
+
+    this->redraw();
     }
 
 template <class ELEMTYPE, int IMAGEDIM>

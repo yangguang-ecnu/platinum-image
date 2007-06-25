@@ -195,6 +195,16 @@ void rendermanager::connect_image_renderer(int rendererID, int imageID)
     renderers[renderindex]->connect_image(imageID);
     }
 
+void rendermanager::image_has_changed(int ID)
+    {
+    vector<int> combos = rendermanager::combinations_from_image (ID);
+
+    for (vector<int>::iterator c = combos.begin();c != combos.end(); c++)
+        {
+        rendermanagement.combination_update_callback(*c);
+        }
+    }
+
 void rendermanager::combination_update_callback (int c_id)
     {
     viewmanagement.refresh_viewports_from_combination(c_id);
