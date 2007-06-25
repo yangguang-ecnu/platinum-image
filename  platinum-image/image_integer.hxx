@@ -783,37 +783,55 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::components_hist_3D()
         diff[(*(iter+i))-min_val]++;
         diff[(*(iter+par_node[i]))-min_val]--;
 		}
+	int maxind=0;
     for(i=max_val; i>=min_val; i--)
 		{
         cumulative_number_of_objects+=diff[i];
         y_values[i-min_val]=cumulative_number_of_objects;
         x_values[i-min_val]=i;
         if(cumulative_number_of_objects>max)
+			{
         	max=cumulative_number_of_objects;
+			maxind=i;
+			}
 		}
         
     int min1ind=min_val;
     double max1;
     double min1;
     double dmax=0;
-    i=min_val+1;
+	int dmax1ind=0;
+    i=maxind+1;
     while(i<max_val)
 		{
-        //find max
-	    while(y_values[i-min_val]>=y_values[i-1-min_val] && i<max_val)
-	        i++;
-	    max1=y_values[i-1-min_val];
-	    //find following min
+	    //find min
 	    while(y_values[i-min_val]<=y_values[i-1-min_val] && i<max_val)
 	        i++;
 	    min1=y_values[i-1-min_val];
 	    min1ind=i-1;
+        //find following max
+	    while(y_values[i-min_val]>=y_values[i-1-min_val] && i<max_val)
+	        i++;
+	    max1=y_values[i-1-min_val];
 	    if(max1-min1>dmax)
 			{
 	        dmax=max1-min1;
-        	err_min_ind=min1ind;	        	
+        	dmax1ind=min1ind;	        	
 			}
 		}
+	i=maxind+1;
+	min1=y_values[dmax1ind-min_val];
+	min1ind=dmax1ind;
+    while(i<dmax1ind)
+		{
+		if(y_values[i-min_val]<min1)
+			{
+			min1=y_values[i-min_val];
+			min1ind=i;
+			}
+	    i++;
+		}
+	err_min_ind=min1ind;
 	delete[] counts;
 	delete[] sorted_index;
 	delete[] par_node;
