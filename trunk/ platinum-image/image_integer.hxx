@@ -1600,8 +1600,8 @@ std::vector<HistoPair> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
 		{
 		if(counts[i-min_val]>0)
 			{
-			p.index=i;
-			p.count=counts[i-min_val];
+			p.first=i;
+			p.second=counts[i-min_val];
 			res.push_back(p);
 			}
 		}
