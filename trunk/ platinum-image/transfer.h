@@ -188,7 +188,7 @@ public:
         void draw ();
 		int handle(int);
         
-        virtual void render_lookup (IMGELEMCOMPTYPE lookup [],int lookupSize) = 0;
+        virtual void render_lookup () = 0;
 	};
 protected:
     transferchart * chart;
@@ -208,7 +208,7 @@ protected:
     {
 public:
         transferchart_linear (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h);
-        virtual void render_lookup (IMGELEMCOMPTYPE lookup [],int lookupSize);
+        virtual void render_lookup ();
     };
     
     public:

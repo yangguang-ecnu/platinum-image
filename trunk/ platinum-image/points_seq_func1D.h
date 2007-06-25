@@ -43,14 +43,20 @@ private:
 protected:
 
 public:
-	points_seq_func1D(){};
-	points_seq_func1D(KEY_TYPE key_min, VALUE_TYPE val_min, KEY_TYPE key_max, VALUE_TYPE val_max, int nr_points);
+    points_seq_func1D(){};
+    points_seq_func1D(KEY_TYPE key_min, VALUE_TYPE val_min, KEY_TYPE key_max, VALUE_TYPE val_max = 0, int nr_points = 0);
 
-	void insert(KEY_TYPE key, VALUE_TYPE val);
-	void erase(KEY_TYPE key);
-	unsigned int size();
-	void get_data(unsigned int map_index, KEY_TYPE &k, VALUE_TYPE &v);
-	VALUE_TYPE get_value(KEY_TYPE k);
+    void insert(KEY_TYPE key, VALUE_TYPE val);
+    void erase(KEY_TYPE key);
+
+    void get_data(unsigned int map_index, KEY_TYPE &k, VALUE_TYPE &v);
+    VALUE_TYPE get_value(KEY_TYPE k);
+
+    typename std::map<KEY_TYPE,VALUE_TYPE>::iterator begin();
+    typename std::map<KEY_TYPE,VALUE_TYPE>::iterator end();
+
+    unsigned int size();
+
 //	void set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v, KEY_TYPE k_min=NULL, VALUE_TYPE v_min=NULL, KEY_TYPE k_max=NULL, VALUE_TYPE v_max=NULL);
 	void set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v);
 	bool is_occupied(KEY_TYPE k);

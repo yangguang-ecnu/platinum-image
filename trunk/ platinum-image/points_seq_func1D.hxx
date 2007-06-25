@@ -1,4 +1,4 @@
-// $Id: points_seq_func1D.hxx 
+// $Id: $
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -42,6 +42,18 @@ void points_seq_func1D<KEY_TYPE, VALUE_TYPE>::erase(KEY_TYPE key)
 {
 	themap.erase(key);
 }
+
+template <class KEY_TYPE, class VALUE_TYPE>
+typename std::map<KEY_TYPE,VALUE_TYPE>::iterator points_seq_func1D<KEY_TYPE, VALUE_TYPE>::begin()
+    {
+    return themap.begin();
+    }
+
+template <class KEY_TYPE, class VALUE_TYPE>
+typename std::map<KEY_TYPE,VALUE_TYPE>::iterator points_seq_func1D<KEY_TYPE, VALUE_TYPE>::end()
+    {
+    return themap.end();
+    }
 
 template <class KEY_TYPE, class VALUE_TYPE>
 unsigned int points_seq_func1D<KEY_TYPE, VALUE_TYPE>::size()
