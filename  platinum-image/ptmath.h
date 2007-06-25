@@ -33,8 +33,9 @@
 ///...and types
 typedef itk::Vector<float,3> Vector3D;
 typedef itk::Point<float,3> Point3D;
-typedef struct HistoPair				//Take a look at the STL map class, it might be the right thing!
-{long index, count;};
+//typedef struct HistoPair				//Take a look at the STL map class, it might be the right thing!
+//{long index, count;};
+typedef std::pair<long, long> HistoPair;
 typedef itk::Matrix<float> Matrix3D;
 
 //not typical tensor functions, just for lack of a better place

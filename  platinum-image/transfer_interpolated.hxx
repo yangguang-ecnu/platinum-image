@@ -274,11 +274,28 @@ transfer_linear<ELEMTYPE >::transferchart_linear::transferchart_linear (histogra
 
 template <class ELEMTYPE >
 void transfer_linear<ELEMTYPE >::transferchart_linear::render_lookup (IMGELEMCOMPTYPE lookup [],int lookupSize)
-{
-    //Get value for each knot and the following
-    //do linear interpolation in between
-    //increment and repeat
-}
+    {
+    //TODO: remove lookupSize
+    std::map<float,float>::iterator MITR,MEND;
+    std::pair<float,float> thisPt,nextPt;
+
+    thisPt = *MITR;
+    ++MITR;
+
+    for (;MITR != MEND;MITR++)
+        {
+        nextPt = *MITR;
+
+        int deltaX = nextPt.first - thisPt.first;
+
+        for (int x = 0;x < deltaX; x++)
+            {
+            lookup [x] = thisPt.second + (x*nextPt.second)/deltaX;
+            }
+
+        thisPt = nextPt;
+        }
+    }
 
 // *** transfer_spline ***
 
