@@ -61,6 +61,10 @@ void image_base::set_parameters ()
     name(namestream.str());
     }
 
+void image_base::redraw ()
+    {
+    rendermanagement.combination_update_callback(rendermanagement.get_combination_id(ID));
+    }
 
 Vector3D image_base::transform_unit_to_voxel(Vector3D pos)
     {
@@ -73,17 +77,6 @@ Vector3D image_base::transform_unit_to_voxel(Vector3D pos)
     }
 
 //enum fileFormatType {FILE_FORMAT_DICOM,FILE_FORMAT_VTK};
-
-// //meta-helper to load templated classes from file format of choice
-//template <class imageClass>
-//void load_image (imageClass img,fileFormatType format)
-//    {
-//    if (format == FILE_FORMAT_VTK)
-//        {img->load_dataset_from_VTK_file(*file);}
-//    if (format == FILE_FORMAT_DICOM)
-//        {img->load_dataset_from_DICOM_files(*file);}
-//    }
-
 //
 // //helper that creates subclass objects from ITK voxel/data type constants
 //template <class imageClass>
@@ -153,18 +146,18 @@ image_base *vtkloader::read(std::vector<std::string>& files)
     {    
     image_base * result = NULL;
             
-    int nsize = files.front().size();
+    /*int nsize = files.front().size();
         
     char * file = new char [nsize];
-    strncpy(file,files.front().c_str(),nsize);
+    strncpy(file,files.front().c_str(),nsize);*/
             
-    if (vtkIO->CanReadFile (file))
+    if (vtkIO->CanReadFile (files.front().c_str()))
         {
 
         //assumption:
         //File contains image data
 
-        vtkIO->SetFileName(file);
+        vtkIO->SetFileName(files.front().c_str());
 
         vtkIO->ReadImageInformation(); 
 
@@ -182,16 +175,16 @@ image_base *vtkloader::read(std::vector<std::string>& files)
                     {
                     case itk::ImageIOBase::UCHAR:
                         result =  new image_integer<unsigned char>();
-                        ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(std::string(file));
+                        ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(std::string(files.front()));
                         break;
                     case itk::ImageIOBase::USHORT:
                         result = new image_integer<unsigned short>();
-                        ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(std::string(file));
+                        ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(std::string(files.front()));
                         break;
 
                     case itk::ImageIOBase::SHORT:
                         result = new image_integer<short>();
-                        ((image_integer<short>*)result)->load_dataset_from_VTK_file(std::string(file));
+                        ((image_integer<short>*)result)->load_dataset_from_VTK_file(std::string(files.front()));
                         break;
                     default:
 #ifdef _DEBUG
@@ -234,7 +227,7 @@ image_base *vtkloader::read(std::vector<std::string>& files)
         files.erase (files.begin());
         }
     
-    delete file;
+    /*delete file;*/
 
     return result;
     }

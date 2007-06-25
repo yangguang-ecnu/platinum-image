@@ -65,18 +65,20 @@ class data_base // We MUST have a virtual base class
         bool virtual operator>(const data_base &k)
             { return ID>k.ID; }
 
+        virtual void redraw () = 0;
+
+        // *** Metadata ***
+        
         Vector3D origin; //make protected, use access methods instead
         Matrix3D direction;
 
-		bool get_origin_from_dicom_file(std::string dcm_file);
+        virtual void name (const std::string n);          //set name
+        virtual const std::string name ();          //get name
+        
+        bool get_origin_from_dicom_file(std::string dcm_file);
 		bool get_direction_from_dicom_file(std::string dcm_file);
 		void rotate(float fi_z,float fi_y,float fi_x);
 
-        //virtual data_base * alike () = 0;
-
-        // *** Metadata ***
-        virtual void name (const std::string n);          //set name
-        virtual const std::string name ();          //get name
         bool from_file();
         void from_file(bool f); //set "from file" status
     };
