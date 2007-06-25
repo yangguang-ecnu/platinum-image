@@ -94,6 +94,7 @@ class image_base : public data_base
                                                                     //when other kinds than 3D images are implemented,
                                                                     //one might want to make these dimensionality-independent 
                                                                     //like get_size_by_dim(int dim)
+        virtual void redraw ();
         
         virtual float get_max_float() = 0;    //return max/min values in type-independent form     
         virtual float get_min_float() = 0;
