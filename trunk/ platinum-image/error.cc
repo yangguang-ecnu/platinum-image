@@ -19,6 +19,18 @@
 
 #include "error.h"
 
+#include <iostream>
+
+std::string errornames[] =
+    {
+    //array allows error names to be printed to strings and whatnot
+    "Notice",	
+    "Debug error",
+    "Warning",
+    "Serious error",
+    "Fatal error"
+    };
+
 pt_error::pt_error(const std::string& __arg, errorLevel l)  : std::exception(), _M_msg(__arg)
     { 
     level = l;
@@ -29,10 +41,29 @@ const char* pt_error::what() const throw()
     return _M_msg.c_str();
     }
 
-void pt_error::error_if_true (bool condition, std::string message, pt_error::errorLevel l)
+bool pt_error::error_if_true (bool condition, std::string message, pt_error::errorLevel l)
     {
     if (condition == true)
         {
         throw pt_error (message, l);
         }
+    return condition;
+    }
+
+void pt_error::error ( std::string message, pt_error::errorLevel l)
+    {
+    if (l >= serious)
+        {
+        throw pt_error (message, l);
+        }
+    else
+        {
+        std::cerr << errornames[l] << ": " << message << std::endl;
+        }
+    }
+
+
+const std::string pt_error::level_name (pt_error::errorLevel l)
+    {
+    return errornames[l];
     }
