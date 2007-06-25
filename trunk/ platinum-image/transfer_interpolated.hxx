@@ -20,19 +20,95 @@
 
 template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::transferchart::transferchart (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h):Fl_Widget (x,y,w,h,"")
-{   
-	histimg = NULL;
-	histogram = hi;
+    {   
+    histimg = NULL;
+    lookup = NULL;
+    histogram = hi;
 
-	lookupSize = 256;
-	lookupStart = std::numeric_limits<ELEMTYPE>::min(); //TODO: change to using image min/max values
-	lookupScale = lookupSize/(std::numeric_limits<ELEMTYPE>::max()-std::numeric_limits<ELEMTYPE>::min());
-    lookupEnd = std::numeric_limits<ELEMTYPE>::max()*lookupScale + lookupStart;
-    
-    lookup = new IMGELEMCOMPTYPE [lookupSize];
+    callback (transfer_base<ELEMTYPE >::redraw_image_cb);
+    user_data(static_cast<REDRAWCALLBACKPTYPE>(hi->image()));
 
-	intensity_knots = points_seq_func1D<float,float>(0,0,lookupSize,255,5);
-}
+    calc_lookup_params(256);
+
+    intensity_knots = points_seq_func1D<float,float>(0,0,lookupSize,255,5);
+    }
+
+template <class ELEMTYPE >
+void transfer_interpolated<ELEMTYPE >::update ()
+    {
+    chart->update();
+    }
+
+template <class ELEMTYPE>
+void transfer_interpolated<ELEMTYPE >::transferchart::calc_lookup_params (int newSize)
+    {
+    ELEMTYPE old_max = histogram->max();
+    ELEMTYPE old_min = histogram->min();
+
+    histogram->calculate(); //do NOT call this directly elsewhere, instead, call calc_lookup_params()
+    //when there is reason to recalculate histogram since all the stuff below
+    //has to be recalculated as well
+
+    if (newSize > 0 && newSize != lookupSize)
+        {
+        if (lookup != NULL)
+            {
+            delete lookup;
+            }
+
+        lookup = new IMGELEMCOMPTYPE [newSize];
+
+        std::map<float,float>::iterator MITR = intensity_knots.begin();
+        std::map<float,float>::iterator MEND = intensity_knots.end();
+
+        //scale knots to new lookup table size
+        /*for (;MITR != MEND;MITR++)
+        {
+        (*MITR).first = ((*MITR).first*newSize)/lookupSize;
+        }*/
+
+        lookupSize = newSize;
+        }
+
+    lookupStart = histogram->min();
+    lookupScale = lookupSize/(histogram->max()-histogram->min());
+    lookupEnd = histogram->max()*lookupScale + lookupStart;
+    }
+
+template <class ELEMTYPE>
+void transfer_linear<ELEMTYPE >::transferchart_linear::render_lookup()
+    {
+    // *** render lookup chart
+    std::map<float,float>::iterator MITR = intensity_knots.begin();
+    std::map<float,float>::iterator MEND = intensity_knots.end();
+
+    std::pair<float,float> thisPt,nextPt;
+
+    thisPt = *MITR;
+    ++MITR;
+
+    for (;MITR != MEND;MITR++)
+        {
+        nextPt = *MITR;
+
+        unsigned long deltaX = nextPt.first - thisPt.first;
+
+        float slope = (nextPt.second-thisPt.second)/deltaX;
+
+        for (unsigned long p = 0;p < min(deltaX,lookupSize); p++)
+            {
+            int x = p + static_cast<int>(thisPt.first);
+            float value = thisPt.second + (p*slope);
+            lookup [x] = value;
+            }
+        /*for (float x = 0;x < min(deltaX, static_cast<float>(lookupSize)); x++)
+        {
+        lookup [static_cast<int>(x)] = thisPt.second;
+        }*/
+
+        thisPt = nextPt;
+        }
+    }
 
 template <class ELEMTYPE>
 int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
@@ -61,39 +137,42 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 				intensity_knots.set_data(closest_key,t_x,t_y);
 			}
 			redraw();
+
 		}
 		return 1;
 
-	case FL_DRAG:
-		std::cout<<"FL_DRAG dx="<<Fl::event_dx()<<" dy="<<Fl::event_dy()<<std::endl;
+    case FL_DRAG:
+        std::cout<<"FL_DRAG dx="<<Fl::event_dx()<<" dy="<<Fl::event_dy()<<std::endl;
 
-		if(Fl::event_x()>=x() && Fl::event_x()<=x()+w() && Fl::event_y()>=y() && Fl::event_y()<=y()+h())
-		{
-			t_x = float(Fl::event_x() - x())/w()*float(lookupSize);
-			t_y = float(255) - float(Fl::event_y() - y())/h()*float(255);
-			dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
+        if(Fl::event_x()>=x() && Fl::event_x()<=x()+w() && Fl::event_y()>=y() && Fl::event_y()<=y()+h())
+            {
+            t_x = float(Fl::event_x() - x())/w()*float(lookupSize);
+            t_y = float(255) - float(Fl::event_y() - y())/h()*float(255);
+            dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
 
-			if(dist<70)
-			{
-				t_dx = float(Fl::event_dx())/w()*float(lookupSize);
-				t_dy = float(Fl::event_dy())/h()*float(255);
-				t_x_new = t_x + t_dx;
-				t_y_new = t_y + t_dy;
+            if(dist<70)
+                {
+                t_dx = float(Fl::event_dx())/w()*float(lookupSize);
+                t_dy = float(Fl::event_dy())/h()*float(255);
+                t_x_new = t_x + t_dx;
+                t_y_new = t_y + t_dy;
 
-				if(!intensity_knots.is_occupied(t_x_new))	//otherwise, points with same key will overwrite
-				{
-					intensity_knots.set_data(closest_key,t_x_new,t_y_new);
-				}
+                if(!intensity_knots.is_occupied(t_x_new))	//otherwise, points with same key will overwrite
+                    {
+                    intensity_knots.set_data(closest_key,t_x_new,t_y_new);
+                    }
 
-			}
-		}
-		redraw();
-		// ...
-		return 1;
+                }
+            redraw();
+            return 1;
+            }
+        return 0;
+
 	case FL_RELEASE:
-		render_lookup();
-        //TODO: refresh image
+		update();      //recalculates histogram, renders lookup table and redraws
+        do_callback(); //redraw image that the transfer function is attached to
 		return 1;
+
 	case FL_SHORTCUT:
 		/*if (Fl::event_key() == 'x') {
 		do_callback();
@@ -116,33 +195,32 @@ transfer_interpolated<ELEMTYPE >::transferchart::~transferchart ()
 
 template <class ELEMTYPE>
 void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
-{
-	fl_color(FL_GRAY);
-	fl_rectf(x(), y(),w(),h());
+    {
+    fl_push_clip (x(),y(),w(),h());
 
-	//erase
-	/*fl_color(FL_BLACK);
-	fl_rectf(x(), y(),w(),h());*/
+    fl_color(FL_GRAY);
+    fl_rectf(x(), y(),w(),h());
+
     if (histogram != NULL) //image may be uninitialized and have no histogram, just skip
         {
         /*if (histimg != NULL)
-            {
-            if (histimg->w() != w() || histimg->h() != h())
-                {
-                //Fl_RGB_Image * i = histimg->copy(w(), h()); 
-                //
-                //delete histimg;
-                //
-                //histimg = i;
+        {
+        if (histimg->w() != w() || histimg->h() != h())
+        {
+        //Fl_RGB_Image * i = histimg->copy(w(), h()); 
+        //
+        //delete histimg;
+        //
+        //histimg = i;
 
-                delete histimg;
-                histimg = NULL;
-                }
-            else
-                {
-                histimg->uncache();
-                }
-            }*/
+        delete histimg;
+        histimg = NULL;
+        }
+        else
+        {
+        histimg->uncache();
+        }
+        }*/
 
         if (histimg == NULL)
             {
@@ -153,10 +231,10 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
         //TODO: find out why uncache doesn't work as expected (crashes) on OSX
         //and us it to speed this up
         // http://www.fltk.org/articles.php?L466
-        
+
         histogram->render(imgdata,histimg->w(),histimg->h());
         histimg->draw(x(),y()); 
-        
+
         delete histimg;
         histimg = NULL;
         }
@@ -171,12 +249,12 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
     fl_color(FL_YELLOW);
 
     if (p_end > 0)
-        {
-        for (int p = 0; p < p_end - 1 ; p++)
-            {
-            fl_line(start+p, startY-yScale*lookup[static_cast<int>(std::floor(p*xStep))],start+(p+1), startY-yScale*lookup[static_cast<int>(std::floor((p+1)*xStep))] );
-            }
-        }*/
+    {
+    for (int p = 0; p < p_end - 1 ; p++)
+    {
+    fl_line(start+p, startY-yScale*lookup[static_cast<int>(std::floor(p*xStep))],start+(p+1), startY-yScale*lookup[static_cast<int>(std::floor((p+1)*xStep))] );
+    }
+    }*/
 
     float xStep = (float)lookupSize/(float)w();
     float yScale = (float)h()/(float)IMGELEMCOMPMAX;
@@ -184,7 +262,7 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
     int p_end = w();
     int startY = y()+h();
 
-	fl_color(FL_YELLOW);
+    fl_color(FL_YELLOW);
 
     int X, nextX,
         Y, nextY;
@@ -205,22 +283,22 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
             fl_line(X, Y , nextX, nextY );
             }
         }
-	//------------- Draw knots --------------- 
+    //------------- Draw knots --------------- 
 
-	fl_color(FL_RED);
-	intensity_knots.printdata();
-	float knot_x,knot_y;
-	float draw_x,draw_y;
-	for(unsigned int i=0;i<intensity_knots.size();i++)
-	{
-		intensity_knots.get_data(i,knot_x,knot_y);
-		draw_x = x() + knot_x/float(lookupSize)*w();
-		draw_y = y() + h() - knot_y/float(255.0)*h();
-		//		cout<<"fl_circle - draw_x,y "<<draw_x<<","<<draw_y<<endl;
-		fl_circle(draw_x,draw_y,2);
-	}
-
-}
+    fl_color(FL_RED);
+    intensity_knots.printdata();
+    float knot_x,knot_y;
+    float draw_x,draw_y;
+    for(unsigned int i=0;i<intensity_knots.size();i++)
+        {
+        intensity_knots.get_data(i,knot_x,knot_y);
+        draw_x = x() + knot_x/float(lookupSize)*w();
+        draw_y = y() + h() - knot_y/float(255.0)*h();
+        //		cout<<"fl_circle - draw_x,y "<<draw_x<<","<<draw_y<<endl;
+        fl_circle(draw_x,draw_y,2);
+        }
+    fl_pop_clip();
+    }
 
 // *** transfer_interpolated (base class) ***
 template <class ELEMTYPE>
@@ -246,10 +324,10 @@ void transfer_interpolated<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
             p.set_mono(chart->lookup[static_cast<unsigned int>((v-chart->lookupStart)*chart->lookupScale)]);
             }
         else
-            {p.set_mono(IMGELEMCOMPMAX);}
+            {p.set_mono(chart->lookup[chart->lookupSize -1]);}
         }
     else
-        { p.set_mono(0); }
+        { p.set_mono(chart->lookup[0]); }
 }
 
 // *** transfer_linear ***
@@ -269,41 +347,15 @@ transfer_linear<ELEMTYPE >::transferchart_linear::transferchart_linear (histogra
     //test pattern
     /*for (unsigned int i = 0; i < this->lookupSize; i++)
         {this->lookup[i] = ((i*4) % static_cast<int>(IMGELEMCOMPMAX));}*/ 
-    render_lookup(); //must be called here, base class constructor gets the abstract one
+    update(); //must be called here, base class constructor gets the abstract one
 }
 
 template <class ELEMTYPE >
-void transfer_linear<ELEMTYPE >::transferchart_linear::render_lookup ()
+void transfer_linear<ELEMTYPE >::transferchart_linear::update ()
     {
-    std::map<float,float>::iterator MITR = intensity_knots.begin();
-    std::map<float,float>::iterator MEND = intensity_knots.end();
+    calc_lookup_params();
 
-    std::pair<float,float> thisPt,nextPt;
-
-    thisPt = *MITR;
-    ++MITR;
-
-    for (;MITR != MEND;MITR++)
-        {
-        nextPt = *MITR;
-
-        unsigned long deltaX = nextPt.first - thisPt.first;
-
-        float slope = (nextPt.second-thisPt.second)/deltaX;
-
-        for (unsigned long p = 0;p < min(deltaX,lookupSize); p++)
-            {
-            int x = p + static_cast<int>(thisPt.first);
-            float value = thisPt.second + (p*slope);
-            lookup [x] = value;
-            }
-        /*for (float x = 0;x < min(deltaX, static_cast<float>(lookupSize)); x++)
-            {
-            lookup [static_cast<int>(x)] = thisPt.second;
-            }*/
-
-        thisPt = nextPt;
-        }
+    render_lookup (); //lägg tillbaks hit
 
     this->redraw();
     }
@@ -312,4 +364,4 @@ void transfer_linear<ELEMTYPE >::transferchart_linear::render_lookup ()
 
 template <class ELEMTYPE>
 transfer_spline<ELEMTYPE >::transfer_spline(image_storage <ELEMTYPE > * s):transfer_interpolated<ELEMTYPE >(s)
-{}
+    {}

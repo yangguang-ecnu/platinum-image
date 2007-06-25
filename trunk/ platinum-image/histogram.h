@@ -126,6 +126,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
     //thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
     virtual bool ready ()
         {return this->readytorender;}   
+    image_storage<ELEMTYPE> * image ();
     };
 
 

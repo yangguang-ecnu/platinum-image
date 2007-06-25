@@ -29,6 +29,13 @@ transfer_base<ELEMTYPE >::~transfer_base ()
     {
     }
 
+template <class ELEMTYPE >
+void transfer_base<ELEMTYPE >::redraw_image_cb( Fl_Widget* o, void* p )
+    {
+    REDRAWCALLBACKPTYPE theImage = reinterpret_cast<REDRAWCALLBACKPTYPE > (p);
+    theImage->redraw();
+    }
+
 /*template <class ELEMTYPE >
 void transfer_base::finish ()
     {
@@ -112,7 +119,7 @@ transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):
 
     frame->end();
 
-    this->refresh();
+    this->update();
     }
 
 template <class ELEMTYPE >
@@ -215,7 +222,7 @@ transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):tr
 
     this->pane->end();
 
-    this->refresh();
+    this->update();
     }
 
 /*
@@ -265,7 +272,7 @@ std::string templ_to_string (unsigned char t)
     }*/
 
 template <class ELEMTYPE >
-void transfer_default<ELEMTYPE >::refresh()
+void transfer_default<ELEMTYPE >::update()
     {
     std::string label = templ_to_string (this->source->get_min());
     black->copy_label(label.c_str());

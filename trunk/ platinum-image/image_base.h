@@ -60,6 +60,8 @@ class image_base : public data_base
         image_base();
         image_base(image_base* s);
 
+        void redraw();
+
         // *** cached data ***
 
         Matrix3D unit_to_voxel_;    //cached transform from unit space to voxels space
@@ -94,7 +96,6 @@ class image_base : public data_base
                                                                     //when other kinds than 3D images are implemented,
                                                                     //one might want to make these dimensionality-independent 
                                                                     //like get_size_by_dim(int dim)
-        virtual void redraw ();
         
         virtual float get_max_float() = 0;    //return max/min values in type-independent form     
         virtual float get_min_float() = 0;
@@ -112,7 +113,7 @@ class image_base : public data_base
 
         Vector3D transform_unit_to_voxel(Vector3D pos);
         
-        virtual void image_has_changed(bool stats_refresh = false) {};
+         virtual void image_has_changed(bool stats_refresh = true) = 0;
         // *** access methods ***
 
         virtual Matrix3D get_voxel_resize () = 0;
