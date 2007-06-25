@@ -17,24 +17,24 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#define TFUNCTIONTEST transfer_linear
+#define TFUNCTIONTEST transfer_default
 
 template <class fromType, class toType>
 void copy_data( image_storage<fromType > * in,image_storage<toType > * out) //!General data copying
     {
+    std::copy (in->begin(),in->end(),out->begin());
+
     /*typename image_storage<fromType >::iterator i = in->begin();
     typename image_storage<toType >::iterator   o = out->begin();
 
     while (i != in->end() && o != out->end())
-        {
-        *o = *i;
+    {
+    *o = *i;
 
-        ++i; ++o;
-        }*/
+    ++i; ++o;
+    }
 
-    std::copy (in->begin(),in->end(),out->begin());
-
-    //pt_error::error_if_false(i == in->end() && o == out->end(),"Image sizes didn't match when copying data",pt_error::serious);
+    pt_error::error_if_false(i == in->end() && o == out->end(),"Image sizes didn't match when copying data",pt_error::serious); */
     }
 
 //template <class fromType>
