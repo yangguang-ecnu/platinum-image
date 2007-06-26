@@ -71,33 +71,33 @@ histogram_1D<ELEMTYPE>::histogram_1D (ELEMTYPE * start,ELEMTYPE * end ):histogra
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
-{
+    {
     if (new_num_buckets !=0 || this->buckets==NULL)
         //resize(...) isn't used here because this function is called from resize,
         //however the above condition will be false in that case
         {
         if (new_num_buckets !=0)    //change #buckets
             {this->num_buckets=new_num_buckets;}
-        
+
         hi_low = 0;
         hi_hi =0;
-        
+
         this->buckets=new unsigned long [this->num_buckets];
         }
-    
+
     this->max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
     this->min_value = std::numeric_limits<ELEMTYPE>::max();
     this->num_distinct_values = 0;
     this->bucket_max=0;
-    
+
     //get pointer to source data
     //since histogram_typed is instantiated with a particular type, the commented-out image reference acquisition below may not work at all.
     /*if (this->threshold.id[0] != 0)
-        {
-        image_base * i = datamanagement.get_image(this->threshold.id[0]);
-        this->images[0] = dynamic_cast<image_storage<ELEMTYPE>>(i);
-        }*/
-    
+    {
+    image_base * i = datamanagement.get_image(this->threshold.id[0]);
+    this->images[0] = dynamic_cast<image_storage<ELEMTYPE>>(i);
+    }*/
+
     if (this->i_start == NULL)
         {
         // retrieve pointers to image data, iterating pointers are generally a bad idea
@@ -106,58 +106,59 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         this->i_start = this->images[0]->begin().pointer();
         this->i_end = this->images[0]->end().pointer();
         }
-    
+
     this->readytorender=(this->i_start != NULL);
-    
+
     if (this->readytorender)
         {
         //reset buckets
-        
+
         for (unsigned short i = 0; i < this->num_buckets; i++)
             {
             this->buckets[i]=0;
             }
-        
+
         //ready to calculate, actually
-        
+
         float typeMax = std::numeric_limits<ELEMTYPE>::max();
         float typeMin = std::numeric_limits<ELEMTYPE>::min();
-        
+
         float scalefactor=(this->num_buckets-1)/(typeMax-typeMin);
         unsigned short bucketpos;
-        
+
         ELEMTYPE * voxel;
-        
+
         for (voxel = this->i_start;voxel != this->i_end;++voxel)
             {
             bucketpos=((*voxel)-std::numeric_limits<ELEMTYPE>::min())*scalefactor;
-            
+
             //calculate distinct value count
             if (this->buckets[bucketpos] == 0)
                 {this->num_distinct_values++;}
-            
-            //increment bucket and update bucket_max
-            this->bucket_max=std::max(this->buckets[bucketpos]++,this->bucket_max);
-            
-            //calculate min/max
+
+            //increment bucket 
+            this->buckets[bucketpos]++;
+
+            //update bucket_max
             if (*voxel != 0 &&  *voxel != 1) //! feature: ignore 0 and true to get more sensible display scaling
-                {
-                this->min_value = std::min (this->min_value,*voxel);
-                this->max_value = std::max (this->max_value,*voxel);
-                }
+                { this->bucket_max=std::max(this->buckets[bucketpos],this->bucket_max); }
+
+            //calculate min/max
+            this->min_value = std::min (this->min_value,*voxel);
+            this->max_value = std::max (this->max_value,*voxel);
             }
-        
+
         this->bucket_mean=0;
         for (unsigned short i = 0; i < this->num_buckets; i++)
             {
             this->bucket_mean+=this->buckets[i]/(this->num_buckets);
             }
-        
+
         //if # buckets are less than # values, distinct value count will be incorrect
         if (this->num_buckets < std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())
             {this->num_distinct_values = 0;}
         }
-}
+    }
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::render (unsigned char * image, unsigned int width,unsigned int height)

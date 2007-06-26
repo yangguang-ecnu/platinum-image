@@ -112,15 +112,19 @@ image_storage<ELEMTYPE >::~image_storage()
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)
     {
-   if (tfunction != NULL)
-        {delete tfunction;}
-
-    if (t == NULL)
-        {
-        tfunction = new TFUNCTIONTEST<ELEMTYPE >(this);
+    if (t == NULL) //default
+        { 
+        if (tfunction == NULL)
+            {tfunction = new TFUNCTIONTEST<ELEMTYPE >(this); }
+        //else, do nothing since a transfer function was assigned elsewhere
         }
     else
-        { tfunction = t; }
+        { 
+        if (tfunction != NULL)
+            {delete tfunction;}
+
+        tfunction = t;
+        }
     }
 
 /*
