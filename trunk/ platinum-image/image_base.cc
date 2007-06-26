@@ -404,7 +404,7 @@ image_base * analyze_hdrloader::read(std::vector<std::string> &files)
             hdr.read((char*)readbuf,4);
             int sizeof_hdr=buf2int(readbuf);
             count+=4;
-            hdr.read((char*)readbuf,36); //Skip
+			hdr.ignore(36); //Skip
             hdr.read((char*)readbuf,2);
             short endian=buf2short(readbuf);
             bigEndian = ((endian >= 0) && (endian <= 15));
@@ -414,7 +414,7 @@ image_base * analyze_hdrloader::read(std::vector<std::string> &files)
             size[1]=buf2short(readbuf);
             hdr.read((char*)readbuf,2);
             size[2]=buf2short(readbuf);
-            hdr.read((char*)readbuf,22); //Skip
+			hdr.ignore(22); //Skip
             hdr.read((char*)readbuf,2);
             short datatype=buf2short(readbuf);
             switch (datatype) {	      
