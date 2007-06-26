@@ -44,15 +44,15 @@ class histogram_1D;
 template <class ELEMTYPE >
 class transfer_interpolated;
 
-class transferfactory;
 class transferchart;
 
 #define REDRAWCALLBACKPTYPE image_storage<ELEMTYPE > * 
 
 class transfer_manufactured //! Sub-base class that holds the static factory object
-{
-	static transferfactory factory;
-};
+    {
+    public:
+        static transferfactory factory; //instatiated in transferfactory.cc
+    };
 
 template <class ELEMTYPE >
 class transfer_base: public transfer_manufactured

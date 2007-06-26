@@ -21,6 +21,7 @@
 
 #include "datamanager.h"
 #include "rendermanager.h"
+#include "transfer.h"
 
 using namespace std;
 
@@ -30,32 +31,45 @@ extern uchar *animage; //defined in datamanager.cc
 
 const int datawidget::thumbnail_size = 128;
 
+void datawidget::cb_transferswitch(Fl_Widget* o, void* v) {
+    //Each item has space for a callback function and an argument for that function. Due to back compatability, the Fl_Menu_Item itself is not passed to the callback, instead you have to get it by calling  ((Fl_Menu_*)w)->mvalue()  where w is the widget argument.
+
+    const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
+
+    //var är datawidgeten i detta?
+    }
+
 // *** begin FLUID ***
 
 void datawidget::cb_filenamebutton_i(Fl_Input*, void*) {
-    datamanagement.set_image_name(image_id,string(filenamebutton->value()));
-    }
+  datamanagement.set_image_name(image_id,string(filenamebutton->value()));
+}
 void datawidget::cb_filenamebutton(Fl_Input* o, void* v) {
-    ((datawidget*)(o->parent()->parent()))->cb_filenamebutton_i(o,v);
-    }
+  ((datawidget*)(o->parent()->parent()))->cb_filenamebutton_i(o,v);
+}
 
 Fl_Menu_Item datawidget::menu_featuremenu[] = {
  {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Save as VTK...", 0,  (Fl_Callback*)datamanager::save_vtk_image_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Duplicate", 0,  0, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
- {"Transfer function", 0,  (Fl_Callback*)toggle_tfunction, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Transfer function", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Show/hide", 0,  (Fl_Callback*)toggle_tfunction, 0, 128, FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0}
 };
 Fl_Menu_Item* datawidget::remove_mi = datawidget::menu_featuremenu + 0;
 Fl_Menu_Item* datawidget::save_vtk_mi = datawidget::menu_featuremenu + 1;
 Fl_Menu_Item* datawidget::duplicate_mi = datawidget::menu_featuremenu + 2;
-Fl_Menu_Item* datawidget::transferfunction_mi = datawidget::menu_featuremenu + 3;
+Fl_Menu_Item* datawidget::tfunctionmenu = datawidget::menu_featuremenu + 3;
+Fl_Menu_Item* datawidget::transferfunction_mi = datawidget::menu_featuremenu + 4;
 
-datawidget::datawidget(int datatype,int id, std::string n): Fl_Pack(0,0,270,130,NULL) {
+// *** custom constructor declared in FLUID: ***
 
+datawidget::datawidget(int datatype,int id, std::string n):Fl_Pack(0,0,270,130,NULL) {
     image_id = id;
     thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];
-    //type(VERTICAL);
+
+    // *** resume FLUID inits ***
 
     datawidget *o = this;
     o->box(FL_THIN_DOWN_FRAME);
@@ -78,6 +92,9 @@ datawidget::datawidget(int datatype,int id, std::string n): Fl_Pack(0,0,270,130,
             { Fl_Menu_Button* o = featuremenu = new Fl_Menu_Button(240, 0, 30, 25);
             o->box(FL_THIN_UP_BOX);
             o->user_data((void*)(this));
+                { Fl_Menu_Item* o = &menu_featuremenu[3];
+                setup_transfer_menu (o);
+                }
             o->menu(menu_featuremenu);
             }
         resizable(filenamebutton);
@@ -106,8 +123,40 @@ datawidget::datawidget(int datatype,int id, std::string n): Fl_Pack(0,0,270,130,
     end();
     }
 
-
 // *** end FLUID ***
+
+void datawidget::setup_transfer_menu(Fl_Menu_Item* submenuitem) {
+    Fl_Menu_Item toggle_item;
+
+    toggle_item.label("Show/hide");
+    toggle_item.shortcut (0);
+    toggle_item.callback(static_cast<Fl_Callback*>(toggle_tfunction));
+    toggle_item.user_data(NULL);
+    toggle_item.flags = 128;
+    toggle_item.labeltype(FL_NORMAL_LABEL);
+    toggle_item.labelfont(0);
+    toggle_item.labelsize(14);
+    toggle_item.labelcolor(0);
+
+    Fl_Menu_Item * tfunctions = transfer_manufactured::factory.function_menu(static_cast<Fl_Callback*>(cb_transferswitch));
+
+    int subMenuSize = 1+fl_menu_size (tfunctions);
+
+    tfunction_submenu = new Fl_Menu_Item [subMenuSize+1];
+
+    tfunction_submenu[0] = toggle_item;
+    for (int i = 0; i < subMenuSize -1; i++)
+        {
+        tfunction_submenu [i+1] = tfunctions[i];
+        }
+    tfunction_submenu[subMenuSize-1].label(NULL);
+
+    submenuitem->flags = FL_SUBMENU_POINTER;
+
+    submenuitem->user_data (tfunction_submenu);
+
+    delete [] tfunctions;
+    }
 
 Fl_Group * datawidget::reset_tf_controls()
     {

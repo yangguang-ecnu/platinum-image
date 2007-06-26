@@ -20,6 +20,7 @@
 #include "datawidget.h"
 
 #include "FLTKutilities.h"
+#include "transfer.h"
 
 /*transferswitcher::transferswitcher(int X, int Y, int W, int H, const char *L)
 : Fl_Group(X, Y, W, H, L) {
@@ -41,6 +42,8 @@ void transferswitcher::resize(int x,int y,int w,int h) {
     //switchbtn new size & pos
     }*/
 
+transferfactory transfer_manufactured::factory = transferfactory();
+
 transferfactory::transferfactory ()
     {
     num_items = 0;
@@ -60,11 +63,11 @@ transfer_base<ELEMTYPE > * transferfactory::Create(factoryIdType unique_id,image
 
     }
 
-Fl_Menu * transferfactory::function_menu (Fl_Callback * cb) //! get menu 
+Fl_Menu_Item * transferfactory::function_menu (Fl_Callback * cb) //! get menu 
     {
     Fl_Menu_Item * fmenu;
 
-    fmenu = new Fl_Menu_Item [num_items];
+    fmenu = new Fl_Menu_Item [num_items+1];
 
     for (int m=0; m < num_items; m++)
         {
@@ -75,6 +78,8 @@ Fl_Menu * transferfactory::function_menu (Fl_Callback * cb) //! get menu
         fmenu[m].argument(m);
         fmenu[m].flags = FL_MENU_RADIO;
         }
+
+    fmenu[num_items-1].label(NULL);
 
     return fmenu;
 	}
