@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -19,7 +19,9 @@
 
 #include "datawidget.h"
 
-transferswitcher::transferswitcher(int X, int Y, int W, int H, const char *L)
+#include "FLTKutilities.h"
+
+/*transferswitcher::transferswitcher(int X, int Y, int W, int H, const char *L)
 : Fl_Group(X, Y, W, H, L) {
     transferswitcher *o = this;
         { Fl_Menu_Button* o = switchbtn = new Fl_Menu_Button(120, 0, 100, 15, "Default");
@@ -37,4 +39,42 @@ void transferswitcher::clear() {
 void transferswitcher::resize(int x,int y,int w,int h) {
     Fl_Group::resize(x,y,w,h);
     //switchbtn new size & pos
+    }*/
+
+transferfactory::transferfactory ()
+    {
+    num_items = 0;
+
+    while  (tfunction_names[num_items] != "")
+        { num_items++; }
     }
+
+transferfactory::~transferfactory()
+    { }
+
+template <class ELEMTYPE >
+transfer_base<ELEMTYPE > * transferfactory::Create(factoryIdType unique_id,image_storage<ELEMTYPE > * s)
+    {
+    if (unique_id == tfunction_names [0] )
+        {return transfer_default<ELEMTYPE>(s);}
+
+    }
+
+Fl_Menu * transferfactory::function_menu (Fl_Callback * cb) //! get menu 
+    {
+    Fl_Menu_Item * fmenu;
+
+    fmenu = new Fl_Menu_Item [num_items];
+
+    for (int m=0; m < num_items; m++)
+        {
+        init_fl_menu_item(fmenu[m]);
+
+        fmenu[m].label(tfunction_names[m].c_str());
+        fmenu[m].callback(cb);
+        fmenu[m].argument(m);
+        fmenu[m].flags = FL_MENU_RADIO;
+        }
+
+    return fmenu;
+	}

@@ -37,26 +37,43 @@
 #include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Box.H>
 
-
 #define DATAHANDLER_VOLUME_3D 1
 #define DATAHANDLER_VECTOR_3D 2
 #define DATAHANDLER_PIXMAP 3
 
 #include "global.h"
 
+#include "listedfactory.h"
+
 #define MAXDATANAME 512
 
-// begin transferswitcher.fl
+const std::string tfunction_names[] =
+    {"Default",
+    "Brightness/contrast",
+    "Labels",
+    "Linear",
+    "Spline","" };
 
-class transferswitcher : public Fl_Group {
-public:
-  transferswitcher(int X, int Y, int W, int H, const char *L = 0);
-  Fl_Menu_Button *switchbtn;
-  void clear();
-  virtual void resize(int x,int y,int w,int h);
-};
+template <class ELEMTYPE >
+class transfer_base;
 
-// end transferswitcher.fl
+template <class ELEMTYPE >
+class image_storage;
+
+class transferfactory //! transfer gets its own object factory type because constructors for templated classes cannot be stored
+    {
+    protected:
+        int num_items;
+    public:
+        transferfactory ();
+
+        ~transferfactory();
+
+        template <class ELEMTYPE >
+            transfer_base<ELEMTYPE > * Create(factoryIdType unique_id,image_storage<ELEMTYPE > * s);
+
+        Fl_Menu * function_menu (Fl_Callback * cb);
+    };
 
 class datawidget : public Fl_Pack {
 public:
@@ -86,12 +103,12 @@ public:
     datawidget(int datatype,int id, std::string n);
     void tfunction(Fl_Group * t);;
     static void toggle_tfunction(Fl_Widget* callingwidget, void*);
-    transferswitcher * reset_tf_controls();
+    Fl_Group * reset_tf_controls();
 
     // *** end of Fluid ***
 
     private:
-    transferswitcher *tfunction_;
+    Fl_Group *tfunction_;
 
 protected:
     bool fromFile; ///indicates whether the data was created inside the program and perhaps needs to be saved;
