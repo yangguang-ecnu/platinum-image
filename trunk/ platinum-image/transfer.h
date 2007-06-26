@@ -23,9 +23,6 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-// *** NOTE: work on this class is at a preliminary stage and may change
-// in major ways ***
-
 #ifndef __transfer__
 #define __transfer__
 
@@ -33,6 +30,7 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Slider.H>
+#include <FL/Fl_Menu_Button.H>
 
 #include "color.h"
 #include "listedfactory.h"
@@ -59,6 +57,18 @@ const std::string tfunction_names[] =
     "Labels",
     "Linear",
     "Spline","" };
+
+// begin transferswitcher.fl
+
+class tcontrolpane : public Fl_Group {
+public:
+    tcontrolpane(int X, int Y, int W, int H, const char *L = 0);
+    Fl_Menu_Button *switchbtn;
+    void clear();
+    virtual void resize(int,int,int,int);
+    };
+
+// end transferswitcher.fl
 
 class transfer_manufactured //! Sub-base class that holds the static factory object
 {
@@ -184,7 +194,6 @@ protected:
         Fl_RGB_Image			        * histimg;	//keeps the histogram background layer
         points_seq_func1D<float,float>	intensity_knots;		//used for anchor points handling and interpolation 
                                                                 //knots are of course also wanted for R,G,B, respectively.
-        //float leftBound,rightBound;
 
         void calc_lookup_params (int newSize = 0);
         virtual void update () = 0;
@@ -200,7 +209,6 @@ public:
 protected:
     transferchart * chart;
     transfer_interpolated (image_storage <ELEMTYPE > * s);
-    //		virtual void recalculate_lookup()=0;
 public:
         virtual ~transfer_interpolated();
     void get (const ELEMTYPE v, RGBvalue &p);
@@ -214,8 +222,6 @@ class transfer_linear: public transfer_interpolated <ELEMTYPE >
     protected:
         class transferchart_linear: public transfer_interpolated<ELEMTYPE >::transferchart
             {
-            protected:
-                void render_lookup();
             public:
                 transferchart_linear (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h);
 

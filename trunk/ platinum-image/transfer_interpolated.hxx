@@ -76,41 +76,6 @@ void transfer_interpolated<ELEMTYPE >::transferchart::calc_lookup_params (int ne
     }
 
 template <class ELEMTYPE>
-void transfer_linear<ELEMTYPE >::transferchart_linear::render_lookup()
-    {
-    // *** render lookup chart
-    std::map<float,float>::iterator MITR = intensity_knots.begin();
-    std::map<float,float>::iterator MEND = intensity_knots.end();
-
-    std::pair<float,float> thisPt,nextPt;
-
-    thisPt = *MITR;
-    ++MITR;
-
-    for (;MITR != MEND;MITR++)
-        {
-        nextPt = *MITR;
-
-        unsigned long deltaX = nextPt.first - thisPt.first;
-
-        float slope = (nextPt.second-thisPt.second)/deltaX;
-
-        for (unsigned long p = 0;p < min(deltaX,lookupSize); p++)
-            {
-            int x = p + static_cast<int>(thisPt.first);
-            float value = thisPt.second + (p*slope);
-            lookup [x] = value;
-            }
-        /*for (float x = 0;x < min(deltaX, static_cast<float>(lookupSize)); x++)
-        {
-        lookup [static_cast<int>(x)] = thisPt.second;
-        }*/
-
-        thisPt = nextPt;
-        }
-    }
-
-template <class ELEMTYPE>
 int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 {
 	float t_x = -1;		//event x position (in transfer (knots) coordinates)
@@ -203,6 +168,11 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
 
     if (histogram != NULL) //image may be uninitialized and have no histogram, just skip
         {
+
+        //TODO: find out why uncache doesn't work as expected (crashes) on OSX
+        //and us it to speed this up
+        // http://www.fltk.org/articles.php?L466
+
         /*if (histimg != NULL)
         {
         if (histimg->w() != w() || histimg->h() != h())
@@ -228,9 +198,7 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
             histimg = new Fl_RGB_Image(imgdata,w(), h(), 3);
             }
 
-        //TODO: find out why uncache doesn't work as expected (crashes) on OSX
-        //and us it to speed this up
-        // http://www.fltk.org/articles.php?L466
+       
 
         histogram->render(imgdata,histimg->w(),histimg->h());
         histimg->draw(x(),y()); 
@@ -239,22 +207,7 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
         histimg = NULL;
         }
 
-    //curve
-    /*float xStep = (float)lookupSize/(float)w();
-    float yScale = (float)h()/(float)IMGELEMCOMPMAX;
-    float start = x();
-    int p_end = w();
-    float startY = y()+h();
-
-    fl_color(FL_YELLOW);
-
-    if (p_end > 0)
-    {
-    for (int p = 0; p < p_end - 1 ; p++)
-    {
-    fl_line(start+p, startY-yScale*lookup[static_cast<int>(std::floor(p*xStep))],start+(p+1), startY-yScale*lookup[static_cast<int>(std::floor((p+1)*xStep))] );
-    }
-    }*/
+    // *** draw curve ***
 
     float xStep = (float)lookupSize/(float)w();
     float yScale = (float)h()/(float)IMGELEMCOMPMAX;
@@ -344,19 +297,44 @@ transfer_linear<ELEMTYPE >::transfer_linear(image_storage <ELEMTYPE > * s):trans
 template <class ELEMTYPE >
 transfer_linear<ELEMTYPE >::transferchart_linear::transferchart_linear (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h): transfer_interpolated<ELEMTYPE >::transferchart (hi, x, y, w, h)
 {
-    //test pattern
-    /*for (unsigned int i = 0; i < this->lookupSize; i++)
-        {this->lookup[i] = ((i*4) % static_cast<int>(IMGELEMCOMPMAX));}*/ 
     update(); //must be called here, base class constructor gets the abstract one
 }
 
 template <class ELEMTYPE >
 void transfer_linear<ELEMTYPE >::transferchart_linear::update ()
     {
+    //this function may be called when the *image* has changed;
+    //first recalculate min/max etc.
     calc_lookup_params();
 
-    render_lookup (); //lägg tillbaks hit
+    //render lookup chart
+    std::map<float,float>::iterator MITR = intensity_knots.begin();
+    std::map<float,float>::iterator MEND = intensity_knots.end();
 
+    std::pair<float,float> thisPt,nextPt;
+
+    thisPt = *MITR;
+    ++MITR;
+
+    for (;MITR != MEND;MITR++)
+        {
+        nextPt = *MITR;
+
+        unsigned long deltaX = nextPt.first - thisPt.first;
+
+        float slope = (nextPt.second-thisPt.second)/deltaX;
+
+        for (unsigned long p = 0;p < min(deltaX,lookupSize); p++)
+            {
+            int x = p + static_cast<int>(thisPt.first);
+            float value = thisPt.second + (p*slope);
+            lookup [x] = value;
+            }
+
+        thisPt = nextPt;
+        }
+
+    //redraw to show changes
     this->redraw();
     }
 
