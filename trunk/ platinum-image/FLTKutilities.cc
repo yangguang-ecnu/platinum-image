@@ -36,6 +36,18 @@ void init_fl_menu_item(Fl_Menu_Item & m)
     m.labelcolor(FL_BLACK);
     }
 
+int fl_menu_size (Fl_Menu_Item * m)
+    {
+    if (m != 0)
+        {
+        for (int i = 0; m[i].label() !=NULL;i++)
+            {}
+        return i;
+        }
+
+    return -1;
+    }
+
 horizresizeablescroll::horizresizeablescroll (int x, int y, int w, int h, const char *label) : Fl_Scroll (x,y,w,h,label)
     {
     //children are deleted automatically with parents, so  

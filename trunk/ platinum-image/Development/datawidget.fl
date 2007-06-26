@@ -3,26 +3,28 @@ version 1.0107
 header_name {.h} 
 code_name {.cc}
 widget_class {datamanagement.add_datawidget(this);} datawidget {open
-  private xywh {733 481 270 130} type Double box THIN_DOWN_FRAME
+  private xywh {837 495 270 130} type Double box THIN_DOWN_FRAME
   code0 {type(VERTICAL);}
   code1 {resizable(extras);}
   code2 {name(n);}
   code3 {datamanagement.add_datawidget(this);}
   class Fl_Pack visible
 } {
-  decl {int volume_id;} {}
+  Function {datawidget(int datatype,int id, std::string n):Fl_Pack(0,0,270,130,NULL)} {open
+  } {
+    code {image_id = id;
+thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
+  }
+  decl {int image_id;} {}
   decl {const static int thumbnail_size;} {}
   decl {uchar * thumbnail_image;} {}
   decl {std::string _name;} {}
   decl {enum {remove_mi_num=0,save_mi_num, dup_mi_num};} {}
-  Function {datawidget(int datatype,int id, std::string n):datawidget(0,0,270,130)} {open
-  } {
-    code {volume_id = id;
-thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
-  }
-  Function {tfunction(Fl_Group * t);} {open return_type void
+  Function {cb_transferswitch(Fl_Widget* o, void* v)} {open selected return_type {static void}
   } {}
   Function {toggle_tfunction(Fl_Widget* callingwidget, void*)} {open return_type {static void}
+  } {}
+  Function {setup_transfer_menu(Fl_Menu_Item* submenuitem)} {open return_type void
   } {}
   Fl_Pack hpacker {open
     private xywh {0 0 270 25} type HORIZONTAL
@@ -30,7 +32,7 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
   } {
     Fl_Input filenamebutton {
       user_data this
-      callback {datamanagement.set_volume_name(volume_id,string(filenamebutton->value()));}
+      callback {datamanagement.set_image_name(image_id,string(filenamebutton->value()));}
       private xywh {0 0 240 25} color 50 align 20 resizable
     }
     Fl_Menu_Button featuremenu {
@@ -46,17 +48,23 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
       MenuItem save_vtk_mi {
         label {Save as VTK...}
         user_data {&datamanagement}
-        callback {datamanager::save_vtk_volume_callback}
+        callback {datamanager::save_vtk_image_callback}
         xywh {5 5 100 20} labelsize 14
       }
       MenuItem duplicate_mi {
         label Duplicate
         xywh {5 5 100 20} labelsize 14 deactivate
       }
-      MenuItem transferfunction_mi {
-        label {Transfer function}
-        callback toggle_tfunction
-        xywh {5 5 100 20} labelsize 14
+      Submenu tfunctionmenu {
+        label {Transfer function} open
+        xywh {0 0 100 20} labelsize 14
+        code0 {setup_transfer_menu (o);}
+      } {
+        MenuItem transferfunction_mi {
+          label {Show/hide}
+          callback toggle_tfunction
+          xywh {10 10 100 20} labelsize 14 divider
+        }
       }
     }
   }
@@ -68,11 +76,15 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
   Fl_Pack extras {open
     xywh {0 90 270 40}
   } {
-    Fl_Group tfunction_ {open selected
+    Fl_Group tfunction_ {open
       private xywh {0 90 270 40} box EMBOSSED_FRAME labelsize 11 align 16 hide
-      class transferswitcher
     } {}
   }
+  Function {tfunction(Fl_Group * t);} {open return_type void
+  } {}
   Function {reset_tf_controls()} {open return_type {Fl_Group *}
   } {}
+  Function {make_window()} {open
+  } {}
+  decl {Fl_Menu_Item * tfunction_submenu;} {}
 } 
