@@ -1383,35 +1383,39 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	//Equal neighbour
 	bool* eq_neigh=new bool[number_of_voxels];
 	int n_diff;
+	iter = this->begin();
 	for (i=number_of_voxels-1; i>=counts[0]; i--)//Skip lowest value
 		{
 	    j=sorted_index[i];
-	    n_diff=0;
-	    
-	    z=j/(max_x*max_y);
-	    rest=j-z*(max_x*max_y);
-	    y=rest/max_x;
-	    x=rest-y*max_x;
-
-		if(x>=low_x && x<high_x && y>=low_y && y<high_y && z>=low_z && z<high_z) 
+		if(npt_array[j]!=(*(iter+j))) //Test if changed
 			{
-			for(z2=std::max(low_z,z-1); z2<std::min(high_z,z+2) && n_diff==0; z2++)
+			n_diff=0;
+		    
+			z=j/(max_x*max_y);
+			rest=j-z*(max_x*max_y);
+			y=rest/max_x;
+			x=rest-y*max_x;
+
+			if(x>=low_x && x<high_x && y>=low_y && y<high_y && z>=low_z && z<high_z) 
 				{
-				for(y2=std::max(low_y,y-1); y2<std::min(high_y,y+2) && n_diff==0; y2++)
+				for(z2=std::max(low_z,z-1); z2<std::min(high_z,z+2) && n_diff==0; z2++)
 					{
-					for(x2=std::max(low_x,x-1); x2<std::min(high_x,x+2) && n_diff==0; x2++)
+					for(y2=std::max(low_y,y-1); y2<std::min(high_y,y+2) && n_diff==0; y2++)
 						{
-						k=x2+max_x*(y2+z2*max_y);
-						if(npt_array[k]!=npt_array[j])
+						for(x2=std::max(low_x,x-1); x2<std::min(high_x,x+2) && n_diff==0; x2++)
 							{
-							n_diff++;
-							}										
+							k=x2+max_x*(y2+z2*max_y);
+							if(npt_array[k]!=npt_array[j])
+								{
+								n_diff++;
+								}										
+							}
 						}
 					}
-				}
-			if(n_diff==0)
-				{
-				(*(output_iter+j))=class2;
+				if(n_diff==0)
+					{
+					(*(output_iter+j))=class2;
+					}
 				}
 			}
 		}
@@ -1659,9 +1663,9 @@ void image_integer<ELEMTYPE, IMAGEDIM>::copy(image_integer<ELEMTYPE, IMAGEDIM> *
     {
 	int x,y,z;
 	int max_x, max_y, max_z;
-	max_x=this->get_size_by_dim(0);
-	max_y=this->get_size_by_dim(1);
-	max_z=this->get_size_by_dim(2);
+	max_x=this->get_size_by_dim_and_dir(0,direction);
+	max_y=this->get_size_by_dim_and_dir(1,direction);
+	max_z=this->get_size_by_dim_and_dir(2,direction);
 	if(low_x<0)
 		low_x=0;
 	if(low_y<0)
