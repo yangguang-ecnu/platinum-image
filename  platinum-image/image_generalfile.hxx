@@ -184,7 +184,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(ELEMTYPE * inData, unsigned lon
 
         initialize_dataset (width,height,numElements/(width * height),inData);
 
-        image_has_changed(true);
+        //image_has_changed(true);
         }
     else
         {
@@ -210,7 +210,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
 
         name_from_path (files.front());
 
-        image_has_changed(true);
+        //image_has_changed(true);
         }
     else
         {
