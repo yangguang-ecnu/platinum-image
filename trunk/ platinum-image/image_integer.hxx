@@ -631,6 +631,66 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::gauss_fit2()
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::otsu()
+    {
+	this->min_max_refresh();
+	ELEMTYPE min_val=this->get_min();
+	ELEMTYPE max_val=this->get_max();
+	ELEMTYPE err_min_ind=max_val;
+	double* hist=new double[1+max_val-min_val];
+	memset(hist, 0, sizeof(double)*(1+max_val-min_val));
+
+    typename image_storage<ELEMTYPE >::iterator i = this->begin();
+    
+    while (i != this->end()) //images are same size and should necessarily end at the same time
+        {
+        hist[*i-min_val]++;
+        ++i;
+        }
+
+	//Test all threshold values
+	double sum1=0;
+	double sum2=0;
+	double n1=0;
+	double n2=0;
+	double cumSum=0;
+	double cumSum_2=0;
+	double cumN=0;
+
+	int j;
+	for(j=min_val; j<=max_val; j++)
+		{
+		cumSum+=j*hist[j-min_val];
+		cumSum_2+=j*j*hist[j-min_val];
+		cumN+=hist[j-min_val];
+		}
+	double maxvar=0;
+	ELEMTYPE optthr=0;
+	for(j=min_val; j<=max_val; j++)
+		{
+		//Compute mean and std
+		sum1+=j*hist[j-min_val];
+		n1+=hist[j-min_val];
+		sum2=cumSum-sum1;
+		n2=cumN-n1;		
+
+		if(n1>0 && n2>0)
+			{
+			double mean1=sum1/n1;
+			double mean2=sum2/n2;
+			double betweenvar=n1*n2*(mean1-mean2)*(mean1-mean2)/(n1+n2);
+			if(betweenvar>maxvar)
+				{
+				maxvar=betweenvar;
+				optthr=j;
+				}
+			}
+		}
+
+	return optthr;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::components_hist_3D()
     {
 	this->min_max_refresh();
