@@ -91,12 +91,6 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
     this->bucket_max=0;
 
     //get pointer to source data
-    //since histogram_typed is instantiated with a particular type, the commented-out image reference acquisition below may not work at all.
-    /*if (this->threshold.id[0] != 0)
-    {
-    image_base * i = datamanagement.get_image(this->threshold.id[0]);
-    this->images[0] = dynamic_cast<image_storage<ELEMTYPE>>(i);
-    }*/
 
     if (this->i_start == NULL)
         {
@@ -157,6 +151,12 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         //if # buckets are less than # values, distinct value count will be incorrect
         if (this->num_buckets < std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())
             {this->num_distinct_values = 0;}
+        }
+    else
+        {
+        //no calculation was done, set sensible values
+        this->max_value = std::numeric_limits<ELEMTYPE>::max(); 
+        this->min_value = std::numeric_limits<ELEMTYPE>::min();
         }
     }
 

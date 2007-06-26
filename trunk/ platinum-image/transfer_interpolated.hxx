@@ -71,8 +71,8 @@ void transfer_interpolated<ELEMTYPE >::transferchart::calc_lookup_params (int ne
         }
 
     lookupStart = histogram->min();
-    lookupScale = lookupSize/(histogram->max()-histogram->min());
-    lookupEnd = histogram->max()*lookupScale + lookupStart;
+    lookupScale = static_cast<float>(lookupSize)/(histogram->max()-histogram->min());
+    lookupEnd = histogram->max();
     }
 
 template <class ELEMTYPE>

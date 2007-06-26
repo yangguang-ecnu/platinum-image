@@ -17,7 +17,7 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#define TFUNCTIONTEST transfer_default
+#define TFUNCTIONTEST transfer_linear
 
 template <class fromType, class toType>
 void copy_data( image_storage<fromType > * in,image_storage<toType > * out) //!General data copying
@@ -97,16 +97,16 @@ image_storage<ELEMTYPE >::image_storage(image_storage<SOURCETYPE> * s):image_bas
 template <class ELEMTYPE >
 image_storage<ELEMTYPE >::~image_storage()
     {
-    if (imagepointer() != NULL)
-        { deallocate(); }
-
     delete tfunction;
 
     if (stats != NULL)
         { delete stats; }
 
-    minvalue=std::numeric_limits<ELEMTYPE>::min();
-    maxvalue=std::numeric_limits<ELEMTYPE>::max();
+    if (imagepointer() != NULL)
+        { deallocate(); }
+
+    //minvalue=std::numeric_limits<ELEMTYPE>::min();
+    //maxvalue=std::numeric_limits<ELEMTYPE>::max();
     }
 
 template <class ELEMTYPE >
