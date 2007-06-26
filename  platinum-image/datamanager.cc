@@ -295,7 +295,7 @@ void datamanager::loadimage_callback(Fl_Widget *callingwidget, void *thisdataman
 
 void datamanager::loadimages() // argument must tell us which instance, if multiple
     {
-    Fl_File_Chooser chooser(".","Any file - raw (*)\tVisualization Toolkit image (*.vtk)\tTyped DICOM file (*.dcm)\tAnalyze .hdr image (*.hdr)",Fl_File_Chooser::MULTI,"Load VTK/DICOM image");
+    Fl_File_Chooser chooser(".","Any file - raw (*)\tVisualization Toolkit image (*.vtk)\tTyped DICOM file (*.dcm)\tAnalyze .hdr image (*.hdr)\tAnalyze .obj image (*.obj)",Fl_File_Chooser::MULTI,"Load VTK/DICOM image");
 
     chooser.show();
 
