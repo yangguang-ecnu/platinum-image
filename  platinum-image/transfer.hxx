@@ -36,12 +36,6 @@ void transfer_base<ELEMTYPE >::redraw_image_cb( Fl_Widget* o, void* p )
     theImage->redraw();
     }
 
-/*template <class ELEMTYPE >
-void transfer_base::finish ()
-    {
-    pane->end();
-    }*/
-
 // *** transfer_brightnesscontrast ***
 
 template <class ELEMTYPE >
