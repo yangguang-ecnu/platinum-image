@@ -90,7 +90,7 @@ datawidget::datawidget(int datatype,int id, std::string n): Fl_Pack(0,0,270,130,
         image( NULL);
         }
         { Fl_Pack* o = extras = new Fl_Pack(0, 90, 270, 40);
-        { Fl_Group* o = tfunction_ = new transferswitcher(0, 90, 270, 40);
+        { Fl_Group* o = tfunction_ = new Fl_Group(0, 90, 270, 40);
         o->box(FL_EMBOSSED_FRAME);
         o->labelsize(11);
         o->align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
@@ -109,7 +109,7 @@ datawidget::datawidget(int datatype,int id, std::string n): Fl_Pack(0,0,270,130,
 
 // *** end FLUID ***
 
-transferswitcher * datawidget::reset_tf_controls()
+Fl_Group * datawidget::reset_tf_controls()
     {
     tfunction_->clear();
     tfunction_->begin();

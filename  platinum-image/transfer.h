@@ -32,7 +32,6 @@
 #include <FL/Fl_Slider.H>
 
 #include "color.h"
-#include "listedfactory.h"
 #include "FLTKutilities.h"
 #include "points_seq_func1D.h"	//used for spline/linear knots
 
@@ -50,13 +49,6 @@ class transferchart;
 
 #define REDRAWCALLBACKPTYPE image_storage<ELEMTYPE > * 
 
-const std::string tfunction_names[] =
-    {"Default",
-    "Brightness/contrast",
-    "Labels",
-    "Linear",
-    "Spline","" };
-
 class transfer_manufactured //! Sub-base class that holds the static factory object
 {
 	static transferfactory factory;
@@ -67,7 +59,7 @@ class transfer_base: public transfer_manufactured
     {
     protected:
         image_storage<ELEMTYPE > * source;
-        transferswitcher*  pane;
+        Fl_Group*  pane;
 
         transfer_base (image_storage<ELEMTYPE > * s);
 
@@ -92,52 +84,6 @@ public:
 	void get (const ELEMTYPE v, RGBvalue &p);
 	virtual void update();
 };
-
-class transferfactory //! transfer gets its own object factory type because constructors for templated classes cannot be stored
-{
-protected:
-	int num_items;
-public:
-	transferfactory ()
-	{
-		num_items = 0;
-
-		while  (tfunction_names[num_items] != "")
-		{ num_items++; }
-	}
-
-	~transferfactory()
-	{ }
-
-	template <class ELEMTYPE >
-		transfer_base<ELEMTYPE > *Create(factoryIdType unique_id,image_storage<ELEMTYPE > * s)
-	{
-		if (unique_id == tfunction_names [0] )
-		{return transfer_default<ELEMTYPE>(s);}
-
-	}
-
-	Fl_Menu * function_menu (Fl_Callback * cb) //! get menu 
-	{
-		Fl_Menu_Item * fmenu;
-
-		fmenu = new Fl_Menu_Item [num_items];
-
-		for (int m=0; m < num_items; m++)
-		{
-			init_fl_menu_item(fmenu[m]);
-
-			fmenu[m].label(tfunction_names[m].c_str());
-			fmenu[m].callback(cb);
-			fmenu[m].argument(m);
-			fmenu[m].flags = FL_MENU_RADIO;
-		}
-
-		return fmenu;
-	}
-};
-
-
 
 template <class ELEMTYPE >
 class transfer_brightnesscontrast: public transfer_base <ELEMTYPE >
