@@ -30,7 +30,6 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Slider.H>
-#include <FL/Fl_Menu_Button.H>
 
 #include "color.h"
 #include "listedfactory.h"
@@ -58,18 +57,6 @@ const std::string tfunction_names[] =
     "Linear",
     "Spline","" };
 
-// begin transferswitcher.fl
-
-class tcontrolpane : public Fl_Group {
-public:
-    tcontrolpane(int X, int Y, int W, int H, const char *L = 0);
-    Fl_Menu_Button *switchbtn;
-    void clear();
-    virtual void resize(int,int,int,int);
-    };
-
-// end transferswitcher.fl
-
 class transfer_manufactured //! Sub-base class that holds the static factory object
 {
 	static transferfactory factory;
@@ -80,7 +67,7 @@ class transfer_base: public transfer_manufactured
     {
     protected:
         image_storage<ELEMTYPE > * source;
-        Fl_Group*  pane;
+        transferswitcher*  pane;
 
         transfer_base (image_storage<ELEMTYPE > * s);
 

@@ -68,8 +68,9 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
   Fl_Pack extras {open
     xywh {0 90 270 40}
   } {
-    Fl_Group tfunction_ {open
+    Fl_Group tfunction_ {open selected
       private xywh {0 90 270 40} box EMBOSSED_FRAME labelsize 11 align 16 hide
+      class transferswitcher
     } {}
   }
   Function {reset_tf_controls()} {open return_type {Fl_Group *}

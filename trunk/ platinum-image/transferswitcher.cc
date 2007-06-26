@@ -17,24 +17,24 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "transfer.h"
+#include "datawidget.h"
 
-tcontrolpane::tcontrolpane(int X, int Y, int W, int H, const char *L)
-  : Fl_Group(X, Y, W, H, L) {
-  tcontrolpane *o = this;
-{ Fl_Menu_Button* o = switchbtn = new Fl_Menu_Button(120, 0, 100, 15, "Default");
-  o->labelsize(10);
-}
-end();
-}
+transferswitcher::transferswitcher(int X, int Y, int W, int H, const char *L)
+: Fl_Group(X, Y, W, H, L) {
+    transferswitcher *o = this;
+        { Fl_Menu_Button* o = switchbtn = new Fl_Menu_Button(120, 0, 100, 15, "Default");
+        o->labelsize(10);
+        }
+    end();
+    }
 
-void tcontrolpane::clear() {
-  remove(switchbtn);
-Fl_Group::clear();
-add(switchbtn);
-}
+void transferswitcher::clear() {
+    remove(switchbtn);
+    Fl_Group::clear();
+    add(switchbtn);
+    }
 
-void tcontrolpane::resize(int x,int y,int w,int h) {
-  Fl_Group::resize(x,y,w,h);
-//switchbtn new size & pos
-}
+void transferswitcher::resize(int x,int y,int w,int h) {
+    Fl_Group::resize(x,y,w,h);
+    //switchbtn new size & pos
+    }

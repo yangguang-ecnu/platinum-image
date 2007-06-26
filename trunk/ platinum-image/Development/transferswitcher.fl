@@ -2,7 +2,7 @@
 version 1.0107 
 header_name {.h} 
 code_name {.cc}
-widget_class tcontrolpane {open
+widget_class transferswitcher {open selected
   xywh {583 216 220 65} type Double visible
 } {
   Fl_Menu_Button switchbtn {

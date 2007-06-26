@@ -288,6 +288,7 @@ void transfer_interpolated<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 template <class ELEMTYPE >
 transfer_linear<ELEMTYPE >::transfer_linear(image_storage <ELEMTYPE > * s):transfer_interpolated<ELEMTYPE >(s)
 {
+    //pane->choice ();
     Fl_Group * frame = this->pane;
 
     this->chart = new transferchart_linear (this->source->get_histogram(), frame->x(),frame->y(),frame->w(),frame->h());

@@ -46,6 +46,18 @@
 
 #define MAXDATANAME 512
 
+// begin transferswitcher.fl
+
+class transferswitcher : public Fl_Group {
+public:
+  transferswitcher(int X, int Y, int W, int H, const char *L = 0);
+  Fl_Menu_Button *switchbtn;
+  void clear();
+  virtual void resize(int x,int y,int w,int h);
+};
+
+// end transferswitcher.fl
+
 class datawidget : public Fl_Pack {
 public:
     datawidget(int X, int Y, int W, int H, const char *L = 0);
@@ -70,15 +82,16 @@ private:
     Fl_Box *thumbnail;
 public:
     Fl_Pack *extras;
-private:
-    Fl_Group *tfunction_;
 public:
     datawidget(int datatype,int id, std::string n);
     void tfunction(Fl_Group * t);;
     static void toggle_tfunction(Fl_Widget* callingwidget, void*);
-    Fl_Group * reset_tf_controls();
+    transferswitcher * reset_tf_controls();
 
     // *** end of Fluid ***
+
+    private:
+    transferswitcher *tfunction_;
 
 protected:
     bool fromFile; ///indicates whether the data was created inside the program and perhaps needs to be saved;

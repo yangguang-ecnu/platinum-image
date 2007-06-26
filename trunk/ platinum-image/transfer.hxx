@@ -71,6 +71,7 @@ void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 template <class ELEMTYPE >
 transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
     {
+    //pane->choice ();
     Fl_Group * frame = this->pane;
 
     frame->resize(0,0,270,90);
@@ -200,6 +201,8 @@ transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):tr
     {
     this->pane->resize(0,0,270,35);
     this->pane->resizable(NULL);
+
+    //pane->choice ();
 
     // *** FLUID ***
         { Fl_Box* o = white = new Fl_Box(80, 10, 15, 15, "high");
