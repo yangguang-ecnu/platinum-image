@@ -36,7 +36,7 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, IMGBINARYTYPE object_v
 	IMGBINARYTYPE p;//pixel value
 	int label,up,left;//neighbour labels 
 	//image_general<int, IMAGEDIM> label_image(max_u, max_v, max_w);
-    image_integer<short, IMAGEDIM> * label_image = new image_integer<short, IMAGEDIM> (max_u, max_v, max_w);
+    image_integer<int, IMAGEDIM> * label_image = new image_integer<int, IMAGEDIM> (max_u, max_v, max_w);
 	int new_label;
 	//init labels
 	for(w=0; w<max_w; w++)
