@@ -57,6 +57,8 @@ class image_storage : public image_base
         //allows subclasses to set a different default transfer function, and
         //to reject unsuitable choices
 
+        virtual void transfer_function(std::string functionName); //! replace transfer function using string identifier
+
         void set_stats_histogram(histogram_1D<ELEMTYPE > * h);
 
         // *** Image data pointer ***

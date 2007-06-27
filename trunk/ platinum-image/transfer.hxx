@@ -1,3 +1,5 @@
+//$Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -60,9 +62,7 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 template <class ELEMTYPE >
 void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
     {
-    set_mono(v * intensity + contrast);
-    set_mono(v * intensity + contrast);
-    p.b(v * intensity + contrast);
+    p.set_mono(v * this->intensity + this->contrast);
     }
 
 
@@ -117,11 +117,20 @@ transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):
     this->update();
     }
 
+/*template <class ELEMTYPE >
+transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
+    {
+    if ( v > 0)
+        {p.set_rgb (255,255,255);}
+    else
+        {p.set_rgb (0,0,0);}
+    }*/
+
 template <class ELEMTYPE >
-void transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
+void transfer_mapcolor<ELEMTYPE>::get (ELEMTYPE v, RGBvalue &p)
     {
     //TODO: repeat colors for v > IMGLABELMAX with modulo
-    switch (v)
+    switch (static_cast<unsigned char>(v))
         {
         case 0 :
             p.set_rgb (0,0,0);
@@ -193,6 +202,7 @@ void transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
             p.set_rgb (127,127,127);
         }
     }
+
 
 // *** transfer_default ***
 

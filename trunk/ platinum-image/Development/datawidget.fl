@@ -10,22 +10,33 @@ widget_class {datamanagement.add_datawidget(this);} datawidget {open
   code3 {datamanagement.add_datawidget(this);}
   class Fl_Pack visible
 } {
-  Function {datawidget(int datatype,int id, std::string n):Fl_Pack(0,0,270,130,NULL)} {open
-  } {
-    code {image_id = id;
-thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
-  }
   decl {int image_id;} {}
   decl {const static int thumbnail_size;} {}
   decl {uchar * thumbnail_image;} {}
   decl {std::string _name;} {}
   decl {enum {remove_mi_num=0,save_mi_num, dup_mi_num};} {}
-  Function {cb_transferswitch(Fl_Widget* o, void* v)} {open selected return_type {static void}
+  Function {datawidget(image_base * im, std::string n):Fl_Pack(0,0,270,130,NULL)} {open selected
+  } {
+    comment {to make a widget for other types of data, i.e. point, simply overload constructor taking an object of the type in question} {not_in_source in_header
+    }
+    code {image_id = id;
+thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
+  }
+  Function {change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);} {return_type {static void}
+  } {}
+  Function {cb_transferswitch(Fl_Widget* o, void* v)} {open return_type {static void}
   } {}
   Function {toggle_tfunction(Fl_Widget* callingwidget, void*)} {open return_type {static void}
   } {}
   Function {setup_transfer_menu(Fl_Menu_Item* submenuitem)} {open return_type void
   } {}
+  Function {tfunction(Fl_Group * t);} {open return_type void
+  } {}
+  Function {reset_tf_controls()} {open return_type {Fl_Group *}
+  } {}
+  Function {make_window()} {open
+  } {}
+  decl {Fl_Menu_Item * tfunction_submenu;} {}
   Fl_Pack hpacker {open
     private xywh {0 0 270 25} type HORIZONTAL
     code0 {resizable(filenamebutton);}
@@ -58,7 +69,7 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
       Submenu tfunctionmenu {
         label {Transfer function} open
         xywh {0 0 100 20} labelsize 14
-        code0 {setup_transfer_menu (o);}
+        code0 {setup_transfer_menu (o,im);}
       } {
         MenuItem transferfunction_mi {
           label {Show/hide}
@@ -80,11 +91,4 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
       private xywh {0 90 270 40} box EMBOSSED_FRAME labelsize 11 align 16 hide
     } {}
   }
-  Function {tfunction(Fl_Group * t);} {open return_type void
-  } {}
-  Function {reset_tf_controls()} {open return_type {Fl_Group *}
-  } {}
-  Function {make_window()} {open
-  } {}
-  decl {Fl_Menu_Item * tfunction_submenu;} {}
 } 

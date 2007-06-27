@@ -53,7 +53,7 @@ void transferswitcher::resize(int x,int y,int w,int h) {
 //adding a new transfer function:
 
 //1. add name to tfunction_names
-//2. add a corresponding line to Create (...)
+//2. add a corresponding line to Create (...) (in datawidget.h)
 
 const std::string transferfactory::tfunction_names[] =
     {"Default",
@@ -76,29 +76,6 @@ transferfactory::transferfactory ()
 transferfactory::~transferfactory()
     { }
 
-template <class ELEMTYPE >
-transfer_base<ELEMTYPE > * transferfactory::Create(factoryIdType unique_id,image_storage<ELEMTYPE > * s)
-    {
-    int n = 0;
-
-    //transfer function template constructors, same order as in tfunction_names[]:
-
-    if (unique_id == tfunction_names [n++] )
-        {return transfer_default<ELEMTYPE>(s);}
-
-    if (unique_id == tfunction_names [n++] )
-        {return transfer_brightnesscontrast<ELEMTYPE>(s);}
-
-    if (unique_id == tfunction_names [n++] )
-        {return transfer_mapcolor<ELEMTYPE>(s);}
-
-    if (unique_id == tfunction_names [n++] )
-        {return transfer_linear<ELEMTYPE>(s);}
-
-    if (unique_id == tfunction_names [n++] )
-        {return transfer_spline<ELEMTYPE>(s);}
-    }
-
 Fl_Menu_Item * transferfactory::function_menu (Fl_Callback * cb) //! get menu 
     {
     Fl_Menu_Item * fmenu;
@@ -111,7 +88,7 @@ Fl_Menu_Item * transferfactory::function_menu (Fl_Callback * cb) //! get menu
 
         fmenu[m].label(tfunction_names[m].c_str());
         fmenu[m].callback(cb);
-        fmenu[m].argument(m);
+        //fmenu[m].argument(m);
         fmenu[m].flags = FL_MENU_RADIO;
         }
 
@@ -119,3 +96,8 @@ Fl_Menu_Item * transferfactory::function_menu (Fl_Callback * cb) //! get menu
 
     return fmenu;
 	}
+
+const std::string transferfactory::tf_name(int n)
+    {
+    return tfunction_names[n];
+    }

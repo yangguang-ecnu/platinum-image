@@ -86,6 +86,8 @@ class image_base : public data_base
         static void load(const std::vector<std::string> files);  //load files in supported formats
                                                     //as selected in "files" vector
 
+        virtual void transfer_function(std::string functionName) = 0; //! replace transfer function using string identifier
+
         //virtual unsigned char get_display_voxel(int x, int y, int z) = 0;      //get unsigned char scaled to data
                                                                         //type range, for display purposes
                     
