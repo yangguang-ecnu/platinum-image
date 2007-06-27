@@ -34,6 +34,7 @@
 #include "ptmath.h"
 
 #include "global.h"
+#include "error.h"
 #include "itkGDCMImageIO.h"
 
 class data_base // We MUST have a virtual base class

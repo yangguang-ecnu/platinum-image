@@ -118,6 +118,8 @@ data_base::data_base()
 
 data_base::data_base (data_base * source)
     {
+    pt_error::error_if_null(source,"Attempting to copyconstruct data object from NULL object");
+
     widget = NULL;
     from_file(source->from_file());
 
