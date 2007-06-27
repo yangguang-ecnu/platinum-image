@@ -22,6 +22,7 @@
 #include "rendermanager.h"
 
 #include "rawimporter.h"
+#include "dicom_importer.h"
 #include "image_integer.h"
 
 datamanager datamanagement;
@@ -39,6 +40,8 @@ extern userIOmanager userIOmanagement;
 #include <FL/Fl_Group.H>
 
 using namespace std;
+
+#define TESTMODE false	//JK4 test mode "dicom_import_button"
 
 uchar *animage;
 
@@ -153,6 +156,12 @@ void datamanager::datawidgets_setup()
 
     load_button = new Fl_Button(xpos,data_widget_box->y()+data_widget_box->h()+margin,120,BUTTONHEIGHT, "Load image...");
     load_button->callback(loadimage_callback,this);
+
+//JK4 - dicom_import testing....
+	if(TESTMODE){
+		Fl_Widget *dcm_import_button = new Fl_Button(xpos+120+margin,data_widget_box->y()+data_widget_box->h()+margin,120,BUTTONHEIGHT, "Dicom Importer...");
+		dcm_import_button->callback(dcm_import_callback,this);
+	}
 
     buttongroup->resizable(NULL);
     buttongroup->end();
@@ -285,6 +294,14 @@ void datamanager::set_image_name(int ID,string n)
         images[index]->name(n);
         image_vector_has_changed();
     }
+}
+
+void datamanager::dcm_import_callback(Fl_Widget *callingwidget, void *thisdatamanager)
+// argument must tell us which instance, if multiple
+{
+	if(TESTMODE){
+		new dicom_importer(100,100,900,600,"Dicom File Import");
+	}
 }
 
 void datamanager::loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager)

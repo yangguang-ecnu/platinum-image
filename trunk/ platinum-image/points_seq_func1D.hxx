@@ -187,9 +187,9 @@ float* points_seq_func1D<KEY_TYPE, VALUE_TYPE>::get_spline_derivatives()
     std::cout<<"get_spline_derivatives..."<<std::endl;
 #endif
 
-	float *x = new float[100];
-	float *y = new float[100];
-	float *y2 = new float[100];
+	float *x = new float[size()+2];
+	float *y = new float[size()+2];
+	float *y2 = new float[size()+2];
 
 	int i=1; //Note: index 1...n used in Numerical Recipies...
     typename std::map<KEY_TYPE,VALUE_TYPE>::iterator the_iterator;
@@ -219,6 +219,7 @@ float points_seq_func1D<KEY_TYPE, VALUE_TYPE>::get_value_interp_spline(float thi
     typename std::map<KEY_TYPE,VALUE_TYPE>::iterator the_iterator;
 
 	//if the this_x-value is smaller/larger than the first/last --> return first/last...
+
 	//first
 	the_iterator = themap.begin();
 	if(this_x < the_iterator->first){return the_iterator->second;}
@@ -228,8 +229,9 @@ float points_seq_func1D<KEY_TYPE, VALUE_TYPE>::get_value_interp_spline(float thi
 		the_iterator++;
 	if(this_x >= the_iterator->first){return the_iterator->second;}
 
-	float *x = new float[100];
-	float *y = new float[100];
+
+	float *x = new float[themap.size()+2];
+	float *y = new float[themap.size()+2];
 
 	int i=1;	//Note: index 1...n used in Numerical Recipies...
 	for (the_iterator = themap.begin(); the_iterator != themap.end(); the_iterator++) 
@@ -240,6 +242,12 @@ float points_seq_func1D<KEY_TYPE, VALUE_TYPE>::get_value_interp_spline(float thi
 	}
 
 	float ret = pt_splint1D(x,y,y2,size(),this_x);
+
+	if(ret > std::numeric_limits<VALUE_TYPE>::max())
+	{ret = std::numeric_limits<VALUE_TYPE>::max();}
+
+	if(ret < std::numeric_limits<VALUE_TYPE>::min())
+	{ret = std::numeric_limits<VALUE_TYPE>::min();}
 
 	delete x;
 	delete y;

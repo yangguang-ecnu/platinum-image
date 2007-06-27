@@ -125,7 +125,8 @@ protected:
         histogram_1D<ELEMTYPE >         * histogram;
         IMGELEMCOMPTYPE                 * imgdata;
         Fl_RGB_Image			        * histimg;	//keeps the histogram background layer
-        points_seq_func1D<float,float>	intensity_knots;		//used for anchor points handling and interpolation 
+//        points_seq_func1D<float,float>	intensity_knots;		//used for anchor points handling and interpolation 
+        points_seq_func1D<float,unsigned char>	intensity_knots;		//used for anchor points handling and interpolation 
                                                                 //knots are of course also wanted for R,G,B, respectively.
 
         void calc_lookup_params (int newSize = 0);
@@ -156,8 +157,7 @@ class transfer_linear: public transfer_interpolated <ELEMTYPE >
         class transferchart_linear: public transfer_interpolated<ELEMTYPE >::transferchart
             {
             public:
-                transferchart_linear (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h);
-
+                transferchart_linear(histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h);
                 virtual void update ();
             };
 
@@ -169,6 +169,13 @@ class transfer_linear: public transfer_interpolated <ELEMTYPE >
 template <class ELEMTYPE >
 class transfer_spline: public transfer_interpolated <ELEMTYPE >
 {
+    protected:
+        class transferchart_spline: public transfer_interpolated<ELEMTYPE >::transferchart
+            {
+            public:
+                transferchart_spline(histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h);
+                virtual void update ();
+            };
 public:
 	transfer_spline (image_storage <ELEMTYPE > * s);
 };

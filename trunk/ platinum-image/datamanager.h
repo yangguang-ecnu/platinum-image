@@ -99,6 +99,8 @@ class datamanager
         std::string get_image_name(int ID);
         void set_image_name(int ID,std::string n);
         static void loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager);
+        static void dcm_import_callback(Fl_Widget *callingwidget, void *thisdatamanager);
+		
         void loadimages();
         static void removedata_callback(Fl_Widget *, void *);
         static void save_vtk_image_callback(Fl_Widget *, void *);
