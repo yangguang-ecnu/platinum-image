@@ -30,7 +30,8 @@ transfer_interpolated<ELEMTYPE >::transferchart::transferchart (histogram_1D<ELE
 
     calc_lookup_params(256);
 
-    intensity_knots = points_seq_func1D<float,float>(0,0,lookupSize,255,5);
+    intensity_knots = points_seq_func1D<float,unsigned char>(0,0,lookupSize,255,5);
+//    intensity_knots = points_seq_func1D<float,float>(0,0,lookupSize,255,5);
     }
 
 template <class ELEMTYPE >
@@ -58,8 +59,10 @@ void transfer_interpolated<ELEMTYPE >::transferchart::calc_lookup_params (int ne
 
         lookup = new IMGELEMCOMPTYPE [newSize];
 
-        std::map<float,float>::iterator MITR = intensity_knots.begin();
-        std::map<float,float>::iterator MEND = intensity_knots.end();
+        std::map<float,unsigned char>::iterator MITR = intensity_knots.begin();
+        std::map<float,unsigned char>::iterator MEND = intensity_knots.end();
+//        std::map<float,float>::iterator MITR = intensity_knots.begin();
+  //      std::map<float,float>::iterator MEND = intensity_knots.end();
 
         //scale knots to new lookup table size
         /*for (;MITR != MEND;MITR++)
@@ -97,11 +100,24 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 			t_y = float(255) - float(Fl::event_y() - y())/h()*float(255);
 			dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
 
-			if(!intensity_knots.is_occupied(t_x))	//otherwise, points with same key will overwrite
-			{
-				intensity_knots.set_data(closest_key,t_x,t_y);
+			if(dist>70){	// add point
+				if(!intensity_knots.is_occupied(t_x))	//otherwise, points with same key will overwrite
+				{
+					intensity_knots.insert(t_x, t_y);
+				}
+
+			}else if(dist>5){ //move point
+				if(!intensity_knots.is_occupied(t_x))	//otherwise, points with same key will overwrite
+				{
+					intensity_knots.set_data(closest_key, t_x, t_y);
+				}
+
+			}else{ //remove point
+				intensity_knots.erase(closest_key);
 			}
+
 			redraw();
+
 
 		}
 		return 1;
@@ -109,28 +125,28 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
     case FL_DRAG:
         std::cout<<"FL_DRAG dx="<<Fl::event_dx()<<" dy="<<Fl::event_dy()<<std::endl;
 
-        if(Fl::event_x()>=x() && Fl::event_x()<=x()+w() && Fl::event_y()>=y() && Fl::event_y()<=y()+h())
-            {
-            t_x = float(Fl::event_x() - x())/w()*float(lookupSize);
-            t_y = float(255) - float(Fl::event_y() - y())/h()*float(255);
-            dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
+		if(Fl::event_x()>=x() && Fl::event_x()<=x()+w() && Fl::event_y()>=y() && Fl::event_y()<=y()+h())
+		{
+			t_x = float(Fl::event_x() - x())/w()*float(lookupSize);
+			t_y = float(255) - float(Fl::event_y() - y())/h()*float(255);
+			dist = intensity_knots.find_dist_to_closest_point2D(t_x,t_y,closest_key);
 
-            if(dist<70)
-                {
-                t_dx = float(Fl::event_dx())/w()*float(lookupSize);
-                t_dy = float(Fl::event_dy())/h()*float(255);
-                t_x_new = t_x + t_dx;
-                t_y_new = t_y + t_dy;
+			if(dist<70)
+			{
+				t_dx = float(Fl::event_dx())/w()*float(lookupSize);
+				t_dy = float(Fl::event_dy())/h()*float(255);
+				t_x_new = t_x + t_dx;
+				t_y_new = t_y + t_dy;
 
-                if(!intensity_knots.is_occupied(t_x_new))	//otherwise, points with same key will overwrite
-                    {
-                    intensity_knots.set_data(closest_key,t_x_new,t_y_new);
-                    }
+				if(!intensity_knots.is_occupied(t_x_new))	//otherwise, points with same key will overwrite
+				{
+					intensity_knots.set_data(closest_key,t_x_new,t_y_new);
+					redraw();
+				}
 
-                }
-            redraw();
-            return 1;
-            }
+			}
+			return 1;
+		}
         return 0;
 
 	case FL_RELEASE:
@@ -240,13 +256,14 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
 
     fl_color(FL_RED);
     intensity_knots.printdata();
-    float knot_x,knot_y;
+    float knot_x;
+	unsigned char knot_y;
     float draw_x,draw_y;
     for(unsigned int i=0;i<intensity_knots.size();i++)
         {
         intensity_knots.get_data(i,knot_x,knot_y);
         draw_x = x() + knot_x/float(lookupSize)*w();
-        draw_y = y() + h() - knot_y/float(255.0)*h();
+        draw_y = y() + h() - float(knot_y)/float(255.0)*h();
         //		cout<<"fl_circle - draw_x,y "<<draw_x<<","<<draw_y<<endl;
         fl_circle(draw_x,draw_y,2);
         }
@@ -283,6 +300,8 @@ void transfer_interpolated<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
         { p.set_mono(chart->lookup[0]); }
 }
 
+
+
 // *** transfer_linear ***
 
 template <class ELEMTYPE >
@@ -309,8 +328,10 @@ void transfer_linear<ELEMTYPE >::transferchart_linear::update ()
     calc_lookup_params();
 
     //render lookup chart
-    std::map<float,float>::iterator MITR = intensity_knots.begin();
-    std::map<float,float>::iterator MEND = intensity_knots.end();
+    std::map<float,unsigned char>::iterator MITR = intensity_knots.begin();
+    std::map<float,unsigned char>::iterator MEND = intensity_knots.end();
+//    std::map<float,float>::iterator MITR = intensity_knots.begin();
+  //  std::map<float,float>::iterator MEND = intensity_knots.end();
 
     std::pair<float,float> thisPt,nextPt;
 
@@ -339,8 +360,44 @@ void transfer_linear<ELEMTYPE >::transferchart_linear::update ()
     this->redraw();
     }
 
+
+
+
+
 // *** transfer_spline ***
 
 template <class ELEMTYPE>
 transfer_spline<ELEMTYPE >::transfer_spline(image_storage <ELEMTYPE > * s):transfer_interpolated<ELEMTYPE >(s)
-    {}
+{
+    Fl_Group * frame = this->pane;
+
+    this->chart = new transferchart_spline (this->source->get_histogram(), frame->x(),frame->y(),frame->w(),frame->h());
+    frame->end();
+}
+
+template <class ELEMTYPE >
+transfer_spline<ELEMTYPE >::transferchart_spline::transferchart_spline (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h): transfer_interpolated<ELEMTYPE >::transferchart (hi, x, y, w, h)
+{
+    update(); //must be called here, base class constructor gets the abstract one
+}
+
+template <class ELEMTYPE >
+void transfer_spline<ELEMTYPE >::transferchart_spline::update ()
+{
+	//this function may be called when the *image* has changed;
+	//first recalculate min/max etc.
+	calc_lookup_params();
+
+	float *y2 = new float[intensity_knots.size()+2];
+	y2 = intensity_knots.get_spline_derivatives();
+
+    for (unsigned long p = 0;p < lookupSize; p++)
+	{
+		lookup [p] = intensity_knots.get_value_interp_spline(p,y2);
+	}
+
+	delete y2;
+
+	//redraw to show changes
+	this->redraw();
+}

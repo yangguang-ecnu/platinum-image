@@ -2,7 +2,7 @@
 //
 //  points_seq_func1D $Revision: 131 $
 ///
-/// point collection class specialized on ordered 2D points
+/// (points_sequence_function1D) point collection class specialized on ordered 2D points 
 ///
 /// The points_seq_func1D class is templated over key (x-values) and value (y-values) types.
 /// It uses the STL map-class to keep a list of sorted (x,y) pairs.

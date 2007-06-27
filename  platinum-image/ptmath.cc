@@ -25,7 +25,7 @@ void pt_spline1D(float x[],float y[],int n,float yp1,float ypn,float y2[])
 	int i,k;
 	float p,qn,sig,un,*u;
 
-	u = new float[10000];		//JK3 Warning, maximum number of values
+	u = new float[n+2];
 
 	if (yp1 > 0.99e30)			//The lower boundary condition is set either to be "natural" y2=0...
 		y2[1] = u[1] = 0.0;		

@@ -785,7 +785,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::testpattern()
 	this->image_has_changed(true);
     }
 
-//JK3
+
 template <class ELEMTYPE, int IMAGEDIM>
 template<class TARGETTYPE> 
 void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image)

@@ -90,7 +90,7 @@ class histogram_typed : public histogram_base //!features common to histograms o
     {
     protected:
         image_storage<ELEMTYPE> * images [THRESHOLDMAXCHANNELS];
-        ELEMTYPE * i_start, *i_end;
+        ELEMTYPE * i_start, *i_end;		//needs modification when > 1D histograms are handled
         ELEMTYPE max_value, min_value;
     public:
         histogram_typed();

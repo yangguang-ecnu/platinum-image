@@ -42,6 +42,7 @@ INCLUDE_DIRECTORIES( ${FLTK_INCLUDE_DIR}  )
 LINK_DIRECTORIES(${ITK_LIBRARY_DIR} ${FLTK_LIBRARY_DIR})
 
 INCLUDE_DIRECTORIES( Utilities/vxl/contrib )
+#INCLUDE_DIRECTORIES( Utilities/fltk )			#Location of: Fl_Table.H/cxx Fl_Table_Row.H/cxx
 
 IF(WIN32)
   INCLUDE_DIRECTORIES( Utilities/dirent-win32 )
@@ -51,7 +52,7 @@ ENDIF(WIN32)
 
 OPTION(BUILD_SHARED "Build Platinum as a shared library" OFF)
 
-SET (PLATINUM_SOURCE_FILES bruker.h color.h colormap.h cursor3D.h data_base.h ${WIN32_DIRENT_HEAD} datamanager.h datawidget.h error.h fileutils.h FLTK2Dregionofinterest.h FLTKuserIOparameters.h FLTKutilities.h FLTKviewport.h global.h histogram.h image_base.h  image_binary.h image_complex.h image_general.h image_integer.h image_label.h image_multi.h image_scalar.h image_storage.h listedfactory.h platinumprogram.h point_base.h points_seq_func1D.h point3D.h rawimporter.h renderer_base.h renderer_VTK.h rendererMPR.h rendergeometry.h rendercombination.h rendermanager.h ptmath.h threshold.h transfer.h userIO.h userIOmanager.h viewport.h viewmanager.h bruker.cc color.cc colormap.cc cursor3D.cc data_base.cc datamanager.cc datawidget.cc ${WIN32_DIRENT_SRC} error.cc fileutils.cc FLTK2Dregionofinterest.cc FLTKuserIOparameters.cc FLTKutilities.cc FLTKviewport.cc histogram.cc histogram.hxx image_base.cc image_binary.hxx image_binaryprocess.hxx image_complex.hxx image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx image_storage.hxx point_base.cc points_seq_func1D.hxx rawimporter.cc renderer_base.cc rendererMPR.cc renderer_VTK.cc  rendergeometry.cc rendercombination.cc rendermanager.cc ptmath.cc threshold.cc transfer.hxx transfer_interpolated.hxx transferfactory.cc userIO.cc userIOmanager.cc viewport.cc viewmanager.cc ${WIN32_DIRENT_SRC} CMakeLists.txt)
+SET (PLATINUM_SOURCE_FILES bruker.h color.h colormap.h cursor3D.h data_base.h ${WIN32_DIRENT_HEAD} datamanager.h datawidget.h error.h fileutils.h FLTK2Dregionofinterest.h FLTKuserIOparameters.h FLTKutilities.h FLTKviewport.h global.h histogram.h image_base.h  image_binary.h image_complex.h image_general.h image_integer.h image_label.h image_multi.h image_scalar.h image_storage.h listedfactory.h platinumprogram.h point_base.h points_seq_func1D.h point3D.h rawimporter.h dicom_importer.h renderer_base.h renderer_VTK.h rendererMPR.h rendergeometry.h rendercombination.h rendermanager.h ptmath.h threshold.h transfer.h userIO.h userIOmanager.h viewport.h viewmanager.h Fl_Table.H Fl_Table_Row.H bruker.cc color.cc colormap.cc cursor3D.cc data_base.cc datamanager.cc datawidget.cc ${WIN32_DIRENT_SRC} error.cc fileutils.cc FLTK2Dregionofinterest.cc FLTKuserIOparameters.cc FLTKutilities.cc FLTKviewport.cc histogram.cc histogram.hxx image_base.cc image_binary.hxx image_binaryprocess.hxx image_complex.hxx image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx image_storage.hxx point_base.cc points_seq_func1D.hxx rawimporter.cc dicom_importer.cc renderer_base.cc rendererMPR.cc renderer_VTK.cc  rendergeometry.cc rendercombination.cc rendermanager.cc ptmath.cc threshold.cc transfer.hxx transfer_interpolated.hxx userIO.cc userIOmanager.cc transferfactory.cc viewport.cc viewmanager.cc Fl_Table.cxx Fl_Table_Row.cxx ${WIN32_DIRENT_SRC} CMakeLists.txt)
 
 IF(BUILD_SHARED)
   ADD_LIBRARY(platinumlib SHARED ${PLATINUM_SOURCE_FILES})
@@ -122,7 +123,7 @@ ADD_DEPENDENCIES(PlatinumTest platinumlib)
 
 SOURCE_GROUP(ImageVarieties FILES image_binary.h image_complex.h image_integer.h image_label.h image_multi.h image_scalar.h image_binary.hxx image_complex.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx)
 
-SOURCE_GROUP(Data FILES datamanager.h data_base.h image_base.h image_general.h image_storage_iterator.h image_storage.h point_base.h points_seq_func1D.h rawimporter.h datamanager.cc data_base.cc image_base.cc image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_storage.hxx point_base.cc point3D.h points_seq_func1D.hxx rawimporter.cc)
+SOURCE_GROUP(Data FILES datamanager.h data_base.h image_base.h image_general.h image_storage_iterator.h image_storage.h point_base.h points_seq_func1D.h rawimporter.h dicom_importer.h datamanager.cc data_base.cc image_base.cc image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_storage.hxx point_base.cc point3D.h points_seq_func1D.hxx rawimporter.cc dicom_importer.cc)
 
 SOURCE_GROUP(Processing FILES image_binaryprocess.hxx)
 
@@ -130,7 +131,8 @@ SOURCE_GROUP(View FILES viewport.h FLTKviewport.h viewmanager.h renderer_base.h 
 
 SOURCE_GROUP(Interaction FILES datawidget.h userIO.h FLTKuserIOparameters.h userIOmanager.h datawidget.cc userIO.cc FLTKuserIOparameters.cc userIOmanager.cc transferfactory.cc test_app.cc)
 
-SOURCE_GROUP(Helpers FILES bruker.h color.h colormap.h cursor3D.h error.h fileutils.h FLTK2Dregionofinterest.h FLTKutilities.h listedfactory.h histogram.h threshold.h bruker.cc color.cc colormap.cc cursor3D.cc ${WIN32_DIRENT_SRC} error.cc fileutils.cc FLTK2Dregionofinterest.cc FLTKutilities.cc histogram.cc histogram.hxx ptmath.cc threshold.cc)
+SOURCE_GROUP(Helpers FILES bruker.h color.h colormap.h cursor3D.h error.h fileutils.h FLTK2Dregionofinterest.h FLTKutilities.h Fl_Table.H Fl_Table_Row.H listedfactory.h histogram.h threshold.h bruker.cc color.cc colormap.cc cursor3D.cc ${WIN32_DIRENT_SRC} error.cc fileutils.cc FLTK2Dregionofinterest.cc FLTKutilities.cc Fl_Table.cxx Fl_Table_Row.cxx histogram.cc histogram.hxx ptmath.cc threshold.cc)
+#SOURCE_GROUP(Helpers FILES bruker.h color.h colormap.h cursor3D.h error.h fileutils.h FLTK2Dregionofinterest.h FLTKutilities.h                            listedfactory.h histogram.h threshold.h bruker.cc color.cc colormap.cc cursor3D.cc ${WIN32_DIRENT_SRC} error.cc fileutils.cc FLTK2Dregionofinterest.cc FLTKutilities.cc histogram.cc histogram.hxx ptmath.cc threshold.cc)
 
 #add CMakelists for inclusion in version control
 SOURCE_GROUP(Scripts CMakeLists.txt)
