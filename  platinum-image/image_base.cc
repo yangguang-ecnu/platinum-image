@@ -57,7 +57,7 @@ void image_base::set_parameters ()
     //constructor: add "Untitled" name and ID
     namestream << "3D image (" << ID << ")";
 
-    widget=new datawidget(DATAHANDLER_VOLUME_3D,ID,namestream.str());
+    widget=new datawidget(this,namestream.str());
     name(namestream.str());
     }
 

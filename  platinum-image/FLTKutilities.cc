@@ -48,6 +48,27 @@ int fl_menu_size (Fl_Menu_Item * m)
     return -1;
     }
 
+/*void fl_menu_delete (Fl_Menu_Item * &m)
+    {
+    int size = fl_menu_size(m);
+
+    for (int i = 0; i <= size;i++)
+        { delete m[i]; }
+    m = NULL;
+    }*/
+
+void fl_menu_userdata_delete (Fl_Menu_Item * m)
+    {
+    int size = fl_menu_size(m);
+
+    for (int i = 0; i < size;i++)
+        {
+        void * ud = m[i].user_data();
+        if (m != NULL)
+            { delete ud; }
+        }
+    }
+
 horizresizeablescroll::horizresizeablescroll (int x, int y, int w, int h, const char *label) : Fl_Scroll (x,y,w,h,label)
     {
     //children are deleted automatically with parents, so  

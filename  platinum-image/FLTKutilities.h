@@ -35,6 +35,8 @@ void init_fl_menu_item(Fl_Menu_Item & m);
 
 int fl_menu_size (Fl_Menu_Item *);
 
+void fl_menu_userdata_delete (Fl_Menu_Item * m);
+
 class horizresizeablescroll : public Fl_Scroll  //Fl_Scroll with integrated packer that resizes horizontally
                                                 //(and scrolls/packs vertically)
     {

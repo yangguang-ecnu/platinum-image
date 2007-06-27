@@ -47,19 +47,22 @@ class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
             transfer_function();
             }
 
-        template<class SOURCETYPE>
-            image_label(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_integer<IMGLABELTYPE, IMAGEDIM>(old_image, copyData)
+    template<class SOURCETYPE>
+        image_label(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_integer<IMGLABELTYPE, IMAGEDIM>(old_image, copyData)
         {
         transfer_function();
         } //copy constructor
 
-    image_label(IMGLABELTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize) : image_integer<IMGLABELTYPE, IMAGEDIM>(inData,inDataNumElems, width, height, voxelSize) {}
-        //pre-loaded raw constructor
-        
-        image_label (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_integer<IMGLABELTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
-            {
-            transfer_function();
-            }
+    image_label(IMGLABELTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize) : image_integer<IMGLABELTYPE, IMAGEDIM>(inData,inDataNumElems, width, height, voxelSize)
+        {
+        transfer_function();
+        }
+    //pre-loaded raw constructor
+
+    image_label (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_integer<IMGLABELTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
+        {
+        transfer_function();
+        }
     };
 
 //with C++ templates, declaration and definition go together

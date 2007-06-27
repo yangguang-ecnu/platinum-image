@@ -71,6 +71,12 @@ void image_storage<ELEMTYPE >::set_parameters()
     }
 
 template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::transfer_function(std::string functionName)
+    {
+    transfer_function(transfer_manufactured::factory.Create<ELEMTYPE> (functionName,this));
+    }
+
+template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::set_stats_histogram(histogram_1D<ELEMTYPE > * h)
     {
     if (stats != NULL)
