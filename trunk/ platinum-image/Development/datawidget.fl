@@ -15,7 +15,7 @@ widget_class {datamanagement.add_datawidget(this);} datawidget {open
   decl {uchar * thumbnail_image;} {}
   decl {std::string _name;} {}
   decl {enum {remove_mi_num=0,save_mi_num, dup_mi_num};} {}
-  Function {datawidget(image_base * im, std::string n):Fl_Pack(0,0,270,130,NULL)} {open selected
+  Function {datawidget(image_base * im, std::string n):Fl_Pack(0,0,270,130,NULL)} {open
   } {
     comment {to make a widget for other types of data, i.e. point, simply overload constructor taking an object of the type in question} {not_in_source in_header
     }
@@ -28,7 +28,7 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
   } {}
   Function {toggle_tfunction(Fl_Widget* callingwidget, void*)} {open return_type {static void}
   } {}
-  Function {setup_transfer_menu(Fl_Menu_Item* submenuitem)} {open return_type void
+  Function {setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im)} {open selected return_type void
   } {}
   Function {tfunction(Fl_Group * t);} {open return_type void
   } {}
