@@ -49,13 +49,6 @@ typedef enum {
 
 #define MAXDATANAME 512
 
-const std::string tfunction_names[] =
-    {"Default",
-    "Brightness/contrast",
-    "Labels",
-    "Linear",
-    "Spline","" };
-
 template <class ELEMTYPE >
 class transfer_base;
 
@@ -66,6 +59,7 @@ class transferfactory //! transfer gets its own object factory type because cons
     {
     protected:
         int num_items;
+        static const std::string tfunction_names [];
     public:
         transferfactory ();
 

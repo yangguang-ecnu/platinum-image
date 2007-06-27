@@ -1,4 +1,12 @@
-// $Id$
+//////////////////////////////////////////////////////////////////////////
+//
+//   Transferfactory $Revision$
+///
+///  Object factory that makes transfer function objects and the
+///  transfer function menu
+///
+//   $LastChangedBy$
+//
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -55,12 +63,40 @@ transferfactory::transferfactory ()
 transferfactory::~transferfactory()
     { }
 
+//adding a new transfer function:
+
+//1. add name to tfunction_names
+//2. add a corresponding line to Create (...)
+
+const std::string transferfactory::tfunction_names[] =
+    {"Default",
+    "Brightness/contrast",
+    "Labels",
+    "Linear",
+    "Spline",
+    "" };
+
 template <class ELEMTYPE >
 transfer_base<ELEMTYPE > * transferfactory::Create(factoryIdType unique_id,image_storage<ELEMTYPE > * s)
     {
-    if (unique_id == tfunction_names [0] )
+    int n = 0;
+
+    //transfer function template constructors, same order as in tfunction_names[]:
+
+    if (unique_id == tfunction_names [n++] )
         {return transfer_default<ELEMTYPE>(s);}
 
+    if (unique_id == tfunction_names [n++] )
+        {return transfer_brightnesscontrast<ELEMTYPE>(s);}
+
+    if (unique_id == tfunction_names [n++] )
+        {return transfer_mapcolor<ELEMTYPE>(s);}
+
+    if (unique_id == tfunction_names [n++] )
+        {return transfer_linear<ELEMTYPE>(s);}
+
+    if (unique_id == tfunction_names [n++] )
+        {return transfer_spline<ELEMTYPE>(s);}
     }
 
 Fl_Menu_Item * transferfactory::function_menu (Fl_Callback * cb) //! get menu 
@@ -79,7 +115,7 @@ Fl_Menu_Item * transferfactory::function_menu (Fl_Callback * cb) //! get menu
         fmenu[m].flags = FL_MENU_RADIO;
         }
 
-    fmenu[num_items-1].label(NULL);
+    fmenu[num_items].label(NULL);
 
     return fmenu;
 	}
