@@ -50,19 +50,6 @@ void transferswitcher::resize(int x,int y,int w,int h) {
     //switchbtn new size & pos
     }*/
 
-transferfactory transfer_manufactured::factory = transferfactory();
-
-transferfactory::transferfactory ()
-    {
-    num_items = 0;
-
-    while  (tfunction_names[num_items] != "")
-        { num_items++; }
-    }
-
-transferfactory::~transferfactory()
-    { }
-
 //adding a new transfer function:
 
 //1. add name to tfunction_names
@@ -75,6 +62,19 @@ const std::string transferfactory::tfunction_names[] =
     "Linear",
     "Spline",
     "" };
+
+transferfactory transfer_manufactured::factory = transferfactory();
+
+transferfactory::transferfactory ()
+    {
+    num_items = 0;
+
+    while  (tfunction_names[num_items] != "")
+        { num_items++; }
+    }
+
+transferfactory::~transferfactory()
+    { }
 
 template <class ELEMTYPE >
 transfer_base<ELEMTYPE > * transferfactory::Create(factoryIdType unique_id,image_storage<ELEMTYPE > * s)
