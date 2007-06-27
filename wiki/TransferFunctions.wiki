@@ -4,12 +4,14 @@
 =Integration=
 The transfer objects's main function operates on an [image_general] iterator. It may also need access to min/max values, which can be done via its pointer to the associated image. (as [image_storage]). Transfer functions are implemented as objects attached to image objects. Their UI is a subclass to Fl_group, displayed through the image's dataWidget.
 
+When selected by the user, a new transfer function object of the chosen type is created by the static [transferfactory] object in the [transfer_manufactured] base class.
+
 ==Classes==
 
 *[transfer_mapcolor]*
 Assigns unique colors to few (20 or less) consecutive integer values, like on a map. If it turns out to be applicable only to the [image_label] class, this class should be renamed transfer_label.
 
-*[transfer_CT]*
+_*[transfer_CT]*_
 Special _computed tomography_ transfer function with several avaiable presets for the Hounsfield values of various tissue types, including a possible multi-color scheme for muscle, bone, fat etc.
 
 *[transfer_brightnesscontrast]*
@@ -25,6 +27,9 @@ Spline interpolated transfer curve.
 The default transfer function, maps values into grayscales with lowest value in image being black and highest white.
 
 ===Helpers===
+*[transfer_manufactured]*
+Untemplated base class to allow a static factory object
+
 *[transfer_base]*
 Abstract base for all transfer functions
 
