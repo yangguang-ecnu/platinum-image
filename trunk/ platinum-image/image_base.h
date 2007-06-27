@@ -32,7 +32,6 @@
 
 #include "global.h"
 #include "color.h"
-#include "error.h"
 
 enum imageDataType
     {
