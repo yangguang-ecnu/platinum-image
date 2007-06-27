@@ -1416,79 +1416,79 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 			}
 		}
 
-	//ELEMTYPE cur_level;
-	//int nClass1, nClass2;
-	//bool changed=true;
-	//bool changedThis;
-	//while(changed)
-	//	{
-	//	changed=false;
-	//	for(cur_level=max_val; cur_level>min_val; cur_level--)
-	//		{
-	//		//Loop each level until not changed
-	//		changedThis=true;
-	//		while(changedThis)
-	//			{
-	//			changedThis=false;
-	//		    for (i=counts_cum[cur_level-min_val]-1; i>=counts_cum[cur_level-1-min_val]; i--)
-	//				{
-	//		        j=sorted_index[i];
-	//			    if((*(output_iter+j))==undef)
-	//			        {
-	//				    //Check neighbours
-	//			        z=j/(max_x*max_y);
-	//				    rest=j-z*(max_x*max_y);
-	//				    y=rest/max_x;
-	//				    x=rest-y*max_x;
+	ELEMTYPE cur_level;
+	int nClass1, nClass2;
+	bool changed=true;
+	bool changedThis;
+	while(changed)
+		{
+		changed=false;
+		for(cur_level=max_val; cur_level>min_val; cur_level--)
+			{
+			//Loop each level until not changed
+			changedThis=true;
+			while(changedThis)
+				{
+				changedThis=false;
+			    for (i=counts_cum[cur_level-min_val]-1; i>=counts_cum[cur_level-1-min_val]; i--)
+					{
+			        j=sorted_index[i];
+				    if((*(output_iter+j))==undef)
+				        {
+					    //Check neighbours
+				        z=j/(max_x*max_y);
+					    rest=j-z*(max_x*max_y);
+					    y=rest/max_x;
+					    x=rest-y*max_x;
 
-	//					if(x>=low_x && x<high_x && y>=low_y && y<high_y && z>=low_z && z<high_z) 
-	//						{
-	//						nClass1=nClass2=0;
+						if(x>=low_x && x<high_x && y>=low_y && y<high_y && z>=low_z && z<high_z) 
+							{
+							nClass1=nClass2=0;
 
-	//						for(z2=std::max(low_z,z-1); z2<std::min(high_z,z+2); z2++)
-	//							{
-	//							for(y2=std::max(low_y,y-1); y2<std::min(high_y,y+2); y2++)
-	//								{
-	//								for(x2=std::max(low_x,x-1); x2<std::min(high_x,x+2); x2++)
-	//									{
-	//									k=x2+max_x*(y2+z2*max_y);
-	//									if((*(output_iter+k))==class1)
-	//										nClass1++;
-	//									else if((*(output_iter+k))==class2)
-	//										nClass2++;										
-	//									}
-	//								}
-	//							}
-	//						if(nClass1>0 && nClass2==0)
-	//							{
-	//							(*(output_iter+j))=class1;
-	//							changed=true;
-	//							changedThis=true;
-	//							}
-	//						else if(nClass2>0 && nClass1==0)
-	//							{
-	//							(*(output_iter+j))=class2;
-	//							changed=true;
-	//							changedThis=true;
-	//							}
-	//						else if(nClass2>0 && nClass1>0)
-	//							{
-	//							(*(output_iter+j))=conflict;
-	//							changed=true;
-	//							changedThis=true;
-	//							}
-	//						}
-	//					else
-	//						{
-	//						(*(output_iter+j))=class1;
-	//						changed=true;
-	//						changedThis=true;
-	//						}
-	//					}
-	//				}
-	//			}
-	//		}		        
-	//	}  
+							for(z2=std::max(low_z,z-1); z2<std::min(high_z,z+2); z2++)
+								{
+								for(y2=std::max(low_y,y-1); y2<std::min(high_y,y+2); y2++)
+									{
+									for(x2=std::max(low_x,x-1); x2<std::min(high_x,x+2); x2++)
+										{
+										k=x2+max_x*(y2+z2*max_y);
+										if((*(output_iter+k))==class1)
+											nClass1++;
+										else if((*(output_iter+k))==class2)
+											nClass2++;										
+										}
+									}
+								}
+							if(nClass1>0 && nClass2==0)
+								{
+								(*(output_iter+j))=class1;
+								changed=true;
+								changedThis=true;
+								}
+							else if(nClass2>0 && nClass1==0)
+								{
+								(*(output_iter+j))=class2;
+								changed=true;
+								changedThis=true;
+								}
+							else if(nClass2>0 && nClass1>0)
+								{
+								(*(output_iter+j))=conflict;
+								changed=true;
+								changedThis=true;
+								}
+							}
+						else
+							{
+							(*(output_iter+j))=class1;
+							changed=true;
+							changedThis=true;
+							}
+						}
+					}
+				}
+			}		        
+		}  
 
 	delete[] counts;
 	delete[] counts_cum;
