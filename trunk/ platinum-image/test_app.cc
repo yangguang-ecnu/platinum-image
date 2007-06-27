@@ -26,6 +26,8 @@
 
 #include "global.h"
 
+#include "image_integer.h"
+
 //retrieve command-line arguments
 int visid = -1;
 int arg(int argc, char **argv, int &i) {
@@ -42,9 +44,11 @@ void add_demo_image (int userIO_ID,int par_num)
     {
     if (par_num == USERIO_CB_OK)
         {
-        int volID = datamanagement.create_empty_image(20,20,20,1);
-        datamanagement.get_image(volID)->testpattern();
-        datamanagement.image_has_changed(volID);
+        image_integer<unsigned char,3>* demo_image = new image_integer<unsigned char,3>(20,20,20,NULL);
+        //demo_image->erase();
+        demo_image->testpattern();
+
+        datamanagement.add(demo_image);
         }
     }
 

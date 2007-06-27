@@ -111,12 +111,14 @@ class datamanager
         void remove_image (int id);                //remove image from vector, notify other managers
 
         void loadvector_callback();
-        int create_empty_image(int x, int y, int z, int unit);     //creates empty image of given size
+        int create_empty_image(int x, int y, int z, int unit);      //creates empty image of given size
                                                                     //and fills it with testpattern()
                                                                     //returns ID
+                                                                    //DEPRECATED: use constructor and datamanager::add instead
 
         int create_empty_image(image_base *, imageDataType unit);    //create empty image with same
                                                                     //dimensions as argument
+                                                                    //DEPRECATED: use image_base::alike instead
         int find_image_index(int uniqueID);
         image_base * get_image (int ID);
 

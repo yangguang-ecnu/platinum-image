@@ -35,6 +35,14 @@ template<int IMAGEDIM = 3>
 class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
     {
     public:
+        virtual void transfer_function(transfer_base<IMGLABELTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
+
+        image_label(int w, int h, int d, IMGBINARYTYPE *ptr = NULL
+            ):image_integer<IMGLABELTYPE, IMAGEDIM>(w, h, d, ptr)
+            {
+            transfer_function();
+            }
+
         image_label (itk::SmartPointer< itk::Image<IMGLABELTYPE, IMAGEDIM > > &i):image_integer<IMGLABELTYPE, IMAGEDIM>(i) {
             transfer_function();
             }
@@ -52,8 +60,6 @@ class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
             {
             transfer_function();
             }
-
-    virtual void transfer_function(transfer_base<IMGLABELTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
     };
 
 //with C++ templates, declaration and definition go together
