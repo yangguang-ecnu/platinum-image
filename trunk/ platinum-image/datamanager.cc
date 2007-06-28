@@ -300,7 +300,7 @@ void datamanager::dcm_import_callback(Fl_Widget *callingwidget, void *thisdatama
 // argument must tell us which instance, if multiple
 {
 	if(TESTMODE){
-		new dicom_importer(100,100,900,600,"Dicom File Import");
+		new dcmimportwin(100,100,900,600,"Dicom File Import");
 	}
 }
 
