@@ -9,12 +9,12 @@ Together with the tool palette there will be a StatusArea that shows either a te
 
 ==Events==
 A viewporttool can receive five types of mouse events corresponding to three mouse buttons, scroll wheel and hovering (mouse up):
-# Hover
-# Adjust
-# Create
-# Browse
-# Scroll
-By using the concepts above instead of mouse button names, and selecting the most appropriate feature to each name, some consistency in mouse button usage can be achieved. Also, it becomes considerably easier to adapt to a stylus, laptop trackpad or standard Mac mouse by using modifier keys in addition to 
+ # Hover
+ # Adjust
+ # Create
+ # Browse
+ # Scroll
+By using the concepts above instead of mouse button names, and selecting the most appropriate feature to each name, some consistency in mouse button usage can be achieved. Also, it becomes considerably easier to adapt to use with a stylus, laptop trackpad or standard Mac mouse by using modifier keys in addition.
 
 Event types that the viewporttool should also handle eventually:
  * Keypress
