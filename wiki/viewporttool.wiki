@@ -17,6 +17,7 @@ A viewporttool can receive five types of mouse events corresponding to three mou
 By using the concepts above instead of mouse button names, and selecting the most appropriate feature to each name, some consistency in mouse button usage can be achieved. Also, it becomes considerably easier to adapt to use with a stylus, laptop trackpad or standard Mac mouse by using modifier keys in addition.
 
 Event types that the viewporttool should also handle eventually:
+ * Draw
  * Keypress
  * Drag and drop
 
@@ -25,4 +26,8 @@ Events that should cause the same behavior across all tools should simply be ign
 = Implementation =
 The viewporttool icons (buttons) for selecting tool are created once by static methods. A viewporttool object will be created when the tool type is selected.
 
-Events will be sent to static functions in each viewporttool subclass as a [pt_event] object. This class contains an indicator value and image pointer. If the class wants to use the event it calls grab() on the pt_event object, which marks it so that the event will not be passed to any other tool (although this principle may be changed later). 
+Events will be sent to static handle(…) functions in each viewporttool subclass as a [pt_event] object. This class contains an indicator value and image pointer. If the class wants to use the event it calls grab() on the pt_event object, which marks it so that the event will not be passed to any other tool (although this principle may be changed later). If the event causes the start of a process (more than just an instantaneous action) the handle(…) function should return a viewporttool object which will be kept by the viewport and get all future events into a instance handle (…) function (or another name if functions cannot be overloaded like that). When this object ceases to grab new pt_event objects it will be deleted by the viewport and the process has reached its end.
+
+The viewporttool instance created under such circumstances can store things like past drag coordinates or a selection ROI of some kind.
+
+Static variables in a viewporttool subclass may keep more persistent information like brush radii, "modes" and such. This information will be retained until the Platinum program is exited.
