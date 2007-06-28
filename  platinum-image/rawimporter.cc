@@ -293,6 +293,11 @@ if (w == guessvoxeltype)
     incrementfield->value(sliceIncrement);
     }
 
+    rawimporter * rawimporter::create(std::vector<std::string> in_files) {
+        Fl_Group::current(NULL);
+        return new rawimporter(in_files);
+        }
+
 rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 307)
     {
     parent(NULL);

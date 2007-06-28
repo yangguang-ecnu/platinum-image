@@ -36,11 +36,12 @@ void datawidget::cb_transferswitch(Fl_Widget* o, void* v) {
 
     //Each item has space for a callback function and an argument for that function. Due to back compatability, the Fl_Menu_Item itself is not passed to the callback, instead you have to get it by calling  ((Fl_Menu_*)w)->mvalue()  where w is the widget argument.
 
-    /*const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
+    const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
     
-    transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(item->user_data());*/
+    /*transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(item->user_data());*/
 
     par->switch_tf();
+    const_cast<Fl_Menu_Item *>(item)->setonly();
     }
 
 transferfactory::tf_menu_params::tf_menu_params (const std::string t,image_base * i)

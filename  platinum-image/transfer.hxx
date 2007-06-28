@@ -57,6 +57,8 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
     contrast_ctrl = new Fl_Slider (FL_HORIZONTAL,0,50,300,16,"Contrast");
     contrast_ctrl->value (contrast);
     contrast_ctrl->bounds(-contrange,contrange);
+
+    this->pane->end();
     }
 
 template <class ELEMTYPE >

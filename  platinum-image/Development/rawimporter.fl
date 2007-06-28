@@ -3,11 +3,10 @@ version 1.0107
 header_name {.hh} 
 code_name {.cxx}
 widget_class rawimporter {open
-  xywh {76 145 478 312} type Single
+  private xywh {574 466 478 312} type Single
   class Fl_window visible
 } {
-  decl {\#define MAXVOXSIZE 64} {selected
-  }
+  decl {\#define MAXVOXSIZE 64} {}
   Function {cb_field_changed(Fl_Widget* o, void*)} {open private return_type {static void}
   } {}
   Fl_Value_Input imagesizex {
@@ -25,7 +24,7 @@ widget_class rawimporter {open
     xywh {94 41 70 25} labelsize 10 when 3 minimum 1 maximum 65535 step 1 value 1 textsize 12
   }
   Fl_Group voxeltypegroup {
-    label {Voxel type} open
+    label {Voxel type}
     tooltip {For interleaved series: where to start and what to skip} xywh {95 67 228 102} box THIN_DOWN_FRAME labelsize 10 align 4
   } {
     Fl_Check_Button floatbtn {
@@ -87,7 +86,7 @@ widget_class rawimporter {open
       }
     }
   }
-  Fl_Group headersizegroup {open
+  Fl_Group headersizegroup {
     xywh {29 170 152 25} labelsize 11 when 0
   } {
     Fl_Input headersizefield {
@@ -102,7 +101,7 @@ widget_class rawimporter {open
     }
   }
   Fl_Group series_group {
-    label {Series settings} open
+    label {Series settings}
     tooltip {For interleaved series: where to start and what to skip} xywh {94 196 189 65} box THIN_DOWN_FRAME labelsize 10 align 4
   } {
     Fl_Group numzgroup {open
@@ -164,5 +163,10 @@ Fl::delete_widget(importwindow);}
     label Import
     callback {rawimporter * importer = o->window();}
     xywh {375 269 84 25}
+  }
+  Function {create(std::vector<std::string> in_files)} {open selected return_type {static rawimporter *}
+  } {
+    code {Fl_Group::current(NULL);
+return new rawimporter(in_files);} {}
   }
 } 

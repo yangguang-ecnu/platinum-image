@@ -66,8 +66,9 @@ std::string path_parent (std::string file_path); //get the parent's path
 
 class rawimporter : public Fl_Window
     {
-    public:
+    protected:
         rawimporter(std::vector<std::string>);
+    public:
 
         template <class intype, class outtype>
             static void raw_convert (intype* &inpointer, outtype* &outpointer, long numVoxels, bool bigEndian);                                           //convert data type and endianness on arrays
@@ -119,6 +120,7 @@ class rawimporter : public Fl_Window
         Fl_Button *rawimportcancel;
     public:
         Fl_Return_Button *rawimportok;
+        static rawimporter * create(std::vector<std::string>);
 
     private:
         static void cb_floatbtn(Fl_Check_Button*, void*);
