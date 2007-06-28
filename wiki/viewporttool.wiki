@@ -1,0 +1,23 @@
+#summary Base class for mouse-driven tools manipulating data objects
+#labels ClassDescription,Phase-Design
+
+= Plans =
+
+Viewporttool objects are selectable in a "palette" in the main Platinum window. Once selected, a tool will somehow be able to catch mouse events, to alter the viewport and any (typically the topmost or all at once) images/points in that viewport. The same tool is selected for all viewports simultaneously.
+
+Together with the tool palette there will be a StatusArea that shows either a text string (writable in an algorithm to provide progress feedback) or any FLTK widgets depending on the tool selected.
+
+==Events==
+A viewporttool can receive five types of mouse events corresponding to three mouse buttons, scroll wheel and hovering (mouse up):
+# Hover
+# Adjust
+# Create
+# Browse
+# Scroll
+By using the concepts above instead of mouse button names, and selecting the most appropriate feature to each name, some consistency in mouse button usage can be achieved. Also, it becomes considerably easier to adapt to a stylus, laptop trackpad or standard Mac mouse by using modifier keys in addition to 
+
+Event types that the viewporttool should also handle eventually:
+ * Keypress
+ * Drag and drop
+
+Events that should cause the same behavior across all tools should simply be ignored by the selectable tools and caught last by a master tool (which does not show onscreen, only in code)
