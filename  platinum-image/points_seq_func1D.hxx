@@ -17,7 +17,7 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "points_seq_func1D.h"
+#include <iostream>
 
 template <class KEY_TYPE, class VALUE_TYPE>
 points_seq_func1D<KEY_TYPE, VALUE_TYPE>::points_seq_func1D(KEY_TYPE key_min, VALUE_TYPE val_min, KEY_TYPE key_max, VALUE_TYPE val_max, int nr_points)

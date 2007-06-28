@@ -33,7 +33,7 @@
 #define __points_seq_func1D__
 
 #include <map>
-#include "point_base.h"
+//#include "point_base.h"
 
 template <class KEY_TYPE, class VALUE_TYPE>
 class points_seq_func1D{// : public point_base{

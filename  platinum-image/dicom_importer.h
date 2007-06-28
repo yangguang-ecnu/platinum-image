@@ -58,8 +58,9 @@
 
 
 //#ifdef MICROSOFT
+#ifdef WIN32
 #define popen _popen
-//#endif /*MICROSOFT*/
+#endif /*Micro-soft*/
 
 using namespace std;
 

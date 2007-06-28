@@ -34,6 +34,7 @@
 #include "color.h"
 #include "FLTKutilities.h"
 #include "points_seq_func1D.h"	//used for spline/linear knots
+#include "transferfactory.h"
 
 template <class ELEMTYPE>
 class image_storage;
@@ -41,10 +42,10 @@ class image_storage;
 template <class ELEMTYPE>
 class histogram_1D;
 
+class transferchart;
+
 template <class ELEMTYPE >
 class transfer_interpolated;
-
-class transferchart;
 
 #define REDRAWCALLBACKPTYPE image_storage<ELEMTYPE > * 
 
@@ -179,5 +180,7 @@ class transfer_spline: public transfer_interpolated <ELEMTYPE >
 public:
 	transfer_spline (image_storage <ELEMTYPE > * s);
 };
+
+#include "transferfactory.hxx"
 
 #endif
