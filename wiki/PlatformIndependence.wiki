@@ -12,7 +12,6 @@ Platinum was designed from an early stage to be run and developed while keeping 
 
 ===MSVC to GCC errors===
 When code is written and syntax-checked using only MSVC (vs.net environment), it is easy to unintentionally break the strict C++ syntax used by GCC as described in point 1 above. These are some common error situations and how to resolve them:
-||Error message || Condition || Solution ||
+|| *Error message* || *Condition* || *Solution* ||
 ||'_member_' was not declared in this scope ||Member of a parent class accessed without this-> prefix|| *this->*_member_||
 || expected `;' before 'object', 'object' was not declared in this scope || _object_ is of a templated class named without "typename" modifier e.g: classname<params> object; || *typename* classname<params> object; ||
-
