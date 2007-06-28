@@ -3,7 +3,7 @@
 
 = Introduction =
 
-The status area doubles with configuration controls for [viewportool]s and progress display during algorithm run.
+The status area doubles with configuration controls for [viewporttool]s and progress display during algorithm run.
 
 = Uses =
  # Progress display
