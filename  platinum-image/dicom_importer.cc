@@ -71,7 +71,7 @@ bool SortColumn::operator()(const Row &a, const Row &b)
 }
 
 
-MyTable::MyTable(int x, int y, int w, int h, const char *l) : Fl_Table_Row(x,y,w,h,l)
+DcmTable::DcmTable(int x, int y, int w, int h, const char *l) : Fl_Table_Row(x,y,w,h,l)
 {
 	_maxcols = 0;
 	_sort_reverse = 0;
@@ -100,18 +100,18 @@ MyTable::MyTable(int x, int y, int w, int h, const char *l) : Fl_Table_Row(x,y,w
 
 }
 
-MyTable::~MyTable()
+DcmTable::~DcmTable()
 { }
 
 // Sort a column up or down
-void MyTable::sort_column(int col, int reverse)
+void DcmTable::sort_column(int col, int reverse)
 {
 	sort(_rowdata.begin(), _rowdata.end(), SortColumn(col, reverse));
 	redraw();
 }
 
 // Handle drawing all cells in table
-void MyTable::draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H)
+void DcmTable::draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H)
 {
 	char *s = "";
 
@@ -207,7 +207,7 @@ void MyTable::draw_cell(TableContext context, int R, int C, int X, int Y, int W,
 }
 
 // Automatically set column widths to widest data in each column
-void MyTable::autowidth(int pad)
+void DcmTable::autowidth(int pad)
 {
 	fl_font(FL_COURIER, 16);
 
@@ -235,7 +235,7 @@ void MyTable::autowidth(int pad)
 	redraw();
 }
 
-void MyTable::load_testdata()
+void DcmTable::load_testdata()
 {
 	string word;
 
@@ -270,7 +270,7 @@ void MyTable::load_testdata()
 	autowidth(20);
 }
 
-void MyTable::print_all()
+void DcmTable::print_all()
 {
 	for(int r=0; r<rows(); r++)
 	{
@@ -283,7 +283,7 @@ void MyTable::print_all()
 }
 
 // Load table with output of 'cmd' - for example load_command("dir");
-void MyTable::load_command(const char *cmd)
+void DcmTable::load_command(const char *cmd)
 {
 	char s[512];
 	FILE *fp = popen(cmd, "r");
@@ -340,13 +340,13 @@ void MyTable::load_command(const char *cmd)
 }
 
 // Callback whenever someone clicks on different parts of the table
-void MyTable::event_callback(Fl_Widget*, void *data)
+void DcmTable::event_callback(Fl_Widget*, void *data)
 {
-	MyTable *o = (MyTable*)data;
+	DcmTable *o = (DcmTable*)data;
 	o->event_callback2();
 }
 
-void MyTable::event_callback2()
+void DcmTable::event_callback2()
 {
 	//	int R = callback_row();			// currently unused
 	int C = callback_col();
@@ -374,11 +374,48 @@ void MyTable::event_callback2()
 	}
 }
 
-
-
-dicom_importer::dicom_importer(int xx, int yy, int ww, int hh, const char *ll):Fl_Window(xx,yy,ww,hh,ll)
+void dcmimportwin::button_cb(Fl_Button* b, void* bstring)
 {
-	MyTable *table = new MyTable(20, 20, w()-40, h()-40);
+	dcmimportwin *w = (dcmimportwin*)b->parent();
+	w->button_cb2(string((const char*)bstring));
+}
+
+void dcmimportwin::button_cb2(string s)
+{
+	cout<<"("<<s<<")"<<endl;
+	if(s=="load"){
+		//open file/folder chooser... import selected files/folders (incl "subfolders" if checked...)
+		//return as a vector of strings...
+		cout<<"***"<<incl_subfolder_check_button->value()<<endl;
+
+	}else if(s=="settings"){
+		//table->dcmtags
+		//open an new window (give tag vector as an argument) that handles/modifies the tag vector.
+		new settingswin(100,100,300,300,"Settings");
+
+	}else if(s=="import"){
+		//if file/files are selected -->  import and give the name in the input field
+		//geometry information will be difficult to import, as files can be chosen randomly...
+		cout<<"*"<<import_volume_input->value()<<endl;
+
+	}else if(s=="close"){
+
+	}else{
+		cout<<"*Warning*"<<endl;
+	}
+}
+
+
+dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Window(xx,yy,ww,hh,ll)
+{
+//	make_current();	// *Warning* - If this is forgotten, The window/graphics might end up in 
+//	parent(NULL);	// *Warning* - If this is forgotten, The window/graphics might end up in 
+	// unintended locations...
+
+	int wm = 10;	//widget margin
+	int wh = 30;	//widget height
+
+	table = new DcmTable(wm, 2*wm+wh, w()-2*wm, h()-4*wm-2*wh);
 	table->selection_color(FL_YELLOW);
 	table->col_header(1);
 	table->col_resize(1);
@@ -389,34 +426,327 @@ dicom_importer::dicom_importer(int xx, int yy, int ww, int hh, const char *ll):F
 	table->row_height_all(18);			// height of all rows
 	table->end();
 
+
+	Fl_Button* o;
+	o = new Fl_Button(wm, wm, 100, wh, "Load directory");
+	o->callback((Fl_Callback*)button_cb, "load");
+	//	o->callback((Fl_Callback*)load_button_cb, (void*)this);
+
+
+	//	Fl_Check_Button* incl_subfolder_check_button = new Fl_Check_Button(100+2*wm, wm, 160, wh, "Include subdirectories");
+	incl_subfolder_check_button = new Fl_Check_Button(100+2*wm, wm, 160, wh, "Include subdirectories");
+	incl_subfolder_check_button->down_box(FL_DOWN_BOX);
+	incl_subfolder_check_button->value(1);
+
+
+	o = new Fl_Button(wm, h()-wm-wh, 140, wh, "Dicom Tag Settings");
+	o->callback((Fl_Callback*)button_cb, "settings");
+	//	o->callback((Fl_Callback*)settings_button_cb, (void*)this);
+
+	//	Fl_Input* import_volume_input = new Fl_Input(w()-3*wm-2*65-170, h()-wm-wh, 170, wh, "Import Volume Name");
+	import_volume_input = new Fl_Input(w()-3*wm-2*65-170, h()-wm-wh, 170, wh, "Import Volume Name");
+	import_volume_input->box(FL_DOWN_BOX);
+	import_volume_input->color(FL_BACKGROUND2_COLOR);
+	import_volume_input->selection_color(FL_SELECTION_COLOR);
+	import_volume_input->labeltype(FL_NORMAL_LABEL);
+	import_volume_input->labelfont(0);
+	import_volume_input->labelsize(14);
+	import_volume_input->labelcolor(FL_FOREGROUND_COLOR);
+	//	import_volume_input->callback((Fl_Callback*)volume_name_field_cb, (void*)this);
+	import_volume_input->align(FL_ALIGN_LEFT);
+	import_volume_input->when(FL_WHEN_RELEASE);
+
+	import_volume_input->value("Dicom import volume");
+
+
+	o = new Fl_Button(w()-2*wm-2*65, h()-wm-wh, 65, wh, "Import");
+	o->callback((Fl_Callback*)button_cb, "import");
+	//	o->callback((Fl_Callback*)import_button_cb, (void*)this);
+
+	o = new Fl_Button(w()-wm-65, h()-wm-wh, 65, wh, "Close");
+	o->callback((Fl_Callback*)button_cb, "close");
+	//	o->callback((Fl_Callback*)close_button_cb, (void*)this);
+
 	end();
 	resizable(table);
 	show();
+}
 
 
+//------------------------------------------------------
+//------------------------------------------------------
+//------------------------------------------------------
 
+settingswin::settingswin(int x, int y, int w, int h, const char *l):Fl_Window(x,y,w,h,l)
+{
+	//Fl_parent(NULL); //*Warning*
 
-	/*
-	//This is verified to work.....
+	Fl_Window win(600, 400);
+	win.size_range(1,1);
 
-	Fl_Window win(900,500);
-	MyTable table(20, 20, win.w()-40, win.h()-40);
-	table.selection_color(FL_YELLOW);
-	table.col_header(1);
-	table.col_resize(1);
-	table.when(FL_WHEN_RELEASE);		// handle table events on release
-	//#if defined(_WIN32)
-	table.load_command("dir");			// load table with a directory listing
-	//#else
-	//	table.load_command("ls -la /var/tmp");	// load table with a directory listing
-	// table.load_command("cat README");	// load table with a directory listing
-	//#endif
-	table.row_height_all(18);			// height of all rows
+	SingleInput* table = new SingleInput(20, 20, win.w()-80, win.h()-80);
+
+	// ROWS
+	table->row_header(1);
+	table->row_header_width(70);
+	table->row_resize(1);
+	table->rows(10);
+	table->row_height_all(25);
+
+	// COLS
+	table->col_header(1);
+	table->col_header_height(25);
+	table->col_resize(1);
+	table->cols(4);
+	table->col_width_all(70);
+
+	// Add children to window
+	win.begin();
+
+	// ROW
+	Fl_Value_Slider setrows(win.w()-40,20,20,win.h()-80, 0);
+	setrows.type(FL_VERT_NICE_SLIDER);
+	setrows.bounds(2,MAX_ROWS);
+	setrows.step(1);
+	setrows.value(table->rows()-1);
+	setrows.callback(setrows_cb, (void*)table);
+	setrows.when(FL_WHEN_CHANGED);
+	setrows.clear_visible_focus();
+
+	// COL
+	Fl_Value_Slider setcols(20,win.h()-40,win.w()-80,20, 0);
+	setcols.type(FL_HOR_NICE_SLIDER);
+	setcols.bounds(2,MAX_COLS);
+	setcols.step(1);
+	setcols.value(table->cols()-1);
+	setcols.callback(setcols_cb, (void*)table);
+	setcols.when(FL_WHEN_CHANGED);
+	setcols.clear_visible_focus();
+
 	win.end();
 	win.resizable(table);
 	win.show();
+
 	Fl::run();
-	*/
+	//return Fl::run();
+}
 
 
+
+SingleInput::SingleInput(int x, int y, int w, int h, const char *l) : Fl_Table(x,y,w,h,l)
+{
+	callback(&event_callback, (void*)this);
+	input = new Fl_Int_Input(w/2,h/2,0,0);
+	input->hide();
+	input->callback(input_cb, (void*)this);
+	input->when(FL_WHEN_ENTER_KEY_ALWAYS);
+	input->maximum_size(5);
+
+	(new Fl_Box(9999,9999,0,0))->hide();  // HACK: prevent flickering in Fl_Scroll
+	end();
+}
+
+SingleInput::~SingleInput()
+{
+}
+
+
+
+void SingleInput::set_value()
+{
+//	values[row_edit][col_edit] = atoi(input->value()); 
+	values[row_edit][col_edit] = string(input->value()); 
+	input->hide(); 
+}
+
+
+void SingleInput::rows(int val) {
+	if (input->visible()) 
+		input->do_callback(); 
+	Fl_Table::rows(val); 
+}
+void SingleInput::cols(int val) {
+	if (input->visible()) 
+		input->do_callback(); 
+	Fl_Table::cols(val); 
+}
+int SingleInput::rows() { 
+	return Fl_Table::rows(); 
+}
+int SingleInput::cols() { 
+	return Fl_Table::cols(); 
+}
+
+// Handle drawing all cells in table
+
+void SingleInput::draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H)
+{
+	static char s[30];
+
+	switch ( context )
+	{
+	case CONTEXT_COL_HEADER:
+		fl_font(FL_HELVETICA | FL_BOLD, 14);
+		fl_push_clip(X, Y, W, H);
+		{
+			fl_draw_box(FL_THIN_UP_BOX, X, Y, W, H, col_header_color());
+			fl_color(FL_BLACK);
+			if (C != cols()-1)
+			{
+				s[0] = 'A' + C;
+				s[1] = '\0';
+				fl_draw(s, X, Y, W, H, FL_ALIGN_CENTER);
+			}
+			else
+			{ fl_draw("TOTAL", X, Y, W, H, FL_ALIGN_CENTER); }
+		}
+		fl_pop_clip();
+		return;
+
+	case CONTEXT_ROW_HEADER:
+		fl_font(FL_HELVETICA | FL_BOLD, 14);
+		fl_push_clip(X, Y, W, H);
+		{
+			fl_draw_box(FL_THIN_UP_BOX, X, Y, W, H, row_header_color());
+			fl_color(FL_BLACK);
+			if (R != rows()-1)
+			{
+				sprintf(s, "%d", R+1);
+				fl_draw(s, X, Y, W, H, FL_ALIGN_CENTER);
+			}
+			else
+			{ fl_draw("TOTAL", X, Y, W, H, FL_ALIGN_CENTER); }
+		}
+		fl_pop_clip();
+		return;
+
+	case CONTEXT_CELL:
+		{
+			if (R == row_edit && C == col_edit && input->visible())
+			{ return; }
+
+			// BACKGROUND
+			fl_push_clip(X, Y, W, H);
+			fl_draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_WHITE);
+			fl_pop_clip();
+
+			// TEXT
+			fl_push_clip(X+3, Y+3, W-6, H-6);
+			{
+				fl_color(FL_BLACK);
+
+				if (C != cols()-1 && R != rows()-1)
+				{
+					fl_font(FL_HELVETICA, 14);
+//					sprintf(s, "%d", values[R][C]);
+					sprintf(s, "%s", values[R][C].c_str());
+					fl_draw(s, X+3, Y+3, W-6, H-6, FL_ALIGN_RIGHT);
+				}
+/*				else
+				{
+					int T = 0;
+					fl_font(FL_HELVETICA | FL_BOLD, 14);
+
+					if (C == cols()-1 && R == rows()-1)		// TOTAL
+					{
+						for (int c=0; c<cols()-1; ++c)
+							for (int r=0; r<rows()-1; ++r)
+								T += values[r][c];
+					}
+					else if (C == cols()-1)			// ROW SUBTOTAL
+					{
+						for (int c=0; c<cols()-1; ++c)
+							T += values[R][c];
+					}
+					else if (R == rows()-1)			// COL SUBTOTAL
+					{
+						for (int r=0; r<rows()-1; ++r)
+							T += values[r][C];
+					}
+
+					sprintf(s, "%d", T);
+					fl_draw(s, X+3, Y+3, W-6, H-6, FL_ALIGN_RIGHT);
+				}
+*/
+			}
+			fl_pop_clip();
+
+			return;
+		}
+
+	case CONTEXT_RC_RESIZE:
+		{
+			if (!input->visible()) return;
+			find_cell(CONTEXT_TABLE, row_edit, col_edit, X, Y, W, H);
+			if (X==input->x() && Y==input->y() && W==input->w() && H==input->h()) return;
+			input->resize(X,Y,W,H);
+			return;
+		}
+
+	default:
+		return;
+	}
+}
+
+
+void SingleInput::event_callback(Fl_Widget*, void *data)
+{
+	SingleInput *o = (SingleInput*)data;
+	o->event_callback2();
+}
+
+void SingleInput::event_callback2()
+{
+	int R = callback_row(),
+		C = callback_col();
+	TableContext context = callback_context();
+
+	switch ( context )
+	{
+	case CONTEXT_CELL:
+		{
+			if (C == cols()-1 || R == rows()-1) return;
+			if (input->visible()) input->do_callback();
+			row_edit = R;
+			col_edit = C;
+			int XX,YY,WW,HH;
+			find_cell(CONTEXT_CELL, R, C, XX, YY, WW, HH);
+			input->resize(XX,YY,WW,HH);
+			char s[30];
+//			sprintf(s, "%d", values[R][C]);
+			sprintf(s, "%s", values[R][C].c_str());
+			input->value(s);
+			input->show();
+			input->take_focus();
+			return;
+		}
+	default:
+		return;
+	}
+}
+
+
+
+void input_cb(Fl_Widget*, void* v)
+{ 
+	((SingleInput*)v)->set_value(); 
+}
+
+
+// Change number of columns
+void setcols_cb(Fl_Widget* w, void* v)
+{
+	SingleInput* table = (SingleInput*)v;
+	Fl_Valuator *in = (Fl_Valuator*)w;
+	int cols = int(in->value()) + 1;
+	table->cols(cols);
+}
+
+// Change number of rows
+void setrows_cb(Fl_Widget* w, void* v)
+{
+	SingleInput* table = (SingleInput*)v;
+	Fl_Valuator *in = (Fl_Valuator*)w;
+	int rows = int(in->value()) + 1;
+	table->rows(rows);
 }
