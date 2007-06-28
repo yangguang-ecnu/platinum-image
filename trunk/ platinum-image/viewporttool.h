@@ -26,9 +26,19 @@
 
 #include "image_base.h"
 
+class pt_event;
+
 class viewporttool 
 {
+protected:
+    image_base * image; //do dynamic_cast to whatever class that is needed
+    
 public:
-    viewporttool(image_base *);
-    bool handle(int event);
+    viewporttool(viewport *);
+    virtual ~viewporttool;
+    
+    virtual attach(image_base *) = 0;
+
+    static void grab (pt_event &event);
+    bool handle(int event,enum {create, adjust} );
 };
