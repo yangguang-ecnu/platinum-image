@@ -1,8 +1,9 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Viewporttool $Revision:$
+//  Pt_event $Revision:$
 //
-/// The base class for implementing mouse behaviors/actions in a viewport
+/// The pt_event object (with FLTK-implementing subclass) is the interface
+/// that allows events to be handled with the future option of migrating from FLTK.
 ///
 //  $LastChangedBy: $
 //
@@ -24,21 +25,18 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "image_base.h"
-
-#include "event.h"
-
-class viewporttool 
+class pt_event_base //! this class should not contain anything FLTK
 {
-protected:
-    image_base * image; //do dynamic_cast to whatever class that is needed
+public:
+    virtual void grab () = 0;
+}
+
+class pt_event : public pt_event_base
+{
+private:
     
 public:
-    viewporttool(viewport *);
-    virtual ~viewporttool;
-    
-    virtual attach(image_base *) = 0;
+    pt_event_base (int FL_event); //! constructor translates the content of the FLTK event into a neutral format that is stored in the base class
+    virtual void grab ();
+}
 
-    static void grab (pt_event &event);
-    bool handle(int event,enum {create, adjust} );
-};
