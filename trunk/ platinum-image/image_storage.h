@@ -140,7 +140,6 @@ class image_storage : public image_base
 #include "transfer.hxx"
 #include "transfer_interpolated.hxx"
 
-//with C++ templates, declaration and definition go together
 #include "image_storage_iterator.hxx"
 #include "image_storage.hxx"
 

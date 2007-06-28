@@ -37,7 +37,7 @@
 #include <FL/Fl_File_Chooser.H>
 
 #include "point_base.h"
-#include "datawidget.h"
+//#include "datawidget.h"
 #include "FLTKutilities.h"  //for horizresizeablescroll class
 
 #include "global.h"

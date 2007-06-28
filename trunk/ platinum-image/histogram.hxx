@@ -201,5 +201,5 @@ typedef IMGELEMCOMPTYPE RGBpixel[RGBpixmap_bytesperpixel];
 template <class ELEMTYPE>
 image_storage<ELEMTYPE> * histogram_1D<ELEMTYPE>::image ()
     {
-    return (images[0]); //will be NULL if historam uses data pointers
+    return (this->images[0]); //will be NULL if historam uses data pointers
     }

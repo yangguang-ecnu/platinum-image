@@ -1,12 +1,4 @@
-//////////////////////////////////////////////////////////////////////////
-//
-//   Transferfactory $Revision$
-///
-///  Object factory that makes transfer function objects and the
-///  transfer function menu
-///
-//   $LastChangedBy$
-//
+//$Id$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.

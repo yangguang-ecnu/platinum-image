@@ -51,58 +51,6 @@ typedef enum {
 
 class image_base;
 
-template <class ELEMTYPE >
-class transfer_base;
-
-template <class ELEMTYPE >
-class image_storage;
-
-class transferfactory //! transfer gets its own object factory type because constructors for templated classes cannot be stored
-    {
-    protected:
-        int num_items;
-        static const std::string tfunction_names [];
-    public:
-        transferfactory ();
-
-        ~transferfactory();
-        
-        class tf_menu_params {
-            image_base * image;
-            std::string type;
-        public:
-            tf_menu_params (const std::string t,image_base * i);
-            void switch_tf();
-            };
-
-        template <class ELEMTYPE >
-            transfer_base<ELEMTYPE > * Create(factoryIdType unique_id, image_storage<ELEMTYPE >* s)
-            {
-            int n = 0;
-
-            //transfer function template constructors, same order as in tfunction_names[]:
-
-            if (unique_id == tfunction_names [n++] )
-                {return new transfer_default<ELEMTYPE>(s);}
-
-            if (unique_id == tfunction_names [n++] )
-                {return new transfer_brightnesscontrast<ELEMTYPE>(s);}
-
-            if (unique_id == tfunction_names [n++] )
-                {return new transfer_mapcolor<ELEMTYPE>(s);}
-
-            if (unique_id == tfunction_names [n++] )
-                {return new transfer_linear<ELEMTYPE>(s);}
-
-            if (unique_id == tfunction_names [n++] )
-                {return new transfer_spline<ELEMTYPE>(s);}
-            }
-
-        Fl_Menu_Item * function_menu (Fl_Callback * cb);
-
-        static const std::string tf_name(int);
-    };
-
 // *** begin datawidget.fl
 
 class datawidget : public Fl_Pack {

@@ -1,3 +1,5 @@
+//$Id$
+
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -16,7 +18,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // *** transferchart ***
-
 
 template <class ELEMTYPE>
 transfer_interpolated<ELEMTYPE >::transferchart::transferchart (histogram_1D<ELEMTYPE > * hi, int x, int y, int w, int h):Fl_Widget (x,y,w,h,"")
@@ -328,8 +329,8 @@ void transfer_linear<ELEMTYPE >::transferchart_linear::update ()
     calc_lookup_params();
 
     //render lookup chart
-    std::map<float,unsigned char>::iterator MITR = intensity_knots.begin();
-    std::map<float,unsigned char>::iterator MEND = intensity_knots.end();
+    std::map<float,unsigned char>::iterator MITR = this->intensity_knots.begin();
+    std::map<float,unsigned char>::iterator MEND = this->intensity_knots.end();
 //    std::map<float,float>::iterator MITR = intensity_knots.begin();
   //  std::map<float,float>::iterator MEND = intensity_knots.end();
 
@@ -346,11 +347,11 @@ void transfer_linear<ELEMTYPE >::transferchart_linear::update ()
 
         float slope = (nextPt.second-thisPt.second)/deltaX;
 
-        for (unsigned long p = 0;p < min(deltaX,lookupSize); p++)
+        for (unsigned long p = 0;p < min(deltaX,this->lookupSize); p++)
             {
             int x = p + static_cast<int>(thisPt.first);
             float value = thisPt.second + (p*slope);
-            lookup [x] = value;
+            this->lookup [x] = value;
             }
 
         thisPt = nextPt;
@@ -388,12 +389,12 @@ void transfer_spline<ELEMTYPE >::transferchart_spline::update ()
 	//first recalculate min/max etc.
 	calc_lookup_params();
 
-	float *y2 = new float[intensity_knots.size()+2];
-	y2 = intensity_knots.get_spline_derivatives();
+	float *y2 = new float[this->intensity_knots.size()+2];
+	y2 = this->intensity_knots.get_spline_derivatives();
 
-    for (unsigned long p = 0;p < lookupSize; p++)
+    for (unsigned long p = 0;p < this->lookupSize; p++)
 	{
-		lookup [p] = intensity_knots.get_value_interp_spline(p,y2);
+		this->lookup [p] = this->intensity_knots.get_value_interp_spline(p,y2);
 	}
 
 	delete y2;
