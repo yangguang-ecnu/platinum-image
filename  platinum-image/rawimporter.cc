@@ -295,6 +295,8 @@ if (w == guessvoxeltype)
 
 rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 307)
     {
+    parent(NULL);
+
     //assumption: all files are from same directory
     //this can be made here because the file list originates from a FLTK file chooser,
     //it can NOT be made in image_general's raw constructor however, since that may be called
