@@ -621,7 +621,7 @@ void image_base::load(const std::vector<std::string> f)
         {
         //if any files were left, try raw as last resort
 
-        new rawimporter (chosen_files);
+        rawimporter::create(chosen_files);
         }
     }
 
