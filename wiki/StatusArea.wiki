@@ -1,0 +1,11 @@
+#summary The status area in the main window
+#labels Phase-Design
+
+= Introduction =
+
+The status area doubles with configuration controls for [viewportool]s and progress display during algorithm run.
+
+= Uses =
+ # Progress display
+ # Coordinate/value display when an appropriate tool is selected
+ # Color selection for painting in [image_label]s
