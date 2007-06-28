@@ -3,7 +3,7 @@
 
 = Guidelines for coding syntax and structure =
 
-(Try to follow these guidelines where applicable.)
+(Try to follow these guidelines where applicable. See also [PlatformIndependence] for coding guidelines to ease the cross-platform divide)
 
 
 == Header file structure (.h) ==
