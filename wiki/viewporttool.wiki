@@ -21,3 +21,8 @@ Event types that the viewporttool should also handle eventually:
  * Drag and drop
 
 Events that should cause the same behavior across all tools should simply be ignored by the selectable tools and caught last by a master tool (which does not show onscreen, only in code)
+
+= Implementation =
+The viewporttool icons (buttons) for selecting tool are created once by static methods. A viewporttool object will be created when the tool type is selected.
+
+Events will be sent to static functions in each viewporttool subclass as a [pt_event] object. This class contains an indicator value and image pointer. If the class wants to use the event it calls grab() on the pt_event object, which marks it so that the event will not be passed to any other tool (although this principle may be changed later). 
