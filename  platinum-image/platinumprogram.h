@@ -27,13 +27,14 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
-#include <FL/Fl_Image.H>
-#include <FL/fl_draw.H>
+//#include <FL/Fl_Image.H>
+//#include <FL/fl_draw.H>
 #include <FL/Fl_Scroll.H>
 #include <FL/Fl_Pack.H>
-#include <FL/Fl_Light_Button.H>
+//#include <FL/Fl_Output.H>
+//#include <FL/Fl_Light_Button.H>
 #include <FL/Fl_Menu_Button.H>
-#include <FL/Fl_Toggle_Button.H>
+//#include <FL/Fl_Toggle_Button.H>
 #include <FL/Fl_Tile.H>
 
 #include "viewmanager.h"
@@ -140,17 +141,19 @@ void platinum_init ()
 
 void platinum_setup (Fl_Window & window, int num_viewports_h = 2, int num_viewports_v = 2,int tool_area_w = 250)
     {
+    const int status_area_h = 24;
+    const int toolbox_w = 250;
     int win_w = window.w();
     int win_h = window.h();
     int view_w = win_w - tool_area_w;
-    int view_h = win_h;
+    int view_h = win_h - status_area_h;
 
     //set up the window;
     window.size (win_w,win_h);
     window.resizable(&window);
 
     //allows resizing the proportions of views & data/tools
-    Fl_Tile * viewsNtools = new Fl_Tile(0,0,win_w,win_h);
+    Fl_Tile * viewsNlists = new Fl_Tile(0,0,win_w,win_h-status_area_h);
 
     //Fl_Tile * views = new Fl_Tile(0,0,view_w,view_h);
 
@@ -178,7 +181,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h = 2, int num_viewpo
     //views->resizable(views);
     //views->end();
 
-    Fl_Tile * tool_area = new Fl_Tile(view_w,0,tool_area_w,win_h);   //group containing datawidgets and feedback, so they'll be resized properly
+    Fl_Tile * tool_area = new Fl_Tile(view_w,0,tool_area_w,win_h-status_area_h);   //group containing datawidgets and feedback, so they'll be resized properly
     datamanagement.datawidgets_setup();
 
     userIOmanagement.setup();
@@ -187,10 +190,23 @@ void platinum_setup (Fl_Window & window, int num_viewports_h = 2, int num_viewpo
     tool_area->resizable(tool_area);
     tool_area->end();
 
-    viewsNtools->resizable(viewsNtools);
-    viewsNtools->end();
+    viewsNlists->resizable(viewsNlists);
+    viewsNlists->end();
 
-    window.resizable(viewsNtools);
+    Fl_Group::current (&window); //make statusarea a subwindow
+    Fl_Pack * statusarea = new Fl_Pack (0,win_h-status_area_h,win_w,status_area_h);
+    statusarea->box(FL_NO_BOX);
+    statusarea->type(FL_HORIZONTAL);
+
+    Fl_Window * toolbox = new Fl_Window (0,win_h-status_area_h,toolbox_w,status_area_h);
+
+    Fl_Group::current (statusarea);
+    Fl_Output * status_message = new Fl_Output (toolbox->x()+toolbox->w(),win_h-status_area_h,win_w-toolbox->w(),status_area_h);
+    status_message->box(FL_ENGRAVED_BOX);
+    status_message->value("This is not a real status message");
+    status_message->color(FL_BACKGROUND_COLOR);
+
+    window.resizable(viewsNlists);
     }
 
 /*int platinum_run (int argc, char *argv[])
