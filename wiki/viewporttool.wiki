@@ -31,3 +31,19 @@ Events will be sent to static handle(…) functions in each viewporttool subclas
 The viewporttool instance created under such circumstances can store things like past drag coordinates or a selection ROI of some kind.
 
 Static variables in a viewporttool subclass may keep more persistent information like brush radii, "modes" and such. This information will be retained until the Platinum program is exited.
+
+==Members==
+{{{
+protected:
+    image_base * image; //do dynamic_cast to whatever class that is needed
+    
+public:
+    viewporttool(viewport *);
+    virtual ~viewporttool;
+    
+    virtual attach(image_base *) = 0;
+
+    static void init ();
+    //static void grab (pt_event &event);
+    bool handle(int event,enum {create, adjust} );
+}}}
