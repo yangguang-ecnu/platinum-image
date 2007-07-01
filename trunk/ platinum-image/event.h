@@ -63,13 +63,13 @@ class FLTK_event : public pt_event
         void set_type (); //helper to set state variable
     protected:
         FLTK_event (int FL_event); //! constructor translates the content of the FLTK event into a neutral format that is stored in the base class
-        virtual void grab ();
+        virtual void grab () {}
     };
 
 class viewport_event : public FLTK_event
     {
     public:
         viewport_event (int FL_event);
-        virtual void grab ();
+        virtual void grab () {}
     };
 

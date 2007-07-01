@@ -40,4 +40,6 @@ transfer_base<ELEMTYPE > * transferfactory::Create(factoryIdType unique_id, imag
     
     if (unique_id == tfunction_names [n++] )
         {return new transfer_spline<ELEMTYPE>(s);}
+    
+    return NULL;
 }

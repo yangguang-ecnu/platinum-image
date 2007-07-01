@@ -1,11 +1,4 @@
-//////////////////////////////////////////////////////////////////////////
-//
-//  Viewporttool $Revision:$
-//
-/// The base class for implementing mouse behaviors/actions in a viewport
-///
-//  $LastChangedBy: $
-//
+// $Id: $
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -23,22 +16,3 @@
 //    You should have received a copy of the GNU Lesser General Public License
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-#include "image_base.h"
-
-#include "event.h"
-
-class viewporttool 
-{
-protected:
-    image_base * image; //do dynamic_cast to whatever class that is needed
-    
-public:
-    viewporttool(viewport *);
-    virtual ~viewporttool;
-    
-    virtual attach(image_base *) = 0;
-
-    //static void grab (pt_event &event);
-    bool handle(int event,enum {create, adjust} );
-};
