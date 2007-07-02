@@ -31,6 +31,7 @@
 #include "rendermanager.h"
 #include "FLTKviewport.h"
 #include "datamanager.h"
+#include "viewporttool.h"
 
 #include "global.h"
 
@@ -60,9 +61,10 @@ private:
 	void  draw_coordinates(int x, int y);
 	void  draw_scolling_borders();
 
-	void  reslice();                         // will call renderer_base::reslice(...) and
+	//void  reslice();                         // will call renderer_base::reslice(...) and
                                              //supply our bitmap pointer to the 2D- or 3D-renderer which
                                              //in turn will do the actual reslicing
+    viewporttool * activeTool;
 
      // *** FLTK-related data ***
 

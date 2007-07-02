@@ -53,7 +53,7 @@ class pt_event //! this class should not contain anything FLTK
         pt_event_state state;
         pt_event();
     public:
-        virtual void grab () = 0;   
+        virtual void grab () = 0;
     };
 
 class FLTK_event : public pt_event

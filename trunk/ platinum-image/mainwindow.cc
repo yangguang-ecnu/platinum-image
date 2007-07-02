@@ -145,13 +145,12 @@ void platinum_init ()
 
     }
 
-void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_v,int tool_area_w )
+void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
     {
     const int status_area_h = 24;
-    const int toolbox_w = 250;
     int win_w = window.w();
     int win_h = window.h();
-    int view_w = win_w - tool_area_w;
+    int view_w = win_w - list_area_w;
     int view_h = win_h - status_area_h;
 
     //set up the window;
@@ -187,7 +186,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     //views->resizable(views);
     //views->end();
 
-    Fl_Tile * tool_area = new Fl_Tile(view_w,0,tool_area_w,win_h-status_area_h);   //group containing datawidgets and feedback, so they'll be resized properly
+    Fl_Tile * tool_area = new Fl_Tile(view_w,0,list_area_w,win_h-status_area_h);   //group containing datawidgets and feedback, so they'll be resized properly
     datamanagement.datawidgets_setup();
 
     userIOmanagement.setup();
@@ -204,10 +203,10 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     statusarea->box(FL_NO_BOX);
     statusarea->type(FL_HORIZONTAL);
 
-    Fl_Window * toolbox = new Fl_Window (0,win_h-status_area_h,toolbox_w,status_area_h);
+    viewporttool::init(statusarea); //!spawn toolbox and give viewporttool pointer to statusarea
 
     Fl_Group::current (statusarea);
-    Fl_Output * status_message = new Fl_Output (toolbox->x()+toolbox->w(),win_h-status_area_h,win_w-toolbox->w(),status_area_h);
+    Fl_Output * status_message = new Fl_Output (viewporttool::toolbox->x()+viewporttool::toolbox->w(),win_h-status_area_h,win_w-viewporttool::toolbox->w(),status_area_h);
     status_message->box(FL_ENGRAVED_BOX);
     status_message->value("This is not a real status message");
     status_message->color(FL_BACKGROUND_COLOR);

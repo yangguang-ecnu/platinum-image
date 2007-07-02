@@ -96,6 +96,7 @@ viewport::viewport()
     imagemenu_button=NULL;
     renderermenu_button=NULL;
     viewport_buttons=NULL;
+    activeTool = NULL;
 
     rendererID=NO_RENDERER_ID;
     rendererIndex=-1;

@@ -28,6 +28,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <FL/Fl_Menu.h>
+#include <FL/Fl_Button.h>
 
 #include <map>
 
@@ -54,60 +55,101 @@ template<typename BaseClassType>
 class listedfactory
 {
 protected:
-   typedef BaseClassType *(*CreateObjectFunc)();
-   
+    typedef BaseClassType *(*CreateObjectFunc)();
+    
 protected:
-   std::map<factoryIdType, CreateObjectFunc> m_object_creator;
-
+    std::map<factoryIdType, CreateObjectFunc> m_object_creator;
+    
 public:
-   typedef typename std::map<factoryIdType, CreateObjectFunc>::const_iterator ConstIterator;
-   typedef typename std::map<factoryIdType, CreateObjectFunc>::iterator Iterator;
+    typedef typename std::map<factoryIdType, CreateObjectFunc>::const_iterator ConstIterator;
+    typedef typename std::map<factoryIdType, CreateObjectFunc>::iterator Iterator;
+    
+    template<typename ClassType>
+        bool Register(factoryIdType unique_id)
+        {
+            if (m_object_creator.find(unique_id) != m_object_creator.end())
+                return false;
+            
+            m_object_creator[unique_id] = &CreateObject<BaseClassType, ClassType>;
+            
+            return true;
+        }
+    
+    bool Unregister(factoryIdType unique_id)
+        {
+        return (m_object_creator.erase(unique_id) == 1);
+        }
+    
+    BaseClassType *Create(factoryIdType unique_id)
+        {
+        Iterator iter = m_object_creator.find(unique_id);
+        
+        if (iter == m_object_creator.end())
+            return NULL;
+        
+        return ((*iter).second)();
+        }
+    
+    ConstIterator begin() const
+        {
+            return m_object_creator.begin();
+        }
+    
+    Iterator begin()
+        {
+        return m_object_creator.begin();
+        }
+    
+    ConstIterator end() const
+        {
+            return m_object_creator.end();
+        }
+    
+    Iterator end()
+        {
+        return m_object_creator.end();
+        }
+    
+    //typename Iterator::SizeType num_items ()
+    typename std::map<factoryIdType, CreateObjectFunc>::size_type num_items ()
 
-   template<typename ClassType>
-   bool Register(factoryIdType unique_id)
-   {
-      if (m_object_creator.find(unique_id) != m_object_creator.end())
-               return false;
+        {
+        return m_object_creator.size();
+        }
+    
+    Fl_Menu_Item * function_menu (Fl_Callback * cb);
+    
+    //TODO: copy code from transferfactory::function_menu
+    //      rename 'function_menu' to 'menu'
+    
+    void buttons (Fl_Group * box,bool horizontal,Fl_Callback * cb)
+    {
+        int buttonSize  = horizontal? box->h():box->w();
+        int x = box->x();
+        int y = box->y();
+        
+        box->begin();
 
-      m_object_creator[unique_id] = &CreateObject<BaseClassType, ClassType>;
-
-      return true;
-   }
-
-   bool Unregister(factoryIdType unique_id)
-   {
-      return (m_object_creator.erase(unique_id) == 1);
-   }
-
-   BaseClassType *Create(factoryIdType unique_id)
-   {
-      Iterator iter = m_object_creator.find(unique_id);
-
-      if (iter == m_object_creator.end())
-         return NULL;
-
-      return ((*iter).second)();
-   }
-
-   ConstIterator GetBegin() const
-   {
-      return m_object_creator.begin();
-   }
-
-   Iterator GetBegin()
-   {
-      return m_object_creator.begin();
-   }
-
-   ConstIterator GetEnd() const
-   {
-      return m_object_creator.end();
-   }
-
-   Iterator GetEnd()
-   {
-      return m_object_creator.end();
-   }
-
-   static Fl_Menu * function_menu ();
+        for (ConstIterator i = m_object_creator.begin();i != m_object_creator.end();i++)
+            {
+            std::string name = i->first;
+            Fl_Button * button = new Fl_Button (x,y,buttonSize,buttonSize);
+            button->label(strdup(name.substr(0,1).c_str()));
+            button->tooltip(strdup(name.c_str()));
+            
+            button->box(FL_UP_BOX);
+            button->down_box(FL_DOWN_BOX);
+            button->type(FL_RADIO_BUTTON);
+            button->callback((cb));
+            button->user_data(reinterpret_cast<const void*>(&(i->first)));
+            
+            if (horizontal)
+                { x += buttonSize; }
+            else
+                { y += buttonSize; }
+            }
+        
+        box->size(x,y);
+        box->end();
+    }
 };

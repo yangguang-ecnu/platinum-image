@@ -44,7 +44,7 @@
 
 #include "threshold.h"
 #include "FLTK2Dregionofinterest.h"
-#include "event.h"
+//#include "event.h"
 
 //Callback action identifiers.
 
