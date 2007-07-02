@@ -25,20 +25,52 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "image_base.h"
-
 #include "event.h"
+
+class viewport;
 
 class viewporttool 
 {
+public:
+    typedef viewporttool * (*taste_fcn_pointer)(viewport_event &);
+private:
+    static Fl_Pack * statusArea;
+    static std::map<std::string, taste_fcn_pointer> tools;
+    static std::string selected;  //key for the currently selected tool
+    static void cb_toolbutton (Fl_Button *,void *);
+
 protected:
     image_base * image; //do dynamic_cast to whatever class that is needed
-    
 public:
-    viewporttool(viewport *);
-    virtual ~viewporttool;
+    static void Register (std::string,taste_fcn_pointer);
     
-    virtual attach(image_base *) = 0;
+    //tool selection & controls
+    const static int toolbox_w = 250;
+    static Fl_Window * toolbox;
+    
+    viewporttool(viewport_event &);
+    virtual ~viewporttool();
+    
+    static void init (Fl_Pack *);
+    
+    //virtual attach(image_base *) = 0;
 
     //static void grab (pt_event &event);
-    bool handle(int event,enum {create, adjust} );
+    static viewporttool * taste(viewport_event &);  //if the current tool responds to the event, return instance (which will be getting the events from now on until another tool is selected)
+    //void handle(viewport_event &);
+    //bool handle(int event,enum {create, adjust} );
+};
+
+class nav_tool : public viewporttool
+{
+public:
+    nav_tool (viewport_event &);
+    static viewporttool * taste_(viewport_event &);
+};
+
+class dummy_tool : public viewporttool
+{
+public:
+    dummy_tool (viewport_event &);
+    static viewporttool * taste_(viewport_event &);
 };

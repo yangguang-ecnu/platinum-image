@@ -44,8 +44,8 @@ void transfer_interpolated<ELEMTYPE >::update ()
 template <class ELEMTYPE>
 void transfer_interpolated<ELEMTYPE >::transferchart::calc_lookup_params (int newSize)
     {
-    ELEMTYPE old_max = histogram->max();
-    ELEMTYPE old_min = histogram->min();
+    //ELEMTYPE old_max = histogram->max();
+    //ELEMTYPE old_min = histogram->min();
 
     histogram->calculate(); //do NOT call this directly elsewhere, instead, call calc_lookup_params()
     //when there is reason to recalculate histogram since all the stuff below
