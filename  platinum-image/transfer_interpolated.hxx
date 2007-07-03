@@ -326,7 +326,7 @@ void transfer_linear<ELEMTYPE >::transferchart_linear::update ()
     {
     //this function may be called when the *image* has changed;
     //first recalculate min/max etc.
-    calc_lookup_params();
+    this->calc_lookup_params();
 
     //render lookup chart
     std::map<float,unsigned char>::iterator MITR = this->intensity_knots.begin();
@@ -387,7 +387,7 @@ void transfer_spline<ELEMTYPE >::transferchart_spline::update ()
 {
 	//this function may be called when the *image* has changed;
 	//first recalculate min/max etc.
-	calc_lookup_params();
+	this->calc_lookup_params();
 
 	float *y2 = new float[this->intensity_knots.size()+2];
 	y2 = this->intensity_knots.get_spline_derivatives();

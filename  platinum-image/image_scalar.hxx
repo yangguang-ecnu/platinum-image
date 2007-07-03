@@ -23,9 +23,9 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_1st
 	if(direction==0){
 		for (int k=0; k < this->datasize[2]; k++){
 			for (int j=0; j < this->datasize[1]; j++){
-				res->set_voxel(0,j,k, double(get_voxel(1,j,k)-get_voxel(0,j,k)));				//forward diff
+				res->set_voxel(0,j,k, double(this->get_voxel(1,j,k)-this->get_voxel(0,j,k)));				//forward diff
 				for (int i=1; i < this->datasize[0]-1; i++){
-					res->set_voxel(i,j,k,0.5* double(get_voxel(i+1,j,k)-get_voxel(i-1,j,k)));	//central diff
+					res->set_voxel(i,j,k,0.5* double(this->get_voxel(i+1,j,k)-this->get_voxel(i-1,j,k)));	//central diff
 				}
 				res->set_voxel(this->datasize[0]-1,j,k, double(get_voxel(this->datasize[0]-1,j,k)-get_voxel(this->datasize[0]-2,j,k)));//backward diff
 			}
@@ -34,9 +34,9 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_1st
 	}else if(direction==1){
 		for (int k=0; k < this->datasize[2]; k++){
 			for (int i=0; i < this->datasize[0]; i++){
-				res->set_voxel(i,0,k, double(get_voxel(i,1,k)-get_voxel(i,0,k)));				//forward diff
+				res->set_voxel(i,0,k, double(this->get_voxel(i,1,k)-this->get_voxel(i,0,k)));				//forward diff
 				for (int j=1; j < this->datasize[1]-1; j++){
-					res->set_voxel(i,j,k,0.5* double(get_voxel(i,j+1,k)-get_voxel(i,j-1,k)));	//central diff
+					res->set_voxel(i,j,k,0.5* double(this->get_voxel(i,j+1,k)-this->get_voxel(i,j-1,k)));	//central diff
 				}
 				res->set_voxel(i,this->datasize[1]-1,k, double(get_voxel(i,this->datasize[1]-1,k)-get_voxel(i,this->datasize[1]-2,k)));//backward diff
 			}
@@ -44,11 +44,11 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_1st
 	}else{  // direction==2
 		for (int j=0; j < this->datasize[1]; j++){
 			for (int i=0; i < this->datasize[0]; i++){
-				res->set_voxel(i,j,0, double(get_voxel(i,j,1)-get_voxel(i,j,0)));				//forward diff
+				res->set_voxel(i,j,0, double(this->get_voxel(i,j,1)-this->get_voxel(i,j,0)));				//forward diff
 				for (int k=1; k < this->datasize[2]-1; k++){
-					res->set_voxel(i,j,k,0.5* double(get_voxel(i,j,k+1)-get_voxel(i,j,k-1)));	//central diff
+					res->set_voxel(i,j,k,0.5* double(this->get_voxel(i,j,k+1)-this->get_voxel(i,j,k-1)));	//central diff
 				}
-				res->set_voxel(i,j,this->datasize[2]-1, double(get_voxel(i,j,this->datasize[2]-1)-get_voxel(i,j,this->datasize[2]-2)));//backward diff
+				res->set_voxel(i,j,this->datasize[2]-1, double(get_voxel(i,j,this->datasize[2]-1)-this->get_voxel(i,j,this->datasize[2]-2)));//backward diff
 			}
 		}
 	}
