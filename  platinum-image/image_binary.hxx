@@ -163,7 +163,113 @@ image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and_not(image_binary<IM
 	//output->image_has_changed();
     return output;
     }
-    
+
+template <int IMAGEDIM>
+image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_or_prev_and_next(int direction, IMGBINARYTYPE object_value)    
+	{
+    image_binary<IMAGEDIM> * output = new image_binary (this,false);
+
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
+		
+	IMGBINARYTYPE p,prev,next,res;//pixel value
+
+	//First slice
+	w=0;
+	for(v=0; v<max_v; v++)
+		{
+		for(u=0; u<max_u; u++)
+			{
+			p=this->get_voxel_by_dir(u,v,w,direction);
+			output->set_voxel_by_dir(u,v,w,p,direction);
+			}
+		}
+
+	//Mid slices
+	for(w=1; w<max_w-1; w++)
+		{
+		for(v=0; v<max_v; v++)
+			{
+			for(u=0; u<max_u; u++)
+				{
+				p=this->get_voxel_by_dir(u,v,w,direction);
+				prev=this->get_voxel_by_dir(u,v,w-1,direction);
+				next=this->get_voxel_by_dir(u,v,w+1,direction);
+				res=(p==object_value || (prev==object_value && next==object_value))?object_value:!object_value;
+				output->set_voxel_by_dir(u,v,w,res,direction);
+				}
+			}
+		}
+	//Last slice
+	w=max_w-1;
+	for(v=0; v<max_v; v++)
+		{
+		for(u=0; u<max_u; u++)
+			{
+			p=this->get_voxel_by_dir(u,v,w,direction);
+			output->set_voxel_by_dir(u,v,w,p,direction);
+			}
+		}
+
+	return output;
+	}
+
+template <int IMAGEDIM>
+image_binary<IMAGEDIM> * image_binary<IMAGEDIM>::logical_and_prev_or_next(int direction, IMGBINARYTYPE object_value)    
+	{
+    image_binary<IMAGEDIM> * output = new image_binary (this,false);
+
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
+		
+	IMGBINARYTYPE p,prev,next,res;//pixel value
+
+	//First slice
+	w=0;
+	for(v=0; v<max_v; v++)
+		{
+		for(u=0; u<max_u; u++)
+			{
+			p=this->get_voxel_by_dir(u,v,w,direction);
+			output->set_voxel_by_dir(u,v,w,p,direction);
+			}
+		}
+
+	//Mid slices
+	for(w=1; w<max_w-1; w++)
+		{
+		for(v=0; v<max_v; v++)
+			{
+			for(u=0; u<max_u; u++)
+				{
+				p=this->get_voxel_by_dir(u,v,w,direction);
+				prev=this->get_voxel_by_dir(u,v,w-1,direction);
+				next=this->get_voxel_by_dir(u,v,w+1,direction);
+				res=(p==object_value && (prev==object_value || next==object_value))?object_value:!object_value;
+				output->set_voxel_by_dir(u,v,w,res,direction);
+				}
+			}
+		}
+	//Last slice
+	w=max_w-1;
+	for(v=0; v<max_v; v++)
+		{
+		for(u=0; u<max_u; u++)
+			{
+			p=this->get_voxel_by_dir(u,v,w,direction);
+			output->set_voxel_by_dir(u,v,w,p,direction);
+			}
+		}
+
+	return output;
+	}
+
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::invert()
     {

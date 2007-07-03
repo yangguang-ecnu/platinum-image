@@ -59,7 +59,7 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
         ELEMTYPE otsu(); ///Compute optimal threshold value by Otsu´s method.
 
         ELEMTYPE components_hist_3D(); ///Compute optimal threshold value by computing a number of components histogram.
-        image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, IMGBINARYTYPE object_value=TRUE); ///Computing a narrowest passage transform followed by competetive region growing. Assumes the current image to be a distance image and the mask image contains seedpoints for the target.
+        image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, IMGBINARYTYPE object_value=TRUE, bool regionGrow=true); ///Computing a narrowest passage transform followed by competetive region growing. Assumes the current image to be a distance image and the mask image contains seedpoints for the target.
         image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, IMGBINARYTYPE object_value=TRUE, bool regionGrow=true); ///Computing a narrowest passage transform followed by competetive region growing. Assumes the current image to be a distance image and the mask image contains seedpoints for the target.
 		image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, int* no_internal_seeds, int y_direction, int z_direction,bool allow_before=true,IMGBINARYTYPE object_value=TRUE, bool regionGrow=true);
         void mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value=TRUE, ELEMTYPE blank=0); ///All voxels in the current image where the corresponding mask voxels != object_value are set to blank.
