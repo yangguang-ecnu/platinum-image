@@ -21,8 +21,6 @@
 
 #include <FL/Enumerations.H>
 
-#include "event.h"
-
 using namespace std;
 
 string eventnames[] =
@@ -142,7 +140,8 @@ void FLTKviewport::do_callback (callbackAction action)
     }
 
 int FLTKviewport::handle(int event){
-    viewport_event PE = viewport_event (event);
+    callback_event = viewport_event (event);
+    callback_event.FLTK_event::attach (this);
 
     switch (event){
         case FL_PUSH:

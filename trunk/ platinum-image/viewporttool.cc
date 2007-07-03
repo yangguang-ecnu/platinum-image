@@ -17,7 +17,10 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "viewporttool.h"
+//#include "viewporttool.h"
+
+#include "viewmanager.h"
+extern viewmanager viewmanagement;
 
 #include <FL/Fl_Window.h>
 #include <FL/Fl_Button.h>
@@ -105,27 +108,38 @@ void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
     std::string * key = reinterpret_cast<std::string *>(key_ptr);
     
     selected = *key;
+
+    viewmanagement.refresh_viewports_after_toolswitch();
 }
 
 // *** tool classes ***
 //registered in viewporttool::init
 
+// *** navigation tool ***
+
 nav_tool::nav_tool (viewport_event & event):viewporttool(event)
-{
-}
+    {
+    }
+
+void nav_tool::handle(viewport_event &event)
+    {}
 
 viewporttool * nav_tool::taste_ (viewport_event & event)
-{
+    {
     return NULL;
+    }
 
-}
+// *** dummy tool ***
 
-dummy_tool::dummy_tool (viewport_event & event):viewporttool(event)
-{
-    
-}
+dummy_tool::dummy_tool (viewport_event &event):viewporttool(event)
+    {
 
-viewporttool * dummy_tool::taste_ (viewport_event & event)
-{
+    }
+
+void dummy_tool::handle(viewport_event &event)
+    {}
+
+viewporttool * dummy_tool::taste_ (viewport_event &event)
+    {
     return NULL;
-}
+    }

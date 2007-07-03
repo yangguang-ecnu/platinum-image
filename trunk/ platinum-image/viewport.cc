@@ -17,7 +17,7 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "viewport.h"
+//#include "viewport.h"
 
 #include <FL/Fl_Toggle_Button.H>
 #include <FL/Fl_Light_Button.H>
@@ -29,6 +29,8 @@
 #include <FL/Enumerations.H>
 
 #include "viewmanager.h"
+#include "rendermanager.h"
+#include "datamanager.h"
 
 extern datamanager datamanagement;
 extern rendermanager rendermanagement;
@@ -90,18 +92,21 @@ void viewport::clear_rgbpixmap()
 viewport::viewport()
     {
     ID = ++maxviewportID;
+#ifdef _DEBUG
     cout << "viewport constructor" << ID << endl;
+#endif
 
     viewport_widget=NULL;
     imagemenu_button=NULL;
     renderermenu_button=NULL;
     viewport_buttons=NULL;
-    activeTool = NULL;
+    busyTool = NULL;
 
     rendererID=NO_RENDERER_ID;
     rendererIndex=-1;
 
-    rgbpixmap = new uchar [0];
+    //rgbpixmap = new uchar [0];
+    rgbpixmap = NULL;
     rgbpixmapwidth = 0;
     rgbpixmapheight = 0;
 
@@ -124,6 +129,19 @@ viewport::viewport()
 
         renderermenu_built=true;
         }
+    }
+
+viewport::~viewport()
+    {
+#ifdef _DEBUG
+    cout << "viewport destructor" << ID << endl;
+#endif
+
+    if (busyTool != NULL)
+        {delete busyTool;}
+
+    if (rgbpixmap != NULL)
+        {delete[] rgbpixmap; }
     }
 
 void viewport::connect_renderer(int rID)
@@ -158,6 +176,17 @@ void viewport::refresh_from_geometry(int g)
     {
      if (rendererIndex >= 0 && rendermanagement.get_geometry_id(rendererIndex) == g)
         {
+        refresh();
+        }
+    }
+
+void viewport::refresh_after_toolswitch()
+    {
+    if (busyTool != NULL)
+        {
+        delete busyTool;
+        busyTool == NULL;
+
         refresh();
         }
     }
@@ -259,6 +288,18 @@ void viewport::viewport_callback(Fl_Widget *callingwidget, void *thisviewport)
 void viewport::viewport_callback(Fl_Widget *callingwidget){
     FLTKviewport* f = (FLTKviewport*)callingwidget;
     //f points to the same GUI toolkit-dependent widget instance as viewport_widget
+
+    f->callback_event.attach (this); //give the 
+
+    if (busyTool == NULL)
+        { 
+        busyTool =  viewporttool::taste(f->callback_event); 
+        }
+
+    if (busyTool != NULL) //might have been created earlier too
+        {
+        busyTool->handle(f->callback_event);
+        }
 
     if (f->callback_action == CB_ACTION_RESIZE)
         {

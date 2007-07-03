@@ -44,7 +44,7 @@
 
 #include "threshold.h"
 #include "FLTK2Dregionofinterest.h"
-//#include "event.h"
+#include "event.h"
 
 //Callback action identifiers.
 
@@ -97,6 +97,7 @@ class FLTKviewport : public Fl_Widget
 	    int drag_dy;
 	    int wheel_y;            //mouse wheel rotation
 	    int callback_action;    //which action to perform during click or drag processed by callback
+        viewport_event callback_event;
 	    int resize_w;	        //if FLTKviewport is resized --> needs_re_rendering = true;
 	    int resize_h;
         };
