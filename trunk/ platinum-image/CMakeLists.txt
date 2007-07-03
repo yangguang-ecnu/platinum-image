@@ -78,9 +78,9 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 # Relax syntax requirements for GCC, since MSVC cannot shape up 
-IF(NOT MSVC)
-  ADD_DEFINITIONS(-fpermissive)
-ENDIF(NOT MSVC)
+#IF(NOT MSVC)
+#  ADD_DEFINITIONS(-fpermissive)
+#ENDIF(NOT MSVC)
 
 IF(WIN32)
   OPTION(FLTK_HAS_DEPENDENT_NAMES "FLtk debug lib is named fltkd" OFF)

@@ -37,7 +37,7 @@ private:
     static Fl_Pack * statusArea;
     static std::map<std::string, taste_fcn_pointer> tools;
     static std::string selected;  //key for the currently selected tool
-    static void cb_toolbutton (Fl_Button *,void *);
+    static void cb_toolbutton (Fl_Widget *,void *);
 
 protected:
     image_base * image; //do dynamic_cast to whatever class that is needed
