@@ -223,12 +223,14 @@ template <class ELEMTYPE, int IMAGEDIM>
 template<class SOURCETYPE>
 image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData) : image_storage<ELEMTYPE > (old_image) //copy constructor
     {
+//cout << "Start image_general constructor"<<endl;//PRDEBUG
     initialize_dataset(old_image->get_size_by_dim(0), old_image->get_size_by_dim(1), old_image->get_size_by_dim(2), NULL);
 
     if (copyData)
         { copy_data (old_image,this); }
 
     set_parameters(old_image);
+//cout << "End image_general constructor"<<endl;//PRDEBUG
     }
 
 template <class ELEMTYPE, int IMAGEDIM>

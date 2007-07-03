@@ -40,12 +40,14 @@ image_base::image_base():data_base()
     {set_parameters ();}
 image_base::image_base(image_base* s):data_base(s)
     {
+//cout << "Start image_base constructor"<<endl;//PRDEBUG
     set_parameters ();
     //setting copy name at the root would be neat,
     //but is not possible since the widget isn't
     //created yet
 
     name ("Copy of " + s->name());
+//cout << "End image_base constructor"<<endl;//PRDEBUG
     }
 
 void image_base::set_parameters ()    

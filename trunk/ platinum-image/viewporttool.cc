@@ -94,6 +94,7 @@ viewporttool * viewporttool::taste(viewport_event & event)
         {
         result = i->second(event);
         }
+	return result;
 }
 
 void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
