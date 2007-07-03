@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Viewporttool $Revision:$
+//  Viewporttool $Revision$
 //
 /// The base class for implementing mouse behaviors/actions in a viewport
 ///
@@ -57,7 +57,7 @@ public:
 
     //static void grab (pt_event &event);
     static viewporttool * taste(viewport_event &);  //if the current tool responds to the event, return instance (which will be getting the events from now on until another tool is selected)
-    //void handle(viewport_event &);
+    virtual void handle(viewport_event &) = 0;
     //bool handle(int event,enum {create, adjust} );
 };
 
@@ -66,6 +66,7 @@ class nav_tool : public viewporttool
 public:
     nav_tool (viewport_event &);
     static viewporttool * taste_(viewport_event &);
+    virtual void handle(viewport_event &);
 };
 
 class dummy_tool : public viewporttool
@@ -73,4 +74,5 @@ class dummy_tool : public viewporttool
 public:
     dummy_tool (viewport_event &);
     static viewporttool * taste_(viewport_event &);
+    virtual void handle(viewport_event &);
 };

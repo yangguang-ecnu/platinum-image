@@ -57,6 +57,12 @@ pt_event::pt_event()
     value = 0;                    
     type = no_type;
     state = no_state;
+    handled = false;
+    }
+
+void pt_event::grab ()
+    {
+    handled = true;
     }
 
 void FLTK_event::set_type ()
@@ -77,6 +83,8 @@ void FLTK_event::set_type ()
 
 FLTK_event::FLTK_event (int FL_event):pt_event()
     {
+    myWidget = NULL;
+
     switch (FL_event){
         case FL_PUSH:
             set_type();
@@ -120,7 +128,18 @@ FLTK_event::FLTK_event (int FL_event):pt_event()
     mousePos[1]=Fl::event_y();
     }
 
+void FLTK_event::attach (Fl_Widget * w)
+    {
+    myWidget = w;
+    }
+
 viewport_event::viewport_event (int FL_event):FLTK_event(FL_event)
     {
+    myPort = NULL;
     //at this point the parent classes have digested the event from FLTK down to a Platinum description
+    }
+
+void viewport_event::attach (viewport * vp)
+    {
+    myPort = vp;
     }

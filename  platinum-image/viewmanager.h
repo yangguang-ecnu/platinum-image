@@ -76,6 +76,7 @@ class viewmanager
         void image_vector_has_changed();
 
         void refresh_viewports();
+        void refresh_viewports_after_toolswitch();
         void refresh_viewports_from_combination(int c);
         void refresh_viewports_from_geometry(int g);
 

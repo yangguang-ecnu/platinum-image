@@ -56,11 +56,11 @@ for (unsigned int i=0; i < viewports.size(); i++) { std::cout << viewports[i] <<
 
 int viewmanager::create_viewport()
     {
-    viewport *aviewport;
-    aviewport = new viewport;
-    viewports.push_back(*aviewport);
+    //viewport *aviewport;
+    //aviewport = new viewport;
+    viewports.push_back(viewport());
 
-    return aviewport->get_id();
+    return viewports.back().get_id(); //return ID of the viewport just created
     }
 
 void create_viewport(char namn[])
@@ -359,6 +359,14 @@ void viewmanager::list_connections()
                 }
             std::cout << std::endl;
             }
+        }
+    }
+
+void viewmanager::refresh_viewports_after_toolswitch()
+    {
+    for (std::vector<viewport>::iterator itr=viewports.begin(); itr != viewports.end(); itr++) 
+        {
+        (*itr).refresh_after_toolswitch();
         }
     }
 

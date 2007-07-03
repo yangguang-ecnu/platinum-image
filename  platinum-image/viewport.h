@@ -28,9 +28,7 @@
 #ifndef __viewport__
 #define __viewport__
 
-#include "rendermanager.h"
 #include "FLTKviewport.h"
-#include "datamanager.h"
 #include "viewporttool.h"
 
 #include "global.h"
@@ -64,7 +62,7 @@ private:
 	//void  reslice();                         // will call renderer_base::reslice(...) and
                                              //supply our bitmap pointer to the 2D- or 3D-renderer which
                                              //in turn will do the actual reslicing
-    viewporttool * activeTool;
+    viewporttool * busyTool;
 
      // *** FLTK-related data ***
 
@@ -94,7 +92,7 @@ private:
     void rebuild_blendmode_menu ();//update checkmark for current blend mode
 public:
 	viewport();
-    virtual ~viewport() {}
+    virtual ~viewport();
 
 	void viewport_callback(Fl_Widget *callingwidget);                               //callback that handles events
                                                                                     //always redraws
@@ -108,9 +106,11 @@ public:
     //called when any update of the visual parts of viewport is affected, i.e.
     //image and/or menu of images
 
-    void refresh_from_geometry (int g);     //refresh if it uses the geometry specified by argument
-    void refresh_from_combination (int c);  //refresh if it uses the geometry specified by argument
-    void refresh ();                        //re-builds menu and makes viewport re-render and redraw eventually
+    void viewport::refresh_after_toolswitch();  //!refresh if viewport has a busy tool (selection etc.).
+                                                //!The tool will be deleted
+    void refresh_from_geometry (int g);         //!refresh if it uses the geometry specified by argument
+    void refresh_from_combination (int c);      //!refresh if it uses the geometry specified by argument
+    void refresh ();                            //!re-builds menu and makes viewport re-render and redraw eventually
     
     threshold_overlay * get_threshold_overlay (thresholdparvalue *);
 
