@@ -57,6 +57,8 @@ class image_binary : public image_label <IMAGEDIM>
     image_binary<IMAGEDIM> * logical_xor(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A XOR B operation
     image_binary<IMAGEDIM> * logical_or_not(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A OR (NOT B) operation
     image_binary<IMAGEDIM> * logical_and_not(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A AND (NOT B) operation
+    image_binary<IMAGEDIM> * logical_or_prev_and_next(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A OR (PrevSlice AND NextSlice) operation
+    image_binary<IMAGEDIM> * logical_and_prev_or_next(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A OR (PrevSlice AND NextSlice) operation
     void invert(); ///Perform a voxelwise inversion
 
     // *** applications ***

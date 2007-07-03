@@ -903,7 +903,7 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::components_hist_3D()
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(image_binary<IMAGEDIM> * mask, IMGBINARYTYPE object_value)
+image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(image_binary<IMAGEDIM> * mask, IMGBINARYTYPE object_value, bool regionGrow)
     {
 	this->min_max_refresh();
     image_label<IMAGEDIM> * output = new image_label<IMAGEDIM> (this,false);
@@ -1112,72 +1112,84 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	        }
 		}
 
-	//Region Grow
-	ELEMTYPE cur_level;
-	int nClass1, nClass2;
-	bool changed=true;
-	bool changedThis;
-	while(changed)
+
+	if(regionGrow)
 		{
-		changed=false;
-		for(cur_level=max_val; cur_level>min_val; cur_level--)
+		//Region Grow
+		ELEMTYPE cur_level;
+		int nClass1, nClass2;
+		bool changed=true;
+		bool changedThis;
+		while(changed)
 			{
-			//Loop each level until not changed
-			changedThis=true;
-			while(changedThis)
+			changed=false;
+			for(cur_level=max_val; cur_level>min_val; cur_level--)
 				{
-				changedThis=false;
-			    for (i=counts_cum[cur_level-min_val]-1; i>=counts_cum[cur_level-1-min_val]; i--)
+				//Loop each level until not changed
+				changedThis=true;
+				while(changedThis)
 					{
-			        j=sorted_index[i];
-				    if((*(output_iter+j))==undef)
-				        {
-					    //Check neighbours
-				        z=j/(max_x*max_y);
-					    rest=j-z*(max_x*max_y);
-					    y=rest/max_x;
-					    x=rest-y*max_x;
-
-					    nClass1=nClass2=0;
-
-						for(z2=std::max(0,z-1); z2<std::min(max_z,z+2); z2++)
+					changedThis=false;
+					for (i=counts_cum[cur_level-min_val]-1; i>=counts_cum[cur_level-1-min_val]; i--)
+						{
+						j=sorted_index[i];
+						if((*(output_iter+j))==undef)
 							{
-							for(y2=std::max(0,y-1); y2<std::min(max_y,y+2); y2++)
+							//Check neighbours
+							z=j/(max_x*max_y);
+							rest=j-z*(max_x*max_y);
+							y=rest/max_x;
+							x=rest-y*max_x;
+
+							nClass1=nClass2=0;
+
+							for(z2=std::max(0,z-1); z2<std::min(max_z,z+2); z2++)
 								{
-								for(x2=std::max(0,x-1); x2<std::min(max_x,x+2); x2++)
+								for(y2=std::max(0,y-1); y2<std::min(max_y,y+2); y2++)
 									{
-							        k=x2+max_x*(y2+z2*max_y);
-									if((*(output_iter+k))==class1)
-										nClass1++;
-									else if((*(output_iter+k))==class2)
-										nClass2++;										
+									for(x2=std::max(0,x-1); x2<std::min(max_x,x+2); x2++)
+										{
+										k=x2+max_x*(y2+z2*max_y);
+										if((*(output_iter+k))==class1)
+											nClass1++;
+										else if((*(output_iter+k))==class2)
+											nClass2++;										
+										}
 									}
 								}
-							}
-						if(nClass1>0 && nClass2==0)
-							{
-							(*(output_iter+j))=class1;
-							changed=true;
-							changedThis=true;
-							}
-						else if(nClass2>0 && nClass1==0)
-							{
-							(*(output_iter+j))=class2;
-							changed=true;
-							changedThis=true;
-							}
-						else if(nClass2>0 && nClass1>0)
-							{
-							(*(output_iter+j))=conflict;
-							changed=true;
-							changedThis=true;
+							if(nClass1>0 && nClass2==0)
+								{
+								(*(output_iter+j))=class1;
+								changed=true;
+								changedThis=true;
+								}
+							else if(nClass2>0 && nClass1==0)
+								{
+								(*(output_iter+j))=class2;
+								changed=true;
+								changedThis=true;
+								}
+							else if(nClass2>0 && nClass1>0)
+								{
+								(*(output_iter+j))=conflict;
+								changed=true;
+								changedThis=true;
+								}
 							}
 						}
 					}
+				}		        
+			} 
+		//Clean up undefined
+		for (i=number_of_voxels-1; i>=counts[0]; i--)//Skip lowest value
+			{
+			j=sorted_index[i];
+			if((*(output_iter+j))==undef)
+				{			   
+				(*(output_iter+j))=class2;  
 				}
-			}		        
-		}  
-
+			} 
+		}
 	delete[] counts;
 	delete[] counts_cum;
 	delete[] sorted_index;
@@ -1581,7 +1593,24 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 						}
 					}
 				}		        
-			}  
+			}
+		//Clean up undefined
+		for (i=number_of_voxels-1; i>=counts[0]; i--)//Skip lowest value
+			{
+			j=sorted_index[i];
+			if((*(output_iter+j))==undef)
+				{			    
+				z=j/(max_x*max_y);
+				rest=j-z*(max_x*max_y);
+				y=rest/max_x;
+				x=rest-y*max_x;
+
+				if(x>=low_x && x<high_x && y>=low_y && y<high_y && z>=low_z && z<high_z) 
+					(*(output_iter+j))=class2;  
+				else
+					(*(output_iter+j))=class1;  
+				}
+			}
 		}
 	delete[] counts;
 	delete[] counts_cum;
@@ -1996,6 +2025,25 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 						}
 					}
 				}		        
+			}
+		//Clean up undefined
+		for (i=number_of_voxels-1; i>=counts[0]; i--)//Skip lowest value
+			{
+			j=sorted_index[i];
+			if((*(output_iter+j))==undef)
+				{			    
+				z=j/(max_x*max_y);
+				rest=j-z*(max_x*max_y);
+				y=rest/max_x;
+				x=rest-y*max_x;		
+				dims[0]=x;
+				dims[1]=y;
+				dims[2]=z;				
+				if((allow_before && dims[y_direction]<no_internal_seeds[dims[z_direction]]) || ((!allow_before) && dims[y_direction]>no_internal_seeds[dims[z_direction]]))
+					(*(output_iter+j))=class2;  
+				else
+					(*(output_iter+j))=class1;  
+				}
 			}  
 		}
 	delete[] counts;
@@ -2328,32 +2376,32 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 					}
 				}
 			totdiff+=optdiff;
-			//double cumSumU=0;
-			//double cumSumU_2=0;
-			//double cumSumV=0;
-			//double cumSumV_2=0;
-			//cumN=0;
-			//for(v=0; v<optthr; v++)
-			//	{
-			//	int sum=0;
-			//	for(u=0; u<max_u; u++)
-			//		{
-			//		p=this->get_voxel_by_dir(u,v,w,z_direction);
-			//		if(p>=low_thr && p<=high_thr)
-			//			{
-			//			cumSumV+=v;
-			//			cumSumV_2+=v*v;
-			//			cumSumU+=u;
-			//			cumSumU_2+=u*u;
-			//			cumN++;
-			//			}
-			//		}
-			//	}
-			//double stdU=sqrt((cumSumU_2-cumSumU*cumSumU/cumN)/(cumN-1));
-			//double stdV=sqrt((cumSumV_2-cumSumV*cumSumV/cumN)/(cumN-1));
-			//double widthU=(cumN*stdU/stdV);
-			//double widthV=(cumN*stdV/stdU);
-			//out << "Slice: " << w << " Thr: " << optthr << " WidthU: " << widthU << " WidthV: " << widthV << " StdU: " << stdU << " StdV: " << stdV << " Sum: " << cumN<< endl;
+			double cumSumU=0;
+			double cumSumU_2=0;
+			double cumSumV=0;
+			double cumSumV_2=0;
+			cumN=0;
+			for(v=0; v<optthr; v++)
+				{
+				int sum=0;
+				for(u=0; u<max_u; u++)
+					{
+					p=this->get_voxel_by_dir(u,v,w,z_direction);
+					if(p>=low_thr && p<=high_thr)
+						{
+						cumSumV+=v;
+						cumSumV_2+=v*v;
+						cumSumU+=u;
+						cumSumU_2+=u*u;
+						cumN++;
+						}
+					}
+				}
+			double stdU=sqrt((cumSumU_2-cumSumU*cumSumU/cumN)/(cumN-1));
+			double stdV=sqrt((cumSumV_2-cumSumV*cumSumV/cumN)/(cumN-1));
+			double widthU=(cumN*stdU/stdV);
+			double widthV=(cumN*stdV/stdU);
+			cout << "Slice: " << w << " Thr: " << optthr << " WidthU: " << widthU << " WidthV: " << widthV << " StdU: " << stdU << " StdV: " << stdV << " Sum: " << cumN<< endl;
 			res[w]=optthr;
 			}
 		delete[] hist;
@@ -2361,7 +2409,7 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 	else
 		{
 		//ofstream out("stduv.txt");
-		double* hist=new double[max_v];
+		double* hist=new double[max_u];
 		for(w=first_slice; w<=last_slice; w++)
 			{
 			for(u=0; u<max_u; u++)
@@ -2419,32 +2467,32 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 					}
 				}
 			totdiff+=optdiff;
-			//double cumSumU=0;
-			//double cumSumU_2=0;
-			//double cumSumV=0;
-			//double cumSumV_2=0;
-			//cumN=0;
-			//for(u=0; u<optthr; u++)
-			//	{
-			//	int sum=0;
-			//	for(v=0; v<max_v; v++)
-			//		{
-			//		p=this->get_voxel_by_dir(u,v,w,z_direction);
-			//		if(p>=low_thr && p<=high_thr)
-			//			{
-			//			cumSumV+=v;
-			//			cumSumV_2+=v*v;
-			//			cumSumU+=u;
-			//			cumSumU_2+=u*u;
-			//			cumN++;
-			//			}
-			//		}
-			//	}
-			//double stdU=sqrt((cumSumU_2-cumSumU*cumSumU/cumN)/(cumN-1));
-			//double stdV=sqrt((cumSumV_2-cumSumV*cumSumV/cumN)/(cumN-1));
-			//double widthU=sqrt(cumN*stdU/stdV);
-			//double widthV=sqrt(cumN*stdV/stdU);
-			//out << "Slice: " << w << " Thr: " << optthr << " WidthU: " << widthU << " WidthV: " << widthV << " StdU: " << stdU << " StdV: " << stdV << " Sum: " << cumN<< endl;
+			double cumSumU=0;
+			double cumSumU_2=0;
+			double cumSumV=0;
+			double cumSumV_2=0;
+			cumN=0;
+			for(u=0; u<optthr; u++)
+				{
+				int sum=0;
+				for(v=0; v<max_v; v++)
+					{
+					p=this->get_voxel_by_dir(u,v,w,z_direction);
+					if(p>=low_thr && p<=high_thr)
+						{
+						cumSumV+=v;
+						cumSumV_2+=v*v;
+						cumSumU+=u;
+						cumSumU_2+=u*u;
+						cumN++;
+						}
+					}
+				}
+			double stdU=sqrt((cumSumU_2-cumSumU*cumSumU/cumN)/(cumN-1));
+			double stdV=sqrt((cumSumV_2-cumSumV*cumSumV/cumN)/(cumN-1));
+			double widthU=sqrt(cumN*stdU/stdV);
+			double widthV=sqrt(cumN*stdV/stdU);
+			cout << "Slice: " << w << " Thr: " << optthr << " WidthU: " << widthU << " WidthV: " << widthV << " StdU: " << stdU << " StdV: " << stdV << " Sum: " << cumN<< endl;
 			res[w]=optthr;
 			}
 		//out.close();
