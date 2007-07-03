@@ -1276,7 +1276,8 @@ void image_binary<IMAGEDIM>::erode_2D(int thickness, int direction, IMGBINARYTYP
 	{		
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, object_value);
-	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(thickness+1, std::numeric_limits<short>::max(), object_value); 
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(thickness+1, std::numeric_limits<short>::max(), object_value);
+	delete distance_image; 
 	copy_data(threshold_image,this);
 	delete threshold_image;
 	}
@@ -1287,6 +1288,7 @@ void image_binary<IMAGEDIM>::dilate_2D(int thickness, int direction, IMGBINARYTY
 	bool edge_is_object=true;
     image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, !object_value);
 	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(0, thickness, object_value);
+	delete distance_image;
 	copy_data(threshold_image,this);
 	delete threshold_image;
 	}
@@ -1297,6 +1299,7 @@ void image_binary<IMAGEDIM>::outline_2D(int thickness, int direction, IMGBINARYT
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, object_value);
 	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(3, thickness, object_value);
+	delete distance_image;
 	copy_data(threshold_image,this);
 	delete threshold_image;
 	}
@@ -1307,6 +1310,7 @@ void image_binary<IMAGEDIM>::erode_3D(int thickness, IMGBINARYTYPE object_value)
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, object_value);
 	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(thickness+1, std::numeric_limits<short>::max(), object_value);
+	delete distance_image;
 	copy_data(threshold_image,this);
 	delete threshold_image;
 	}
@@ -1317,6 +1321,7 @@ void image_binary<IMAGEDIM>::dilate_3D(int thickness, IMGBINARYTYPE object_value
 	bool edge_is_object=true;
     image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, !object_value);
 	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(0, thickness, object_value);
+	delete distance_image;
 	copy_data(threshold_image,this);
 	delete threshold_image;
 	}
@@ -1327,6 +1332,7 @@ void image_binary<IMAGEDIM>::outline_3D(int thickness, IMGBINARYTYPE object_valu
 	bool edge_is_object=false;
     image_integer<short, IMAGEDIM> * distance_image = distance_345_3D(edge_is_object, object_value);
 	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(3, thickness, object_value);
+	delete distance_image;
 	copy_data(threshold_image,this);
 	delete threshold_image;
 	}
