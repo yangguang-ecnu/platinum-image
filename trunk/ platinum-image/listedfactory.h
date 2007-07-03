@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Listedfactory $Revision: $
+//  Listedfactory $Revision$
 //
 //  Object factory class used to keep track of interchangeable objects
 //  of one particular class, like renderers or transfer functions
@@ -8,7 +8,7 @@
 //  Adapted from an article by Robert Geiman
 //  http://www.gamedev.net/reference/articles/article2097.asp
 //
-//  $LastChangedBy: arvid.r $
+//  $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.

@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 ///  Window for importing single/multiple dicom images
 ///	 This file is adapted from "sortapp.cxx" example from The Fl_Table class (Version 3.12, 04/02/2006 )

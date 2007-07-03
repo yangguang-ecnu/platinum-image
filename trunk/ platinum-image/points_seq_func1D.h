@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  points_seq_func1D $Revision: 131 $
+//  points_seq_func1D $Revision$
 ///
 /// (points_sequence_function1D) point collection class specialized on ordered 2D points 
 ///
@@ -9,7 +9,7 @@
 /// inserts, erasing, find_closest_point, interpolation (lin/spline) functions are available
 /// this class is intended to be a sub class to data_base....
 //
-//  $LastChangedBy: arvid.r $
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.

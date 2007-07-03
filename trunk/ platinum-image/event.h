@@ -5,7 +5,7 @@
 /// The pt_event object (with FLTK-implementing subclass) is the interface
 /// that allows events to be handled with the future option of migrating from FLTK.
 ///
-//  $LastChangedBy: $
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
