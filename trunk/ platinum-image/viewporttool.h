@@ -4,7 +4,7 @@
 //
 /// The base class for implementing mouse behaviors/actions in a viewport
 ///
-//  $LastChangedBy: $
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.

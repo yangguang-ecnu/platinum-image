@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -47,8 +47,8 @@ void viewporttool::init (Fl_Pack * s)
     toolbox = new Fl_Window (0,statusArea->y(),0,statusArea->h()); //toolfactory.buttons will set correct width
     const bool horizontal = true;
     int buttonSize  = horizontal? toolbox->h():toolbox->w();
-    int x = toolbox->x();
-    int y = toolbox->y();
+    int x = 0; //toolbox is a subwindow, so it starts at 0
+    int y = 0;
     
     toolbox->begin();
     
@@ -63,6 +63,9 @@ void viewporttool::init (Fl_Pack * s)
         button->down_box(FL_DOWN_BOX);
         button->type(FL_RADIO_BUTTON);
         button->callback(cb_toolbutton,(void*)&(i->first));
+
+        if (name == selected)
+            { button->set(); }
         
         if (horizontal)
             { x += buttonSize; }
