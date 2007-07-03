@@ -86,7 +86,7 @@ void viewporttool::Register (std::string k,taste_fcn_pointer f)
     tools[k]=f;
 }
 
-static viewporttool * viewporttool::taste(viewport_event & event)
+viewporttool * viewporttool::taste(viewport_event & event)
 {
     viewporttool * result = NULL;
     
@@ -96,7 +96,7 @@ static viewporttool * viewporttool::taste(viewport_event & event)
         }
 }
 
-static void viewporttool::cb_toolbutton (Fl_Button * button,void * key_ptr)
+void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
 {
     std::string * key = reinterpret_cast<std::string *>(key_ptr);
     
