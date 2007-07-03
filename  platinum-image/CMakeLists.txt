@@ -133,9 +133,9 @@ SOURCE_GROUP(Data FILES datamanager.h data_base.h image_base.h image_general.h i
 
 SOURCE_GROUP(Processing FILES image_binaryprocess.hxx)
 
-SOURCE_GROUP(View FILES viewport.h FLTKviewport.h viewmanager.h renderer_base.h renderer_VTK.h rendererMPR.h rendercombination.h rendergeometry.h rendermanager.h transfer.h viewport.cc viewporttool.cc FLTKviewport.cc mainwindow.cc viewmanager.cc renderer_base.cc renderer_VTK.cc rendererMPR.cc rendercombination.cc rendergeometry.cc rendermanager.cc transfer.hxx transfer_interpolated.hxx)
+SOURCE_GROUP(View FILES viewport.h FLTKviewport.h viewmanager.h renderer_base.h renderer_VTK.h rendererMPR.h rendercombination.h rendergeometry.h rendermanager.h transfer.h viewport.cc FLTKviewport.cc mainwindow.cc viewmanager.cc renderer_base.cc renderer_VTK.cc rendererMPR.cc rendercombination.cc rendergeometry.cc rendermanager.cc transfer.hxx transfer_interpolated.hxx)
 
-SOURCE_GROUP(Interaction FILES datawidget.h event.h userIO.h FLTKuserIOparameters.h transferfactory.h transferfactory.hxx userIOmanager.h datawidget.cc event.cc userIO.cc FLTKuserIOparameters.cc transferfactory.cc userIOmanager.cc viewporttool.h test_app.cc)
+SOURCE_GROUP(Interaction FILES datawidget.h event.h userIO.h FLTKuserIOparameters.h transferfactory.h transferfactory.hxx userIOmanager.h viewporttool.h datawidget.cc event.cc userIO.cc FLTKuserIOparameters.cc transferfactory.cc userIOmanager.cc viewporttool.cc test_app.cc)
 
 SOURCE_GROUP(Helpers FILES bruker.h color.h colormap.h cursor3D.h error.h fileutils.h FLTK2Dregionofinterest.h FLTKutilities.h listedfactory.h histogram.h threshold.h  bruker.cc color.cc colormap.cc cursor3D.cc ${WIN32_DIRENT_SRC} error.cc fileutils.cc Utilities/fltk/Fl_Table.cxx Utilities/fltk/Fl_Table_Row.cxx FLTK2Dregionofinterest.cc FLTKutilities.cc histogram.cc histogram.hxx ptmath.cc threshold.cc)
 

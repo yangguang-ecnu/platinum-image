@@ -1,11 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//   Transferfactory $Revision: 260 $
+//   Transferfactory $Revision$
 ///
 ///  Object factory that makes transfer function objects and the
 ///  transfer function menu
 ///
-//   $LastChangedBy: arvid.r $
+//   $LastChangedBy$
 //
 
 // This file is part of the Platinum library.

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//   Dicom_importer $Revision: $
+//   Dicom_importer $Revision$
 ///
 ///  Window for importing single/multiple dicom images
 ///	 This file is adapted from "sortapp.cxx" example from The Fl_Table class (Version 3.12, 04/02/2006 )
@@ -13,7 +13,7 @@
 //  1.00 04/18/03 Mister Satan -- Initial implementation
 //  1.10 05/17/03 Greg Ercolano -- Small mods to follow changes to Fl_Table
 
-//   $LastChangedBy: $
+//   $LastChangedBy$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.

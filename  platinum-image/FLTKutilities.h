@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  FLTKutilities $Revision: $
+//  FLTKutilities $Revision$
 //
 //  Helper functions and classes for FLTK usage
 //
-//  $LastChangedBy: arvid.r $
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
