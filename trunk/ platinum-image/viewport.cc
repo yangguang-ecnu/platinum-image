@@ -185,7 +185,7 @@ void viewport::refresh_after_toolswitch()
     if (busyTool != NULL)
         {
         delete busyTool;
-        busyTool == NULL;
+        busyTool = NULL;
 
         refresh();
         }
