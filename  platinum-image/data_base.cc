@@ -118,6 +118,7 @@ data_base::data_base()
 
 data_base::data_base (data_base * source)
     {
+//cout << "Start data_base constructor"<<endl;//PRDEBUG
     pt_error::error_if_null(source,"Attempting to copyconstruct data object from NULL object");
 
     widget = NULL;
@@ -125,6 +126,7 @@ data_base::data_base (data_base * source)
 
     origin = source->origin;
     direction = source->direction;
+//cout << "End data_base constructor"<<endl;//PRDEBUG
     }
 
 bool data_base::from_file()
