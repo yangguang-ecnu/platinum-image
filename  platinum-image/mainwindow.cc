@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  Intialization of main Platinum window $Revision: 281 $
+//  Intialization of main Platinum window $Revision$
 //
-//  $LastChangedBy: arvid.r $
+//  $LastChangedBy$
 //
 
 // This file is part of the Platinum library.
@@ -208,7 +208,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     Fl_Group::current (statusarea);
     Fl_Output * status_message = new Fl_Output (viewporttool::toolbox->x()+viewporttool::toolbox->w(),win_h-status_area_h,win_w-viewporttool::toolbox->w(),status_area_h);
     status_message->box(FL_ENGRAVED_BOX);
-    status_message->value("This is not a real status message");
+    status_message->value("Platinum $Revision$");
     status_message->color(FL_BACKGROUND_COLOR);
 
     window.resizable(viewsNlists);
