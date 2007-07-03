@@ -40,9 +40,10 @@ int fl_menu_size (Fl_Menu_Item * m)
     {
     if (m != 0)
         {
-        for (int i = 0; m[i].label() !=NULL;i++)
+        int item;
+        for (item = 0; m[item].label() !=NULL;item++)
             {}
-        return i;
+        return item;
         }
 
     return -1;

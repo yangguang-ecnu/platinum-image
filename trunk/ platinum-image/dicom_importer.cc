@@ -429,7 +429,7 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 
 	Fl_Button* o;
 	o = new Fl_Button(wm, wm, 100, wh, "Load directory");
-	o->callback((Fl_Callback*)button_cb, "load");
+	o->callback((Fl_Callback*)button_cb, (void*)"load");
 	//	o->callback((Fl_Callback*)load_button_cb, (void*)this);
 
 
@@ -440,7 +440,7 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 
 
 	o = new Fl_Button(wm, h()-wm-wh, 140, wh, "Dicom Tag Settings");
-	o->callback((Fl_Callback*)button_cb, "settings");
+	o->callback((Fl_Callback*)button_cb, (void*)"settings");
 	//	o->callback((Fl_Callback*)settings_button_cb, (void*)this);
 
 	//	Fl_Input* import_volume_input = new Fl_Input(w()-3*wm-2*65-170, h()-wm-wh, 170, wh, "Import Volume Name");
@@ -460,11 +460,11 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 
 
 	o = new Fl_Button(w()-2*wm-2*65, h()-wm-wh, 65, wh, "Import");
-	o->callback((Fl_Callback*)button_cb, "import");
+	o->callback((Fl_Callback*)button_cb, (void*)"import");
 	//	o->callback((Fl_Callback*)import_button_cb, (void*)this);
 
 	o = new Fl_Button(w()-wm-65, h()-wm-wh, 65, wh, "Close");
-	o->callback((Fl_Callback*)button_cb, "close");
+	o->callback((Fl_Callback*)button_cb, (void*)"close");
 	//	o->callback((Fl_Callback*)close_button_cb, (void*)this);
 
 	end();
