@@ -71,8 +71,9 @@ enum callbackAction {
 class FLTKviewport : public Fl_Widget
 {
 	    friend class viewport;
-        friend class viewporttool;
+        //friend class viewporttool;
         friend class threshold_overlay;
+        friend class uim_tool;
     public:
 	    FLTKviewport(int X,int Y,int W,int H);  //constructor
         ~FLTKviewport();
@@ -89,7 +90,7 @@ class FLTKviewport : public Fl_Widget
 	    bool needsReRendering;	//set to true when we need to update the data drawn on screen
 	   
         std::string feedback_string;      //info (coordinates and such)
-        FLTK2Dregionofinterest * ROI;     //overlay for selecting and displaying a
+        FLTK2Dregionofinterest * ROIhack;     //overlay for selecting and displaying a
                                           //region of interest
         threshold_overlay * thresholder;  //overlay displaying threshold from a histogram
         
