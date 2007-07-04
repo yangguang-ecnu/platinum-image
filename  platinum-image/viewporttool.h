@@ -29,6 +29,7 @@
 
 class viewport;
 class renderer_base;
+class thresholdparvalue;
 
 class viewporttool 
 {
@@ -74,12 +75,14 @@ public:
 
 class nav_tool : public viewporttool
 {
-private:
+protected:
+    static const float wheel_factor;
+    static const float zoom_factor;
+
     int dragLast [2]; //pt_event store drag origin (most useful) but
                       //for panning we need the pos at last iteration
 public:
     nav_tool (viewport_event &);
-    //static viewporttool * taste_(viewport_event &);
     virtual void handle(viewport_event &);
 };
 
@@ -87,14 +90,19 @@ class dummy_tool : public viewporttool //test tool
 {
 public:
     dummy_tool (viewport_event &);
-    //static viewporttool * taste_(viewport_event &);
     virtual void handle(viewport_event &);
 };
 
-/*class uim_tool : public viewporttool //tool for userIO click & drag (only in Histo2D at this time)
+class uim_tool : public nav_tool //tool for userIO click & drag (only in Histo2D at this time)
 {
+private:
+    FLTK2Dregionofinterest * ROI;
+    threshold_overlay * overlay;
+    
 public:
-    uim_tool (viewport_event &);
-    //static viewporttool * taste_(viewport_event &);
+    uim_tool (viewport_event &event, thresholdparvalue * v = NULL);
+    
+    void attach (viewport * vp,  FLTKviewport * fvp, renderer_base * r);
+    threshold_overlay * get_overlay();
     virtual void handle(viewport_event &);
-};*/
+};

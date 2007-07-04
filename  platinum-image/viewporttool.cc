@@ -150,8 +150,13 @@ void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
 
 // *** navigation tool ***
 
+const float nav_tool::wheel_factor=0.02;
+const float nav_tool::zoom_factor=0.01;
+
 nav_tool::nav_tool (viewport_event & event):viewporttool(event)
     {
+    //a tool constructor has to respond to the type of events it accepts by grabbing them,
+    //or it won't be created
     if (event.type() == pt_event::hover || event.type() == pt_event::browse || event.type() == pt_event::adjust || event.type() == pt_event::scroll)
         {event.grab();}
     }
@@ -168,74 +173,52 @@ void nav_tool::handle(viewport_event &event)
     
     if (event.state() == pt_event::iterate)
         {
+        const int * pms = myPort->pixmap_size();
+        const float pan_factor=(float)1/(std::min(pms[0],pms[1]));
+        const int * mouse = event.mouse_pos();
+        
         FLTKviewport * fvp = event.get_FLTK_viewport();
         switch (event.type())
             {
             case pt_event::browse:
+                event.grab();
+                
+                myRenderer->move(-(mouse[0]-dragLast[0])*pan_factor,-(mouse[1]-dragLast[1])*pan_factor);
+                
+                fvp->needs_rerendering();
+                
+                break;
+                
+            case pt_event::adjust:
                 {
                     event.grab();
                     
-                    const int * pms = myPort->pixmap_size();
-                    
-                    const float pan_factor=(float)1/(std::min(pms[0],pms[1]));
-                    float pan_x=0;
-                    float pan_y=0;
-                    
-                    const int * mouse = event.mouse_pos();
-                    
-                    pan_x-=(mouse[0]-dragLast[0])*pan_factor;
-                    pan_y-=(mouse[1]-dragLast[1])*pan_factor;
-                    
-                    //fvp->ROI->resize (drag[0],drag[1],1,fvp);
-                    myRenderer->move(pan_x,pan_y);
+                    myRenderer->move(0,0,0,1+(mouse[1]-dragLast[1])*zoom_factor);
                     
                     fvp->needs_rerendering();
-                    //fvp->redraw();
-                    
-                    dragLast[0] = mouse[0];
-                    dragLast[1] = mouse[1];
                 }
                 break;
                 
-                /*case CB_ACTION_WHEEL_ZOOM:
-                zoom*=1+f->wheel_y*wheel_factor;
-                f->needs_rerendering();
-                break;*/
-            /*    
-            case adjust:
-                event.grab();
-
-                f->ROI->resize (0,0,1+f->drag_dy*zoom_factor,f);
-                rendermanagement.move(rendererIndex,0,0,0,1+f->drag_dy*zoom_factor);
-                
-                //zooming invalidates ROI
-                FLTK2Dregionofinterest::current_ROI = NULL;
-                
-                f->needs_rerendering();
-                break;
-                
-            case hover:
+                /*case hover:
                 {
                     event.grab();
-
+                    
                     update_fbstring(f);
                 }
-                break;
-                
-            case scroll:
-                event.grab();
-
-                rendermanagement.move(rendererIndex,0,0,f->wheel_y*wheel_factor);    //relative coordinates are designed so that
-                                                                                     //1 = one z voxel step for z pan
-                f->ROI->attach_histograms(rendererIndex);
-                
-                f->needs_rerendering();
-                
-                update_fbstring(f);
                 break;*/
+                
+            case pt_event::scroll:
+                event.grab();
+                
+                myRenderer->move(0,0,event.scroll_delta()*wheel_factor);
+                
+                fvp->needs_rerendering();
+                break;
             }
+        
+        dragLast[0] = mouse[0];
+        dragLast[1] = mouse[1];
         }
-    
 }
 
 /*viewporttool * nav_tool::taste_ (viewport_event & event)
@@ -255,9 +238,190 @@ dummy_tool::dummy_tool (viewport_event &event):viewporttool(event)
     }
 
 void dummy_tool::handle(viewport_event &event)
-    {}
+{}
 
-/*viewporttool * dummy_tool::taste_ (viewport_event &event)
-    {
-    return NULL;
-    }*/
+// *** uim_tool ***
+
+uim_tool::uim_tool(viewport_event &event,thresholdparvalue * v):nav_tool(event)
+{
+    const int * mouse = event.mouse_pos();
+    ROI = NULL;
+    overlay = NULL;
+    
+    FLTKviewport * fvp = event.get_FLTK_viewport();
+    
+    if (myRenderer != NULL)
+        {
+        int p=0;
+        int rendered_vol_ID=myRenderer->imagestorender->image_ID_by_priority(p);
+        
+        while (rendered_vol_ID > 0)
+            {
+            for (int d=0;v->id[d] != NOT_FOUND_ID ;d++)
+                {
+                if (rendered_vol_ID==v->id[d])
+                    {
+                    if (overlay == NULL)
+                        {overlay=new threshold_overlay(fvp,rendermanagement.find_renderer_index( myPort->get_renderer_id()));}
+                    }
+                }
+            p++;
+            rendered_vol_ID=myRenderer->imagestorender->image_ID_by_priority(p);
+            }
+        
+        if (overlay != NULL)
+            {
+            overlay->expire();
+            fvp->redraw();
+            }
+        }
+    
+    if (event.type() == pt_event::adjust && event.state() == pt_event::iterate)
+        {
+        if (myPort->get_renderer_id() != NO_RENDERER_ID)
+            {
+            if (!ROI->dragging)
+                {
+                //to improve performance, the attached histograms are cached during drag
+                ROI->attach_histograms((fvp,rendermanagement.find_renderer_index( myPort->get_renderer_id())));
+                }
+            
+            if (ROI->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
+                {
+                if(FLTK2Dregionofinterest::current_ROI != ROI)
+                    {
+                    viewmanagement.refresh_viewports(); //erase ROIs shown in other viewports
+                    FLTK2Dregionofinterest::current_ROI = ROI;
+                    }
+                
+                ROI->drag(mouse[0],mouse[1],mouse[0]-dragLast[0],mouse[1]-dragLast[1],fvp);
+                }
+            }
+        }
+}
+
+void uim_tool::handle(viewport_event &event)
+{
+    nav_tool::handle(event);
+    
+    const int * mouse = event.mouse_pos();
+    
+    FLTKviewport * fvp = event.get_FLTK_viewport();
+
+    switch (event.type()) {
+        case pt_event::adjust:
+            //this callback is for general click & drag in viewport
+            //however only function available yet is the histogram ROI
+            
+            if (myPort->get_renderer_id() != NO_RENDERER_ID)
+                {
+                if (!ROI->dragging)
+                    {
+                    //to improve performance, the attached histograms are cached during drag
+                    ROI->attach_histograms(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
+                    }
+                
+                if (ROI->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
+                    {
+                    if(FLTK2Dregionofinterest::current_ROI != ROI)
+                        {
+                        viewmanagement.refresh_viewports(); //erase ROIs shown in other viewports
+                        FLTK2Dregionofinterest::current_ROI = ROI;
+                        }
+                    
+                    ROI->drag(mouse[0],mouse[1],this->dragLast[0],this->dragLast[1],fvp);
+                    }
+                }
+            break;
+            
+        case pt_event::browse:
+            {
+                /*float pan_x=0;
+                float pan_y=0;
+                
+                pan_x-=this->dragLast[0]*pan_factor; 
+                pan_y-=this->dragLast[1]*pan_factor;*/
+                
+                ROI->resize (this->dragLast[0],this->dragLast[1],1,fvp);
+            }
+            break;
+            
+        case pt_event::create:
+            ROI->resize (0,0,1+this->dragLast[1]*zoom_factor,fvp);
+                        
+            //zooming invalidates ROI
+            FLTK2Dregionofinterest::current_ROI = NULL;
+            
+            fvp->needs_rerendering();
+            break;
+            
+        case CB_ACTION_WHEEL_FLIP:            
+            ROI->attach_histograms(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
+            
+            fvp->needs_rerendering();
+            break;
+    }
+    
+    if (FLTK2Dregionofinterest::current_ROI == ROI && (event.type() == pt_event::adjust ) ||event.type() ==pt_event::scroll )
+        {
+        //each drag iteration or when moving in view Z direction:
+        //convert coordinates for region of interest and make widgets update
+        
+        std::vector<FLTKuserIOpar_histogram2D *>::iterator itr =ROI->histograms.begin();  
+        while (itr != ROI->histograms.end())
+            {
+            int one_vol_ID= (*itr)->histogram_image_ID(0);     //assumption: same voxel size, dimensions, orientation etc.
+                                                               // - voxel coordinates for one apply to the other as well
+            
+            regionofinterest reg;
+            reg.start = rendermanagement.get_location (rendermanagement.find_renderer_index( myPort->get_renderer_id()),one_vol_ID,ROI->region_start_x,ROI->region_start_y,fvp->w(),fvp->h());
+            reg.size = rendermanagement.get_location (rendermanagement.find_renderer_index( myPort->get_renderer_id()),one_vol_ID,ROI->region_end_x,ROI->region_end_y,fvp->w(),fvp->h())-reg.start;
+            //remove sign from size
+            for (int d=0; d < 3 ; d++)
+                {reg.size[d]=fabs(reg.size[d]);}
+            
+            //sista steget; skicka det nya området till histogrammet
+            (*itr)->highlight_ROI (&reg);
+            
+            itr++;
+            }
+        }
+}
+
+void uim_tool::attach (viewport * vp,  FLTKviewport * fvp, renderer_base * r)
+{
+    //myWidget = fvp;
+    myPort = vp;
+    myRenderer = r;
+}
+
+threshold_overlay * uim_tool::get_overlay ()
+{
+    return overlay;
+    /*if (rendererID != NO_RENDERER_ID)
+        {
+        int p=0;
+        int rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
+        
+        while (rendered_vol_ID > 0)
+            {
+            for (int d=0;threshold_par->id[d] != NOT_FOUND_ID ;d++)
+                {
+                if (rendered_vol_ID==threshold_par->id[d])
+                    {
+                    if (viewport_widget->thresholder == NULL)
+                        {viewport_widget->thresholder=new threshold_overlay(viewport_widget,rendererIndex);}
+                    return viewport_widget->thresholder;
+                    }
+                }
+            p++;
+            rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
+            }
+        
+        if (viewport_widget->thresholder != NULL)
+            {
+            viewport_widget->thresholder->expire();
+            viewport_widget->redraw();
+            }
+        }*/
+}

@@ -248,6 +248,28 @@ void viewport::update_fbstring (FLTKviewport* f)
 
 threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * threshold_par)
     {    
+#ifdef VPT_TEST
+    uim_tool * utool = NULL;
+    
+    //2D histogram should only allow this call when the uim tool is selected
+    if (busyTool == NULL)
+        {
+        viewport_event e = viewport_event(0);
+        busyTool = utool = new uim_tool (e,threshold_par);
+        utool->attach(this, viewport_widget, rendermanagement.get_renderer(rendererID));
+        }
+    
+    if (busyTool != NULL) //might have been created earlier too
+        {        
+        utool = dynamic_cast<uim_tool *>(busyTool);
+        
+        if (utool != NULL)
+            {
+            return utool->get_overlay();
+            }
+        }
+    
+#else //VPT_TEST
     if (rendererID != NO_RENDERER_ID)
         {
         int p=0;
@@ -274,6 +296,7 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
             viewport_widget->redraw();
             }
         }
+#endif //VPT_TEST
 
     return NULL;
     }
@@ -351,8 +374,8 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
             //resize: just update view size, re-render but don't redraw...yet
             update_viewsize(f->resize_w ,f->resize_h);
 
-            if (f->ROI != NULL)
-                {f->ROI->resize (0,0,1,f);}
+            if (f->ROIhack != NULL)
+                {f->ROIhack->resize (0,0,1,f);}
 
             f->needs_rerendering();
             }
@@ -373,21 +396,21 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
 
                 if (rendererID != NO_RENDERER_ID)
                     {
-                    if (!f->ROI->dragging)
+                    if (!f->ROIhack->dragging)
                         {
                         //to improve performance, the attached histograms are cached during drag
-                        f->ROI->attach_histograms(rendererIndex);
+                        f->ROIhack->attach_histograms(rendererIndex);
                         }
 
-                    if (f->ROI->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
+                    if (f->ROIhack->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
                         {
-                        if(FLTK2Dregionofinterest::current_ROI != f->ROI)
+                        if(FLTK2Dregionofinterest::current_ROI != f->ROIhack)
                             {
                             viewmanagement.refresh_viewports(); //erase ROIs shown in other viewports
-                            FLTK2Dregionofinterest::current_ROI = f->ROI;
+                            FLTK2Dregionofinterest::current_ROI = f->ROIhack;
                             }
 
-                        f->ROI->drag(f->mouse_pos[0],f->mouse_pos[1],f->drag_dx,f->drag_dy,f);
+                        f->ROIhack->drag(f->mouse_pos[0],f->mouse_pos[1],f->drag_dx,f->drag_dy,f);
                         }
                     }
                 break;
@@ -400,7 +423,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
                 pan_x-=f->drag_dx*pan_factor; 
                 pan_y-=f->drag_dy*pan_factor;
 
-                f->ROI->resize (f->drag_dx,f->drag_dy,1,f);
+                f->ROIhack->resize (f->drag_dx,f->drag_dy,1,f);
                 rendermanagement.move(rendererIndex,pan_x,pan_y);
 
                 f->needs_rerendering();
@@ -413,7 +436,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
             break;*/
 
             case CB_ACTION_DRAG_ZOOM:
-                f->ROI->resize (0,0,1+f->drag_dy*zoom_factor,f);
+                f->ROIhack->resize (0,0,1+f->drag_dy*zoom_factor,f);
                 rendermanagement.move(rendererIndex,0,0,0,1+f->drag_dy*zoom_factor);
 
                 //zooming invalidates ROI
@@ -432,7 +455,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
                 rendermanagement.move(rendererIndex,0,0,f->wheel_y*wheel_factor);    //relative coordinates are designed so that
                 //1 = one z voxel step for z pan
 
-                f->ROI->attach_histograms(rendererIndex);
+                f->ROIhack->attach_histograms(rendererIndex);
 
                 f->needs_rerendering();
 
@@ -441,20 +464,20 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
             }
         }
 
-        if (FLTK2Dregionofinterest::current_ROI == f->ROI && (f->callback_action == CB_ACTION_DRAG_PASS ) ||f->callback_action==CB_ACTION_WHEEL_FLIP || f->callback_action==CB_ACTION_DRAG_FLIP )
+        if (FLTK2Dregionofinterest::current_ROI == f->ROIhack && (f->callback_action == CB_ACTION_DRAG_PASS ) ||f->callback_action==CB_ACTION_WHEEL_FLIP || f->callback_action==CB_ACTION_DRAG_FLIP )
             {
             //each drag iteration or when moving in view Z direction:
             //convert coordinates for region of interest and make widgets update
 
-            vector<FLTKuserIOpar_histogram2D *>::iterator itr =f->ROI->histograms.begin();  
-            while (itr != f->ROI->histograms.end())
+            vector<FLTKuserIOpar_histogram2D *>::iterator itr =f->ROIhack->histograms.begin();  
+            while (itr != f->ROIhack->histograms.end())
                 {
                 int one_vol_ID= (*itr)->histogram_image_ID(0);     //assumption: same voxel size, dimensions, orientation etc.
                 // - voxel coordinates for one apply to the other as well
 
                 regionofinterest reg;
-                reg.start = rendermanagement.get_location (rendererIndex,one_vol_ID,f->ROI->region_start_x,f->ROI->region_start_y,f->w(),f->h());
-                reg.size = rendermanagement.get_location (rendererIndex,one_vol_ID,f->ROI->region_end_x,f->ROI->region_end_y,f->w(),f->h())-reg.start;
+                reg.start = rendermanagement.get_location (rendererIndex,one_vol_ID,f->ROIhack->region_start_x,f->ROIhack->region_start_y,f->w(),f->h());
+                reg.size = rendermanagement.get_location (rendererIndex,one_vol_ID,f->ROIhack->region_end_x,f->ROIhack->region_end_y,f->w(),f->h())-reg.start;
                 //remove sign from size
                 for (int d=0; d < 3 ; d++)
                     {reg.size[d]=fabs(reg.size[d]);}

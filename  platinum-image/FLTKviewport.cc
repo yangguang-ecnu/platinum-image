@@ -62,7 +62,7 @@ FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
     
     //the regionofinterest acts as an overlay for each viewport/FLTKviewport, so it's
     //created and deleted together with it
-    ROI=new FLTK2Dregionofinterest(this);
+    ROIhack=new FLTK2Dregionofinterest(this);
     
     //the thresholding overlay will be created when needed
     thresholder=NULL;
@@ -70,7 +70,7 @@ FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
 
 FLTKviewport::~FLTKviewport()
 {
-    delete ROI;
+    delete ROIhack;
     if (thresholder !=NULL)
         {delete thresholder;}
 }
@@ -169,9 +169,9 @@ int FLTKviewport::handle(int event){
             switch (Fl::event_button())
                 {
                 case FL_LEFT_MOUSE:
-                    if (ROI != NULL)
+                    if (ROIhack != NULL)
                         {
-                        ROI->drag_end();
+                        ROIhack->drag_end();
                         }
                     break;
                 }
@@ -253,9 +253,9 @@ void FLTKviewport::draw_feedback() // draws the cursor
         thresholder->FLTK_draw();
     }
     
-    if (ROI != NULL)
+    if (ROIhack != NULL)
     {
-        ROI->draw(this);
+        ROIhack->draw(this);
     }
     
     if (!(ex < x() || ey < y() || ex > x()+w() || ey > y() + h()) )
