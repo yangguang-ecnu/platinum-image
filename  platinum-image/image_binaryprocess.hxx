@@ -125,6 +125,8 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, IMGBINARYTYPE object_v
 					this->set_voxel_by_dir(u,v,w,object_value,direction);
 				}
 			}
+		delete[] changes;
+		delete[] lut;
 		}	
 
 	//this->image_has_changed();
@@ -248,6 +250,10 @@ void image_binary<IMAGEDIM>::largest_object_2D(int direction, IMGBINARYTYPE obje
 					this->set_voxel_by_dir(u,v,w,!object_value,direction);
 				}
 			}
+		delete[] changes;
+		delete[] sizes;
+		delete[] lut;
+		delete[] tot_sizes;
 		}
 
 	//this->image_has_changed();
@@ -361,6 +367,10 @@ void image_binary<IMAGEDIM>::threshold_size_2D(int min_size, int direction, IMGB
 					this->set_voxel_by_dir(u,v,w,!object_value,direction);
 				}
 			}
+		delete[] changes;
+		delete[] sizes;
+		delete[] lut;
+		delete[] tot_sizes;
 		}
 	
 	//this->image_has_changed();
@@ -683,6 +693,12 @@ void image_binary<IMAGEDIM>::cog_inside_2D(image_binary<IMAGEDIM>* mask, int dir
 					this->set_voxel_by_dir(u,v,w,!object_value,direction);
 				}
 			}
+		delete[] changes;
+		delete[] sizes;
+		delete[] lut;
+		delete[] tot_sizes;
+		delete[] cog_u;
+		delete[] cog_v;
 		}
 	
 	//this->image_has_changed();
@@ -1004,6 +1020,8 @@ void image_binary<IMAGEDIM>::fill_holes_3D(IMGBINARYTYPE object_value)
 		}
 	
 	//this->image_has_changed();
+	delete[] changes;
+	delete[] lut;
 	delete label_image;				
 	}	
 		
@@ -1268,6 +1286,10 @@ void image_binary<IMAGEDIM>::largest_object_3D(IMGBINARYTYPE object_value)
 		}
 	
 	//this->image_has_changed();
+	delete[] changes;
+	delete[] sizes;
+	delete[] lut;
+	delete[] tot_sizes;
 	delete label_image;
 	}
 
