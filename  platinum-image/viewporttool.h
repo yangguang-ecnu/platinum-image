@@ -28,21 +28,32 @@
 #include "event.h"
 
 class viewport;
+class renderer_base;
 
 class viewporttool 
 {
 public:
-    typedef viewporttool * (*taste_fcn_pointer)(viewport_event &);
+    //typedef viewporttool * (*taste_fcn_pointer)(viewport_event &);
+    typedef viewporttool * (*vpt_create_pointer)(viewport_event &);
+
 private:
     static Fl_Pack * statusArea;
-    static std::map<std::string, taste_fcn_pointer> tools;
+    //static std::map<std::string, taste_fcn_pointer> tools;
+    static std::map<std::string, vpt_create_pointer> tools;
+    
     static std::string selected;  //key for the currently selected tool
     static void cb_toolbutton (Fl_Widget *,void *);
-
+    
+    template <class TOOL>
+        static void Register (std::string k);
+    template <class TOOL>
+        static viewporttool *CreateObject(viewport_event &event);
 protected:
-    image_base * image; //do dynamic_cast to whatever class that is needed
+    image_base *    image; //do dynamic_cast to whatever class that is needed
+    viewport *      myPort;
+    renderer_base * myRenderer; 
 public:
-    static void Register (std::string,taste_fcn_pointer);
+    //static void Register (std::string,vpt_ctor_pointer);
     
     //tool selection & controls
     const static int toolbox_w = 250;
@@ -56,23 +67,34 @@ public:
     //virtual attach(image_base *) = 0;
 
     //static void grab (pt_event &event);
-    static viewporttool * taste(viewport_event &);  //if the current tool responds to the event, return instance (which will be getting the events from now on until another tool is selected)
+    static viewporttool * taste(viewport_event &,viewport *,renderer_base *);  //if the current tool responds to the event, return instance (which will be getting the events from now on until another tool is selected)
     virtual void handle(viewport_event &) = 0;
     //bool handle(int event,enum {create, adjust} );
 };
 
 class nav_tool : public viewporttool
 {
+private:
+    int dragLast [2]; //pt_event store drag origin (most useful) but
+                      //for panning we need the pos at last iteration
 public:
     nav_tool (viewport_event &);
-    static viewporttool * taste_(viewport_event &);
+    //static viewporttool * taste_(viewport_event &);
     virtual void handle(viewport_event &);
 };
 
-class dummy_tool : public viewporttool
+class dummy_tool : public viewporttool //test tool
 {
 public:
     dummy_tool (viewport_event &);
-    static viewporttool * taste_(viewport_event &);
+    //static viewporttool * taste_(viewport_event &);
     virtual void handle(viewport_event &);
 };
+
+/*class uim_tool : public viewporttool //tool for userIO click & drag (only in Histo2D at this time)
+{
+public:
+    uim_tool (viewport_event &);
+    //static viewporttool * taste_(viewport_event &);
+    virtual void handle(viewport_event &);
+};*/

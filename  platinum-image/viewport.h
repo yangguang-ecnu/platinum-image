@@ -42,6 +42,7 @@ class viewport // friend with renderer_base
 {
 private:
     friend class FLTKviewport;
+    friend class viewporttool;
 
     // *** custom data ***
 
@@ -51,7 +52,8 @@ private:
     static bool renderermenu_built;
 
 	int rendererID; // this guy will render for us (each renderer instance contains an unique ID)
-	int rendererIndex; // direct look up to vector array - CACHED INFO - MIGHT CHANGE!
+	int rendererIndex; // direct look up to vector array
+                       //DEPRECATED: use either rendererID or - for fast access - pointer to renderer
 
 	void draw_cursor(bool filledcenter);    // it's better that viewport draws the cursor
                                             //than cursor itself (drawing is ugly, FLTK-dependent; keep #renderingclasses down
@@ -68,8 +70,7 @@ private:
 
     uchar *rgbpixmap;
 
-    int rgbpixmapwidth;
-    int rgbpixmapheight;
+    int pixMapSize[2];
 
     void clear_rgbpixmap();             //fill for viewport without renderer
 
@@ -101,6 +102,8 @@ public:
     static void toggle_image_callback(Fl_Widget *callingwidget, void * params );
     static void set_direction_callback(Fl_Widget *callingwidget, void * params );
     static void set_blendmode_callback(Fl_Widget *callingwidget, void * params );
+    
+    bool render_if_needed (FLTKviewport * f);
         
     // *** refresh methods ***
     //called when any update of the visual parts of viewport is affected, i.e.
@@ -133,6 +136,8 @@ public:
 
 	int get_id();
 	int get_renderer_id();
+    
+    const int * pixmap_size ();
 
 	void connect_renderer(int rID);
 

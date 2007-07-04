@@ -55,9 +55,9 @@ string eventnames[] =
 FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
     {
     cout << "FLTKviewport: " << X << " " << Y << " " << W << " " << H << endl;
-
-    needs_re_rendering=true;
-
+    
+    needs_rerendering();
+    
     callback_action=CB_ACTION_NONE;
     
     //the regionofinterest acts as an overlay for each viewport/FLTKviewport, so it's
@@ -79,7 +79,12 @@ void FLTKviewport::draw()
     {
     //The draw() virtual method is called when FLTK wants you to redraw your widget.
     //It will be called if and only if damage()  is non-zero, and damage() will be cleared to zero after it returns
-
+    
+#ifdef VPT_TEST
+    callback_event = viewport_event (pt_event::draw);
+    callback_event.FLTK_event::attach (this);
+#endif // VPT_TEST
+    
     do_callback(CB_ACTION_DRAW);
     }
 
@@ -140,8 +145,20 @@ void FLTKviewport::do_callback (callbackAction action)
     }
 
 int FLTKviewport::handle(int event){
+    
+#ifdef VPT_TEST
+    
     callback_event = viewport_event (event);
     callback_event.FLTK_event::attach (this);
+    
+    do_callback (CB_ACTION_NONE);
+    
+    if (callback_event.handled())
+        { return 1; }
+    else
+        {return 0; }
+    
+#else //not VPT_TEST
 
     switch (event){
         case FL_PUSH:
@@ -211,8 +228,16 @@ int FLTKviewport::handle(int event){
     mouse_pos[1]=Fl::event_y();
 
     callback_action=0; //better safe than sorry
+    
+#endif //VPT_TEST
     return 1;
 }
+
+void FLTKviewport::needs_rerendering ()
+{
+    needsReRendering = true;
+}
+
 
 void FLTKviewport::draw_feedback() // draws the cursor
 {

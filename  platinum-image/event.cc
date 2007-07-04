@@ -17,7 +17,9 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "event.h"
+//#include "event.h"
+
+#include "FLTKviewport.h"
 #include <FL/Fl.H>
 
 std::string FLTK_event::eventnames[] =
@@ -49,34 +51,64 @@ std::string FLTK_event::eventnames[] =
     "FL_DND_RELEASE",	//23
     };
 
+// *** pt_event ***
 
 pt_event::pt_event()
     {
     mousePos[0] = 0;
     mousePos[1] = 0;
+    mouseStart[0] = 0;
+    mouseStart[1] = 0;
     value = 0;                    
-    type = no_type;
-    state = no_state;
-    handled = false;
+    type_ = no_type;
+    state_ = no_state;
+    handled_ = false;
     }
 
 void pt_event::grab ()
-    {
-    handled = true;
-    }
+{
+    handled_ = true;
+}
+
+bool pt_event::handled ()
+{
+    return handled_;
+}
+
+const int pt_event::scroll_delta()
+{
+    return wheelDelta;   
+}
+
+const int * pt_event::drag_start()
+{
+    return mouseStart;
+}
+
+const pt_event::pt_event_type pt_event::type()
+{
+    return type_;
+}    
+
+const pt_event::pt_event_state pt_event::state()
+{
+    return state_;
+}
+
+// *** FLTK_event ***
 
 void FLTK_event::set_type ()
-    {
+{
     switch (Fl::event_button())
         {
         case FL_LEFT_MOUSE:
-            { type = adjust;}
+            { type_ = adjust;}
         break;
         case FL_MIDDLE_MOUSE:
-            { type = create; }
+            { type_ = browse; }
         break;
         case FL_RIGHT_MOUSE:
-            { type = browse; }
+            { type_ = create; }
         break;
         }
     }
@@ -88,36 +120,42 @@ FLTK_event::FLTK_event (int FL_event):pt_event()
     switch (FL_event){
         case FL_PUSH:
             set_type();
-            state = begin;
+            state_ = begin;
+            
+            mouseStart[0] = Fl::event_x();
+            mouseStart[1] = Fl::event_y();
             break;
 
         case FL_RELEASE:
             set_type();
-            state = end;
+            state_ = end;
             break;
 
         case FL_MOVE:
-            type = hover;
-            state = iterate;
+            type_ = hover;
+            state_ = iterate;
+            
+            mouseStart[0] = Fl::event_x();
+            mouseStart[1] = Fl::event_y();
             break;
 
         case FL_ENTER:
-            type = hover;
-            state = begin;
+            type_ = hover;
+            state_ = begin;
             break;
 
         case FL_LEAVE:
-            type = hover;
-            state = end;
+            type_ = hover;
+            state_ = end;
             break;
 
         case FL_DRAG:
             set_type();
-            state = iterate;
+            state_ = iterate;
             break;
         case FL_MOUSEWHEEL:
-            type = scroll;
-            state = iterate;
+            type_ = scroll;
+            state_ = iterate;
 
             break;
         default:
@@ -126,20 +164,33 @@ FLTK_event::FLTK_event (int FL_event):pt_event()
 
     mousePos[0]=Fl::event_x();
     mousePos[1]=Fl::event_y();
+    wheelDelta = Fl::event_dy();
     }
 
 void FLTK_event::attach (Fl_Widget * w)
-    {
+{
     myWidget = w;
-    }
+}
+
+// *** viewport_event ***
 
 viewport_event::viewport_event (int FL_event):FLTK_event(FL_event)
-    {
-    myPort = NULL;
+{
     //at this point the parent classes have digested the event from FLTK down to a Platinum description
-    }
+}
 
-void viewport_event::attach (viewport * vp)
-    {
-    myPort = vp;
-    }
+viewport_event::viewport_event (pt_event_type t):FLTK_event()
+{
+    type_ = t;
+    state_ = idle;
+}
+
+FLTKviewport * viewport_event::get_FLTK_viewport()
+{
+    return dynamic_cast<FLTKviewport *> (myWidget);
+}
+
+const int * viewport_event::mouse_pos()
+{
+    return mousePos;
+}

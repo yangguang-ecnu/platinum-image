@@ -53,6 +53,7 @@ class rendermanager
         int create_renderer(RENDERER_TYPES rendertype);
         void remove_renderer (int ID);
         int find_renderer_index(int uniqueID);
+        renderer_base * get_renderer (int ID);
         void connect_image_renderer(int rendererID, int imageID);
         void image_vector_has_changed();
         void image_has_changed (int ID);
