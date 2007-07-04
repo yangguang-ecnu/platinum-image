@@ -83,7 +83,7 @@ struct menu_callback_params
 void viewport::clear_rgbpixmap()
     {
     //blacken viewport
-    for (long p=0; p < rgbpixmapwidth*rgbpixmapheight*RGBpixmap_bytesperpixel; p +=RGBpixmap_bytesperpixel )
+    for (long p=0; p < pixMapSize[0]*pixMapSize[1]*RGBpixmap_bytesperpixel; p +=RGBpixmap_bytesperpixel )
         {
         rgbpixmap[p] = rgbpixmap[p + 1] = rgbpixmap[p + 2] = 0;
         }
@@ -107,8 +107,8 @@ viewport::viewport()
 
     //rgbpixmap = new uchar [0];
     rgbpixmap = NULL;
-    rgbpixmapwidth = 0;
-    rgbpixmapheight = 0;
+    pixMapSize[0] = 0;
+    pixMapSize[1] = 0;
 
     if (!renderermenu_built)
         {
@@ -148,7 +148,7 @@ void viewport::connect_renderer(int rID)
     {
     rendererID = rID;               //this is the unique renderer ID within the class, NOT the vector array index!!!
 
-    viewport_widget->needs_re_rendering=true;
+    viewport_widget->needs_rerendering();
     refresh();
     }
 
@@ -216,7 +216,7 @@ void viewport::refresh()
             rebuild_renderer_menu();
             rebuild_blendmode_menu();
 
-            viewport_widget->needs_re_rendering=true;
+            viewport_widget->needsReRendering=true;
             viewport_buttons->activate();
             }
 
@@ -232,7 +232,7 @@ void viewport::update_fbstring (FLTKviewport* f)
     //Draw values picked from data at mouse position
     //in later revisions this event and clicks may be relayed to the actual application
 
-    values=rendermanagement.get_values(rendererIndex,f->mouse_pos[0]-f->x(),f->mouse_pos[1]-f->y(),rgbpixmapwidth,rgbpixmapheight);
+    values=rendermanagement.get_values(rendererIndex,f->mouse_pos[0]-f->x(),f->mouse_pos[1]-f->y(),pixMapSize[0],pixMapSize[1]);
 
     for (unsigned int i=0; i < values.size(); i++)
         {
@@ -285,25 +285,68 @@ void viewport::viewport_callback(Fl_Widget *callingwidget, void *thisviewport)
     ((viewport*)thisviewport)->viewport_callback(callingwidget);
     }
 
+bool viewport::render_if_needed (FLTKviewport * f)
+{
+    if (rendererIndex>=0 && f->needsReRendering)
+        {
+        rendermanagement.render(rendererIndex, rgbpixmap, pixMapSize[0], pixMapSize[1]);
+        if (viewport_widget->thresholder !=NULL)
+            {viewport_widget->thresholder->render();}
+        f->needsReRendering = false;
+        
+        return true;
+        }
+    return false;
+}
+
 void viewport::viewport_callback(Fl_Widget *callingwidget){
     FLTKviewport* f = (FLTKviewport*)callingwidget;
     //f points to the same GUI toolkit-dependent widget instance as viewport_widget
+    
+#ifdef VPT_TEST
 
-    f->callback_event.attach (this); //give the 
+    
+    if (f->callback_event.type() == pt_event::draw)
+        {
+        f->callback_event.grab();
+
+        render_if_needed(f);
+        
+        f->damage(FL_DAMAGE_ALL);
+        f->draw(rgbpixmap);
+        f->damage(0);
+        }
 
     if (busyTool == NULL)
         { 
-        busyTool =  viewporttool::taste(f->callback_event); 
+        busyTool = viewporttool::taste(f->callback_event,this,rendermanagement.get_renderer(rendererID));
+                                    
+        /*(busyTool != NULL)
+            {
+            f->callback_event.attach (this); //give the event a pointer to this viewport
+            f->callback_event.attach(rendermanagement.get_renderer(rendererID));
+            }*/
         }
 
     if (busyTool != NULL) //might have been created earlier too
         {
         busyTool->handle(f->callback_event);
+        if (render_if_needed(f))
+            { f->redraw(); }
         }
+    
+    if (!f->callback_event.handled())
+        {
+        //"default" behavior for the viewport goes here
+        
+        //call render_if_needed(); if image may need re-rendering
+        }
+    
+#else //not VPT_TEST
 
     if (f->callback_action == CB_ACTION_RESIZE)
         {
-        if ((f->resize_w != rgbpixmapwidth || f->resize_h != rgbpixmapheight))
+        if ((f->resize_w != pixMapSize[0] || f->resize_h != pixMapSize[1]))
             {
             //resize: just update view size, re-render but don't redraw...yet
             update_viewsize(f->resize_w ,f->resize_h);
@@ -311,7 +354,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
             if (f->ROI != NULL)
                 {f->ROI->resize (0,0,1,f);}
 
-            f->needs_re_rendering=true;
+            f->needs_rerendering();
             }
         }
     else
@@ -321,7 +364,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
         //UI constants
         const float wheel_factor=0.02;
         const float zoom_factor=0.01;
-        const float pan_factor=(float)1/(min(rgbpixmapwidth,rgbpixmapheight));
+        const float pan_factor=(float)1/(min(pixMapSize[0],pixMapSize[1]));
 
         switch (f->callback_action) {
             case CB_ACTION_DRAG_PASS:
@@ -360,13 +403,13 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
                 f->ROI->resize (f->drag_dx,f->drag_dy,1,f);
                 rendermanagement.move(rendererIndex,pan_x,pan_y);
 
-                f->needs_re_rendering=true;
+                f->needs_rerendering();
                 }
             break;
 
             /*case CB_ACTION_WHEEL_ZOOM:
             zoom*=1+f->wheel_y*wheel_factor;
-            f->needs_re_rendering=true;
+            f->needs_rerendering();
             break;*/
 
             case CB_ACTION_DRAG_ZOOM:
@@ -376,7 +419,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
                 //zooming invalidates ROI
                 FLTK2Dregionofinterest::current_ROI = NULL;
 
-                f->needs_re_rendering=true;
+                f->needs_rerendering();
                 break;
 
             case CB_ACTION_HOVER:
@@ -391,7 +434,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
 
                 f->ROI->attach_histograms(rendererIndex);
 
-                f->needs_re_rendering=true;
+                f->needs_rerendering();
 
                 update_fbstring(f);
                 break;
@@ -423,14 +466,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
                 }
             }
 
-        if (rendererIndex>=0 && f->needs_re_rendering)
-            {
-            rendermanagement.render(rendererIndex, rgbpixmap, rgbpixmapwidth, rgbpixmapheight);
-            if (viewport_widget->thresholder !=NULL)
-                {viewport_widget->thresholder->render();}
-            f->needs_re_rendering = false;
-            }
-
+    render_if_needed(f);
 
 int actionValue = f->callback_action;
         switch (actionValue)
@@ -456,6 +492,7 @@ int actionValue = f->callback_action;
                 f->damage(0);
                 break;
             }
+#endif //VPT_TEST
     }
 
     int viewport::get_id()
@@ -468,210 +505,215 @@ int actionValue = f->callback_action;
         return rendererID;
         }
 
-    void viewport::update_viewsize(int des_width, int des_height)
+const int * viewport::pixmap_size ()
+{
+    return pixMapSize;
+}
+
+void viewport::update_viewsize(int des_width, int des_height)
+{
+    const float grow_factor=1.5;  //margin area added when re-allocating of rgbpixmap
+    
+    if (abs(RGBpixmap_bytesperpixel*des_width*des_height)  > sizeof (rgbpixmap))
         {
-        const float grow_factor=1.5;  //margin area added when re-allocating of rgbpixmap
-
-        if (abs(RGBpixmap_bytesperpixel*des_width*des_height)  > sizeof (rgbpixmap))
+        long rgbpixmap_datasize=(long)RGBpixmap_bytesperpixel*des_width*des_height*grow_factor;
+        
+        if (rgbpixmap != NULL)
             {
-            long rgbpixmap_datasize=(long)RGBpixmap_bytesperpixel*des_width*des_height*grow_factor;
-
-            if (rgbpixmap != NULL)
-                {
-                delete []rgbpixmap;
-                }
-
-            if (rgbpixmap_datasize > 0 )
-                {
-                rgbpixmap= new uchar[rgbpixmap_datasize];
-                }
-            else
-                {
-                rgbpixmap=NULL;
-                cout << "RGBpixmap set to NULL "  << endl; 
-                }
+            delete []rgbpixmap;
             }
-
-        if (des_width <=0 || des_height <=0)
+        
+        if (rgbpixmap_datasize > 0 )
             {
-            rgbpixmapwidth = rgbpixmapheight = 0;
+            rgbpixmap= new uchar[rgbpixmap_datasize];
             }
         else
             {
-            rgbpixmapwidth = des_width;
-            rgbpixmapheight = des_height;
+            rgbpixmap=NULL;
+            cout << "RGBpixmap set to NULL "  << endl; 
             }
-
-        clear_rgbpixmap();
         }
-
-    void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
+    
+    if (des_width <=0 || des_height <=0)
         {
-        const int buttonheight=20;
-        const int buttonwidth=70;
-        int buttonleft=0;
-
-        ////
-        // Init FLTK-related data if needed to be updated
-
-        int drawheight = height - buttonheight;
-
-        update_viewsize(width, drawheight);
-
-        //the containerwidget is the full viewport area: image + controls
-        Fl_Group *containerwidget;
-        containerwidget = new Fl_Group(xpos,ypos,width,height);
-
-        ////buttons controlling view & rendering
-        //
-        viewport_buttons = new Fl_Pack(xpos,ypos,width,buttonheight,"");
-        viewport_buttons->type(FL_HORIZONTAL);
-
-        imagemenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Volumes");
-
-        renderermenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Renderer");
-        renderermenu_button->copy(renderermenu_global);
-        renderermenu_button->user_data(NULL);
-
-        //with only one renderer available, this menu is sort of superfluous
-        renderermenu_button->hide();
-
-        //direction menu is constant for each viewport
-        Fl_Menu_Item dir_menu_items [6+1];
-
-        int m;
-        for (m=0;m<6;m++)
-            {
-            menu_callback_params * cbp=new menu_callback_params;
-            cbp->direction=(preset_direction)m;
-            cbp->vport=this;
-
-            init_fl_menu_item(dir_menu_items[m]);
-
-            dir_menu_items[m].label(preset_direction_labels[m]);
-            dir_menu_items[m].callback(&set_direction_callback);
-            dir_menu_items[m].user_data(cbp);
-            dir_menu_items[m].flags= FL_MENU_RADIO;
-
-            //backwards slices do not work in the orthogonal renderer yet
-            //so we'll disable those choices
-            if (m > SAGITTAL)
-                {dir_menu_items[m].deactivate();}
-            }
-        //terminate menu
-        dir_menu_items[m].label(NULL);
-
-        //Axial is pre-set, set checkmark accordingly
-        dir_menu_items[AXIAL].setonly();
-
-        directionmenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,preset_direction_labels[AXIAL]);
-        directionmenu_button->copy(dir_menu_items);
-
-        Fl_Menu_Item blend_menu_items [NUM_BLEND_MODES+1];
-
-        for (m=0;m<NUM_BLEND_MODES;m++ )
-            {
-            menu_callback_params * cbp=new menu_callback_params;
-            cbp->mode=(blendmode)m;
-            cbp->rend_index=rendererIndex;
-
-            init_fl_menu_item(blend_menu_items[m]);
-
-            blend_menu_items[m].label(blend_mode_labels[m]);
-            blend_menu_items[m].callback(&set_blendmode_callback);
-            blend_menu_items[m].user_data(cbp);
-            blend_menu_items[m].flags= FL_MENU_RADIO;
-
-            if (rendererIndex < 0)
-                {blend_menu_items[m].deactivate();}
-            }
-        //terminate menu
-        blend_menu_items[m].label(NULL);
-
-        blendmenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight);
-        blendmenu_button->copy(blend_menu_items);
-
-        //styling
-        blendmenu_button->box(FL_THIN_UP_BOX);
-        blendmenu_button->labelsize(FLTK_SMALL_LABEL);
-
-        renderermenu_button->box(FL_THIN_UP_BOX);
-        renderermenu_button->labelsize(FLTK_SMALL_LABEL);
-
-        directionmenu_button->box(FL_THIN_UP_BOX);
-        directionmenu_button->labelsize(FLTK_SMALL_LABEL);
-
-        imagemenu_button->box(FL_THIN_UP_BOX);
-        imagemenu_button->labelsize(FLTK_SMALL_LABEL);
-
-        viewport_buttons->end();
-
-        //// the image frame
-        //
-        viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight);
-        viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKviewport)
-        //handles the callbacks
-        containerwidget->resizable(viewport_widget);
-
-        containerwidget->end();
-        containerwidget->box(FL_BORDER_BOX);
-        containerwidget->align(FL_ALIGN_CLIP);
-
-        //attach MPR renderer - so that all viewports can be populated for additional views
-        viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR));
+        pixMapSize[0] = pixMapSize[1] = 0;
         }
-
-    void viewport::update_image_menu()
+    else
         {
-        int m=0;//
+        pixMapSize[0] = des_width;
+        pixMapSize[1] = des_height;
+        }
+    
+    clear_rgbpixmap();
+}
 
-        const Fl_Menu_Item * cur_menu, *base_menu;
+void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
+{
+    const int buttonheight=20;
+    const int buttonwidth=70;
+    int buttonleft=0;
+    
+    ////
+    // Init FLTK-related data if needed to be updated
+    
+    int drawheight = height - buttonheight;
+    
+    update_viewsize(width, drawheight);
+    
+    //the containerwidget is the full viewport area: image + controls
+    Fl_Group *containerwidget;
+    containerwidget = new Fl_Group(xpos,ypos,width,height);
+    
+    ////buttons controlling view & rendering
+    //
+    viewport_buttons = new Fl_Pack(xpos,ypos,width,buttonheight,"");
+    viewport_buttons->type(FL_HORIZONTAL);
+    
+    imagemenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Volumes");
+    
+    renderermenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Renderer");
+    renderermenu_button->copy(renderermenu_global);
+    renderermenu_button->user_data(NULL);
+    
+    //with only one renderer available, this menu is sort of superfluous
+    renderermenu_button->hide();
+    
+    //direction menu is constant for each viewport
+    Fl_Menu_Item dir_menu_items [6+1];
+    
+    int m;
+    for (m=0;m<6;m++)
+        {
+        menu_callback_params * cbp=new menu_callback_params;
+        cbp->direction=(preset_direction)m;
+        cbp->vport=this;
+        
+        init_fl_menu_item(dir_menu_items[m]);
+        
+        dir_menu_items[m].label(preset_direction_labels[m]);
+        dir_menu_items[m].callback(&set_direction_callback);
+        dir_menu_items[m].user_data(cbp);
+        dir_menu_items[m].flags= FL_MENU_RADIO;
+        
+        //backwards slices do not work in the orthogonal renderer yet
+        //so we'll disable those choices
+        if (m > SAGITTAL)
+            {dir_menu_items[m].deactivate();}
+        }
+    //terminate menu
+    dir_menu_items[m].label(NULL);
+    
+    //Axial is pre-set, set checkmark accordingly
+    dir_menu_items[AXIAL].setonly();
+    
+    directionmenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,preset_direction_labels[AXIAL]);
+    directionmenu_button->copy(dir_menu_items);
+    
+    Fl_Menu_Item blend_menu_items [NUM_BLEND_MODES+1];
+    
+    for (m=0;m<NUM_BLEND_MODES;m++ )
+        {
+        menu_callback_params * cbp=new menu_callback_params;
+        cbp->mode=(blendmode)m;
+        cbp->rend_index=rendererIndex;
+        
+        init_fl_menu_item(blend_menu_items[m]);
+        
+        blend_menu_items[m].label(blend_mode_labels[m]);
+        blend_menu_items[m].callback(&set_blendmode_callback);
+        blend_menu_items[m].user_data(cbp);
+        blend_menu_items[m].flags= FL_MENU_RADIO;
+        
+        if (rendererIndex < 0)
+            {blend_menu_items[m].deactivate();}
+        }
+    //terminate menu
+    blend_menu_items[m].label(NULL);
+    
+    blendmenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight);
+    blendmenu_button->copy(blend_menu_items);
+    
+    //styling
+    blendmenu_button->box(FL_THIN_UP_BOX);
+    blendmenu_button->labelsize(FLTK_SMALL_LABEL);
+    
+    renderermenu_button->box(FL_THIN_UP_BOX);
+    renderermenu_button->labelsize(FLTK_SMALL_LABEL);
+    
+    directionmenu_button->box(FL_THIN_UP_BOX);
+    directionmenu_button->labelsize(FLTK_SMALL_LABEL);
+    
+    imagemenu_button->box(FL_THIN_UP_BOX);
+    imagemenu_button->labelsize(FLTK_SMALL_LABEL);
+    
+    viewport_buttons->end();
+    
+    //// the image frame
+    //
+    viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight);
+    viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKviewport)
+                                                        //handles the callbacks
+    containerwidget->resizable(viewport_widget);
+    
+    containerwidget->end();
+    containerwidget->box(FL_BORDER_BOX);
+    containerwidget->align(FL_ALIGN_CLIP);
+    
+    //attach MPR renderer - so that all viewports can be populated for additional views
+    viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR));
+}
 
-        Fl_Menu_Item new_menu[datamanager::IMAGEVECTORMAX+1];
-
-        base_menu=datamanagement.FLTK_image_menu_items();
-        cur_menu=imagemenu_button->menu();
-
-        if (cur_menu!=NULL)
+void viewport::update_image_menu()
+{
+    unsigned int m=0;
+    
+    const Fl_Menu_Item * cur_menu, *base_menu;
+    
+    Fl_Menu_Item new_menu[datamanager::IMAGEVECTORMAX+1];
+    
+    base_menu=datamanagement.FLTK_image_menu_items();
+    cur_menu=imagemenu_button->menu();
+    
+    if (cur_menu!=NULL)
+        {
+        //delete old callback data
+        for(unsigned int i=0;cur_menu[i].label()!=NULL && i < datamanager::IMAGEVECTORMAX;i++)
             {
-            //delete old callback data
-            for(unsigned int i=0;cur_menu[i].label()!=NULL && i < datamanager::IMAGEVECTORMAX;i++)
-                {
-                delete ((menu_callback_params*)cur_menu[i].user_data());
-                }
+            delete ((menu_callback_params*)cur_menu[i].user_data());
             }
-
-        if (rendererIndex >= 0)
-            {
-            do 
-                {            
+        }
+    
+    if (rendererIndex >= 0)
+        {
+        do 
+            {            
                 if (new_menu[m].label()!=NULL)
                     {
                     //long v=base_menu[m].argument();
                     //attach menu_callback_params and
                     //set checkmarks according to displayed images
-
+                    
                     memcpy (&new_menu[m],&base_menu[m],sizeof(Fl_Menu_Item));
-
+                    
                     menu_callback_params * p= new menu_callback_params;
                     p->rend_index=rendererIndex;
                     p->vol_id=base_menu[m].argument();  //image ID is stored in user data initially
-
+                    
                     new_menu[m].callback((Fl_Callback *)toggle_image_callback);
                     new_menu[m].user_data(p);
                     new_menu[m].flags=FL_MENU_TOGGLE;
-
+                    
                     if (rendermanagement.image_rendered(rendererIndex,p->vol_id) !=BLEND_NORENDER)
                         {
                         //checked
                         new_menu[m].set();
                         }
                     }
-                } while (new_menu[m++].label() !=NULL && m < datamanager::IMAGEVECTORMAX);
-
-                imagemenu_button->copy(new_menu);
-            }
+            } while (new_menu[m++].label() !=NULL && m < datamanager::IMAGEVECTORMAX);
+        
+        imagemenu_button->copy(new_menu);
         }
+}
 
     void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
         {

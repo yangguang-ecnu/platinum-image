@@ -62,6 +62,22 @@ int rendermanager::find_renderer_index(int uniqueID)
     return -1; // not found
     }
 
+renderer_base * rendermanager::get_renderer (int ID)
+{
+    /*std::vector<renderer_base *>::iterator renderer = find ( renderers.begin(), renderers.end(), ID);
+    
+    if (renderer != renderers.end())
+        { return *renderer; }*/
+    
+    for ( vector<renderer_base*>::iterator itr = renderers.begin();itr != renderers.end();itr++)
+        {
+        if (**itr==ID)
+            { return *itr;}
+        }
+    
+    return NULL;
+}
+
 vector<int> rendermanager::combinations_from_image (int imageID)
     {
     //when thumbnails are implemented, they should be re-rendered at this point

@@ -46,6 +46,8 @@
 #include "FLTK2Dregionofinterest.h"
 #include "event.h"
 
+//#define VPT_TEST //viewporttool development
+
 //Callback action identifiers.
 
 enum callbackAction {
@@ -69,6 +71,7 @@ enum callbackAction {
 class FLTKviewport : public Fl_Widget
 {
 	    friend class viewport;
+        friend class viewporttool;
         friend class threshold_overlay;
     public:
 	    FLTKviewport(int X,int Y,int W,int H);  //constructor
@@ -79,10 +82,11 @@ class FLTKviewport : public Fl_Widget
                                             //feedback (coordinates, cursor)
 	    void resize (int new_x,int new_y,int new_w,int new_h);
 	    int handle(int event);
+        void needs_rerendering ();
     private:
         void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 	    void draw_feedback();       //draws the cursor
-	    bool needs_re_rendering;	//set to true when we need to update the data drawn on screen
+	    bool needsReRendering;	//set to true when we need to update the data drawn on screen
 	   
         std::string feedback_string;      //info (coordinates and such)
         FLTK2Dregionofinterest * ROI;     //overlay for selecting and displaying a
@@ -98,7 +102,7 @@ class FLTKviewport : public Fl_Widget
 	    int wheel_y;            //mouse wheel rotation
 	    int callback_action;    //which action to perform during click or drag processed by callback
         viewport_event callback_event;
-	    int resize_w;	        //if FLTKviewport is resized --> needs_re_rendering = true;
+	    int resize_w;	        //if FLTKviewport is resized --> needsReRendering = true;
 	    int resize_h;
         };
 #endif
