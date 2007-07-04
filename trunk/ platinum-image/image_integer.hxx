@@ -627,6 +627,10 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::gauss_fit2()
 			err_min_ind=j+1;
 			}
 		}
+	delete[] hist;
+	delete[] gauss1hist;
+	delete[] gauss2hist;
+	delete[] gausstothist;
 	return err_min_ind;
 	}
 
@@ -686,7 +690,8 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::otsu()
 				}
 			}
 		}
-
+	
+	delete[] hist;
 	return optthr;
 	}
 
@@ -1194,7 +1199,9 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	delete[] counts_cum;
 	delete[] sorted_index;
 	delete[] par_node;
+	delete[] marked;
 	delete[] npt_array;
+	delete[] eq_neigh;
 
 	//output->min_max_refresh();
 	return output;
@@ -1616,7 +1623,9 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	delete[] counts_cum;
 	delete[] sorted_index;
 	delete[] par_node;
+	delete[] marked;
 	delete[] npt_array;
+	delete[] eq_neigh;
 
 	//output->min_max_refresh();
 	return output;
@@ -2050,7 +2059,9 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	delete[] counts_cum;
 	delete[] sorted_index;
 	delete[] par_node;
+	delete[] marked;
 	delete[] npt_array;
+	delete[] eq_neigh;
 
 	//output->min_max_refresh();
 	return output;
