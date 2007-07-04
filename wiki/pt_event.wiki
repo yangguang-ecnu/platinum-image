@@ -6,4 +6,6 @@
 The pt_event object (with FLTK-implementing subclass) is the interface that allows events to be handled with the future option of migrating from FLTK.
 
 =Usage=
-A viewport_event object is kept in each FLTKviewport
+A viewport_event object is kept in each [FLTKviewport]. It is updated prior to engaging the callback (function viewport_callback), the [viewport] then accesses this object and handles the event.
+
+When a pt_event is handled, the `grab` metod has to be called to mark the event as taken care of.
