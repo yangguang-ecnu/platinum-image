@@ -2312,6 +2312,7 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 	memset(res,0,sizeof(int)*max_w);
 	ELEMTYPE p;//pixel value
 	double sum=0;
+	int optthr;
 	if(first_slice<0)
 		first_slice=0;
 	if(last_slice<0)
@@ -2345,16 +2346,16 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 			double cumN=0;
 
 			int j;
-			for(j=0; j<=max_v; j++)
+			for(j=0; j<max_v; j++)
 				{
 				cumSum+=j*hist[j];
 				cumSum_2+=j*j*hist[j];
 				cumN+=hist[j];
 				}
 			double maxvar=0;
-			int optthr=0;
+			optthr=0;
 			double optdiff=0;
-			for(j=0; j<=max_v; j++)
+			for(j=0; j<max_v; j++)
 				{
 				//Compute mean and std
 				sum1+=j*hist[j];
@@ -2376,35 +2377,36 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 					}
 				}
 			totdiff+=optdiff;
-			double cumSumU=0;
-			double cumSumU_2=0;
-			double cumSumV=0;
-			double cumSumV_2=0;
-			cumN=0;
-			for(v=0; v<optthr; v++)
-				{
-				int sum=0;
-				for(u=0; u<max_u; u++)
-					{
-					p=this->get_voxel_by_dir(u,v,w,z_direction);
-					if(p>=low_thr && p<=high_thr)
-						{
-						cumSumV+=v;
-						cumSumV_2+=v*v;
-						cumSumU+=u;
-						cumSumU_2+=u*u;
-						cumN++;
-						}
-					}
-				}
-			double stdU=sqrt((cumSumU_2-cumSumU*cumSumU/cumN)/(cumN-1));
-			double stdV=sqrt((cumSumV_2-cumSumV*cumSumV/cumN)/(cumN-1));
-			double widthU=(cumN*stdU/stdV);
-			double widthV=(cumN*stdV/stdU);
-			cout << "Slice: " << w << " Thr: " << optthr << " WidthU: " << widthU << " WidthV: " << widthV << " StdU: " << stdU << " StdV: " << stdV << " Sum: " << cumN<< endl;
+			//double cumSumU=0;
+			//double cumSumU_2=0;
+			//double cumSumV=0;
+			//double cumSumV_2=0;
+			//cumN=0;
+			//for(v=0; v<optthr; v++)
+			//	{
+			//	int sum=0;
+			//	for(u=0; u<max_u; u++)
+			//		{
+			//		p=this->get_voxel_by_dir(u,v,w,z_direction);
+			//		if(p>=low_thr && p<=high_thr)
+			//			{
+			//			cumSumV+=v;
+			//			cumSumV_2+=v*v;
+			//			cumSumU+=u;
+			//			cumSumU_2+=u*u;
+			//			cumN++;
+			//			}
+			//		}
+			//	}
+			//double stdU=sqrt((cumSumU_2-cumSumU*cumSumU/cumN)/(cumN-1));
+			//double stdV=sqrt((cumSumV_2-cumSumV*cumSumV/cumN)/(cumN-1));
+			//double widthU=(cumN*stdU/stdV);
+			//double widthV=(cumN*stdV/stdU);
+			//out << "Slice: " << w << " Thr: " << optthr << " WidthU: " << widthU << " WidthV: " << widthV << " StdU: " << stdU << " StdV: " << stdV << " Sum: " << cumN<< endl;
 			res[w]=optthr;
 			}
 		delete[] hist;
+		cout << "Slice: " << w-1 << " Thr: " << optthr << endl;
 		}
 	else
 		{
@@ -2436,16 +2438,16 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 			double cumN=0;
 
 			int j;
-			for(j=0; j<=max_u; j++)
+			for(j=0; j<max_u; j++)
 				{
 				cumSum+=j*hist[j];
 				cumSum_2+=j*j*hist[j];
 				cumN+=hist[j];
 				}
 			double maxvar=0;
-			int optthr=0;
+			optthr=0;
 			double optdiff=0;
-			for(j=0; j<=max_u; j++)
+			for(j=0; j<max_u; j++)
 				{
 				//Compute mean and std
 				sum1+=j*hist[j];
@@ -2467,36 +2469,37 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 					}
 				}
 			totdiff+=optdiff;
-			double cumSumU=0;
-			double cumSumU_2=0;
-			double cumSumV=0;
-			double cumSumV_2=0;
-			cumN=0;
-			for(u=0; u<optthr; u++)
-				{
-				int sum=0;
-				for(v=0; v<max_v; v++)
-					{
-					p=this->get_voxel_by_dir(u,v,w,z_direction);
-					if(p>=low_thr && p<=high_thr)
-						{
-						cumSumV+=v;
-						cumSumV_2+=v*v;
-						cumSumU+=u;
-						cumSumU_2+=u*u;
-						cumN++;
-						}
-					}
-				}
-			double stdU=sqrt((cumSumU_2-cumSumU*cumSumU/cumN)/(cumN-1));
-			double stdV=sqrt((cumSumV_2-cumSumV*cumSumV/cumN)/(cumN-1));
-			double widthU=sqrt(cumN*stdU/stdV);
-			double widthV=sqrt(cumN*stdV/stdU);
-			cout << "Slice: " << w << " Thr: " << optthr << " WidthU: " << widthU << " WidthV: " << widthV << " StdU: " << stdU << " StdV: " << stdV << " Sum: " << cumN<< endl;
+			//double cumSumU=0;
+			//double cumSumU_2=0;
+			//double cumSumV=0;
+			//double cumSumV_2=0;
+			//cumN=0;
+			//for(u=0; u<optthr; u++)
+			//	{
+			//	int sum=0;
+			//	for(v=0; v<max_v; v++)
+			//		{
+			//		p=this->get_voxel_by_dir(u,v,w,z_direction);
+			//		if(p>=low_thr && p<=high_thr)
+			//			{
+			//			cumSumV+=v;
+			//			cumSumV_2+=v*v;
+			//			cumSumU+=u;
+			//			cumSumU_2+=u*u;
+			//			cumN++;
+			//			}
+			//		}
+			//	}
+			//double stdU=sqrt((cumSumU_2-cumSumU*cumSumU/cumN)/(cumN-1));
+			//double stdV=sqrt((cumSumV_2-cumSumV*cumSumV/cumN)/(cumN-1));
+			//double widthU=sqrt(cumN*stdU/stdV);
+			//double widthV=sqrt(cumN*stdV/stdU);
+			//cout << "Slice: " << w << " Thr: " << optthr << " WidthU: " << widthU << " WidthV: " << widthV << " StdU: " << stdU << " StdV: " << stdV << " Sum: " << cumN<< endl;
 			res[w]=optthr;
 			}
 		//out.close();
 		delete[] hist;
+		cout << "Slice: " << w-1 << " Thr: " << optthr << endl;
 		}
 	return totdiff>0;
 	}
