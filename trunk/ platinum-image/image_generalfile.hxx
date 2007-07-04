@@ -207,7 +207,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         for (int d=0;d < 3;d++)
             { voxel_resize[d][d] = voxelSize[d]; }
         initialize_dataset (width,height,numElements/(width * height),data);
-
+		delete[] data; //To avoid memory leak !!!!!!!
         name_from_path (files.front());
 
         //image_has_changed(true);
