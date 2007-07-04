@@ -2417,7 +2417,7 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 			res[w]=optthr;
 			}
 		delete[] hist;
-		cout << "Slice: " << w-1 << " Thr: " << optthr << endl;
+        std::cout << "Slice: " << w-1 << " Thr: " << optthr << std::endl;
 		}
 	else
 		{
@@ -2510,7 +2510,7 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 			}
 		//out.close();
 		delete[] hist;
-		cout << "Slice: " << w-1 << " Thr: " << optthr << endl;
+        std::cout << "Slice: " << w-1 << " Thr: " << optthr << std::endl;
 		}
 	return totdiff>0;
 	}
