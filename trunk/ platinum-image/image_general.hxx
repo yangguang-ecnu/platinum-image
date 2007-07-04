@@ -947,7 +947,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::print_physical_corner_coords()
 {
 	std::cout<<"***************************************"<<std::endl;
-	std::cout<<name()<<"->print_physical_corner_coords()"<<std::endl;
+	std::cout<<this->name()<<"->print_physical_corner_coords()"<<std::endl;
 	std::cout<<		get_physical_pos_for_voxel(0,				0,				datasize[2]-1);
 	std::cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	0,				datasize[2]-1);
 	std::cout<<std::endl;
