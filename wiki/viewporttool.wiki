@@ -24,26 +24,13 @@ Event types that the viewporttool should also handle eventually:
 Events that should cause the same behavior across all tools should simply be ignored by the selectable tools and caught last by a master tool (which does not show onscreen, only in code)
 
 = Implementation =
-The viewporttool icons (buttons) for selecting tool are created once by static methods. A viewporttool object will be created when the tool type is selected.
+The viewporttool icons (buttons) for selecting tool are created once by a static method in the viewporttool. A viewporttool object will be created when the tool type is first used in a particular viewport.
 
-Events will be sent to static handle(…) functions in each viewporttool subclass as a [pt_event] object. This class contains an indicator value and image pointer. If the class wants to use the event it calls grab() on the pt_event object, which marks it so that the event will not be passed to any other tool (although this principle may be changed later). If the event causes the start of a process (more than just an instantaneous action) the handle(…) function should return a viewporttool object which will be kept by the viewport and get all future events into a instance handle (…) function (or another name if functions cannot be overloaded like that). When this object ceases to grab new pt_event objects it will be deleted by the viewport and the process has reached its end.
+Through the static `taste` function, an instance of the selected tool is created when a viewport receives its first event. This in turn calls the appropriate constructor: if the tool grabs the event, the tool will be returned to the calling viewport. Otherwise it's deleted.
 
-The viewporttool instance created under such circumstances can store things like past drag coordinates or a selection ROI of some kind.
+Once a viewport has a tool object it receives all events. The tool instance remains in memory until another tool is selected, or the viewport is deleted. The viewport may respond to some events, but will also pass them along to the selected tool.
 
-Static variables in a viewporttool subclass may keep more persistent information like brush radii, "modes" and such. This information will be retained until the Platinum program is exited.
+The viewporttool instance can store things like past drag coordinates or a selection ROI of some kind. Static variables in a viewporttool subclass may keep more persistent information like brush radii, "modes" and such. This information will be retained until the Platinum program is exited.
 
 ==Members==
-{{{
-protected:
-    image_base * image; //do dynamic_cast to whatever class that is needed
-    
-public:
-    viewporttool(viewport *);
-    virtual ~viewporttool;
-    
-    virtual attach(image_base *) = 0;
-
-    static void init ();
-    //static void grab (pt_event &event);
-    bool handle(int event,enum {create, adjust} );
-}}}
+...
