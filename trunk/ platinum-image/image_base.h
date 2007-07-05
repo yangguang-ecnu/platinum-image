@@ -83,6 +83,9 @@ class image_base : public data_base
 
         virtual void initialize_dataset(int w, int h, int d) = 0; // create empty dataset
 
+        template <class LOADERTYPE>
+            static void try_loader (std::vector<std::string> * f); //! helper for image_base::load
+
         static void load(const std::vector<std::string> files);  //load files in supported formats
                                                     //as selected in "files" vector
 
