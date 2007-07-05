@@ -122,8 +122,8 @@ private:
     itk::VTKImageIO::Pointer vtkIO;
     
 public:
-    vtkloader (const std::vector<std::string>);
-    image_base * read (std::vector<std::string>&);
+    vtkloader (std::vector<std::string> *);
+    image_base * read ();
 };
 
 class dicomloader: public imageloader
@@ -135,16 +135,16 @@ private:
                                   //! to prevent multiple selected frames
                                   //! from loading the same series multiple times
 public:
-    dicomloader (const std::vector<std::string>);
-    image_base * read (std::vector<std::string>&);
+    dicomloader (std::vector<std::string> *);
+    image_base * read ();
 };
 
-vtkloader::vtkloader(const std::vector<std::string> f): imageloader(f)
+vtkloader::vtkloader(std::vector<std::string> * f): imageloader(f)
 {
     vtkIO = itk::VTKImageIO::New();
 }
 
-image_base *vtkloader::read(std::vector<std::string>& files)
+image_base *vtkloader::read()
     {    
     image_base * result = NULL;
             
@@ -153,13 +153,13 @@ image_base *vtkloader::read(std::vector<std::string>& files)
     char * file = new char [nsize];
     strncpy(file,files.front().c_str(),nsize);*/
             
-    if (vtkIO->CanReadFile (files.front().c_str()))
+    if (vtkIO->CanReadFile (files->front().c_str()))
         {
 
         //assumption:
         //File contains image data
 
-        vtkIO->SetFileName(files.front().c_str());
+        vtkIO->SetFileName(files->front().c_str());
 
         vtkIO->ReadImageInformation(); 
 
@@ -177,16 +177,16 @@ image_base *vtkloader::read(std::vector<std::string>& files)
                     {
                     case itk::ImageIOBase::UCHAR:
                         result =  new image_integer<unsigned char>();
-                        ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(std::string(files.front()));
+                        ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
                         break;
                     case itk::ImageIOBase::USHORT:
                         result = new image_integer<unsigned short>();
-                        ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(std::string(files.front()));
+                        ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
                         break;
 
                     case itk::ImageIOBase::SHORT:
                         result = new image_integer<short>();
-                        ((image_integer<short>*)result)->load_dataset_from_VTK_file(std::string(files.front()));
+                        ((image_integer<short>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
                         break;
                     default:
 #ifdef _DEBUG
@@ -226,7 +226,7 @@ image_base *vtkloader::read(std::vector<std::string>& files)
 
             }
         //file was read - remove from list
-        files.erase (files.begin());
+        files->erase (files->begin());
         }
     
     /*delete file;*/
@@ -234,16 +234,16 @@ image_base *vtkloader::read(std::vector<std::string>& files)
     return result;
     }
 
-dicomloader::dicomloader (const std::vector<std::string> f): imageloader(f)
+dicomloader::dicomloader (std::vector<std::string> * f): imageloader(f)
 {
     dicomIO = itk::GDCMImageIO::New();
 }
 
-image_base *dicomloader::read(std::vector<std::string>& files)
+image_base *dicomloader::read()
 {    
     image_base * result = NULL;
     
-    for (std::vector<std::string>::const_iterator file = files.begin();file != files.end() && result == NULL;file++) // Repeat until one image has been read
+    for (std::vector<std::string>::const_iterator file = files->begin();file != files->end() && result == NULL;file++) // Repeat until one image has been read
         {
         if (dicomIO->CanReadFile (file->c_str()))
             {
@@ -340,7 +340,7 @@ image_base *dicomloader::read(std::vector<std::string>& files)
 #endif
                 }
 
-            files.clear(); //! if at least one file can be read, the rest are assumed to be part of the same series (or otherwise superfluos)
+            files->clear(); //! if at least one file can be read, the rest are assumed to be part of the same series (or otherwise superfluos)
             }
         }
     
@@ -353,11 +353,11 @@ private:
 	int buf2int(unsigned char* buf);
 	short buf2short(unsigned char* buf);
 public:
-    analyze_hdrloader (std::vector<std::string>);
-    image_base * read (std::vector<std::string>&);
+    analyze_hdrloader (std::vector<std::string> *);
+    image_base * read ();
 };
 
-analyze_hdrloader::analyze_hdrloader(const std::vector<std::string> files): imageloader(files)
+analyze_hdrloader::analyze_hdrloader(std::vector<std::string> * files): imageloader(files)
 	{
 	}
 
@@ -373,10 +373,10 @@ short analyze_hdrloader::buf2short(unsigned char* buf)
 	return res;
 	}
 
-image_base * analyze_hdrloader::read(std::vector<std::string> &files)
+image_base * analyze_hdrloader::read()
     {
     image_base * newImage = NULL;
-	std::string hdr_file = files.front();
+	std::string hdr_file = files->front();
 	std::string img_file = hdr_file;
 	std::string img_name;
     
@@ -481,7 +481,7 @@ image_base * analyze_hdrloader::read(std::vector<std::string> &files)
             newImage->name(img_name);
 
             //file was read - remove from list
-            files.erase (files.begin());
+            files->erase (files->begin());
             }
         }
 
@@ -491,18 +491,18 @@ image_base * analyze_hdrloader::read(std::vector<std::string> &files)
 class analyze_objloader: public imageloader 
 {
 public:
-    analyze_objloader (std::vector<std::string>);
-    image_base * read (std::vector<std::string>&);
+    analyze_objloader (std::vector<std::string> *);
+    image_base * read ();
 };
 
-analyze_objloader::analyze_objloader(const std::vector<std::string> files): imageloader(files)
+analyze_objloader::analyze_objloader(std::vector<std::string> * files): imageloader(files)
 	{
 	}
 
-image_base * analyze_objloader::read(std::vector<std::string> &files)
+image_base * analyze_objloader::read()
     {
     image_base * newImage = NULL;
-	std::string obj_file = files.front();
+	std::string obj_file = files->front();
 	std::string img_name = obj_file;
     
     unsigned int pos;
@@ -571,7 +571,7 @@ image_base * analyze_objloader::read(std::vector<std::string> &files)
 			fobj.close();
 			newImage->name(img_name);
 
-			files.erase (files.begin());
+			files->erase (files->begin());
 			}
 		}
 
@@ -579,45 +579,47 @@ image_base * analyze_objloader::read(std::vector<std::string> &files)
     }
 
 template <class LOADERTYPE>
-void try_loader (std::vector<std::string> &f) //! helper for image_base::load
+void image_base::try_loader (std::vector<std::string> * f) //! helper for image_base::load
 {
-	if (!f.empty())
+	if (!f->empty())
 	{
 		LOADERTYPE loader = LOADERTYPE(f);
 		image_base *new_image = NULL; //the eventually loaded image
 
 		do {
-			new_image = loader.read(f);
+			new_image = loader.read();
 			if (new_image != NULL)
 			{ datamanagement.add(new_image); }
 		} 
-		while (new_image !=NULL);
+		while (new_image !=NULL && !f->empty());
 	}
 }
 
-void image_base::load(const std::vector<std::string> f)
+void image_base::load( std::vector<std::string> f)
     {
-    std::vector<std::string> chosen_files = std::vector<std::string>();
+    std::vector<std::string> chosen_files(f);
+    
+    /*std::vector<std::string> * chosen_files = std::vector<std::string>();
     
     chosen_files.resize(f.size());
     
     std::copy(f.begin(), f.end(),
-         chosen_files.begin());
+         chosen_files.begin());*/
     
     //try Analyze obj
-    try_loader<analyze_objloader>(chosen_files);
+    try_loader<analyze_objloader>(&chosen_files);
 
     //try Analyze hdr
-    try_loader<analyze_hdrloader>(chosen_files);
+    try_loader<analyze_hdrloader>(&chosen_files);
 
     //try Bruker
-    try_loader<brukerloader>(chosen_files);
+    try_loader<brukerloader>(&chosen_files);
 
     //try VTK
-    try_loader<vtkloader>(chosen_files);
+    try_loader<vtkloader>(&chosen_files);
 
     //try DICOM
-    try_loader<dicomloader>(chosen_files);
+    try_loader<dicomloader>(&chosen_files);
 
     if ( !chosen_files.empty() )
         {

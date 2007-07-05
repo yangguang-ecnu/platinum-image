@@ -9,10 +9,10 @@
 
 //#include "fileutils.h"
 
-brukerloader::brukerloader(const std::vector<std::string> files): imageloader(files)
+brukerloader::brukerloader(std::vector<std::string> * f): imageloader(f)
 {
     //determine level (session, run, reconstruction)
-    std::string parent = path_parent (files.front());
+    std::string parent = path_parent (files->front());
     
     if (file_exists (parent + "subject"))
         {
@@ -180,7 +180,7 @@ std::istream& operator>>(std::istream& in, brukertoken& o)
     return in;
     }
 
-image_base * brukerloader::read(std::vector<std::string> &files)
+image_base * brukerloader::read()
     {
     image_base * newImage = NULL;
 
@@ -296,7 +296,7 @@ image_base * brukerloader::read(std::vector<std::string> &files)
 				}
             newImage->name( tokens ["OWNER"].value<std::string>() + tokens ["RECO_time"].value<std::string>());
 
-            files.clear(); //eat all files if (one) load was successful
+            files->clear(); //eat all files if (one) load was successful
             reconstructions.erase(reconstruction);
             }
         }

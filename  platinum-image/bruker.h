@@ -39,9 +39,13 @@ class image_base;
 
 class imageloader
 {
+protected:
+    std::vector<std::string> * files;
 public:
-    imageloader(const std::vector<std::string> f)
-        { }
+    imageloader(std::vector<std::string> * f)
+        {
+        files = f;
+        }
     ~imageloader()
         { }
 };
@@ -56,8 +60,8 @@ private:
     void get_reconstructions(std::string run_dir_path);
     
 public:
-    brukerloader (std::vector<std::string>);
-    image_base * read (std::vector<std::string>&);
+    brukerloader (std::vector<std::string> * f);
+    image_base * read ();
 };
 
 #endif
