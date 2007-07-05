@@ -150,14 +150,11 @@ threshold_overlay::threshold_overlay(FLTKviewport * o, int r_index)
     overlay_image_data = NULL;
     overlay_image_data = new unsigned char [width*height*RGBApixmap_bytesperpixel];
 
-    overlay_image = NULL;
-    overlay_image = new Fl_RGB_Image(overlay_image_data, width, height, RGBApixmap_bytesperpixel, 0);
     rendererIndex= r_index;
     }
 
 threshold_overlay::~threshold_overlay()
     {
-    delete overlay_image;
     delete []overlay_image_data;
     }
 
@@ -172,17 +169,25 @@ void threshold_overlay::render (thresholdparvalue * t)
     if (threshold !=NULL)
         {
         rendermanagement.render_threshold (rendererIndex, overlay_image_data, width, height, threshold);
-        overlay_image->uncache();
+        //overlay_image->uncache();
 
         owner->damage (FL_DAMAGE_ALL);
         }
     }
 
+void threshold_overlay::resize ()
+{
+    delete[] overlay_image_data;
+    overlay_image_data = new unsigned char [owner->resize_w*owner->resize_h*RGBApixmap_bytesperpixel];
+}
+
 void threshold_overlay::FLTK_draw()
     {    
     if (threshold !=NULL)
         {        
-        overlay_image->draw(owner->x(),owner->y());
+        Fl_RGB_Image overlay_image (overlay_image_data, width, height, RGBApixmap_bytesperpixel, 0);
+
+        overlay_image.draw(owner->x(),owner->y());
         }
     }
 

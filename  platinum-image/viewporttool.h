@@ -65,9 +65,7 @@ public:
     
     static void init (Fl_Pack *);
     
-    //virtual attach(image_base *) = 0;
-
-    //static void grab (pt_event &event);
+    static void select (std::string);
     static viewporttool * taste(viewport_event &,viewport *,renderer_base *);  //if the current tool responds to the event, return instance (which will be getting the events from now on until another tool is selected)
     virtual void handle(viewport_event &) = 0;
     //bool handle(int event,enum {create, adjust} );
@@ -93,16 +91,16 @@ public:
     virtual void handle(viewport_event &);
 };
 
-class uim_tool : public nav_tool //tool for userIO click & drag (only in Histo2D at this time)
+class histogram_tool : public nav_tool //tool for userIO click & drag (only in Histo2D at this time)
 {
 private:
     FLTK2Dregionofinterest * ROI;
     threshold_overlay * overlay;
     
 public:
-    uim_tool (viewport_event &event, thresholdparvalue * v = NULL);
+    histogram_tool (viewport_event &event, thresholdparvalue * v = NULL);
     
-    void attach (viewport * vp,  FLTKviewport * fvp, renderer_base * r);
+    void attach (viewport * vp, renderer_base * r);
     threshold_overlay * get_overlay();
     virtual void handle(viewport_event &);
 };

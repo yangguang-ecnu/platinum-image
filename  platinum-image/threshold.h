@@ -63,7 +63,7 @@ class thresholdparvalue
 class threshold_overlay
 {
 protected:
-    Fl_RGB_Image * overlay_image;
+    //Fl_RGB_Image * overlay_image;
     FLTKviewport * owner;
     int width, height;
     int rendererIndex;                  //viewport's renderer
@@ -77,9 +77,9 @@ public:
     void render (thresholdparvalue * t = NULL);           //render thresholded image, NULL means re-render (with new geometry)
     void expire();                                        //called when a new thresholding does not
                                                           //apply to this instance or when view is moved etc; stop displaying
+    void resize ();
                                                 //image but keep buffer
     void FLTK_draw();                           //called by associated viewport to draw within
-    void viewport_draw();                       //called by histogram widget to
                                                 //display thresholding
                                                 //in viewport
     void renderer_index(int index);

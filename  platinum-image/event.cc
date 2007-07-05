@@ -70,6 +70,19 @@ void pt_event::grab ()
     handled_ = true;
 }
 
+void pt_event::ungrab ()
+{
+    handled_ = false;
+}
+
+void pt_event::set_resize (int w, int h)
+{
+    resizeDim[0] = w;
+    resizeDim[1] = h;
+    
+    type_ = resize;
+}
+
 bool pt_event::handled ()
 {
     return handled_;
@@ -85,6 +98,11 @@ const int * pt_event::drag_start()
     return mouseStart;
 }
 
+const int * pt_event::get_resize()
+{
+    return resizeDim;
+}
+
 const pt_event::pt_event_type pt_event::type()
 {
     return type_;
@@ -98,24 +116,45 @@ const pt_event::pt_event_state pt_event::state()
 // *** FLTK_event ***
 
 void FLTK_event::set_type ()
-{
-    switch (Fl::event_button())
-        {
+{    
+    ulong state = 0x0;
+    state = Fl::event_state();
+    
+    if (Fl::event_state(FL_BUTTON1))
+        { type_ = adjust;}
+    
+    //middle MB or left + shift key
+    if(state & FL_BUTTON2 || (state & FL_BUTTON1) && (state & FL_SHIFT) )
+        { type_ = browse; }
+    
+    //right MB or left + alt key
+    if(state & FL_BUTTON3 || (state & FL_BUTTON1) && (state & FL_ALT) )
+    //if (Fl::event_state(FL_BUTTON3) ||  (Fl::event_state() & ~(FL_BUTTON1 | FL_ALT)))
+        { type_ = create; }
+    
+    /*switch (Fl::event_button())
+    {
         case FL_LEFT_MOUSE:
             { type_ = adjust;}
-        break;
+            break;
         case FL_MIDDLE_MOUSE:
             { type_ = browse; }
-        break;
+            break;
         case FL_RIGHT_MOUSE:
             { type_ = create; }
-        break;
-        }
-    }
+            break;
+    }*/
+}
 
-FLTK_event::FLTK_event (int FL_event):pt_event()
+FLTK_event::FLTK_event (FLTKviewport * fvp) : pt_event ()
+{ 
+    attach (fvp);
+}
+
+FLTK_event::FLTK_event (int FL_event,FLTKviewport * fvp):pt_event()
     {
-    myWidget = NULL;
+    //myWidget = NULL;
+    attach (fvp);
 
     switch (FL_event){
         case FL_PUSH:
@@ -174,12 +213,12 @@ void FLTK_event::attach (Fl_Widget * w)
 
 // *** viewport_event ***
 
-viewport_event::viewport_event (int FL_event):FLTK_event(FL_event)
+viewport_event::viewport_event (int FL_event, FLTKviewport * fvp):FLTK_event(FL_event, fvp)
 {
     //at this point the parent classes have digested the event from FLTK down to a Platinum description
 }
 
-viewport_event::viewport_event (pt_event_type t):FLTK_event()
+viewport_event::viewport_event (pt_event_type t, FLTKviewport * fvp):FLTK_event(fvp)
 {
     type_ = t;
     state_ = idle;

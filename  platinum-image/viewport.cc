@@ -163,11 +163,12 @@ void viewport::refresh_from_combination(int c)
         //possibly into nothing
         
         clear_rgbpixmap();
-
+#ifndef VPT_TEST
         if (viewport_widget->thresholder != NULL)
             {
             viewport_widget->thresholder->expire();
             }
+#endif
         refresh();
         }
     }
@@ -209,8 +210,14 @@ void viewport::refresh()
             }
         else
             {
+#ifndef VPT_TEST
             if (viewport_widget->thresholder != NULL)
                 {viewport_widget->thresholder->renderer_index(rendermanagement.find_renderer_index(rendererID));}
+#else
+            histogram_tool * utool = dynamic_cast<histogram_tool * > (busyTool);
+            if (utool != NULL)
+                {utool->attach (this,rendermanagement.get_renderer(rendererID));}
+#endif
 
             update_image_menu();
             rebuild_renderer_menu();
@@ -249,19 +256,19 @@ void viewport::update_fbstring (FLTKviewport* f)
 threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * threshold_par)
     {    
 #ifdef VPT_TEST
-    uim_tool * utool = NULL;
+    histogram_tool * utool = NULL;
     
     //2D histogram should only allow this call when the uim tool is selected
     if (busyTool == NULL)
         {
-        viewport_event e = viewport_event(0);
-        busyTool = utool = new uim_tool (e,threshold_par);
-        utool->attach(this, viewport_widget, rendermanagement.get_renderer(rendererID));
+        viewport_event e = viewport_event(0,viewport_widget);
+        busyTool = utool = new histogram_tool (e,threshold_par);
+        utool->attach(this, rendermanagement.get_renderer(rendererID));
         }
     
     if (busyTool != NULL) //might have been created earlier too
         {        
-        utool = dynamic_cast<uim_tool *>(busyTool);
+        utool = dynamic_cast<histogram_tool *>(busyTool);
         
         if (utool != NULL)
             {
@@ -313,8 +320,10 @@ bool viewport::render_if_needed (FLTKviewport * f)
     if (rendererIndex>=0 && f->needsReRendering)
         {
         rendermanagement.render(rendererIndex, rgbpixmap, pixMapSize[0], pixMapSize[1]);
+#ifndef VPT_TEST
         if (viewport_widget->thresholder !=NULL)
             {viewport_widget->thresholder->render();}
+#endif
         f->needsReRendering = false;
         
         return true;
