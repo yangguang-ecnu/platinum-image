@@ -343,7 +343,7 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
 #ifdef _DEBUG
         std::cout <<  chooser.value(t) << endl;
 #endif
-        files.push_back(chooser.value(t));
+        files.push_back(std::string(chooser.value(t)));
         }
 
     if (!files.empty())
