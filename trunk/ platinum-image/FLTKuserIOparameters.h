@@ -105,13 +105,13 @@ class FLTKimage_choice : public Fl_Choice  //widget for choosing images, in FLTK
 class FLTK_histogram_base : public Fl_Widget        //base class for widget displaying a histogram
     {
     protected:
-        Fl_RGB_Image * screen_image;
+        //Fl_RGB_Image * screen_image;
         unsigned char * screen_image_data;
         thresholdparvalue threshold;        //current threshold - borrowed by viewport highlighting
         
         std::vector<threshold_overlay *> thresholders;
 
-        void wipe_image_data();             //clear image & image data
+        //void wipe_image_data();             //clear image & image data
 
         void draw ();                       //FLTK redraw method
     public:

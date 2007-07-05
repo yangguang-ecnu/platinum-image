@@ -399,6 +399,8 @@ std::vector<threshold_overlay *> viewmanager::get_overlays (thresholdparvalue * 
     std::vector<viewport>::iterator itr=viewports.begin();
     std::vector<threshold_overlay *> result;
 
+    viewporttool::select ("Histogram highlight");
+    
     while (itr != viewports.end())
         {
         threshold_overlay * olay;

@@ -54,11 +54,10 @@ void viewporttool::init (Fl_Pack * s)
     
     //register tool classes
     
-    //viewporttool::Register("Navigation tool",&(nav_tool::nav_tool));
     viewporttool::Register<nav_tool>("Navigation tool");
-    //viewporttool::Register("Dummy tool",&(dummy_tool::dummy_tool));
     viewporttool::Register<dummy_tool>("Dummy tool");
-
+    viewporttool::Register<histogram_tool>("Histogram highlight");
+    
     selected = "Navigation tool";
     
     //create toolbox widget
@@ -108,6 +107,13 @@ viewporttool::~viewporttool()
     tools[k]=f;
 }*/
 
+void viewporttool::select (const std::string key)
+{
+    selected = key;
+    
+    viewmanagement.refresh_viewports_after_toolswitch();    
+}
+
 viewporttool * viewporttool::taste(viewport_event & event,viewport * vp,renderer_base * r)
 {
     /*viewporttool * result = NULL;
@@ -140,9 +146,7 @@ void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
 {
     std::string * key = reinterpret_cast<std::string *>(key_ptr);
     
-    selected = *key;
-
-    viewmanagement.refresh_viewports_after_toolswitch();
+    select (*key);
 }
 
 // *** tool classes ***
@@ -240,16 +244,27 @@ dummy_tool::dummy_tool (viewport_event &event):viewporttool(event)
 void dummy_tool::handle(viewport_event &event)
 {}
 
-// *** uim_tool ***
+// *** histogram_tool ***
 
-uim_tool::uim_tool(viewport_event &event,thresholdparvalue * v):nav_tool(event)
+histogram_tool::histogram_tool(viewport_event &event,thresholdparvalue * v):nav_tool(event) 
 {
-    const int * mouse = event.mouse_pos();
+    event.ungrab(); //leave judgment of whether event should be grabbed up to this class
+    
     ROI = NULL;
     overlay = NULL;
     
+    if (v != NULL)
+        {
+        event.grab();
+        
+        //const int * mouse = event.mouse_pos();
+        
+        overlay=new threshold_overlay(event.get_FLTK_viewport(),rendermanagement.find_renderer_index( myPort->get_renderer_id()));
+        ROI = new FLTK2Dregionofinterest(event.get_FLTK_viewport());
+        }
+     /*   
     FLTKviewport * fvp = event.get_FLTK_viewport();
-    
+
     if (myRenderer != NULL)
         {
         int p=0;
@@ -297,12 +312,16 @@ uim_tool::uim_tool(viewport_event &event,thresholdparvalue * v):nav_tool(event)
                 ROI->drag(mouse[0],mouse[1],mouse[0]-dragLast[0],mouse[1]-dragLast[1],fvp);
                 }
             }
-        }
+        }*/
 }
 
-void uim_tool::handle(viewport_event &event)
+void histogram_tool::handle(viewport_event &event)
 {
-    nav_tool::handle(event);
+    //forward zoom and flip events to nav_tool
+    if (event.type() == pt_event::browse || event.type() == pt_event::scroll)
+        {
+        nav_tool::handle(event);
+        }
     
     const int * mouse = event.mouse_pos();
     
@@ -315,6 +334,7 @@ void uim_tool::handle(viewport_event &event)
             
             if (myPort->get_renderer_id() != NO_RENDERER_ID)
                 {
+                event.grab();
                 if (!ROI->dragging)
                     {
                     //to improve performance, the attached histograms are cached during drag
@@ -342,28 +362,52 @@ void uim_tool::handle(viewport_event &event)
                 pan_x-=this->dragLast[0]*pan_factor; 
                 pan_y-=this->dragLast[1]*pan_factor;*/
                 
+                event.grab();
                 ROI->resize (this->dragLast[0],this->dragLast[1],1,fvp);
             }
             break;
             
         case pt_event::create:
+            event.grab();
+            
             ROI->resize (0,0,1+this->dragLast[1]*zoom_factor,fvp);
                         
             //zooming invalidates ROI
             FLTK2Dregionofinterest::current_ROI = NULL;
             
-            fvp->needs_rerendering();
+            //fvp->needs_rerendering();
             break;
             
-        case CB_ACTION_WHEEL_FLIP:            
+        case pt_event::scroll:     
+            event.grab();
+            
             ROI->attach_histograms(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
             
             fvp->needs_rerendering();
+            break;
+            
+        case pt_event::draw:
+            event.grab();
+            
+            overlay->render();
+            overlay->FLTK_draw(); //overlay has fvp associated earlier, where drawing is done
+
+            ROI->draw(fvp);
+            break;
+            
+        case pt_event::resize:
+            event.grab();
+            
+            overlay->resize();
+            ROI->resize (0,0,1,fvp); //"clear" hack ROI
+
             break;
     }
     
     if (FLTK2Dregionofinterest::current_ROI == ROI && (event.type() == pt_event::adjust ) ||event.type() ==pt_event::scroll )
         {
+        event.grab();
+        
         //each drag iteration or when moving in view Z direction:
         //convert coordinates for region of interest and make widgets update
         
@@ -380,7 +424,7 @@ void uim_tool::handle(viewport_event &event)
             for (int d=0; d < 3 ; d++)
                 {reg.size[d]=fabs(reg.size[d]);}
             
-            //sista steget; skicka det nya omrÃ¥det till histogrammet
+            //sista steget; skicka det nya området till histogrammet
             (*itr)->highlight_ROI (&reg);
             
             itr++;
@@ -388,14 +432,15 @@ void uim_tool::handle(viewport_event &event)
         }
 }
 
-void uim_tool::attach (viewport * vp,  FLTKviewport * fvp, renderer_base * r)
+void histogram_tool::attach (viewport * vp, renderer_base * r)
 {
     //myWidget = fvp;
     myPort = vp;
     myRenderer = r;
+    overlay->renderer_index(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
 }
 
-threshold_overlay * uim_tool::get_overlay ()
+threshold_overlay * histogram_tool::get_overlay ()
 {
     return overlay;
     /*if (rendererID != NO_RENDERER_ID)

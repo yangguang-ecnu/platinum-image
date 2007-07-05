@@ -73,7 +73,7 @@ class FLTKviewport : public Fl_Widget
 	    friend class viewport;
         //friend class viewporttool;
         friend class threshold_overlay;
-        friend class uim_tool;
+        friend class histogram_tool;
     public:
 	    FLTKviewport(int X,int Y,int W,int H);  //constructor
         ~FLTKviewport();
@@ -90,11 +90,12 @@ class FLTKviewport : public Fl_Widget
 	    bool needsReRendering;	//set to true when we need to update the data drawn on screen
 	   
         std::string feedback_string;      //info (coordinates and such)
+#ifndef VPT_TEST
         FLTK2Dregionofinterest * ROIhack;     //overlay for selecting and displaying a
                                           //region of interest
         threshold_overlay * thresholder;  //overlay displaying threshold from a histogram
-        
-        void do_callback (callbackAction action);  //do callback with specified action
+#endif //VPT_TEST
+        void do_callback (callbackAction action = CB_ACTION_NONE);  //do callback with specified action
 
 	    //Variables used by callback function to process events
         int mouse_pos[2];

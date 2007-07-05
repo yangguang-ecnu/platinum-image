@@ -293,14 +293,14 @@ void FLTKimage_choice::image_vector_has_changed ()
 
 FLTK_histogram_base::FLTK_histogram_base (int x, int y, int w, int h) : Fl_Widget (x,y,w,h)
     {
-    screen_image=NULL;
+    //screen_image=NULL;
     screen_image_data=NULL;
 
     screen_image_data = new unsigned char [w*h*RGBpixmap_bytesperpixel];
-    screen_image = new Fl_RGB_Image(screen_image_data, w, h,RGBpixmap_bytesperpixel, 0);
+    //screen_image = new Fl_RGB_Image(screen_image_data, w, h,RGBpixmap_bytesperpixel, 0);
     }
 
-void FLTK_histogram_base::wipe_image_data ()
+/*void FLTK_histogram_base::wipe_image_data ()
     {
     if (screen_image!=NULL)
         {
@@ -310,12 +310,12 @@ void FLTK_histogram_base::wipe_image_data ()
         delete []screen_image_data;
         screen_image_data=NULL;
         }
-    }
+    }*/
 
 
 FLTK_histogram_base::~FLTK_histogram_base ()
     {
-    delete screen_image;
+    //delete screen_image;
     delete []screen_image_data;
     }
 
@@ -323,11 +323,11 @@ void FLTK_histogram_base::resize(int x, int y, int w, int h)
     {
     if (w != this->w() || h != this->h())
         {
-        delete screen_image;
+        //delete screen_image;
         delete [] screen_image_data;
 
         screen_image_data = new unsigned char [w*h*RGBpixmap_bytesperpixel];
-        screen_image = new Fl_RGB_Image(screen_image_data, w, h,RGBpixmap_bytesperpixel, 0);
+        //screen_image = new Fl_RGB_Image(screen_image_data, w, h,RGBpixmap_bytesperpixel, 0);
         }
 
     Fl_Widget::resize(x, y, w, h);
@@ -468,7 +468,7 @@ int FLTK_histogram_2D::handle(int event)
 
                     /*refresh();*/
 
-                    screen_image->uncache();
+                    //screen_image->uncache();
                     
                     histogram->render(screen_image_data,w(),h());
 
@@ -569,14 +569,18 @@ int FLTK_histogram_2D::handle(int event)
 
     void FLTK_histogram_base::draw ()
         {
-        screen_image->draw(x(),y());
+        Fl_RGB_Image screen_image(screen_image_data, w(), h(),RGBpixmap_bytesperpixel, 0);
+                
+        screen_image.draw(x(),y());
         }
 
     void FLTK_histogram_2D::draw ()
         {
         fl_push_clip(x(),y(),w(),h());
+        
+        Fl_RGB_Image screen_image(screen_image_data, w(), h(),RGBpixmap_bytesperpixel, 0);
 
-        screen_image->draw(x(),y());
+        screen_image.draw(x(),y());
 
         fl_color(fl_rgb_color(255, 0, 0));
 
@@ -597,7 +601,7 @@ int FLTK_histogram_2D::handle(int event)
         //allocate image data, 
         //screen_image_data = new unsigned char [w()*h()*RGBpixmap_bytesperpixel];
 
-        screen_image->uncache();
+        //screen_image->uncache();
         histogram->render(screen_image_data,w(),h());
 
         damage (FL_DAMAGE_ALL);

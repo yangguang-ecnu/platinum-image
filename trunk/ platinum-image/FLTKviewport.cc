@@ -60,19 +60,24 @@ FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
     
     callback_action=CB_ACTION_NONE;
     
+#ifndef VPT_TEST
     //the regionofinterest acts as an overlay for each viewport/FLTKviewport, so it's
     //created and deleted together with it
     ROIhack=new FLTK2Dregionofinterest(this);
     
     //the thresholding overlay will be created when needed
     thresholder=NULL;
+#endif
+
     }
 
 FLTKviewport::~FLTKviewport()
 {
+#ifndef VPT_TEST
     delete ROIhack;
     if (thresholder !=NULL)
         {delete thresholder;}
+#endif
 }
 
 void FLTKviewport::draw()
@@ -81,8 +86,8 @@ void FLTKviewport::draw()
     //It will be called if and only if damage()  is non-zero, and damage() will be cleared to zero after it returns
     
 #ifdef VPT_TEST
-    callback_event = viewport_event (pt_event::draw);
-    callback_event.FLTK_event::attach (this);
+    callback_event = viewport_event (pt_event::draw,this);
+    //callback_event.FLTK_event::attach (this);
 #endif // VPT_TEST
     
     do_callback(CB_ACTION_DRAW);
@@ -113,8 +118,14 @@ void FLTKviewport::draw(unsigned char *rgbimage)
 void FLTKviewport::resize  	(int new_in_x,int new_in_y, int new_in_w,int new_in_h) {
     //store new size so CB_ACTION_RESIZE will know about it (via callback)
     resize_w=new_in_w; resize_h=new_in_h;
+#ifndef VPT_TEST
     do_callback(CB_ACTION_RESIZE);
-
+#else
+    callback_event = viewport_event (pt_event::resize, this);
+    callback_event.set_resize(resize_w,resize_h);
+    
+    do_callback();
+#endif // VPT_TEST
     //do the actual resize - redraw will follow, eventually
     Fl_Widget::resize (new_in_x,new_in_y,new_in_w,new_in_h);
     
@@ -127,6 +138,7 @@ void FLTKviewport::resize  	(int new_in_x,int new_in_y, int new_in_w,int new_in_
     do_callback(CB_ACTION_DRAW);
 #endif
     
+#ifndef VPT_TEST
     //thresholding overlay has exact size - delete, it will be recreated
     //at new size if needed
     if (thresholder !=NULL)
@@ -134,6 +146,7 @@ void FLTKviewport::resize  	(int new_in_x,int new_in_y, int new_in_w,int new_in_
         delete thresholder;
         thresholder=NULL;
         }
+#endif
 }
 
 void FLTKviewport::do_callback (callbackAction action)
@@ -141,22 +154,24 @@ void FLTKviewport::do_callback (callbackAction action)
     callback_action=action;
 
     Fl_Widget::do_callback();
+    
     callback_action=CB_ACTION_NONE;
     }
 
 int FLTKviewport::handle(int event){
     
 #ifdef VPT_TEST
+    callback_event = viewport_event (event,this);
+    //callback_event.FLTK_event::attach (this);
     
-    callback_event = viewport_event (event);
-    callback_event.FLTK_event::attach (this);
-    
-    do_callback (CB_ACTION_NONE);
+    do_callback ();
     
     if (callback_event.handled())
         { return 1; }
     else
         {return 0; }
+    
+    callback_event = viewport_event (pt_event::no_type,NULL);
     
 #else //not VPT_TEST
 
@@ -241,6 +256,8 @@ void FLTKviewport::needs_rerendering ()
 
 void FLTKviewport::draw_feedback() // draws the cursor
 {
+#ifndef VPT_TEST 
+
     int ex = Fl::event_x();
     int ey = Fl::event_y();
     
@@ -276,4 +293,5 @@ void FLTKviewport::draw_feedback() // draws the cursor
         fl_end_line();
     }
     fl_pop_clip();
+#endif
 }

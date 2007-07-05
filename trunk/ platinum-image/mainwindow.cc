@@ -205,7 +205,10 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     status_message->box(FL_ENGRAVED_BOX);
     status_message->value("Platinum $Revision$");
     status_message->color(FL_BACKGROUND_COLOR);
-
+    
+#ifndef VPT_TEST
+    statusarea->deactivate();
+#endif
     window.resizable(viewsNlists);
     }
 
