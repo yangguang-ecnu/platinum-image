@@ -74,9 +74,9 @@ public:
     const int scroll_delta();
     const int * drag_start();
     const int * get_resize();
-    //mouse_pos() is in viewport_event
     const pt_event_type type();
     const pt_event_state state();
+    const int * mouse_pos_global();
 };
 
 class FLTK_event : public pt_event
@@ -90,7 +90,8 @@ protected:
     FLTK_event (int FL_event, FLTKviewport * fvp); //! constructor translates the content of the FLTK event into a neutral format that is stored in the base class
     FLTK_event (FLTKviewport * fvp);
     
-    //virtual void grab () {}
+public:
+        std::vector<int> mouse_pos_local();
 };
 
 class viewport_event : public FLTK_event
@@ -100,9 +101,6 @@ public:
     viewport_event (int FL_event, FLTKviewport * fvp);
     viewport_event() : FLTK_event (NULL) {}
     FLTKviewport * get_FLTK_viewport();
-    const int * mouse_pos(); //! here rather than in pt_event because
-                             //!mouse coordinates can have different origin,
-                             //!this one is for viewport use
     
     //virtual void grab () {}
 };

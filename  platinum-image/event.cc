@@ -88,6 +88,11 @@ bool pt_event::handled ()
     return handled_;
 }
 
+const int * pt_event::mouse_pos_global()
+{
+    return mousePos;
+}
+
 const int pt_event::scroll_delta()
 {
     return wheelDelta;   
@@ -211,6 +216,16 @@ void FLTK_event::attach (Fl_Widget * w)
     myWidget = w;
 }
 
+std::vector<int> FLTK_event::mouse_pos_local()
+{
+    std::vector<int> result;
+    
+    result.push_back(mousePos[0]-myWidget->x());
+    result.push_back(mousePos[1]-myWidget->y());
+    
+    return result;
+}
+
 // *** viewport_event ***
 
 viewport_event::viewport_event (int FL_event, FLTKviewport * fvp):FLTK_event(FL_event, fvp)
@@ -227,9 +242,4 @@ viewport_event::viewport_event (pt_event_type t, FLTKviewport * fvp):FLTK_event(
 FLTKviewport * viewport_event::get_FLTK_viewport()
 {
     return dynamic_cast<FLTKviewport *> (myWidget);
-}
-
-const int * viewport_event::mouse_pos()
-{
-    return mousePos;
 }
