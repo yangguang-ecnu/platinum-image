@@ -110,7 +110,18 @@ viewporttool::~viewporttool()
 void viewporttool::select (const std::string key)
 {
     selected = key;
-    
+
+    int nc = toolbox->children();
+    for (int c= 0; c < nc;c++)
+        {
+        Fl_Button * b = dynamic_cast< Fl_Button * >(toolbox->child(c));
+
+        if (*(reinterpret_cast<const std::string *>(b->user_data())) == key)
+            {
+            b->setonly();
+            }
+        }
+
     viewmanagement.refresh_viewports_after_toolswitch();    
 }
 
@@ -246,14 +257,17 @@ void dummy_tool::handle(viewport_event &event)
 
 // *** histogram_tool ***
 
-histogram_tool::histogram_tool(viewport_event &event,thresholdparvalue * v):nav_tool(event) 
+histogram_tool::histogram_tool(viewport_event &event,thresholdparvalue * v,viewport * vp, renderer_base * r):nav_tool(event) 
 {
+    myPort = vp;
+    myRenderer = r;
+
     event.ungrab(); //leave judgment of whether event should be grabbed up to this class
     
     ROI = NULL;
     overlay = NULL;
     
-    if (v != NULL)
+    if (v != NULL && vp != NULL && r !=NULL)
         {
         event.grab();
         
@@ -322,36 +336,48 @@ void histogram_tool::handle(viewport_event &event)
         {
         nav_tool::handle(event);
         }
-    
+
     const int * mouse = event.mouse_pos();
-    
+
+    if (event.state() == pt_event::begin  ) 
+        {
+        dragLast[0] = mouse[0];
+        dragLast[1] = mouse[1];
+        }
+
     FLTKviewport * fvp = event.get_FLTK_viewport();
 
     switch (event.type()) {
-        case pt_event::adjust:
-            //this callback is for general click & drag in viewport
-            //however only function available yet is the histogram ROI
-            
-            if (myPort->get_renderer_id() != NO_RENDERER_ID)
-                {
-                event.grab();
-                if (!ROI->dragging)
+            case pt_event::adjust:
+                //this callback is for general click & drag in viewport
+                //however only function available yet is the histogram ROI
+
+                if (myPort->get_renderer_id() != NO_RENDERER_ID)
                     {
-                    //to improve performance, the attached histograms are cached during drag
-                    ROI->attach_histograms(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
-                    }
-                
-                if (ROI->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
-                    {
-                    if(FLTK2Dregionofinterest::current_ROI != ROI)
+                    event.grab();
+                    if (event.state() == pt_event::begin  ) {
+                            if (!ROI->dragging)
+                                {
+                                //to improve performance, the attached histograms are cached during drag
+                                ROI->attach_histograms(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
+                                }
+                            }
+
+                    if (event.state() == pt_event::begin || event.state() == pt_event::iterate )
                         {
-                        viewmanagement.refresh_viewports(); //erase ROIs shown in other viewports
-                        FLTK2Dregionofinterest::current_ROI = ROI;
+                        if (ROI->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
+                            {
+                            if(FLTK2Dregionofinterest::current_ROI != ROI)
+                                {
+                                viewmanagement.refresh_viewports(); //erase ROIs shown in other viewports
+                                FLTK2Dregionofinterest::current_ROI = ROI;
+                                }
+
+                            ROI->drag(this->dragLast[0],this->dragLast[1],mouse[0]-this->dragLast[0],mouse[1]-this->dragLast[1],fvp);
+                            }
+                        fvp->damage(FL_DAMAGE_ALL);
                         }
-                    
-                    ROI->drag(mouse[0],mouse[1],this->dragLast[0],this->dragLast[1],fvp);
                     }
-                }
             break;
             
         case pt_event::browse:
@@ -363,7 +389,7 @@ void histogram_tool::handle(viewport_event &event)
                 pan_y-=this->dragLast[1]*pan_factor;*/
                 
                 event.grab();
-                ROI->resize (this->dragLast[0],this->dragLast[1],1,fvp);
+                ROI->resize (mouse[0]-this->dragLast[0],mouse[1]-this->dragLast[1],1,fvp);
             }
             break;
             
@@ -392,6 +418,7 @@ void histogram_tool::handle(viewport_event &event)
             overlay->render();
             overlay->FLTK_draw(); //overlay has fvp associated earlier, where drawing is done
 
+            fl_color(fl_rgb_color(0, 255, 255));
             ROI->draw(fvp);
             break;
             
@@ -403,6 +430,13 @@ void histogram_tool::handle(viewport_event &event)
 
             break;
     }
+
+    if (event.state() == pt_event::end && ROI->dragging)
+        {
+        event.grab();
+        ROI->drag_end();
+        fvp->damage(FL_DAMAGE_ALL);
+        }
     
     if (FLTK2Dregionofinterest::current_ROI == ROI && (event.type() == pt_event::adjust ) ||event.type() ==pt_event::scroll )
         {
@@ -429,6 +463,12 @@ void histogram_tool::handle(viewport_event &event)
             
             itr++;
             }
+        }
+
+    if (event.state() == pt_event::iterate)
+        {
+        dragLast[0] = mouse[0];
+        dragLast[1] = mouse[1];
         }
 }
 

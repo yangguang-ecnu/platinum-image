@@ -262,8 +262,7 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
     if (busyTool == NULL)
         {
         viewport_event e = viewport_event(0,viewport_widget);
-        busyTool = utool = new histogram_tool (e,threshold_par);
-        utool->attach(this, rendermanagement.get_renderer(rendererID));
+        busyTool = utool = new histogram_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));
         }
     
     if (busyTool != NULL) //might have been created earlier too
@@ -337,7 +336,6 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
     
 #ifdef VPT_TEST
 
-    
     if (f->callback_event.type() == pt_event::draw)
         {
         f->callback_event.grab();
@@ -367,11 +365,28 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
             { f->redraw(); }
         }
     
+    //handle events "otherwise"
     if (!f->callback_event.handled())
         {
         //"default" behavior for the viewport goes here
         
         //call render_if_needed(); if image may need re-rendering
+        }
+
+    //handle events regardless of whether a tool caught them
+    switch (f->callback_event.type())
+        {
+        case pt_event::resize:
+            if ((f->resize_w != pixMapSize[0] || f->resize_h != pixMapSize[1]))
+                {
+                //resize: just update view size, re-render but don't redraw...yet
+
+                const int * r = f->callback_event.get_resize();
+                update_viewsize(r[0] ,r[1]);
+
+                f->needs_rerendering();
+                }
+            break;
         }
     
 #else //not VPT_TEST
