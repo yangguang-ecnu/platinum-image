@@ -98,7 +98,7 @@ private:
     threshold_overlay * overlay;
     
 public:
-    histogram_tool (viewport_event &event, thresholdparvalue * v = NULL);
+    histogram_tool (viewport_event &event,thresholdparvalue * v = NULL,viewport * vp = NULL, renderer_base * r = NULL);
     
     void attach (viewport * vp, renderer_base * r);
     threshold_overlay * get_overlay();

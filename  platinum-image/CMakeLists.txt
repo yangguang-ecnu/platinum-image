@@ -58,7 +58,7 @@ ENDIF(WIN32)
 
 OPTION(BUILD_SHARED "Build Platinum as a shared library" OFF)
 
-SET (PLATINUM_SOURCE_FILES bruker.h color.h colormap.h cursor3D.h data_base.h ${WIN32_DIRENT_HEAD} datamanager.h datawidget.h error.h event.h fileutils.h FLTK2Dregionofinterest.h FLTKuserIOparameters.h FLTKutilities.h FLTKviewport.h global.h histogram.h image_base.h  image_binary.h image_complex.h image_general.h image_integer.h image_label.h image_multi.h image_scalar.h image_storage.h listedfactory.h platinumprogram.h point_base.h points_seq_func1D.h point3D.h rawimporter.h dicom_importer.h renderer_base.h renderer_VTK.h rendererMPR.h rendergeometry.h rendercombination.h rendermanager.h ptmath.h threshold.h transfer.h transferfactory.h transferfactory.hxx userIO.h userIOmanager.h viewport.h viewporttool.h viewmanager.h bruker.cc color.cc colormap.cc cursor3D.cc data_base.cc datamanager.cc datawidget.cc ${WIN32_DIRENT_SRC} error.cc fileutils.cc Utilities/fltk/Fl_Table.cxx Utilities/fltk/Fl_Table_Row.cxx FLTK2Dregionofinterest.cc FLTKuserIOparameters.cc FLTKutilities.cc FLTKviewport.cc histogram.cc event.cc histogram.hxx image_base.cc image_binary.hxx image_binaryprocess.hxx image_complex.hxx image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx image_storage.hxx mainwindow.cc point_base.cc points_seq_func1D.hxx rawimporter.cc dicom_importer.cc renderer_base.cc rendererMPR.cc renderer_VTK.cc  rendergeometry.cc rendercombination.cc rendermanager.cc ptmath.cc threshold.cc transfer.hxx transfer_interpolated.hxx userIO.cc userIOmanager.cc transferfactory.cc viewport.cc viewporttool.cc viewmanager.cc ${WIN32_DIRENT_SRC} CMakeLists.txt)
+SET (PLATINUM_SOURCE_FILES bruker.h color.h colormap.h cursor3D.h data_base.h ${WIN32_DIRENT_HEAD} datamanager.h datawidget.h error.h event.h fileutils.h FLTK2Dregionofinterest.h FLTKuserIOparameters.h FLTKutilities.h FLTKviewport.h global.h histogram.h image_base.h  image_binary.h image_complex.h image_general.h image_integer.h image_label.h image_multi.h image_scalar.h image_storage.h listedfactory.h platinumprogram.h point_base.h points_seq_func1D.h point3D.h rawimporter.h dicom_importer.h renderer_base.h renderer_VTK.h rendererMPR.h rendergeometry.h rendercombination.h rendermanager.h ptmath.h threshold.h transfer.h transferfactory.h transferfactory.hxx userIO.h userIOmanager.h viewport.h viewporttool.h viewmanager.h bruker.cc color.cc colormap.cc cursor3D.cc data_base.cc datamanager.cc datawidget.cc error.cc fileutils.cc Utilities/fltk/Fl_Table.cxx Utilities/fltk/Fl_Table_Row.cxx FLTK2Dregionofinterest.cc FLTKuserIOparameters.cc FLTKutilities.cc FLTKviewport.cc histogram.cc event.cc histogram.hxx image_base.cc image_binary.hxx image_binaryprocess.hxx image_complex.hxx image_general.hxx image_generalfile.hxx image_storage_iterator.hxx image_integer.hxx image_label.hxx image_multi.hxx image_scalar.hxx image_storage.hxx mainwindow.cc point_base.cc points_seq_func1D.hxx rawimporter.cc dicom_importer.cc renderer_base.cc rendererMPR.cc renderer_VTK.cc  rendergeometry.cc rendercombination.cc rendermanager.cc ptmath.cc threshold.cc transfer.hxx transfer_interpolated.hxx userIO.cc userIOmanager.cc transferfactory.cc viewport.cc viewporttool.cc viewmanager.cc ${WIN32_DIRENT_SRC} CMakeLists.txt)
 
 IF(BUILD_SHARED)
   ADD_LIBRARY(platinumlib SHARED ${PLATINUM_SOURCE_FILES})
@@ -67,6 +67,46 @@ ELSE(BUILD_SHARED)
 ENDIF(BUILD_SHARED)
 
 LINK_DIRECTORIES (${Platinum_BINARY_DIR})
+
+IF(APPLE AND NOT BUILD_SHARED)
+    #files must be copied post-build
+    ADD_CUSTOM_COMMAND(
+      TARGET ptgraphics POST_BUILD
+      COMMAND mkdir ARGS ptgraphics
+      WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/PlatinumTest.app/Contents/Resources
+      )
+    ADD_CUSTOM_COMMAND(
+      TARGET ptgraphics/ POST_BUILD
+      COMMAND cp ARGS ${Platinum_SOURCE_DIR}/Graphics/*
+      WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/PlatinumTest.app/Contents/Resources
+      )
+ELSE (APPLE AND NOT BUILD_SHARED)
+  IF (WIN32)
+    ADD_CUSTOM_COMMAND(
+        OUTPUT ptgraphics
+        COMMAND mkdir ARGS ptgraphics
+        WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
+        )
+        ADD_CUSTOM_COMMAND(
+        OUTPUT ptgraphics/
+        COMMAND copy ARGS ${Platinum_SOURCE_DIR}/Graphics/*
+        WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
+        )
+  ENDIF(WIN32)
+  IF(UNIX)
+    #assumes that shared library and executable ends up in the same place
+    ADD_CUSTOM_COMMAND(
+        OUTPUT ptgraphics
+        COMMAND mkdir ARGS ptgraphics
+        WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
+        )
+    ADD_CUSTOM_COMMAND(
+        OUTPUT ptgraphics/
+        COMMAND cp ARGS ${Platinum_SOURCE_DIR}/Graphics/*
+        WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
+        )
+  ENDIF(UNIX)
+ENDIF(APPLE AND NOT BUILD_SHARED)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Debug CACHE STRING
@@ -113,9 +153,9 @@ IF(APPLE)
    FIND_PROGRAM(ITK_APPLE_RESOURCE Rez /Developer/Tools)
    IF(ITK_APPLE_RESOURCE)
       ADD_CUSTOM_COMMAND(
-         TARGET PlatinumTest.app/Contents/Resources/PlatinumTest.rsrc POST_BUILD
-         COMMAND ${ITK_APPLE_RESOURCE} ARGS -useDF ${FLTK_INCLUDE_DIR}/mac.r
-         WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
+        TARGET PlatinumTest.app/Contents/Resources/PlatinumTest.rsrc POST_BUILD
+        COMMAND ${ITK_APPLE_RESOURCE} ARGS -useDF ${FLTK_INCLUDE_DIR}/mac.r
+        WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
          )
    ENDIF(ITK_APPLE_RESOURCE)
 ENDIF(APPLE)
