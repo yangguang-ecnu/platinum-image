@@ -46,7 +46,7 @@ private:
     static void cb_toolbutton (Fl_Widget *,void *);
     
     template <class TOOL>
-        static void Register (std::string k);
+        static void Register ();
     template <class TOOL>
         static viewporttool *CreateObject(viewport_event &event);
 protected:
@@ -82,6 +82,7 @@ protected:
 public:
     nav_tool (viewport_event &);
     virtual void handle(viewport_event &);
+    static const std::string name ();
 };
 
 class dummy_tool : public viewporttool //test tool
@@ -89,10 +90,29 @@ class dummy_tool : public viewporttool //test tool
 public:
     dummy_tool (viewport_event &);
     virtual void handle(viewport_event &);
+    static const std::string name ();
+};
+
+class cursor_tool : public nav_tool //subclass of nav_tool because it is useful to be able to
+                                    //do some navigation while working with a selection
+{
+protected:
+    int selection [2]; //fraction of screen coordinates during selection
+public:
+    cursor_tool (viewport_event &);
+    static const std::string name ();
+    virtual void handle(viewport_event &);    
+};
+
+class freeform_ROI_tool : public viewporttool
+{
+
 };
 
 class histogram_tool : public nav_tool //tool for userIO click & drag (only in Histo2D at this time)
 {
+    //NOTE: this tool was ported from an earlier architecture and
+    //a bad example of viewporttool implementation. For a good example, see cursor_tool
 private:
     FLTK2Dregionofinterest * ROI;
     threshold_overlay * overlay;
@@ -103,4 +123,5 @@ public:
     void attach (viewport * vp, renderer_base * r);
     threshold_overlay * get_overlay();
     virtual void handle(viewport_event &);
+    static const std::string name ();
 };

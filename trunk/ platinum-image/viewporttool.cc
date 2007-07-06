@@ -36,9 +36,9 @@ std::string viewporttool::selected = "";
 std::map<std::string, viewporttool::vpt_create_pointer> viewporttool::tools = std::map<std::string, viewporttool::vpt_create_pointer>  ();
 
 template <class TOOL>
-void viewporttool::Register (std::string k)
+void viewporttool::Register ()
 {
-    tools[k]=&CreateObject<TOOL>;
+    tools[TOOL::name()]=&CreateObject<TOOL>;
 }
 
 template <class TOOL>
@@ -54,11 +54,12 @@ void viewporttool::init (Fl_Pack * s)
     
     //register tool classes
     
-    viewporttool::Register<nav_tool>("Navigation tool");
-    viewporttool::Register<dummy_tool>("Dummy tool");
-    viewporttool::Register<histogram_tool>("Histogram highlight");
+    viewporttool::Register<nav_tool>();
+    //viewporttool::Register<dummy_tool>();
+    viewporttool::Register<cursor_tool>();
+    viewporttool::Register<histogram_tool>();
     
-    selected = "Navigation tool";
+    selected = "Navigation";
     
     //create toolbox widget
         
@@ -176,21 +177,26 @@ nav_tool::nav_tool (viewport_event & event):viewporttool(event)
         {event.grab();}
     }
 
+const std::string nav_tool::name()
+{
+    return "Navigation";
+}
+
 void nav_tool::handle(viewport_event &event)
 {
     if ( event.state() == pt_event::begin)
         {
         event.grab();
         
-        dragLast[0] = event.mouse_pos()[0];
-        dragLast[1] = event.mouse_pos()[1];
+        dragLast[0] = event.mouse_pos_global()[0];
+        dragLast[1] = event.mouse_pos_global()[1];
         }
     
-    if (event.state() == pt_event::iterate)
+    if (!event.handled() && event.state() == pt_event::iterate)
         {
         const int * pms = myPort->pixmap_size();
         const float pan_factor=(float)1/(std::min(pms[0],pms[1]));
-        const int * mouse = event.mouse_pos();
+        const int * mouse = event.mouse_pos_global();
         
         FLTKviewport * fvp = event.get_FLTK_viewport();
         switch (event.type())
@@ -252,6 +258,11 @@ dummy_tool::dummy_tool (viewport_event &event):viewporttool(event)
 
     }
 
+const std::string dummy_tool::name()
+{
+    return "Dummy";
+}
+
 void dummy_tool::handle(viewport_event &event)
 {}
 
@@ -271,62 +282,16 @@ histogram_tool::histogram_tool(viewport_event &event,thresholdparvalue * v,viewp
         {
         event.grab();
         
-        //const int * mouse = event.mouse_pos();
+        //const int * mouse = event.mouse_pos_global();
         
         overlay=new threshold_overlay(event.get_FLTK_viewport(),rendermanagement.find_renderer_index( myPort->get_renderer_id()));
         ROI = new FLTK2Dregionofinterest(event.get_FLTK_viewport());
         }
-     /*   
-    FLTKviewport * fvp = event.get_FLTK_viewport();
+    }
 
-    if (myRenderer != NULL)
-        {
-        int p=0;
-        int rendered_vol_ID=myRenderer->imagestorender->image_ID_by_priority(p);
-        
-        while (rendered_vol_ID > 0)
-            {
-            for (int d=0;v->id[d] != NOT_FOUND_ID ;d++)
-                {
-                if (rendered_vol_ID==v->id[d])
-                    {
-                    if (overlay == NULL)
-                        {overlay=new threshold_overlay(fvp,rendermanagement.find_renderer_index( myPort->get_renderer_id()));}
-                    }
-                }
-            p++;
-            rendered_vol_ID=myRenderer->imagestorender->image_ID_by_priority(p);
-            }
-        
-        if (overlay != NULL)
-            {
-            overlay->expire();
-            fvp->redraw();
-            }
-        }
-    
-    if (event.type() == pt_event::adjust && event.state() == pt_event::iterate)
-        {
-        if (myPort->get_renderer_id() != NO_RENDERER_ID)
-            {
-            if (!ROI->dragging)
-                {
-                //to improve performance, the attached histograms are cached during drag
-                ROI->attach_histograms((fvp,rendermanagement.find_renderer_index( myPort->get_renderer_id())));
-                }
-            
-            if (ROI->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
-                {
-                if(FLTK2Dregionofinterest::current_ROI != ROI)
-                    {
-                    viewmanagement.refresh_viewports(); //erase ROIs shown in other viewports
-                    FLTK2Dregionofinterest::current_ROI = ROI;
-                    }
-                
-                ROI->drag(mouse[0],mouse[1],mouse[0]-dragLast[0],mouse[1]-dragLast[1],fvp);
-                }
-            }
-        }*/
+const std::string histogram_tool::name()
+{
+    return "Histogram highlight";
 }
 
 void histogram_tool::handle(viewport_event &event)
@@ -337,7 +302,7 @@ void histogram_tool::handle(viewport_event &event)
         nav_tool::handle(event);
         }
 
-    const int * mouse = event.mouse_pos();
+    const int * mouse = event.mouse_pos_global();
 
     if (event.state() == pt_event::begin  ) 
         {
@@ -382,12 +347,6 @@ void histogram_tool::handle(viewport_event &event)
             
         case pt_event::browse:
             {
-                /*float pan_x=0;
-                float pan_y=0;
-                
-                pan_x-=this->dragLast[0]*pan_factor; 
-                pan_y-=this->dragLast[1]*pan_factor;*/
-                
                 event.grab();
                 ROI->resize (mouse[0]-this->dragLast[0],mouse[1]-this->dragLast[1],1,fvp);
             }
@@ -401,7 +360,6 @@ void histogram_tool::handle(viewport_event &event)
             //zooming invalidates ROI
             FLTK2Dregionofinterest::current_ROI = NULL;
             
-            //fvp->needs_rerendering();
             break;
             
         case pt_event::scroll:     
@@ -458,7 +416,7 @@ void histogram_tool::handle(viewport_event &event)
             for (int d=0; d < 3 ; d++)
                 {reg.size[d]=fabs(reg.size[d]);}
             
-            //sista steget; skicka det nya området till histogrammet
+            //sista steget; skicka det nya omrÃ‚det till histogrammet
             (*itr)->highlight_ROI (&reg);
             
             itr++;
@@ -483,30 +441,74 @@ void histogram_tool::attach (viewport * vp, renderer_base * r)
 threshold_overlay * histogram_tool::get_overlay ()
 {
     return overlay;
-    /*if (rendererID != NO_RENDERER_ID)
+}
+
+// *** cursor_tool ***
+
+cursor_tool::cursor_tool(viewport_event &event):nav_tool(event)
+{
+    if (event.type() == pt_event::create || event.type() == pt_event::hover)
         {
-        int p=0;
-        int rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
-        
-        while (rendered_vol_ID > 0)
+        event.grab();
+        }
+    
+    selection[0] = -1;
+}
+
+const std::string cursor_tool::name()
+{
+    return "Cursor";
+}
+
+void cursor_tool::handle(viewport_event &event)
+{
+    std::vector<int> mouse = event.mouse_pos_local();
+    
+    FLTKviewport * fvp = event.get_FLTK_viewport();
+    
+    if (event.type() == pt_event::create)
+        {
+        event.grab();
+        switch (event.state())
             {
-            for (int d=0;threshold_par->id[d] != NOT_FOUND_ID ;d++)
-                {
-                if (rendered_vol_ID==threshold_par->id[d])
-                    {
-                    if (viewport_widget->thresholder == NULL)
-                        {viewport_widget->thresholder=new threshold_overlay(viewport_widget,rendererIndex);}
-                    return viewport_widget->thresholder;
-                    }
-                }
-            p++;
-            rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
+            case pt_event::begin:
+            case pt_event::iterate:
+                
+                selection[0] = mouse[0];
+                selection[1] = mouse[1];
+                
+                fvp->damage(FL_DAMAGE_ALL);
+                
+                break;
             }
-        
-        if (viewport_widget->thresholder != NULL)
+        }
+    if (event.type() == pt_event::draw)
+        {
+        if (selection[0] > 0)
             {
-            viewport_widget->thresholder->expire();
-            viewport_widget->redraw();
+            event.grab();
+            
+            const int chsize = 6;
+            const int chmarg = chsize + 2;
+            const int chlen = 8;
+            int drawC [2];
+            drawC [0] = selection[0]+fvp->x();
+            drawC [1] = selection[1]+fvp->y();
+
+            fl_push_clip(fvp->x(),fvp->y(),fvp->w(),fvp->h());
+            
+            fl_color(FL_GRAY);
+            fl_line(drawC[0], drawC[1]-chmarg, drawC[0], drawC[1]-chmarg-chlen); //above 
+            fl_line(drawC[0]+chmarg,drawC[1],drawC[0]+chmarg+chlen,drawC[1]); //right 
+            fl_line(drawC[0], drawC[1]+chmarg, drawC[0], drawC[1]+chmarg+chlen); //below 
+            fl_line(drawC[0]-chmarg,drawC[1],drawC[0]-chmarg-chlen,drawC[1]); //left
+            
+            fl_color(FL_WHITE);
+            fl_circle(drawC[0],drawC[1],chsize/2);
+            
+            fl_pop_clip();
             }
-        }*/
+        }    
+    
+    nav_tool::handle(event);
 }
