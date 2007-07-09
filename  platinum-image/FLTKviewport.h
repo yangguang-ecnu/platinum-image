@@ -46,7 +46,7 @@
 #include "FLTK2Dregionofinterest.h"
 #include "event.h"
 
-//#define VPT_TEST //viewporttool development
+#define VPT_TEST //viewporttool development
 
 //Callback action identifiers.
 

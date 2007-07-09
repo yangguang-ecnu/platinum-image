@@ -37,7 +37,7 @@
 #include "error.h"
 #include "itkGDCMImageIO.h"
 
-class data_base // We MUST have a virtual base class
+class data_base
     {
     private:
         void set_parameters();

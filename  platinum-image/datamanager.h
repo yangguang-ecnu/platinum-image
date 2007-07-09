@@ -53,7 +53,7 @@ class datamanager
 
     protected:
         std::vector<image_base*> images;
-        std::vector<point_base*> vectors;
+        //std::vector<point_base*> vectors;
 
         bool closing;                           //whether destructor has been called, meaning
                                                 //among other things that all FLTK widgets are
