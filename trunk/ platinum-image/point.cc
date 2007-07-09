@@ -1,11 +1,4 @@
-//////////////////////////////////////////////////////////////////////////
-//
-//  point3D $Revision$
-///
-/// point collection base class specialized on 3D points
-///
-//  $LastChangedBy$
-//
+// $Id$
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -24,18 +17,11 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#ifndef __point3D__
-#define __point3D__
+#include "point.h"
 
-#include "point_base.h"
-
-template<class imageTYPE>
-class point3D : public point_base
+point::point() : points()
 {
-private:
- int xo,yo,zo; // origin will be defined for all objects
-public:
- void initialize_dataset();
-};
-
-#endif
+    pointStorage::value_type init = pointStorage::value_type();
+    init.Fill(0);
+    thePoints = pointStorage (1,init);
+}

@@ -1,9 +1,3 @@
-//
-// point hanterar objekt som inte i sig är voxelbaserade. Exempel
-// på sådana är centrumlinjer, texter, geometriska objekt (sfärer...).
-// Normalt ber man dessa objekt rita sig direkt i renderarens 2D pixelyta.
-// Varje objekt kan dock även rendera sig som voxelrymd om så behövs.
-//
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.

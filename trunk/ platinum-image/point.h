@@ -1,10 +1,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  point_base $Revision$
-//
-//  Untemplated base class for point collections
-//
+//  Point $Revision$
+///
+/// Single 3D point class
+///
 //  $LastChangedBy$
+//
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -23,30 +24,19 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#ifndef __point_base__
-#define __point_base__
+#ifndef __point__
+#define __point__
 
-#include "data_base.h"
+#include "point_base.h"
 
-class points : public data_base
-    {
+class point : public points
+{
 public:
-        typedef std::vector <Vector3D> pointStorage;
-protected:
-        points():data_base() {}
-        
-        pointStorage thePoints;
-public:
-         
-        pointStorage::iterator begin();
-        pointStorage::iterator end();
+    point();
+    
+    const pointStorage::value_type get();
+    void add (pointStorage::value_type);  //overloaded; don't add, change point #1 
 
-        void add (pointStorage::value_type);  //add point
-        void remove (pointStorage::iterator); //the opposite of above
-        pointStorage::size_type num_points;
-
-            
-        
-    };
+};
 
 #endif

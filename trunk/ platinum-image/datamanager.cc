@@ -80,10 +80,10 @@ datamanager::~datamanager()
         { delete images[i]; }
     images.clear();
 
-    for (unsigned int i=0; i < vectors.size(); i++)
+    /*for (unsigned int i=0; i < vectors.size(); i++)
         { delete vectors[i]; }
 
-    vectors.clear();
+    vectors.clear();*/
     }
 
 void datamanager::removedata_callback(Fl_Widget *callingwidget, void *thisdatamanager)
