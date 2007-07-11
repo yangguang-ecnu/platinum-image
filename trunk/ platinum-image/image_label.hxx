@@ -18,7 +18,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 template <int IMAGEDIM>
-image_label<IMAGEDIM>* label_copycast (image_base* input) //! Converts IMGLABELTYPE (uchar) into image_label
+image_label<IMAGEDIM>* label_copycast (image_base* const input) //! Converts IMGLABELTYPE (uchar) into image_label
     {
     image_label<IMAGEDIM > * output = NULL;
 
@@ -34,7 +34,7 @@ image_label<IMAGEDIM>* label_copycast (image_base* input) //! Converts IMGLABELT
     }
 
 template<int IMAGEDIM >
-void image_label<IMAGEDIM >:: transfer_function(transfer_base<IMGLABELTYPE > * t)
+void image_label<IMAGEDIM >:: transfer_function(transfer_base<IMGLABELTYPE > * const t)
     {
     if (this->tfunction != NULL)
         {delete this->tfunction;}

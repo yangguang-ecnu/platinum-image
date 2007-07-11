@@ -48,7 +48,7 @@ class image_storage : public image_base
     protected:
         image_storage();
         template<class SOURCETYPE>
-        image_storage(image_storage<SOURCETYPE> * s);
+        image_storage(image_storage<SOURCETYPE> * const s);
 
         transfer_base<ELEMTYPE> * tfunction;
         histogram_1D<ELEMTYPE> * stats;
@@ -90,10 +90,10 @@ class image_storage : public image_base
     public:
         virtual ~image_storage();
 
-        float get_max_float();
-        float get_min_float();
-        ELEMTYPE get_max();
-        ELEMTYPE get_min();
+        float get_max_float() const;
+        float get_min_float() const;
+        ELEMTYPE get_max() const;
+        ELEMTYPE get_min() const;
         ELEMTYPE get_num_values()
             { return stats->num_values(); }
         histogram_1D<ELEMTYPE> * get_histogram()

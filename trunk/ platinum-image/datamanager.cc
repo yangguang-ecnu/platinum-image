@@ -73,18 +73,11 @@ datamanager::datamanager()
 
 datamanager::~datamanager()
     {
-    //since images and vectors are pointer arrays we have to collect garbage ourselves
-
     closing = true;
 
-    for (unsigned int i=0; i < images.size(); i++)
-        { delete images[i]; }
-    images.clear();
-
-    /*for (unsigned int i=0; i < vectors.size(); i++)
-        { delete vectors[i]; }
-
-    vectors.clear();*/
+    for (unsigned int i=0; i < dataItems.size(); i++)
+        { delete dataItems[i]; }
+    dataItems.clear();
     }
 
 void datamanager::removedata_callback(Fl_Widget *callingwidget, void *thisdatamanager)
@@ -125,7 +118,7 @@ void datamanager::save_vtk_image_callback(Fl_Widget *callingwidget, void * thisd
         return;
     }
 
-    ((datamanager*)thisdatamanager)->images[image_index]->save_image_to_VTK_file(chooser.value(1));
+    ((datamanager*)thisdatamanager)->dataItems[image_index]->save_to_VTK_file(chooser.value(1));
     }
 
 #define LISTHEADERHEIGHT 25
@@ -180,13 +173,13 @@ void datamanager::add(image_base * v)
 {
     if (v != NULL)
         {
-        if (images.size() < IMAGEVECTORMAX)
+        if (dataItems.size() < IMAGEVECTORMAX)
             {
             int the_image_id= v->get_id();
             
             if (find_image_index(the_image_id) == -1)
                 {
-                images.push_back(v);
+                dataItems.push_back(v);
                 
                 int freeViewportID=viewmanagement.find_viewport_no_images();
                 
@@ -200,21 +193,28 @@ void datamanager::add(image_base * v)
                 }
             else
                 {
-#ifdef _DEBUG
-                cout << "Trying to re-add image ID " << the_image_id << endl;
-#endif
+                pt_error::error("Trying to re-add image ID ",pt_error::warning);
                 }
             }
         else
             {
-#ifdef _DEBUG
             //This error condition should really never happen, if it does there is
             //reason to rethink the dependency on a fixed image capacity the way 
             //IMAGEVECTORMAX works
             
-            cout << "Error when adding image: number of images in datamanager exceeds IMAGEVECTORMAX" << endl;
-#endif
+            pt_error::error("Error when adding image: number of data items in datamanager exceeds IMAGEVECTORMAX",pt_error::fatal);
             }
+        }
+}
+
+void datamanager::add(points * v)
+{
+    if(!pt_error::error_if_null(v,"Can't add point to datamanager, pointer is NULL",pt_error::serious))
+        {
+        dataItems.push_back(v);
+        
+        image_vector_has_changed();
+        image_has_changed(v->get_id());
         }
 }
 
@@ -226,15 +226,15 @@ void datamanager::remove_image (int id)
 
     if (index >=0)
         {
-        delete images[index];
+        delete dataItems[index];
 
-        images.erase(images.begin()+index);
+        dataItems.erase(dataItems.begin()+index);
         }
 #ifdef _DEBUG
     if (index >=0)
         {
         cout << "Deleted image with ID=" << id << ", index=" << index << endl;
-        cout << "There are now " << images.size() << " images" << endl;
+        cout << "There are now " << dataItems.size() << " data items" << endl;
         }
     else
         {
@@ -247,14 +247,14 @@ void datamanager::remove_image (int id)
 
 int datamanager::first_image()
     {
-    return images[0]->get_id();
+    return dataItems[0]->get_id();
     }
 
 int datamanager::last_image()
     {
-	if(images.size()==0)
+	if(dataItems.size()==0)
 		return 0;
-    return images[images.size()-1]->get_id();
+    return dataItems.back()->get_id();
     }
 
 int datamanager::next_image(int id)
@@ -262,9 +262,9 @@ int datamanager::next_image(int id)
     int index=find_image_index(id);
 
     if (index != -1) {
-        if ((index + 1) < (signed int)images.size()) {
+        if ((index + 1) < (signed int)dataItems.size()) {
             //image exists and is not last
-            return images[index+1]->get_id();
+            return dataItems[index+1]->get_id();
         }
 
         else {
@@ -281,7 +281,7 @@ string datamanager::get_image_name(int ID)
 {
     int index=find_image_index(ID);
     if (index >=0) {
-        return images[index]->name();
+        return dataItems[index]->name();
     }
 
     string error_string="(image_name error)";
@@ -293,7 +293,7 @@ void datamanager::set_image_name(int ID,string n)
     int index=find_image_index(ID);
     if (index >=0)
     {
-        images[index]->name(n);
+        dataItems[index]->name(n);
         image_vector_has_changed();
     }
 }
@@ -391,16 +391,15 @@ int datamanager::create_empty_image(image_base * blueprint, imageDataType unit)
 
 void datamanager::listimages()
     {
-    cout << "Antal volymer: " << images.size() << endl;
-
-    for (unsigned int i=0; i < images.size(); i++) { cout << *images[i] << endl; } 
+    for (unsigned int i=0; i < dataItems.size(); i++)
+        { cout << *dataItems[i] << endl; } 
     }
 
 int datamanager::find_image_index(int uniqueID)
     {
-    for (unsigned int i=0; i < images.size(); i++)
+    for (unsigned int i=0; i < dataItems.size(); i++)
         {
-        if (*images[i]==uniqueID)
+        if (*dataItems[i]==uniqueID)
             { return i; }
         }
     return -1; // not found
@@ -408,12 +407,17 @@ int datamanager::find_image_index(int uniqueID)
 
 image_base * datamanager::get_image (int ID)
     {
-    vector<image_base*>::iterator itr=images.begin();
+    vector<data_base*>::iterator itr=dataItems.begin();
 
-    while (itr != images.end())
+    while (itr != dataItems.end())
         {
         if (**itr == ID)
-            { return *itr; }
+            {
+            image_base * i = dynamic_cast<image_base *>(*itr);
+            
+            if (!pt_error::error_if_null(i,"Trying to get_image when requested ID is not image type",pt_error::fatal))
+                { return i; }
+            }
         itr++;
         }
 

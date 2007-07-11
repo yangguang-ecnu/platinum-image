@@ -20,7 +20,7 @@
 #define TFUNCTIONTEST transfer_default
 
 template <class fromType, class toType>
-void copy_data( image_storage<fromType > * in,image_storage<toType > * out) //!General data copying
+void copy_data(image_storage<fromType > * const in,image_storage<toType > * out) //!General data copying
     {
     std::copy (in->begin(),in->end(),out->begin());
 
@@ -95,7 +95,7 @@ image_storage<ELEMTYPE >::image_storage() : image_base ()
 
 template <class ELEMTYPE >
 template<class SOURCETYPE>
-image_storage<ELEMTYPE >::image_storage(image_storage<SOURCETYPE> * s):image_base (s)
+image_storage<ELEMTYPE >::image_storage(image_storage<SOURCETYPE> * const s):image_base (s)
     {
 //cout << "Start image_storage constructor"<<endl;//PRDEBUG
     set_parameters();
@@ -144,14 +144,14 @@ float image_storage<std::complex<float> >::get_min_float()
 */
 
 template <class ELEMTYPE >
-float image_storage<ELEMTYPE >::get_min_float()
+float image_storage<ELEMTYPE >::get_min_float() const
     {
     return minvalue;
     }
 
 
 template <class ELEMTYPE >
-ELEMTYPE image_storage<ELEMTYPE >::get_min()
+ELEMTYPE image_storage<ELEMTYPE >::get_min() const
     {
     return minvalue;
     }
@@ -163,14 +163,14 @@ float image_storage<std::complex<float> >::get_max_float()
     }
 */
 template <class ELEMTYPE >
-float image_storage<ELEMTYPE >::get_max_float()
+float image_storage<ELEMTYPE >::get_max_float() const
     {
     return maxvalue;
     }
 
 
 template <class ELEMTYPE >
-ELEMTYPE image_storage<ELEMTYPE >::get_max()
+ELEMTYPE image_storage<ELEMTYPE >::get_max() const
     {
     return maxvalue;
     }

@@ -52,7 +52,7 @@ class datamanager
         static const unsigned int IMAGEVECTORMAX = 50;
 
     protected:
-        std::vector<image_base*> images;
+        std::vector<data_base* > dataItems;
         //std::vector<point_base*> vectors;
 
         bool closing;                           //whether destructor has been called, meaning
@@ -106,6 +106,7 @@ class datamanager
         static void save_vtk_image_callback(Fl_Widget *, void *);
 
         void add(image_base * v);           //add image to vector, notify other managers
+        void add(points * v); 
         void image_has_changed (int image_ID, bool recalibrate = false);    //signal that contents of a image has changed,
                                                     //to update thumbnails, display
         //recalibrate determines whether max values etc. are refreshed

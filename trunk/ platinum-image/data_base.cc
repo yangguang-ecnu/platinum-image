@@ -89,15 +89,13 @@ void data_base::name (const string n)
     {
     if (widget != NULL)
         { widget->name(n); }
-#ifdef _DEBUG
     else
         {
-        cout << "Attempt to set name(const string) on a widget-less data object" << endl;
+        pt_error::pt_error ("Attempt to set name(const string) on a widget-less data object",pt_error::warning);
         }
-#endif
     }
 
-const string data_base::name()
+const string data_base::name() const
     {
     if (widget != NULL)
         {
@@ -116,7 +114,7 @@ data_base::data_base()
     direction.SetIdentity();
     }
 
-data_base::data_base (data_base * source)
+data_base::data_base (data_base * const source)
     {
 //cout << "Start data_base constructor"<<endl;//PRDEBUG
     pt_error::error_if_null(source,"Attempting to copyconstruct data object from NULL object");

@@ -164,7 +164,7 @@ void rendercombination::image_vector_has_changed()
 
     //images may have been deleted too, we need to update both image ID and image pointer
 
-    for (int r=0;r < MAXRENDERVOLUMES && renderimages [r]!=0;r++)
+    /*for (int r=0;r < MAXRENDERVOLUMES && renderimages [r]!=0;r++)
         {
         int i=datamanagement.find_image_index(abs(renderimages[r]));
 
@@ -186,8 +186,25 @@ void rendercombination::image_vector_has_changed()
                 renderimages[v]=renderimages[v+1];
                 }
             }
+        };*/
+    
+    for (int r=0;r < MAXRENDERVOLUMES && renderimages [r]!=0;r++)
+        {
+        renderimage_pointers[r]=datamanagement.get_image(abs(renderimages[r]));
+        
+        if ( renderimage_pointers[r] == NULL)
+            {
+            //image at p does not exist
+            
+            renderimages[r]=0;
+            
+            for (int v=r;renderimages [v+1]!=0;v++)
+                {
+                renderimages[v]=renderimages[v+1];
+                }
+            }
         };
-
+    
     rendermanagement.combination_update_callback(id);
     }
 

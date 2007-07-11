@@ -57,7 +57,7 @@ class image_base : public data_base
         void set_parameters ();
     protected:
         image_base();
-        image_base(image_base* s);
+        image_base(image_base* const s);
 
         void redraw();
 
@@ -76,11 +76,6 @@ class image_base : public data_base
        
         // image_base(const image_base &k) { *this=k; ::image_base(); }
 
-        friend std::istream &operator>>(std::istream &in, image_base &k)
-            { in >> k.ID; return in; }
-        friend std::ostream &operator<<(std::ostream &ut, const image_base &k)
-            { ut << "[image_base.ID= " << k.ID << " ]"; return ut; }
-
         virtual void initialize_dataset(int w, int h, int d) = 0; // create empty dataset
 
         template <class LOADERTYPE>
@@ -94,26 +89,22 @@ class image_base : public data_base
         //virtual unsigned char get_display_voxel(int x, int y, int z) = 0;      //get unsigned char scaled to data
                                                                         //type range, for display purposes
                     
-        virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) = 0;
-        virtual float get_number_voxel(int x, int y, int z) //get value as float for onscreen display in numbers
+        virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const = 0;
+        virtual float get_number_voxel(int x, int y, int z) const //get value as float for onscreen display in numbers
             = 0;
                                                                     //when other kinds than 3D images are implemented,
                                                                     //one might want to make these dimensionality-independent 
                                                                     //like get_size_by_dim(int dim)
         
-        virtual float get_max_float() = 0;    //return max/min values in type-independent form     
-        virtual float get_min_float() = 0;
+        virtual float get_max_float() const = 0;    //return max/min values in type-independent form     
+        virtual float get_min_float() const = 0;
             
         virtual void testpattern() = 0 ;
 
         virtual void make_image_an_itk_reader() = 0;
-        virtual void save_image_to_VTK_file (std::string) = 0;
 
-        virtual unsigned short get_size_by_dim(int dim) = 0;
+        virtual unsigned short get_size_by_dim(int dim) const = 0;
         virtual bool same_size (image_base *) = 0;
-
-        int get_id()
-            { return ID; }
 
         Vector3D transform_unit_to_voxel(Vector3D pos);
         
