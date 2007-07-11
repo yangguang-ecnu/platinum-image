@@ -214,7 +214,7 @@ void viewport::refresh()
             if (viewport_widget->thresholder != NULL)
                 {viewport_widget->thresholder->renderer_index(rendermanagement.find_renderer_index(rendererID));}
 #else
-            histogram_tool * utool = dynamic_cast<histogram_tool * > (busyTool);
+            histo2D_tool * utool = dynamic_cast<histo2D_tool * > (busyTool);
             if (utool != NULL)
                 {utool->attach (this,rendermanagement.get_renderer(rendererID));}
 #endif
@@ -256,18 +256,18 @@ void viewport::update_fbstring (FLTKviewport* f)
 threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * threshold_par)
     {    
 #ifdef VPT_TEST
-    histogram_tool * utool = NULL;
+    histo2D_tool * utool = NULL;
     
     //2D histogram should only allow this call when the uim tool is selected
     if (busyTool == NULL)
         {
         viewport_event e = viewport_event(0,viewport_widget);
-        busyTool = utool = new histogram_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));
+        busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));
         }
     
     if (busyTool != NULL) //might have been created earlier too
         {        
-        utool = dynamic_cast<histogram_tool *>(busyTool);
+        utool = dynamic_cast<histo2D_tool *>(busyTool);
         
         if (utool != NULL)
             {

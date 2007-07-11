@@ -33,7 +33,7 @@ class points : public data_base
 public:
         typedef std::vector <Vector3D> pointStorage;
 protected:
-        points():data_base() {}
+        points();
         
         pointStorage thePoints;
 public:
@@ -44,9 +44,6 @@ public:
         void add (pointStorage::value_type);  //add point
         void remove (pointStorage::iterator); //the opposite of above
         pointStorage::size_type num_points;
-
-            
-        
     };
 
 #endif
