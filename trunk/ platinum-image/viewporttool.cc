@@ -20,9 +20,16 @@
 //#include "viewporttool.h"
 
 #include "viewmanager.h"
-extern viewmanager viewmanagement;
+#include "viewmanager.h"
 #include "rendermanager.h"
+#include "userIOmanager.h"
+
+extern viewmanager viewmanagement;
 extern rendermanager rendermanagement;
+extern viewmanager viewmanagement;
+extern userIOmanager userIOmanagement;
+
+#include "statusarea.h"
 
 #include <FL/Fl_Window.h>
 #include <FL/Fl_Button.h>
@@ -31,7 +38,7 @@ extern rendermanager rendermanagement;
 
 // static members
 Fl_Window * viewporttool::toolbox = NULL;
-Fl_Pack * viewporttool::statusArea = NULL;
+statusarea * viewporttool::statusArea = NULL;
 std::string viewporttool::selected = "";
 std::map<std::string, viewporttool::vpt_create_pointer> viewporttool::tools = std::map<std::string, viewporttool::vpt_create_pointer>  ();
 
@@ -39,6 +46,7 @@ template <class TOOL>
 void viewporttool::Register ()
 {
     tools[TOOL::name()]=&CreateObject<TOOL>;
+    TOOL::init();
 }
 
 template <class TOOL>
@@ -47,17 +55,17 @@ viewporttool * viewporttool::CreateObject(viewport_event &event)
     return new TOOL (event);
 }
 
-void viewporttool::init (Fl_Pack * s)
+void viewporttool::init (statusarea * s)
 {
     statusArea = s;
-    Fl_Group::current(statusArea);
+    //Fl_Group::current(statusArea);
     
     //register tool classes
     
     viewporttool::Register<nav_tool>();
     //viewporttool::Register<dummy_tool>();
     viewporttool::Register<cursor_tool>();
-    viewporttool::Register<histogram_tool>();
+    viewporttool::Register<histo2D_tool>();
     
     selected = "Navigation";
     
@@ -87,14 +95,27 @@ void viewporttool::init (Fl_Pack * s)
             { button->set(); }
         
         if (horizontal)
-            { x += buttonSize; }
+            { 
+            x += buttonSize; 
+            }
         else
-            { y += buttonSize; }
+            { 
+            y += buttonSize;
+            }
+        }
+    
+    if (horizontal)
+        { 
+        y = buttonSize;
+        }
+    else
+        { 
+        x = buttonSize;
         }
     
     toolbox->size(x,y);
     toolbox->end();
-}
+    }
 
 viewporttool::viewporttool(viewport_event &)
 {}
@@ -121,9 +142,7 @@ void viewporttool::select (const std::string key)
             {
             b->setonly();
             }
-        }
-
-    viewmanagement.refresh_viewports_after_toolswitch();    
+        }  
 }
 
 viewporttool * viewporttool::taste(viewport_event & event,viewport * vp,renderer_base * r)
@@ -158,9 +177,8 @@ void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
 {
     std::string * key = reinterpret_cast<std::string *>(key_ptr);
     
-    select (*key);
+    userIOmanagement.select_tool (*key);
 }
-
 // *** tool classes ***
 //registered in viewporttool::init
 
@@ -181,6 +199,9 @@ const std::string nav_tool::name()
 {
     return "Navigation";
 }
+
+void nav_tool::init()
+{}
 
 void nav_tool::handle(viewport_event &event)
 {
@@ -266,184 +287,15 @@ const std::string dummy_tool::name()
 void dummy_tool::handle(viewport_event &event)
 {}
 
-// *** histogram_tool ***
-
-histogram_tool::histogram_tool(viewport_event &event,thresholdparvalue * v,viewport * vp, renderer_base * r):nav_tool(event) 
-{
-    myPort = vp;
-    myRenderer = r;
-
-    event.ungrab(); //leave judgment of whether event should be grabbed up to this class
-    
-    ROI = NULL;
-    overlay = NULL;
-    
-    if (v != NULL && vp != NULL && r !=NULL)
-        {
-        event.grab();
-        
-        //const int * mouse = event.mouse_pos_global();
-        
-        overlay=new threshold_overlay(event.get_FLTK_viewport(),rendermanagement.find_renderer_index( myPort->get_renderer_id()));
-        ROI = new FLTK2Dregionofinterest(event.get_FLTK_viewport());
-        }
-    }
-
-const std::string histogram_tool::name()
-{
-    return "Histogram highlight";
-}
-
-void histogram_tool::handle(viewport_event &event)
-{
-    //forward zoom and flip events to nav_tool
-    if (event.type() == pt_event::browse || event.type() == pt_event::scroll)
-        {
-        nav_tool::handle(event);
-        }
-
-    const int * mouse = event.mouse_pos_global();
-
-    if (event.state() == pt_event::begin  ) 
-        {
-        dragLast[0] = mouse[0];
-        dragLast[1] = mouse[1];
-        }
-
-    FLTKviewport * fvp = event.get_FLTK_viewport();
-
-    switch (event.type()) {
-            case pt_event::adjust:
-                //this callback is for general click & drag in viewport
-                //however only function available yet is the histogram ROI
-
-                if (myPort->get_renderer_id() != NO_RENDERER_ID)
-                    {
-                    event.grab();
-                    if (event.state() == pt_event::begin  ) {
-                            if (!ROI->dragging)
-                                {
-                                //to improve performance, the attached histograms are cached during drag
-                                ROI->attach_histograms(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
-                                }
-                            }
-
-                    if (event.state() == pt_event::begin || event.state() == pt_event::iterate )
-                        {
-                        if (ROI->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
-                            {
-                            if(FLTK2Dregionofinterest::current_ROI != ROI)
-                                {
-                                viewmanagement.refresh_viewports(); //erase ROIs shown in other viewports
-                                FLTK2Dregionofinterest::current_ROI = ROI;
-                                }
-
-                            ROI->drag(this->dragLast[0],this->dragLast[1],mouse[0]-this->dragLast[0],mouse[1]-this->dragLast[1],fvp);
-                            }
-                        fvp->damage(FL_DAMAGE_ALL);
-                        }
-                    }
-            break;
-            
-        case pt_event::browse:
-            {
-                event.grab();
-                ROI->resize (mouse[0]-this->dragLast[0],mouse[1]-this->dragLast[1],1,fvp);
-            }
-            break;
-            
-        case pt_event::create:
-            event.grab();
-            
-            ROI->resize (0,0,1+this->dragLast[1]*zoom_factor,fvp);
-                        
-            //zooming invalidates ROI
-            FLTK2Dregionofinterest::current_ROI = NULL;
-            
-            break;
-            
-        case pt_event::scroll:     
-            event.grab();
-            
-            ROI->attach_histograms(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
-            
-            fvp->needs_rerendering();
-            break;
-            
-        case pt_event::draw:
-            event.grab();
-            
-            overlay->render();
-            overlay->FLTK_draw(); //overlay has fvp associated earlier, where drawing is done
-
-            fl_color(fl_rgb_color(0, 255, 255));
-            ROI->draw(fvp);
-            break;
-            
-        case pt_event::resize:
-            event.grab();
-            
-            overlay->resize();
-            ROI->resize (0,0,1,fvp); //"clear" hack ROI
-
-            break;
-    }
-
-    if (event.state() == pt_event::end && ROI->dragging)
-        {
-        event.grab();
-        ROI->drag_end();
-        fvp->damage(FL_DAMAGE_ALL);
-        }
-    
-    if (FLTK2Dregionofinterest::current_ROI == ROI && (event.type() == pt_event::adjust ) ||event.type() ==pt_event::scroll )
-        {
-        event.grab();
-        
-        //each drag iteration or when moving in view Z direction:
-        //convert coordinates for region of interest and make widgets update
-        
-        std::vector<FLTKuserIOpar_histogram2D *>::iterator itr =ROI->histograms.begin();  
-        while (itr != ROI->histograms.end())
-            {
-            int one_vol_ID= (*itr)->histogram_image_ID(0);     //assumption: same voxel size, dimensions, orientation etc.
-                                                               // - voxel coordinates for one apply to the other as well
-            
-            regionofinterest reg;
-            reg.start = rendermanagement.get_location (rendermanagement.find_renderer_index( myPort->get_renderer_id()),one_vol_ID,ROI->region_start_x,ROI->region_start_y,fvp->w(),fvp->h());
-            reg.size = rendermanagement.get_location (rendermanagement.find_renderer_index( myPort->get_renderer_id()),one_vol_ID,ROI->region_end_x,ROI->region_end_y,fvp->w(),fvp->h())-reg.start;
-            //remove sign from size
-            for (int d=0; d < 3 ; d++)
-                {reg.size[d]=fabs(reg.size[d]);}
-            
-            //sista steget; skicka det nya omrÂdet till histogrammet
-            (*itr)->highlight_ROI (&reg);
-            
-            itr++;
-            }
-        }
-
-    if (event.state() == pt_event::iterate)
-        {
-        dragLast[0] = mouse[0];
-        dragLast[1] = mouse[1];
-        }
-}
-
-void histogram_tool::attach (viewport * vp, renderer_base * r)
-{
-    //myWidget = fvp;
-    myPort = vp;
-    myRenderer = r;
-    overlay->renderer_index(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
-}
-
-threshold_overlay * histogram_tool::get_overlay ()
+threshold_overlay * histo2D_tool::get_overlay ()
 {
     return overlay;
 }
 
 // *** cursor_tool ***
+
+Fl_Output * cursor_tool::coord_display = NULL;
+Fl_Button * cursor_tool::make_button = NULL;
 
 cursor_tool::cursor_tool(viewport_event &event):nav_tool(event)
 {
@@ -458,6 +310,19 @@ cursor_tool::cursor_tool(viewport_event &event):nav_tool(event)
 const std::string cursor_tool::name()
 {
     return "Cursor";
+}
+
+void cursor_tool::init()
+{
+    Fl_Group * controls = userIOmanagement.status_area->add_pane<Fl_Pack>(name());
+    controls->size(45,controls->h());
+    //controls->type(FL_HORIZONTAL);
+    //coord_display = new Fl_Output (controls->x(),controls->y(),60,controls->h(),"Location");
+    make_button = new Fl_Button (controls->x(),controls->y(),40,controls->h(),"Make point");
+    controls->box(FL_FLAT_BOX);
+    controls->color(FL_RED);
+    
+    controls->end();
 }
 
 void cursor_tool::handle(viewport_event &event)
@@ -509,6 +374,12 @@ void cursor_tool::handle(viewport_event &event)
             fl_pop_clip();
             }
         }    
+    if (event.type() == pt_event::resize)
+        {
+        event.grab();
+        
+        event.resize_point(selection[0],selection[1]);
+        }
     
     nav_tool::handle(event);
 }

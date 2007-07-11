@@ -24,6 +24,7 @@
 #include "rawimporter.h"
 #include "dicom_importer.h"
 #include "image_integer.h"
+#include "userIOmanager.h"
 
 datamanager datamanagement;
 extern rendermanager rendermanagement;

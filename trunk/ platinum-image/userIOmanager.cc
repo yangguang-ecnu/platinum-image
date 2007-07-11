@@ -20,7 +20,10 @@
 #define __userIOmanager_cc__
 
 #include "userIOmanager.h"
+#include "viewporttool.h"
+#include "viewmanager.h"
 
+extern viewmanager viewmanagement;
 userIOmanager userIOmanagement;
 
 #include <FL/Fl.H>
@@ -33,17 +36,27 @@ void userIOmanager::setup()
     const unsigned int width=Fl_Group::current()->w();
 
     widgets_scroll = new horizresizeablescroll(xpos,ypos,width,height);
-
     widgets_scroll->end();
+    
+    //status area is initialized in mainwindow.cc, through its own constructor
     }
 
-void userIOmanager::show_message (std::string name, std::string message)
-    {
-    int uioid = add_userIO (name,NULL,"");
-
-    add_par_message(uioid,"",message);
-    finish_userIO(uioid);
-    }
+void userIOmanager::show_message (std::string name, std::string message, displayMethod method  )
+{
+    switch (method)
+        {
+        case block:
+            int uioid = add_userIO (name,NULL,"");
+            
+            add_par_message(uioid,"",message);
+            finish_userIO(uioid);
+            break;
+            
+        case status:
+            status_area->message(message);
+            break;
+        }
+}
 
 int userIOmanager::add_userIO (std::string name, userIO_callback* cback,std::string ok_label)
     {
@@ -161,6 +174,14 @@ void userIOmanager::image_vector_has_changed()
         itr++;
         }
     }
+
+void userIOmanager::select_tool (std::string key)
+{
+    viewporttool::select(key);
+    userIOmanagement.status_area->switch_pane(key);
+    
+    viewmanagement.refresh_viewports_after_toolswitch();  
+}
 
 std::vector<FLTKuserIOpar_histogram2D *> userIOmanager::get_histogram_for_image (int imageID)
     {

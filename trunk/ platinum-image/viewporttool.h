@@ -24,11 +24,17 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#ifndef __veiewporttool__
+#define __veiewporttool__
+
 #include "image_base.h"
 #include "event.h"
 
+#include <FL/Fl_Output.H>
+
 class viewport;
 class renderer_base;
+class statusarea;
 class thresholdparvalue;
 
 class viewporttool 
@@ -38,7 +44,7 @@ public:
     typedef viewporttool * (*vpt_create_pointer)(viewport_event &);
 
 private:
-    static Fl_Pack * statusArea;
+    static statusarea * statusArea;
     //static std::map<std::string, taste_fcn_pointer> tools;
     static std::map<std::string, vpt_create_pointer> tools;
     
@@ -63,7 +69,7 @@ public:
     viewporttool(viewport_event &);
     virtual ~viewporttool();
     
-    static void init (Fl_Pack *);
+    static void init (statusarea *);
     
     static void select (std::string);
     static viewporttool * taste(viewport_event &,viewport *,renderer_base *);  //if the current tool responds to the event, return instance (which will be getting the events from now on until another tool is selected)
@@ -82,6 +88,7 @@ protected:
 public:
     nav_tool (viewport_event &);
     virtual void handle(viewport_event &);
+    static void init (); 
     static const std::string name ();
 };
 
@@ -97,10 +104,15 @@ class cursor_tool : public nav_tool //subclass of nav_tool because it is useful 
                                     //do some navigation while working with a selection
 {
 protected:
-    int selection [2]; //fraction of screen coordinates during selection
+    int selection [2]; //screen coordinates during selection
+    
+    //controls
+    static Fl_Output * coord_display;
+    static Fl_Button * make_button;
 public:
     cursor_tool (viewport_event &);
     static const std::string name ();
+    static void init (); //initialize controls in statusArea
     virtual void handle(viewport_event &);    
 };
 
@@ -109,19 +121,4 @@ class freeform_ROI_tool : public viewporttool
 
 };
 
-class histogram_tool : public nav_tool //tool for userIO click & drag (only in Histo2D at this time)
-{
-    //NOTE: this tool was ported from an earlier architecture and
-    //a bad example of viewporttool implementation. For a good example, see cursor_tool
-private:
-    FLTK2Dregionofinterest * ROI;
-    threshold_overlay * overlay;
-    
-public:
-    histogram_tool (viewport_event &event,thresholdparvalue * v = NULL,viewport * vp = NULL, renderer_base * r = NULL);
-    
-    void attach (viewport * vp, renderer_base * r);
-    threshold_overlay * get_overlay();
-    virtual void handle(viewport_event &);
-    static const std::string name ();
-};
+#endif

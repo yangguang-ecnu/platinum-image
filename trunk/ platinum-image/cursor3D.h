@@ -2,7 +2,7 @@
 //
 //  Cursor3D
 //
-//  3D cursor (could be implemented as a point3D)
+//  3D cursor
 //
 //
 
@@ -26,15 +26,11 @@
 #ifndef __cursor3D__
 #define __cursor3D__
 
-class cursor3D
+#include "point.h"
+
+class cursor:public point
     {
-    private:
-        // vector3D boundaryA; // 3D box where our cursor lives
-        // vector3D boundaryB;
-        // vector3D position; // center position
-    public:
-        // void set_cursor(const vector3D &cursorpos);
-        // void get_cursor(vector3D &cursorpos);
+        
     };
 
 #endif

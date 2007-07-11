@@ -194,21 +194,22 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     viewsNlists->end();
 
     Fl_Group::current (&window); //make statusarea a subwindow
-    Fl_Pack * statusarea = new Fl_Pack (0,win_h-status_area_h,win_w,status_area_h);
-    statusarea->box(FL_NO_BOX);
-    statusarea->type(FL_HORIZONTAL);
-
-    viewporttool::init(statusarea); //!spawn toolbox and give viewporttool pointer to statusarea
-
-    Fl_Group::current (statusarea);
-    Fl_Output * status_message = new Fl_Output (viewporttool::toolbox->x()+viewporttool::toolbox->w(),win_h-status_area_h,win_w-viewporttool::toolbox->w(),status_area_h);
-    status_message->box(FL_ENGRAVED_BOX);
-    status_message->value("Platinum $Revision$");
-    status_message->color(FL_BACKGROUND_COLOR);
     
-#ifndef VPT_TEST
-    statusarea->deactivate();
-#endif
+    userIOmanagement.status_area = new statusarea (0,win_h-status_area_h,win_w,status_area_h);    
+    
+    Fl_Pack * toolsNstatus = new Fl_Pack (0,win_h-status_area_h,win_w,status_area_h);
+    toolsNstatus->type(FL_HORIZONTAL);
+    viewporttool::init(userIOmanagement.status_area); //!spawn toolbox and give viewporttool pointer to statusarea
+    userIOmanagement.status_area->resize(viewporttool::toolbox->x()+viewporttool::toolbox->w(),toolsNstatus->y(),win_w-viewporttool::toolbox->w(),status_area_h);
+    toolsNstatus->add(userIOmanagement.status_area);
+
+    toolsNstatus->resizable(userIOmanagement.status_area);
+    toolsNstatus->end();
+        int dummyX = userIOmanagement.status_area->x();
+    int dummyW = userIOmanagement.status_area->w();
+    
+    toolsNstatus->deactivate();
+    
     window.resizable(viewsNlists);
     }
 

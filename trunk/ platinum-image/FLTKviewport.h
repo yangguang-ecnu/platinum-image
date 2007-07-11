@@ -43,7 +43,7 @@
 #include "global.h"
 
 #include "threshold.h"
-#include "FLTK2Dregionofinterest.h"
+#include "histo2D_tool.h"
 #include "event.h"
 
 #define VPT_TEST //viewporttool development
@@ -73,7 +73,7 @@ class FLTKviewport : public Fl_Widget
 	    friend class viewport;
         //friend class viewporttool;
         friend class threshold_overlay;
-        friend class histogram_tool;
+        friend class histo2D_tool;
     public:
 	    FLTKviewport(int X,int Y,int W,int H);  //constructor
         ~FLTKviewport();

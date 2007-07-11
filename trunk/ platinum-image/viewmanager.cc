@@ -44,8 +44,10 @@
 
 #include "viewmanager.h"
 #include "rendermanager.h"
+#include "userIOmanager.h"
 
 extern rendermanager rendermanagement;
+extern userIOmanager userIOmanagement;
 viewmanager viewmanagement;
 
 void viewmanager::listviewports()
@@ -316,9 +318,9 @@ void viewmanager::connect_views_viewports()
     {
     //int antalvp = viewports.size();
 
-    //// sätt upp kopplingsarrayen mellan de virtuella vyerna (varav en är synlig) och de viewport:s som finns
-    //
-    for (int vv=0; vv < MAXVIRTUALVIEWS; vv++) // samma mönster för alla virtuella vyer - distribuera viewports
+    //set up connection between virtual views and viewports
+    
+    for (int vv=0; vv < MAXVIRTUALVIEWS; vv++) // same pattern for each virtual view
         {
         std::cout << "horiz " << noofhorizontaltiles[vv] << std::endl;
         for (int h=0; h < noofhorizontaltiles[vv] ; h++) // no use to waste views outside the visible space
@@ -399,7 +401,7 @@ std::vector<threshold_overlay *> viewmanager::get_overlays (thresholdparvalue * 
     std::vector<viewport>::iterator itr=viewports.begin();
     std::vector<threshold_overlay *> result;
 
-    viewporttool::select ("Histogram highlight");
+    userIOmanagement.select_tool ("Histogram highlight");
     
     while (itr != viewports.end())
         {
@@ -412,21 +414,3 @@ std::vector<threshold_overlay *> viewmanager::get_overlays (thresholdparvalue * 
         }
     return result;
     }
-
-void viewmanager::manipulate_views_setup()
-    {
-    // Gränssnittside: ersätt vyerna i griden (från setup_views) med varsin stor knapp som sedan påverkar just den koordinatens vy (skapa/ta bort/flytta viewport, ...)
-    }
-
-
-/*
-void viewmanager::manipulate_views_callback(XXXX *argument)
-{
-}
-
-void manipulate_views_callback_wrapper(XXXX *argument)
-{
-viewmanager::manipulate_views_callback(argument);
-}
-
-*/

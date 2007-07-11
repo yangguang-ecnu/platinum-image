@@ -34,6 +34,7 @@
 
 #include "ptmath.h"
 #include "userIO.h"
+#include "statusarea.h"
 
 #include "global.h"
 
@@ -56,9 +57,11 @@ class userIOmanager
 
         void image_vector_has_changed();    //triggers rebuild of
 
-        //create userIO block, add to manager and return ID
-        int add_userIO (std::string name, userIO_callback* cback = NULL,std::string ok_label = "");  
-        void show_message (std::string name, std::string message);  //the simple way to pop up a box of information
+        int add_userIO (std::string name, userIO_callback* cback = NULL,std::string ok_label = "");
+        statusarea * status_area;        //! create userIO block, add to manager and return ID
+
+        typedef enum {status,block} displayMethod;
+        void show_message (std::string name, std::string message, displayMethod method = status );  //the simple way to display information; in a userIO block or in the status area (or, in the future, say, an alert window)
         
         void finish_userIO(int userIO_ID);         //end group and redraw all widgets, ready to use
 
@@ -76,6 +79,7 @@ class userIOmanager
 
         template <class ptype>
             ptype get_parameter(int IOblockID, int num);
+        void select_tool (std::string);
 
         std::vector<FLTKuserIOpar_histogram2D *> get_histogram_for_image (int imageID);
     };

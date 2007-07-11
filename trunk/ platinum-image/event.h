@@ -100,9 +100,9 @@ public:
     viewport_event (pt_event_type, FLTKviewport * fvp); //constructor for events not from FLTK event no. (e.g. draw)
     viewport_event (int FL_event, FLTKviewport * fvp);
     viewport_event() : FLTK_event (NULL) {}
-    FLTKviewport * get_FLTK_viewport();
     
-    //virtual void grab () {}
+    FLTKviewport * get_FLTK_viewport();
+    void resize_point (int &x,int &y);
 };
 
 #endif //__pt_event__

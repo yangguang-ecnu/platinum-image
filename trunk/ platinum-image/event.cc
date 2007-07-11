@@ -243,3 +243,16 @@ FLTKviewport * viewport_event::get_FLTK_viewport()
 {
     return dynamic_cast<FLTKviewport *> (myWidget);
 }
+
+void viewport_event::resize_point (int &x,int &y)
+{
+    int oldSize [2];
+    FLTKviewport * fvp = get_FLTK_viewport();
+    
+    oldSize[0] = fvp->w(); oldSize[1] = fvp->h();
+    
+    float scaling = std::max(resizeDim[0],resizeDim[1])/std::max(oldSize[0],oldSize[1]);
+    
+    x = (float)(x - oldSize[0]/2) * scaling + resizeDim[0]/2;
+    y = (float)(y - oldSize[1]/2) * scaling + resizeDim[1]/2;
+}

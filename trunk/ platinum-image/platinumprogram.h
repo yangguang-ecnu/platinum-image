@@ -25,6 +25,7 @@
 #include "viewmanager.h"
 #include "datamanager.h"
 #include "rendermanager.h"
+#include "userIOmanager.h"
 
 extern datamanager datamanagement;
 extern rendermanager rendermanagement;
