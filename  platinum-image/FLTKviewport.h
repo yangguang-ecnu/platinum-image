@@ -46,7 +46,7 @@
 #include "histo2D_tool.h"
 #include "event.h"
 
-#define VPT_TEST //viewporttool development
+//#define VPT_TEST //viewporttool development
 
 //Callback action identifiers.
 

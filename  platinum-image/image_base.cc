@@ -38,7 +38,7 @@ static int imagemaxID = 1;
 
 image_base::image_base():data_base()
     {set_parameters ();}
-image_base::image_base(image_base* s):data_base(s)
+image_base::image_base(image_base* const s):data_base(s)
     {
 //cout << "Start image_base constructor"<<endl;//PRDEBUG
     set_parameters ();

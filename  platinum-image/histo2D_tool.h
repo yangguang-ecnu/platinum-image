@@ -28,6 +28,7 @@
 #define __histo2D_tool__
 
 #include "viewporttool.h"
+
 class FLTKuserIOpar_histogram2D;
 class threshold_overlay;
 

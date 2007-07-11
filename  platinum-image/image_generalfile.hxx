@@ -305,7 +305,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(string dir
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::save_image_to_VTK_file(string file_path)
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const string file_path)
     {
     //replicate image to ITK image and save it as VTK file
 

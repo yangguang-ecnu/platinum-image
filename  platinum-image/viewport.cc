@@ -17,17 +17,17 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-//#include "viewport.h"
-
 #include <FL/Fl_Toggle_Button.H>
 #include <FL/Fl_Light_Button.H>
 #include <FL/Fl_Pack.H>
 #include <FL/Fl_Scroll.H>
-
 #include <FL/Fl_Tile.H>
 #include <FL/Fl_Box.H>
 #include <FL/Enumerations.H>
 
+#include "histo2D_tool.h"
+#include "histogram.h"
+#include "FLTKuserIOparameters.h"
 #include "viewmanager.h"
 #include "rendermanager.h"
 #include "datamanager.h"

@@ -132,7 +132,7 @@ class image_general : public image_storage <ELEMTYPE >
 		Vector3D get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos);	//truncation is performed in this function.
 
         // *** element access methods ***
-        ELEMTYPE get_voxel(int x, int y, int z=0);
+        ELEMTYPE get_voxel(int x, int y, int z=0) const;
         ELEMTYPE get_voxel_in_physical_pos(Vector3D phys_pos);  
         ELEMTYPE get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos);  
 		ELEMTYPE get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1, float w2, float w3, float w4);
@@ -140,10 +140,10 @@ class image_general : public image_storage <ELEMTYPE >
 
 		Vector3D get_physical_pos_for_voxel(int x, int y, int z);
 
-        RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>);
+        RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>) const;
         //const RGBvalue get_display_voxel(int x, int y, int z=0);
         //unsigned char get_display_voxel(int x, int y, int z=0);  
-        virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0);
+        virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
 
         ELEMTYPE get_voxel_by_dir(int u, int v, int w, int direction=2);
 
@@ -153,7 +153,7 @@ class image_general : public image_storage <ELEMTYPE >
 
 		
         //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
-        float get_number_voxel(int x, int y, int z);
+        float get_number_voxel(int x, int y, int z) const;
 
         void set_voxel(int x, int y, int z, ELEMTYPE voxelvalue);
         //void set_voxel(unsigned long offset, ELEMTYPE); //deprecated: use iterator!
@@ -167,7 +167,7 @@ class image_general : public image_storage <ELEMTYPE >
 		void resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image);
         
         // *** size functions ***
-        unsigned short get_size_by_dim(int dim);
+        unsigned short get_size_by_dim(int dim) const;
         unsigned short get_size_by_dim_and_dir(int dim, int direction); //! get size in direction orthogonal to direction arg
         bool same_size (image_base * other);    //test whether other image
                                                 //has same voxel dimensions
@@ -189,7 +189,7 @@ class image_general : public image_storage <ELEMTYPE >
         void load_dataset_from_VTK_file(std::string file_path);
         void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier);
 
-        void save_image_to_VTK_file(std::string file_path);
+        void save_to_VTK_file(const std::string file_path);
 
 		void set_geometry(float ox,float oy,float oz,float dx,float dy,float dz,float fi_x,float fi_y,float fi_z);
         bool get_geometry_from_dicom_file(std::string dcm_file);

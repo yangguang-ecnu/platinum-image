@@ -413,7 +413,7 @@ void  image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader()
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_size_by_dim(int dim)
+unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_size_by_dim(int dim) const
     {
     return datasize [dim];
     }
@@ -546,7 +546,7 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_integers_from_physical_
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
-ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z)
+ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z) const
     {
     return this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
     }
@@ -677,7 +677,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(unsigned long offset, ELEMTYPE
     }*/
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z)
+void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z) const
     {
     this->tfunction->get(get_voxel (x, y, z),val);
     //val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
@@ -700,7 +700,7 @@ unsigned char image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(int x, int y,
     }*/
 
 template <class ELEMTYPE, int IMAGEDIM>
-float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z)
+float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
     {
     return static_cast<float>(get_voxel (x, y, z));
     }

@@ -48,7 +48,7 @@ class data_base
         void name_from_path(std::string filepath);   //sets image name from name portion of path
     
         data_base ();
-        data_base (data_base *);
+        data_base (data_base * const);
     public:
         virtual ~data_base();
 
@@ -65,8 +65,18 @@ class data_base
             { return ID<k.ID; }
         bool virtual operator>(const data_base &k)
             { return ID>k.ID; }
+        /*friend std::istream &operator>>(std::istream &in, image_base &k)
+            { in >> k.ID; return in; }*/
+        friend std::ostream &operator<<(std::ostream &ut, const data_base &k)
+            {
+            ut << "data_base" << "\"" << k.name() << "\" (ID " << k.ID << ")";
+            return ut;
+            }
 
         virtual void redraw () = 0;
+        
+        int get_id()
+            { return ID; }
 
         // *** Metadata ***
         
@@ -74,7 +84,7 @@ class data_base
         Matrix3D direction;
 
         virtual void name (const std::string n);          //set name
-        virtual const std::string name ();          //get name
+        virtual const std::string name () const;          //get name
         
         bool get_origin_from_dicom_file(std::string dcm_file);
 		bool get_direction_from_dicom_file(std::string dcm_file);
@@ -82,6 +92,7 @@ class data_base
 
         bool from_file();
         void from_file(bool f); //set "from file" status
+        virtual void save_to_VTK_file (const std::string) = 0;
     };
 
 #endif
