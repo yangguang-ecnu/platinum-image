@@ -5,8 +5,7 @@
 
 (Try to follow these guidelines where applicable. See also [PlatformIndependence] for coding guidelines to ease the cross-platform divide)
 
-
-== Header file structure (.h) ==
+== Declaration file structure (.h) ==
 
 *private:*
 
@@ -22,9 +21,8 @@
 
 -Processing function
 
-== Body file structure (.cc .hxx) ==
+== Implementation file structure (.cc .hxx) ==
 For simplicity, implement functions in the same order as in header files.
-
 
 
 
