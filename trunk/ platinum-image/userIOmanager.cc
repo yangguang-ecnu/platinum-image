@@ -46,15 +46,18 @@ void userIOmanager::show_message (std::string name, std::string message, display
     switch (method)
         {
         case block:
+			{
             int uioid = add_userIO (name,NULL,"");
             
             add_par_message(uioid,"",message);
             finish_userIO(uioid);
             break;
-            
+			}
         case status:
+			{
             status_area->message(message);
             break;
+			}
         }
 }
 
