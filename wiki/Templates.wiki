@@ -43,4 +43,4 @@ Several examples of specifying type and requesting using the casting functions c
 ==Include files==
 In Platinum, implementations of templated classes/functions are usually put in .hxx file, with accompanying declarations in a .h file. In a similar pattern to .h/.cc file, the .h file is included in the .hxx and not the other way around. The purpose of separate .h/.hxx files is to allow a declaration of a templated class when classes are interdependent i.e. - the .h files of templated classes are to be included in other header files only.
 
-*NOTE:* to use a templated class defined with .h + .hxx files, you must include _only the .hxx file_. For example, to use the class [image_label], put `#include "image_label.hxx"` in the Platinum application code. 
+*NOTE:* to use a templated class defined with .h + .hxx files, you must include _only the .hxx file_. For example, to use the class [image_label], put `#include "image_label.hxx"` in the Platinum application code. Using the .h file for this purpose will result in undefined symbols when linking.
