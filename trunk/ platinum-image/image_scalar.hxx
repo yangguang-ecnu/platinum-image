@@ -15,6 +15,11 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#ifndef __image_scalar_hxx__
+#define __image_scalar_hxx__
+
+#include "image_scalar.h"
+#include "image_general.hxx"
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_1storder_central_diff_3D(int direction)
@@ -310,3 +315,5 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scala
 		delete fxyz;
 	}
 */
+
+#endif

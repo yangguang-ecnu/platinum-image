@@ -2,12 +2,11 @@
 
 #include "bruker.h"
 
-#include "image_scalar.h"
+#include "fileutils.h"
+#include "image_scalar.hxx"
 #include "rawimporter.h"
 
-//#include <fstream>
-
-//#include "fileutils.h"
+//#include <iostream>
 
 brukerloader::brukerloader(std::vector<std::string> * f): imageloader(f)
 {
@@ -89,7 +88,7 @@ class brukertoken //! helper that reads one Bruker metadata token
         template <typename outType>
             outType value (int index = 0)
             {
-            istringstream s(values[index]);
+                std::istringstream s(values[index]);
             outType result;
             
             s >> result;
@@ -102,7 +101,7 @@ class brukertoken //! helper that reads one Bruker metadata token
     };
 
 template <>
-string brukertoken::value (int index)
+std::string brukertoken::value (int index)
     {
         return values[index];
     }
@@ -192,8 +191,8 @@ image_base * brukerloader::read()
         std::string rname = *reconstruction + "reco";
         std::string d3name = *reconstruction + "d3proc";
 
-        std::ifstream reco (std::string(*reconstruction + "reco").c_str(),ios::in);
-        std::ifstream d3proc (d3name.c_str(),ios::in);
+        std::ifstream reco (std::string(*reconstruction + "reco").c_str(),std::ios::in);
+        std::ifstream d3proc (d3name.c_str(),std::ios::in);
 
         if (reco.is_open() && d3proc.is_open())
             {
@@ -247,7 +246,7 @@ image_base * brukerloader::read()
             bigEndian =tokens ["RECO_byte_order"].value<std::string>() != "littleEndian";
 
             //parse the wordtype string
-            istringstream byteOrderString (tokens ["RECO_wordtype"].value<std::string>());
+            std::istringstream byteOrderString (tokens ["RECO_wordtype"].value<std::string>());
 
             byteOrderString.ignore(1);
 

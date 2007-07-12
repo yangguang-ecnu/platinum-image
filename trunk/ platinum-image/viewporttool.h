@@ -27,11 +27,14 @@
 #ifndef __veiewporttool__
 #define __veiewporttool__
 
-#include "image_base.h"
 #include "event.h"
 
 #include <FL/Fl_Output.H>
+#include <FL/Fl_Button.H>
 
+#include <map>
+
+class image_base;
 class viewport;
 class renderer_base;
 class statusarea;

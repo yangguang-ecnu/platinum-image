@@ -41,7 +41,7 @@
 
 #include "global.h"
 
-#include "image_label.h"
+#include "image_binary.hxx"
 
 //inclusions related to histogram segmentation project
 #include "itkBinaryBallStructuringElement.h" 

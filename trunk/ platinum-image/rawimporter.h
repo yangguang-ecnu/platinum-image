@@ -30,9 +30,10 @@
 #include <string>
 #include <vector>
 
-#include "image_base.h"
+class image_base;
 
 #include "global.h"
+#include "ptmath.h"
 
 enum image_load_mode {
     undefined,

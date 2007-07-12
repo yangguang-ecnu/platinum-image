@@ -33,6 +33,9 @@
 
 #include "global.h"
 
+#include <FL/Fl_Pack.H>
+#include <FL/Fl_Menu_Button.H>
+
 class threshold_overlay;
 class thresholdparvalue;
 

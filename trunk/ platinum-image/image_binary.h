@@ -28,9 +28,6 @@
 #ifndef __image_binary__
 #define __image_binary__
 
-#define TRUE 1
-#define FALSE 0
-
 #include "image_integer.h"
 
 template<int IMAGEDIM = 3>
@@ -83,8 +80,7 @@ class image_binary : public image_label <IMAGEDIM>
     image_integer<short, IMAGEDIM> * distance_345_3D(bool edge_is_object=false, IMGBINARYTYPE object_value=TRUE); ///Compute 345 chamfer distance map. If edge_is_object=true then everything outside the image is regarded to be object voxels.
     };
 
-//with C++ templates, declaration and definition go together
-#include "image_binary.hxx"
-#include "image_binaryprocess.hxx"
+template <int DIM>
+image_binary<DIM>* binary_copycast (image_base* input); //! Converts might-be binary types into image_binary
 
 #endif

@@ -17,13 +17,21 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#ifndef __transfer_hxx__
+#define __transfer_hxx__
+
+#include "transfer.h"
+
+#include "datawidget.h"
+#include "transfer_interpolated.hxx"
+
 #include <sstream>
 
 template <class ELEMTYPE >
 transfer_base<ELEMTYPE >::transfer_base (image_storage<ELEMTYPE > * s)
     {
     source=s;
-    pane = source->widget->reset_tf_controls();
+    pane = pt_error::error_if_null(                                   dynamic_cast<datawidget<image_base>*>(source->widget)->reset_tf_controls(),"Trying to reset_tf_controls on widget of other type than datawidget<image_base>",pt_error::fatal);
     }
 
 template <class ELEMTYPE >
@@ -289,3 +297,5 @@ void transfer_default<ELEMTYPE >::update()
     label = templ_to_string (this->source->get_max());
     white->copy_label(label.c_str());
     }
+
+#endif

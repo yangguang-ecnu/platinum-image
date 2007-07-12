@@ -24,6 +24,8 @@
 
 #include "platinumprogram.h"
 
+#include "FLTKviewport.h"; //for VPT_TEST
+
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Box.H>
@@ -208,7 +210,9 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
         int dummyX = userIOmanagement.status_area->x();
     int dummyW = userIOmanagement.status_area->w();
     
+#ifndef VPT_TEST
     toolsNstatus->deactivate();
+#endif
     
     window.resizable(viewsNlists);
     }

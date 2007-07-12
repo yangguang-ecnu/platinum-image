@@ -72,7 +72,7 @@ ELEMTYPE * load_pixels (unsigned long &num_elements,std::vector<std::string> fil
     num_elements = 0;
 
     //unsigned long sliceSize = width * height;
-    string dirname;
+    std::string dirname;
     image_load_mode mode = undefined;
     
     //TODO: start & increment values
@@ -83,7 +83,7 @@ ELEMTYPE * load_pixels (unsigned long &num_elements,std::vector<std::string> fil
         {
         if (files.size() == 1)
             {
-            string dirpath = files.front();
+            std::string dirpath = files.front();
 
             if (S_ISDIR(fileStats.st_mode))
                 {
@@ -130,7 +130,7 @@ ELEMTYPE * load_pixels (unsigned long &num_elements,std::vector<std::string> fil
         
         //initialize_dataset(width, height, depth);
         
-        ifstream stackFile (files.front().c_str(), ios::in | ios::binary);
+        std::ifstream stackFile (files.front().c_str(), std::ios::in | std::ios::binary);
         stackFile.seekg (headerSize);
         
         stackFile.read (reinterpret_cast<FILEPOSTYPE*>(writepointer), sizeof (ELEMTYPE) * num_elements);
@@ -150,7 +150,7 @@ ELEMTYPE * load_pixels (unsigned long &num_elements,std::vector<std::string> fil
         while (fileItr != files.end() && writepointer < (output + num_elements))
             {
             //Multiple files, each containing one slice
-            ifstream imageFile ((*fileItr).c_str(), ios::in | ios::binary);
+            std::ifstream imageFile ((*fileItr).c_str(), std::ios::in | std::ios::binary);
             
             if (imageFile.good()) //check that everything is OK for reading
                 {
@@ -220,7 +220,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(string dir_path,string seriesIdentifier)
+void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier)
     {  
     typedef itk::GDCMSeriesFileNames                NamesGeneratorType;
 
@@ -252,7 +252,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(string dir
         }
     catch (itk::ExceptionObject &ex)
         {
-        cout<<ex<<endl;
+        std::cout<<ex<<std::endl;
         }
 
     image = reader->GetOutput();
@@ -305,7 +305,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(string dir
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const string file_path)
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_path)
     {
     //replicate image to ITK image and save it as VTK file
 

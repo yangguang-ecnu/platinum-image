@@ -15,6 +15,12 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#ifndef __image_integer_hxx__
+#define __image_integer_hxx__
+
+#include "image_integer.h"
+#include "image_scalar.hxx"
+
 // *** Processing ***
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -2604,3 +2610,5 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 		}
 	return totdiff>0;
 	}
+
+#endif

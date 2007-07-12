@@ -17,9 +17,15 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#ifndef __image_binary_hxx__
+#define __image_binary_hxx__
+
+#include "image_binary.h"
+#include "image_label.hxx"
+
 template <int DIM>
-image_binary<DIM>* binary_copycast (image_base* input) //! Converts might-be binary types into image_binary
-    {
+image_binary<DIM>* binary_copycast (image_base* input) 
+{
     image_binary<DIM > * output = NULL;
 
         {
@@ -281,3 +287,7 @@ void image_binary<IMAGEDIM>::invert()
         }
 	//this->image_has_changed();
     } 
+
+#include "image_binaryprocess.hxx"
+
+#endif

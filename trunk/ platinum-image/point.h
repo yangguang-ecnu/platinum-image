@@ -29,7 +29,7 @@
 
 #include "point_base.h"
 
-class point : public points
+class point : public point_collection
 {
 public:
     point();

@@ -17,15 +17,21 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "image_base.h"
+//#include "image_base.h"
+#include "datawidget.h"
 
 #include "bruker.h"
+
+#include "image_label.hxx"
+#include "image_complex.hxx"
+
+//#include "itkVTKImageIO.h"
+//#include "fileutils.h"
 
 using namespace std;
 
 //#include "fileutils.h"
-#include "image_integer.h"
-#include "image_complex.h"
+//#include "image_integer.hxx"
 #include "viewmanager.h"
 #include "datamanager.h"
 #include "rendermanager.h"
@@ -59,7 +65,7 @@ void image_base::set_parameters ()
     //constructor: add "Untitled" name and ID
     namestream << "3D image (" << ID << ")";
 
-    widget=new datawidget(this,namestream.str());
+    widget=new datawidget<image_base>(this,namestream.str());
     name(namestream.str());
     }
 

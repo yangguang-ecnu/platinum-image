@@ -29,20 +29,9 @@ extern datamanager datamanagement;
 extern rendermanager rendermanagement;
 extern uchar *animage; //defined in datamanager.cc
 
-const int datawidget::thumbnail_size = 128;
+const int datawidget_base::thumbnail_size = 128;
 
-void datawidget::cb_transferswitch(Fl_Widget* o, void* v) {
-    transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(v);
-
-    //Each item has space for a callback function and an argument for that function. Due to back compatability, the Fl_Menu_Item itself is not passed to the callback, instead you have to get it by calling  ((Fl_Menu_*)w)->mvalue()  where w is the widget argument.
-
-    const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
-    
-    /*transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(item->user_data());*/
-
-    par->switch_tf();
-    const_cast<Fl_Menu_Item *>(item)->setonly();
-    }
+#pragma mark transferfactory statics
 
 transferfactory::tf_menu_params::tf_menu_params (const std::string t,image_base * i)
     {
@@ -64,39 +53,38 @@ void transferfactory::tf_menu_params::switch_tf()
     image->transfer_function(type);
     }
 
+#pragma mark datawidget_base
+
 // *** begin FLUID ***
 
-void datawidget::cb_filenamebutton_i(Fl_Input*, void*) {
-  datamanagement.set_image_name(image_id,string(filenamebutton->value()));
+void datawidget_base::cb_filenamebutton_i(Fl_Input*, void*) {
+  datamanagement.set_image_name(data_id,string(datanamebutton->value()));
 }
-void datawidget::cb_filenamebutton(Fl_Input* o, void* v) {
-  ((datawidget*)(o->parent()->parent()))->cb_filenamebutton_i(o,v);
+void datawidget_base::cb_filenamebutton(Fl_Input* o, void* v) {
+  ((datawidget_base*)(o->parent()->parent()))->cb_filenamebutton_i(o,v);
 }
 
-Fl_Menu_Item datawidget::menu_featuremenu[] = {
+const Fl_Menu_Item datawidget_base::menu_featuremenu_base[] = {
  {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
- {"Save as VTK...", 0,  (Fl_Callback*)datamanager::save_vtk_image_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save as VTK...", 0,  (Fl_Callback*)datamanager::save_vtk_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Duplicate", 0,  0, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
- {"Transfer function", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
- {"Show/hide", 0,  (Fl_Callback*)toggle_tfunction, 0, 128, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0}
 };
-Fl_Menu_Item* datawidget::remove_mi = datawidget::menu_featuremenu + 0;
-Fl_Menu_Item* datawidget::save_vtk_mi = datawidget::menu_featuremenu + 1;
-Fl_Menu_Item* datawidget::duplicate_mi = datawidget::menu_featuremenu + 2;
-Fl_Menu_Item* datawidget::tfunctionmenu = datawidget::menu_featuremenu + 3;
-Fl_Menu_Item* datawidget::transferfunction_mi = datawidget::menu_featuremenu + 4;
+
+/*Fl_Menu_Item* datawidget_base::remove_mi = datawidget_base::menu_featuremenu + 0;
+Fl_Menu_Item* datawidget_base::save_vtk_mi = datawidget_base::menu_featuremenu + 1;
+Fl_Menu_Item* datawidget_base::duplicate_mi = datawidget_base::menu_featuremenu + 2;*/
 
 // *** custom constructor declared in FLUID: ***
 
-datawidget::datawidget(image_base * im, std::string n):Fl_Pack(0,0,270,130,NULL) {
-    image_id = im->get_id();
+datawidget_base::datawidget_base(data_base * d, std::string n):Fl_Pack(0,0,270,130,NULL) {
+    data_id = d->get_id();
     thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];
 
     // *** resume FLUID inits ***
 
-    datawidget *o = this;
+    datawidget_base *o = this;
     o->box(FL_THIN_DOWN_FRAME);
     o->color(FL_BACKGROUND_COLOR);
     o->selection_color(FL_BACKGROUND_COLOR);
@@ -108,7 +96,7 @@ datawidget::datawidget(image_base * im, std::string n):Fl_Pack(0,0,270,130,NULL)
     o->when(FL_WHEN_RELEASE);
         { Fl_Pack* o = hpacker = new Fl_Pack(0, 0, 270, 25);
         o->type(1);
-            { Fl_Input* o = filenamebutton = new Fl_Input(0, 0, 240, 25);
+            { Fl_Input* o = datanamebutton = new Fl_Input(0, 0, 240, 25);
             o->color(FL_LIGHT1);
             o->callback((Fl_Callback*)cb_filenamebutton, (void*)(this));
             o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
@@ -117,12 +105,9 @@ datawidget::datawidget(image_base * im, std::string n):Fl_Pack(0,0,270,130,NULL)
             { Fl_Menu_Button* o = featuremenu = new Fl_Menu_Button(240, 0, 30, 25);
             o->box(FL_THIN_UP_BOX);
             o->user_data((void*)(this));
-                { Fl_Menu_Item* o = &menu_featuremenu[3];
-                setup_transfer_menu (o,im);
-                }
-            o->menu(menu_featuremenu);
+            o->menu(NULL);
             }
-        resizable(filenamebutton);
+        resizable(datanamebutton);
         o->end();
         }
         { Fl_Box* o = thumbnail = new Fl_Box(0, 25, 270, 65);
@@ -132,13 +117,6 @@ datawidget::datawidget(image_base * im, std::string n):Fl_Pack(0,0,270,130,NULL)
         image( NULL);
         }
         { Fl_Pack* o = extras = new Fl_Pack(0, 90, 270, 40);
-        { Fl_Group* o = tfunction_ = new Fl_Group(0, 90, 270, 40);
-        o->box(FL_EMBOSSED_FRAME);
-        o->labelsize(11);
-        o->align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-        o->hide();
-        o->end();
-        }
     o->end();
         }
     type(VERTICAL);
@@ -150,10 +128,140 @@ datawidget::datawidget(image_base * im, std::string n):Fl_Pack(0,0,270,130,NULL)
 
 // *** end FLUID ***
 
-void datawidget::setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im) {
+datawidget_base::~datawidget_base ()
+    {
+    datamanagement.remove_datawidget(this);
+
+    delete image();
+    image(NULL);
+
+    if (thumbnail_image != NULL)
+        {delete [] thumbnail_image;}
+    }
+
+void datawidget_base::refresh_thumbnail ()
+    {
+    rendermanagement.render_thumbnail(thumbnail_image, thumbnail_size, thumbnail_size, data_id);
+    }
+
+int datawidget_base::get_data_id() const
+    {
+    return data_id;
+    }
+
+const string datawidget_base::name() const
+    {
+    return std::string(_name);
+    }
+
+void datawidget_base::name(std::string n)
+    {
+    _name.assign(n);
+
+    //datanamebutton->value(NULL);
+    //((Fl_Input *)datanamebutton)->value(n.c_str());
+    datanamebutton->value(_name.c_str());
+
+    //when interactively changed, redrawing widget is
+    //done elsewhere (most notably in datamanagement.set_image_name( ... )
+    }
+
+void datawidget_base::from_file(bool f)
+    {
+    fromFile = f;
+    }
+
+bool datawidget_base::from_file() const
+    {
+    return fromFile;
+    }
+
+#pragma mark datawidget<image_base>
+
+const Fl_Menu_Item datawidget<image_base>::tfunctionmenu = {"Transfer function", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0};
+const Fl_Menu_Item datawidget<image_base>::transferfunction_mi = {"Show/hide", 0,  (Fl_Callback*)toggle_tfunction, 0, 128, FL_NORMAL_LABEL, 0, 14, 0};
+
+datawidget<image_base>::datawidget(image_base* im, std::string n): datawidget_base (im,n)
+{
+    { Fl_Group* o = tfunction_ = new Fl_Group(0, 90, 270, 40);
+        o->box(FL_EMBOSSED_FRAME);
+        o->labelsize(11);
+        o->align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+        o->hide();
+        o->end();
+    }
+    extras->add(tfunction_);
+   
+    int fMenuSize = fl_menu_size (menu_featuremenu_base);
+    menu_featuremenu_plustf = new Fl_Menu_Item[fMenuSize+1+1];
+    
+    //Fl_Menu_Item * tfunctions = transfer_manufactured::factory.function_menu(static_cast<Fl_Callback*>(cb_transferswitch));
+
+    for (int fmenuindex = 0; fmenuindex < fMenuSize ; fmenuindex++)
+        {        
+        menu_featuremenu_plustf [fmenuindex] = menu_featuremenu_base[fmenuindex];
+        }
+    
+    menu_featuremenu_plustf[fMenuSize] = tfunctionmenu;
+    //setup_transfer_menu (menu_featuremenu_plustf[fMenuSize],im);
+
+    {
+        Fl_Menu_Item showhide_item;
+        const int TFSUBNUMHEADITEMS = 1;
+        
+        showhide_item.label("Show/hide");
+        showhide_item.shortcut (0);
+        showhide_item.callback(static_cast<Fl_Callback*>(toggle_tfunction));
+        showhide_item.user_data(NULL);
+        showhide_item.flags = 128;
+        showhide_item.labeltype(FL_NORMAL_LABEL);
+        showhide_item.labelfont(0);
+        showhide_item.labelsize(14);
+        showhide_item.labelcolor(0);
+        
+        Fl_Menu_Item * tfunctions = transfer_manufactured::factory.function_menu(static_cast<Fl_Callback*>(cb_transferswitch));
+        
+        int subMenuSize = TFSUBNUMHEADITEMS+fl_menu_size (tfunctions);
+        
+        tfunction_submenu = new Fl_Menu_Item [subMenuSize+1];
+        
+        tfunction_submenu[0] = showhide_item;
+        
+        for (int i = TFSUBNUMHEADITEMS; i < subMenuSize ; i++)
+            {
+            int fmenuindex = i-TFSUBNUMHEADITEMS;
+            
+            tfunction_submenu [i] = tfunctions[fmenuindex];
+            
+            tfunction_submenu [i].user_data(new transferfactory::tf_menu_params (transferfactory::tf_name(fmenuindex), im ));
+            }
+        tfunction_submenu[subMenuSize].label(NULL);
+        tfunction_submenu[TFSUBNUMHEADITEMS].set();
+        
+        menu_featuremenu_plustf[fMenuSize].flags = FL_SUBMENU_POINTER;
+        menu_featuremenu_plustf[fMenuSize].user_data (tfunction_submenu);
+        
+        delete [] tfunctions;        
+    }
+    
+    menu_featuremenu_plustf[fMenuSize+1].label(NULL);
+    
+    featuremenu->menu(menu_featuremenu_plustf);
+    
+    deactivate(); //activated when the image is added to datamanager
+    }
+
+datawidget<image_base>::~datawidget()
+{
+    fl_menu_userdata_delete(tfunction_submenu);
+    delete [] menu_featuremenu_plustf;
+    delete [] tfunction_submenu;
+}
+
+void datawidget<image_base>::setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im) {
     Fl_Menu_Item showhide_item;
     const int TFSUBNUMHEADITEMS = 1;
-
+    
     showhide_item.label("Show/hide");
     showhide_item.shortcut (0);
     showhide_item.callback(static_cast<Fl_Callback*>(toggle_tfunction));
@@ -163,43 +271,59 @@ void datawidget::setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im)
     showhide_item.labelfont(0);
     showhide_item.labelsize(14);
     showhide_item.labelcolor(0);
-
+    
     Fl_Menu_Item * tfunctions = transfer_manufactured::factory.function_menu(static_cast<Fl_Callback*>(cb_transferswitch));
-
+    
     int subMenuSize = TFSUBNUMHEADITEMS+fl_menu_size (tfunctions);
-
+    
     tfunction_submenu = new Fl_Menu_Item [subMenuSize+1];
-
+    
     tfunction_submenu[0] = showhide_item;
-
+    
     for (int i = TFSUBNUMHEADITEMS; i < subMenuSize ; i++)
         {
         int fmenuindex = i-TFSUBNUMHEADITEMS;
-
+        
         tfunction_submenu [i] = tfunctions[fmenuindex];
-
+        
         tfunction_submenu [i].user_data(new transferfactory::tf_menu_params (transferfactory::tf_name(fmenuindex), im ));
         }
     tfunction_submenu[subMenuSize].label(NULL);
     tfunction_submenu[TFSUBNUMHEADITEMS].set();
-
+    
     submenuitem->flags = FL_SUBMENU_POINTER;
     submenuitem->user_data (tfunction_submenu);
-
+    
     delete [] tfunctions;
-    }
+}
 
-Fl_Group * datawidget::reset_tf_controls()
-    {
+Fl_Group * datawidget<image_base>::reset_tf_controls()
+{
     tfunction_->clear();
     tfunction_->begin();
     return tfunction_;
-    }
+}
 
-void datawidget::toggle_tfunction(Fl_Widget* callingwidget, void*)
-    {
-    datawidget * the_datawidget=(datawidget *)(callingwidget->user_data());
+void datawidget<image_base>::cb_transferswitch(Fl_Widget* o, void* v) {
+    transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(v);
+    
+    //Each item has space for a callback function and an argument for that function. Due to back compatability, the Fl_Menu_Item itself is not passed to the callback, instead you have to get it by calling  ((Fl_Menu_*)w)->mvalue()  where w is the widget argument.
+    
+    const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
+    
+    /*transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(item->user_data());*/
+    
+    par->switch_tf();
+    const_cast<Fl_Menu_Item *>(item)->setonly();
+}
 
+void datawidget<image_base>::toggle_tfunction(Fl_Widget* callingwidget, void*)
+{
+    //datawidget_base * the_datawidget_base=reinterpret_cast<datawidget_base *>(callingwidget->user_data());
+    datawidget<image_base> * the_datawidget = dynamic_cast<datawidget<image_base> * >(reinterpret_cast<datawidget_base *>(callingwidget->user_data()));
+    
+    pt_error::error_if_null(the_datawidget,"toggle_tfunction called with datawidget type not being datawidget<image_base>",pt_error::fatal);
+    
     if (the_datawidget->tfunction_->visible())
         {
         the_datawidget->tfunction_->hide();
@@ -209,56 +333,13 @@ void datawidget::toggle_tfunction(Fl_Widget* callingwidget, void*)
         the_datawidget->extras->size(the_datawidget->extras->w(),the_datawidget->extras->h()+the_datawidget->tfunction_->h());
         the_datawidget->tfunction_->show();
         }
-
+    
     the_datawidget->parent()->parent()->redraw();
-    }
+}
 
-datawidget::~datawidget ()
-    {
-    datamanagement.remove_datawidget(this);
+#pragma mark datawidget<point_collection>
 
-    delete image();
-    image(NULL);
-
-    fl_menu_userdata_delete(tfunction_submenu);
-    delete [] tfunction_submenu;
-
-    delete [] thumbnail_image;
-    }
-
-void datawidget::refresh_thumbnail ()
-    {
-    rendermanagement.render_thumbnail(thumbnail_image, thumbnail_size, thumbnail_size, image_id);
-    }
-
-int datawidget::get_image_id()
-    {
-    return image_id;
-    }
-
-const string datawidget::name()
-    {
-    return std::string(_name);
-    }
-
-void datawidget::name(std::string n)
-    {
-    _name.assign(n);
-
-    //filenamebutton->value(NULL);
-    //((Fl_Input *)filenamebutton)->value(n.c_str());
-    filenamebutton->value(_name.c_str());
-
-    //when interactively changed, redrawing widget is
-    //done elsewhere (most notably in datamanagement.set_image_name( ... )
-    }
-
-void datawidget::from_file(bool f)
-    {
-    fromFile = f;
-    }
-
-bool datawidget::from_file()
-    {
-    return fromFile;
-    }
+datawidget<point_collection>::datawidget (point_collection* p, std::string n): datawidget_base (p,n)
+{
+    featuremenu->menu(menu_featuremenu_base);
+}

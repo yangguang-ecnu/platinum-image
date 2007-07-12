@@ -19,6 +19,16 @@
 
 #define TFUNCTIONTEST transfer_default
 
+#ifndef __image_storage_hxx__
+#define __image_storage_hxx__
+
+#include "image_storage.h"
+
+#include "transfer.hxx"
+#include "histogram.hxx"
+#include "transfer_interpolated.hxx"
+#include "image_storage_iterator.hxx"
+
 template <class fromType, class toType>
 void copy_data(image_storage<fromType > * const in,image_storage<toType > * out) //!General data copying
     {
@@ -259,4 +269,4 @@ void image_storage<ELEMTYPE >::min_max_refresh()
         }
     }
 
-
+#endif

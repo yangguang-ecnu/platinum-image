@@ -17,6 +17,9 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#ifndef __transfer_interpolated_hxx__
+#define __transfer_interpolated_hxx__
+
 // *** transferchart ***
 
 template <class ELEMTYPE>
@@ -402,3 +405,5 @@ void transfer_spline<ELEMTYPE >::transferchart_spline::update ()
 	//redraw to show changes
 	this->redraw();
 }
+
+#endif

@@ -74,46 +74,11 @@ ENDIF(BUILD_SHARED)
 
 LINK_DIRECTORIES (${Platinum_BINARY_DIR})
 
-IF(APPLE)
-#    #files must be copied post-build
-#    ADD_CUSTOM_COMMAND(
-#      TARGET ptgraphics POST_BUILD
-#      COMMAND mkdir ARGS ptgraphics
-#      WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/PlatinumTest.app/Contents/Resources
-#      )
-#   ADD_CUSTOM_COMMAND(
-#      TARGET ptgraphics/ POST_BUILD
-#      COMMAND cp ARGS ${Platinum_SOURCE_DIR}/Graphics/*
-#      WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/PlatinumTest.app/Contents/Resources )
-  INSTALL(DIRECTORY Resources/Icons DESTINATION ${EXECUTABLE_OUTPUT_PATH}/PlatinumTest.app/Contents/Resources/Graphics )
-ELSE (APPLE)
-#  IF (WIN32)
-#    ADD_CUSTOM_COMMAND(
-#        OUTPUT ptgraphics
-#        COMMAND mkdir ARGS ptgraphics
-#        WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
-#        )
-#        ADD_CUSTOM_COMMAND(
-#        OUTPUT ptgraphics/
-#        COMMAND copy ARGS ${Platinum_SOURCE_DIR}/Graphics/*
-#        WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
-#        )
-#  ENDIF(WIN32)
-#  IF(UNIX)
-#    #assumes that shared library and executable ends up in the same place
-#    ADD_CUSTOM_COMMAND(
-#        OUTPUT ptgraphics
-#        COMMAND mkdir ARGS ptgraphics
-#        WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
-#        )
-#    ADD_CUSTOM_COMMAND(
-#        OUTPUT ptgraphics/
-#        COMMAND cp ARGS ${Platinum_SOURCE_DIR}/Graphics/*
-#        WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
-#        )
-#  ENDIF(UNIX)
-  INSTALL(DIRECTORY Resources/Icons DESTINATION ${EXECUTABLE_OUTPUT_PATH}/Resources/Graphics )
-ENDIF(APPLE)
+#IF(APPLE)
+#  INSTALL(DIRECTORY Resources/Icons DESTINATION ${EXECUTABLE_OUTPUT_PATH}/PlatinumTest.app/Contents/Resources/Graphics )
+#ELSE (APPLE)
+#  INSTALL(DIRECTORY Resources/Icons DESTINATION ${EXECUTABLE_OUTPUT_PATH}/Resources/Graphics )
+#ENDIF(APPLE)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Debug CACHE STRING

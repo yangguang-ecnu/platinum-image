@@ -10,7 +10,7 @@ widget_class {datamanagement.add_datawidget(this);} datawidget {open
   code3 {datamanagement.add_datawidget(this);}
   class Fl_Pack visible
 } {
-  decl {int image_id;} {}
+  decl {int data_id;} {}
   decl {const static int thumbnail_size;} {}
   decl {uchar * thumbnail_image;} {}
   decl {std::string _name;} {}
@@ -19,7 +19,7 @@ widget_class {datamanagement.add_datawidget(this);} datawidget {open
   } {
     comment {to make a widget for other types of data, i.e. point, simply overload constructor taking an object of the type in question} {not_in_source in_header
     }
-    code {image_id = id;
+    code {data_id = id;
 thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
   }
   Function {change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);} {return_type {static void}
@@ -28,7 +28,7 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
   } {}
   Function {toggle_tfunction(Fl_Widget* callingwidget, void*)} {open return_type {static void}
   } {}
-  Function {setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im)} {open selected return_type void
+  Function {setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im)} {open return_type void
   } {}
   Function {tfunction(Fl_Group * t);} {open return_type void
   } {}
@@ -54,27 +54,27 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
         label Remove
         user_data {&datamanagement}
         callback {datamanager::removedata_callback}
-        xywh {5 5 100 20} labelsize 14
+        xywh {5 5 100 20}
       }
       MenuItem save_vtk_mi {
         label {Save as VTK...}
         user_data {&datamanagement}
         callback {datamanager::save_vtk_image_callback}
-        xywh {5 5 100 20} labelsize 14
+        xywh {5 5 100 20}
       }
       MenuItem duplicate_mi {
         label Duplicate
-        xywh {5 5 100 20} labelsize 14 deactivate
+        xywh {5 5 100 20} deactivate
       }
       Submenu tfunctionmenu {
         label {Transfer function} open
-        xywh {0 0 100 20} labelsize 14
+        xywh {0 0 100 20}
         code0 {setup_transfer_menu (o,im);}
       } {
         MenuItem transferfunction_mi {
           label {Show/hide}
           callback toggle_tfunction
-          xywh {10 10 100 20} labelsize 14 divider
+          xywh {10 10 100 20} divider
         }
       }
     }
@@ -90,5 +90,10 @@ thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];} {}
     Fl_Group tfunction_ {open
       private xywh {0 90 270 40} box EMBOSSED_FRAME labelsize 11 align 16 hide
     } {}
+  }
+  Function {datawidget(points * pt, std::string n):Fl_Pack(0,0,270,130,NULL)} {open
+  } {
+    code {data_id = id;} {selected
+    }
   }
 } 

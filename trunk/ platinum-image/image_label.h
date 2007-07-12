@@ -65,7 +65,7 @@ class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
         }
     };
 
-//with C++ templates, declaration and definition go together
-#include "image_label.hxx"
+template <int IMAGEDIM>
+image_label<IMAGEDIM>* label_copycast (image_base* const input);
 
 #endif

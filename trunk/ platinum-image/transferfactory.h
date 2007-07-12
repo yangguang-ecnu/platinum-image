@@ -28,6 +28,8 @@
 #ifndef __transferfactory__
 #define __transferfactory__
 
+#include "listedfactory.h"
+
 template <class ELEMTYPE >
 class image_storage;
 

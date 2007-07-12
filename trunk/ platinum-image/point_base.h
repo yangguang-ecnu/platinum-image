@@ -28,12 +28,12 @@
 
 #include "data_base.h"
 
-class points : public data_base
+class point_collection : public data_base
     {
 public:
         typedef std::vector <Vector3D> pointStorage;
 protected:
-        points();
+        point_collection();
         
         pointStorage thePoints;
 public:
