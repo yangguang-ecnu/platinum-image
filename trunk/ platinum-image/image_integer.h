@@ -57,6 +57,7 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
 		bool row_sum_threshold(int* res, ELEMTYPE low_thr, ELEMTYPE high_thr, int row_direction=0, int z_direction=2, int first_slice=-1, int last_slice=-1); ///Compute optimal split level for each slice
         ELEMTYPE gauss_fit2(); ///Compute optimal threshold value by fitting two gaussian distributions to the histogram.
         ELEMTYPE otsu(); ///Compute optimal threshold value by Otsu¥s method.
+		std::vector<ELEMTYPE> k_means(int n_means);
 
         ELEMTYPE components_hist_3D(); ///Compute optimal threshold value by computing a number of components histogram.
         image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, IMGBINARYTYPE object_value=TRUE, bool regionGrow=true); ///Computing a narrowest passage transform followed by competetive region growing. Assumes the current image to be a distance image and the mask image contains seedpoints for the target.

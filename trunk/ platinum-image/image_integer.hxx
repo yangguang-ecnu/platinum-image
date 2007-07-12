@@ -696,6 +696,96 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::otsu()
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
+std::vector<ELEMTYPE> image_integer<ELEMTYPE, IMAGEDIM>::k_means(int n_means)
+    {
+    std::vector<ELEMTYPE> res;
+	this->min_max_refresh();
+	ELEMTYPE min_val=this->get_min();
+	ELEMTYPE max_val=this->get_max();
+	double* hist=new double[1+max_val-min_val];
+	memset(hist, 0, sizeof(double)*(1+max_val-min_val));
+
+    typename image_storage<ELEMTYPE >::iterator iter = this->begin();
+    
+    while (iter != this->end()) //images are same size and should necessarily end at the same time
+        {
+        hist[*iter-min_val]++;
+        ++iter;
+        }
+
+	// K-Means variables
+	double* sums=new double[n_means];
+	double* counts=new double[n_means];
+	double* means=new double[n_means];
+	double* thresholds=new double[n_means+1];
+	double* newThresholds=new double[n_means+1];	
+	
+	//init thresholds
+	int usedLevels=0;
+	int i;
+	int j;
+	for(j=min_val; j<=max_val; j++)
+	{
+		if(hist[j-min_val]>0)
+			usedLevels++;
+	}
+	thresholds[0]=min_val;
+	double tempsum;
+	j=min_val;
+	for(i=1; i<n_means; i++)
+	{
+		tempsum=0;
+		while(tempsum<usedLevels/n_means && j<max_val)
+		{
+			if(hist[j-min_val]>0)
+				tempsum++;
+			j++;
+		}
+		thresholds[i]=j;
+	}
+	thresholds[n_means]=max_val+1;
+	int it=0;
+	int maxIt=100000;
+	bool changed=true;
+	while(changed && it<maxIt)
+		{
+		changed=false;
+		for(i=0; i<n_means; i++)
+			{	
+			sums[i]=0;
+			counts[i]=0;
+			for(j=thresholds[i]; j<thresholds[i+1]; j++)
+				{
+				counts[i]+=hist[j-min_val];
+				sums[i]+=hist[j-min_val]*j;
+				}
+			if(counts[i]>0)	
+				means[i]=(sums[i]/counts[i]);
+			else
+				means[i]=thresholds[i];
+			}
+	
+		newThresholds[0]=min_val;
+		for(i=1; i<n_means; i++)
+			{
+			newThresholds[i]=(means[i-1]+means[i])/2;
+			}
+		newThresholds[n_means]=max_val+1;
+		for(i=1; i<n_means; i++)
+			{
+			if(newThresholds[i]!=thresholds[i])
+				changed=true;
+			thresholds[i]=newThresholds[i];
+			}
+		it++;
+		}
+	for(i=1; i<n_means; i++)
+		res.push_back((ELEMTYPE)thresholds[i]);
+	delete[] hist;
+	return res;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::components_hist_3D()
     {
 	this->min_max_refresh();
@@ -1432,89 +1522,89 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 				}
 			if(n_diff==0)
 				{
-				//Test directions
-				bool hitTarget=false;
-				bool hitBkg=false;
+				////Test directions
+				//bool hitTarget=false;
+				//bool hitBkg=false;
 
-				//Left
-				x2=x-1;
-				while(!hitTarget && !hitBkg && x2>=low_x)
-					{
-					k=x2+max_x*(y+z*max_y);
-					if((*(output_iter+k))==class1)
-						hitTarget=true;
-					else if((*(output_iter+k))==bkg)
-						hitBkg=true;
-					x2--;
-					}
-				hitBkg=false;
+				////Left
+				//x2=x-1;
+				//while(!hitTarget && !hitBkg && x2>=low_x)
+				//	{
+				//	k=x2+max_x*(y+z*max_y);
+				//	if((*(output_iter+k))==class1)
+				//		hitTarget=true;
+				//	else if((*(output_iter+k))==bkg)
+				//		hitBkg=true;
+				//	x2--;
+				//	}
+				//hitBkg=false;
 
-				//Right
-				x2=x+1;
-				while(!hitTarget && !hitBkg && x2<high_x)
-					{
-					k=x2+max_x*(y+z*max_y);
-					if((*(output_iter+k))==class1)
-						hitTarget=true;
-					else if((*(output_iter+k))==bkg)
-						hitBkg=true;
-					x2++;
-					}
-				hitBkg=false;
+				////Right
+				//x2=x+1;
+				//while(!hitTarget && !hitBkg && x2<high_x)
+				//	{
+				//	k=x2+max_x*(y+z*max_y);
+				//	if((*(output_iter+k))==class1)
+				//		hitTarget=true;
+				//	else if((*(output_iter+k))==bkg)
+				//		hitBkg=true;
+				//	x2++;
+				//	}
+				//hitBkg=false;
 
-				//Up
-				y2=y-1;
-				while(!hitTarget && !hitBkg && y2>=low_y)
-					{
-					k=x+max_x*(y2+z*max_y);
-					if((*(output_iter+k))==class1)
-						hitTarget=true;
-					else if((*(output_iter+k))==bkg)
-						hitBkg=true;
-					y2--;
-					}
-				hitBkg=false;
+				////Up
+				//y2=y-1;
+				//while(!hitTarget && !hitBkg && y2>=low_y)
+				//	{
+				//	k=x+max_x*(y2+z*max_y);
+				//	if((*(output_iter+k))==class1)
+				//		hitTarget=true;
+				//	else if((*(output_iter+k))==bkg)
+				//		hitBkg=true;
+				//	y2--;
+				//	}
+				//hitBkg=false;
 
-				//Down
-				y2=y+1;
-				while(!hitTarget && !hitBkg && y2<high_y)
-					{
-					k=x+max_x*(y2+z*max_y);
-					if((*(output_iter+k))==class1)
-						hitTarget=true;
-					else if((*(output_iter+k))==bkg)
-						hitBkg=true;
-					y2++;
-					}
-				hitBkg=false;
+				////Down
+				//y2=y+1;
+				//while(!hitTarget && !hitBkg && y2<high_y)
+				//	{
+				//	k=x+max_x*(y2+z*max_y);
+				//	if((*(output_iter+k))==class1)
+				//		hitTarget=true;
+				//	else if((*(output_iter+k))==bkg)
+				//		hitBkg=true;
+				//	y2++;
+				//	}
+				//hitBkg=false;
 
-				//Above
-				z2=z-1;
-				while(!hitTarget && !hitBkg && z2>=low_z)
-					{
-					k=x+max_x*(y+z2*max_y);
-					if((*(output_iter+k))==class1)
-						hitTarget=true;
-					else if((*(output_iter+k))==bkg)
-						hitBkg=true;
-					z2--;
-					}
-				hitBkg=false;
+				////Above
+				//z2=z-1;
+				//while(!hitTarget && !hitBkg && z2>=low_z)
+				//	{
+				//	k=x+max_x*(y+z2*max_y);
+				//	if((*(output_iter+k))==class1)
+				//		hitTarget=true;
+				//	else if((*(output_iter+k))==bkg)
+				//		hitBkg=true;
+				//	z2--;
+				//	}
+				//hitBkg=false;
 
-				//Below
-				z2=z+1;
-				while(!hitTarget && !hitBkg && z2<high_z)
-					{
-					k=x+max_x*(y+z2*max_y);
-					if((*(output_iter+k))==class1)
-						hitTarget=true;
-					else if((*(output_iter+k))==bkg)
-						hitBkg=true;
-					z2++;
-					}
-				hitBkg=false;
+				////Below
+				//z2=z+1;
+				//while(!hitTarget && !hitBkg && z2<high_z)
+				//	{
+				//	k=x+max_x*(y+z2*max_y);
+				//	if((*(output_iter+k))==class1)
+				//		hitTarget=true;
+				//	else if((*(output_iter+k))==bkg)
+				//		hitBkg=true;
+				//	z2++;
+				//	}
+				//hitBkg=false;
 
-				if(!hitTarget)
+				//if(!hitTarget)
 					(*(output_iter+j))=class2;
 				}
 			}
@@ -2417,7 +2507,7 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 			res[w]=optthr;
 			}
 		delete[] hist;
-        std::cout << "Slice: " << w-1 << " Thr: " << optthr << std::endl;
+        //std::cout << "Slice: " << w-1 << " Thr: " << optthr << std::endl;
 		}
 	else
 		{
@@ -2510,7 +2600,7 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low
 			}
 		//out.close();
 		delete[] hist;
-        std::cout << "Slice: " << w-1 << " Thr: " << optthr << std::endl;
+        //std::cout << "Slice: " << w-1 << " Thr: " << optthr << std::endl;
 		}
 	return totdiff>0;
 	}
