@@ -14,3 +14,11 @@
 //    You should have received a copy of the GNU Lesser General Public License
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+#ifndef __image_multi_hxx__
+#define __image_multi_hxx__
+
+#include "image_multi.h"
+#include "image_general.hxx"
+
+#endif

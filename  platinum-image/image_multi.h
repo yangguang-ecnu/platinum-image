@@ -46,8 +46,4 @@ class image_multi : public image_general <ELEMTYPE, IMAGEDIM>
         image_multi (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
     };
 
-// templates in standard C++ requires entire class definition in header
-
-#include "image_multi.hxx"
-
 #endif

@@ -198,8 +198,10 @@ class image_general : public image_storage <ELEMTYPE >
 
 };
 
-//with C++ templates, declaration and definition go together
-#include "image_general.hxx"
-#include "image_generalfile.hxx"
+template <template <class,int=3 > class IMGCLASS>
+image_base* allocate_image (bool floatType, bool signedType, unsigned int voxel_type, std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize);
+
+template <template <class, int> class requestedClass, class ELEM, int DIM>
+requestedClass<ELEM, DIM>* scalar_copycast (image_base* input);
 
 #endif

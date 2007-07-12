@@ -22,7 +22,7 @@
 #include "FLTKviewport.h"
 #include "rendermanager.h"
 
-#include "image_label.h"
+#include "image_label.hxx"
 
 #include "rawimporter.h"
 

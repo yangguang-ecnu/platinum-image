@@ -36,13 +36,13 @@
 #include <FL/Fl_Pack.H>
 #include <FL/Fl_File_Chooser.H>
 
-#include "point_base.h"
-//#include "datawidget.h"
 #include "FLTKutilities.h"  //for horizresizeablescroll class
 
 #include "global.h"
 
-#include "image_base.h"
+//#include "point_base.h"
+#include "datawidget.h"
+//#include "image_base.h"
 
 enum imageFileType {UNKNOWN_TYPE=-1, VTK_TYPE, DICOM_TYPE};
 
@@ -73,8 +73,8 @@ class datamanager
         datamanager();
         ~datamanager();
 
-        void add_datawidget(datawidget * the_widget);
-        void remove_datawidget(datawidget * the_widget);
+        void add_datawidget(datawidget_base * the_widget);
+        void remove_datawidget(datawidget_base * the_widget);
         void datawidgets_setup();
         void refresh_datawidgets();                 //trigger redraw of widgets when
                                                     //list information has been updated
@@ -103,10 +103,10 @@ class datamanager
 		
         void loadimages();
         static void removedata_callback(Fl_Widget *, void *);
-        static void save_vtk_image_callback(Fl_Widget *, void *);
+        static void save_vtk_callback(Fl_Widget *, void *);
 
         void add(image_base * v);           //add image to vector, notify other managers
-        void add(points * v); 
+        void add(point_collection * v); 
         void image_has_changed (int image_ID, bool recalibrate = false);    //signal that contents of a image has changed,
                                                     //to update thumbnails, display
         //recalibrate determines whether max values etc. are refreshed

@@ -64,9 +64,4 @@ public:
 
 };
 
-// templates in standard C++ requires entire class definition in header
-
-#include "image_scalar.hxx"
-
-
 #endif

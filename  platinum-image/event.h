@@ -29,6 +29,7 @@
 #define __pt_event__
 
 #include <string>
+#include <vector>
 #include <FL/Fl_Widget.H>
 
 class FLTKviewport;

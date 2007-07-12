@@ -19,7 +19,6 @@
 
 #include <FL/Fl_Toggle_Button.H>
 #include <FL/Fl_Light_Button.H>
-#include <FL/Fl_Pack.H>
 #include <FL/Fl_Scroll.H>
 #include <FL/Fl_Tile.H>
 #include <FL/Fl_Box.H>

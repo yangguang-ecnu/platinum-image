@@ -29,6 +29,10 @@
 
 #include "viewporttool.h"
 
+#include "global.h"
+
+#include <vector>
+
 class FLTKuserIOpar_histogram2D;
 class threshold_overlay;
 

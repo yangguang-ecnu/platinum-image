@@ -135,12 +135,4 @@ class image_storage : public image_base
         iterator end();   
     };
 
-//template implementation files
-#include "histogram.hxx"
-#include "transfer.hxx"
-#include "transfer_interpolated.hxx"
-
-#include "image_storage_iterator.hxx"
-#include "image_storage.hxx"
-
 #endif

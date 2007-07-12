@@ -30,6 +30,9 @@
 
 #include "image_scalar.h"
 
+#define TRUE 1
+#define FALSE 0
+
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
     {
@@ -73,8 +76,5 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
 		void markRecursive(int m, int* par_node, bool* marked); ///Support function to narrowest_passage_3D
 		ELEMTYPE getSeedLevel(int m, int* par_node, bool* marked); ///Support function to narrowest_passage_3D
     };
-
-//with C++ templates, declaration and definition go together
-#include "image_integer.hxx"
 
 #endif

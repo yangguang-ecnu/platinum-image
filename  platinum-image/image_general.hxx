@@ -40,6 +40,8 @@
 #include "itkImageSliceIteratorWithIndex.h"
 #include "itkStatisticsImageFilter.h"
 
+
+
 #define RENDER_ORTHOGONALLY_ONLY
 
 using namespace std;
@@ -55,6 +57,10 @@ using namespace std;
 #define theSizeType theImageType::RegionType::SizeType
 #define theStatsFilterType itk::StatisticsImageFilter<theImageType >
 #define theStatsFilterPointerType theStatsFilterType::Pointer
+
+#include "image_general.h"
+#include "image_storage.hxx"
+#include "image_generalfile.hxx"
 
 template <class NEWELEM, class TRYELEM, int DIM, template <class, int> class requestedClass >
 requestedClass<NEWELEM, DIM> * try_general (image_base* input) //! Helper function to guaranteed_cast

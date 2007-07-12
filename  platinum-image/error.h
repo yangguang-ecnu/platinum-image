@@ -48,8 +48,12 @@ class pt_error : public std::exception
         static bool error_if_true (bool condition, std::string message, pt_error::errorLevel l = serious);
         static bool error_if_false (bool condition, std::string message, pt_error::errorLevel l = serious)
             {return error_if_true (!condition, message, l);}
-        static bool error_if_null (const void * p, std::string message, pt_error::errorLevel l = fatal)
-            {return error_if_true (p == NULL, message, l);}
+        template <class PTR>
+        static PTR * error_if_null (PTR * p, std::string message, pt_error::errorLevel l = fatal)
+            {
+            error_if_true (p == NULL, message, l);
+            return p;
+            }
         static void error ( std::string message, pt_error::errorLevel l = serious);
 
         static const std::string level_name (pt_error::errorLevel l);

@@ -26,7 +26,7 @@
 
 #include "global.h"
 
-#include "image_integer.h"
+#include "image_integer.hxx"
 
 //retrieve command-line arguments
 int visid = -1;

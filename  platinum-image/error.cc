@@ -34,6 +34,7 @@ std::string errornames[] =
 pt_error::pt_error(const std::string& __arg, errorLevel l)  : std::exception(), _M_msg(__arg)
     { 
     level = l;
+    std::cout << "pt_error exception: (" << errornames [l] << ")" << std::endl << __arg << std::endl;
     }
 
 const char* pt_error::what() const throw()

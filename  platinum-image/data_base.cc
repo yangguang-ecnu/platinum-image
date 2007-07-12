@@ -17,11 +17,12 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "data_base.h"
-
-#include <sstream>
+//#include "data_base.h"
 
 #include "fileutils.h"
+
+#include <sstream>
+#include "datawidget.h"
 
 using namespace std;
 
@@ -126,6 +127,12 @@ data_base::data_base (data_base * const source)
     direction = source->direction;
 //cout << "End data_base constructor"<<endl;//PRDEBUG
     }
+
+void data_base::activate()
+{
+    //widget->show();
+    widget->activate();
+}
 
 bool data_base::from_file()
     {

@@ -33,7 +33,7 @@
 
 void init_fl_menu_item(Fl_Menu_Item & m);
 
-int fl_menu_size (Fl_Menu_Item *);
+int fl_menu_size (const Fl_Menu_Item * const m);
 
 void fl_menu_userdata_delete (Fl_Menu_Item * m);
 

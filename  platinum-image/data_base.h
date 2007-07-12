@@ -30,12 +30,13 @@
 
 //#include <iostream>
 
-#include "datawidget.h"
 #include "ptmath.h"
 
 #include "global.h"
 #include "error.h"
 #include "itkGDCMImageIO.h"
+
+class datawidget_base;
 
 class data_base
     {
@@ -43,7 +44,7 @@ class data_base
         void set_parameters();
     protected:
         int ID;
-        datawidget * widget;
+        datawidget_base * widget;
 
         void name_from_path(std::string filepath);   //sets image name from name portion of path
     
@@ -77,6 +78,8 @@ class data_base
         
         int get_id()
             { return ID; }
+        
+        void activate();
 
         // *** Metadata ***
         

@@ -51,8 +51,5 @@ public:
 	void silly_test();
 
 };
-// templates in standard C++ requires entire class definition in header
-
-#include "image_complex.hxx"
 
 #endif

@@ -23,8 +23,8 @@
 
 #include "rawimporter.h"
 #include "dicom_importer.h"
-#include "image_integer.h"
 #include "userIOmanager.h"
+#include "image_integer.hxx"
 
 datamanager datamanagement;
 extern rendermanager rendermanagement;
@@ -84,23 +84,23 @@ void datamanager::removedata_callback(Fl_Widget *callingwidget, void *thisdatama
     {
     //callback for "Load image" button
 
-    datawidget * the_datawidget=(datawidget *)(callingwidget->user_data());
+    datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
 
     //here we want to check with the object whether this is image
     //or vector (or other) data
     //for now, the assumption is image data
 
-    ((datamanager*)thisdatamanager)->remove_image( the_datawidget->get_image_id() );
+    ((datamanager*)thisdatamanager)->remove_image( the_datawidget->get_data_id() );
     }
 
-void datamanager::save_vtk_image_callback(Fl_Widget *callingwidget, void * thisdatamanager)
+void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdatamanager)
     {
-    datawidget * the_datawidget=(datawidget *)(callingwidget->user_data());
+    datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
 #ifdef _DEBUG
-    cout << "Save VTK image ID=" << the_datawidget->get_image_id() << endl;
+    cout << "Save VTK image ID=" << the_datawidget->get_data_id() << endl;
 #endif
 
-    int image_index=((datamanager*)thisdatamanager)->find_image_index(the_datawidget->get_image_id());
+    int image_index=((datamanager*)thisdatamanager)->find_image_index(the_datawidget->get_data_id());
 
     Fl_File_Chooser chooser(".","Visualization Toolkit image (*.vtk)",Fl_File_Chooser::CREATE,"Save VTK image");
 
@@ -180,6 +180,7 @@ void datamanager::add(image_base * v)
             if (find_image_index(the_image_id) == -1)
                 {
                 dataItems.push_back(v);
+                v->activate();
                 
                 int freeViewportID=viewmanagement.find_viewport_no_images();
                 
@@ -207,14 +208,17 @@ void datamanager::add(image_base * v)
         }
 }
 
-void datamanager::add(points * v)
+void datamanager::add(point_collection * p)
 {
-    if(!pt_error::error_if_null(v,"Can't add point to datamanager, pointer is NULL",pt_error::serious))
+    pt_error::error_if_false(dataItems.size() < IMAGEVECTORMAX,"Error when adding point: number of data items in datamanager exceeds IMAGEVECTORMAX",pt_error::fatal);
+    
+    if(pt_error::error_if_null(p,"Can't add point to datamanager, pointer is NULL",pt_error::serious) != NULL)
         {
-        dataItems.push_back(v);
+        dataItems.push_back(p);
+        p->activate();
         
         image_vector_has_changed();
-        image_has_changed(v->get_id());
+        image_has_changed(p->get_id());
         }
 }
 
@@ -415,7 +419,7 @@ image_base * datamanager::get_image (int ID)
             {
             image_base * i = dynamic_cast<image_base *>(*itr);
             
-            if (!pt_error::error_if_null(i,"Trying to get_image when requested ID is not image type",pt_error::fatal))
+            if (pt_error::error_if_null(i,"Trying to get_image when requested ID is not image type",pt_error::fatal) != NULL)
                 { return i; }
             }
         itr++;
@@ -429,7 +433,7 @@ bool datamanager::FLTK_running ()
     return !closing;
     }
 
-void datamanager::add_datawidget(datawidget * data_widget)
+void datamanager::add_datawidget(datawidget_base * data_widget)
     {
     //add FLTK widget belonging to datawidget object to the list
 
@@ -444,7 +448,7 @@ void datamanager::refresh_datawidgets()
     data_widget_box->redraw();
     }
 
-void datamanager::remove_datawidget(datawidget * the_fl_widget)
+void datamanager::remove_datawidget(datawidget_base * the_fl_widget)
     {
     //remove FLTK widget belonging to datawidget object from list
     //the datawidget itself is deleted by its owner data_base

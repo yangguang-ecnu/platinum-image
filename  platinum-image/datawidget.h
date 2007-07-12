@@ -37,75 +37,95 @@
 #include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Box.H>
 
-typedef enum {
-    DATAHANDLER_VOLUME_3D= 1,
-    DATAHANDLER_VECTOR_3D,
-    DATAHANDLER_PIXMAP
-    } datawidget_type;
+/*typedef enum {
+    image,
+    points
+    } datawidget_type;*/
 
 #include "global.h"
 
-#include "listedfactory.h"
-
 #define MAXDATANAME 512
 
+#include "image_base.h"
+#include "point_base.h"
+/*class data_base;
 class image_base;
+class point_collection;*/
 
-// *** begin datawidget.fl
-
-class datawidget : public Fl_Pack {
-public:
-    datawidget(int X, int Y, int W, int H, const char *L = 0);
-private:
-    int image_id;
-    const static int thumbnail_size;
-    uchar * thumbnail_image;
+class datawidget_base : public Fl_Pack {
+protected:
+    int data_id;  
+    bool fromFile; ///indicates whether the data was created inside the program and perhaps needs to be saved;
     std::string _name;
-    enum {remove_mi_num=0,save_mi_num, dup_mi_num};
-    Fl_Menu_Item * tfunction_submenu;
+    
     Fl_Pack *hpacker;
-    Fl_Input *filenamebutton;
+    Fl_Input *datanamebutton;
     void cb_filenamebutton_i(Fl_Input*, void*);
     static void cb_filenamebutton(Fl_Input*, void*);
     Fl_Menu_Button *featuremenu;
-    static Fl_Menu_Item menu_featuremenu[];
-public:
-    static Fl_Menu_Item *remove_mi;
-    static Fl_Menu_Item *save_vtk_mi;
-    static Fl_Menu_Item *duplicate_mi;
-    static Fl_Menu_Item *tfunctionmenu;
-    static Fl_Menu_Item *transferfunction_mi;
-private:
+
+    // *** thumbnail
+    const static int thumbnail_size;
+    uchar * thumbnail_image;
     Fl_Box *thumbnail;
-public:
+    
+    // *** menus       
+    enum {remove_mi_num=0,save_mi_num, dup_mi_num};
+    const static Fl_Menu_Item menu_featuremenu_base[];
+    const static Fl_Menu_Item *remove_mi;
+    const static Fl_Menu_Item *save_vtk_mi;
+    const static Fl_Menu_Item *duplicate_mi;
     Fl_Pack *extras;
-private:
-    Fl_Group *tfunction_;
+    
+    datawidget_base(data_base * d, std::string n);
 public:
-    datawidget(image_base * im, std::string n);
-    // to make a widget for other types of data, i.e. point, simply overload constructor taking an object of the type in question
     static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);;
-    static void cb_transferswitch(Fl_Widget* o, void* v);
-    static void toggle_tfunction(Fl_Widget* callingwidget, void*);
-    void setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im);
-    void tfunction(Fl_Group * t);;
-    Fl_Group * reset_tf_controls();
-    void make_window();
+    //void make_window();
 
-  // *** end datawidget.fl
-
-protected:
-    bool fromFile; ///indicates whether the data was created inside the program and perhaps needs to be saved;
-public:
-    ~datawidget ();
+    virtual ~datawidget_base ();
     void refresh_thumbnail ();
 
     // *** access methods ***
-    int get_image_id();
+    int get_data_id() const;
+    
     void name(std::string n);
-    const std::string name();
+    const std::string name() const;
+    
     void from_file(bool);
-    bool from_file();
+    bool from_file() const;
     };
+
+template <class DATATYPE>
+class datawidget:public datawidget_base
+{};
+
+template <>
+class datawidget<point_collection>:public datawidget_base
+{
+public:
+    datawidget(point_collection* p, std::string n);
+};
+
+template <>
+class datawidget<image_base>:public datawidget_base
+{   
+    const static Fl_Menu_Item tfunctionmenu;
+    const static Fl_Menu_Item transferfunction_mi;
+    static void cb_transferswitch(Fl_Widget* o, void* v);
+    static void toggle_tfunction(Fl_Widget* callingwidget, void*);
+    
+    Fl_Group *tfunction_;
+    Fl_Menu_Item * menu_featuremenu_plustf;
+
+    Fl_Menu_Item * tfunction_submenu;
+    void setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im);
+public:
+        datawidget(image_base* im, std::string n);
+    virtual ~datawidget();
+    
+    void tfunction(Fl_Group * t);
+    Fl_Group * reset_tf_controls();
+    
+};
 
 #endif

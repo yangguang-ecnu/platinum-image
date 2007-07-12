@@ -19,7 +19,7 @@
 
 #include "point.h"
 
-point::point() : points()
+point::point() : point_collection()
 {
     pointStorage::value_type init = pointStorage::value_type();
     init.Fill(0);

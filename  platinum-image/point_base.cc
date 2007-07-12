@@ -16,9 +16,11 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "point_base.h"
+//#include "point_base.h"
+#include "datawidget.h"
 
-points::points() : data_base()
+point_collection::point_collection() : data_base()
 {
     //start empty
+    widget=new datawidget<point_collection>(this,"Untitled point");
 }

@@ -36,7 +36,7 @@ void init_fl_menu_item(Fl_Menu_Item & m)
     m.labelcolor(FL_BLACK);
     }
 
-int fl_menu_size (Fl_Menu_Item * m)
+int fl_menu_size (const Fl_Menu_Item * const m)
     {
     if (m != 0)
         {

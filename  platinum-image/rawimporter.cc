@@ -26,7 +26,7 @@
 #include "fileutils.h"
 #include "datamanager.h"
 extern datamanager datamanagement;
-#include "image_label.h"
+#include "image_label.hxx"
 
 Fl_Menu_Item rawimporter::menu_voxeltypemenu[] = {
  {"1", 0,  0, (void*)(1), 1, FL_NORMAL_LABEL, 0, 12, 0},
