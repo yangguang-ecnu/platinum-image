@@ -49,6 +49,8 @@
 
 statusarea::statusarea(int X, int Y, int W, int H, const char *L)
 : Fl_Group(0, 0, W, H, L) {
+    const int progress_w = 100;
+    
     statusarea *o = this;
     o->box(FL_FLAT_BOX);
     o->color(FL_BACKGROUND_COLOR);
@@ -59,30 +61,26 @@ statusarea::statusarea(int X, int Y, int W, int H, const char *L)
     o->labelcolor(FL_FOREGROUND_COLOR);
     o->align(FL_ALIGN_BOTTOM_RIGHT);
     o->when(FL_WHEN_RELEASE);
-    { Fl_Pack* o = statusPack = new Fl_Pack(0, 0, 500, 25);
-        o->type(1);
-        { Fl_Pack* o = optionsEnclosure = new Fl_Pack(0, 0, 40, 25);
-            o->type(1);
-            o->end();
-        }
-        { Fl_Output* o = messageText = new Fl_Output(40, 0, 460, 24);
-            o->box(FL_THIN_DOWN_FRAME);
-            o->labeltype(FL_NO_LABEL);
-            o->align(FL_ALIGN_CENTER);
-            Fl_Group::current()->resizable(o);
-            //o->value("Platinum $Revision: 305 $");
-        }
-        o->end();
-        Fl_Group::current()->resizable(o);
-    }
-    { Fl_Progress* o = progress = new Fl_Progress(500, 0, 100, 25);
+    
+    { Fl_Output* o = messageText = new Fl_Output(0, 0, W-progress_w, 24);
+        o->box(FL_THIN_DOWN_FRAME);
+        o->labeltype(FL_NO_LABEL);
+        o->align(FL_ALIGN_CENTER);
+        resizable(o);
+        //o->value("Platinum $Revision: 305 $");
+    }            
+    { Fl_Progress* o = progress = new Fl_Progress(W-progress_w, 0, progress_w, 24);
         o->box(FL_NO_BOX);
         o->color((Fl_Color)55);
         o->selection_color((Fl_Color)3);
         o->labeltype(FL_NO_LABEL);
+        
+        /*progress->box(FL_FLAT_BOX);
+        progress->color(FL_BLUE);*/
     }
-    position(X, Y);
-    end();
+
+position(X, Y);
+end();
 }
 
 void statusarea::message (std::string m)
@@ -101,8 +99,12 @@ void statusarea::switch_pane (std::string key)
         {
         if (itr->first == key)
             {
-            itr->second->position(optionsEnclosure->x(),optionsEnclosure->y());
-            itr->second->show();
+            Fl_Group * gr = itr->second;
+            
+            gr->position(x(),y());
+            messageText->resize(gr->x()+gr->w(),y(),w()-gr->w(),w());
+            
+            gr->show();
             }
         else
             {itr->second->hide();}

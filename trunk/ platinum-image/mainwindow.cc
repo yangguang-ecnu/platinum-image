@@ -144,15 +144,20 @@ void platinum_init ()
 
 void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
     {
+    const int win_w = window.w();
+    const int win_h = window.h();
+    
     const int status_area_h = 24;
-    int win_w = window.w();
-    int win_h = window.h();
-    int view_w = win_w - list_area_w;
-    int view_h = win_h - status_area_h;
+
+    const int view_w = win_w - list_area_w;
+    const int view_h = win_h - status_area_h;
 
     //set up the window;
     window.size (win_w,win_h);
     window.resizable(&window);
+    
+    Fl_Pack * viewsNstatusStack = new Fl_Pack(0,0,win_w,win_h);
+    viewsNstatusStack->type(FL_VERTICAL);
 
     //allows resizing the proportions of views & data/tools
     Fl_Tile * viewsNlists = new Fl_Tile(0,0,win_w,win_h-status_area_h);
@@ -174,7 +179,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     viewmanagement.erase_all_connections(); // only do this once...
     viewmanagement.connect_views_viewports(); // kopplar ev. lediga VPs till behˆvande views
 
-    // *** Create viewport widgets ***
+#pragma mark *** Create viewport widgets ***
 
     viewmanagement.setup_views(0, view_w, view_h); // 0...antal som anv‰nds-1
 
@@ -182,39 +187,51 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
 
     //views->resizable(views);
     //views->end();
-
+    
+#pragma mark *** Create tool area ***
+    
     Fl_Tile * tool_area = new Fl_Tile(view_w,0,list_area_w,win_h-status_area_h);   //group containing datawidgets and feedback, so they'll be resized properly
     datamanagement.datawidgets_setup();
 
     userIOmanagement.setup();
+    
+    //Fl_Progress* prg = userIOmanagement.progress;
 
     tool_area->box(FL_BORDER_BOX);
     tool_area->resizable(tool_area);
     tool_area->end();
-
+    
     viewsNlists->resizable(viewsNlists);
     viewsNlists->end();
 
-    Fl_Group::current (&window); //make statusarea a subwindow
+#pragma mark *** Create status area ***
     
-    userIOmanagement.status_area = new statusarea (0,win_h-status_area_h,win_w,status_area_h);    
-    
-    Fl_Pack * toolsNstatus = new Fl_Pack (0,win_h-status_area_h,win_w,status_area_h);
+    Fl_Pack * toolsNstatus = new Fl_Pack (0,viewsNlists->y()+viewsNlists->h(),viewsNstatusStack->w(),status_area_h);
     toolsNstatus->type(FL_HORIZONTAL);
+    
+    Fl_Group::current (NULL); //statusarea has to be after toolbox in pack...
+    userIOmanagement.status_area = new statusarea (0,win_h-status_area_h,toolsNstatus->w(),status_area_h); 
+    Fl_Group::current (toolsNstatus);
+    
     viewporttool::init(userIOmanagement.status_area); //!spawn toolbox and give viewporttool pointer to statusarea
-    userIOmanagement.status_area->resize(viewporttool::toolbox->x()+viewporttool::toolbox->w(),toolsNstatus->y(),win_w-viewporttool::toolbox->w(),status_area_h);
-    toolsNstatus->add(userIOmanagement.status_area);
+
+    userIOmanagement.status_area->resize(viewporttool::toolbox->x()+viewporttool::toolbox->w(),toolsNstatus->y(),toolsNstatus->w()-viewporttool::toolbox->w(),toolsNstatus->h());
+    toolsNstatus->add(userIOmanagement.status_area);//...time to add statusarea
 
     toolsNstatus->resizable(userIOmanagement.status_area);
     toolsNstatus->end();
-        int dummyX = userIOmanagement.status_area->x();
-    int dummyW = userIOmanagement.status_area->w();
+    
+    //progressGroup->end();
     
 #ifndef VPT_TEST
     toolsNstatus->deactivate();
 #endif
     
+    viewsNstatusStack->resizable(viewsNlists);
+    viewsNstatusStack->end();
+    
     window.resizable(viewsNlists);
+    window.end();
     }
 
 /*int platinum_run (int argc, char *argv[])

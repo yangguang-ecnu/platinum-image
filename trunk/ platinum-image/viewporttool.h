@@ -31,6 +31,7 @@
 
 #include <FL/Fl_Output.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Pack.H>
 
 #include <map>
 #include <sstream>
@@ -68,7 +69,7 @@ public:
     
     //tool selection & controls
     const static int toolbox_w = 250;
-    static Fl_Window * toolbox;
+    static Fl_Pack * toolbox;
     
     viewporttool(viewport_event &);
     virtual ~viewporttool();

@@ -34,10 +34,10 @@ extern userIOmanager userIOmanagement;
 #include <FL/Fl_Window.h>
 #include <FL/Fl_Button.h>
 
-// *** base class ***
+#pragma mark *** base class ***
 
 // static members
-Fl_Window * viewporttool::toolbox = NULL;
+Fl_Pack * viewporttool::toolbox = NULL;
 statusarea * viewporttool::statusArea = NULL;
 std::string viewporttool::selected = "";
 std::map<std::string, viewporttool::vpt_create_pointer> viewporttool::tools = std::map<std::string, viewporttool::vpt_create_pointer>  ();
@@ -70,12 +70,18 @@ void viewporttool::init (statusarea * s)
     selected = "Navigation";
     
     //create toolbox widget
-        
-    toolbox = new Fl_Window (0,statusArea->y(),0,statusArea->h()); //toolfactory.buttons will set correct width
     const bool horizontal = true;
+
+    toolbox = new Fl_Pack (0,statusArea->y(),0,statusArea->h());
+    
+    if (horizontal)
+        { toolbox->type(FL_HORIZONTAL);}
+    else
+        {toolbox->type(FL_VERTICAL);};
+        
     int buttonSize  = horizontal? toolbox->h():toolbox->w();
-    int x = 0; //toolbox is a subwindow, so it starts at 0
-    int y = 0;
+    int x = toolbox->x();
+    int y = toolbox->y();
     
     toolbox->begin();
     
@@ -147,15 +153,6 @@ void viewporttool::select (const std::string key)
 
 viewporttool * viewporttool::taste(viewport_event & event,viewport * vp,renderer_base * r)
 {
-    /*viewporttool * result = NULL;
-    
-    for (std::map<std::string, taste_fcn_pointer>::iterator i = tools.begin();i != tools.end();i++)
-        {
-        result = i->second(event);
-        }
-	return result;*/
-    
-    
     viewporttool * result = tools[selected](event);
     
     if (!event.handled())
@@ -179,10 +176,11 @@ void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
     
     userIOmanagement.select_tool (*key);
 }
+
 // *** tool classes ***
 //registered in viewporttool::init
 
-// *** navigation tool ***
+#pragma mark *** navigation tool ***
 
 const float nav_tool::wheel_factor=0.02;
 const float nav_tool::zoom_factor=0.01;
@@ -272,7 +270,7 @@ void nav_tool::handle(viewport_event &event)
     return t;
     }*/
 
-// *** dummy tool ***
+#pragma mark *** dummy tool ***
 
 dummy_tool::dummy_tool (viewport_event &event):viewporttool(event)
     {
@@ -292,7 +290,7 @@ threshold_overlay * histo2D_tool::get_overlay ()
     return overlay;
 }
 
-// *** cursor_tool ***
+#pragma mark *** cursor_tool ***
 
 Fl_Output * cursor_tool::coord_display = NULL;
 Fl_Button * cursor_tool::make_button = NULL;
@@ -384,6 +382,8 @@ void cursor_tool::handle(viewport_event &event)
     
     if (event.type() == pt_event::hover )
         {
+        event.grab();
+
         switch (event.state())
             {
             case pt_event::begin:
