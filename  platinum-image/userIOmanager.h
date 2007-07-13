@@ -58,6 +58,7 @@ class userIOmanager
         void image_vector_has_changed();    //triggers rebuild of
 
         int add_userIO (std::string name, userIO_callback* cback = NULL,std::string ok_label = "");
+        
         statusarea * status_area;        //! create userIO block, add to manager and return ID
 
         typedef enum {status,block} displayMethod;

@@ -41,10 +41,8 @@ public:
     statusarea(int X, int Y, int W, int H, const char *L = 0);
 private:
     std::map<std::string,Fl_Group *> panes;
-    Fl_Pack *statusPack;
-    Fl_Pack *optionsEnclosure;
+    Fl_Progress* progress;    
     Fl_Output *messageText;
-    Fl_Progress *progress;
     
     // end of FLUID output
 public:
@@ -66,7 +64,7 @@ FLGROUPTYPE * statusarea::add_pane (std::string key)
     //panes[key]->type(FL_HORIZONTAL);
     group->box(FL_THIN_DOWN_BOX);
     group->resizable(NULL); //controls pane will maintain its shape with resizes
-    optionsEnclosure->add(group);
+    add(group);
     group->hide();
     
     panes[key] = group;

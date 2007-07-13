@@ -76,7 +76,16 @@ Vector3D rendererMPR::view_to_voxel(int vx, int vy,int sx,int sy,int imageID) co
         }
     else
         {    
-        return imagestorender->top_image()->transform_unit_to_voxel (view_to_world(vx, vy,sx,sy));
+        image_base * image = imagestorender->top_image();
+        if (image !=NULL)
+            {
+            return image->transform_unit_to_voxel (view_to_world(vx, vy,sx,sy));
+            }
+        else
+            {
+            //no image there
+            return Vector3D();
+            }
         }
     //return Vector3D();
 }
