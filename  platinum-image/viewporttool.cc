@@ -374,11 +374,36 @@ void cursor_tool::handle(viewport_event &event)
             fl_pop_clip();
             }
         }    
+    
     if (event.type() == pt_event::resize)
         {
         event.grab();
         
         event.resize_point(selection[0],selection[1]);
+        }
+    
+    if (event.type() == pt_event::hover )
+        {
+        switch (event.state())
+            {
+            case pt_event::begin:
+                //get pointer to renderer
+                renderer = rendermanagement.get_renderer( myPort->get_renderer_id());
+            case pt_event::idle:
+                {
+                    numbers.str("");
+                    //get coords and update statusfield
+                    Vector3D pos;
+                    pos = myRenderer->view_to_voxel(mouse[0], mouse[1],fvp->w(),fvp->h());
+                    numbers << pos;
+                    userIOmanagement.realtime_message(numbers.str().c_str());
+                }
+                break;
+            case pt_event::end:
+                renderer = NULL;
+                userIOmanagement.realtime_message(NULL);
+                break;
+            }
         }
     
     nav_tool::handle(event);

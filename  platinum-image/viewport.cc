@@ -541,17 +541,17 @@ int actionValue = f->callback_action;
 #endif //VPT_TEST
     }
 
-    int viewport::get_id()
-        {
-        return ID;
-        }
+int viewport::get_id () const
+{
+    return ID;
+}
 
-    int viewport::get_renderer_id()
-        {
-        return rendererID;
-        }
+int viewport::get_renderer_id () const
+{
+    return rendererID;
+}
 
-const int * viewport::pixmap_size ()
+const int * viewport::pixmap_size () const
 {
     return pixMapSize;
 }

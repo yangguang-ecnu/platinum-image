@@ -52,7 +52,7 @@ public:
     template <class FLGROUPTYPE>
     FLGROUPTYPE * add_pane (std::string); //!get controls pane which is also added to the statusarea's map
     void switch_pane (std::string key);
-    void realtime_message (char*); //display fast-update message in char array stored elsewhere
+    void realtime_message (const char* const); //display fast-update message in char array stored elsewhere
                                    //must be cleared with realtime_message (NULL) before array
                                    //is deleted
 };

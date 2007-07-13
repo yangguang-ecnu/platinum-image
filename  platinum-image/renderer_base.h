@@ -47,78 +47,79 @@ enum RENDERER_TYPES { RENDERER_MPR=0, NUM_RENDERER_TYPES, NUM_RENDERER_TYPES_PLU
 const std::string renderer_labels[] = {"MPR renderer"};
 
 class renderer_base
-    {
-    protected:
-        int identitet;
-
-        int imagestorender_id;
-        int wheretorender_id;
-
-        image_base *get_imagepointer(int imageindex);
-
-        static int maxrendererID;
-
-    public:
+{
+protected:
+    int identitet;
+    
+    int imagestorender_id;
+    int wheretorender_id;
+    
+    image_base *get_imagepointer(int imageindex);
+    
+    static int maxrendererID;
+    
+public:
         renderer_base();
-        virtual ~renderer_base() {}
-        
-        // renderer_base(const renderer_base &k) { *this=k; ::renderer_base(); }
-
-        // virtual const renderer_base &operator=(const renderer_base &k) { return k; }
-        bool virtual operator<<(const renderer_base &k)
-            { return identitet==k.identitet; }
-        bool virtual operator==(const renderer_base &k)
-            { return identitet==k.identitet; }
-        bool virtual operator==(const int &k) { return identitet==k; }
-        bool virtual operator!=(const renderer_base &k)
-            { return identitet!=k.identitet; }
-        bool virtual operator<(const renderer_base &k)
-            { return identitet<k.identitet; }
-        bool virtual operator>(const renderer_base &k)
-            { return identitet>k.identitet; }
-        friend std::istream &operator>>(std::istream &in, renderer_base &k)
-            { in >> k.identitet; return in; }
-        friend std::ostream &operator<<(std::ostream &ut, const renderer_base &k)
-            { ut << "[renderer_base. ID= " << k.identitet << "] "; return ut; }
-
-        // *** render parameters ***
-
-        rendercombination * imagestorender;    //a list of images to render
-                                                //public, because it is managed by viewport too
-                                                //could also make renderer and viewport friends
-
-        rendergeometry * wheretorender;                 //lookat and direction vectors for rendering
-        void connect_geometry (rendergeometry *);       //attach a certain geometry to this renderer
-        int combination_id();
-        void connect_combination (rendercombination *);
-
-        // *** rendering & data interaction ***
-
-        virtual void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy) = 0;
-        virtual void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold) = 0;
-
-        //get values from current view, pixel coordinates
-        virtual std::vector<float> get_values(int vx, int vy,int sx,int sy) = 0;    
-
-        //get values from composite, unit image coordinates
-        virtual std::vector<float> get_values(Vector3D unitPos);             
-
-        //convert view coordinates to voxels, virtual since the result depends on what's visible,
-        //which in turn depends on how it's rendered
-        virtual Vector3D view_to_voxel(int imageID, int vx, int vy, int sx, int sy)    
-            = 0;                                 
-
-        void look_at (float x, float y, float z,float zoom=0);
-
-        virtual void move( float pan_x, float pan_y, float pan_z=0, float zoom=1);
-
-        int get_id()
-            { return identitet; }
-
-        virtual int renderer_type() = 0;
-
-        virtual void connect_image(int rID)
-            = 0;
-    };
+    virtual ~renderer_base() {}
+    
+    // renderer_base(const renderer_base &k) { *this=k; ::renderer_base(); }
+    
+    // virtual const renderer_base &operator=(const renderer_base &k) { return k; }
+    bool virtual operator<<(const renderer_base &k)
+        { return identitet==k.identitet; }
+    bool virtual operator==(const renderer_base &k)
+        { return identitet==k.identitet; }
+    bool virtual operator==(const int &k) { return identitet==k; }
+    bool virtual operator!=(const renderer_base &k)
+        { return identitet!=k.identitet; }
+    bool virtual operator<(const renderer_base &k)
+        { return identitet<k.identitet; }
+    bool virtual operator>(const renderer_base &k)
+        { return identitet>k.identitet; }
+    friend std::istream &operator>>(std::istream &in, renderer_base &k)
+        { in >> k.identitet; return in; }
+    friend std::ostream &operator<<(std::ostream &ut, const renderer_base &k)
+        { ut << "[renderer_base. ID= " << k.identitet << "] "; return ut; }
+    
+#pragma mark *** render parameters ***
+    
+    rendercombination * imagestorender;    //a list of images to render
+                                           //public, because it is managed by viewport too
+                                           //could also make renderer and viewport friends
+    
+    rendergeometry * wheretorender;                 //lookat and direction vectors for rendering
+    void connect_geometry (rendergeometry *);       //attach a certain geometry to this renderer
+    int combination_id();
+    void connect_combination (rendercombination *);
+    
+#pragma mark *** rendering & data interaction ***
+    
+    virtual void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy) = 0;
+    virtual void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold) = 0;
+    
+    //get values from current view, pixel coordinates
+    virtual std::vector<float> get_values(int vx, int vy,int sx,int sy) const = 0;    
+    
+    //get values from composite, unit image coordinates
+    virtual std::vector<float> get_values(Vector3D unitPos) const;             
+    
+    //convert view coordinates to voxels, virtual since the result depends on what's visible,
+    //which in turn depends on how it's rendered
+    virtual Vector3D view_to_voxel(int vx, int vy, int sx, int sy,int imageID = -1) const    
+        = 0;
+    //virtual Vector3D view_to_world(int vx, int vy,int sx,int sy) const = 0;
+    
+    void look_at (float x, float y, float z,float zoom=0);
+    
+    virtual void move( float pan_x, float pan_y, float pan_z=0, float zoom=1);
+    
+    int get_id()
+        { return identitet; }
+    
+    virtual int renderer_type() = 0;
+    
+    virtual void connect_image(int rID)
+        = 0;
+};
 
 #endif

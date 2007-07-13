@@ -61,6 +61,12 @@ void userIOmanager::show_message (std::string name, std::string message, display
         }
 }
 
+void userIOmanager::realtime_message (const char* const c)
+{
+    status_area->realtime_message(c);
+}
+    
+
 int userIOmanager::add_userIO (std::string name, userIO_callback* cback,std::string ok_label)
     {
     widgets_scroll->begin();

@@ -47,7 +47,7 @@ private:
     friend class FLTKviewport;
     friend class viewporttool;
 
-    // *** custom data ***
+    #pragma mark *** custom data ***
 
     int ID;  //viewport ID
     static int maxviewportID;
@@ -69,7 +69,7 @@ private:
                                              //in turn will do the actual reslicing
     viewporttool * busyTool;
 
-     // *** FLTK-related data ***
+    #pragma mark *** FLTK-related data ***
 
     uchar *rgbpixmap;
 
@@ -124,7 +124,7 @@ public:
 
     void update_fbstring (FLTKviewport* f);   //refresh values in number-at-pointer string
 
-    // *** operators ***
+    #pragma mark *** operators ***
 	// virtual const viewport &operator=(const viewport &k) { return k; }
 	bool virtual operator<<(const viewport &k) { return ID==k.ID; }
 	bool virtual operator==(const viewport &k) { return ID==k.ID; }
@@ -136,11 +136,11 @@ public:
 	friend std::ostream &operator<<(std::ostream &ut, const viewport &k) { ut << "[viewport. ID= " << k.ID << " rendererID: " << k.rendererID << " rendererIndex:  " << k.rendererIndex << "] "; return ut; }
 
 	void initialize_viewport(int xpos, int ypos, int width, int height); 
-
-	int get_id();
-	int get_renderer_id();
     
-    const int * pixmap_size ();
+    int get_id() const ;
+	int get_renderer_id() const ;
+    
+    const int * pixmap_size ()const;
 
 	void connect_renderer(int rID);
 

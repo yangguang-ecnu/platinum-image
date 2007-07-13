@@ -62,6 +62,11 @@ int rendermanager::find_renderer_index(int uniqueID)
     return -1; // not found
     }
 
+int rendermanager::find_renderer_id (int index)
+{
+    return renderers[index]->get_id();
+}
+
 renderer_base * rendermanager::get_renderer (int ID)
 {
     /*std::vector<renderer_base *>::iterator renderer = find ( renderers.begin(), renderers.end(), ID);
@@ -175,7 +180,7 @@ int rendermanager::renderer_empty (int rendererID)
     int rendererIndex = find_renderer_index(rendererID);
 
     if (rendererIndex != -1)
-        {return (renderers[rendererIndex]->imagestorender->image_ID_by_priority(0) == 0 ? RENDERER_EMPTY : RENDERER_NOT_EMPTY);}
+        {return (renderers[rendererIndex]->imagestorender->empty() ? RENDERER_EMPTY : RENDERER_NOT_EMPTY);}
 
     return -1;
     }
@@ -201,7 +206,7 @@ vector<float> rendermanager::get_values (int index, int px, int py,int sx, int s
 
 Vector3D rendermanager::get_location (int rendererIndex, int imageID, int px, int py, int sx, int sy)
     {
-    return renderers[rendererIndex]->view_to_voxel(imageID, px, py, sx, sy);
+    return renderers[rendererIndex]->view_to_voxel(px, py, sx, sy,imageID);
     }
 
 void rendermanager::connect_image_renderer(int rendererID, int imageID)
@@ -236,7 +241,7 @@ void rendermanager::image_vector_has_changed()
     for (unsigned int v=0;v < renderers.size();v++)
         {
         renderers[v]->imagestorender->image_vector_has_changed();
-        if (!renderers[v]->imagestorender->image_remaining(0))
+        if (renderers[v]->imagestorender->empty())
             {
             //renderer has no images, we might want to kill it - BUT
             //the renderer owns the rendercombination object and is thus
@@ -267,10 +272,15 @@ int rendermanager::get_blend_mode (int rendererIndex)
     return renderers[rendererIndex]->imagestorender->blend_mode();
     }
 
-int rendermanager::image_at_priority (int rendererIndex, int priority)
+rendercombination* rendermanager::get_combination (int ID)
+{
+    return get_renderer(ID)->imagestorender;
+}
+
+/*int rendermanager::image_at_priority (int rendererIndex, int priority)
     {
     return renderers[rendererIndex]->imagestorender->image_ID_by_priority(priority);
-    }
+    }*/
 
 void rendermanager::set_blendmode(int renderer_index,blendmode mode)
     {

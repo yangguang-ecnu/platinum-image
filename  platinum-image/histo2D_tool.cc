@@ -299,13 +299,16 @@ void FLTK2Dregionofinterest::attach_histograms (int rendererIndex)
     //first drag iteration; a number of values have to be collected and stored
     histograms.clear();
     
-    int p=0;
-    int rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
+    /*int p=0;
+    int rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);*/
     
-    while (rendered_vol_ID > 0)
+    rendercombination::iterator itr = (rendermanagement.get_combination( rendermanagement.find_renderer_id(rendererIndex)))->begin();
+    rendercombination::iterator end = (rendermanagement.get_combination( rendermanagement.find_renderer_id(rendererIndex)))->end();
+    
+    while (itr != end)
         {
         std::vector<FLTKuserIOpar_histogram2D *>  found;
-        found=userIOmanagement.get_histogram_for_image(rendered_vol_ID);
+        found=userIOmanagement.get_histogram_for_image(itr->ID);
         std::vector<FLTKuserIOpar_histogram2D *>::iterator fitr =found.begin();
         
         while (fitr != found.end())
@@ -316,8 +319,8 @@ void FLTK2Dregionofinterest::attach_histograms (int rendererIndex)
             fitr++;
             }
         
-        p++;
-        rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
+        itr++;
+        //rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
         }
 }
 

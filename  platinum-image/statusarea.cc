@@ -90,7 +90,7 @@ void statusarea::message (std::string m)
     messageText->value(m.c_str());
 }
 
-void statusarea::realtime_message (char* m)
+void statusarea::realtime_message (const char* const m)
 {
     messageText->static_value(m);
 }

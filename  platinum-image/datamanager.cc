@@ -409,6 +409,17 @@ int datamanager::find_image_index(int uniqueID)
     return -1; // not found
     }
 
+data_base * datamanager::get_data (int ID)
+{
+    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
+        {
+        if (**itr == ID)
+            {
+            return *itr;
+            }
+        }
+}
+
 image_base * datamanager::get_image (int ID)
     {
     vector<data_base*>::iterator itr=dataItems.begin();

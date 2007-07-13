@@ -26,29 +26,54 @@ extern datamanager datamanagement;
 
 int rendercombination::new_rc_ID=1;
 
+rendercombination::renderpair::renderpair()
+{
+    ID = NOT_FOUND_ID;
+    pointer = NULL;
+    mode = BLEND_NORENDER;
+};        
+
+rendercombination::renderpair::renderpair(const int i,data_base* d,const blendmode m) 
+{
+    ID = i;
+    pointer = d;
+    mode = m;
+};        
+
 rendercombination::rendercombination()
     {
     //TODO: change the undefined ID from 0 to NOT_FOUND_ID
     id=new_rc_ID++;
-    renderimages[0]=0;
     blend_mode_=BLEND_MAX;
     }
 
 rendercombination::rendercombination(int volID)
     {
     id=new_rc_ID++;
-    renderimages[0]=volID;
    
     blend_mode_=BLEND_MAX;
-    if (volID !=0)
+    if (volID > 0)
         {
-        renderimage_pointers[0]=datamanagement.get_image(volID);
-
-        renderimages[1]=0;
+        renderimages.push_front(renderpair(volID,datamanagement.get_data(volID),BLEND_OVERWRITE));
         }
     }
 
-bool rendercombination::image_remaining(int priority)
+rendercombination::iterator rendercombination::begin() const
+{
+    return renderimages.begin();
+}
+
+rendercombination::iterator rendercombination::end() const
+{
+    return renderimages.end();
+}
+
+bool rendercombination::empty() const
+{
+    return renderimages.empty();    
+}
+
+/*bool rendercombination::image_remaining(int priority)
     {
     for (int i=0;i <= priority;i++)
         {
@@ -70,12 +95,26 @@ int rendercombination::image_ID_by_priority (int priority)
 image_base* rendercombination::get_imagepointer(int p)
     {
     return renderimage_pointers[p];
-    }
+    }*/
 
-void rendercombination::add_image(int volID)
+image_base* rendercombination::top_image ()const
+{
+    for (std::list<renderpair>::const_iterator itr = renderimages.begin();itr != renderimages.end();itr++)
+        {
+        image_base* value = dynamic_cast<image_base* >(itr->pointer);
+        
+        if (value != NULL)
+            { return value;}
+        }
+    
+    return NULL;
+}
+
+void rendercombination::add_image(int dataID)
     {
-    int empty_spot=-1;
+    renderimages.push_back(renderpair(dataID,datamanagement.get_data(dataID),BLEND_OVERWRITE));
 
+    /*
     //find end of combinations array
     for (int i=0;empty_spot == (-1) && i < MAXRENDERVOLUMES;i++)
         {
@@ -99,11 +138,27 @@ void rendercombination::add_image(int volID)
         {
         std::cout << "Attempted to add image ID " << volID << ", render list was full" << std::endl;
         }
+    */
     }
 
 void rendercombination::toggle_image(int imageID)
 {
     bool removed=false;
+
+    for (std::list<renderpair>::iterator itr = renderimages.begin();itr != renderimages.end();itr++)
+        {
+        
+        if (itr->ID==imageID)
+            {
+            remove_image(imageID);
+            removed=true;
+            }
+        }
+    
+    if (!removed)
+        {add_image(imageID);  }
+    
+    /*bool removed=false;
     
     for (int i=0; i<= MAXRENDERVOLUMES && renderimages [i]!=0;i++)
     {
@@ -117,13 +172,25 @@ void rendercombination::toggle_image(int imageID)
     if (!removed)
     {
         add_image(imageID);
-    }
-    
+    }*/
 }
 
 void rendercombination::remove_image(int ID)
     {
     bool removed=false;
+    
+    for (std::list<renderpair>::iterator itr = renderimages.begin();itr != renderimages.end();itr++)
+        {
+        if (itr->ID == ID)
+            {
+            renderimages.erase(itr);
+            removed = true;
+            }
+        }
+    if (removed)
+        {rendermanagement.combination_update_callback(this->id);}
+    
+    /*bool removed=false;
     for (int i=0; i<= MAXRENDERVOLUMES && renderimages [i]!=0;i++)
         {
         if (renderimages [i]==ID)
@@ -137,14 +204,14 @@ void rendercombination::remove_image(int ID)
             }
         }
     if (removed)
-        {rendermanagement.combination_update_callback(this->id);}
+        {rendermanagement.combination_update_callback(this->id);}*/
     }
 
 int rendercombination::image_rendered(int ID)
     {
-        for (int r=0; r < MAXRENDERVOLUMES && renderimages [r]!=0; r++)
+    for (std::list<renderpair>::iterator itr = renderimages.begin();itr != renderimages.end();itr++)
         {
-            if (renderimages[r]==ID)
+            if (itr->ID ==ID)
                 {return blend_mode();}
         }
 
@@ -187,21 +254,15 @@ void rendercombination::image_vector_has_changed()
                 }
             }
         };*/
-    
-    for (int r=0;r < MAXRENDERVOLUMES && renderimages [r]!=0;r++)
+    for (std::list<renderpair>::iterator itr = renderimages.begin();itr != renderimages.end();itr++)
         {
-        renderimage_pointers[r]=datamanagement.get_image(abs(renderimages[r]));
+        itr->pointer=datamanagement.get_image(itr->ID);
         
-        if ( renderimage_pointers[r] == NULL)
+        if ( itr->pointer == NULL)
             {
             //image at p does not exist
             
-            renderimages[r]=0;
-            
-            for (int v=r;renderimages [v+1]!=0;v++)
-                {
-                renderimages[v]=renderimages[v+1];
-                }
+            renderimages.erase(itr);
             }
         };
     
