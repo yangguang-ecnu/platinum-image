@@ -9,8 +9,7 @@
     * [http://www.fltk.org/software.php FLTK 1.1.7]
     * [http://www.itk.org/HTML/Download.php ITK 3.0.1] - you'll have to fill in the questionnaire
     * [http://www.vtk.org/get-software.php#latest VTK 5.0.2]
-  # Get yourself an [http://subversion.tigris.org/links.html#clients SVN client] like for example [http://tortoisesvn.tigris.org/ TortoiseSVN]. *Mac:* the [http://www.codingmonkeys.de/mbo/articles/tag/subversion base command-line package] together with XCode's built in SVN-support (see below) and [http://scplugin.tigris.org/ SCPlugin] is recommended.
-
+  # Get yourself an [http://subversion.tigris.org/links.html#clients SVN client] like for example [http://tortoisesvn.tigris.org/ TortoiseSVN]. *Mac:* the [http://www.codingmonkeys.de/mbo/articles/tag/subversion base command-line package] together with XCode's built in SVN-support (see below) and [http://www.lachoseinteractive.net/en/community/subversion/svnx/features/ svnX] is recommended. (optionally, there is also a plugin for Finder similar to TortoiseSVN called [http://scplugin.tigris.org/ SCPlugin])
 =2. Install=
 
   * CMake
@@ -119,3 +118,4 @@ If you are on Mac OS X you may use the `-G XCode` flag with CMake (all other ins
 You may also use XCode for updating/commiting SVN: select "Configure SCM" from the SCM menu, choose Subversion as SCM system and click "Enable SCM". When CMakeLists is changed, the project file will be rewritten on the next Build. XCode will notice this shortly afterwards and ask You to reload. When this happens, SVN must be re-enabled as described above.
 
 *Note:* for XCode SVN to work, you have to have SVN previously set up. This can be done by command-line or, preferrably, with a tool like [http://www.lachoseinteractive.net/en/community/subversion/svnx/features/ svnX].
+
