@@ -28,7 +28,7 @@
 #include "colormap.h"
 #include "datamanager.h"
 #include "global.h"
-const int MAXRENDERVOLUMES = 10; //maximum layers for a single renderer
+//const int MAXRENDERVOLUMES = 10; //maximum layers for a single renderer
 
 //blending modes
 enum blendmode {BLEND_ENDOFLIST=-2,
@@ -44,22 +44,39 @@ RENDER_THRESHOLD};  //RENDER_THRESHOLD is not user-selectable, used internally
 //blend_mode_labels defined in viewport.cc
 class rendercombination
     {
+public:
+        class renderpair {
+public:
+            int ID;
+            data_base * pointer;
+            blendmode mode;
+            
+            renderpair();
+            renderpair(const int, data_base*,const blendmode);
+        };        
+        
     private:
-        int renderimages [MAXRENDERVOLUMES];
+        //int renderimages [MAXRENDERVOLUMES];
+        std::list<renderpair> renderimages;
         //colormap colortable;
         int id; //id to identify this combination in callbacks
         static int new_rc_ID;   //unique id to assign newly created combinations
         blendmode blend_mode_;
     public:
         rendercombination();
+        typedef std::list<renderpair>::const_iterator iterator;
         rendercombination(int ID);  //constructor that populates
         //the renderimages array 
         //from the beginning
         void image_vector_has_changed ();   //image has been added or removed - update renderlist
-        bool image_remaining(int priority);        //at priority, is there an image to render?
-        int image_ID_by_priority (int priority);
+        //bool image_remaining(int priority);        //at priority, is there an image to render?
+        //int image_ID_by_priority (int priority);
+        iterator begin() const;
+        iterator end() const;
+        bool empty() const;
+        image_base* top_image ()const; //topmost image
         image_base* get_imagepointer(int ID);
-        image_base *renderimage_pointers[MAXRENDERVOLUMES];
+        //image_base *renderimage_pointers[MAXRENDERVOLUMES];
         void add_image(int ID);
         void toggle_image(int imageID);
         void remove_image(int ID);

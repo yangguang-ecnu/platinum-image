@@ -53,6 +53,7 @@ class rendermanager
         int create_renderer(RENDERER_TYPES rendertype);
         void remove_renderer (int ID);
         int find_renderer_index(int uniqueID);
+        int find_renderer_id (int index);
         renderer_base * get_renderer (int ID);
         void connect_image_renderer(int rendererID, int imageID);
         void image_vector_has_changed();
@@ -70,6 +71,8 @@ class rendermanager
         int get_blend_mode (int rendererIndex);
         int get_combination_id(int rendererIndex);              //get id of combination object associated with
                                                                 //renderer rendererIndex
+
+        rendercombination* get_combination (int ID);
 
         int get_geometry_id(int rendererIndex);                 //get id of geometry object associated with
                                                                 //renderer rendererIndex

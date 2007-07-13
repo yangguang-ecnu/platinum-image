@@ -33,6 +33,7 @@
 #include <FL/Fl_Button.H>
 
 #include <map>
+#include <sstream>
 
 class image_base;
 class viewport;
@@ -112,6 +113,8 @@ protected:
     //controls
     static Fl_Output * coord_display;
     static Fl_Button * make_button;
+    std::ostringstream numbers;
+    renderer_base * renderer;
 public:
     cursor_tool (viewport_event &);
     static const std::string name ();

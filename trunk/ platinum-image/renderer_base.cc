@@ -109,22 +109,27 @@ void renderer_base::move( float pan_x, float pan_y, float pan_z, float zoom_d)
         }
     }
 
-std::vector<float> renderer_base::get_values(Vector3D unitPos)
-    {
+std::vector<float> renderer_base::get_values(Vector3D unitPos) const
+{
     std::vector<float> v;
     Vector3D tlb;
-    for (int i=0; imagestorender->image_remaining(i);i++)
+    for (rendercombination::iterator itr = imagestorender->begin(); itr != imagestorender->end();itr++)
         {
-        //center-based to top-left-back,
-        //add particular image's geometric center
-        tlb=unitPos+imagestorender->renderimage_pointers[i]->unit_center();
-        tlb=imagestorender->renderimage_pointers[i]->unit_to_voxel()*tlb;
-        if ( tlb[0] >= 0 && tlb[1] >= 0 && tlb[2] >= 0 && tlb[0] < imagestorender->renderimage_pointers[i]->get_size_by_dim(0) && tlb[1] < imagestorender->renderimage_pointers[i]->get_size_by_dim(1) && tlb[2] < imagestorender->renderimage_pointers[i]->get_size_by_dim(2))
+        image_base * image = dynamic_cast<image_base *> (itr->pointer);
+        
+        if (image != NULL)
             {
-            v.push_back(imagestorender->renderimage_pointers[i]->get_number_voxel(tlb[0],tlb[1],tlb[2]));
+            //center-based to top-left-back,
+            //add particular image's geometric center
+            tlb=unitPos+image->unit_center();
+            tlb=image->unit_to_voxel()*tlb;
+            if ( tlb[0] >= 0 && tlb[1] >= 0 && tlb[2] >= 0 && tlb[0] < image->get_size_by_dim(0) && tlb[1] < image->get_size_by_dim(1) && tlb[2] < image->get_size_by_dim(2))
+                {
+                v.push_back(image->get_number_voxel(tlb[0],tlb[1],tlb[2]));
+                }
+            else
+                {v.push_back(-1);}
             }
-        else
-            {v.push_back(-1);}
         }
     return v;
-    }
+}

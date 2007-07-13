@@ -55,10 +55,10 @@ class rendererMPR : public renderer_base
         void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold);
         void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy);
 
-        Vector3D view_to_voxel(int imageID, int vx, int vy,int sx,int sy);
-        Vector3D view_to_unit(int vx, int vy,int sx,int sy);
+        virtual Vector3D view_to_voxel(int vx, int vy,int sx,int sy,int imageID = -1) const;
+        Vector3D view_to_world(int vx, int vy,int sx,int sy) const;
        
-        std::vector<float> get_values(int vx, int vy,int sx,int sy);
+        std::vector<float> get_values(int vx, int vy,int sx,int sy) const;
     };
 
 #endif

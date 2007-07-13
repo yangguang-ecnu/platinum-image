@@ -124,7 +124,8 @@ class datamanager
                                                                     //DEPRECATED: use image_base::alike instead
         int find_image_index(int uniqueID);
         image_base * get_image (int ID);
-
+        data_base * get_data (int ID);
+        
         void parse_and_load_file(char filename[]);
         void parse_identifier(std::ifstream &in, int &identifierindex);
 

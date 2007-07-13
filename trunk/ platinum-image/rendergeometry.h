@@ -40,7 +40,7 @@ class rendergeometry
     public:
         rendergeometry();
 
-        Matrix3D view_to_unit(int viewminsize);
+        Matrix3D view_to_world(int viewminsize);
 
         // *** NOTE: some render parameter constraints (like not zooming in/out at insane levels)
         //     are implemented in renderer_base::move
