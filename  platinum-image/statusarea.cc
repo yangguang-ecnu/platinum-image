@@ -62,12 +62,16 @@ statusarea::statusarea(int X, int Y, int W, int H, const char *L)
     o->align(FL_ALIGN_BOTTOM_RIGHT);
     o->when(FL_WHEN_RELEASE);
     
+    //o->color(FL_BLUE);
+    
     { Fl_Output* o = messageText = new Fl_Output(0, 0, W-progress_w, 24);
         o->box(FL_THIN_DOWN_FRAME);
         o->labeltype(FL_NO_LABEL);
         o->align(FL_ALIGN_CENTER);
         resizable(o);
-        //o->value("Platinum $Revision: 305 $");
+        
+        o->value("Platinum $Revision: 305 $");
+        //o->color(FL_RED);
     }            
     { Fl_Progress* o = progress = new Fl_Progress(W-progress_w, 0, progress_w, 24);
         o->box(FL_NO_BOX);
@@ -95,6 +99,9 @@ void statusarea::realtime_message (const char* const m)
 
 void statusarea::switch_pane (std::string key)
 {
+    int X = x();
+    int W = w();
+
     for (std::map<std::string, Fl_Group *>::iterator itr = panes.begin();itr != panes.end();itr++)
         {
         if (itr->first == key)
@@ -102,13 +109,17 @@ void statusarea::switch_pane (std::string key)
             Fl_Group * gr = itr->second;
             
             gr->position(x(),y());
-            messageText->resize(gr->x()+gr->w(),y(),w()-gr->w(),w());
+            //messageText->resize(gr->x()+gr->w(),y(),w()-gr->w(),w());
+            X = gr->x()+gr->w();
+            W = w()-gr->w();
             
             gr->show();
             }
         else
             {itr->second->hide();}
         }
+    
+    messageText->resize(X,y(),W,h());
     
     init_sizes();
     damage (FL_DAMAGE_CHILD);
