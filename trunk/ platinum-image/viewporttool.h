@@ -74,7 +74,7 @@ public:
     viewporttool(viewport_event &);
     virtual ~viewporttool();
     
-    static void init (statusarea *);
+    static void init (int x, int y,statusarea *);
     
     static void select (std::string);
     static viewporttool * taste(viewport_event &,viewport *,renderer_base *);  //if the current tool responds to the event, return instance (which will be getting the events from now on until another tool is selected)

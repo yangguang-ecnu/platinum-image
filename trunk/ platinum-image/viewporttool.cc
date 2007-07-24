@@ -55,10 +55,9 @@ viewporttool * viewporttool::CreateObject(viewport_event &event)
     return new TOOL (event);
 }
 
-void viewporttool::init (statusarea * s)
+void viewporttool::init (int posX, int posY,statusarea * s)
 {
     statusArea = s;
-    //Fl_Group::current(statusArea);
     
     //register tool classes
     
@@ -72,7 +71,7 @@ void viewporttool::init (statusarea * s)
     //create toolbox widget
     const bool horizontal = true;
 
-    toolbox = new Fl_Pack (0,statusArea->y(),0,statusArea->h());
+    toolbox = new Fl_Pack (posX,posY,1,statusArea->h());
     
     if (horizontal)
         { toolbox->type(FL_HORIZONTAL);}
@@ -119,7 +118,7 @@ void viewporttool::init (statusarea * s)
         x = buttonSize;
         }
     
-    toolbox->size(x,y);
+    toolbox->resize(posX,posY,x,y);
     toolbox->end();
     }
 
@@ -312,11 +311,13 @@ const std::string cursor_tool::name()
 
 void cursor_tool::init()
 {
-    Fl_Group * controls = userIOmanagement.status_area->add_pane<Fl_Pack>(name());
-    controls->size(45,controls->h());
+    const int controls_w = 90;
+    
+    Fl_Group * controls = userIOmanagement.status_area->add_pane<Fl_Group>(name());
+    controls->size(controls_w+5,controls->h());
     //controls->type(FL_HORIZONTAL);
     //coord_display = new Fl_Output (controls->x(),controls->y(),60,controls->h(),"Location");
-    make_button = new Fl_Button (controls->x(),controls->y(),40,controls->h(),"Make point");
+    make_button = new Fl_Button (controls->x(),controls->y(),controls_w,controls->h(),"Make point");
     controls->box(FL_FLAT_BOX);
     controls->color(FL_RED);
     

@@ -206,18 +206,19 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
 
 #pragma mark *** Create status area ***
     
-    Fl_Pack * toolsNstatus = new Fl_Pack (0,viewsNlists->y()+viewsNlists->h(),viewsNstatusStack->w(),status_area_h);
-    toolsNstatus->type(FL_HORIZONTAL);
+    Fl_Group * toolsNstatus = new Fl_Group (0,viewsNlists->y()+viewsNlists->h(),viewsNstatusStack->w(),status_area_h);
+    //toolsNstatus->type(FL_HORIZONTAL);
     
     Fl_Group::current (NULL); //statusarea has to be after toolbox in pack...
     userIOmanagement.status_area = new statusarea (0,win_h-status_area_h,toolsNstatus->w(),status_area_h); 
-    Fl_Group::current (toolsNstatus);
     
-    viewporttool::init(userIOmanagement.status_area); //!spawn toolbox and give viewporttool pointer to statusarea
-
-    userIOmanagement.status_area->resize(viewporttool::toolbox->x()+viewporttool::toolbox->w(),toolsNstatus->y(),toolsNstatus->w()-viewporttool::toolbox->w(),toolsNstatus->h());
+    Fl_Group::current (NULL);
+    viewporttool::init(toolsNstatus->x(),toolsNstatus->y(),userIOmanagement.status_area); //!spawn toolbox and give viewporttool pointer to statusarea
+    toolsNstatus->add(viewporttool::toolbox);
+    
     toolsNstatus->add(userIOmanagement.status_area);//...time to add statusarea
-
+    userIOmanagement.status_area->resize(viewporttool::toolbox->x()+viewporttool::toolbox->w(),toolsNstatus->y(),toolsNstatus->w()-viewporttool::toolbox->w(),toolsNstatus->h());
+         
     toolsNstatus->resizable(userIOmanagement.status_area);
     toolsNstatus->end();
     

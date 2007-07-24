@@ -58,7 +58,7 @@ public:
 template <class FLGROUPTYPE>
 FLGROUPTYPE * statusarea::add_pane (std::string key)
 {
-    Fl_Group::current(NULL);
+    Fl_Group::current(this);
     
     FLGROUPTYPE * group = new FLGROUPTYPE (x(),y(),w(),h());
     //panes[key]->type(FL_HORIZONTAL);
