@@ -89,7 +89,7 @@ class rendermanager
                                                                     //returns NOT_FOUND_ID past end
 
         int renderer_empty (int rendererID);       //returns whether renderer has no images to render or not
-        std::vector<float> get_values (int rendererIndex, int px, int py,int sx, int sy);
+        std::map<std::string,float> get_values (int rendererIndex, int px, int py,int sx, int sy);
         Vector3D get_location (int rendererIndex, int imageID, int px, int py, int sx, int sy);
 
         void set_geometry(int renderer_index,Vector3D * dir,Vector3D * look_at,int zoom);
