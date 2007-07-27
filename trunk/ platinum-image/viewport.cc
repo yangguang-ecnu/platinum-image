@@ -232,7 +232,7 @@ void viewport::refresh()
 
 void viewport::update_fbstring (FLTKviewport* f)
     {
-    vector<float> values;
+    std::map<std::string,float> values;
     ostringstream infostring;
 
     //Draw values picked from data at mouse position
@@ -240,13 +240,13 @@ void viewport::update_fbstring (FLTKviewport* f)
 
     values=rendermanagement.get_values(rendererIndex,f->mouse_pos[0]-f->x(),f->mouse_pos[1]-f->y(),pixMapSize[0],pixMapSize[1]);
 
-    for (unsigned int i=0; i < values.size(); i++)
+    for (std::map<std::string,float>::iterator itr = values.begin(); itr != values.end();itr++)
         {
-        if (i>0) 
+        if (itr != values.begin()) 
             {
             infostring << endl;
             }
-        infostring << values[i];
+        infostring << itr->first << ": " << itr->second;
         }
 
     f->feedback_string=infostring.str();

@@ -100,16 +100,18 @@ void renderer_base::move( float pan_x, float pan_y, float pan_z, float zoom_d)
             //side length max_pan*2
             {pan[d]=0;}*/
 
-            if (fabs(wheretorender->look_at[d]) > max_pan)                         //if look_at is outside max_pan
-                                                                                   //in any direction,
-                                                                                   //set to max_pan maintaining sign   
+            if (fabs(wheretorender->look_at[d]) > max_pan)                        
+                //if look_at is outside max_pan
+                //in any direction,
+                //set to max_pan maintaining sign   
+                
                 {wheretorender->look_at[d]=max_pan*
                 wheretorender->look_at[d]/fabs(wheretorender->look_at[d]);}   
             }
         }
     }
 
-std::vector<float> renderer_base::get_values(Vector3D unitPos) const
+/*std::vector<float> renderer_base::get_values(Vector3D unitPos) const
 {
     std::vector<float> v;
     Vector3D tlb;
@@ -131,5 +133,30 @@ std::vector<float> renderer_base::get_values(Vector3D unitPos) const
                 {v.push_back(-1);}
             }
         }
-    return v;
+    }
+    return v;*/
+
+std::map<std::string,float> renderer_base::get_values_world(Vector3D unitPos) const
+{
+    std::map<std::string,float> m;
+    Vector3D tlb;
+    for (rendercombination::iterator itr = imagestorender->begin(); itr != imagestorender->end();itr++)
+        {
+        image_base * image = dynamic_cast<image_base *> (itr->pointer);
+        
+        if (image != NULL)
+            {
+            //center-based to top-left-back,
+            //add particular image's geometric center
+            tlb=unitPos+image->unit_center();
+            tlb=image->unit_to_voxel()*tlb;
+            if ( tlb[0] >= 0 && tlb[1] >= 0 && tlb[2] >= 0 && tlb[0] < image->get_size_by_dim(0) && tlb[1] < image->get_size_by_dim(1) && tlb[2] < image->get_size_by_dim(2))
+                {
+                m[image->name()] = (image->get_number_voxel(tlb[0],tlb[1],tlb[2]));
+                }
+            //else
+            //    {m.push_back(-1);}
+            }
+        }
+    return m;    
 }

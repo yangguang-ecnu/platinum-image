@@ -190,18 +190,16 @@ int rendermanager::get_renderer_type(int rendererIndex)
     return renderers[rendererIndex]->renderer_type();
     }
 
-vector<float> rendermanager::get_values (int index, int px, int py,int sx, int sy)
+std::map<std::string,float> rendermanager::get_values (int index, int px, int py,int sx, int sy)
     {
     if (index != -1)
         {
-        return renderers[index]->get_values(px, py,sx,sy);
+        return renderers[index]->get_values_screen(px, py,sx,sy);
         }
 
-    vector<float> v;
+    std::map<std::string,float> m;
 
-    v.push_back(-1);
-
-    return v;  //if ID is invalid
+    return m;  //if ID is invalid
     }
 
 Vector3D rendermanager::get_location (int rendererIndex, int imageID, int px, int py, int sx, int sy)

@@ -206,53 +206,100 @@ void nav_tool::handle(viewport_event &event)
         {
         event.grab();
         
+        //get pointer to renderer
+        renderer = rendermanagement.get_renderer( myPort->get_renderer_id());
+        
         dragLast[0] = event.mouse_pos_global()[0];
         dragLast[1] = event.mouse_pos_global()[1];
         }
     
-    if (!event.handled() && event.state() == pt_event::iterate)
+    if (!event.handled())
         {
         const int * pms = myPort->pixmap_size();
         const float pan_factor=(float)1/(std::min(pms[0],pms[1]));
         const int * mouse = event.mouse_pos_global();
         
         FLTKviewport * fvp = event.get_FLTK_viewport();
+        
         switch (event.type())
             {
             case pt_event::browse:
-                event.grab();
-                
-                myRenderer->move(-(mouse[0]-dragLast[0])*pan_factor,-(mouse[1]-dragLast[1])*pan_factor);
-                
-                fvp->needs_rerendering();
-                
+                if ( event.state() == pt_event::iterate)
+                    {
+                    event.grab();
+                    
+                    myRenderer->move(-(mouse[0]-dragLast[0])*pan_factor,-(mouse[1]-dragLast[1])*pan_factor);
+                    
+                    fvp->needs_rerendering();
+                    }
                 break;
                 
             case pt_event::adjust:
-                {
+                if ( event.state() == pt_event::iterate)
+                    {
                     event.grab();
                     
                     myRenderer->move(0,0,0,1+(mouse[1]-dragLast[1])*zoom_factor);
                     
                     fvp->needs_rerendering();
-                }
+                    }
                 break;
-                
-                /*case hover:
-                {
-                    event.grab();
-                    
-                    update_fbstring(f);
-                }
-                break;*/
                 
             case pt_event::scroll:
-                event.grab();
-                
-                myRenderer->move(0,0,event.scroll_delta()*wheel_factor);
-                
-                fvp->needs_rerendering();
+                if ( event.state() == pt_event::iterate)
+                    {
+                    event.grab();
+                    
+                    myRenderer->move(0,0,event.scroll_delta()*wheel_factor);
+                    
+                    fvp->needs_rerendering();
+                    }
                 break;
+                
+            case pt_event::hover:
+                //display values
+                switch (event.state() )
+                    {
+                    case pt_event::begin:
+                    case pt_event::iterate:
+                        {
+                            event.grab();
+                            
+                            numbers.str("");
+                            
+                            //get values and update statusfield
+                            
+                            const std::map<std::string, float>values=myRenderer->get_values_screen(mouse[0],mouse[1],fvp->w(),fvp->h());
+                            
+                            if (values.empty())
+                                {
+                                userIOmanagement.interactive_message();
+                                }
+                            else
+                                {
+                                for (std::map<std::string,float>::const_iterator itr = values.begin(); itr != values.end();itr++)
+                                    {
+                                    if (itr != values.begin())
+                                        { numbers << "; ";}
+                                    numbers << itr->first << ": " << itr->second;
+                                    }
+                                
+                                userIOmanagement.interactive_message(numbers.str());
+                                }
+                        }
+                        break;
+                    case pt_event::end:
+                        event.grab();
+                        userIOmanagement.interactive_message();
+                        break;
+                        
+                    }
+                break;                
+            }
+        
+        if (event.state() == pt_event::end)
+            {
+            renderer = NULL;
             }
         
         dragLast[0] = mouse[0];
@@ -389,7 +436,7 @@ void cursor_tool::handle(viewport_event &event)
             {
             case pt_event::begin:
                 //get pointer to renderer
-                renderer = rendermanagement.get_renderer( myPort->get_renderer_id());
+                //renderer = rendermanagement.get_renderer( myPort->get_renderer_id());
             case pt_event::iterate:
                 {
                     numbers.str("");
@@ -409,7 +456,7 @@ void cursor_tool::handle(viewport_event &event)
                 }
                 break;
             case pt_event::end:
-                renderer = NULL;
+                //renderer = NULL;
                 userIOmanagement.interactive_message();
                 break;
             }

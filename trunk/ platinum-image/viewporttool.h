@@ -90,6 +90,8 @@ protected:
 
     int dragLast [2]; //pt_event store drag origin (most useful) but
                       //for panning we need the pos at last iteration
+    renderer_base * renderer;
+    std::ostringstream numbers;
 public:
     nav_tool (viewport_event &);
     virtual void handle(viewport_event &);
@@ -114,8 +116,6 @@ protected:
     //controls
     static Fl_Output * coord_display;
     static Fl_Button * make_button;
-    std::ostringstream numbers;
-    renderer_base * renderer;
 public:
     cursor_tool (viewport_event &);
     static const std::string name ();

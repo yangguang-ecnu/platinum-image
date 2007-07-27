@@ -98,10 +98,10 @@ public:
     virtual void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold) = 0;
     
     //get values from current view, pixel coordinates
-    virtual std::vector<float> get_values(int vx, int vy,int sx,int sy) const = 0;    
+    virtual std::map<std::string,float> get_values_screen(int vx, int vy,int sx,int sy) const = 0;    
     
     //get values from composite, unit image coordinates
-    virtual std::vector<float> get_values(Vector3D unitPos) const;             
+    virtual std::map<std::string,float> get_values_world(Vector3D unitPos) const;             
     
     //convert view coordinates to voxels, virtual since the result depends on what's visible,
     //which in turn depends on how it's rendered

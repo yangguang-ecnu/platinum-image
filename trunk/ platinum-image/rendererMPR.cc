@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
-//  reslice routines for MPR $Revision$
+//  RendererMPR $Revision$
 ///
 /// arbitrary 2D slices rendered by scanline
 ///
@@ -40,10 +40,10 @@ T signed_ceil(T & x){   //ceil that returns rounded absolute upwards
     return (x < 0 ? floor (x) : ceil (x));
     }
 
-vector<float> rendererMPR::get_values(int vx, int vy,int sx,int sy) const
+std::map<std::string,float> rendererMPR::get_values_screen(int vx, int vy,int sx,int sy) const
     {
     //virtual function, MSVC gets hickups without namespace spec however :(
-    return renderer_base::get_values(view_to_world(vx,vy,sx,sy));
+    return renderer_base::get_values_world(view_to_world(vx,vy,sx,sy));
     }
 
 void rendererMPR::connect_image(int vHandlerID)
