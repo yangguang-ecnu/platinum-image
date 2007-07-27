@@ -56,13 +56,14 @@ Vector3D rendererMPR::view_to_world(int vx, int vy,int sx,int sy) const
 {
     Vector3D view,unit;
     vector<float> v;
+    float viewmin = std::min (sx,sy);
     
-    view[0]=vx-sx/2;
+    view[0]=vx-sx/2 ;
     view[1]=vy-sy/2;
     view[2]=0;
     
     //transform to unit coordinates
-    unit=wheretorender->view_to_world(min (sx,sy))*view;
+    unit=wheretorender->view_to_world(viewmin)*view;
     unit=wheretorender->look_at+unit;
     
     return unit;
@@ -83,8 +84,10 @@ Vector3D rendererMPR::view_to_voxel(int vx, int vy,int sx,int sy,int imageID) co
             }
         else
             {
+            Vector3D v;
+            v.Fill (-1);
             //no image there
-            return Vector3D();
+            return v;
             }
         }
     //return Vector3D();
@@ -249,7 +252,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             
             //start position in image
             voxel_offset[the_image]=(the_image_pointer->unit_to_voxel())*(where->look_at+the_image_pointer->unit_center()-((render_dir*unit_screen_center)/where->zoom));
-            
+#pragma mark *** preparation for memory-order ***
 #ifndef USE_ARBITRARY
             //transform start to pixel units & voxel space which the renderer
             //is based on, since it allows us to step through voxel space for
@@ -468,7 +471,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                             = max ((long)0, min ((long)rgb_sx, (long)(rgb_x)));
                         long fill_x_end
                             = min ((long)rgb_sx, max((long)0, (long)(rgb_x_next)));*/
-                        
+#pragma mark *** preparation for arbitrary ***             
 #else
                         
                         start = voxel_offset[the_image];
@@ -496,7 +499,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                         
                         //center slice onscreen
                         
-                        int nonsquare_offset=(rgb_sx-rgb_sy)/2;
+                        /*int nonsquare_offset=(rgb_sx-rgb_sy)/2;
                         
                         if (nonsquare_offset > 0)
                             {
@@ -507,7 +510,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                         else
                             {
                             start+=slope_y*nonsquare_offset;
-                            }
+                            }*/
                         
                         // Render loop
                         

@@ -61,9 +61,9 @@ void userIOmanager::show_message (std::string name, std::string message, display
         }
 }
 
-void userIOmanager::realtime_message (const char* const c)
+void userIOmanager::interactive_message (const std::string m)
 {
-    status_area->realtime_message(c);
+    status_area->interactive_message(m);
 }
     
 

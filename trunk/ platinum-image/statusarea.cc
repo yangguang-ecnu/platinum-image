@@ -65,13 +65,11 @@ statusarea::statusarea(int X, int Y, int W, int H, const char *L)
     //o->color(FL_BLUE);
     
     { Fl_Output* o = messageText = new Fl_Output(0, 0, W-progress_w, 24);
-        o->box(FL_THIN_DOWN_FRAME);
+        o->box(FL_THIN_DOWN_BOX);
         o->labeltype(FL_NO_LABEL);
         o->align(FL_ALIGN_CENTER);
+        o->color(FL_BACKGROUND_COLOR);
         resizable(o);
-        
-        o->value("Platinum $Revision: 305 $");
-        //o->color(FL_RED);
     }            
     { Fl_Progress* o = progress = new Fl_Progress(W-progress_w, 0, progress_w, 24);
         o->box(FL_NO_BOX);
@@ -85,16 +83,28 @@ statusarea::statusarea(int X, int Y, int W, int H, const char *L)
 
 position(X, Y);
 end();
+
+message("Platinum $Revision: 305 $");
 }
 
-void statusarea::message (std::string m)
+void statusarea::message (const std::string m)
 {
-    messageText->value(m.c_str());
+    messageString = m;
+    messageText->value(messageString.c_str());
+    
 }
 
-void statusarea::realtime_message (const char* const m)
+void statusarea::interactive_message (const std::string m)
 {
-    messageText->static_value(m);
+    if (m == "")
+        {  
+        //restore persistent message
+        messageText->value(messageString.c_str());
+        }
+    else
+        {
+        messageText->value(m.c_str());
+        }
 }
 
 void statusarea::switch_pane (std::string key)
