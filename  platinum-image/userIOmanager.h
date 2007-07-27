@@ -63,9 +63,9 @@ class userIOmanager
 
         typedef enum {status,block} displayMethod;
         void show_message (std::string name, std::string message, displayMethod method = status );  //the simple way to display information; in a userIO block or in the status area (or, in the future, say, an alert window)
-        void realtime_message (const char* const); //display fast-update message in statusarea, 
+        void interactive_message (const std::string m = ""); //display fast-update message in statusarea, 
                                        //in char array stored elsewhere
-                                       //do or die: must be cleared with realtime_message (NULL)
+                                       //do or die: must be cleared with interactive_message (NULL)
                                        //before array is deleted
 
         void finish_userIO(int userIO_ID);         //end group and redraw all widgets, ready to use

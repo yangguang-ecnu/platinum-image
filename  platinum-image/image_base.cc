@@ -80,6 +80,15 @@ Vector3D image_base::transform_unit_to_voxel(Vector3D pos)
 
     vox=pos+unit_center_;
     vox=unit_to_voxel_*vox;
+    
+    for (int d = 0;d<3; d++)                             //double duty loop:
+        {
+        //vox[d] = floor (vox[d]);                         //1. round to integer 
+        
+        if (vox[d] < 0 || vox [d] > get_size_by_dim(d) ) //2. check if coordinates
+                                                         //   are inside volume
+            {vox[2] = vox[1] = vox [0] = -1; }           //   -1 signifies out of bounds
+        }
 
     return vox;
     }

@@ -43,6 +43,7 @@ private:
     std::map<std::string,Fl_Group *> panes;
     Fl_Progress* progress;    
     Fl_Output *messageText;
+    std::string messageString;
     
     // end of FLUID output
 public:
@@ -50,8 +51,8 @@ public:
     template <class FLGROUPTYPE>
     FLGROUPTYPE * add_pane (std::string); //!get controls pane which is also added to the statusarea's map
     void switch_pane (std::string key);
-    void realtime_message (const char* const); //display fast-update message in char array stored elsewhere
-                                   //must be cleared with realtime_message (NULL) before array
+    void interactive_message (const std::string m = ""); //display fast-update message in char array stored elsewhere
+                                   //must be cleared with interactive_message (NULL) before array
                                    //is deleted
 };
 

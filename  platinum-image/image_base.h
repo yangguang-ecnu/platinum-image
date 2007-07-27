@@ -103,10 +103,14 @@ class image_base : public data_base
 
         virtual void make_image_an_itk_reader() = 0;
 
-        virtual unsigned short get_size_by_dim(int dim) const = 0;
+        virtual unsigned short get_size_by_dim(int dim) const = 0; 
         virtual bool same_size (image_base *) = 0;
 
-        Vector3D transform_unit_to_voxel(Vector3D pos);
+        Vector3D transform_unit_to_voxel(Vector3D pos); //convert float unit coords
+                                                        //to voxel coords
+                                                        //(-1,-1,-1) signifies
+                                                        //out of bounds
+
         
          virtual void image_has_changed(bool stats_refresh = true) = 0;
         // *** access methods ***

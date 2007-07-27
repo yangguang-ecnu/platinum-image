@@ -377,7 +377,7 @@ void cursor_tool::handle(viewport_event &event)
     if (event.type() == pt_event::resize)
         {
         event.grab();
-        
+    
         event.resize_point(selection[0],selection[1]);
         }
     
@@ -390,19 +390,27 @@ void cursor_tool::handle(viewport_event &event)
             case pt_event::begin:
                 //get pointer to renderer
                 renderer = rendermanagement.get_renderer( myPort->get_renderer_id());
-            case pt_event::idle:
+            case pt_event::iterate:
                 {
                     numbers.str("");
                     //get coords and update statusfield
                     Vector3D pos;
                     pos = myRenderer->view_to_voxel(mouse[0], mouse[1],fvp->w(),fvp->h());
-                    numbers << pos;
-                    userIOmanagement.realtime_message(numbers.str().c_str());
+                    if (pos[0]<0) //negative coordinates signify outside of
+                                  //(positive and negative) bounds
+                        {
+                        userIOmanagement.interactive_message();
+                        }
+                    else
+                        {
+                        numbers << pos;
+                        userIOmanagement.interactive_message(numbers.str());
+                        }
                 }
                 break;
             case pt_event::end:
                 renderer = NULL;
-                userIOmanagement.realtime_message(NULL);
+                userIOmanagement.interactive_message();
                 break;
             }
         }
