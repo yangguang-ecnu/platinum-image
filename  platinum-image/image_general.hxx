@@ -473,7 +473,7 @@ bool image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize_from_dicom_file(std::st
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-    Matrix3D image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize ()
+    Matrix3D image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize () const
     {
     return voxel_resize;
     }

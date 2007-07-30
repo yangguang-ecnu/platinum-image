@@ -93,6 +93,28 @@ Vector3D image_base::transform_unit_to_voxel(Vector3D pos)
     return vox;
     }
 
+Vector3D image_base::get_size () const
+{
+    Vector3D result;
+    
+    short smax = 0; //size maxnorm for unit coordinate system, remove for world
+
+    for (int d = 0; d < 3; d++)
+        {
+        result[d] = get_size_by_dim(d);
+        smax = std::max ((short)result[d],smax);
+        }
+    
+    result = get_voxel_resize() * result;
+    
+    //TODO:
+    //remove when world coordinate system is implemented
+    result /= smax;
+    
+    return result;
+}
+
+
 //enum fileFormatType {FILE_FORMAT_DICOM,FILE_FORMAT_VTK};
 //
 // //helper that creates subclass objects from ITK voxel/data type constants

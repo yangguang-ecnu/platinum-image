@@ -103,7 +103,8 @@ class image_base : public data_base
 
         virtual void make_image_an_itk_reader() = 0;
 
-        virtual unsigned short get_size_by_dim(int dim) const = 0; 
+        virtual unsigned short get_size_by_dim(int dim) const = 0;  //return voxel dimensions
+        virtual Vector3D get_size () const; //return size in world coordinates
         virtual bool same_size (image_base *) = 0;
 
         Vector3D transform_unit_to_voxel(Vector3D pos); //convert float unit coords
@@ -115,7 +116,7 @@ class image_base : public data_base
          virtual void image_has_changed(bool stats_refresh = true) = 0;
         // *** access methods ***
 
-        virtual Matrix3D get_voxel_resize () = 0;
+        virtual Matrix3D get_voxel_resize () const = 0;
 
         Matrix3D unit_to_voxel()
             {  return unit_to_voxel_; }

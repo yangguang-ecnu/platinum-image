@@ -186,6 +186,8 @@ const float nav_tool::zoom_factor=0.01;
 
 nav_tool::nav_tool (viewport_event & event):viewporttool(event)
     {
+    renderer = NULL;
+    
     //a tool constructor has to respond to the type of events it accepts by grabbing them,
     //or it won't be created
     if (event.type() == pt_event::hover || event.type() == pt_event::browse || event.type() == pt_event::adjust || event.type() == pt_event::scroll)
@@ -254,8 +256,7 @@ void nav_tool::handle(viewport_event &event)
                     
                     fvp->needs_rerendering();
                     }
-                break;
-                
+                //NOTE: no break, update hovering also
             case pt_event::hover:
                 //display values
                 switch (event.state() )
@@ -294,7 +295,22 @@ void nav_tool::handle(viewport_event &event)
                         break;
                         
                     }
-                break;                
+                break;        
+            case pt_event::key:
+                
+                if (event.key_combo(pt_event::pageup_key))
+                    {
+                    event.grab();
+                    
+                    myRenderer->nudge (0,0,-1);
+                    }
+                if (event.key_combo(pt_event::pagedown_key))
+                    {
+                    event.grab();
+                    
+                    myRenderer->nudge (0,0,1);
+                    }
+                break;
             }
         
         if (event.state() == pt_event::end)
@@ -428,7 +444,7 @@ void cursor_tool::handle(viewport_event &event)
         event.resize_point(selection[0],selection[1]);
         }
     
-    if (event.type() == pt_event::hover )
+    if (event.type() == pt_event::hover ) //|| event.type() == pt_event::scroll)
         {
         event.grab();
 
