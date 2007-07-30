@@ -172,7 +172,7 @@ class image_general : public image_storage <ELEMTYPE >
         bool same_size (image_base * other);    //test whether other image
                                                 //has same voxel dimensions
         
-        Matrix3D get_voxel_resize ();           //return voxel size matrix
+        Matrix3D get_voxel_resize () const;           //return voxel size matrix
 
         void filter_image_slw_mean_4NB_3D();
 

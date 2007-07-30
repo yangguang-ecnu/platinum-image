@@ -118,6 +118,17 @@ const pt_event::pt_event_state pt_event::state()
     return state_;
 }
 
+bool pt_event::has_modifier(const int mods)
+{
+    return (modifier & mods )!= 0;
+}
+
+bool pt_event::key_combo (const int k)
+{
+    return (k == value + modifier);
+}
+
+
 // *** FLTK_event ***
 
 void FLTK_event::set_type ()
@@ -134,21 +145,8 @@ void FLTK_event::set_type ()
     
     //right MB or left + alt key
     if(state & FL_BUTTON3 || (state & FL_BUTTON1) && (state & FL_ALT) )
-    //if (Fl::event_state(FL_BUTTON3) ||  (Fl::event_state() & ~(FL_BUTTON1 | FL_ALT)))
+        //if (Fl::event_state(FL_BUTTON3) ||  (Fl::event_state() & ~(FL_BUTTON1 | FL_ALT)))
         { type_ = create; }
-    
-    /*switch (Fl::event_button())
-    {
-        case FL_LEFT_MOUSE:
-            { type_ = adjust;}
-            break;
-        case FL_MIDDLE_MOUSE:
-            { type_ = browse; }
-            break;
-        case FL_RIGHT_MOUSE:
-            { type_ = create; }
-            break;
-    }*/
 }
 
 FLTK_event::FLTK_event (FLTKviewport * fvp) : pt_event ()
@@ -160,6 +158,8 @@ FLTK_event::FLTK_event (int FL_event,FLTKviewport * fvp):pt_event()
     {
     //myWidget = NULL;
     attach (fvp);
+    
+    modifier = (Fl::event_state(FL_SHIFT)  ? shift_key : 0 ) + (Fl::event_state(FL_ALT)  ? alt_key : 0 )+ (Fl::event_state(FL_META)  ? meta_key : 0 ) + (Fl::event_state(FL_CTRL)  ? ctrl_key : 0 );
 
     switch (FL_event){
         case FL_PUSH:
@@ -201,6 +201,13 @@ FLTK_event::FLTK_event (int FL_event,FLTKviewport * fvp):pt_event()
             type_ = scroll;
             state_ = iterate;
 
+            break;
+        case FL_KEYBOARD:
+                value = Fl::event_key(); //pt_event enumerations have the same values
+                                         //as FLTK event, see event.h
+           
+                state_ = begin;  //should rather be up/down: begin/end, but
+                                //FLTK does not seem to support this
             break;
         default:
             {} //default will be both type and state = none

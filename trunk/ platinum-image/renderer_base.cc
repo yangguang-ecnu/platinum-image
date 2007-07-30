@@ -111,6 +111,24 @@ void renderer_base::move( float pan_x, float pan_y, float pan_z, float zoom_d)
         }
     }
 
+void renderer_base::nudge (int x,int y,int z)
+{
+    Vector3D dir;
+    dir[0] = x; dir[1] = y; dir[2] = z;
+    
+    //combinations of images are rendered, here it is defined that
+    //nudge will move by the voxels of the topmost image
+    image_base* image = imagestorender->top_image();
+    
+    //TODO: remove when world coordinate system is implemented
+        
+    //OTESTAT, KOLLA BERÄKNINGEN ELLER VÄNTA TILLS EFTER VÄRLDSKOORDINATERNA
+    dir = wheretorender->dir* image->direction * image->get_voxel_resize() * dir;
+    
+    move(dir[0],dir[1],dir[2]);
+}
+
+
 /*std::vector<float> renderer_base::get_values(Vector3D unitPos) const
 {
     std::vector<float> v;

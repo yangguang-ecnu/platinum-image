@@ -112,6 +112,10 @@ public:
     void look_at (float x, float y, float z,float zoom=0);
     
     virtual void move( float pan_x, float pan_y, float pan_z=0, float zoom=1);
+    //!move in world coordinates
+    
+    virtual void nudge (int,int,int);
+    //!move in pixels - which image's pixels is a question of definition  
     
     int get_id()
         { return identitet; }
