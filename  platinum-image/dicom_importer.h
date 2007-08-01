@@ -45,7 +45,7 @@
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
 //#include <FL/Fl_Table_Row.H>
-#include "Fl_Table_Row.H"
+#include "Utilities/fltk/Fl_Table_Row.H"
 
 //#include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Button.H>
@@ -55,6 +55,7 @@
 #include <FL/Fl_Value_Slider.H>
 
 #include "itkGDCMImageIO.h"
+#include "stringmatrix.h"
 
 
 //#ifdef MICROSOFT
@@ -64,6 +65,7 @@
 
 using namespace std;
 
+/*
 class DcmTagEntry
 {
 public:
@@ -76,8 +78,8 @@ public:
 	string tag_group;
 	string tag_name;
 };
-
-
+*/
+/*
 // A row of columns
 class Row
 {
@@ -93,12 +95,19 @@ public:
 	SortColumn(int col, int reverse);				//sets variables
 	bool operator()(const Row &a, const Row &b);	//compares strings (when inside the column range)
 };
-
+*/
 
 class DcmTable : public Fl_Table_Row
 {
 private:
-	vector<Row> _rowdata;	// data in each row
+	stringmatrix dcmtags;		// contains dicom tag info, updated via the "settings window"
+	//---- dcmtags specification ----
+	//row 0: title			
+	//row 1: tag_group
+	//row 2: tag_name
+	// string DcmTagEntry::get_tagkey(){return tag_group+"|"+tag_name;}
+
+	stringmatrix data;			// contains the loaded dicom header data...
 	int _maxcols;				// max # columns in all rows
 	int _sort_reverse;			// sort direction
 	int _sort_lastcol;			// buffers the last "sorting column"
@@ -111,28 +120,26 @@ protected:
 	// Column headers are bold, an arrow displays the "column that holds the sorting"
 	// Selected rows are given the "selection_color"
 	void draw_cell(TableContext context, int R=0, int C=0, int X=0, int Y=0, int W=0, int H=0);
-	void sort_column(int col, int reverse=0);			// sort table by a column - uses stl::sort
 
 public:
 	DcmTable(int x, int y, int w, int h, const char *l=0);
 	~DcmTable();
-	vector<DcmTagEntry> dcmtags;
 
 	void load_testdata();				// load test data
 	void print_all();
-	void load_command(const char *cmd);	// load the output of a command into table - for example load_command("dir");
 	void autowidth(int pad);			// automatically set column widths to data maximum width
 };
-
 
 
 
 class dcmimportwin : public Fl_Window
 {
 public:
-	dcmimportwin(int xx, int yy, int ww, int hh, const char *ll=0);
+	//makes sure current(NULL) is not forgotten...
+	static dcmimportwin* create(int xx, int yy, int ww, int hh, const char *ll=0);
 
 private:
+	dcmimportwin(int xx, int yy, int ww, int hh, const char *ll=0);
 	DcmTable *table;
 	Fl_Check_Button* incl_subfolder_check_button;
 	Fl_Input* import_volume_input;
@@ -149,28 +156,23 @@ private:
 class settingswin : public Fl_Window
 {
 public:
-	settingswin(int x, int y, int w, int h, const char *l=0);
+	static settingswin* create(int xx, int yy, int ww, int hh, const char *ll=0);
+
+private:
+	settingswin(int xx, int yy, int ww, int hh, const char *ll=0);
 };
 
 
 
-
-const int MAX_COLS = 4;
-const int MAX_ROWS = 50;
-
 Fl_Callback input_cb;
-
 void input_cb(Fl_Widget*, void* v);
-void setcols_cb(Fl_Widget* w, void* v);// Change number of columns
-void setrows_cb(Fl_Widget* w, void* v);// Change number of rows
 
-class SingleInput : public Fl_Table
+
+class string_edit_table : public Fl_Table
 {
-	Fl_Int_Input* input;
-//	int values[MAX_ROWS][MAX_COLS];
-	string values[MAX_ROWS][MAX_COLS];
-//	string values[100][4];
-	int row_edit, col_edit;
+	Fl_Input* input;
+	int row_edit;
+	int col_edit;
 
 protected:
 	void draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H); // Handle drawing all cells in table
@@ -178,15 +180,11 @@ protected:
 	void event_callback2();
 
 public:
-	SingleInput(int x, int y, int w, int h, const char *l=0);
-	~SingleInput();
+	string_edit_table(int x, int y, int w, int h, const char *l, int nr_r, int nr_c);
+	~string_edit_table();
 
+	stringmatrix dcmtags;
 	void set_value();
-	void rows(int val);
-	void cols(int val);
-	inline int rows();
-	inline int cols();
 };
-
 
 #endif
