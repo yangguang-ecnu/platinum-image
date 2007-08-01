@@ -156,7 +156,6 @@ FLTK_event::FLTK_event (FLTKviewport * fvp) : pt_event ()
 
 FLTK_event::FLTK_event (int FL_event,FLTKviewport * fvp):pt_event()
     {
-    //myWidget = NULL;
     attach (fvp);
     
     modifier = (Fl::event_state(FL_SHIFT)  ? shift_key : 0 ) + (Fl::event_state(FL_ALT)  ? alt_key : 0 )+ (Fl::event_state(FL_META)  ? meta_key : 0 ) + (Fl::event_state(FL_CTRL)  ? ctrl_key : 0 );
@@ -186,6 +185,7 @@ FLTK_event::FLTK_event (int FL_event,FLTKviewport * fvp):pt_event()
         case FL_ENTER:
             type_ = hover;
             state_ = begin;
+            
             break;
 
         case FL_LEAVE:
@@ -197,18 +197,28 @@ FLTK_event::FLTK_event (int FL_event,FLTKviewport * fvp):pt_event()
             set_type();
             state_ = iterate;
             break;
+            
+            
         case FL_MOUSEWHEEL:
             type_ = scroll;
             state_ = iterate;
-
             break;
-        case FL_KEYBOARD:
-                value = Fl::event_key(); //pt_event enumerations have the same values
-                                         //as FLTK event, see event.h
-           
-                state_ = begin;  //should rather be up/down: begin/end, but
-                                //FLTK does not seem to support this
+            
+        case FL_KEYDOWN:
+            value = Fl::event_key(); //pt_event enumerations have the same values
+                                     //as FLTK event, see event.h
+            
+                                     //IMPORTANT: to receive keyboard events,
+                                     //the widget has to either get focus (with tab)
+                                     //or set itself as focus, AND additionally,
+                                     //accept the FL_FOCUS event
+            type_ = key;
+            
+            state_ = begin;            
+        case FL_KEYUP:            
+            state_ = end;
             break;
+            
         default:
             {} //default will be both type and state = none
         }

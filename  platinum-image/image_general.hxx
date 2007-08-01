@@ -42,7 +42,7 @@
 
 
 
-#define RENDER_ORTHOGONALLY_ONLY
+//#define RENDER_ORTHOGONALLY_ONLY
 
 using namespace std;
 
@@ -133,11 +133,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
     this->maxvalue        = sourceImage->get_max();
     this->minvalue        = sourceImage->get_min();
 
-    this->voxel_resize    = sourceImage->get_voxel_resize();
+    this->voxel_size    = sourceImage->get_voxel_size();
 	//origin & direction are copied in data_base... 
 
-    this->unit_center_     = sourceImage->unit_center();
-    this->unit_to_voxel_   = sourceImage->unit_to_voxel();
+    /*this->unit_center_     = sourceImage->unit_center();
+    this->unit_to_voxel_   = sourceImage->unit_to_voxel();*/
 
     // *ID, from_file, imagename and widget are assigned in image_base constructor
     }
@@ -222,7 +222,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::copy_image (image_general<inType, IMAGED
 template <class ELEMTYPE, int IMAGEDIM>
     image_general<ELEMTYPE, IMAGEDIM>::image_general():image_storage<ELEMTYPE>()
     {   
-    voxel_resize.SetIdentity();
+        voxel_size.Fill(1);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -264,8 +264,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
     {
     datasize[0] = w; datasize[1] = h; datasize[2] = d;
 
-	voxel_resize.SetIdentity(); //A default value of the voxel dimension is...
-
+    voxel_size.Fill(1);
+    
     //dimension-independent loop that may be lifted outside this function
     this->num_elements=1;
     for (unsigned short i = 0; i < IMAGEDIM; i++) 
@@ -315,24 +315,28 @@ void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool stat_refresh)
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::calc_transforms ()
     {
-    Matrix3D re_resize;
+    //NOTE:
+    //this currently does nothing, but is useful to keep around for caching
+    //e.g. the world to voxel transform matrices
+    
+    /*Matrix3D re_resize;
     unsigned short datasize_max_norm= max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
 
-    re_resize=this->voxel_resize.GetInverse();
+    re_resize=this->get_voxel_resize().GetInverse();
     this->unit_to_voxel_=re_resize*datasize_max_norm;
     
     //center of data in unit coordinates where longest edge = 1
     for (unsigned int d=0;d<3;d++)
-        {this->unit_center_[d]=this->voxel_resize[d][d]*datasize[d]/(datasize_max_norm*2);}
+        {this->unit_center_[d]=this->voxel_resize[d][d]*datasize[d]/(datasize_max_norm*2);}*/
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters()
     {
-    unsigned short datasize_max_norm= max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
+    /*unsigned short datasize_max_norm= max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
 
     for (unsigned int d=0;d<3;d++)
-        {this->unit_center_[d]=(float)datasize[d]/(datasize_max_norm*2);}
+        {this->unit_center_[d]=(float)datasize[d]/(datasize_max_norm*2);}*/
 
     calc_transforms();
     }
@@ -403,7 +407,7 @@ void  image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader()
 
     for (unsigned int d=0;d<3;d++)
         {
-        itk_spacing[d]=this->voxel_resize[d][d];
+        itk_spacing[d]=this->voxel_size[d];
         itk_origin[d]=this->origin[d];
         }
 
@@ -431,6 +435,27 @@ unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_size_by_dim_and_dir(int di
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_size () const
+{
+    Vector3D result;
+    
+    //short smax = 0; //size maxnorm for unit coordinate system, remove for world
+    
+    for (int d = 0; d < 3; d++)
+        {
+        result[d] = datasize[d];
+        //smax = std::max ((short)result[d],smax);
+        }
+    
+    result = get_voxel_resize() * result;
+    
+    //remove when world coordinate system is implemented
+    //result /= smax;
+    
+    return result;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other)
     {
     for (unsigned int d=0;d < IMAGEDIM; d++)
@@ -444,16 +469,16 @@ bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other)
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-	void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_resize(float dx, float dy, float dz)
+	void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_size(float dx, float dy, float dz)
 	{
-	voxel_resize[0][0]=dx;	
-	voxel_resize[1][1]=dy;	
-	voxel_resize[2][2]=dz;	
+        voxel_size[0] = dx;
+        voxel_size[1] = dy;
+        voxel_size[2] = dz;
 	}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-bool image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize_from_dicom_file(std::string dcm_file)
+bool image_general<ELEMTYPE, IMAGEDIM>::read_voxel_size_from_dicom_file(std::string dcm_file)
 {
 	bool succeded = false;
 	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
@@ -471,12 +496,26 @@ bool image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize_from_dicom_file(std::st
 	return succeded;
 }
 
-
 template <class ELEMTYPE, int IMAGEDIM>
     Matrix3D image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize () const
     {
-    return voxel_resize;
+    Matrix3D result;
+    
+    result.Fill(0);
+    
+    result[0][0] = voxel_size [0];
+    result[1][1] = voxel_size [1];
+    result[2][2] = voxel_size [2];
+    
+    return result;
     }
+
+template <class ELEMTYPE, int IMAGEDIM>
+const Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxel_size () const
+{
+    return voxel_size;
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z)
@@ -535,7 +574,7 @@ bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_from_physical_pos_3D(Vector3D phys_pos)
 	{
-	Matrix3D a = this->direction*voxel_resize;
+	Matrix3D a = this->direction*get_voxel_resize();
 	a = a.GetInverse();
 	return a*(phys_pos - this->origin);
 	}
@@ -832,52 +871,49 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     typename itk::Image<ELEMTYPE,IMAGEDIM>::PointType             itk_origin;
     typename itk::Image<ELEMTYPE,IMAGEDIM>::DirectionType         itk_orientation;
 
-    this->voxel_resize.SetIdentity();
+    this->voxel_size.Fill(1);
 
     itk_vox_size=i->GetSpacing();
     itk_origin=i->GetOrigin ();
     itk_orientation=i->GetDirection();
 
-    float spacing_min_norm=static_cast<float>(itk_vox_size[0]);
+    //float spacing_min_norm=static_cast<float>(itk_vox_size[0]);
     for (unsigned int d=0;d<IMAGEDIM;d++)
         {
         if (itk_vox_size[d] > 0)
             {
-            voxel_resize[d][d]=itk_vox_size[d];
-            spacing_min_norm=min(spacing_min_norm,static_cast<float>(itk_vox_size[d]));
+            voxel_size[d]=itk_vox_size[d];
+            //spacing_min_norm=min(spacing_min_norm,static_cast<float>(itk_vox_size[d]));
             }
         this->origin[d]=itk_origin[d];
 
         //orthogonal-only renderer can't handle arbitrary image orientations
 #ifdef RENDER_ORTHOGONALLY_ONLY
         for (unsigned int c=0;c<3;c++)
-            {this->direction[d][c]=round(itk_orientation[d][c]);}
+            {this->orientation[d][c]=round(itk_orientation[d][c]);}
 #else
         for (unsigned int c=0;c<3;c++)
-            {direction[d][c]=itk_orientation[d][c];}
+            {this->orientation[d][c]=itk_orientation[d][c];}
 #endif
         }
-
-    //scale to shortest dimension=1. If condition is not met,
-    //voxel_resize will be an identity matrix
-    if (spacing_min_norm > 0)
-        {voxel_resize/=spacing_min_norm;}
+    
+    /*if (voxel_size[0] * voxel_size[1] * voxel_size[2] == 0)
+        { voxel_size.Fill(1); }*/
 
     //longest edge
     unsigned short datasize_max_norm=max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
 
-    if (voxel_resize[0][0]==1.0 && voxel_resize[1][1]==1.0 && voxel_resize[2][2]==1.0)
+    /*if (voxel_size[0]==1.0 && voxel_resize[1]==1.0 && voxel_resize[2]==1.0)
         {
         //cubic voxels may indicate that voxel size info is missing, use
         //heuristic:
         //assume a voxel size that makes the image as deep as its tallest side,
         //without voxel z size exceeding 4
 
-        voxel_resize.Fill(0);
-        voxel_resize[0][0]=1;
-        voxel_resize[1][1]=1;
-        voxel_resize[2][2]=min(datasize_max_norm/(float)datasize[2],(float)4);
-        }
+        voxel_size[0]=1;
+        voxel_size[1]=1;
+        voxel_size[2]=min(datasize_max_norm/(float)datasize[2],(float)4);
+        }*/
 
     calc_transforms ();
 
@@ -923,12 +959,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_geometry(float ox,float oy,float oz,
 			
 
 template <class ELEMTYPE, int IMAGEDIM>
-bool image_general<ELEMTYPE, IMAGEDIM>::get_geometry_from_dicom_file(std::string dcm_file)
+bool image_general<ELEMTYPE, IMAGEDIM>::read_geometry_from_dicom_file(std::string dcm_file)
 {
-	std::cout<<"get_geometry_from_dicom_file"<<std::endl;
-	bool b1 = this->get_origin_from_dicom_file(dcm_file);
-	bool b2 = this->get_direction_from_dicom_file(dcm_file);
-	bool b3 = this->get_voxel_resize_from_dicom_file(dcm_file);
+	std::cout<<"read_geometry_from_dicom_file"<<std::endl;
+	bool b1 = this->read_origin_from_dicom_file(dcm_file);
+	bool b2 = this->read_direction_from_dicom_file(dcm_file);
+	bool b3 = this->read_voxel_size_from_dicom_file(dcm_file);
 	return b1&&b2&&b3;
 }
 

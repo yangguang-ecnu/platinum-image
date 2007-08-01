@@ -83,16 +83,9 @@ class data_base
 
         // *** Metadata ***
         
-        Vector3D origin; //make protected, use access methods instead
-        Matrix3D direction;
-
         virtual void name (const std::string n);          //set name
         virtual const std::string name () const;          //get name
         
-        bool get_origin_from_dicom_file(std::string dcm_file);
-		bool get_direction_from_dicom_file(std::string dcm_file);
-		void rotate(float fi_z,float fi_y,float fi_x);
-
         bool from_file();
         void from_file(bool f); //set "from file" status
         virtual void save_to_VTK_file (const std::string) = 0;

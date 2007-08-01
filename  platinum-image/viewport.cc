@@ -505,7 +505,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
                 for (int d=0; d < 3 ; d++)
                     {reg.size[d]=fabs(reg.size[d]);}
 
-                //sista steget; skicka det nya omrÃ¥det till histogrammet
+                //sista steget; skicka det nya området till histogrammet
                 (*itr)->highlight_ROI (&reg);
 
                 itr++;

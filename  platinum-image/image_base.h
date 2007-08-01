@@ -63,13 +63,13 @@ class image_base : public data_base
 
         // *** cached data ***
 
-        Matrix3D unit_to_voxel_;    //cached transform from unit space to voxels space
+        //Matrix3D unit_to_voxel_;    //cached transform from unit space to voxels space
 									
         //image parameters
         //TODO: obtain from functions instead of storing
-
-        Vector3D unit_center_;    //computation aid: vector representing offset from
-        //bottomleft to centered unit coordinate system
+        
+        Vector3D origin;
+        Matrix3D orientation;
 
     public:
         virtual image_base * alike (imageDataType unit) = 0;
@@ -104,10 +104,15 @@ class image_base : public data_base
         virtual void make_image_an_itk_reader() = 0;
 
         virtual unsigned short get_size_by_dim(int dim) const = 0;  //return voxel dimensions
-        virtual Vector3D get_size () const; //return size in world coordinates
+        virtual Vector3D get_size () const = 0; //return size in world coordinates
         virtual bool same_size (image_base *) = 0;
+        
+        bool read_origin_from_dicom_file(std::string dcm_file);
+		bool read_direction_from_dicom_file(std::string dcm_file);
+		void rotate(float,float,float);        
 
-        Vector3D transform_unit_to_voxel(Vector3D pos); //convert float unit coords
+        Vector3D world_to_voxel(const Vector3D) const;
+        //Vector3D transform_unit_to_voxel(Vector3D pos); //convert float unit coords
                                                         //to voxel coords
                                                         //(-1,-1,-1) signifies
                                                         //out of bounds
@@ -117,11 +122,16 @@ class image_base : public data_base
         // *** access methods ***
 
         virtual Matrix3D get_voxel_resize () const = 0;
+        virtual const Vector3D get_voxel_size () const = 0;
 
-        Matrix3D unit_to_voxel()
+        
+        Matrix3D get_orientation () const;
+        Vector3D get_origin () const;
+
+        /*Matrix3D unit_to_voxel()
             {  return unit_to_voxel_; }
         Vector3D unit_center()
-            { return unit_center_; }
+            { return unit_center_; }*/
     };
 
 #endif
