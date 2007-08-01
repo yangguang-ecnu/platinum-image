@@ -46,15 +46,15 @@
 
 ==VTK==
 _VTK will be used in Platinum, however it is not necessary at the moment_
-  # Decompress "VTK-5.0.1.zip” _(suggested location:   C:\Lib\VTK-5.0.1)_ 
+  # Decompress "VTK-5.0.3.zip” _(suggested location:   C:\Lib\VTK-5.0.3)_ 
   # Run CMake
-  # Set source: ”C:\Lib\VTK-5.0.1”
+  # Set source: ”C:\Lib\VTK-5.0.3”
   # Set build: ”C:\Lib\Bin\VTK”
     # Press `Configure…` (may take some time)
   # Set the following options:
     * Disable BUILD_EXAMPLES
     * Disable BUILD_SHARED_LIBS
-    * Disable BUILD_TESTING
+    * Disable BUILD_TESTING (You might have to check the "Show Advanced Values" box)
   # Press `Configure…` again (may take some time)
   # Press `OK` (build files will be written to ”C:\Lib\Bin\VTK”) 
   # Open `ITK.sln`
