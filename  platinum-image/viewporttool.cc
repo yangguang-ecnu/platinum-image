@@ -210,7 +210,7 @@ void nav_tool::handle(viewport_event &event)
         
         //get pointer to renderer
         renderer = rendermanagement.get_renderer( myPort->get_renderer_id());
-        
+
         dragLast[0] = event.mouse_pos_global()[0];
         dragLast[1] = event.mouse_pos_global()[1];
         }
@@ -267,12 +267,14 @@ void nav_tool::handle(viewport_event &event)
                         {
                             event.grab();
                             
+                            std::vector<int> lmouse = event.mouse_pos_local();
+                            
                             numbers.str("");
                             
                             //get values and update statusfield
                             
-                            const std::map<std::string, float>values=myRenderer->get_values_view(mouse[0],mouse[1],fvp->w(),fvp->h());
-                            
+                            const std::map<std::string, float>values=myRenderer->get_values_view(lmouse[0],lmouse[1],fvp->w(),fvp->h());
+
                             if (values.empty())
                                 {
                                 userIOmanagement.interactive_message();
@@ -283,6 +285,8 @@ void nav_tool::handle(viewport_event &event)
                                     {
                                     if (itr != values.begin())
                                         { numbers << "; ";}
+                                    else
+                                        {numbers << "Value(s) ";}
                                     numbers << itr->first << ": " << itr->second;
                                     }
                                 
@@ -472,7 +476,9 @@ void cursor_tool::handle(viewport_event &event)
                         }
                     else
                         {
-                        numbers << pos;
+                        for (int d = 0;d < 3;d++)
+                            {pos[d] = floor(pos[d]);}
+                        numbers << "Voxel " << pos;
                         userIOmanagement.interactive_message(numbers.str());
                         }
                 }

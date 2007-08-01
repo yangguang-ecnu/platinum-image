@@ -56,9 +56,7 @@ class rendererMPR : public renderer_base
         void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy);
 
         virtual Vector3D view_to_voxel(int vx, int vy,int sx,int sy,int imageID = -1) const;
-        Vector3D view_to_world(int vx, int vy,int sx,int sy) const;
-       
-        std::map<std::string,float> get_values_view(int vx, int vy,int sx,int sy) const;
-    };
+        virtual Vector3D view_to_world(int vx, int vy,int sx,int sy) const;
+        };
 
 #endif

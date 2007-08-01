@@ -92,8 +92,8 @@ class rendermanager
         std::map<std::string,float> get_values (int rendererIndex, int px, int py,int sx, int sy);
         Vector3D get_location (int rendererIndex, int imageID, int px, int py, int sx, int sy);
 
-        void set_geometry(int renderer_index,Vector3D * dir,Vector3D * look_at,int zoom);
-        void set_geometry(int renderer_index,Matrix3D * dir);
+        void set_geometry(int renderer_index,Vector3D look_at,float zoom = 0);
+        void set_geometry(int renderer_ID,Matrix3D * dir);
 
         void set_blendmode(int rend_index,blendmode mode);   //sets combination-wide blend mode, if blendmode is later defined
                                                              //for each image in a combination, this should set all of them

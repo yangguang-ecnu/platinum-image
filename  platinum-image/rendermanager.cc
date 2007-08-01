@@ -265,6 +265,18 @@ void rendermanager::set_geometry(int renderer_index,Matrix3D * dir)
     renderers[renderer_index]->wheretorender->refresh_viewports();
     }
 
+void rendermanager::set_geometry(int renderer_ID,Vector3D look_at,float zoom)
+{
+    int index = find_renderer_index(renderer_ID);
+    
+    if( zoom > 0)
+        {renderers[index]->wheretorender->zoom = zoom;}
+    
+    renderers[index]->wheretorender->look_at = look_at;
+    
+    renderers[index]->wheretorender->refresh_viewports();
+}
+
 int rendermanager::get_blend_mode (int rendererIndex)
     {
     return renderers[rendererIndex]->imagestorender->blend_mode();

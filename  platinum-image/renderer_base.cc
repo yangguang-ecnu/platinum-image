@@ -161,30 +161,16 @@ void renderer_base::move_voxels (int x,int y,int z)
     }
     return v;*/
 
+std::map<std::string,float> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const
+{
+    //virtual function, MSVC gets hickups without namespace spec however :(
+    return renderer_base::get_values_world(view_to_world(vx,vy,sx,sy));
+    }
+
 std::map<std::string,float> renderer_base::get_values_world(Vector3D worldPos) const
 {
     std::map<std::string,float> m;
-    /*Vector3D tlb;
-    for (rendercombination::iterator itr = imagestorender->begin(); itr != imagestorender->end();itr++)
-        {
-        image_base * image = dynamic_cast<image_base *> (itr->pointer);
-        
-        if (image != NULL)
-            {
-            //center-based to top-left-back,
-            //add particular image's geometric center
-            tlb=worldPos+image->get_size()/2;
-            tlb=image->unit_to_voxel()*tlb;
-            if ( tlb[0] >= 0 && tlb[1] >= 0 && tlb[2] >= 0 && tlb[0] < image->get_size_by_dim(0) && tlb[1] < image->get_size_by_dim(1) && tlb[2] < image->get_size_by_dim(2))
-                {
-                m[image->name()] = (image->get_number_voxel(tlb[0],tlb[1],tlb[2]));
-                }
-            //else
-            //    {m.push_back(-1);}
-            }
-        }*/
-    
-    
+
     for (rendercombination::iterator itr = imagestorender->begin(); itr != imagestorender->end();itr++)
         {
         image_base * image = dynamic_cast<image_base *> (itr->pointer);
@@ -192,14 +178,10 @@ std::map<std::string,float> renderer_base::get_values_world(Vector3D worldPos) c
         if (image != NULL)
             {
             Vector3D vPos = image->world_to_voxel(worldPos);
-            /*Vector3D size = image->get_size();
-            vPos +=  size/2;
-            Matrix3D pSize;
-            pSize = image->get_voxel_resize().GetInverse();
-            vPos = pSize * vPos;
-            Matrix3D dir = image->get_direction();
-            dir = dir.GetInverse();
-            vPos = dir * vPos;*/
+
+            /*#ifdef _DEBUG
+            std::cout << "x:" << vPos[0] << "y:" << vPos[1] << "z:" << vPos[2] << std::endl;
+            #endif*/
             
             if ( vPos[0] >= 0 && vPos[1] >= 0 && vPos[2] >= 0 && vPos[0] < image->get_size_by_dim(0) && vPos[1] < image->get_size_by_dim(1) && vPos[2] < image->get_size_by_dim(2))
                 {

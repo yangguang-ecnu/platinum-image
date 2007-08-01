@@ -178,10 +178,11 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(ELEMTYPE * inData, unsigned lon
         {
         //set voxel size, will be used to calculate
         //unit_to_voxel when initialize_dataset is called
-        this->voxel_size = voxelSize;
 
         initialize_dataset (width,height,numElements/(width * height),inData);
 
+        this->voxel_size = voxelSize;
+        
         //image_has_changed(true);
         }
     else
@@ -201,9 +202,11 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         {
         //set voxel size, will be used to calculate
         //unit_to_voxel when initialize_dataset is called
-        this->voxel_size = voxelSize;
         
         initialize_dataset (width,height,numElements/(width * height),data);
+        
+        this->voxel_size = voxelSize;
+        
 		delete[] data; //To avoid memory leak !!!!!!!
         name_from_path (files.front());
 

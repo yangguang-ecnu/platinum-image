@@ -187,7 +187,14 @@ void datamanager::add(image_base * v)
                 
                 if (freeViewportID != NOT_FOUND_ID)
                     {
-                    rendermanagement.connect_image_renderer(viewmanagement.get_renderer_id(freeViewportID),the_image_id);
+                    int rendererID = viewmanagement.get_renderer_id(freeViewportID);
+                    
+                    if (rendermanagement.renderer_empty(rendererID))
+                        {
+                        rendermanagement.set_geometry(rendererID,v->get_origin(),1);
+                        }
+                    
+                    rendermanagement.connect_image_renderer(rendererID,the_image_id);
                     }
                 
                 image_vector_has_changed();

@@ -40,12 +40,6 @@ T signed_ceil(T & x){   //ceil that returns rounded absolute upwards
     return (x < 0 ? floor (x) : ceil (x));
     }
 
-std::map<std::string,float> rendererMPR::get_values_view(int vx, int vy,int sx,int sy) const
-    {
-    //virtual function, MSVC gets hickups without namespace spec however :(
-    return renderer_base::get_values_world(view_to_world(vx,vy,sx,sy));
-    }
-
 void rendererMPR::connect_image(int vHandlerID)
     {
     //TEST: wrapper, this should be done directly by rendermanagement
@@ -77,17 +71,33 @@ Vector3D rendererMPR::view_to_voxel(int vx, int vy,int sx,int sy,int imageID) co
         }
     else
         {    
+        Vector3D v;
+        
         image_base * image = imagestorender->top_image();
+        
         if (image !=NULL)
             {
-            return image->world_to_voxel (view_to_world(vx, vy,sx,sy));
+            v = image->world_to_voxel (view_to_world(vx, vy,sx,sy));
+            
+            for (int d = 0;d < 3;d++)
+                {if (v[d] >= image->get_size_by_dim(d))
+                    {       
+                    Vector3D n;
+                    n.Fill (-1);
+                    
+                    return n;
+                    }
+                }
+            
+            return v;
             }
         else
             {
-            Vector3D v;
-            v.Fill (-1);
             //no image there
-            return v;
+            Vector3D n;
+            n.Fill (-1);
+            
+            return n;
             }
         }
     //return Vector3D();
@@ -228,9 +238,6 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                 fill_y_start,
                 fill_y_end;
             
-            //position to read in voxel data grid
-            Vector3D vox;
-            
             //RGB value in loop
             RGBvalue value = RGBvalue();
             bool threshold_value = false;
@@ -262,19 +269,19 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             //slope = revDir * the_image_pointer->get_orientation() * slope;
             
             revDir = the_image_pointer->get_orientation().GetInverse();
-            slope = where->dir * revDir * slope;
+            slope = revDir * slope;
             
             slope/= where->zoom * scale;
             
             Vector3D slope_x;
             slope_x.Fill(0);
             slope_x[0] = 1;
-            slope_x = slope * slope_x;
+            slope_x = slope * where->dir * slope_x;
             
             Vector3D slope_y;
             slope_y.Fill(0);
             slope_y[1] = 1;
-            slope_y = slope * slope_y;
+            slope_y = slope * where->dir * slope_y;
             
             /*slope_x.Fill(0);
             slope_x[0]=1;
@@ -305,6 +312,9 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                 start+=slope_y*nonsquare_offset;
                 }*/
             
+            //position to read in voxel data grid
+            Vector3D vox;
+            
             // Render loop
             
             //1. iterate Y and determine new position of horizontal scanline
@@ -316,7 +326,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             for ( fill_y_start=0; fill_y_start < rgb_sy; fill_y_start++)
                 {
                 fill_y_end=fill_y_start+1;
-                vox=start+slope_y*fill_y_start;
+                vox=start+slope_y*(float)fill_y_start;
                 
                 for ( fill_x_start=0; fill_x_start < rgb_sx; fill_x_start++)
                     {
