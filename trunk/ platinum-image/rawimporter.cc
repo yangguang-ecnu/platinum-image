@@ -492,7 +492,7 @@ rawimporter::rawimporter(std::vector<std::string> in_files) : Fl_Window ( 478, 3
             }
         o->end();
         }
-        { Fl_Group* o = new Fl_Group(94, 262, 189, 32, "Voxel aspect ratio");
+        { Fl_Group* o = new Fl_Group(94, 262, 189, 32, "Voxel size (mm)");
         o->tooltip("Proportions for voxel size (no scale, will be normalized)");
         o->box(FL_THIN_DOWN_FRAME);
         o->labelsize(10);
@@ -596,7 +596,7 @@ void rawimporter::cb_rawimportcancel(Fl_Button* o, void*) {
 template <template <class,int=3 > class IMGCLASS>
 image_base* rawimporter::allocate_image_ ()
     {
-    return allocate_image< IMGCLASS> (is_float, is_signed, voxeltype, files, imageSize[0], imageSize[1], bigEndian, headerSize, voxel_aspect);
+    return allocate_image< IMGCLASS> (is_float, is_signed, voxeltype, files, imageSize[0], imageSize[1], bigEndian, headerSize, voxel_size);
     }
 
 void rawimporter::cb_rawimportok(Fl_Return_Button* o, void* v)
@@ -613,12 +613,12 @@ void rawimporter::cb_rawimportok_i(Fl_Return_Button* o, void*)
     get_input();
 
     //Voxel size
-    dec_from_string(voxel_aspect[0], voxsizex->value());
-    dec_from_string(voxel_aspect[1], voxsizey->value());
-    dec_from_string(voxel_aspect[2], voxsizez->value());
+    dec_from_string(voxel_size[0], voxsizex->value());
+    dec_from_string(voxel_size[1], voxsizey->value());
+    dec_from_string(voxel_size[2], voxsizez->value());
 
     //voxel_aspect.Normalize();
-    min_normalize (voxel_aspect);
+    //min_normalize (voxel_aspect);
 
     image_base * new_image = NULL;
 
@@ -643,10 +643,10 @@ void rawimporter::cb_rawimportok_i(Fl_Return_Button* o, void*)
 
                     if (testHisto.num_values() <= IMGLABELMAX )
                         { 
-                        new_image = new image_label<>(data,datasize,imageSize[0],imageSize[1],voxel_aspect);
+                        new_image = new image_label<>(data,datasize,imageSize[0],imageSize[1],voxel_size);
                         }
                     else
-                        { new_image = new image_integer<unsigned char>(data,datasize,imageSize[0],imageSize[1],voxel_aspect); }
+                        { new_image = new image_integer<unsigned char>(data,datasize,imageSize[0],imageSize[1],voxel_size); }
                     }
                 else
                     {
@@ -657,7 +657,7 @@ void rawimporter::cb_rawimportok_i(Fl_Return_Button* o, void*)
                 break;
             case 1:
                 //image_binary is set in size and has different template parameters, so it's allocated inline:
-                new_image = new image_binary<> (files, imageSize[0], imageSize[1], bigEndian, headerSize, voxel_aspect);
+                new_image = new image_binary<> (files, imageSize[0], imageSize[1], bigEndian, headerSize, voxel_size);
                 break;
             }
         }

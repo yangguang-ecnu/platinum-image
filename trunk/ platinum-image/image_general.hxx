@@ -897,8 +897,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
 #endif
         }
     
-    /*if (voxel_size[0] * voxel_size[1] * voxel_size[2] == 0)
-        { voxel_size.Fill(1); }*/
+    if (voxel_size[0] * voxel_size[1] * voxel_size[2] == 0)
+        { voxel_size.Fill(1); }
 
     //longest edge
     unsigned short datasize_max_norm=max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);

@@ -139,7 +139,7 @@ class rawimporter : public Fl_Window
         bool                        is_float;
         bool                        is_signed;
         unsigned int                voxeltype;
-        Vector3D                    voxel_aspect; //!warning: value not set until OK button pressed
+        Vector3D                    voxel_size; //!warning: value not set until OK button pressed
         
         unsigned long               headerSize;
         signed int                  sliceStart, sliceIncrement;

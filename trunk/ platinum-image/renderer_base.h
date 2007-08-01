@@ -100,7 +100,7 @@ public:
     virtual void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold) = 0;
     
     //get values from current view, pixel coordinates
-    virtual std::map<std::string,float> get_values_view(int vx, int vy,int sx,int sy) const = 0;    
+    virtual std::map<std::string,float> get_values_view(int vx, int vy,int sx,int sy) const;    
     
     //get values from composite, unit image coordinates
     virtual std::map<std::string,float> get_values_world(Vector3D unitPos) const;             
@@ -109,7 +109,7 @@ public:
     //which in turn depends on how it's rendered
     virtual Vector3D view_to_voxel(int vx, int vy, int sx, int sy,int imageID = -1) const    
         = 0;
-    //virtual Vector3D view_to_world(int vx, int vy,int sx,int sy) const = 0;
+    virtual Vector3D view_to_world(int vx, int vy,int sx,int sy) const = 0;
     
     void look_at (float x, float y, float z,float zoom=0);
     
