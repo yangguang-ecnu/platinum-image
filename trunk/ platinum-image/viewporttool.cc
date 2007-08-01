@@ -181,7 +181,7 @@ void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
 
 #pragma mark *** navigation tool ***
 
-const float nav_tool::wheel_factor=0.02;
+const float nav_tool::wheel_factor=renderer_base::display_scale/10;
 const float nav_tool::zoom_factor=0.01;
 
 nav_tool::nav_tool (viewport_event & event):viewporttool(event)
@@ -190,7 +190,7 @@ nav_tool::nav_tool (viewport_event & event):viewporttool(event)
     
     //a tool constructor has to respond to the type of events it accepts by grabbing them,
     //or it won't be created
-    if (event.type() == pt_event::hover || event.type() == pt_event::browse || event.type() == pt_event::adjust || event.type() == pt_event::scroll)
+    if (event.type() == pt_event::hover || event.type() == pt_event::browse || event.type() == pt_event::adjust || event.type() == pt_event::scroll || event.type() == pt_event::key )
         {event.grab();}
     }
 
@@ -218,7 +218,7 @@ void nav_tool::handle(viewport_event &event)
     if (!event.handled())
         {
         const int * pms = myPort->pixmap_size();
-        const float pan_factor=(float)1/(std::min(pms[0],pms[1]));
+        const float pan_factor=renderer_base::display_scale/(std::min(pms[0],pms[1]));
         const int * mouse = event.mouse_pos_global();
         
         FLTKviewport * fvp = event.get_FLTK_viewport();
@@ -270,7 +270,7 @@ void nav_tool::handle(viewport_event &event)
                             
                             //get values and update statusfield
                             
-                            const std::map<std::string, float>values=myRenderer->get_values_screen(mouse[0],mouse[1],fvp->w(),fvp->h());
+                            const std::map<std::string, float>values=myRenderer->get_values_view(mouse[0],mouse[1],fvp->w(),fvp->h());
                             
                             if (values.empty())
                                 {

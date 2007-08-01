@@ -194,7 +194,7 @@ std::map<std::string,float> rendermanager::get_values (int index, int px, int py
     {
     if (index != -1)
         {
-        return renderers[index]->get_values_screen(px, py,sx,sy);
+        return renderers[index]->get_values_view(px, py,sx,sy);
         }
 
     std::map<std::string,float> m;
