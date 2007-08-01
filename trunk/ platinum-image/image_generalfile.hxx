@@ -178,9 +178,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(ELEMTYPE * inData, unsigned lon
         {
         //set voxel size, will be used to calculate
         //unit_to_voxel when initialize_dataset is called
-        this->voxel_resize.Fill(0);
-        for (int d=0;d < 3;d++)
-            { voxel_resize[d][d] = voxelSize[d]; }
+        this->voxel_size = voxelSize;
 
         initialize_dataset (width,height,numElements/(width * height),inData);
 
@@ -203,9 +201,8 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         {
         //set voxel size, will be used to calculate
         //unit_to_voxel when initialize_dataset is called
-        this->voxel_resize.Fill(0);
-        for (int d=0;d < 3;d++)
-            { voxel_resize[d][d] = voxelSize[d]; }
+        this->voxel_size = voxelSize;
+        
         initialize_dataset (width,height,numElements/(width * height),data);
 		delete[] data; //To avoid memory leak !!!!!!!
         name_from_path (files.front());
@@ -314,7 +311,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
     for (unsigned int d=0;d<3;d++)
         {
         for (unsigned int c=0;c<3;c++)
-            {itk_orientation[d][c]=this->direction[d][c];}
+            {itk_orientation[d][c]=this->orientation[d][c];}
         }
 
     make_image_an_itk_reader();

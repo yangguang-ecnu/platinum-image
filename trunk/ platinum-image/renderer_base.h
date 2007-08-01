@@ -113,11 +113,17 @@ public:
     
     void look_at (float x, float y, float z,float zoom=0);
     
-    virtual void move( float pan_x, float pan_y, float pan_z=0, float zoom=1);
+    //NOTE: none of the move commands update the rendered image,
+    //that should be done once elsewhere
+    
+    virtual void move( float pan_x, float pan_y, float pan_z);
     //!move in world coordinates
     
-    virtual void nudge (int,int,int);
-    //!move in pixels - which image's pixels is a question of definition  
+    virtual void move_view (int vsize,int pan_x, int pan_y, int pan_z = 0, float zoom_d = 1);
+    //!move in view coordinates
+    
+    virtual void move_voxels (int,int,int);
+    //!move in voxels - which image's voxel is a question of definition  
     
     int get_id()
         { return identitet; }

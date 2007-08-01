@@ -51,6 +51,9 @@ image_base::image_base(image_base* const s):data_base(s)
     //setting copy name at the root would be neat,
     //but is not possible since the widget isn't
     //created yet
+    
+    origin = s->get_origin();
+    orientation = s->get_orientation();
 
     name ("Copy of " + s->name());
 //cout << "End image_base constructor"<<endl;//PRDEBUG
@@ -61,6 +64,9 @@ void image_base::set_parameters ()
     ostringstream namestream;
 
     ID = imagemaxID++;
+    
+    origin.Fill(0);
+    orientation.SetIdentity();
 
     //constructor: add "Untitled" name and ID
     namestream << "3D image (" << ID << ")";
@@ -69,50 +75,86 @@ void image_base::set_parameters ()
     name(namestream.str());
     }
 
+void image_base::rotate(float fi_z,float fi_y,float fi_x) //Is there a good reason for the z,y,x ordering?
+{
+    matrix_generator mg;
+    orientation = mg.get_rot_matrix_3D(fi_z,fi_y,fi_x)*orientation;
+}
+
+bool image_base::read_origin_from_dicom_file(std::string dcm_file)
+{
+	bool succeded = false;
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+    
+	if (dicomIO->CanReadFile(dcm_file.c_str()))
+        {
+		dicomIO->SetFileName(dcm_file.c_str());
+		dicomIO->ReadImageInformation();		//get basic DICOM header
+		this->origin[0] = float(dicomIO->GetOrigin(0));
+		this->origin[1] = float(dicomIO->GetOrigin(1));
+		this->origin[2] = float(dicomIO->GetOrigin(2));
+		succeded = true;
+        }
+	return succeded;
+}
+
+bool image_base::read_direction_from_dicom_file(std::string dcm_file)
+{
+	bool succeded = false;
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+    
+	if (dicomIO->CanReadFile(dcm_file.c_str()))
+        {
+		dicomIO->SetFileName(dcm_file.c_str());
+		dicomIO->ReadImageInformation();		//get basic DICOM header
+		std::vector<double> a = dicomIO->GetDirection(0);
+		std::vector<double> b = dicomIO->GetDirection(1);
+		std::vector<double> c = dicomIO->GetDirection(2);
+		this->orientation[0][0] = a[0];
+		this->orientation[0][1] = b[0];
+		this->orientation[0][2] = c[0];
+		this->orientation[1][0] = a[1];
+		this->orientation[1][1] = b[1];
+		this->orientation[1][2] = c[1];
+		this->orientation[2][0] = a[2];
+		this->orientation[2][1] = b[2];
+		this->orientation[2][2] = c[2];
+		succeded = true;
+        }
+	return succeded;
+}
+
 void image_base::redraw()
     {
     rendermanagement.image_has_changed(ID);
     }
 
-Vector3D image_base::transform_unit_to_voxel(Vector3D pos)
-    {
-    Vector3D vox;
-
-    vox=pos+unit_center_;
-    vox=unit_to_voxel_*vox;
-    
-    for (int d = 0;d<3; d++)                             //double duty loop:
-        {
-        //vox[d] = floor (vox[d]);                         //1. round to integer 
-        
-        if (vox[d] < 0 || vox [d] > get_size_by_dim(d) ) //2. check if coordinates
-                                                         //   are inside volume
-            {vox[2] = vox[1] = vox [0] = -1; }           //   -1 signifies out of bounds
-        }
-
-    return vox;
-    }
-
-Vector3D image_base::get_size () const
+Matrix3D image_base::get_orientation () const
 {
-    Vector3D result;
-    
-    short smax = 0; //size maxnorm for unit coordinate system, remove for world
-
-    for (int d = 0; d < 3; d++)
-        {
-        result[d] = get_size_by_dim(d);
-        smax = std::max ((short)result[d],smax);
-        }
-    
-    result = get_voxel_resize() * result;
-    
-    //TODO:
-    //remove when world coordinate system is implemented
-    result /= smax;
-    
-    return result;
+    return orientation;
 }
+
+Vector3D image_base::get_origin () const
+{
+    return origin;
+}
+
+Vector3D image_base::world_to_voxel(const Vector3D wpos) const
+    {
+    Vector3D vPos = wpos - origin;
+    
+    Matrix3D rDir; 
+    rDir = get_orientation();
+
+    Vector3D size = get_size();
+    vPos +=  rDir*(size/2);
+
+    Matrix3D pSize;
+    pSize = get_voxel_resize().GetInverse();
+    vPos = pSize * vPos;
+    
+    return vPos;
+    }
 
 
 //enum fileFormatType {FILE_FORMAT_DICOM,FILE_FORMAT_VTK};

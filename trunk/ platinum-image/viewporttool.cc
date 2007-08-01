@@ -218,7 +218,8 @@ void nav_tool::handle(viewport_event &event)
     if (!event.handled())
         {
         const int * pms = myPort->pixmap_size();
-        const float pan_factor=renderer_base::display_scale/(std::min(pms[0],pms[1]));
+        int viewSize = std::min(pms[0],pms[1]);
+        //const float pan_factor=renderer_base::display_scale/(std::min(pms[0],pms[1]));
         const int * mouse = event.mouse_pos_global();
         
         FLTKviewport * fvp = event.get_FLTK_viewport();
@@ -230,7 +231,7 @@ void nav_tool::handle(viewport_event &event)
                     {
                     event.grab();
                     
-                    myRenderer->move(-(mouse[0]-dragLast[0])*pan_factor,-(mouse[1]-dragLast[1])*pan_factor);
+                    myRenderer->move_view(viewSize,-(mouse[0]-dragLast[0]),-(mouse[1]-dragLast[1]));
                     
                     fvp->needs_rerendering();
                     }
@@ -241,7 +242,7 @@ void nav_tool::handle(viewport_event &event)
                     {
                     event.grab();
                     
-                    myRenderer->move(0,0,0,1+(mouse[1]-dragLast[1])*zoom_factor);
+                    myRenderer->move_view(viewSize,0,0,0,1+(mouse[1]-dragLast[1])*zoom_factor);
                     
                     fvp->needs_rerendering();
                     }
@@ -252,7 +253,7 @@ void nav_tool::handle(viewport_event &event)
                     {
                     event.grab();
                     
-                    myRenderer->move(0,0,event.scroll_delta()*wheel_factor);
+                    myRenderer->move_view(viewSize,0,0,event.scroll_delta()*wheel_factor);
                     
                     fvp->needs_rerendering();
                     }
@@ -302,13 +303,18 @@ void nav_tool::handle(viewport_event &event)
                     {
                     event.grab();
                     
-                    myRenderer->nudge (0,0,-1);
+                    myRenderer->move_voxels (0,0,-1);
                     }
                 if (event.key_combo(pt_event::pagedown_key))
                     {
                     event.grab();
                     
-                    myRenderer->nudge (0,0,1);
+                    myRenderer->move_voxels (0,0,1);
+                    }
+                
+                if (event.handled())
+                    {
+                    fvp->needs_rerendering();
                     }
                 break;
             }

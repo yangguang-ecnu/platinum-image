@@ -162,7 +162,25 @@ int FLTKviewport::handle(int event){
     
 #ifdef VPT_TEST
     callback_event = viewport_event (event,this);
-    //callback_event.FLTK_event::attach (this);
+
+    switch (event)
+        {
+        case FL_ENTER:
+            Fl::focus(this);
+            //allows keyboard events to be received
+            //once the mouse is inside
+        case FL_FOCUS:
+        case FL_UNFOCUS:
+            //usually, one wants to show that a widget has focus
+            //which is shown/hidden with these events
+            //with mouse-over focus however, this can be annoying
+            
+            callback_event.grab();
+            
+            break;
+        }
+    
+    //callback_event = viewport_event (event,this);
     
     do_callback ();
     

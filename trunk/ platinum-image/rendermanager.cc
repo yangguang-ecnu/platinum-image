@@ -30,10 +30,10 @@ extern viewmanager viewmanagement;
 
 using namespace std;
 
-void rendermanager::move(int rendererIndex, float panX, float panY, float panZ, float scale)
+/*void rendermanager::move(int rendererIndex, float panX, float panY, float panZ, float scale)
     {
-    renderers[rendererIndex]->move( panX, panY, panZ, scale);
-    }
+    renderers[rendererIndex]->move_view( undefinedVariable,panX, panY, panZ, scale);
+    }*/
 
 void rendermanager::render(int rendererIndex, unsigned char *rgbimage, int rgbXsize, int rgbYsize)
     {

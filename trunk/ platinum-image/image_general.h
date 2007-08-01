@@ -55,8 +55,6 @@ template<class ELEMTYPE, int IMAGEDIM>
 #include "global.h"
 #include "color.h"
 
-
-
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_general : public image_storage <ELEMTYPE >
     {
@@ -65,7 +63,7 @@ class image_general : public image_storage <ELEMTYPE >
 
         unsigned short datasize[IMAGEDIM]; //image size
         
-        Matrix3D voxel_resize;	//voxel size for the default 3D situation (not namned voxel_size due to the fact that it is a matrix and not a vector)
+        Vector3D voxel_size;	//3D voxel size in mm (hot tip: use z = 0 for 2D)
         
         typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM>::Pointer   ITKimportfilter;
         typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer                ITKimportimage;
@@ -120,8 +118,8 @@ class image_general : public image_storage <ELEMTYPE >
         /*static image_base * type_from_DICOM_file (std::string file_path);
         static image_base * type_from_VTK_file (std::string file_path);*/
 
-		void set_voxel_resize(float dx, float dy, float dz=0);			//physical voxel size
-		bool get_voxel_resize_from_dicom_file(std::string dcm_file);	//physical voxel size	
+		void set_voxel_size(float dx, float dy, float dz=0);			//physical voxel size
+		bool read_voxel_size_from_dicom_file(std::string dcm_file);	//physical voxel size	
 
 		bool is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z);  
 		bool is_voxelpos_within_image_3D(Vector3D vp);  
@@ -147,11 +145,6 @@ class image_general : public image_storage <ELEMTYPE >
 
         ELEMTYPE get_voxel_by_dir(int u, int v, int w, int direction=2);
 
-		double get_num_diff_1storder_central_diff_3D(int x, int y, int z, int direction);	//voxel based (i.e. no real dimensions included)
-		double get_num_diff_2ndorder_central_diff_3D(int x, int y, int z, int direction1, int direction2);	//voxel based (i.e. no real dimensions included)
-		double get_num_diff_3rdorder_central_diff_3D(int x, int y, int z, int direction1, int direction2, int direction3); //voxel based (i.e. no real dimensions included)
-
-		
         //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
         float get_number_voxel(int x, int y, int z) const;
 
@@ -162,22 +155,19 @@ class image_general : public image_storage <ELEMTYPE >
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();
-
-        template<class TARGETTYPE>	//Nearest neighbour image re-sampling-test
-		void resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image);
         
         // *** size functions ***
         unsigned short get_size_by_dim(int dim) const;
         unsigned short get_size_by_dim_and_dir(int dim, int direction); //! get size in direction orthogonal to direction arg
+        
         bool same_size (image_base * other);    //test whether other image
                                                 //has same voxel dimensions
         
-        Matrix3D get_voxel_resize () const;           //return voxel size matrix
-
-        void filter_image_slw_mean_4NB_3D();
-
-
-
+        Vector3D get_size () const;
+        
+        const Vector3D get_voxel_size () const;       //return voxel size
+        Matrix3D get_voxel_resize () const;           //return voxel size as matrix
+        
         void make_image_an_itk_reader();               //initialize ITKimportfilter
 
         //return ITKimportfilter
@@ -192,10 +182,17 @@ class image_general : public image_storage <ELEMTYPE >
         void save_to_VTK_file(const std::string file_path);
 
 		void set_geometry(float ox,float oy,float oz,float dx,float dy,float dz,float fi_x,float fi_y,float fi_z);
-        bool get_geometry_from_dicom_file(std::string dcm_file);
+        bool read_geometry_from_dicom_file(std::string dcm_file);
         void print_geometry();
         void print_physical_corner_coords();
-
+        
+        // *** processing ***
+        template<class TARGETTYPE>	//Nearest neighbour image re-sampling-test
+            void resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image);
+        double get_num_diff_1storder_central_diff_3D(int x, int y, int z, int direction);	//voxel based (i.e. no real dimensions included)
+		double get_num_diff_2ndorder_central_diff_3D(int x, int y, int z, int direction1, int direction2);	//voxel based (i.e. no real dimensions included)
+		double get_num_diff_3rdorder_central_diff_3D(int x, int y, int z, int direction1, int direction2, int direction3); //voxel based (i.e. no real dimensions included)
+        void filter_image_slw_mean_4NB_3D();
 };
 
 template <template <class,int=3 > class IMGCLASS>
