@@ -25,6 +25,7 @@
 #include "dicom_importer.h"
 #include "userIOmanager.h"
 #include "image_integer.hxx"
+#include "stringmatrix.h"
 
 datamanager datamanagement;
 extern rendermanager rendermanagement;
@@ -42,7 +43,7 @@ extern userIOmanager userIOmanagement;
 
 using namespace std;
 
-//#define TESTMODE	//JK4 test mode "dicom_import_button"
+//#define TESTMODE	//JK4 test mode --> "dicom_import_button"
 
 uchar *animage;
 
@@ -306,7 +307,8 @@ void datamanager::dcm_import_callback(Fl_Widget *callingwidget, void *thisdatama
 // argument must tell us which instance, if multiple
 {
 #ifdef TESTMODE
-		new dcmimportwin(100,100,900,600,"Dicom File Import");
+		//new dcmimportwin(100,100,900,600,"Dicom File Import");
+	dcmimportwin::create(100,100,900,600,"Dicom File Import");
 #endif
 }
 
