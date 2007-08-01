@@ -22,9 +22,9 @@ extern rendermanager rendermanagement;
 
 int rendergeometry::new_rg_ID=1;
 
-Matrix3D rendergeometry::view_to_world(int viewminsize)
+Matrix3D rendergeometry::view_to_world_matrix(int viewminsize)
     {
-    return dir/(viewminsize*zoom);
+    return dir*renderer_base::display_scale/(viewminsize*zoom);
     }
 
 rendergeometry::rendergeometry()

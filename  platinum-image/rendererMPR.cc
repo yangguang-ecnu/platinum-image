@@ -40,7 +40,7 @@ T signed_ceil(T & x){   //ceil that returns rounded absolute upwards
     return (x < 0 ? floor (x) : ceil (x));
     }
 
-std::map<std::string,float> rendererMPR::get_values_screen(int vx, int vy,int sx,int sy) const
+std::map<std::string,float> rendererMPR::get_values_view(int vx, int vy,int sx,int sy) const
     {
     //virtual function, MSVC gets hickups without namespace spec however :(
     return renderer_base::get_values_world(view_to_world(vx,vy,sx,sy));
@@ -54,33 +54,33 @@ void rendererMPR::connect_image(int vHandlerID)
 
 Vector3D rendererMPR::view_to_world(int vx, int vy,int sx,int sy) const
 {
-    Vector3D view,unit;
+    Vector3D viewCentered,world;
     vector<float> v;
     float viewmin = std::min (sx,sy);
     
-    view[0]=vx-sx/2 ;
-    view[1]=vy-sy/2;
-    view[2]=0;
+    viewCentered[0]=vx-sx/2;
+    viewCentered[1]=vy-sy/2;
+    viewCentered[2]=0;
     
-    //transform to unit coordinates
-    unit=wheretorender->view_to_world(viewmin)*view;
-    unit=wheretorender->look_at+unit;
+    //transform to world coordinates
+    world=wheretorender->view_to_world_matrix(viewmin)*viewCentered;
+    world=world+wheretorender->look_at;
     
-    return unit;
+    return world;
 }
 
 Vector3D rendererMPR::view_to_voxel(int vx, int vy,int sx,int sy,int imageID) const
 {
     if (imageID != -1)
         {
-        return datamanagement.get_image(imageID)->transform_unit_to_voxel (view_to_world(vx, vy,sx,sy));
+        return datamanagement.get_image(imageID)->world_to_voxel (view_to_world(vx, vy,sx,sy));
         }
     else
         {    
         image_base * image = imagestorender->top_image();
         if (image !=NULL)
             {
-            return image->transform_unit_to_voxel (view_to_world(vx, vy,sx,sy));
+            return image->world_to_voxel (view_to_world(vx, vy,sx,sy));
             }
         else
             {
@@ -126,12 +126,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         }
     
     //*** Variables ***
-    
-    float scale; //voxel to pixel ratio, determined so that dataset's longest edge
-                 //fits into renderer's unit space (this includes z-direction of course)
-                 //multiplied with zoom it gives the V/P ratio to render with
-                 //also taking into account current zoom level
-    
+        
     int vol_count; //number of images to render in this call
     
     // *** Volume setup ***
@@ -157,7 +152,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
     
     screen_center/=2;
     
-    Vector3D unit_screen_center=screen_center/rgb_min_norm; //dividing by min_norm resolves problem of
+    //Vector3D unit_screen_center=screen_center/rgb_min_norm; //dividing by min_norm resolves problem of
                                                             //keeping proportions with varying pixmap size
     
     //fill background color
@@ -210,8 +205,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             for(int d=0; d<3; d++)
                 {data_size[d]=the_image_pointer->get_size_by_dim(d);}
             
-            scale = rgb_min_norm/(max(data_size[0],max(data_size[1],data_size[2])));
-            
+            const float scale = rgb_min_norm / display_scale; //constant = the number of mms that should fit inside a viewport at zoom 1
             
             if (blend_mode == RENDER_THRESHOLD)
                 {
@@ -241,422 +235,207 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             RGBvalue value = RGBvalue();
             bool threshold_value = false;
             
-            Matrix3D render_dir=where->dir;
-            
-            //render_dir*=the_image_pointer->direction;
-            
             Vector3D start,end;
             
             //end of direction vectors and precomputed variables
             //derived from these
             
             //start position in image
-            voxel_offset[the_image]=(the_image_pointer->unit_to_voxel())*(where->look_at+the_image_pointer->unit_center()-((render_dir*unit_screen_center)/where->zoom));
-#pragma mark *** preparation for memory-order ***
-#ifndef USE_ARBITRARY
-            //transform start to pixel units & voxel space which the renderer
-            //is based on, since it allows us to step through voxel space for
-            //each rendered pixel with integers representing the position
+            //voxel_offset[the_image]=(the_image_pointer->unit_to_voxel())*(where->look_at+the_image_pointer->unit_center()-((render_dir*unit_screen_center)/where->zoom));
             
-            start=the_image_pointer->get_voxel_resize()*voxel_offset[the_image]*where->zoom*scale;
+            voxel_offset[the_image] = the_image_pointer->world_to_voxel(where->look_at-((where->dir*screen_center)/(where->zoom*scale)));
             
-            Matrix3D reverse_dir;
-            Vector3D view_offset;
+            start = voxel_offset[the_image];
             
-            reverse_dir=render_dir.GetTranspose();
-            view_offset=reverse_dir*(-start);
+            //render_dir*=the_image_pointer->get_orientation();
             
-            //end point of rendering box (in reality a slice)
-            //since coordinates are pixel-sized, this box will
-            //always be permutations of
-            //pixmap width, pixmap height and 0
-            Vector3D view_box;
+            //set slope to size of render plane in unit coordinates
             
-            view_box[0]=rgb_sx;
-            view_box[1]=rgb_sy;
-            view_box[2]=0;
+            //Matrix3D pix_to_vox;
+            //pix_to_vox = the_image_pointer->get_voxel_resize().GetInverse();
             
-            end=start+render_dir*view_box;
+            Matrix3D slope;
+            slope = the_image_pointer->get_voxel_resize().GetInverse();
             
-            //swap start and end values so voxels will still be traversed in correct order
-            for (int d=0;d < 3;d++)
+            Matrix3D revDir;
+            //revDir = where->dir.GetInverse();
+            //slope = revDir * the_image_pointer->get_orientation() * slope;
+            
+            revDir = the_image_pointer->get_orientation().GetInverse();
+            slope = where->dir * revDir * slope;
+            
+            slope/= where->zoom * scale;
+            
+            Vector3D slope_x;
+            slope_x.Fill(0);
+            slope_x[0] = 1;
+            slope_x = slope * slope_x;
+            
+            Vector3D slope_y;
+            slope_y.Fill(0);
+            slope_y[1] = 1;
+            slope_y = slope * slope_y;
+            
+            /*slope_x.Fill(0);
+            slope_x[0]=1;
+            
+            slope_x = render_dir * slope_x;
+            slope_x = pix_to_vox * slope_x;
+            slope_x /= (scale*where->zoom);
+            
+            slope_y.Fill(0);
+            slope_y[1]=1;
+            
+            slope_y = render_dir * slope_y;
+            slope_y = pix_to_vox * slope_y;
+            slope_y /= (scale*where->zoom);*/
+            
+            //center slice onscreen
+            
+            /*int nonsquare_offset=(rgb_sx-rgb_sy)/2;
+            
+            if (nonsquare_offset > 0)
                 {
-                if (start[d] > end[d])
-                    {t_swap (start[d],end[d]);}
+                //if positive, image is portrait orientation
+                start-=slope_x*nonsquare_offset;
                 }
             
-            // *** Rendering ***
-            
-            //Optimization strategies:
-            
-            //1. process voxel data in memory order for optimal cache use
-            //2. fill entire voxels (at > 1 times magnification in x or y direction)
-            // in one pass rather than through several scanlines
-            //3. store frequent calculations
-            
-            //long rgb_x,rgb_y; //pixmap position
-            
-            //long view_fill_dir_y = render_dir(0,1)+render_dir(1,1)+render_dir(2,1); //directions in which pixmap is filled
-            //long view_fill_dir_x = render_dir(0,0)+render_dir(1,0)+render_dir(2,0);
-            
-            //long rgb_x_next,rgb_y_next;
-            
-            //loop variables - integer position to avoid truncation artifacts
-            
-            long vp [3];
-            
-            vp [2] = static_cast<long>(start[2]);
-            
-            //cached values for render loop
-            
-            //size in pixels of rendered voxel
-            float vp_delta[3];
-            
-            //actual rendered voxel size at a particular point (3 dimensions for consistency)
-            int rgb_delta [3];
-            for (int d = 0;d < 3; d++)
-                {rgb_delta [d] = 0;}
-            
-            //voxel axis of x and y render directions
-            int rgb_x_index,rgb_y_index;
-            
-            for (int d = 0;d < 3; d++)
+            else
                 {
-                if (render_dir [d][0] != 0)
-                    {rgb_x_index = d; }
-                if (render_dir [d][1] != 0)
-                    {rgb_y_index = d; }
-                }
+                start+=slope_y*nonsquare_offset;
+                }*/
             
-            for (int d = 0; d <3; d ++)
+            // Render loop
+            
+            //1. iterate Y and determine new position of horizontal scanline
+            //2. check that position is within data bounds
+            //3. render pixel
+            //4. move along scanline (iterate x)
+            //5. repeat
+            
+            for ( fill_y_start=0; fill_y_start < rgb_sy; fill_y_start++)
                 {
-                //if (d == rgb_x_index || d == rgb_y_index)
-                {vp_delta[d] = max ((float)1,scale*where->zoom*the_image_pointer->get_voxel_resize()[d][d]);}
-                // else
-                // {vp_delta[d] = 0; }
-                }
-            
-            
-            //long pixpos_comp [3][2];
-            
-            // *** Do rendering ***
-            
-            //most of the expressions here stay constant at some time and can be stored to speed things u
-            //each loop must be passed through at least once, hence do{}while loops
-            
-            do{ //iterate z
-                /*vox[2]=floor (vp [2]/(scale*where->zoom*the_image_pointer->get_voxel_resize()[2][2]));*/
-                if (vp_delta [2] != 0)
-                    {vox[2] = vp [2]/vp_delta[2];}
+                fill_y_end=fill_y_start+1;
+                vox=start+slope_y*fill_y_start;
                 
-                //pixpos_comp[2][0]=vp [2]*render_dir[2][0];
-                //pixpos_comp[2][1]=vp [2]*render_dir[2][1];
-                
-                vp [1]=static_cast<long>(start[1]);
-                
-                do{ //iterate y
-                    /*vox[1]=floor (vp [1]/(scale*where->zoom*the_image_pointer->get_voxel_resize()[1][1]));*/
-                    if (vp_delta [1] != 0)
-                        {vox[1]= vp [1]/vp_delta[1];}
+                for ( fill_x_start=0; fill_x_start < rgb_sx; fill_x_start++)
+                    {
+                    //if ((vox[0]>0) && (vox[0]<data_size[0])
                     
-                    //pixpos_comp[1][0]=vp [1]*render_dir[1][0];
-                    //pixpos_comp[1][1]=vp [1]*render_dir[1][1];
+                    //    && (vox[1]>0) && (vox[1]<data_size[1])
+                    //    && (vox[2]>0) && (vox[2]<data_size[2]))
                     
-                    vp [0]=static_cast<long>(start[0]);
-                    do{ //iterate x
-                        
-                        //position in voxel space
-                        
-                        /*vox[0]=floor (vp [0]/(scale*where->zoom*the_image_pointer->get_voxel_resize()[0][0]));*/
-                        if (vp_delta [0] != 0)
-                            {vox[0]=vp [0]/vp_delta[0];}
-                        
-                        rgb_delta [rgb_x_index] = max (1, (int)(vox[0] * vp_delta [rgb_x_index] - vp [rgb_x_index]));
-                        rgb_delta [rgb_y_index] = max(1, (int)(vox[1] * vp_delta [rgb_y_index] - vp [rgb_y_index]));
-                        
-                        
-                        
-                        //TODO: flytta 1 och 2 till yttre loopar
-                        /*vp_delta [0] = max ((long)1,(long)((vox[0]+1) * the_image_pointer->get_voxel_resize()[0][0]*scale) - vp[0]);
-                        vp_delta [1] = max ((long)1,(long)((vox[1]+1) * the_image_pointer->get_voxel_resize()[1][1]*scale) - vp[1]);
-                        vp_delta [2] = max ((long)1,(long)((vox[2]+1) * the_image_pointer->get_voxel_resize()[2][2]*scale) - vp[2]);*/
-                        
-                        //pixpos_comp[0][0]=vp [0]*render_dir[0][0];
-                        //pixpos_comp[0][1]=vp [0]*render_dir[0][1];
-                        
-                        //position in rgb pixmap
-                        
-                        /*rgb_x=pixpos_comp[0][0]+pixpos_comp[1][0]+pixpos_comp[2][0]+ view_offset[0];
-                        rgb_y=pixpos_comp[0][1]+pixpos_comp[1][1]+pixpos_comp[2][1]+ view_offset[1];*/
-                        
-                        //the position to which the current voxel stretches in rgb pixmap
-                        //at where->zoom*scale below 1, this max not be an entire pixel step
-                        //hence vp is incremented by at least 1 in their respective loops
-                        
-                        //float rgb_dir_x = render_dir[0][0]+render_dir[1][0]+render_dir[2][0] == (-1) ? -.5 : 0;
-                        //float rgb_dir_y = render_dir[0][1]+render_dir[1][1]+render_dir[2][1] == (-1) ? -.5 : 0;
-                        
-                        //rgb_x_next=static_cast<long>((render_dir[0][0]*(vox[0]+1) *the_image_pointer->get_voxel_resize()[0][0]+render_dir[1][0]*(vox[1]+1)*the_image_pointer->get_voxel_resize()[1][1]+render_dir[2][0]*(vox[2]+1)*the_image_pointer->get_voxel_resize()[2][2])*scale*where->zoom);
-                        
-                        //rgb_y_next=static_cast<long>((render_dir[0][1]*(vox[0]+1)*the_image_pointer->get_voxel_resize()[0][0]+render_dir[1][1]*(vox[1]+1)*the_image_pointer->get_voxel_resize()[1][1]+render_dir[2][1]*(vox[2]+1)*the_image_pointer->get_voxel_resize()[2][2])*scale*where->zoom);
-                        
-                        
-                        //#ifdef _DEBUG
-                        //                    for (int d =0;d< 3 && print;d++)
-                        //                        {cout << "vp [" << d << "] = " << vp[d] << "; ";}
-                        //                    cout << endl;
-                        //#endif
-                        
-                        // X
-                        fill_x_start    = vp [rgb_x_index];
-                        fill_x_end      = fill_x_start + vp_delta [rgb_x_index];
-                        
-                        if (render_dir [rgb_x_index][0] < 0)
+                    //    {
+                    fill_x_end=fill_x_start+1;
+                    //get actual value in data, this has been scaled to fit the range of unsigned char
+                    if (vox[0] >= 0 && vox[1] >= 0 && vox[2] >= 0 && vox[0] < data_size[0] && vox[1] < data_size[1] && vox[2] < data_size[2])
+                        {
+                        if (blend_mode == RENDER_THRESHOLD)
                             {
-                            //reverse coordinates, view_offset will compensate for the reversed direction
-                            fill_x_start    =  - fill_x_start;
-                            fill_x_end      =  - fill_x_end;
-                            }
-                        
-                        fill_x_start    += view_offset[0];
-                        fill_x_end      += view_offset[0];
-                        
-                        fill_x_start    = max ((long)0, min ((long)rgb_sx, fill_x_start));
-                        fill_x_end      = max ((long)0, min ((long)rgb_sx, fill_x_end));
-                        
-                        if (fill_x_start > fill_x_end)
-                            {t_swap (fill_x_start, fill_x_end); }
-                        
-                        // Y
-                        fill_y_start    = vp [rgb_y_index];
-                        fill_y_end      = fill_y_start + vp_delta [rgb_y_index];
-                        
-                        if (render_dir [rgb_y_index][1] < 1)
-                            {
-                            fill_y_start    =  - fill_y_start;
-                            fill_y_end      =  - fill_y_end;
-                            }
-                        
-                        fill_y_start    += view_offset[1];
-                        fill_y_end      += view_offset[1];
-                        
-                        fill_y_start    = max ((long)1, min ((long)rgb_sy, fill_y_start));
-                        fill_y_end      = max ((long)1, min ((long)rgb_sy, fill_y_end));
-                        
-                        if (fill_y_start > fill_y_end)
-                            {t_swap (fill_y_start, fill_y_end); }
-                        
-                        
-                        //    if (render_dir [rgb_x_index][0] < 0)
-                        //        {
-                        //        fill_x_start  = max ((long)0, min ((long)rgb_sx, (long)(rgb_sx - vp [rgb_x_index])+ view_offset[0])));
-                        //        }
-                        
-                        //long fill_x_start
-                        //    = max ((long)0, min ((long)rgb_sx, (long)(vp [rgb_x_index]+ view_offset[0])));
-                        //long fill_x_end
-                        //    = min ((long)rgb_sx, max((long)0, (long)(vp [rgb_x_index] + vp_delta [rgb_x_index]+ view_offset[0])));
-                        
-                        //long fill_y_start
-                        //    = max ((long)0, min ((long)rgb_sy, (long)(vp [rgb_y_index]+ view_offset[1])) );
-                        //long fill_y_end
-                        //    = min ((long)rgb_sy, max((long)0, (long)(vp [rgb_y_index] + vp_delta [rgb_y_index]+ view_offset[1])));
-                        
-                        /*long fill_y_start
-                            = max ((long)0, min ((long)rgb_sy, (long)(rgb_y)));
-                        long fill_y_end
-                            = min ((long)rgb_sy, max((long)0, (long)(rgb_y_next)));
-                        
-                        long fill_x_start
-                            = max ((long)0, min ((long)rgb_sx, (long)(rgb_x)));
-                        long fill_x_end
-                            = min ((long)rgb_sx, max((long)0, (long)(rgb_x_next)));*/
-#pragma mark *** preparation for arbitrary ***             
-#else
-                        
-                        start = voxel_offset[the_image];
-                        
-                        //set slope to size of render plane in unit coordinates
-                        
-                        Vector3D slope_x, slope_y;
-                        
-                        Matrix3D pix_to_vox;
-                        pix_to_vox = the_image_pointer->get_voxel_resize().GetInverse();
-                        
-                        slope_x.Fill(0);
-                        slope_x[0]=1;
-                        
-                        slope_x = render_dir * slope_x;
-                        slope_x = pix_to_vox * slope_x;
-                        slope_x /= (scale*where->zoom);
-                        
-                        slope_y.Fill(0);
-                        slope_y[1]=1;
-                        
-                        slope_y = render_dir * slope_y;
-                        slope_y = pix_to_vox * slope_y;
-                        slope_y /= (scale*where->zoom);
-                        
-                        //center slice onscreen
-                        
-                        /*int nonsquare_offset=(rgb_sx-rgb_sy)/2;
-                        
-                        if (nonsquare_offset > 0)
-                            {
-                            //if positive, image is portrait orientation
-                            start-=slope_x*nonsquare_offset;
-                            }
-                        
-                        else
-                            {
-                            start+=slope_y*nonsquare_offset;
-                            }*/
-                        
-                        // Render loop
-                        
-                        //1. iterate Y and determine new position of horizontal scanline
-                        //2. check that position is within data bounds
-                        //3. render pixel
-                        //4. move along scanline (iterate x)
-                        //5. repeat
-                        
-                        for ( fill_y_start=0; fill_y_start < rgb_sy; fill_y_start++)
-                            {
-                            fill_y_end=fill_y_start+1;
-                            vox=start+slope_y*fill_y_start;
+                            float t_value [2];
                             
-                            for ( fill_x_start=0; fill_x_start < rgb_sx; fill_x_start++)
+                            t_value[0] = the_image_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
+                            t_value[1] = the_other_image_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
+                            
+                            //rect threshold
+                            threshold_value = ( t_value[0] > threshold->low[0] && t_value[0] < threshold->high[0] &&
+                                                t_value[1] > threshold->low[1] && t_value[1] < threshold->high[1]);
+                            
+                            if (threshold_value && threshold->mode==THRESHOLD_2D_MODE_OVAL)
                                 {
-                                //if ((vox[0]>0) && (vox[0]<data_size[0])
-                                
-                                //    && (vox[1]>0) && (vox[1]<data_size[1])
-                                //    && (vox[2]>0) && (vox[2]<data_size[2]))
-                                
-                                //    {
-                                fill_x_end=fill_x_start+1;
-                                
-#endif
-                                //get actual value in data, this has been scaled to fit the range of unsigned char
-                                if (vox[0] >= 0 && vox[1] >= 0 && vox[2] >= 0 && vox[0] < data_size[0] && vox[1] < data_size[1] && vox[2] < data_size[2])
-                                    {
-                                    if (blend_mode == RENDER_THRESHOLD)
-                                        {
-                                        float t_value [2];
-                                        
-                                        t_value[0] = the_image_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
-                                        t_value[1] = the_other_image_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
-                                        
-                                        //rect threshold
-                                        threshold_value = ( t_value[0] > threshold->low[0] && t_value[0] < threshold->high[0] &&
-                                                            t_value[1] > threshold->low[1] && t_value[1] < threshold->high[1]);
-                                        
-                                        if (threshold_value && threshold->mode==THRESHOLD_2D_MODE_OVAL)
-                                            {
-                                            //oval threshold
-                                            //value = value && (sqrt(powf((t_value[0]-((threshold->high[0]+threshold->low[0])/2.0))/((threshold->high[0]-threshold->low[0])/(threshold->high[1]-threshold->low[1])),2.0)+powf(t_value[1]-((threshold->high[1]+threshold->low[1])/2.0),2.0) ) <= (threshold->high[1]+threshold->low[1])/2.0);
-                                            threshold_value = (sqrt(powf((t_value[0]-((threshold->high[0]+threshold->low[0])/2.0))/((threshold->high[0]-threshold->low[0])/(threshold->high[1]-threshold->low[1])),2.0)+powf(t_value[1]-((threshold->high[1]+threshold->low[1])/2.0),2.0) ) <= (threshold->high[1]+threshold->low[1])/2.0);
-                                            }
-                                        }
-                                    else
-                                        { the_image_pointer->get_display_voxel(value,vox[0],vox[1],vox[2]);}
-                                    
-                                    
-                                    for (long rgb_fill_y=fill_y_start; (rgb_fill_y <  fill_y_end);rgb_fill_y++)
-                                        {
-                                        for (long rgb_fill_x=fill_x_start;(rgb_fill_x < fill_x_end);rgb_fill_x++)
-                                            {
-                                            switch (blend_mode)
-                                                {
-                                                case BLEND_OVERWRITE:
-                                                    value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
-                                                    break;
-                                                    
-                                                case BLEND_MIN:
-                                                    if (pixels[RGBpixmap_bytesperpixel *
-                                                        
-                                                        (rgb_fill_x+rgb_sx*rgb_fill_y)] >= value.mono())
-                                                        
-                                                        {
-                                                        //we can assume that the R value represents total pixel intensity
-                                                        //because previous pixel value was set with the same mode
-                                                        
-                                                        //more than or equal (>=) above is important because
-                                                        //we want to replace the background even for the r=255 case
-                                                        //to mask out background color
-                                                        
-                                                        value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
-                                                        }
-                                                    break;
-                                                    
-                                                case BLEND_MAX:
-                                                    if (pixels[RGBpixmap_bytesperpixel *
-                                                        (rgb_fill_x+rgb_sx*rgb_fill_y)] < value.mono())
-                                                        {
-                                                        //we can assume that the R value represents total pixel intensity
-                                                        //because previous pixel value was set with the same mode
-                                                        
-                                                        value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
-                                                        }
-                                                    break;
-                                                    
-                                                case BLEND_AVG:
-                                                    {
-                                                        /*unsigned char prevval[3];
-                                                        for (int c=0;c < 3;c++)
-                                                        {prevval[c]=pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + c]; }
-                                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] = prevval[0] + value/vol_count;
-                                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = prevval[1] + value/vol_count;
-                                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = prevval[2] + value/vol_count;*/
-                                                        
-                                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] += value.r()/vol_count;
-                                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += value.g()/vol_count;
-                                                        pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += value.b()/vol_count;
-                                                    }
-                                                    break;
-                                                    
-                                                case BLEND_TINT:
-                                                    pixels[RGBpixmap_bytesperpixel *
-                                                        (rgb_fill_x+rgb_sx*rgb_fill_y)] += tint_r*value.mono();
-                                                    pixels[RGBpixmap_bytesperpixel *
-                                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += tint_g*value.mono();
-                                                    pixels[RGBpixmap_bytesperpixel *
-                                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += tint_b*value.mono();
-                                                    break;
-                                                    
-                                                case RENDER_THRESHOLD:
-                                                    if (threshold_value)
-                                                        {
-                                                        RGBAvalue value = RGBAvalue (IMGELEMCOMPMAX,0,0, IMGELEMCOMPMAX);
-                                                        value.write(pixels+RGBApixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
-                                                        }
-                                                    break;
-                                                default:
-                                                    {
-                                                        //suppress GCC enum warning
-                                                    }
-                                                } // switch (blend_mode)
-                                            
-                                            } //rgb_fill_x loop
-                                        
-                                        } //rgb_fill_y loop
-                                    
-                                    } //if within data bounds
-#ifndef USE_ARBITRARY
-                                
-                                vp [0]+=rgb_delta[0];
-                                }while (vp [0] < end[0] && rgb_delta [0] != 0 );
-                            
-                            vp [1]+=rgb_delta[1];
-                                }while (vp [1] < end[1] && rgb_delta [1] != 0 );
+                                //oval threshold
+                                //value = value && (sqrt(powf((t_value[0]-((threshold->high[0]+threshold->low[0])/2.0))/((threshold->high[0]-threshold->low[0])/(threshold->high[1]-threshold->low[1])),2.0)+powf(t_value[1]-((threshold->high[1]+threshold->low[1])/2.0),2.0) ) <= (threshold->high[1]+threshold->low[1])/2.0);
+                                threshold_value = (sqrt(powf((t_value[0]-((threshold->high[0]+threshold->low[0])/2.0))/((threshold->high[0]-threshold->low[0])/(threshold->high[1]-threshold->low[1])),2.0)+powf(t_value[1]-((threshold->high[1]+threshold->low[1])/2.0),2.0) ) <= (threshold->high[1]+threshold->low[1])/2.0);
+                                }
+                            }
+                        else
+                            { the_image_pointer->get_display_voxel(value,vox[0],vox[1],vox[2]);}
                         
-                        vp [2]+=rgb_delta[2];
-                            }while (vp [2] < end[2] && rgb_delta [2] != 0 );
-                    
-#else
+                        
+                        for (long rgb_fill_y=fill_y_start; (rgb_fill_y <  fill_y_end);rgb_fill_y++)
+                            {
+                            for (long rgb_fill_x=fill_x_start;(rgb_fill_x < fill_x_end);rgb_fill_x++)
+                                {
+                                switch (blend_mode)
+                                    {
+                                    case BLEND_OVERWRITE:
+                                        value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
+                                        break;
+                                        
+                                    case BLEND_MIN:
+                                        if (pixels[RGBpixmap_bytesperpixel *
+                                            
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y)] >= value.mono())
+                                            
+                                            {
+                                            //we can assume that the R value represents total pixel intensity
+                                            //because previous pixel value was set with the same mode
+                                            
+                                            //more than or equal (>=) above is important because
+                                            //we want to replace the background even for the r=255 case
+                                            //to mask out background color
+                                            
+                                            value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
+                                            }
+                                        break;
+                                        
+                                    case BLEND_MAX:
+                                        if (pixels[RGBpixmap_bytesperpixel *
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y)] < value.mono())
+                                            {
+                                            //we can assume that the R value represents total pixel intensity
+                                            //because previous pixel value was set with the same mode
+                                            
+                                            value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
+                                            }
+                                        break;
+                                        
+                                    case BLEND_AVG:
+                                        {
+                                            /*unsigned char prevval[3];
+                                            for (int c=0;c < 3;c++)
+                                            {prevval[c]=pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + c]; }
+                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] = prevval[0] + value/vol_count;
+                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = prevval[1] + value/vol_count;
+                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = prevval[2] + value/vol_count;*/
+                                            
+                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] += value.r()/vol_count;
+                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += value.g()/vol_count;
+                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += value.b()/vol_count;
+                                        }
+                                        break;
+                                        
+                                    case BLEND_TINT:
+                                        pixels[RGBpixmap_bytesperpixel *
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y)] += tint_r*value.mono();
+                                        pixels[RGBpixmap_bytesperpixel *
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += tint_g*value.mono();
+                                        pixels[RGBpixmap_bytesperpixel *
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += tint_b*value.mono();
+                                        break;
+                                        
+                                    case RENDER_THRESHOLD:
+                                        if (threshold_value)
+                                            {
+                                            RGBAvalue value = RGBAvalue (IMGELEMCOMPMAX,0,0, IMGELEMCOMPMAX);
+                                            value.write(pixels+RGBApixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
+                                            }
+                                        break;
+                                    default:
+                                        {
+                                            //suppress GCC enum warning
+                                        }
+                                    } // switch (blend_mode)
+                                
+                                } //rgb_fill_x loop
+                            
+                            } //rgb_fill_y loop
+                        
+                        } //if within data bounds
                     vox+=slope_x;
-                } //fill_x_start loop
-            } //fill_y_start loop
-#endif
+                    } //fill_x_start loop
+                    } //fill_y_start loop
+            
             if (blend_mode== BLEND_MIN)
                 {
                 for (long p=0; p < rgb_sx*rgb_sy*RGBpixmap_bytesperpixel; p +=RGBpixmap_bytesperpixel )
@@ -671,7 +450,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                     }
                 }
             
-        } //the_image_pointer != NULL
+                } //the_image_pointer != NULL
         
         the_image++;
         }   //per-image loop

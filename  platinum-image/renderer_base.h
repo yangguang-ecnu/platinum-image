@@ -48,6 +48,8 @@ const std::string renderer_labels[] = {"MPR renderer"};
 
 class renderer_base
 {
+public:
+    const static float display_scale;
 protected:
     int identitet;
     
@@ -98,7 +100,7 @@ public:
     virtual void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold) = 0;
     
     //get values from current view, pixel coordinates
-    virtual std::map<std::string,float> get_values_screen(int vx, int vy,int sx,int sy) const = 0;    
+    virtual std::map<std::string,float> get_values_view(int vx, int vy,int sx,int sy) const = 0;    
     
     //get values from composite, unit image coordinates
     virtual std::map<std::string,float> get_values_world(Vector3D unitPos) const;             
