@@ -196,11 +196,10 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         }
     
     
-    // *** Per-image render loop ***
+    // *** Per-data render loop ***
     
     Vector3D data_size;
     
-    //for (int the_image=0;the_image <vol_count;the_image++)
     int the_image = 0;
     for (rendercombination::iterator pairItr = what->begin();pairItr != what->end();pairItr++)  
         {
@@ -208,7 +207,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         
         the_image_pointer = dynamic_cast<image_base *> (pairItr->pointer);
         
-        //skip non-images, for now
+        //render images in first pass, points in second
         if (the_image_pointer != NULL )
             { 
             
@@ -464,6 +463,38 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         
         the_image++;
         }   //per-image loop
+    
+    
+    for (rendercombination::iterator pairItr = what->begin();pairItr != what->end();pairItr++)  
+        {
+        point *pointPointer = dynamic_cast<point *> (pairItr->pointer);
+        
+        //NOTE: dynamic_cast to point means that point_collections are excluded,
+        //for now
+        
+        if (pointPointer != NULL )
+            {
+            std::vector<int> loc = world_to_view (where,rgb_sx,rgb_sy,pointPointer->get_origin());
+            
+            //draw cross
+            for (int d = -2;d < 2; d++)
+                {
+                pixels[RGBpixmap_bytesperpixel *
+                    (loc[0]+d+rgb_sx*loc[1]) + RADDR] = 255;
+                pixels[RGBpixmap_bytesperpixel *
+                    (loc[0]+d+rgb_sx*loc[1]) + GADDR] = 0;
+                pixels[RGBpixmap_bytesperpixel *
+                    (loc[0]+d+rgb_sx*loc[1]) + BADDR] = 0;   
+                
+                pixels[RGBpixmap_bytesperpixel *
+                    (loc[0]+rgb_sx*(loc[1]+d)) + RADDR] = 255;
+                pixels[RGBpixmap_bytesperpixel *
+                    (loc[0]+d+rgb_sx*(loc[1]+d)) + GADDR] = 0;
+                pixels[RGBpixmap_bytesperpixel *
+                    (loc[0]+d+rgb_sx*(loc[1]+d)) + BADDR] = 0;     
+                }
+            }
+        }//point rendering loop
     
     }//render_ function
 

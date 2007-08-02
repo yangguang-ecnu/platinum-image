@@ -25,3 +25,19 @@ point::point() : point_collection()
     init.Fill(0);
     thePoints = pointStorage (1,init);
 }
+
+point::point(pointStorage::value_type p): point_collection()
+{
+    thePoints = pointStorage (1,p);
+}
+
+const point_collection::pointStorage::value_type point::get_origin () const
+{
+    return thePoints.front();
+}
+
+void point::set_origin(const point_collection::pointStorage::value_type o)
+{
+    thePoints.front() = o;
+}
+
