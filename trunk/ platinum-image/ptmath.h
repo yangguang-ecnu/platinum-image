@@ -131,42 +131,19 @@ return true;
 // R-total = RzRyRx --< R^(-1) = R^(T)
 class matrix_generator{
 public:
-	Matrix3D get_rot_x_matrix_3D(float fi)			//fi in radians
-	{
-		Matrix3D r;
-		r[0][0] = 1;	r[1][0] = 0; 		r[2][0] = 0;
-		r[0][1] = 0;	r[1][1] = cos(fi); 	r[2][1] = -sin(fi);
-		r[0][2] = 0;	r[1][2] = sin(fi); 	r[2][2] = cos(fi);
-		return r;
-	}
+	Matrix3D get_rot_x_matrix_3D(float fi);			//fi in radians
 
-	Matrix3D get_rot_y_matrix_3D(float fi)			//fi in radians
-	{
-		Matrix3D r;
-		r[0][0] = cos(fi);	r[1][0] = 0; 		r[2][0] = sin(fi);
-		r[0][1] = 0;		r[1][1] = 1;		r[2][1] = 0;
-		r[0][2] = -sin(fi);	r[1][2] = 0;		r[2][2] = cos(fi);
-		return r;
-	}
+	Matrix3D get_rot_y_matrix_3D(float fi);			//fi in radians
+	
 
-	Matrix3D get_rot_z_matrix_3D(float fi)			//fi in radians
-	{
-		Matrix3D r;
-		r[0][0] = cos(fi);	r[1][0] = -sin(fi);	r[2][0] = 0;
-		r[0][1] = sin(fi);	r[1][1] = cos(fi);	r[2][1] = 0;
-		r[0][2] = 0;		r[1][2] = 0;		r[2][2] = 1;
-		return r;
-	}
-
+	Matrix3D get_rot_z_matrix_3D(float fi);			//fi in radians
+	
 	//rotation examples based on the "basic" image processing coordinate system
 	//(x-->right, y-->down and z--> the view direction of the screen)
 	//+fi_z rotates the image volume: "Counterclockwise" of the z-direction
 	//+fi_y rotates the image volume: "Counterclockwise" of the y-direction
 	//+fi_x rotates the image volume: "Counterclockwise" of the x-direction
-	Matrix3D get_rot_matrix_3D(float fi_z, float fi_y, float fi_x)	//fi_z/y/x in radians
-	{
-		return get_rot_z_matrix_3D(fi_z)*get_rot_y_matrix_3D(fi_y)*get_rot_x_matrix_3D(fi_x);
-	}
+	Matrix3D get_rot_matrix_3D(float fi_z, float fi_y, float fi_x);	//fi_z/y/x in radians
 };
 
 
@@ -190,6 +167,6 @@ float pt_splint1D(float xa[],float ya[],float y2a[],int n,float x);
 // International Journal for Numerical Methods in Engineering, 63 (3), 455-471, 2005
 // ...used in the function: image_scalar.interpolate_tricubic_3D...
 
-// int A_tricubic[64][64] = ... is defined in ptmath.cc
+extern const int A_tricubic[64][64]; //defined in ptmath.cc
 
 #endif	//__ptmath.h__
