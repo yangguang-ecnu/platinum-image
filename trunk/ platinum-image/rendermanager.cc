@@ -35,6 +35,13 @@ using namespace std;
     renderers[rendererIndex]->move_view( undefinedVariable,panX, panY, panZ, scale);
     }*/
 
+rendermanager::~rendermanager()
+{
+    renderers.clear();
+    geometries.clear();
+    combinations.clear();
+}
+
 void rendermanager::render(int rendererIndex, unsigned char *rgbimage, int rgbXsize, int rgbYsize)
     {
     renderers[rendererIndex]->render_position(rgbimage, rgbXsize, rgbYsize);
@@ -152,18 +159,23 @@ int rendermanager::create_renderer(RENDERER_TYPES rendertype)
 
 void rendermanager::remove_renderer (int ID)
     {
-    int index;
-
-    index=find_renderer_index(ID);
-
-    if (index >=0)
-        {
-        delete renderers[index];
-        renderers.erase(renderers.begin()+index);
-        }
-
-    viewmanagement.refresh_viewports();
+    remove_renderer(get_renderer(ID));
     }
+
+void rendermanager::remove_renderer (renderer_base * r)
+{
+    for (std::vector<renderer_base *>::iterator itr = renderers.begin();itr != renderers.end();itr++)
+        {
+        if ((*itr) == r)
+            {
+            delete (*itr);
+            renderers.erase(itr);
+            viewmanagement.refresh_viewports();
+
+            break;
+            }
+        }
+}
 
 void rendermanager::toggle_image (int rendererIndex, int imageID)
     {
@@ -235,28 +247,31 @@ void rendermanager::geometry_update_callback (int g_id)
     }
 
 void rendermanager::image_vector_has_changed() 
-    {
-    for (unsigned int v=0;v < renderers.size();v++)
+{
+    for (std::vector<renderer_base *>::iterator itr = renderers.begin();itr != renderers.end();itr++)
         {
-        renderers[v]->imagestorender->image_vector_has_changed();
-        if (renderers[v]->imagestorender->empty())
+        rendercombination * c = (*itr)->imagestorender;
+        
+        (*itr)->imagestorender->image_vector_has_changed(); 
+        /*if ((*itr)->imagestorender->empty())
             {
             //renderer has no images, we might want to kill it - BUT
             //the renderer owns the rendercombination object and is thus
             //the nexus for viewing images, and to let users
             //leave viewports empty and then select images to view
-            //we have to leave the renderer active
-
+            //we 
+            have to leave the renderer active
+            
             //see also end of initialize_viewport
-
-            //remove_renderer(renderers[v]->get_id());
-            }
-
+            
+            remove_renderer(renderers[v]->get_id());
+            }*/
         }
-    for (unsigned int c=0;c < combinations.size();c++)
+    
+    /*for (std::vector<rendercombination *>::iterator citr = combinations.begin();citr != combinations.end();citr++)
         {
-        combinations[c]->image_vector_has_changed();
-        }
+        (*citr)->image_vector_has_changed();
+        }*/
     }
 
 void rendermanager::set_geometry(int renderer_index,Matrix3D * dir)

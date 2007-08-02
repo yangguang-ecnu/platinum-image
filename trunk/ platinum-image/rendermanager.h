@@ -48,9 +48,13 @@ class rendermanager
         std::vector<rendergeometry *> geometries;
         std::vector<rendercombination *> combinations;
         std::vector<renderer_base*> renderers;
+        
     public:
+        rendermanager::~rendermanager();
+        
         void listrenderers();
         int create_renderer(RENDERER_TYPES rendertype);
+        void remove_renderer (renderer_base * r);
         void remove_renderer (int ID);
         int find_renderer_index(int uniqueID);
         int find_renderer_id (int index);
