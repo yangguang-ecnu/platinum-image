@@ -81,6 +81,8 @@ Fl_Menu_Item* datawidget_base::duplicate_mi = datawidget_base::menu_featuremenu 
 datawidget_base::datawidget_base(data_base * d, std::string n):Fl_Pack(0,0,270,130,NULL) {
     data_id = d->get_id();
     thumbnail_image = new unsigned char [thumbnail_size*thumbnail_size];
+    
+    deactivate(); //activated when the image is added to datamanager
 
     // *** resume FLUID inits ***
 
@@ -247,8 +249,6 @@ datawidget<image_base>::datawidget(image_base* im, std::string n): datawidget_ba
     menu_featuremenu_plustf[fMenuSize+1].label(NULL);
     
     featuremenu->menu(menu_featuremenu_plustf);
-    
-    deactivate(); //activated when the image is added to datamanager
     }
 
 datawidget<image_base>::~datawidget()
