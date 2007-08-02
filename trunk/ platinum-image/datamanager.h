@@ -104,12 +104,19 @@ class datamanager
 
         void add(image_base * v);           //add image to vector, notify other managers
         void add(point_collection * v); 
-        void data_has_changed (int image_ID, bool recalibrate = false);    //signal that contents of a image has changed,
-                                                    //to update thumbnails, display
+        
+        void remove_data (int id);          //remove image/point from vector, 
+        void remove_data (data_base * d);   //notify other managers
+        
+        void delete_data (int id);          //delete data object and remove it
+        void delete_data (data_base * d);   //from vector
+        
+        void data_has_changed (int image_ID, bool recalibrate = false);   
+        //signal that contents of a image has changed,
+        //to update thumbnails, display
         //recalibrate determines whether max values etc. are refreshed
         // - doing this may distort the display of changes to the image
-        void remove_image (int id);                //remove image from vector, notify other managers
-
+        
         void loadvector_callback();
         int create_empty_image(int x, int y, int z, int unit);      //creates empty image of given size
                                                                     //and fills it with testpattern()
