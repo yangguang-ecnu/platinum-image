@@ -615,14 +615,11 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     viewport_buttons = new Fl_Pack(xpos,ypos,width,buttonheight,"");
     viewport_buttons->type(FL_HORIZONTAL);
     
-    imagemenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Volumes");
+    imagemenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Objects");
     
     renderermenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Renderer");
     renderermenu_button->copy(renderermenu_global);
     renderermenu_button->user_data(NULL);
-    
-    //with only one renderer available, this menu is sort of superfluous
-    renderermenu_button->hide();
     
     //direction menu is constant for each viewport
     Fl_Menu_Item dir_menu_items [6+1];

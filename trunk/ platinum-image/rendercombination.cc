@@ -110,9 +110,11 @@ image_base* rendercombination::top_image ()const
     return NULL;
 }
 
-void rendercombination::add_image(int dataID)
+void rendercombination::add_data(int dataID)
     {
     renderdata.push_back(renderpair(dataID,datamanagement.get_data(dataID),BLEND_OVERWRITE));
+    
+    rendermanagement.combination_update_callback(this->id);
 
     /*
     //find end of combinations array
@@ -141,22 +143,22 @@ void rendercombination::add_image(int dataID)
     */
     }
 
-void rendercombination::toggle_image(int imageID)
+void rendercombination::toggle_data(int dataID)
 {
     bool removed=false;
 
-    for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
+    for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end() && removed == false;itr++)
         {
         
-        if (itr->ID==imageID)
+        if (itr->ID==dataID)
             {
-            remove_image(imageID);
+            remove_image(dataID);
             removed=true;
             }
         }
     
     if (!removed)
-        {add_image(imageID);  }
+        {add_data(dataID);  }
     
     /*bool removed=false;
     
@@ -171,7 +173,7 @@ void rendercombination::toggle_image(int imageID)
     
     if (!removed)
     {
-        add_image(imageID);
+        add_data(imageID);
     }*/
 }
 
@@ -233,7 +235,7 @@ void rendercombination::image_vector_has_changed()
 
     /*for (int r=0;r < MAXRENDERVOLUMES && renderdata [r]!=0;r++)
         {
-        int i=datamanagement.find_image_index(abs(renderdata[r]));
+        int i=datamanagement.find_data_index(abs(renderdata[r]));
 
         if (i != (-1) )
             {

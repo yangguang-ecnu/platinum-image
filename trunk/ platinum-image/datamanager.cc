@@ -101,7 +101,7 @@ void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdataman
     cout << "Save VTK image ID=" << the_datawidget->get_data_id() << endl;
 #endif
 
-    int image_index=((datamanager*)thisdatamanager)->find_image_index(the_datawidget->get_data_id());
+    int image_index=((datamanager*)thisdatamanager)->find_data_index(the_datawidget->get_data_id());
 
     Fl_File_Chooser chooser(".","Visualization Toolkit image (*.vtk)",Fl_File_Chooser::CREATE,"Save VTK image");
 
@@ -178,7 +178,7 @@ void datamanager::add(image_base * v)
             {
             int the_image_id= v->get_id();
             
-            if (find_image_index(the_image_id) == -1)
+            if (find_data_index(the_image_id) == -1)
                 {
                 dataItems.push_back(v);
                 v->activate();
@@ -234,7 +234,7 @@ void datamanager::remove_image (int id)
     {
     int index;
 
-    index=find_image_index(id);
+    index=find_data_index(id);
 
     if (index >=0)
         {
@@ -257,7 +257,7 @@ void datamanager::remove_image (int id)
     data_vector_has_changed();
     }
 
-int datamanager::first_image()
+/*int datamanager::first_image()
     {
     return dataItems[0]->get_id();
     }
@@ -271,7 +271,7 @@ int datamanager::last_image()
 
 int datamanager::next_image(int id)
 {
-    int index=find_image_index(id);
+    int index=find_data_index(id);
 
     if (index != -1) {
         if ((index + 1) < (signed int)dataItems.size()) {
@@ -287,22 +287,32 @@ int datamanager::next_image(int id)
 
     //error: id not found
     return -1; 
+}*/
+
+/*std::vector<data_base* >::iterator datamanager::begin_data() const
+{
+    return dataItems.begin();
 }
 
-string datamanager::get_image_name(int ID)
+std::vector<data_base* >::iterator datamanager::end() const
 {
-    int index=find_image_index(ID);
-    if (index >=0) {
-        return dataItems[index]->name();
-    }
+    return dataItems.end();
+}*/
 
-    string error_string="(image_name error)";
+string datamanager::get_data_name(int ID)
+{
+    data_base * d = get_data(ID);
+    
+    if (pt_error::error_if_null(d,"Attempt to get name from NULL data object",pt_error::serious) != NULL)
+        { return d->name();}
+    
+    string error_string="(get_data_name error)";
     return error_string;
 }
 
 void datamanager::set_image_name(int ID,string n)
 {
-    int index=find_image_index(ID);
+    int index=find_data_index(ID);
     if (index >=0)
     {
         dataItems[index]->name(n);
@@ -408,7 +418,7 @@ void datamanager::listimages()
         { cout << *dataItems[i] << endl; } 
     }
 
-int datamanager::find_image_index(int uniqueID)
+int datamanager::find_data_index(int uniqueID)
     {
     for (unsigned int i=0; i < dataItems.size(); i++)
         {
@@ -503,23 +513,23 @@ void datamanager::data_vector_has_changed()
 
 void datamanager::rebuild_image_menu()
 {
-    int v=first_image();//image ID for iteration
+    std::vector<data_base *>::iterator itr = dataItems.begin();
     int m=0;
     
     //delete old labels
     for(int i=0;raw_image_menu[i].label()!=NULL;i++)
         {delete raw_image_menu[i].label();}
     
-    while (v > 0)
+    while (itr != dataItems.end())
     {
         if (raw_image_menu[m].label()!=NULL)
             {raw_image_menu[m].label(NULL);}
-        string labelstring=datamanagement.get_image_name(v);
+        string labelstring=datamanagement.get_data_name((*itr)->get_id());
         char * menulabel=strdup(labelstring.c_str());
         
         raw_image_menu[m].shortcut(0);
         raw_image_menu[m].callback((Fl_Callback *)NULL,0);
-        raw_image_menu[m].argument((long)v);
+        raw_image_menu[m].argument((long)(*itr)->get_id());
         raw_image_menu[m].flags= 0;
         raw_image_menu[m].labeltype(FL_NORMAL_LABEL);
         raw_image_menu[m].labelfont(0);
@@ -529,7 +539,7 @@ void datamanager::rebuild_image_menu()
         raw_image_menu[m].label(menulabel);
         
         m++;
-        v=next_image(v);
+        itr++;
     }
     
     //terminate menu
