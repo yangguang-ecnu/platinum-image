@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  rendererVTK $Revision$
+//  RendererMIP $Revision: $
 //
-//  Abstract class for VTK-based renderers
+//  Proof-of-concept VTK renderer using Maximum Intensity Projection
 //
-//  $LastChangedBy$
+//  $LastChangedBy:  $
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -23,16 +23,14 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#ifndef __rendererVTK__
-#define __rendererVTK__
+#ifndef __rendererMIP__
+#define __rendererMIP__
 
-#include "renderer_base.h"
+#include "rendererVTK.h"
 
-class rendererVTK : public renderer_base
+class rendererMIP : public rendererVTK
     {
-public:
-        rendererVTK();
-        void draw(void);
+        rendererMIP();
     };
 
 #endif
