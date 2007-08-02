@@ -119,23 +119,30 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scala
 	int xstep = 1;
 	int ystep = nx;
 	int zstep = nx*ny;
-	float dx = this->voxel_resize[0][0];
-	float dy = this->voxel_resize[1][1];
-	float dz = this->voxel_resize[2][2];
+
+	Vector3D s = this->get_size();
+	float dx = s[0];
+	float dy = s[1];
+	float dz = s[2];
 	float norm_dxdydz = sqrt(dx*dx + dy*dy + dz*dz);
 	//		double val=0;
 	cout<<"nx/ny/nz/ xstep/ystep/zstep"<<nx<<"/"<<ny<<"/"<<nz<<"/ "<<xstep<<"/"<<ystep<<"/"<<zstep<<endl;
 
 	//pre calculations for speedup...
-	rdir2 = this->direction*this->voxel_resize;
-	sdir2 = src_im->direction*src_im->voxel_resize;
+	rdir2 = this->orientation*this->get_voxel_resize();
+	sdir2 = src_im->orientation*src_im->get_voxel_resize();
 	sdir2 = sdir2.GetInverse();
 	a = sdir2*(this->origin - src_im->origin);
 	b = sdir2*rdir2;
 
+//	char buffer[100];
+//	char buffer2[100];
+//	sprintf(buffer2, "%f", this->datasize[2] );              
 
 	for (int k=0; k < this->datasize[2]; k++)
 	{
+//		sprintf(buffer, "%f", k );              
+//		userIOmanagement.status_area->message( "Trilinear interpolation: " + string(buffer) + "/" + string(buffer2) );
 		cout<<".";
 		for (int j=0; j < this->datasize[1]; j++)
 		{
@@ -167,6 +174,12 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scala
 template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::set_a_coeff2(double a[64], double f[8], double dfdx[8], double dfdy[8], double dfdz[8], double d2fdxdy[8], double d2fdxdz[8], double d2fdydz[8], double d3fdxdydz[8]) 
 {
+	// Tricubic interpolation using method described in:
+	// F. Lekien, J.E. Marsden
+	// Tricubic Interpolation in Three Dimensions
+	// International Journal for Numerical Methods in Engineering, 63 (3), 455-471, 2005
+	// ...used in the function: image_scalar.interpolate_tricubic_3D...
+
 	for (int i=0;i<64;i++) {
 		a[i] = 0.0;
 		for (int j=0;j<8;j++) {
@@ -181,35 +194,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::set_a_coeff2(double a[64], double f[8], 
 		}
 	}
 }
-template <class ELEMTYPE, int IMAGEDIM >
-void image_scalar<ELEMTYPE, IMAGEDIM >::set_a_coeff_stacked(double a[64], double x[64]) 
-{
-	int i,j;
-	for (i=0;i<64;i++) {
-		a[i] = 0.0;
-		for (j=0;j<64;j++) {
-			a[i] += A_tricubic[i][j]*x[j];
-		}
-	}
-}
 
-template <class ELEMTYPE, int IMAGEDIM >
-void image_scalar<ELEMTYPE, IMAGEDIM >::set_a_coeff(double a[64], double f[8], double dfdx[8], double dfdy[8], double dfdz[8], double d2fdxdy[8], double d2fdxdz[8], double d2fdydz[8], double d3fdxdydz[8]) 
-{
-	int i;
-	double x[64];
-	for (i=0;i<8;i++) {
-		x[0+i]=f[i];
-		x[8+i]=dfdx[i];
-		x[16+i]=dfdy[i];
-		x[24+i]=dfdz[i];
-		x[32+i]=d2fdxdy[i];
-		x[40+i]=d2fdxdz[i];
-		x[48+i]=d2fdydz[i];
-		x[56+i]=d3fdxdydz[i];
-	}
-	set_a_coeff_stacked(a,x);
-}
 
 template <class ELEMTYPE, int IMAGEDIM >
 double image_scalar<ELEMTYPE, IMAGEDIM >::tricubic_eval(double a[64], double x, double y, double z) 
@@ -246,13 +231,14 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D(image_scalar<ELE
 	//		int ystep = nx;
 	//		int zstep = nx*ny;
 
-	double dx = double(this->voxel_resize[0][0]);
-	double dy = double(this->voxel_resize[1][1]);
-	double dz = double(this->voxel_resize[2][2]);
+	Vector3D s = this->get_voxel_size();
+	double dx = double(s[0]);
+	double dy = double(s[1]);
+	double dz = double(s[2]);
 
 	//pre calculations for speedup...
-	rdir2 = this->direction*this->voxel_resize;
-	sdir2 = src_im->direction*src_im->voxel_resize;
+	rdir2 = this->orientation*this->get_voxel_resize();
+	sdir2 = src_im->orientation*src_im->get_voxel_resize();
 	sdir2 = sdir2.GetInverse();
 	a = sdir2*(this->origin - src_im->origin);
 	b = sdir2*rdir2;
@@ -333,7 +319,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D(image_scalar<ELE
 					}
 
 					//Set the a-coefficients....				
-//					set_a_coeff(coeff,fval,dfdxval,dfdyval,dfdzval,d2fdxdyval,d2fdxdzval,d2fdydzval,d3fdxdydzval);
+					//					set_a_coeff(coeff,fval,dfdxval,dfdyval,dfdzval,d2fdxdyval,d2fdxdzval,d2fdydzval,d3fdxdydzval);
 					set_a_coeff2(coeff,fval,dfdxval,dfdyval,dfdzval,d2fdxdyval,d2fdxdzval,d2fdydzval,d3fdxdydzval);
 					val = tricubic_eval(coeff,double(svox[0]-int(svox[0]))/dx,double(svox[1]-int(svox[1]))/dy,double(svox[2]-int(svox[2]))/dz);
 				}
