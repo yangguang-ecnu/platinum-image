@@ -253,9 +253,13 @@ void transfer_default<std::complex<float> >::get (const std::complex<float> v, R
 
 template <class ELEMTYPE >
 void transfer_default<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
-    {
-    p.set_mono(255*(v- this->source->get_min())/(this->source->get_max()- this->source->get_min()));
-    }
+	{
+		if(this->source->get_max()>this->source->get_min())	{
+			p.set_mono(255*(v- this->source->get_min())/(this->source->get_max()- this->source->get_min()));
+		}else{
+			p.set_mono(0);
+		}
+	}
 
 
 template <class ELEMTYPE >

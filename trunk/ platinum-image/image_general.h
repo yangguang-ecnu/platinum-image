@@ -151,7 +151,7 @@ class image_general : public image_storage <ELEMTYPE >
         void set_voxel(int x, int y, int z, ELEMTYPE voxelvalue);
         //void set_voxel(unsigned long offset, ELEMTYPE); //deprecated: use iterator!
 		void set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction=2);
-		void set_value_to_voxels_in_region(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
+		void fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();

@@ -487,10 +487,9 @@ bool image_general<ELEMTYPE, IMAGEDIM>::read_voxel_size_from_dicom_file(std::str
 	{
 		dicomIO->SetFileName(dcm_file.c_str());
 		dicomIO->ReadImageInformation();		//get basic DICOM header
-		this->voxel_resize.SetIdentity();
-		this->voxel_resize[0][0] = dicomIO->GetSpacing(0);
-		this->voxel_resize[1][1] = dicomIO->GetSpacing(1);
-		this->voxel_resize[2][2] = dicomIO->GetSpacing(2);
+		this->voxel_size[0] = dicomIO->GetSpacing(0);
+		this->voxel_size[1] = dicomIO->GetSpacing(1);
+		this->voxel_size[2] = dicomIO->GetSpacing(2);
 		succeded = true;
 	}
 	return succeded;
@@ -703,7 +702,7 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, in
 {
 	Vector3D vox_pos; vox_pos[0]=x; vox_pos[1]=y; vox_pos[2]=z;
 	Vector3D phys_pos;
-	phys_pos = this->origin + this->direction*this->voxel_resize*vox_pos;
+	phys_pos = this->origin + this->orientation*this->get_voxel_resize()*vox_pos;
 	return phys_pos;
 }
 
@@ -805,7 +804,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_by_dir(int u, int v, int w, EL
 		set_voxel(u,v,w,value);//Loop over z
 }
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::set_value_to_voxels_in_region(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value)
+void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value)
 {
 	for (int k=z; k < z+dz; k++){
 		for (int j=y; j < y+dy; j++){
@@ -952,8 +951,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_geometry(float ox,float oy,float oz,
 	this->origin[0]=ox;
 	this->origin[1]=oy;
 	this->origin[2]=oz;
-	this->set_voxel_resize(dx,dy,dz);
-	this->direction.SetIdentity();
+	this->set_voxel_size(dx,dy,dz);
+	this->orientation.SetIdentity();
 	this->rotate(fi_z,fi_y,fi_x);
 }
 			
