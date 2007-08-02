@@ -62,7 +62,6 @@ _VTK will be used in Platinum, however it is not necessary at the moment_
 
 
 ==FLTK==
-  # Build FLTK:
   # Decompress fltk-1.1.7-source.zip” _(suggested location: C:\Lib\fltk-1.1.7)_ 
   # Run CMake
   # Set source: ”C:\Lib\fltk-1.1.7”
