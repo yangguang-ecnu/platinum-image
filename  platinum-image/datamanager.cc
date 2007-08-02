@@ -194,11 +194,11 @@ void datamanager::add(image_base * v)
                         rendermanagement.set_geometry(rendererID,v->get_origin(),1);
                         }
                     
-                    rendermanagement.connect_image_renderer(rendererID,the_image_id);
+                    rendermanagement.connect_data_renderer(rendererID,the_image_id);
                     }
                 
-                image_vector_has_changed();
-                image_has_changed(the_image_id);
+                data_vector_has_changed();
+                data_has_changed(the_image_id);
                 }
             else
                 {
@@ -225,8 +225,8 @@ void datamanager::add(point_collection * p)
         dataItems.push_back(p);
         p->activate();
         
-        image_vector_has_changed();
-        image_has_changed(p->get_id());
+        data_vector_has_changed();
+        data_has_changed(p->get_id());
         }
 }
 
@@ -254,7 +254,7 @@ void datamanager::remove_image (int id)
         }
 #endif
 
-    image_vector_has_changed();
+    data_vector_has_changed();
     }
 
 int datamanager::first_image()
@@ -306,7 +306,7 @@ void datamanager::set_image_name(int ID,string n)
     if (index >=0)
     {
         dataItems[index]->name(n);
-        image_vector_has_changed();
+        data_vector_has_changed();
     }
 }
 
@@ -478,12 +478,12 @@ void datamanager::remove_datawidget(datawidget_base * the_fl_widget)
     data_widget_box->interior->remove(the_fl_widget);
     }
 
-void datamanager::image_has_changed (int image_ID, bool recalibrate)
+void datamanager::data_has_changed (int dataID, bool recalibrate)
     {
     //when thumbnails are implemented, they should be re-rendered at this point
-    get_image(image_ID)->image_has_changed(recalibrate);
+    get_data(dataID)->data_has_changed(recalibrate);
 
-    vector<int> changed_combinations=rendermanagement.combinations_from_image(image_ID);
+    vector<int> changed_combinations=rendermanagement.combinations_from_data(dataID);
     vector<int>::iterator citr=changed_combinations.begin();
 
     citr=changed_combinations.begin();
@@ -494,7 +494,7 @@ void datamanager::image_has_changed (int image_ID, bool recalibrate)
         }
     }
 
-void datamanager::image_vector_has_changed()
+void datamanager::data_vector_has_changed()
     {
     rebuild_image_menu();
     rendermanagement.image_vector_has_changed();

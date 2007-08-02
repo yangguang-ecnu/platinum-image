@@ -42,6 +42,8 @@ class data_base
     {
     private:
         void set_parameters();
+        
+        static int data_next_ID;
     protected:
         int ID;
         datawidget_base * widget;
@@ -75,6 +77,7 @@ class data_base
             }
 
         virtual void redraw () = 0;
+        virtual void data_has_changed (bool) {}
         
         int get_id()
             { return ID; }

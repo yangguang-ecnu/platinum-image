@@ -113,7 +113,7 @@ class image_general : public image_storage <ELEMTYPE >
         void replicate_itk_to_image();     //use object's own ITK image pointer
         void replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
 
-        virtual void image_has_changed(bool stats_refresh = true);          //called when image data has been changed
+        virtual void data_has_changed(bool stats_refresh = true);          //called when image data has been changed
 
         /*static image_base * type_from_DICOM_file (std::string file_path);
         static image_base * type_from_VTK_file (std::string file_path);*/

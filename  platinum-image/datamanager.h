@@ -67,7 +67,7 @@ class datamanager
                                                     //kept updated but without checkmarks
 
         void rebuild_image_menu();
-        void image_vector_has_changed();
+        void data_vector_has_changed();
 
     public:
         datamanager();
@@ -107,7 +107,7 @@ class datamanager
 
         void add(image_base * v);           //add image to vector, notify other managers
         void add(point_collection * v); 
-        void image_has_changed (int image_ID, bool recalibrate = false);    //signal that contents of a image has changed,
+        void data_has_changed (int image_ID, bool recalibrate = false);    //signal that contents of a image has changed,
                                                     //to update thumbnails, display
         //recalibrate determines whether max values etc. are refreshed
         // - doing this may distort the display of changes to the image

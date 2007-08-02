@@ -118,7 +118,7 @@ class image_base : public data_base
                                                         //out of bounds
 
         
-         virtual void image_has_changed(bool stats_refresh = true) = 0;
+         virtual void data_has_changed(bool stats_refresh = true) = 0;
         // *** access methods ***
 
         virtual Matrix3D get_voxel_resize () const = 0;

@@ -133,7 +133,7 @@ int thresholdparvalue::make_threshold_image ()
             }
         }
 
-    datamanagement.image_has_changed( result_vol_ID, true);
+    datamanagement.data_has_changed( result_vol_ID, true);
 
     return result_vol_ID;
     }
