@@ -1,10 +1,4 @@
-//////////////////////////////////////////////////////////////////////////
-//
-//  rendererVTK $Revision$
-//
-//  Abstract class for VTK-based renderers
-//
-//  $LastChangedBy$
+//$Id: $
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -23,16 +17,12 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#ifndef __rendererVTK__
-#define __rendererVTK__
+#include "rendererMIP.h"
 
-#include "renderer_base.h"
-
-class rendererVTK : public renderer_base
-    {
-public:
-        rendererVTK();
-        void draw(void);
-    };
-
-#endif
+rendererMIP::rendererMIP():rendererVTK ()
+{
+    //create rendered objects from selected images/points
+    /*vtkRenderer *ren1 = vtkRenderer::New();
+    ren1‑>AddActor(actor);*/
+    
+}
