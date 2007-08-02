@@ -31,9 +31,7 @@
 #include "image_general.h"
 
 #include "Utilities/vxl/contrib/mil3d_trilin_interp_3d.h"
-
-//Hej Joel! Du har glömt att lägga till nedanstående i SVN, det är bara du själv som har den filen:
-//#include "Utilities/tricubic1.0.0/libtricubic/tricubic.h" //http://www.lekien.com/~francois/software/tricubic/
+//#include "Utilities/tricubic1.0.0/libtricubic/tricubic.h" (//http://www.lekien.com/~francois/software/tricubic/)
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_scalar : public image_general <ELEMTYPE, IMAGEDIM>
@@ -53,14 +51,28 @@ public:
         image_scalar(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile = 1,unsigned int increment = 1) : image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment)
             {};
 
-	//JK- plans to speed "interpolate_tricubic_3D_libtricubic" up by precalculationg num-diffs...
+
+//	void interpolate_bilinear_2D(float phys_x, float phys_y, int vox_z);
+
+//	void interpolate_trilinear_3D_ITK(float phys_x, float phys_y, float phys_z); //no boundary checks in "itkLinearInterpolateImageFunction.h" 
+	void interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation using the vxl package, alpha-tested
+
+
+	// Tricubic interpolation using method described in:
+	// F. Lekien, J.E. Marsden
+	// Tricubic Interpolation in Three Dimensions
+	// International Journal for Numerical Methods in Engineering, 63 (3), 455-471, 2005
+
+	//Speed the "interpolate_tricubic_3D" function up by precalculationg the numericla diffs for the whole image.
 	image_scalar<double,3>* get_num_diff_image_1storder_central_diff_3D(int direction);	//voxel based (i.e. no real/physical dimensions included),  alpha-tested
 	image_scalar<double,3>* get_num_diff_image_2ndorder_central_diff_3D(image_scalar<double,3>*df_dir1, int direction2);	//voxel based (i.e. no real/physical dimensions included) , alpha-tested
 
-//	void interpolate_bilinear_2D(float phys_x, float phys_y, int vox_z);
-//	void interpolate_trilinear_3D_ITK(float phys_x, float phys_y, float phys_z); //no boundary checks in "itkLinearInterpolateImageFunction.h" 
-	void interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation from vxl package, alpha-tested
-//	void interpolate_tricubic_3D_libtricubic(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation from "libtricubic" package
+	void set_a_coeff2(double a[64], double f[8], double dfdx[8], double dfdy[8], double dfdz[8], double d2fdxdy[8], double d2fdxdz[8], double d2fdydz[8], double d3fdxdydz[8]);
+	void set_a_coeff(double a[64], double f[8], double dfdx[8], double dfdy[8], double dfdz[8], double d2fdxdy[8], double d2fdxdz[8], double d2fdydz[8], double d3fdxdydz[8]);
+	void set_a_coeff_stacked(double a[64], double x[64]);
+	double tricubic_eval(double a[64], double x, double y, double z);
+
+	void interpolate_tricubic_3D(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation from "libtricubic" package
 
 };
 
