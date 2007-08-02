@@ -83,7 +83,7 @@ renderer_base * rendermanager::get_renderer (int ID)
     return NULL;
 }
 
-vector<int> rendermanager::combinations_from_image (int imageID)
+vector<int> rendermanager::combinations_from_data (int dataID)
     {
     //when thumbnails are implemented, they should be re-rendered at this point
 
@@ -94,7 +94,7 @@ vector<int> rendermanager::combinations_from_image (int imageID)
 
     while (itr != renderers.end())
         {
-        if (image_rendered(index, imageID) != BLEND_NORENDER)
+        if (image_rendered(index, dataID) != BLEND_NORENDER)
             {
             int combination = get_combination_id(index);
 
@@ -207,16 +207,16 @@ Vector3D rendermanager::get_location (int rendererIndex, int imageID, int px, in
     return renderers[rendererIndex]->view_to_voxel(px, py, sx, sy,imageID);
     }
 
-void rendermanager::connect_image_renderer(int rendererID, int imageID)
+void rendermanager::connect_data_renderer(int rendererID, int dataID)
     {
     int renderindex = find_renderer_index(rendererID);
 
-    renderers[renderindex]->connect_image(imageID);
+    renderers[renderindex]->connect_image(dataID);
     }
 
-void rendermanager::image_has_changed(int ID)
+void rendermanager::data_has_changed(int ID)
     {
-    vector<int> combos = rendermanager::combinations_from_image (ID);
+    vector<int> combos = rendermanager::combinations_from_data (ID);
 
     for (vector<int>::iterator c = combos.begin();c != combos.end(); c++)
         {

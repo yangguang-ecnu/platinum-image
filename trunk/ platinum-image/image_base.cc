@@ -40,10 +40,9 @@ extern datamanager datamanagement;
 extern rendermanager rendermanagement;
 extern viewmanager viewmanagement;
 
-static int imagemaxID = 1;
-
 image_base::image_base():data_base()
     {set_parameters ();}
+
 image_base::image_base(image_base* const s):data_base(s)
     {
 //cout << "Start image_base constructor"<<endl;//PRDEBUG
@@ -62,8 +61,6 @@ image_base::image_base(image_base* const s):data_base(s)
 void image_base::set_parameters ()    
     {
     ostringstream namestream;
-
-    ID = imagemaxID++;
     
     origin.Fill(0);
     orientation.SetIdentity();
@@ -126,7 +123,7 @@ bool image_base::read_direction_from_dicom_file(std::string dcm_file)
 
 void image_base::redraw()
     {
-    rendermanagement.image_has_changed(ID);
+    rendermanagement.data_has_changed(ID);
     }
 
 Matrix3D image_base::get_orientation () const

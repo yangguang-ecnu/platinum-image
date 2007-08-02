@@ -279,14 +279,14 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
         {
         memcpy(this->imagepointer(),ptr,sizeof(ELEMTYPE)*this->num_elements);
         
-        image_has_changed(true);
+        data_has_changed(true);
         }
         
     set_parameters();
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::image_has_changed(bool stat_refresh)
+void image_general<ELEMTYPE, IMAGEDIM>::data_has_changed(bool stat_refresh)
     {
     //TODO: some outlandish malfunction in rendererMPR
     //when called with render_thumbnail-generated parameters
@@ -828,7 +828,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::testpattern()
                 set_voxel(x,y,z, int(float(x+y+z)*255.0/float(datasize[2]+datasize[1]+datasize[0])));
                 }
 
-	this->image_has_changed(true);
+	this->data_has_changed(true);
     }
 
 

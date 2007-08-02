@@ -342,4 +342,6 @@ void datawidget<image_base>::toggle_tfunction(Fl_Widget* callingwidget, void*)
 datawidget<point_collection>::datawidget (point_collection* p, std::string n): datawidget_base (p,n)
 {
     featuremenu->menu(menu_featuremenu_base);
+    
+    //TODO: disable Save as VTK
 }

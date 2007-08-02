@@ -54,30 +54,30 @@ rendercombination::rendercombination(int volID)
     blend_mode_=BLEND_MAX;
     if (volID > 0)
         {
-        renderimages.push_front(renderpair(volID,datamanagement.get_data(volID),BLEND_OVERWRITE));
+        renderdata.push_front(renderpair(volID,datamanagement.get_data(volID),BLEND_OVERWRITE));
         }
     }
 
 rendercombination::iterator rendercombination::begin() const
 {
-    return renderimages.begin();
+    return renderdata.begin();
 }
 
 rendercombination::iterator rendercombination::end() const
 {
-    return renderimages.end();
+    return renderdata.end();
 }
 
 bool rendercombination::empty() const
 {
-    return renderimages.empty();    
+    return renderdata.empty();    
 }
 
 /*bool rendercombination::image_remaining(int priority)
     {
     for (int i=0;i <= priority;i++)
         {
-        if ( i>= MAXRENDERVOLUMES || renderimages [i]==0)
+        if ( i>= MAXRENDERVOLUMES || renderdata [i]==0)
             {
             //got to end, no image left
             return false;
@@ -89,7 +89,7 @@ bool rendercombination::empty() const
 
 int rendercombination::image_ID_by_priority (int priority)
     {
-    return renderimages[priority];
+    return renderdata[priority];
     }
 
 image_base* rendercombination::get_imagepointer(int p)
@@ -99,7 +99,7 @@ image_base* rendercombination::get_imagepointer(int p)
 
 image_base* rendercombination::top_image ()const
 {
-    for (std::list<renderpair>::const_iterator itr = renderimages.begin();itr != renderimages.end();itr++)
+    for (std::list<renderpair>::const_iterator itr = renderdata.begin();itr != renderdata.end();itr++)
         {
         image_base* value = dynamic_cast<image_base* >(itr->pointer);
         
@@ -112,13 +112,13 @@ image_base* rendercombination::top_image ()const
 
 void rendercombination::add_image(int dataID)
     {
-    renderimages.push_back(renderpair(dataID,datamanagement.get_data(dataID),BLEND_OVERWRITE));
+    renderdata.push_back(renderpair(dataID,datamanagement.get_data(dataID),BLEND_OVERWRITE));
 
     /*
     //find end of combinations array
     for (int i=0;empty_spot == (-1) && i < MAXRENDERVOLUMES;i++)
         {
-        if (renderimages [i]==0)
+        if (renderdata [i]==0)
             {
             empty_spot=i;
             }
@@ -126,11 +126,11 @@ void rendercombination::add_image(int dataID)
 
     if (empty_spot >=0)
         {
-        renderimages[empty_spot]=volID;
+        renderdata[empty_spot]=volID;
         renderimage_pointers[empty_spot]=datamanagement.get_image(volID);
         if (empty_spot< MAXRENDERVOLUMES -1)
             {
-            renderimages[empty_spot+1]=0;
+            renderdata[empty_spot+1]=0;
             }
         rendermanagement.combination_update_callback(this->id);
         }
@@ -145,7 +145,7 @@ void rendercombination::toggle_image(int imageID)
 {
     bool removed=false;
 
-    for (std::list<renderpair>::iterator itr = renderimages.begin();itr != renderimages.end();itr++)
+    for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
         {
         
         if (itr->ID==imageID)
@@ -160,9 +160,9 @@ void rendercombination::toggle_image(int imageID)
     
     /*bool removed=false;
     
-    for (int i=0; i<= MAXRENDERVOLUMES && renderimages [i]!=0;i++)
+    for (int i=0; i<= MAXRENDERVOLUMES && renderdata [i]!=0;i++)
     {
-        if (renderimages [i]==imageID)
+        if (renderdata [i]==imageID)
         {
             remove_image(imageID);
             removed=true;
@@ -179,11 +179,11 @@ void rendercombination::remove_image(int ID)
     {
     bool removed=false;
     
-    for (std::list<renderpair>::iterator itr = renderimages.begin();itr != renderimages.end();itr++)
+    for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
         {
         if (itr->ID == ID)
             {
-            renderimages.erase(itr);
+            renderdata.erase(itr);
             removed = true;
             }
         }
@@ -191,15 +191,15 @@ void rendercombination::remove_image(int ID)
         {rendermanagement.combination_update_callback(this->id);}
     
     /*bool removed=false;
-    for (int i=0; i<= MAXRENDERVOLUMES && renderimages [i]!=0;i++)
+    for (int i=0; i<= MAXRENDERVOLUMES && renderdata [i]!=0;i++)
         {
-        if (renderimages [i]==ID)
+        if (renderdata [i]==ID)
             {
             removed=true;
             }
         if (removed)
             {
-            renderimages[i]=renderimages[i+1];
+            renderdata[i]=renderdata[i+1];
             renderimage_pointers[i]=renderimage_pointers[i+1];
             }
         }
@@ -209,7 +209,7 @@ void rendercombination::remove_image(int ID)
 
 int rendercombination::image_rendered(int ID)
     {
-    for (std::list<renderpair>::iterator itr = renderimages.begin();itr != renderimages.end();itr++)
+    for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
         {
             if (itr->ID ==ID)
                 {return blend_mode();}
@@ -231,9 +231,9 @@ void rendercombination::image_vector_has_changed()
 
     //images may have been deleted too, we need to update both image ID and image pointer
 
-    /*for (int r=0;r < MAXRENDERVOLUMES && renderimages [r]!=0;r++)
+    /*for (int r=0;r < MAXRENDERVOLUMES && renderdata [r]!=0;r++)
         {
-        int i=datamanagement.find_image_index(abs(renderimages[r]));
+        int i=datamanagement.find_image_index(abs(renderdata[r]));
 
         if (i != (-1) )
             {
@@ -246,23 +246,23 @@ void rendercombination::image_vector_has_changed()
             {
             //image at p does not exist
 
-            renderimages[r]=0;
+            renderdata[r]=0;
 
-            for (int v=r;renderimages [v+1]!=0;v++)
+            for (int v=r;renderdata [v+1]!=0;v++)
                 {
-                renderimages[v]=renderimages[v+1];
+                renderdata[v]=renderdata[v+1];
                 }
             }
         };*/
-    for (std::list<renderpair>::iterator itr = renderimages.begin();itr != renderimages.end();itr++)
+    for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
         {
-        itr->pointer=datamanagement.get_image(itr->ID);
+        itr->pointer=datamanagement.get_data(itr->ID);
         
         if ( itr->pointer == NULL)
             {
             //image at p does not exist
             
-            renderimages.erase(itr);
+            renderdata.erase(itr);
             }
         };
     

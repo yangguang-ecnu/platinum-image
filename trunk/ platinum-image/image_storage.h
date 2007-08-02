@@ -102,7 +102,7 @@ class image_storage : public image_base
                 
             return stats;
             }
-        virtual void image_has_changed(bool stats_refresh = true) = 0;   
+        virtual void data_has_changed(bool stats_refresh = true) = 0;   
         void stats_refresh();
         void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
                                     //! for use inside processing functions

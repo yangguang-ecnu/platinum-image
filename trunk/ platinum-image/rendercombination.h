@@ -57,7 +57,7 @@ public:
         
     private:
         //int renderimages [MAXRENDERVOLUMES];
-        std::list<renderpair> renderimages;
+        std::list<renderpair> renderdata;
         //colormap colortable;
         int id; //id to identify this combination in callbacks
         static int new_rc_ID;   //unique id to assign newly created combinations
@@ -66,7 +66,7 @@ public:
         rendercombination();
         typedef std::list<renderpair>::const_iterator iterator;
         rendercombination(int ID);  //constructor that populates
-        //the renderimages array 
+        //the renderdata array 
         //from the beginning
         void image_vector_has_changed ();   //image has been added or removed - update renderlist
         //bool image_remaining(int priority);        //at priority, is there an image to render?

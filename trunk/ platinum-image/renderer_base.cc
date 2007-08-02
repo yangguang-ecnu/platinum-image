@@ -152,10 +152,11 @@ std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,
     toView = deRotate * toView;
     toView = toView * g->zoom*(float)vmin/display_scale;*/
     
-#ifdef _DEBUG
+/*#ifdef _DEBUG
     std::cout << "l x: " << l[0] << ", y: " << l[1] << ", (z: " << l[2] << ")" << std::endl;
     std::cout << "toView x: " << toView[0] << ", y: " << toView[1] << ", (z: " << toView[2] << ")" << std::endl;
 #endif
+    */
     
     view.push_back(toView[0]+sx/2);
     view.push_back(toView[1]+sy/2);

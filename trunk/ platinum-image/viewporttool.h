@@ -109,15 +109,22 @@ public:
     static const std::string name ();
 };
 
+class cursor_tool;
+
 class cursor_tool : public nav_tool //subclass of nav_tool because it is useful to be able to
                                     //do some navigation while working with a selection
 {
 protected:
-    point * selection;
+    static point * selection;
+    static cursor_tool * selectionOwner;
     
     //controls
     static Fl_Output * coord_display;
     static Fl_Button * make_button;
+    
+    void make();
+    static void cb_make(Fl_Widget*, void*); //wrapper for make
+    
 public:
     cursor_tool (viewport_event &);
     ~cursor_tool();

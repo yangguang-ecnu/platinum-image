@@ -20,13 +20,13 @@
 //#include "viewporttool.h"
 
 #include "viewmanager.h"
-#include "viewmanager.h"
+#include "datamanager.h"
 #include "rendermanager.h"
 #include "userIOmanager.h"
 
 extern viewmanager viewmanagement;
 extern rendermanager rendermanagement;
-extern viewmanager viewmanagement;
+extern datamanager datamanagement;
 extern userIOmanager userIOmanagement;
 
 #include "statusarea.h"
@@ -366,6 +366,8 @@ threshold_overlay * histo2D_tool::get_overlay ()
 
 Fl_Output * cursor_tool::coord_display = NULL;
 Fl_Button * cursor_tool::make_button = NULL;
+point * cursor_tool::selection = NULL;
+cursor_tool * cursor_tool::selectionOwner = NULL;
 
 cursor_tool::cursor_tool(viewport_event &event):nav_tool(event)
 {
@@ -373,19 +375,37 @@ cursor_tool::cursor_tool(viewport_event &event):nav_tool(event)
         {
         event.grab();
         }
-    
-    selection = NULL;
 }
 
 cursor_tool::~cursor_tool()
 {
-    if (selection != NULL)
-        { delete selection; }
+    if (selection != NULL && selectionOwner == this)
+        { 
+        selectionOwner == NULL;
+        
+        delete selection;
+        selection = NULL;
+        }
 }
 
 const std::string cursor_tool::name()
 {
     return "Cursor";
+}
+
+void cursor_tool::cb_make(Fl_Widget*, void* p)
+{    
+    if (selection != NULL)
+        {
+        int renderer = selectionOwner->myPort->get_renderer_id();
+        datamanagement.add(selection);
+        std::cout << "selection->ID " << selection->get_id() << std::endl;
+        rendermanagement.connect_data_renderer(renderer,selection->get_id());
+        }
+    
+    selection = NULL;
+    
+    selectionOwner = NULL;
 }
 
 void cursor_tool::init()
@@ -397,6 +417,7 @@ void cursor_tool::init()
     //controls->type(FL_HORIZONTAL);
     //coord_display = new Fl_Output (controls->x(),controls->y(),60,controls->h(),"Location");
     make_button = new Fl_Button (controls->x(),controls->y(),controls_w,controls->h(),"Make point");
+    make_button->callback(cb_make,(void*)NULL);
     controls->box(FL_FLAT_BOX);
     controls->color(FL_RED);
     
@@ -408,7 +429,7 @@ void cursor_tool::handle(viewport_event &event)
     std::vector<int> mouse = event.mouse_pos_local();
     
     FLTKviewport * fvp = event.get_FLTK_viewport();
-    
+
     if (event.type() == pt_event::create)
         {
         event.grab();
@@ -420,8 +441,16 @@ void cursor_tool::handle(viewport_event &event)
                 if (selection == NULL)
                     {
                     selection = new point(mouse3D);
+                    selectionOwner = this;
+                    }
+                else
+                    {
+                    viewmanagement.refresh_viewports();
                     }
             case pt_event::iterate:
+                selectionOwner = this;
+                make_button->user_data(this);
+
                 selection->set_origin (mouse3D);
                 
                 fvp->damage(FL_DAMAGE_ALL);
@@ -431,7 +460,7 @@ void cursor_tool::handle(viewport_event &event)
         }
     if (event.type() == pt_event::draw)
         {
-        if (selection != NULL)
+        if (selection != NULL && selectionOwner == this)
             {
             event.grab();
             

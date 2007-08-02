@@ -84,7 +84,8 @@ class FLTKviewport : public Fl_Widget
 	    void resize (int new_x,int new_y,int new_w,int new_h);
 	    int handle(int event);
         void needs_rerendering ();
-    private:
+        
+private:
         void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 	    void draw_feedback();       //draws the cursor
 	    bool needsReRendering;	//set to true when we need to update the data drawn on screen

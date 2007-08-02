@@ -24,6 +24,8 @@
 #include <sstream>
 #include "datawidget.h"
 
+int data_base::data_next_ID = 1;
+
 using namespace std;
 
 data_base::~data_base()
@@ -58,6 +60,7 @@ const string data_base::name() const
 
 data_base::data_base()
     {
+    ID = data_next_ID++;
     widget = NULL;
     from_file(false);
     }
@@ -67,6 +70,7 @@ data_base::data_base (data_base * const source)
 //cout << "Start data_base constructor"<<endl;//PRDEBUG
     pt_error::error_if_null(source,"Attempting to copyconstruct data object from NULL object");
 
+    ID = data_next_ID++;
     widget = NULL;
     from_file(source->from_file());
 
