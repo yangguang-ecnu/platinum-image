@@ -43,7 +43,7 @@ T signed_ceil(T & x){   //ceil that returns rounded absolute upwards
 void rendererMPR::connect_image(int vHandlerID)
     {
     //TEST: wrapper, this should be done directly by rendermanagement
-    imagestorender->add_image(vHandlerID);
+    imagestorender->add_data(vHandlerID);
     }
 
 Vector3D rendererMPR::view_to_world(int vx, int vy,int sx,int sy) const

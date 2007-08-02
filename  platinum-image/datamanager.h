@@ -90,13 +90,10 @@ class datamanager
                                     //are FLTK subclasses, they are deleted automatically
                                     //and this won't be a problem.
 
-
-        int first_image();         //for iterating through images: returns ID of first image in vector
-        int last_image();         //for iterating through images: returns ID of first image in vector
-        int next_image(int index); //for iterating through images: returns next ID in images[],
-                                    //0 if argument is last ID and -1 if not found
-
-        std::string get_image_name(int ID);
+        std::vector<data_base* >::iterator begin() const;
+        std::vector<data_base* >::iterator end() const;
+        
+        std::string get_data_name(int ID);
         void set_image_name(int ID,std::string n);
         static void loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager);
         static void dcm_import_callback(Fl_Widget *callingwidget, void *thisdatamanager);
@@ -122,7 +119,7 @@ class datamanager
         int create_empty_image(image_base *, imageDataType unit);    //create empty image with same
                                                                     //dimensions as argument
                                                                     //DEPRECATED: use image_base::alike instead
-        int find_image_index(int uniqueID);
+        int find_data_index(int uniqueID);
         image_base * get_image (int ID);
         data_base * get_data (int ID);
         

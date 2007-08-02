@@ -167,7 +167,7 @@ void rendermanager::remove_renderer (int ID)
 
 void rendermanager::toggle_image (int rendererIndex, int imageID)
     {
-    renderers[rendererIndex]->imagestorender->toggle_image( imageID);
+    renderers[rendererIndex]->imagestorender->toggle_data( imageID);
     }
 
 int rendermanager::image_rendered(int rendererIndex, int volID)

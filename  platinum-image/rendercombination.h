@@ -77,8 +77,8 @@ public:
         image_base* top_image ()const; //topmost image
         image_base* get_imagepointer(int ID);
         //image_base *renderimage_pointers[MAXRENDERVOLUMES];
-        void add_image(int ID);
-        void toggle_image(int imageID);
+        void add_data(int ID);
+        void toggle_data(int imageID);
         void remove_image(int ID);
         int image_rendered(int ID);//for updating various widgets: returns nonzero if
         //the image ID is included in this combination
