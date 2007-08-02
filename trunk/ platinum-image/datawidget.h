@@ -47,7 +47,7 @@
 #define MAXDATANAME 512
 
 #include "image_base.h"
-#include "point_base.h"
+#include "point_collection.h"
 /*class data_base;
 class image_base;
 class point_collection;*/

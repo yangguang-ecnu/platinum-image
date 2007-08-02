@@ -27,7 +27,7 @@
 #ifndef __point__
 #define __point__
 
-#include "point_base.h"
+#include "point_collection.h"
 
 class point : public point_collection
 {
