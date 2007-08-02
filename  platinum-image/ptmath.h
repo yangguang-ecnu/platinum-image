@@ -30,6 +30,7 @@
 #include "itkPoint.h"
 #include "itkMatrix.h"
 
+
 ///...and types
 typedef itk::Vector<float,3> Vector3D;
 typedef itk::Point<float,3> Point3D;
@@ -168,6 +169,8 @@ public:
 	}
 };
 
+
+
 ///////////////////////////////////////////////////////
 // Given x and y vectors of length nSteps, returns 
 // a vector of second derivatives, y2 (natural cubic spline).  Based 
@@ -175,9 +178,18 @@ public:
 // First, call pt_spline once to generate y2.
 // Then call pt_splint (using y2) to  interpolate values...
 
-
 void pt_spline1D(float x[],float y[],int n,float yp1,float ypn,float y2[]);
 float pt_splint1D(float xa[],float ya[],float y2a[],int n,float x);
 
+
+
+
+// Tricubic interpolation using method described in:
+// F. Lekien, J.E. Marsden
+// Tricubic Interpolation in Three Dimensions
+// International Journal for Numerical Methods in Engineering, 63 (3), 455-471, 2005
+// ...used in the function: image_scalar.interpolate_tricubic_3D...
+
+// int A_tricubic[64][64] = ... is defined in ptmath.cc
 
 #endif	//__ptmath.h__
