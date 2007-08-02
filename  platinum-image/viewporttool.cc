@@ -374,7 +374,13 @@ cursor_tool::cursor_tool(viewport_event &event):nav_tool(event)
         event.grab();
         }
     
-    selection[0] = -1;
+    selection = NULL;
+}
+
+cursor_tool::~cursor_tool()
+{
+    if (selection != NULL)
+        { delete selection; }
 }
 
 const std::string cursor_tool::name()
@@ -406,13 +412,17 @@ void cursor_tool::handle(viewport_event &event)
     if (event.type() == pt_event::create)
         {
         event.grab();
+        Vector3D mouse3D = myRenderer->view_to_world(mouse[0],mouse[1],fvp->w(),fvp->h());
+        
         switch (event.state())
             {
             case pt_event::begin:
+                if (selection == NULL)
+                    {
+                    selection = new point(mouse3D);
+                    }
             case pt_event::iterate:
-                
-                selection[0] = mouse[0];
-                selection[1] = mouse[1];
+                selection->set_origin (mouse3D);
                 
                 fvp->damage(FL_DAMAGE_ALL);
                 
@@ -421,17 +431,18 @@ void cursor_tool::handle(viewport_event &event)
         }
     if (event.type() == pt_event::draw)
         {
-        if (selection[0] > 0)
+        if (selection != NULL)
             {
             event.grab();
             
             const int chsize = 6;
             const int chmarg = chsize + 2;
             const int chlen = 8;
-            int drawC [2];
-            drawC [0] = selection[0]+fvp->x();
-            drawC [1] = selection[1]+fvp->y();
+            std::vector<int> drawC = myRenderer->world_to_view (fvp->w(),fvp->h(),selection->get_origin());
 
+            drawC[0] += fvp->x();
+            drawC[1] += fvp->y();
+                   
             fl_push_clip(fvp->x(),fvp->y(),fvp->w(),fvp->h());
             
             fl_color(FL_GRAY);
@@ -451,7 +462,7 @@ void cursor_tool::handle(viewport_event &event)
         {
         event.grab();
     
-        event.resize_point(selection[0],selection[1]);
+        //event.resize_point(selection[0],selection[1]);
         }
     
     if (event.type() == pt_event::hover ) //|| event.type() == pt_event::scroll)

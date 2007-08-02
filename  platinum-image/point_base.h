@@ -44,6 +44,16 @@ public:
         void add (pointStorage::value_type);  //add point
         void remove (pointStorage::iterator); //the opposite of above
         pointStorage::size_type num_points;
+        
+        virtual void redraw ()
+            {
+            pt_error::error("Attempting redraw() on point_collection, not implemented yet");
+            }
+        
+        virtual void save_to_VTK_file (const std::string)
+            {
+            pt_error::error("Attempting save_to_VTK_file on point_collection, not implemented yet");
+            }
     };
 
 #endif

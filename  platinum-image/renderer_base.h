@@ -111,6 +111,10 @@ public:
         = 0;
     virtual Vector3D view_to_world(int vx, int vy,int sx,int sy) const = 0;
     
+    //result is deterministic regardless of what's visible, no virtual:
+    std::vector<int> world_to_view (int view_size_x,int view_size_y,const Vector3D world_pos) const;
+    static std::vector<int> world_to_view (rendergeometry * g,int sx,int sy,const Vector3D l);
+
     void look_at (float x, float y, float z,float zoom=0);
     
     //NOTE: none of the move commands update the rendered image,

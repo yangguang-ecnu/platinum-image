@@ -135,31 +135,38 @@ void renderer_base::move_voxels (int x,int y,int z)
     move(dir[0],dir[1],dir[2]);
 }
 
-
-/*std::vector<float> renderer_base::get_values(Vector3D unitPos) const
+std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,const Vector3D l)
 {
-    std::vector<float> v;
-    Vector3D tlb;
-    for (rendercombination::iterator itr = imagestorender->begin(); itr != imagestorender->end();itr++)
-        {
-        image_base * image = dynamic_cast<image_base *> (itr->pointer);
+    std::vector<int> view;
+    Vector3D toView = l;
+    int vmin = std::min (sx,sy);
+    //float wtvCenterScale = renderer_base::display_scale/((float)vmin*g->zoom*2);
+   
+    Matrix3D world_to_view_matrix;
+    world_to_view_matrix = g->view_to_world_matrix(vmin).GetInverse();
+    
+    toView=world_to_view_matrix*(toView-g->look_at);
+    
+    /*Matrix3D deRotate;
+    deRotate = g->dir.GetInverse();
+    toView = deRotate * toView;
+    toView = toView * g->zoom*(float)vmin/display_scale;*/
+    
+#ifdef _DEBUG
+    std::cout << "l x: " << l[0] << ", y: " << l[1] << ", (z: " << l[2] << ")" << std::endl;
+    std::cout << "toView x: " << toView[0] << ", y: " << toView[1] << ", (z: " << toView[2] << ")" << std::endl;
+#endif
+    
+    view.push_back(toView[0]+sx/2);
+    view.push_back(toView[1]+sy/2);
         
-        if (image != NULL)
-            {
-            //center-based to top-left-back,
-            //add particular image's geometric center
-            tlb=unitPos+image->unit_center();
-            tlb=image->unit_to_voxel()*tlb;
-            if ( tlb[0] >= 0 && tlb[1] >= 0 && tlb[2] >= 0 && tlb[0] < image->get_size_by_dim(0) && tlb[1] < image->get_size_by_dim(1) && tlb[2] < image->get_size_by_dim(2))
-                {
-                v.push_back(image->get_number_voxel(tlb[0],tlb[1],tlb[2]));
-                }
-            else
-                {v.push_back(-1);}
-            }
-        }
-    }
-    return v;*/
+    return view;
+}
+
+std::vector<int> renderer_base::world_to_view (int sx,int sy,const Vector3D l) const
+{
+    return world_to_view(wheretorender,sx,sy,l);
+}
 
 std::map<std::string,float> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const
 {
