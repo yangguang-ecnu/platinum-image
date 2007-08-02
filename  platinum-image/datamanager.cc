@@ -83,15 +83,9 @@ datamanager::~datamanager()
 
 void datamanager::removedata_callback(Fl_Widget *callingwidget, void *thisdatamanager)
     {
-    //callback for "Load image" button
-
     datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
 
-    //here we want to check with the object whether this is image
-    //or vector (or other) data
-    //for now, the assumption is image data
-
-    ((datamanager*)thisdatamanager)->remove_image( the_datawidget->get_data_id() );
+    ((datamanager*)thisdatamanager)->delete_data( the_datawidget->get_data_id() );
     }
 
 void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdatamanager)
@@ -230,32 +224,81 @@ void datamanager::add(point_collection * p)
         }
 }
 
-void datamanager::remove_image (int id)
-    {
-    int index;
-
-    index=find_data_index(id);
-
-    if (index >=0)
+void datamanager::delete_data (data_base * d)
+{
+    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
         {
-        delete dataItems[index];
-
-        dataItems.erase(dataItems.begin()+index);
+        if (*itr == d)
+            {
+            delete *itr; //the data_base destructor calls XXX to
+                         //remove it from dataItems 
+            break;
+            }
         }
+}
+
+void datamanager::delete_data (int id)
+{
+    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
+        {
+        if ((*itr)->get_id() == id)
+            {
+            delete *itr;
+            break;
+            }
+        }
+    
+    /*int index;
+    
+    index=find_data_index(id);
+    
+    if (index >=0)
+    {
+        delete dataItems[index];
+        
+        dataItems.erase(dataItems.begin()+index);
+    }
 #ifdef _DEBUG
     if (index >=0)
-        {
+    {
         cout << "Deleted image with ID=" << id << ", index=" << index << endl;
         cout << "There are now " << dataItems.size() << " data items" << endl;
-        }
-    else
-        {
-        cout << "Danger danger: image with ID " << id << " not found" << endl;
-        }
-#endif
-
-    data_vector_has_changed();
     }
+    else
+    {
+        cout << "Danger danger: image with ID " << id << " not found" << endl;
+    }
+#endif
+    */
+}
+
+void datamanager::remove_data (int id)
+{
+    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
+        {
+        if ((*itr)->get_id() == id)
+            {
+            dataItems.erase( itr); 
+            
+            data_vector_has_changed();
+            break;
+            }
+        }
+}
+
+void datamanager::remove_data (data_base * d)
+{
+    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
+        {
+        if (*itr == d)
+            {
+            dataItems.erase( itr); 
+            
+            data_vector_has_changed();
+            break;
+            }
+        }
+}
 
 /*int datamanager::first_image()
     {

@@ -24,6 +24,9 @@
 #include <sstream>
 #include "datawidget.h"
 
+#include "datamanager.h"
+extern datamanager datamanagement;
+
 int data_base::data_next_ID = 1;
 
 using namespace std;
@@ -36,6 +39,8 @@ data_base::~data_base()
 
     if (widget != NULL)
         {Fl::delete_widget (widget); }
+    
+    datamanagement.remove_data (this);
     }
 
 void data_base::name (const string n)
