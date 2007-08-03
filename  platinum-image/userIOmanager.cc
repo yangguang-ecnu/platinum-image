@@ -41,6 +41,11 @@ void userIOmanager::setup()
     //status area is initialized in mainwindow.cc, through its own constructor
     }
 
+userIOmanager::~userIOmanager()
+{
+    IOblocks.clear();
+}
+
 void userIOmanager::show_message (std::string name, std::string message, displayMethod method  )
 {
     switch (method)
@@ -65,7 +70,11 @@ void userIOmanager::interactive_message (const std::string m)
 {
     status_area->interactive_message(m);
 }
-    
+
+void userIOmanager::progress_update (int s, std::string m, int n)
+{
+    status_area->progress(s,m,n);
+}
 
 int userIOmanager::add_userIO (std::string name, userIO_callback* cback,std::string ok_label)
     {

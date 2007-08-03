@@ -255,7 +255,7 @@ void FLTKimage_choice::image_vector_has_changed ()
     //rebuild
     Fl_Menu_Item new_menu[datamanager::IMAGEVECTORMAX+2];
 
-    base_menu=datamanagement.FLTK_image_menu_items();
+    base_menu=datamanagement.FLTK_image_menu();
 
     new_menu[0].label("(no selection)");
     new_menu[0].shortcut(0);

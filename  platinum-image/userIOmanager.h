@@ -49,10 +49,10 @@ class userIOmanager
         //void maintenance ();    //called on idle or other time, to cleanup deleted objects and such
 
     public:
-        userIOmanager::userIOmanager() { }
+        userIOmanager() { }
 
-        userIOmanager::~userIOmanager() //! userIOs are FLTK classes, deleted automatically with their parent
-            { }
+        ~userIOmanager();
+
         void setup();                   //create FLTK list widget and all, puts associated widgets in Fl_Group::current()
 
         void image_vector_has_changed();    //triggers rebuild of
@@ -67,6 +67,8 @@ class userIOmanager
                                        //in char array stored elsewhere
                                        //do or die: must be cleared with interactive_message (NULL)
                                        //before array is deleted
+
+        void progress_update (int step = 0, std::string message = "", int num_steps = 0);
 
         void finish_userIO(int userIO_ID);         //end group and redraw all widgets, ready to use
 
