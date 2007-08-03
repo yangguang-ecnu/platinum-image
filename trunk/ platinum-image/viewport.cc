@@ -720,8 +720,8 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR));
 }
 
-/*
-Fl_Gl_Window * viewport::initialize_GL ()
+
+void viewport::initialize_GL ()
 {
     Fl_Group::current(containerwidget);
     
@@ -730,7 +730,7 @@ Fl_Gl_Window * viewport::initialize_GL ()
     
     containerwidget->end();
 }
-*/
+
 
 void viewport::hide_GL ()
 {
