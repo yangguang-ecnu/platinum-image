@@ -10,8 +10,36 @@ The inheritance is planned as follows
      * [points_seq_func] parametric = returned data `const`
     * [points_mesh] interconnected points
 
-==Details==
-The location for a [point] uses the `origin` field of data_base, which means that it shares basic location operations with data_base and the [image_base] subclasses. Other point classes either
- # Ignore this field
- # Use it for the first point
- # Use it as a global location, an offset for all member points
+==[userIO] parameter==
+There is a userIO parameter, [FLTKuserIOpar_points], that allows selection of a point_collection (or subclass, in the same way as [FLTKuserIOpar_image]). The parameter can return either the [ID] of the point_collection or, if the derived object is a [point], its physical coordinates as a Vector3D.
+
+The following example code demonstrates this:
+
+===Function definition===
+{{{
+void pointInputDemoFcn (int userIO_ID,int par_num)
+{
+    if (par_num == USERIO_CB_OK)
+        {
+        //you can get either ID of the point_collection object:
+        int theID = userIOmanagement.get_parameter<pointIDtype>(userIO_ID,0);
+        
+        //or a Vector3D - which only works for the point class, because it's the
+        //only one with just 1 value:
+        Vector3D thePoint = userIOmanagement.get_parameter<Vector3D>(userIO_ID,0);
+        
+        //if you are interested in voxel coordinates of a point, call
+        //image->world_to_voxel(const Vector3D)
+        
+        std::ostringstream numbers;
+        numbers << "Global coordinates: (" << thePoint[0] << "," << thePoint[1] << "," << thePoint[2] << ")"; 
+        
+        userIOmanagement.show_message("Point parameter value",numbers.str(),userIOmanager::block);
+        }
+}
+}}}
+===Parameters===
+{{{
+    int pointInputDemoID=userIOmanagement.add_userIO("Point input demo",pointInputDemoFcn,"OK");
+    userIOmanagement.add_par_points(pointInputDemoID,"What's the point?");
+}}}
