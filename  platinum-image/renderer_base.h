@@ -114,9 +114,17 @@ public:
     //convert view coordinates to voxels, virtual since the result depends on what's visible,
     //which in turn depends on how it's rendered
     virtual Vector3D view_to_voxel(int vx, int vy, int sx, int sy,int imageID = -1) const    
-        {pt_error::error("Calling undefined view_to_voxel(...)",pt_error::warning);}
+        {
+		pt_error::error("Calling undefined view_to_voxel(...)",pt_error::warning);
+		Vector3D tmp;
+		return tmp;	//JK corrects error in Visual C++ compilation... ("must return a value")
+		}
     virtual Vector3D view_to_world(int vx, int vy,int sx,int sy) const 
-        {pt_error::error("Calling undefined view_to_world(...)",pt_error::warning);}
+        {
+		pt_error::error("Calling undefined view_to_world(...)",pt_error::warning);
+		Vector3D tmp;
+		return tmp;	//JK corrects error in Visual C++ compilation... ("must return a value")
+		}
     
     //result is deterministic regardless of what's visible, no virtual:
     std::vector<int> world_to_view (int view_size_x,int view_size_y,const Vector3D world_pos) const;
