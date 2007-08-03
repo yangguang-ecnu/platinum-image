@@ -184,7 +184,7 @@ image_base * image_general<ELEMTYPE, IMAGEDIM>::alike (imageDataType unit)
 //    ITKimportfilter=NULL;
 //
 //    new_image->origin          = origin;
-//    new_image->direction       = direction;
+//    new_image->orientation       = orientation;
 //    new_image->voxel_resize    = voxel_resize;
 //
 //    new_image->unit_center_     = unit_center;
@@ -551,7 +551,7 @@ bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D
 	//figure out if (direction*Y = phys_pos_of_last_corner) --> are then all Y-components positive?
 	Vector3D phys_pos2 = phys_pos - this->origin; //now we only need to find out the scalar product of...
 	Matrix3D dir_inv;
-	dir_inv = this->direction.GetInverse();
+	dir_inv = this->orientation.GetInverse();
 	Vector3D X = dir_inv*phys_pos2;
 //	cout<<"X="<<X<<std::endl;
 	bool ret=false;
@@ -573,7 +573,7 @@ bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_from_physical_pos_3D(Vector3D phys_pos)
 	{
-	Matrix3D a = this->direction*get_voxel_resize();
+	Matrix3D a = this->orientation*get_voxel_resize();
 	a = a.GetInverse();
 	return a*(phys_pos - this->origin);
 	}
@@ -850,7 +850,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_genera
             for (int x=0; x < new_image->datasize[0]; x++)
                 {  
 				vox_pos[0] = x;	vox_pos[1] = y;	vox_pos[2] = z;
-				phys_pos = new_image->origin + new_image->voxel_resize*new_image->direction*vox_pos;
+				phys_pos = new_image->origin + new_image->get_voxel_resize()*new_image->orientation*vox_pos;
 //				cout<<"phys_pos="<<phys_pos<<std::endl;
 //				res = get_voxel_in_physical_pos_26NB_weighted(phys_pos,10,2,0,0);
 //				res = get_voxel_in_physical_pos_mean_3D_interp26(phys_pos);
@@ -962,7 +962,7 @@ bool image_general<ELEMTYPE, IMAGEDIM>::read_geometry_from_dicom_file(std::strin
 {
 	std::cout<<"read_geometry_from_dicom_file"<<std::endl;
 	bool b1 = this->read_origin_from_dicom_file(dcm_file);
-	bool b2 = this->read_direction_from_dicom_file(dcm_file);
+	bool b2 = this->read_orientation_from_dicom_file(dcm_file);
 	bool b3 = this->read_voxel_size_from_dicom_file(dcm_file);
 	return b1&&b2&&b3;
 }
@@ -978,10 +978,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::print_geometry()
 	std::cout<<")"<<std::endl;
 	std::cout<<"origin:"<<this->origin<<std::endl;
 	std::cout<<"voxel_resize:"<<std::endl<<get_voxel_resize()<<std::endl;
-	std::cout<<"direction:"<<std::endl;
-	std::cout<<this->direction[0][0]<<" "<<this->direction[1][0]<<" "<<this->direction[2][0]<<std::endl;
-	std::cout<<this->direction[0][1]<<" "<<this->direction[1][1]<<" "<<this->direction[2][1]<<std::endl;
-	std::cout<<this->direction[0][2]<<" "<<this->direction[1][2]<<" "<<this->direction[2][2]<<std::endl;
+	std::cout<<"orientation:"<<std::endl;
+	std::cout<<this->orientation[0][0]<<" "<<this->orientation[1][0]<<" "<<this->orientation[2][0]<<std::endl;
+	std::cout<<this->orientation[0][1]<<" "<<this->orientation[1][1]<<" "<<this->orientation[2][1]<<std::endl;
+	std::cout<<this->orientation[0][2]<<" "<<this->orientation[1][2]<<" "<<this->orientation[2][2]<<std::endl;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>

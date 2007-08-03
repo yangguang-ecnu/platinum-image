@@ -108,7 +108,7 @@ class image_base : public data_base
         virtual bool same_size (image_base *) = 0;
         
         bool read_origin_from_dicom_file(std::string dcm_file);
-		bool read_direction_from_dicom_file(std::string dcm_file);
+		bool read_orientation_from_dicom_file(std::string dcm_file);
 		void rotate(float,float,float);        
 
         Vector3D world_to_voxel(const Vector3D) const;

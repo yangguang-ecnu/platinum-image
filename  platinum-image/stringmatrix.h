@@ -77,6 +77,7 @@ public:
 	void set(int r, int c, float val);
 
 	void fill(string val);
+	void clear();
 
 //	void rows(int val);
 //	void cols(int val);
@@ -101,8 +102,8 @@ public:
 	void sort_table_using_col(int pos, int reverse);		//sorts the whole table using this column
 
 	void print_all();
-	void load_from_csvfile(string filepath, string sep=";");
-	void save_to_csvfile(string filepath, string sep=";");
+	void read_from_csvfile(string filepath, string sep=";");
+	void write_to_csvfile(string filepath, string sep=";");
 };
 
 #endif

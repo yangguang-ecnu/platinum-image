@@ -28,7 +28,7 @@
 #include <iostream>
 
 
-DcmTable::DcmTable(int x, int y, int w, int h, const char *l) : Fl_Table_Row(x,y,w,h,l)
+dcmtable::dcmtable(int x, int y, int w, int h, const char *l) : Fl_Table_Row(x,y,w,h,l)
 {
 	_sort_reverse = 0;
 	_sort_lastcol = -1;
@@ -36,53 +36,60 @@ DcmTable::DcmTable(int x, int y, int w, int h, const char *l) : Fl_Table_Row(x,y
 	callback(event_callback, (void*)this);
 
 
+	system("dir");
+	if(!file_exists("dcm_import_tags.csv")){
+		vector<string> row;
 
-	string dcm_file = "C:\\Joel\\TMP\\1.dcm";
-	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
-	if (dicomIO->CanReadFile(dcm_file.c_str()))
-	{
-		dicomIO->SetFileName(dcm_file.c_str());
-		dicomIO->ReadImageInformation();		//get basic DICOM header
+		row.push_back("Patient Name"); 
+		row.push_back("0010"); 
+		row.push_back("0010");
+		dcmtags.add_row(row);
+		row.clear();
+
+		row.push_back("Study Date"); 
+		row.push_back("0008"); 
+		row.push_back("0020");
+		dcmtags.add_row(row);	
+		row.clear();	
+
+		row.push_back("Modality");	
+		row.push_back("0008");	
+		row.push_back("0060");
+		dcmtags.add_row(row);	
+		row.clear();	
+
+		dcmtags.write_to_csvfile("dcm_import_tags.csv");
+
+		//The loaded file has typically this format...
+		//Patient Name;0010;0010;
+		//Study Date;0008;0020;
+		//Series Date;0008;0021;
+		//Acquisition Date;0008;0022;
+		//Image Date;0008;0023;
+		//Modality;0008;0060;
+
+	}else{
+		dcmtags.read_from_csvfile("dcm_import_tags.csv");
 	}
+	dcmtags.print_all();
 
-	dcmtags.load_from_csvfile("C:\\Joel\\TMP\\joel_dcm_tags.csv");
-	// The loaded file has this content....
-	//;0010;0010;
-	//Study Date;0008;0020;
-	//Series Date;0008;0021;
-	//Acquisition Date;0008;0022;
-	//Image Date;0008;0023;
-	//Modality;0008;0060;
-
-	data = stringmatrix(4,dcmtags.rows(),"*data*");
-	data.set(0,0,"1");
-	data.set(1,0,"6");
-	data.set(2,0,"5");
-	data.set(3,0,"2");
-	data.set(4,0,"8");
-
-	rows((int)data.rows());
-	cols((int)data.cols());
-
-	// Auto-calculate widths, with 20 pixel padding
-	autowidth(20);
-
-	print_all();
+	data = stringmatrix(1,dcmtags.rows()+1," ");
+	update_tabledata();
 }
 
-DcmTable::~DcmTable()
+dcmtable::~dcmtable()
 { }
 
 
 // Handle drawing all cells in table
-void DcmTable::draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H)
+void dcmtable::draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H)
 {
 	char *s = "";
 
 	switch ( context )
 	{
 	case CONTEXT_STARTPAGE:
-		fl_font(FL_COURIER, 16);
+		fl_font(FL_COURIER, 12);
 		return;
 
 	case CONTEXT_ROW_HEADER:
@@ -95,10 +102,14 @@ void DcmTable::draw_cell(TableContext context, int R, int C, int X, int Y, int W
 		{
 
 			fl_draw_box(FL_THIN_UP_BOX, X, Y, W, H, color());
-			if ( C < dcmtags.rows() )
+			if ( C < dcmtags.rows() + 1 )
 			{
 				fl_color(FL_BLACK);
-				fl_draw(dcmtags.get(C,0).c_str(), X+2, Y, W, H, FL_ALIGN_LEFT, 0, 0);	// +2=pad left
+				if(C==0){
+					fl_draw("Filename", X+2, Y, W, H, FL_ALIGN_LEFT, 0, 0);	// +2=pad left
+				}else{
+					fl_draw(dcmtags.get(C-1,0).c_str(), X+2, Y, W, H, FL_ALIGN_LEFT, 0, 0);	// +2=pad left
+				}
 
 				// DRAW SORT ARROW
 				if ( C == _sort_lastcol )
@@ -162,9 +173,9 @@ void DcmTable::draw_cell(TableContext context, int R, int C, int X, int Y, int W
 }
 
 // Automatically set column widths to widest data in each column
-void DcmTable::autowidth(int pad)
+void dcmtable::autowidth(int pad)
 {
-	fl_font(FL_COURIER, 16);
+	fl_font(FL_COURIER, 12);
 
 	// Initialize all column widths to lowest value
 	for ( int c=0; c<cols(); c++ )
@@ -180,7 +191,12 @@ void DcmTable::autowidth(int pad)
 
 			//jk4 - width test
 //			w = fl_width(_rowdata[r].words[c].c_str(),_rowdata[r].words[c].size()); //will include "white characters"
-			w1 = fl_width(dcmtags.get(c,0).c_str(),dcmtags.get(c,0).size()); //will include "white characters"
+
+			if(c==0){ //compensate for the fact that the first col header is "Filename"
+				w1 = fl_width("Filename",8); //will include "white characters"
+			}else{
+				w1 = fl_width(dcmtags.get(c-1,0).c_str(),dcmtags.get(c-1,0).size()); //will include "white characters"
+			}
 			w2 = fl_width(data.get(r,c).c_str(),data.get(r,c).size()); //will include "white characters"
 			w1 = max(w1,w2);
 			h = fl_height();
@@ -193,7 +209,7 @@ void DcmTable::autowidth(int pad)
 	redraw();
 }
 
-void DcmTable::print_all()
+void dcmtable::print_all()
 {
 	cout<<"***DATA***"<<endl;
 	data.print_all();
@@ -203,13 +219,13 @@ void DcmTable::print_all()
 
 
 // Callback whenever someone clicks on different parts of the table
-void DcmTable::event_callback(Fl_Widget*, void *data)
+void dcmtable::event_callback(Fl_Widget*, void *data)
 {
-	DcmTable *o = (DcmTable*)data;
+	dcmtable *o = (dcmtable*)data;
 	o->event_callback2();
 }
 
-void DcmTable::event_callback2()
+void dcmtable::event_callback2()
 {
 	//	int R = callback_row();			// currently unused
 	int C = callback_col();
@@ -242,8 +258,48 @@ void DcmTable::event_callback2()
 	}
 }
 
+void dcmtable::fill_table(vector<string> dcm_files)
+{
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+	vector<string> dcm_data_row;
+	string dcmdata;
+
+	data.clear();
+	for(int i=0; i<dcm_files.size(); i++) {
+		dcm_data_row.push_back(dcm_files[i]);
+
+		dicomIO->SetFileName(dcm_files[i].c_str());
+		dicomIO->ReadImageInformation();		//get basic DICOM header
+		for(int j=0; j<dcmtags.rows(); j++) 
+		{
+			dcmdata="";
+			dicomIO->GetValueFromTag(dcmtags.get(j,1)+"|"+dcmtags.get(j,2),dcmdata);
+			dcm_data_row.push_back(dcmdata);
+		}
+
+		data.add_row(dcm_data_row);
+		data.print_all();
+		dcm_data_row.clear();
+	}
+	update_tabledata();
+}
+
+void dcmtable::update_tabledata()
+{
+	dcmtags.read_from_csvfile("dcm_import_tags.csv");
+
+	rows((int)data.rows());
+	cols((int)data.cols());
+
+	autowidth(20);	// Auto-calculate widths, with 20 pixel padding
+	table_resized();
+	redraw();
+}
 
 
+//----------------------------------------------------------
+//----------------------------------------------------------
+//----------------------------------------------------------
 void dcmimportwin::button_cb(Fl_Button* b, void* bstring)
 {
 	dcmimportwin *w = (dcmimportwin*)b->parent();
@@ -257,15 +313,32 @@ void dcmimportwin::button_cb2(string s)
 	if(s=="load"){
 		//open file/folder chooser... import selected files/folders (incl "subfolders" if checked...)
 		//return as a vector of strings...
-		//for each file... get the dcm info specified in the DcmTable-"dcmtags" object...
-		//fill the DcmTable-"data" with the data....
-		cout<<"***"<<incl_subfolder_check_button->value()<<endl;
+
+		//		char * path = fl_file_chooser("Choose a directory", "", 0);
+		char * path = fl_dir_chooser("Choose a directory", "", 0);
+
+		cout<<"fl_dir_chooser-->"<<path<<endl;
+		cout<<"name-->"<<fl_filename_name(path)<<endl;
+		if(incl_subfolder_check_button->value()){
+			cout<<"include subfolders..."<<endl;
+		}else{
+			cout<<"DONT include subfolders..."<<endl;
+		}
+
+		//-----------------------
+		//-----------------------
+		vector<string> dcm_file_vector;
+		dcm_file_vector = get_dcm_files_from_dir(path, dcm_file_vector, incl_subfolder_check_button->value());
+		cout<<"***TOTAL NO files = "<<dcm_file_vector.size()<<endl;
+
+		//for each file... get the dcm info specified in the dcmtable-"dcmtags" object...
+		//fill the dcmtable-"data" with the data....
+		table->fill_table(dcm_file_vector);
+
 
 	}else if(s=="settings"){
-		//open an new window (give tag vector as an argument) that handles/modifies the DcmTable-"dcmtags".
-		//the "dcmtags" object might be passed on as an argument (pointer of copy constr...)
-
-		settingswin::create(100,100,300,300,"Settings");
+		settingswin::create(50,50,500,800,table,"Settings");
+//		table->update_tabledata();
 
 	}else if(s=="import"){
 		//if file/files are selected -->  import and give the name in the input field
@@ -274,7 +347,7 @@ void dcmimportwin::button_cb2(string s)
 		cout<<"*"<<import_volume_input->value()<<endl;
 
 	}else if(s=="close"){
-
+		this->hide();
 	}else{
 		cout<<"*Warning*"<<endl;
 	}
@@ -289,11 +362,10 @@ dcmimportwin* dcmimportwin::create(int xx, int yy, int ww, int hh, const char *l
 
 dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Window(xx,yy,ww,hh,ll)
 {
-
 	int wm = 10;	//widget margin
 	int wh = 30;	//widget height
 
-	table = new DcmTable(wm, 2*wm+wh, w()-2*wm, h()-4*wm-2*wh);
+	table = new dcmtable(wm, 2*wm+wh, w()-2*wm, h()-4*wm-2*wh);
 	table->selection_color(FL_YELLOW);
 	table->col_header(1);
 	table->col_resize(1);
@@ -302,12 +374,10 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 	table->row_height_all(18);			// height of all rows
 	table->end();
 
-
 	Fl_Button* o;
 	o = new Fl_Button(wm, wm, 100, wh, "Load directory");
 	o->callback((Fl_Callback*)button_cb, "load");
 	//	o->callback((Fl_Callback*)load_button_cb, (void*)this);
-
 
 	//	Fl_Check_Button* incl_subfolder_check_button = new Fl_Check_Button(100+2*wm, wm, 160, wh, "Include subdirectories");
 	incl_subfolder_check_button = new Fl_Check_Button(100+2*wm, wm, 160, wh, "Include subdirectories");
@@ -350,103 +420,92 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 
 
 
-
-
-//------------------------------------------------------
-//------------------------------------------------------
-//------------------------------------------------------
-
-
-settingswin* settingswin::create(int xx, int yy, int ww, int hh, const char *ll)
+vector<string> dcmimportwin::get_dcm_files_from_dir(const char *dir, vector<string> dcm_files, bool incl_sub_dirs)
 {
-	Fl_Group::current(NULL);// *Warning* - If this is forgotten, The window/graphics might end up in 
-	return new settingswin(xx,yy,ww,hh,ll);
+		cout<<"***get_dcm_files_from_dir...="<<dir<<endl;
+		struct dirent **files;
+		int num_files = fl_filename_list(dir, &files);
+		cout<<"num_files="<<num_files<<endl;
+
+		itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+		string d = string(dir);
+		string f;
+		string p;
+
+		for(int i=0; i<num_files; i++) {
+			f = string(files[i]->d_name);
+			p = d + f;
+//			cout<<"d="<<d<<" (f="<<f<<")"<<endl;
+			
+			if(incl_sub_dirs && fl_filename_isdir(p.c_str()) && f!="../" && f!="./")
+			{
+				dcm_files = get_dcm_files_from_dir( p.c_str(), dcm_files, incl_sub_dirs);
+			}
+			else if(dicomIO->CanReadFile(p.c_str()))
+			{
+				dcm_files.push_back(p);
+//				dicomIO->SetFileName(files[i]->d_name);
+//				dicomIO->ReadImageInformation();		//get basic DICOM header
+			}
+			free(files[i]);
+		}
+
+		if (num_files > 0) 
+			free(files);
+
+//		cout<<"dcm_files.size()="<<dcm_files.size()<<endl;
+//		for (int i=0; i<dcm_files.size(); i++) {
+//			cout<<dcm_files[i]<<endl;
+//		}
+		return dcm_files;
 }
 
-settingswin::settingswin(int x, int y, int w, int h, const char *l):Fl_Window(x,y,w,h,l)
-{
-	string_edit_table* table = new string_edit_table(20, 20, w-80, h-80,"",5,3);
 
-	// ROWS
-	table->row_header(1);
-	table->row_header_width(70);
-	table->row_resize(1);
-	table->row_height_all(25);
-
-	// COLS
-	table->col_header(1);
-	table->col_header_height(25);
-	table->col_resize(1);
-	table->col_width_all(70);
-
-	resizable(table);
-	show();
-	Fl::run();
-}
-
-
+//----------------------------------------------------------
+//----------------------------------------------------------
+//----------------------------------------------------------
 
 string_edit_table::string_edit_table(int x, int y, int w, int h, const char *l, int r_nr, int c_nr) : Fl_Table(x,y,w,h,l)
 {
-	//Just as an example...
-	dcmtags.load_from_csvfile("C:\\Joel\\TMP\\joel_dcm_tags.csv");
+	dcmtags.read_from_csvfile("dcm_import_tags.csv");
 
 	callback(&event_callback, (void*)this);
-	input = new Fl_Input(w/2,h/2,0,0);
+	input = new Fl_Input(20,20,50,20);
 	input->hide();
 	input->callback(input_cb, (void*)this);
 	input->when(FL_WHEN_ENTER_KEY_ALWAYS);
-	input->maximum_size(100);
+	input->maximum_size(150);
 
 	(new Fl_Box(9999,9999,0,0))->hide();  // HACK: prevent flickering in Fl_Scroll
 	end();
 
-	cols(dcmtags.cols());
-	rows(dcmtags.rows());
-
-
+	update_tabledata();
 }
 
 string_edit_table::~string_edit_table()
 {}
 
-/*
-string string_edit_table::get(int r, int c)
-{
-	return dcmtags.get(r,c);
-}
-
-void string_edit_table::set(int r, int c, string val)
-{
-	if(r>=0 && c>=0 && r<rows() && c<cols())
-	{
-		vector<string> row = values[r];
-		row[c] = val;
-		values[r] = row;
-	}
-}
-
-void string_edit_table::print_all()
-{
-	for(int r=0;r<rows();r++){
-		for(int c=0;c<cols();c++){
-			cout<<get(r,c)<<" ";
-		}
-		cout<<endl;
-	}
-}
-*/
 
 
 void string_edit_table::set_value()
 {
-	//	values[row_edit][col_edit] = atoi(input->value()); 
 	dcmtags.set( row_edit,col_edit,string(input->value()) ); 
 	input->hide(); 
-	cout<<"string(input->value())="<<string(input->value())<<endl;
-	dcmtags.print_all();
 }
 
+void string_edit_table::read_from_csvfile(string file){
+	dcmtags.read_from_csvfile(file);
+}
+
+void string_edit_table::write_to_csvfile(string file){
+	dcmtags.write_to_csvfile(file);
+}
+
+void string_edit_table::update_tabledata()
+{
+	cols(dcmtags.cols());
+	rows(dcmtags.rows());
+}
 
 // Handle drawing all cells in table
 void string_edit_table::draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H)
@@ -456,7 +515,7 @@ void string_edit_table::draw_cell(TableContext context, int R, int C, int X, int
 	switch ( context )
 	{
 	case CONTEXT_COL_HEADER:
-		fl_font(FL_HELVETICA | FL_BOLD, 14);
+		fl_font(FL_HELVETICA | FL_BOLD, 12);
 		fl_push_clip(X, Y, W, H);
 		{
 			fl_draw_box(FL_THIN_UP_BOX, X, Y, W, H, col_header_color());
@@ -471,7 +530,7 @@ void string_edit_table::draw_cell(TableContext context, int R, int C, int X, int
 		return;
 
 	case CONTEXT_ROW_HEADER:
-		fl_font(FL_HELVETICA | FL_BOLD, 14);
+		fl_font(FL_HELVETICA | FL_BOLD, 12);
 		fl_push_clip(X, Y, W, H);
 		{
 			fl_draw_box(FL_THIN_UP_BOX, X, Y, W, H, row_header_color());
@@ -501,9 +560,9 @@ void string_edit_table::draw_cell(TableContext context, int R, int C, int X, int
 
 				if (C <dcmtags.cols() && R <dcmtags.rows())
 				{
-					fl_font(FL_HELVETICA, 14);
+					fl_font(FL_HELVETICA, 12);
 					sprintf(s, "%s", dcmtags.get(R,C).c_str());
-					fl_draw(s, X+3, Y+3, W-6, H-6, FL_ALIGN_LEFT);
+					fl_draw(s, X+3, Y+3, W-6, H-6, FL_ALIGN_CENTER);
 				}
 			}
 			fl_pop_clip();
@@ -534,8 +593,8 @@ void string_edit_table::event_callback(Fl_Widget*, void *data)
 
 void string_edit_table::event_callback2()
 {
-	int R = callback_row(),
-		C = callback_col();
+	int R = callback_row();
+	int C = callback_col();
 	TableContext context = callback_context();
 
 	switch ( context )
@@ -561,9 +620,93 @@ void string_edit_table::event_callback2()
 	}
 }
 
-
-
 void input_cb(Fl_Widget*, void* v)
 { 
 	((string_edit_table*)v)->set_value(); 
+}
+
+
+
+//----------------------------------------------------------
+//----------------------------------------------------------
+//----------------------------------------------------------
+settingswin* settingswin::create(int xx, int yy, int ww, int hh, dcmtable *dt, const char *ll)
+{
+	Fl_Group::current(NULL);// *Warning* - If this is forgotten, The window/graphics might end up in 
+	return new settingswin(xx,yy,ww,hh,dt,ll);
+}
+
+settingswin::settingswin(int x, int y, int w, int h, dcmtable *dt, const char *l):Fl_Window(x,y,w,h,l)
+{
+	int wm = 10;	//widget margin
+	int wh = 30;	//widget height
+
+	table = new string_edit_table(wm, wm, w-2*wm, h-3*wm-wh,"",5,3);
+	table->read_from_csvfile("dcm_import_tags.csv");
+	
+	dcmtable_ptr=dt;
+
+	// ROWS
+	table->row_header(1);
+	table->row_header_width(70);
+	table->row_resize(1);
+	table->row_height_all(25);
+
+	// COLS
+	table->col_header(1);
+	table->col_header_height(25);
+	table->col_resize(1);
+	table->col_width_all(70);
+
+	Fl_Button* o;
+	o = new Fl_Button(wm, h-wm-wh, 70, wh, "Add Row");
+	o->callback((Fl_Callback*)button_cb, "Add Row");
+
+	o = new Fl_Button(w-120-2*wm, h-wm-wh, 60, wh, "Cancel");
+	o->callback((Fl_Callback*)button_cb, "Cancel");
+
+	o = new Fl_Button(w-60-wm, h-wm-wh, 60, wh, "OK");
+	o->callback((Fl_Callback*)button_cb, "OK");
+
+
+	resizable(table);
+	show();
+	Fl::run();
+}
+
+void settingswin::button_cb(Fl_Button* b, void* bstring)
+{
+	settingswin *w = (settingswin*)b->parent();
+	w->button_cb2(string((const char*)bstring));
+}
+
+void settingswin::button_cb2(string s)
+{
+	cout<<"("<<s<<")"<<endl;
+
+	if(s=="Add Row"){
+		vector<string> v;
+		v.push_back("");
+		v.push_back("");
+		v.push_back("");
+		table->dcmtags.add_row(v);
+		update_tabledata();
+	
+	}else if(s=="OK"){
+		table->write_to_csvfile("dcm_import_tags.csv");
+//		((dcmimportwin*)parent())->update_tabledata();
+		dcmtable_ptr->update_tabledata();
+		hide();
+
+	}else if(s=="Cancel"){
+		hide();
+
+	}else{
+		cout<<"*Warning*"<<endl;
+	}
+}
+
+void settingswin::update_tabledata()
+{
+	table->update_tabledata();
 }
