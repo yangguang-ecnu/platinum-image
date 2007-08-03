@@ -208,7 +208,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         }
     
     
-    // *** Per-data render loop ***
+    #pragma mark *** Per-image render loop ***
     
     Vector3D data_size;
     
@@ -478,6 +478,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         the_image++;
         }   //per-image loop
     
+    #pragma mark *** per-point render loop ***
     
     for (rendercombination::iterator pairItr = what->begin();pairItr != what->end();pairItr++)  
         {
@@ -493,6 +494,9 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             /*std::cout << pointPointer->get_origin()[0] << "," <<pointPointer->get_origin()[1] << "," << pointPointer->get_origin()[0] << endl;*/
             
             //TODO: color according to distance to viewing plane
+            //http://www.math.umn.edu/~nykamp/m2374/readings/planedistex/
+            
+            //where->dir
             
             //draw cross
             for (int d = -2;d <= 2; d++)

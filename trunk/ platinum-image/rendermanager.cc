@@ -39,7 +39,7 @@ using namespace std;
 rendermanager::rendermanager ()
 {
     renderer_base::renderer_factory.Register<rendererMPR>();
-    renderer_base::renderer_factory.Register<rendererMIP>();
+    //renderer_base::renderer_factory.Register<rendererMIP>();
 }
 
 rendermanager::~rendermanager()

@@ -41,13 +41,14 @@ public:
     statusarea(int X, int Y, int W, int H, const char *L = 0);
 private:
     std::map<std::string,Fl_Group *> panes;
-    Fl_Progress* progress;    
+    Fl_Progress* progress_;    
     Fl_Output *messageText;
     std::string messageString;
     
     // end of FLUID output
 public:
     void message (std::string);
+    void progress (int step, std::string message = "", int num_steps = 0);
     template <class FLGROUPTYPE>
     FLGROUPTYPE * add_pane (std::string); //!get controls pane which is also added to the statusarea's map
     void switch_pane (std::string key);

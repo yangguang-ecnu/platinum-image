@@ -40,7 +40,7 @@
     status_message->value("Platinum $Revision: 305 $");
     status_message->color(FL_BACKGROUND_COLOR);
     
-    progress = new Fl_Progress (this->w()-progress_w,this->y(),progress_w,this->h());
+    progress_ = new Fl_Progress (this->w()-progress_w,this->y(),progress_w,this->h());
     
     resizable(this);
     end();
@@ -71,14 +71,16 @@ statusarea::statusarea(int X, int Y, int W, int H, const char *L)
         o->color(FL_BACKGROUND_COLOR);
         resizable(o);
     }            
-    { Fl_Progress* o = progress = new Fl_Progress(W-progress_w, 0, progress_w, 24);
+    { Fl_Progress* o = progress_ = new Fl_Progress(W-progress_w, 0, progress_w, 24);
         o->box(FL_NO_BOX);
         o->color((Fl_Color)55);
         o->selection_color((Fl_Color)3);
         o->labeltype(FL_NO_LABEL);
+        o->minimum(0);
+        o->maximum(0);
         
-        /*progress->box(FL_FLAT_BOX);
-        progress->color(FL_BLUE);*/
+        /*progress_->box(FL_FLAT_BOX);
+        progress_->color(FL_BLUE);*/
     }
 
 position(X, Y);
@@ -92,6 +94,25 @@ void statusarea::message (const std::string m)
     messageString = m;
     messageText->value(messageString.c_str());
     
+}
+
+void statusarea::progress (int step, std::string m, int num_steps)
+{
+    message (m);
+    
+    if (num_steps > 0)
+        {
+        progress_->maximum (num_steps);
+        }
+    
+    if (pt_error::error_if_true(step > progress_->maximum(),"Setting progress step higher than current # of steps",pt_error::warning))
+        {
+        progress_->maximum (step+1);
+        }
+    
+    progress_->value(step);
+    
+    Fl::check(); //update interface
 }
 
 void statusarea::interactive_message (const std::string m)
