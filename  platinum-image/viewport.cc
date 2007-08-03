@@ -879,21 +879,24 @@ void viewport::update_image_menu()
 
         if (renderermenu_button != NULL)
             {
-             Fl_Menu_Item * renderermenu=(Fl_Menu_Item *)renderermenu_button->menu();
-            //Fl_Menu_Item *m = (Fl_Menu_Item*)&(menubar->menu()[t]);
+            Fl_Menu_Item * renderermenu=(Fl_Menu_Item *)renderermenu_button->menu();
+            int numItems = fl_menu_size (renderermenu);
 
             if (rendererIndex >= 0)
                 {
                 std::string this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
 
-                int numItems = fl_menu_size (renderermenu);
                 for (int m = 0; m < numItems;m++)
                     {
                     listedfactory<renderer_base>::lf_menu_params * p = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params * > (renderermenu[m].user_data());
                     if (p->type == this_renderer_type)
                         { renderermenu[m].setonly(); }
                     }
-                }             
+                }   
+            if (numItems == 1) //no real choice, disable
+                {
+                renderermenu[0].deactivate();
+                }
             }
         }
 
