@@ -40,8 +40,6 @@
 #include "itkImageSliceIteratorWithIndex.h"
 #include "itkStatisticsImageFilter.h"
 
-
-
 //#define RENDER_ORTHOGONALLY_ONLY
 
 using namespace std;
@@ -135,9 +133,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
 
     this->voxel_size    = sourceImage->get_voxel_size();
 	//origin & direction are copied in data_base... 
-
-    /*this->unit_center_     = sourceImage->unit_center();
-    this->unit_to_voxel_   = sourceImage->unit_to_voxel();*/
 
     // *ID, from_file, imagename and widget are assigned in image_base constructor
     }
@@ -314,26 +309,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::calc_transforms ()
     //NOTE:
     //this currently does nothing, but is useful to keep around for caching
     //e.g. the world to voxel transform matrices
-    
-    /*Matrix3D re_resize;
-    unsigned short datasize_max_norm= max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
-
-    re_resize=this->get_voxel_resize().GetInverse();
-    this->unit_to_voxel_=re_resize*datasize_max_norm;
-    
-    //center of data in unit coordinates where longest edge = 1
-    for (unsigned int d=0;d<3;d++)
-        {this->unit_center_[d]=this->voxel_resize[d][d]*datasize[d]/(datasize_max_norm*2);}*/
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters()
     {
-    /*unsigned short datasize_max_norm= max(max((float)datasize[0],(float)datasize[1]),(float)datasize[2]);
-
-    for (unsigned int d=0;d<3;d++)
-        {this->unit_center_[d]=(float)datasize[d]/(datasize_max_norm*2);}*/
-
     calc_transforms();
     }
 
@@ -381,9 +361,6 @@ typename itk::ImportImageFilter< ELEMTYPE, IMAGEDIM >::Pointer image_general<ELE
 
     return ITKimportfilter;
     }
-
-
-
 
 template <class ELEMTYPE, int IMAGEDIM>
 void  image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader()
@@ -682,17 +659,6 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weigh
     return res;
     }
 
-
-
-
-
-
-/*template <class ELEMTYPE, int IMAGEDIM>
-ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(unsigned long offset)
-    {
-    return imagepointer()[offset];
-    }*/
-
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, int y, int z)
 {
@@ -710,34 +676,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE 
     this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
     }
 
-/*template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(unsigned long offset, ELEMTYPE voxelvalue)
-    {
-    imagepointer()[offset] = voxelvalue;
-    }*/
-
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z) const
     {
     this->tfunction->get(get_voxel (x, y, z),val);
     //val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
     }
-
-/*template <class ELEMTYPE, int IMAGEDIM>
-unsigned char image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(int x, int y, int z)
-    {
-    if (maxvalue != minvalue)
-        {
-        if (maxvalue - minvalue == 255)
-            {
-            //direct mapping to chars, don't scale
-            return static_cast<unsigned char>(get_voxel (x, y, z)-minvalue);
-            }
-        else               
-            {return static_cast<unsigned char>(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));}
-        }
-    return 0;
-    }*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
@@ -785,10 +729,6 @@ double image_general<ELEMTYPE, IMAGEDIM>::get_num_diff_3rdorder_central_diff_3D(
 	return 0.5*(get_num_diff_2ndorder_central_diff_3D(x,y,z+1,direction1,direction2)-get_num_diff_2ndorder_central_diff_3D(x,y,z-1,direction1,direction2));
 }
 
-
-         
-
-
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction)
 {
@@ -811,7 +751,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(int x, int y, int z, int 
 	}
 }
 
-
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::testpattern()
     {
@@ -825,7 +764,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::testpattern()
 
 	this->data_has_changed(true);
     }
-
 
 template <class ELEMTYPE, int IMAGEDIM>
 template<class TARGETTYPE> 

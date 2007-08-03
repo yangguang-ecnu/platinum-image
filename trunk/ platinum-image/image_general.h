@@ -80,19 +80,12 @@ class image_general : public image_storage <ELEMTYPE >
         void set_parameters (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
         template <class sourceType>
             void set_parameters (image_general<sourceType, IMAGEDIM> * from_image);         //clone parameters from another image
-
-        void calc_transforms ();                                            //used by set_parameters(...) functions
-        //to recalculate cached transform(s)
+        
+        void calc_transforms (); //used by set_parameters(...) functions
+                                 //to recalculate cached transform(s)
 
     public:                                                    
-        //virtual image_base * alike ();
         image_base * alike (imageDataType);
-
-        //image_general<ELEMTYPE, IMAGEDIM> * alike ();               //using same type as well
-
-       /* image_base * alike (imageDataType unit);*/                    //overloaded to allow
-                                                                    //alike(...) call from base class
-        /*image_base * alike ();*/
 
         image_general(ELEMTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize);
         //create image from pre-loaded raw data
@@ -139,8 +132,6 @@ class image_general : public image_storage <ELEMTYPE >
 		Vector3D get_physical_pos_for_voxel(int x, int y, int z);
 
         RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>) const;
-        //const RGBvalue get_display_voxel(int x, int y, int z=0);
-        //unsigned char get_display_voxel(int x, int y, int z=0);  
         virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
 
         ELEMTYPE get_voxel_by_dir(int u, int v, int w, int direction=2);
@@ -149,7 +140,6 @@ class image_general : public image_storage <ELEMTYPE >
         float get_number_voxel(int x, int y, int z) const;
 
         void set_voxel(int x, int y, int z, ELEMTYPE voxelvalue);
-        //void set_voxel(unsigned long offset, ELEMTYPE); //deprecated: use iterator!
 		void set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction=2);
 		void fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
 

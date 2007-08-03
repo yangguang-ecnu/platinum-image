@@ -73,30 +73,6 @@ bool rendercombination::empty() const
     return renderdata.empty();    
 }
 
-/*bool rendercombination::image_remaining(int priority)
-    {
-    for (int i=0;i <= priority;i++)
-        {
-        if ( i>= MAXRENDERVOLUMES || renderdata [i]==0)
-            {
-            //got to end, no image left
-            return false;
-            }
-        }
-
-    return true;
-    }
-
-int rendercombination::image_ID_by_priority (int priority)
-    {
-    return renderdata[priority];
-    }
-
-image_base* rendercombination::get_imagepointer(int p)
-    {
-    return renderimage_pointers[p];
-    }*/
-
 image_base* rendercombination::top_image ()const
 {
     for (std::list<renderpair>::const_iterator itr = renderdata.begin();itr != renderdata.end();itr++)
@@ -115,33 +91,7 @@ void rendercombination::add_data(int dataID)
     renderdata.push_back(renderpair(dataID,datamanagement.get_data(dataID),BLEND_OVERWRITE));
     
     rendermanagement.combination_update_callback(this->id);
-
-    /*
-    //find end of combinations array
-    for (int i=0;empty_spot == (-1) && i < MAXRENDERVOLUMES;i++)
-        {
-        if (renderdata [i]==0)
-            {
-            empty_spot=i;
-            }
-        }
-
-    if (empty_spot >=0)
-        {
-        renderdata[empty_spot]=volID;
-        renderimage_pointers[empty_spot]=datamanagement.get_image(volID);
-        if (empty_spot< MAXRENDERVOLUMES -1)
-            {
-            renderdata[empty_spot+1]=0;
-            }
-        rendermanagement.combination_update_callback(this->id);
-        }
-    else
-        {
-        std::cout << "Attempted to add image ID " << volID << ", render list was full" << std::endl;
-        }
-    */
-    }
+}
 
 void rendercombination::toggle_data(int dataID)
 {
@@ -159,23 +109,7 @@ void rendercombination::toggle_data(int dataID)
     
     if (!removed)
         {add_data(dataID);  }
-    
-    /*bool removed=false;
-    
-    for (int i=0; i<= MAXRENDERVOLUMES && renderdata [i]!=0;i++)
-    {
-        if (renderdata [i]==imageID)
-        {
-            remove_image(imageID);
-            removed=true;
-        }
-    }
-    
-    if (!removed)
-    {
-        add_data(imageID);
-    }*/
-}
+   }
 
 void rendercombination::remove_image(int ID)
     {
@@ -191,22 +125,7 @@ void rendercombination::remove_image(int ID)
         }
     if (removed)
         {rendermanagement.combination_update_callback(this->id);}
-    
-    /*bool removed=false;
-    for (int i=0; i<= MAXRENDERVOLUMES && renderdata [i]!=0;i++)
-        {
-        if (renderdata [i]==ID)
-            {
-            removed=true;
-            }
-        if (removed)
-            {
-            renderdata[i]=renderdata[i+1];
-            renderimage_pointers[i]=renderimage_pointers[i+1];
-            }
-        }
-    if (removed)
-        {rendermanagement.combination_update_callback(this->id);}*/
+  
     }
 
 int rendercombination::image_rendered(int ID)
@@ -227,35 +146,8 @@ int rendercombination::get_id()
 
 void rendercombination::data_vector_has_changed()
     {
-    // we cache the vector ID to speed things up - now it must be recomputed
-    //intermediate solution, later a list of images to be rendered will be stored in a separate object
-    //(rendercombination) and that will be the logical place to keep a cache like this
-
     //images may have been deleted too, we need to update both image ID and image pointer
 
-    /*for (int r=0;r < MAXRENDERVOLUMES && renderdata [r]!=0;r++)
-        {
-        int i=datamanagement.find_data_index(abs(renderdata[r]));
-
-        if (i != (-1) )
-            {
-            //rebuild cached list of pointers to rendered images
-            //and increment p counter
-
-            renderimage_pointers[r]=datamanagement.images[i];
-            }
-        else
-            {
-            //image at p does not exist
-
-            renderdata[r]=0;
-
-            for (int v=r;renderdata [v+1]!=0;v++)
-                {
-                renderdata[v]=renderdata[v+1];
-                }
-            }
-        };*/
     for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
         {
         itr->pointer=datamanagement.get_data(itr->ID);

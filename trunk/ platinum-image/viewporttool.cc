@@ -333,15 +333,6 @@ void nav_tool::handle(viewport_event &event)
         }
 }
 
-/*viewporttool * nav_tool::taste_ (viewport_event & event)
-    {
-    nav_tool * t = new nav_tool(event);
-    if (event.type
-        
-        
-    return t;
-    }*/
-
 #pragma mark *** dummy tool ***
 
 dummy_tool::dummy_tool (viewport_event &event):viewporttool(event)

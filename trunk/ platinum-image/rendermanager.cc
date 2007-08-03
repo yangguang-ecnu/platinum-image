@@ -31,11 +31,6 @@ extern viewmanager viewmanagement;
 
 using namespace std;
 
-/*void rendermanager::move(int rendererIndex, float panX, float panY, float panZ, float scale)
-    {
-    renderers[rendererIndex]->move_view( undefinedVariable,panX, panY, panZ, scale);
-    }*/
-
 rendermanager::rendermanager ()
 {
     renderer_base::renderer_factory.Register<rendererMPR>();
@@ -83,11 +78,6 @@ int rendermanager::find_renderer_id (int index)
 
 renderer_base * rendermanager::get_renderer (int ID)
 {
-    /*std::vector<renderer_base *>::iterator renderer = find ( renderers.begin(), renderers.end(), ID);
-    
-    if (renderer != renderers.end())
-        { return *renderer; }*/
-    
     for ( vector<renderer_base*>::iterator itr = renderers.begin();itr != renderers.end();itr++)
         {
         if (**itr==ID)
@@ -212,11 +202,6 @@ int rendermanager::renderer_empty (int rendererID)
     return -1;
     }
 
-/*int rendermanager::get_renderer_type(int rendererIndex)
-    {
-    return renderers[rendererIndex]->renderer_type();
-    }*/
-
 bool rendermanager::renderer_supports_mode(int rendererIndex,int m)
 {
     return renderers[rendererIndex]->supports_mode (m); //JK corrects Visual C++ compile error ("must return a value")
@@ -287,11 +272,6 @@ void rendermanager::data_vector_has_changed()
             remove_renderer(renderers[v]->get_id());
             }*/
         }
-    
-    /*for (std::vector<rendercombination *>::iterator citr = combinations.begin();citr != combinations.end();citr++)
-        {
-        (*citr)->data_vector_has_changed();
-        }*/
     }
 
 void rendermanager::set_geometry(int renderer_index,Matrix3D * dir)
@@ -321,11 +301,6 @@ rendercombination* rendermanager::get_combination (int ID)
 {
     return get_renderer(ID)->imagestorender;
 }
-
-/*int rendermanager::image_at_priority (int rendererIndex, int priority)
-    {
-    return renderers[rendererIndex]->imagestorender->image_ID_by_priority(priority);
-    }*/
 
 void rendermanager::set_blendmode(int renderer_index,blendmode mode)
     {

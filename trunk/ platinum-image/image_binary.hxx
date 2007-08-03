@@ -57,18 +57,6 @@ image_binary<IMAGEDIM>::image_binary(int w, int h, int d, IMGBINARYTYPE *ptr
                                     ):image_label<IMAGEDIM>(w, h, d, ptr)
     {}
 
-/*template <int IMAGEDIM>
-void image_binary<IMAGEDIM >:: transfer_function(transfer_base<IMGBINARYTYPE > * t)
-    {
-    if (this->tfunction != NULL)
-        {delete this->tfunction;}
-
-    if (t == NULL)
-        this->tfunction = new transfer_mapcolor<IMGBINARYTYPE >(this);
-    else
-        this->tfunction = t;
-    }*/
-
 // *** Logical operations ***
     
 template <int IMAGEDIM>

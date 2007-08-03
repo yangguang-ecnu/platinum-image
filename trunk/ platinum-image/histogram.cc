@@ -276,7 +276,6 @@ void histogram_2D::calculate(int new_num_buckets)
         render_max = bucket_mean;
         //render_max=(float)((float)(vol_size[0]*vol_size[1]*vol_size[2])/(num_buckets*num_buckets*4));
         //render_max=(float)((float)(vol_size[0]*vol_size[1]*vol_size[2])/(float)(bucket_max));
-
         }
     }
 

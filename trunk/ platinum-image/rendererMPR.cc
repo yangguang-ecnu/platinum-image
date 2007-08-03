@@ -157,11 +157,6 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
     
     float rgb_min_norm=min(float(rgb_sx),float(rgb_sy));
     
-    //renderer_max_norm=0;
-    /*vol_count=0;
-    
-    while (what->image_remaining(vol_count))
-        { vol_count++; }*/
     vol_count = static_cast<int> (std::distance (what->begin(), what->end()));
     
     // *** Pixmap rendering parameters ***
@@ -173,9 +168,6 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
     screen_center[2]=0;
     
     screen_center/=2;
-    
-    //Vector3D unit_screen_center=screen_center/rgb_min_norm; //dividing by min_norm resolves problem of
-                                                            //keeping proportions with varying pixmap size
     
     //fill background color
     //standard MIN blending leaves background white, instead background is marked
@@ -263,25 +255,17 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             //derived from these
             
             //start position in image
-            //voxel_offset[the_image]=(the_image_pointer->unit_to_voxel())*(where->look_at+the_image_pointer->unit_center()-((render_dir*unit_screen_center)/where->zoom));
-            
+                  
             voxel_offset[the_image] = the_image_pointer->world_to_voxel(where->look_at-((where->dir*screen_center)/(where->zoom*scale)));
             
             start = voxel_offset[the_image];
-            
-            //render_dir*=the_image_pointer->get_orientation();
-            
+                        
             //set slope to size of render plane in unit coordinates
-            
-            //Matrix3D pix_to_vox;
-            //pix_to_vox = the_image_pointer->get_voxel_resize().GetInverse();
-            
+                        
             Matrix3D slope;
             slope = the_image_pointer->get_voxel_resize().GetInverse();
             
             Matrix3D revDir;
-            //revDir = where->dir.GetInverse();
-            //slope = revDir * the_image_pointer->get_orientation() * slope;
             
             revDir = the_image_pointer->get_orientation().GetInverse();
             slope = revDir * slope;
@@ -297,35 +281,6 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             slope_y.Fill(0);
             slope_y[1] = 1;
             slope_y = slope * where->dir * slope_y;
-            
-            /*slope_x.Fill(0);
-            slope_x[0]=1;
-            
-            slope_x = render_dir * slope_x;
-            slope_x = pix_to_vox * slope_x;
-            slope_x /= (scale*where->zoom);
-            
-            slope_y.Fill(0);
-            slope_y[1]=1;
-            
-            slope_y = render_dir * slope_y;
-            slope_y = pix_to_vox * slope_y;
-            slope_y /= (scale*where->zoom);*/
-            
-            //center slice onscreen
-            
-            /*int nonsquare_offset=(rgb_sx-rgb_sy)/2;
-            
-            if (nonsquare_offset > 0)
-                {
-                //if positive, image is portrait orientation
-                start-=slope_x*nonsquare_offset;
-                }
-            
-            else
-                {
-                start+=slope_y*nonsquare_offset;
-                }*/
             
             //position to read in voxel data grid
             Vector3D vox;
@@ -345,12 +300,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                 
                 for ( fill_x_start=0; fill_x_start < rgb_sx; fill_x_start++)
                     {
-                    //if ((vox[0]>0) && (vox[0]<data_size[0])
-                    
-                    //    && (vox[1]>0) && (vox[1]<data_size[1])
-                    //    && (vox[2]>0) && (vox[2]<data_size[2]))
-                    
-                    //    {
+                  
                     fill_x_end=fill_x_start+1;
                     //get actual value in data, this has been scaled to fit the range of unsigned char
                     if (vox[0] >= 0 && vox[1] >= 0 && vox[2] >= 0 && vox[0] < data_size[0] && vox[1] < data_size[1] && vox[2] < data_size[2])
@@ -369,7 +319,6 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                             if (threshold_value && threshold->mode==THRESHOLD_2D_MODE_OVAL)
                                 {
                                 //oval threshold
-                                //value = value && (sqrt(powf((t_value[0]-((threshold->high[0]+threshold->low[0])/2.0))/((threshold->high[0]-threshold->low[0])/(threshold->high[1]-threshold->low[1])),2.0)+powf(t_value[1]-((threshold->high[1]+threshold->low[1])/2.0),2.0) ) <= (threshold->high[1]+threshold->low[1])/2.0);
                                 threshold_value = (sqrt(powf((t_value[0]-((threshold->high[0]+threshold->low[0])/2.0))/((threshold->high[0]-threshold->low[0])/(threshold->high[1]-threshold->low[1])),2.0)+powf(t_value[1]-((threshold->high[1]+threshold->low[1])/2.0),2.0) ) <= (threshold->high[1]+threshold->low[1])/2.0);
                                 }
                             }
@@ -417,13 +366,6 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                                         
                                     case BLEND_AVG:
                                         {
-                                            /*unsigned char prevval[3];
-                                            for (int c=0;c < 3;c++)
-                                            {prevval[c]=pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + c]; }
-                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] = prevval[0] + value/vol_count;
-                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = prevval[1] + value/vol_count;
-                                            pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = prevval[2] + value/vol_count;*/
-                                            
                                             pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] += value.r()/vol_count;
                                             pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += value.g()/vol_count;
                                             pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += value.b()/vol_count;
@@ -493,12 +435,9 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             {
             std::vector<int> loc = world_to_view (where,rgb_sx,rgb_sy,pointPointer->get_origin());
             
-            /*std::cout << pointPointer->get_origin()[0] << "," <<pointPointer->get_origin()[1] << "," << pointPointer->get_origin()[0] << endl;*/
-            
             //TODO: color according to distance to viewing plane
-            //http://www.math.umn.edu/~nykamp/m2374/readings/planedistex/
-            
-            //where->dir
+            //http://www.math.umn.edu/~nykamp/m2374/readings/planedist/index.html
+
             
             //draw cross
             for (int d = -2;d <= 2; d++)

@@ -26,7 +26,6 @@
 #include "image_complex.hxx"
 
 //#include "itkVTKImageIO.h"
-//#include "fileutils.h"
 
 using namespace std;
 
@@ -153,45 +152,6 @@ Vector3D image_base::world_to_voxel(const Vector3D wpos) const
     return vPos;
     }
 
-
-//enum fileFormatType {FILE_FORMAT_DICOM,FILE_FORMAT_VTK};
-//
-// //helper that creates subclass objects from ITK voxel/data type constants
-//template <class imageClass>
-//imageClass * new_image (fileFormatType format, itk::ImageIOBase::IOPixelType dataType)
-//    {
-//    imageClass *  newImage = NULL;
-//
-//    switch (dataType)
-//        {
-//        case itk::ImageIOBase::UCHAR:
-//            newImage = new imageClass<unsigned char>();
-//            if (format == FILE_FORMAT_VTK)
-//                {((imageClass<unsigned char>*)newImage)->load_dataset_from_VTK_file(*file);}
-//            if (format == FILE_FORMAT_DICOM)
-//                {((imageClass<unsigned char>*)newImage)->load_dataset_from_DICOM_files(*file);}
-//            break;
-//        case itk::ImageIOBase::USHORT:
-//            newImage = new imageClass<unsigned short>();
-//            if (format == FILE_FORMAT_VTK)
-//                {((imageClass<unsigned short>*)newImage)->load_dataset_from_VTK_file(*file);}
-//            if (format == FILE_FORMAT_DICOM)
-//                {((imageClass<unsigned short>*)newImage)->load_dataset_from_DICOM_files(*file);}
-//            break;
-//        case itk::ImageIOBase::SHORT:
-//            newImage = new imageClass<signed short>();
-//            if (format == FILE_FORMAT_VTK)
-//                {((imageClass<signed short>*)newImage)->load_dataset_from_VTK_file(*file);}
-//            if (format == FILE_FORMAT_DICOM)
-//                {((imageClass<signed short>*)newImage)->load_dataset_from_DICOM_files(*file);}
-//            break;
-//        default:
-//            cout << "image_base::new_image: unsupported voxel data type (" << vtkIO->GetComponentTypeAsString (componentType) << ")" << endl;
-//        }
-//
-//    return newImage;
-//    }
-
 class vtkloader: public imageloader
 {
 private:
@@ -223,11 +183,6 @@ vtkloader::vtkloader(std::vector<std::string> * f): imageloader(f)
 image_base *vtkloader::read()
     {    
     image_base * result = NULL;
-            
-    /*int nsize = files.front().size();
-        
-    char * file = new char [nsize];
-    strncpy(file,files.front().c_str(),nsize);*/
             
     if (vtkIO->CanReadFile (files->front().c_str()))
         {
@@ -664,13 +619,6 @@ void image_base::try_loader (std::vector<std::string> * f) //! helper for image_
 void image_base::load( std::vector<std::string> f)
     {
     std::vector<std::string> chosen_files(f);
-    
-    /*std::vector<std::string> * chosen_files = std::vector<std::string>();
-    
-    chosen_files.resize(f.size());
-    
-    std::copy(f.begin(), f.end(),
-         chosen_files.begin());*/
     
     //try Analyze obj
     try_loader<analyze_objloader>(&chosen_files);

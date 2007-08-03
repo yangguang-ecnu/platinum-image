@@ -131,10 +131,10 @@ class datamanager
                                                                     //and fills it with testpattern()
                                                                     //returns ID
                                                                     //DEPRECATED: use constructor and datamanager::add instead
-
+        
         int create_empty_image(image_base *, imageDataType unit);    //create empty image with same
-                                                                    //dimensions as argument
-                                                                    //DEPRECATED: use image_base::alike instead
+                                                                     //dimensions as argument
+                                                                     //DEPRECATED: use image_base::alike instead
         int find_data_index(int uniqueID);
         image_base * get_image (int ID);
         data_base * get_data (int ID);

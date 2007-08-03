@@ -277,13 +277,7 @@ void FLTK2Dregionofinterest::drag (int x_last, int y_last, int dx, int dy,Fl_Wid
             break;
             
         case ROI_CIRCLE:
-            /*
-             int center_x=region_start_x+ (region_end_x-region_start_x)/2;
-             int center_y=region_start_y+ (region_end_y-region_start_y)/2;
-             
-             if sqrt(pow (x_last-canvas_size_x - center_x,2)+pow (y_last-canvas_size_y - center_y,2))
-             {}
-             */
+            //nothing here
             break;
         }
 }
@@ -298,10 +292,7 @@ void FLTK2Dregionofinterest::attach_histograms (int rendererIndex)
 {
     //first drag iteration; a number of values have to be collected and stored
     histograms.clear();
-    
-    /*int p=0;
-    int rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);*/
-    
+        
     rendercombination::iterator itr = (rendermanagement.get_combination( rendermanagement.find_renderer_id(rendererIndex)))->begin();
     rendercombination::iterator end = (rendermanagement.get_combination( rendermanagement.find_renderer_id(rendererIndex)))->end();
     

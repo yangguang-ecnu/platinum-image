@@ -55,37 +55,34 @@ public:
             renderpair(const int, data_base*,const blendmode);
         };        
         
-    private:
+private:
         //int renderimages [MAXRENDERVOLUMES];
         std::list<renderpair> renderdata;
         //colormap colortable;
         int id; //id to identify this combination in callbacks
         static int new_rc_ID;   //unique id to assign newly created combinations
         blendmode blend_mode_;
-    public:
-        rendercombination();
+public:
+            rendercombination();
         typedef std::list<renderpair>::const_iterator iterator;
         rendercombination(int ID);  //constructor that populates
-        //the renderdata array 
-        //from the beginning
+                                    //the renderdata array 
+                                    //from the beginning
         void data_vector_has_changed ();   //image has been added or removed - update renderlist
-        //bool image_remaining(int priority);        //at priority, is there an image to render?
-        //int image_ID_by_priority (int priority);
         iterator begin() const;
         iterator end() const;
         bool empty() const;
         image_base* top_image ()const; //topmost image
         image_base* get_imagepointer(int ID);
-        //image_base *renderimage_pointers[MAXRENDERVOLUMES];
         void add_data(int ID);
         void toggle_data(int imageID);
         void remove_image(int ID);
         int image_rendered(int ID);//for updating various widgets: returns nonzero if
-        //the image ID is included in this combination
-        //may return value indicating per-image blending mode for this combination
-        int get_id();
-        blendmode blend_mode();          //get blendmoide
-        void blend_mode (blendmode b);   //set blendmode
+                                   //the image ID is included in this combination
+                                   //may return value indicating per-image blending mode for this combination
+            int get_id();
+            blendmode blend_mode();          //get blendmoide
+            void blend_mode (blendmode b);   //set blendmode
     };
 
 #endif
