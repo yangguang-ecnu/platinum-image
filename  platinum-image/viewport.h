@@ -141,7 +141,8 @@ public:
 	friend std::ostream &operator<<(std::ostream &ut, const viewport &k) { ut << "[viewport. ID= " << k.ID << " rendererID: " << k.rendererID << " rendererIndex:  " << k.rendererIndex << "] "; return ut; }
 
 	void initialize_viewport(int xpos, int ypos, int width, int height); 
-//    Fl_Gl_Window * initialize_GL (); //JK Visual C++ compile error ("must return a value")
+    
+    void initialize_GL ();
     void hide_GL ();
     
     int get_id() const ;
