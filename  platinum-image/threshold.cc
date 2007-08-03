@@ -72,9 +72,8 @@ int thresholdparvalue::make_threshold_image ()
 
     if (num_images == 0)
         {
-#ifdef _DEBUG
-        std::cout << "Segmentation: no images selected in threshold" << std::endl;
-#endif
+        pt_error::error("Segmentation: no images selected in threshold",pt_error::warning);
+
         return NOT_FOUND_ID;
         }
 
@@ -88,9 +87,8 @@ int thresholdparvalue::make_threshold_image ()
             {
             if (size[d]!=the_inputs[v]->get_size_by_dim(d))
                 {
-#ifdef _DEBUG
-                std::cout << "Segmentation: image sizes do not match" << std::endl;
-#endif
+                pt_error::error("Segmentation: image sizes do not match",pt_error::warning);
+                
                 return NOT_FOUND_ID;
                 }
             }

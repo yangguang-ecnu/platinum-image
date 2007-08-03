@@ -109,6 +109,7 @@ void statusarea::progress (int step, std::string m, int num_steps)
         {
         progress_->activate();
         
+        //Print progress and message to terminal
         std::cout << step << "/" << progress_->maximum() << ": " << m << std::endl;
         }
     else

@@ -330,7 +330,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
         writer->Update();
         }
     catch (itk::ExceptionObject &ex){
-        cout<<"Exception thrown saving file ("<<file_path<<")"<<ex;
+        pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
         }
     }
 

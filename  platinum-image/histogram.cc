@@ -45,7 +45,6 @@ histogram_base::histogram_base ()
 
 histogram_base::~histogram_base ()
     {
-    std::cout << "histogram_base destructor" << std::endl;
     if (buckets != NULL)
         {delete []buckets; }
     }
@@ -278,9 +277,6 @@ void histogram_2D::calculate(int new_num_buckets)
         //render_max=(float)((float)(vol_size[0]*vol_size[1]*vol_size[2])/(num_buckets*num_buckets*4));
         //render_max=(float)((float)(vol_size[0]*vol_size[1]*vol_size[2])/(float)(bucket_max));
 
-#ifdef _DEBUG
-        std::cout << "bucket_max: " << bucket_max << std::endl << "render_max: " << render_max << std::endl;
-#endif
         }
     }
 

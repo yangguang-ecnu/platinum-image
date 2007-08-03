@@ -72,14 +72,11 @@ data_base::data_base()
 
 data_base::data_base (data_base * const source)
     {
-//cout << "Start data_base constructor"<<endl;//PRDEBUG
     pt_error::error_if_null(source,"Attempting to copyconstruct data object from NULL object");
 
     ID = data_next_ID++;
     widget = NULL;
     from_file(source->from_file());
-
-//cout << "End data_base constructor"<<endl;//PRDEBUG
     }
 
 void data_base::activate()
@@ -100,12 +97,11 @@ void data_base::from_file(bool f)
     {
     if (widget !=NULL)
         { widget->from_file(f); }
-#ifdef _DEBUG
+
     else
         {
-        cout << "Attempt to set from_file(bool) on a widget-less data object" << endl;
+        pt_error::error("Attempt to set from_file(bool) on a widget-less data object",pt_error::warning);
         }
-#endif
     }
 
 void data_base::name_from_path(string file_path)

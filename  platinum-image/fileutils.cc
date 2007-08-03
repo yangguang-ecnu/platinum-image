@@ -196,29 +196,18 @@ std::vector<std::string> subdirs (std::string dir_path)
 
     std::vector<std::string>::iterator dirs = result.begin();
 
-#ifdef _DEBUG
-    std::cout << "Subdirs of \"" << path_end(dir_path) << "\"" << std::endl;
-#endif
-
     while (result.size() > 0 && dirs != result.end())
         {
         //sort out items which are not directories
         //or circular references
         if (*dirs == "." || *dirs == ".." || !dir_exists(dir_path + *dirs) )
             {
-            #ifdef _DEBUG
-            std::cout << "- " << path_end(*dirs) << "" << std::endl;
-#endif
             result.erase(dirs);
             }
         else
             {
             (*dirs).insert(0,dir_path);
             trailing_slash(*dirs);
-#ifdef _DEBUG
-            std::cout << "  " << path_end(*dirs) << "" << std::endl;
-#endif
-
 
             ++dirs; 
 

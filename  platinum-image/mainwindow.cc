@@ -62,7 +62,9 @@ void platinum_init ()
     /*char aproject[100] = "";
     char avolume[100] = "";*/
 
-    std::cout << "Initializing Platinum v. " << PLATINUM_MAJOR_VER << "." << PLATINUM_MINOR_VER << std::endl;
+    //std::cout << "Welcome to Platinum v. " << PLATINUM_MAJOR_VER << "." << PLATINUM_MINOR_VER << std::endl;
+    
+    std::cout << "You are going Platinum, please stand by!" << std::endl;
 
     /*const int MAXBUFFER=100;*/
     /*
@@ -103,7 +105,7 @@ void platinum_init ()
 #if !defined(WIN32) && !defined(__APPLE__)
     //setup for Xwindows only
     int i = 1;
-    cout << "Xwindows" << endl;
+    //cout << "Xwindows" << endl;
     Fl::args(argc,argv,i,arg);
     if (visid >= 0) {
         fl_open_display();
@@ -183,7 +185,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
 
     viewmanagement.setup_views(0, view_w, view_h); // 0...antal som anv‰nds-1
 
-    viewmanagement.listviewports();
+    //viewmanagement.listviewports();
 
     //views->resizable(views);
     //views->end();
