@@ -159,6 +159,12 @@ void stringmatrix::fill(string val)
 
 }
 
+void stringmatrix::clear()
+{
+	data.clear();
+}
+
+
 unsigned int stringmatrix::rows()
 {
 	return data.size();
@@ -176,7 +182,7 @@ void stringmatrix::add_row(vector<string> r, string space_holder)
 {
 	cout<<"add_row(...)"<<endl;
 
-	if( r.size() <= cols() )
+	if( r.size()<=cols() || rows()==0 )
 	{
 		while(r.size()<cols()){	r.push_back(space_holder);}
 		data.push_back(r);
@@ -355,9 +361,9 @@ void stringmatrix::print_all()
 
 
 
-void stringmatrix::load_from_csvfile(string filepath, string sep)
+void stringmatrix::read_from_csvfile(string filepath, string sep)
 {
-	cout<<"load_from_csvfile... "<<endl;
+	cout<<"read_from_csvfile... "<<endl;
 
 	ifstream myfile (filepath.c_str());
 	int ind1=0;
@@ -397,9 +403,9 @@ void stringmatrix::load_from_csvfile(string filepath, string sep)
 	}
 }
 
-void stringmatrix::save_to_csvfile(string filepath, string sep)
+void stringmatrix::write_to_csvfile(string filepath, string sep)
 {
-	cout<<"save_to_csvfile... "<<endl;
+	cout<<"write_to_csvfile... "<<endl;
 	ofstream myfile;
 	myfile.open(filepath.c_str());
 	for(int r=0; r<rows(); r++)

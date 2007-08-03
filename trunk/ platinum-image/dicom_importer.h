@@ -54,8 +54,12 @@
 #include <FL/Fl_Int_Input.H>
 #include <FL/Fl_Value_Slider.H>
 
+#include <FL/Fl_File_Chooser.H>
+#include <FL/filename.H>
+
 #include "itkGDCMImageIO.h"
 #include "stringmatrix.h"
+#include "fileutils.h"
 
 
 //#ifdef MICROSOFT
@@ -65,50 +69,15 @@
 
 using namespace std;
 
-/*
-class DcmTagEntry
-{
-public:
-	DcmTagEntry(); 
-	DcmTagEntry(string t, string tgroup, string tname); 
-	DcmTagEntry(const DcmTagEntry &d); 
-	string get_tagkey();
+//----------------------------------------------------------
+//----------------------------------------------------------
+//----------------------------------------------------------
 
-	string title;
-	string tag_group;
-	string tag_name;
-};
-*/
-/*
-// A row of columns
-class Row
-{
-public:
-	vector<string> words;
-};
-
-// Sort class to handle sorting strings by column
-class SortColumn
-{
-	int _col, _reverse;
-public:
-	SortColumn(int col, int reverse);				//sets variables
-	bool operator()(const Row &a, const Row &b);	//compares strings (when inside the column range)
-};
-*/
-
-class DcmTable : public Fl_Table_Row
+class dcmtable : public Fl_Table_Row
 {
 private:
-	stringmatrix dcmtags;		// contains dicom tag info, updated via the "settings window"
-	//---- dcmtags specification ----
-	//row 0: title			
-	//row 1: tag_group
-	//row 2: tag_name
-	// string DcmTagEntry::get_tagkey(){return tag_group+"|"+tag_name;}
-
 	stringmatrix data;			// contains the loaded dicom header data...
-	int _maxcols;				// max # columns in all rows
+//	int _maxcols;				// max # columns in all rows
 	int _sort_reverse;			// sort direction
 	int _sort_lastcol;			// buffers the last "sorting column"
 
@@ -122,52 +91,48 @@ protected:
 	void draw_cell(TableContext context, int R=0, int C=0, int X=0, int Y=0, int W=0, int H=0);
 
 public:
-	DcmTable(int x, int y, int w, int h, const char *l=0);
-	~DcmTable();
+	dcmtable(int x, int y, int w, int h, const char *l=0);
+	~dcmtable();
 
-	void load_testdata();				// load test data
+	stringmatrix dcmtags;		// contains dicom tag info, updated via the "settings window"
+	//---- dcmtags specification ----
+	//row 0: title			
+	//row 1: tag_group
+	//row 2: tag_name
+//	void load_testdata();				// load test data
 	void print_all();
+	void fill_table(vector<string> dcm_files);
 	void autowidth(int pad);			// automatically set column widths to data maximum width
+	void update_tabledata();
 };
 
 
+//----------------------------------------------------------
+//----------------------------------------------------------
+//----------------------------------------------------------
 
 class dcmimportwin : public Fl_Window
 {
-public:
-	//makes sure current(NULL) is not forgotten...
-	static dcmimportwin* create(int xx, int yy, int ww, int hh, const char *ll=0);
-
 private:
 	dcmimportwin(int xx, int yy, int ww, int hh, const char *ll=0);
-	DcmTable *table;
+	dcmtable *table;
 	Fl_Check_Button* incl_subfolder_check_button;
 	Fl_Input* import_volume_input;
 
 	static void button_cb(Fl_Button* b, void* bstring);
 	void button_cb2(string s);
-};
+	
+	vector<string> get_dcm_files_from_dir(const char *dir, vector<string> dcm_files, bool incl_sub_dirs);
 
-
-//----------------------------------------------------------
-//----------------------------------------------------------
-//----------------------------------------------------------
-
-class settingswin : public Fl_Window
-{
 public:
-	static settingswin* create(int xx, int yy, int ww, int hh, const char *ll=0);
+	//makes sure current(NULL) is not forgotten...
+	static dcmimportwin* create(int xx, int yy, int ww, int hh, const char *ll=0);
 
-private:
-	settingswin(int xx, int yy, int ww, int hh, const char *ll=0);
 };
 
-
-
-Fl_Callback input_cb;
-void input_cb(Fl_Widget*, void* v);
-
-
+//----------------------------------------------------------
+//----------------------------------------------------------
+//----------------------------------------------------------
 class string_edit_table : public Fl_Table
 {
 	Fl_Input* input;
@@ -185,6 +150,32 @@ public:
 
 	stringmatrix dcmtags;
 	void set_value();
+	void read_from_csvfile(string file);
+	void write_to_csvfile(string file);
+	void update_tabledata();
+
 };
+
+//----------------------------------------------------------
+//----------------------------------------------------------
+//----------------------------------------------------------
+
+class settingswin : public Fl_Window
+{
+private:
+	settingswin(int xx, int yy, int ww, int hh, dcmtable *dt, const char *ll=0);
+	string_edit_table* table;
+	dcmtable* dcmtable_ptr;
+
+	static void button_cb(Fl_Button* b, void* bstring);
+	void button_cb2(string s);
+	void update_tabledata();
+
+public:
+	static settingswin* create(int xx, int yy, int ww, int hh, dcmtable *dt, const char *ll=0);
+};
+
+Fl_Callback input_cb;
+void input_cb(Fl_Widget*, void* v);
 
 #endif

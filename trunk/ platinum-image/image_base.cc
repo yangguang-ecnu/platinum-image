@@ -95,7 +95,7 @@ bool image_base::read_origin_from_dicom_file(std::string dcm_file)
 	return succeded;
 }
 
-bool image_base::read_direction_from_dicom_file(std::string dcm_file)
+bool image_base::read_orientation_from_dicom_file(std::string dcm_file)
 {
 	bool succeded = false;
 	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
