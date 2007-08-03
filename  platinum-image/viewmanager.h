@@ -73,7 +73,7 @@ class viewmanager
         void setup_regular_tiles(int t_h=2, int t_v=2, int t_vv=1);
 
         void connect_renderer_to_viewport(int viewportID, int rendererID);
-        void image_vector_has_changed();
+        void data_vector_has_changed();
 
         void refresh_viewports();
         void refresh_viewports_after_toolswitch();

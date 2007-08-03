@@ -31,7 +31,7 @@ point::point(pointStorage::value_type p): point_collection()
     thePoints = pointStorage (1,p);
 }
 
-const point_collection::pointStorage::value_type point::get_origin () const
+point_collection::pointStorage::value_type point::get_origin () const
 {
     return thePoints.front();
 }

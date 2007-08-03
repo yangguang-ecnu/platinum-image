@@ -68,6 +68,8 @@ void image_base::set_parameters ()
     //constructor: add "Untitled" name and ID
     namestream << "3D image (" << ID << ")";
 
+    Fl_Group::current(NULL); //evil bugfix: somehwere, sometime, a Group has not been ended
+    
     widget=new datawidget<image_base>(this,namestream.str());
     name(namestream.str());
     }

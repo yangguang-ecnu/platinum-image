@@ -80,7 +80,7 @@ class userIO : public Fl_Pack
 
         static void FLTK_callback (Fl_Widget *callingwidget, void * foo);
 
-        void image_vector_has_changed();
+        void data_vector_has_changed();
 
         std::vector<FLTKuserIOpar_histogram2D *> get_histogram_for_image(int imageID); //histogram special
     };

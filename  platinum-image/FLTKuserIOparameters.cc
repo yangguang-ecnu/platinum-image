@@ -70,7 +70,7 @@ void FLTKuserIOparameter_base::par_update_callback (Fl_Widget *callingwidget, vo
         }
     }
 
-// *** FLTKuserIOpar_float ***
+#pragma mark *** FLTKuserIOpar_float ***
 
 FLTKuserIOpar_float::FLTKuserIOpar_float (const std::string name, float ma, float mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
     {
@@ -100,7 +100,7 @@ const std::string FLTKuserIOpar_float::type_name ()
     return "float";
     }
 
-// *** FLTKuserIOpar_longint ***
+#pragma mark *** FLTKuserIOpar_longint ***
 
 FLTKuserIOpar_longint::FLTKuserIOpar_longint (const std::string name, long ma, long mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
     {
@@ -130,7 +130,7 @@ const std::string FLTKuserIOpar_longint::type_name ()
     return "long (slider)";
     }
 
-// *** FLTKuserIOpar_longint_box ***
+#pragma mark *** FLTKuserIOpar_longint_box ***
 
 FLTKuserIOpar_longint_box::FLTKuserIOpar_longint_box (const std::string name, long ma, long mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
     {
@@ -159,7 +159,7 @@ const std::string FLTKuserIOpar_longint_box::type_name ()
     return "long (slider)";
     }
 
-// *** FLTKuserIOpar_bool ***
+#pragma mark *** FLTKuserIOpar_bool ***
 
 FLTKuserIOpar_bool::FLTKuserIOpar_bool (const std::string name, bool init_status ) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
     {
@@ -187,14 +187,14 @@ const std::string FLTKuserIOpar_bool::type_name ()
     return "boolean";
     }
 
-// *** FLTKuserIOpar_image ***
+#pragma mark *** FLTKuserIOpar_image ***
 
 FLTKuserIOpar_image::FLTKuserIOpar_image (const std::string name) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
     {
     control = new FLTKimage_choice(x(),y()+PARTITLEMARGIN);
     control->callback(par_update_callback);
 
-    control->image_vector_has_changed();
+    control->data_vector_has_changed();
     
     resizable(NULL);
 
@@ -206,9 +206,9 @@ void FLTKuserIOpar_image::par_value (imageIDtype & v)
     v = control->id_value();
     }
 
-void FLTKuserIOpar_image::image_vector_has_changed ()
+void FLTKuserIOpar_image::data_vector_has_changed ()
     {
-    control->image_vector_has_changed();
+    control->data_vector_has_changed();
     }
 
 
@@ -217,11 +217,97 @@ const std::string FLTKuserIOpar_image::type_name ()
     return "image ID";
     }
 
-// *** General image choice widget ***
+#pragma mark *** FLTKuserIOpar_points ***
 
-FLTKimage_choice::FLTKimage_choice (int x, int y) : Fl_Choice(x,y,PARMENUWIDTH,STDPARWIDGETHEIGHT-PARTITLEMARGIN)
+FLTKuserIOpar_points::FLTKuserIOpar_points (const std::string name) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
+{
+    control = new FLTKpoint_choice(x(),y()+PARTITLEMARGIN);
+    control->callback(par_update_callback);
+    
+    control->data_vector_has_changed();
+    
+    resizable(NULL);
+    
+    end();
+}
+
+void FLTKuserIOpar_points::par_value (Vector3D & v)
+{
+    point * p = dynamic_cast<point *> (datamanagement.get_data(control->id_value()));
+
+    pt_error::error_if_null(p,"requested Point3D value, point object is of different subclass",pt_error::serious);
+    
+    v = p->get_origin();
+}
+
+void FLTKuserIOpar_points::par_value (pointIDtype & v)
+{
+    v = control->id_value();
+}
+
+void FLTKuserIOpar_points::data_vector_has_changed ()
+{
+    control->data_vector_has_changed();
+}
+
+const std::string FLTKuserIOpar_points::type_name ()
+{
+    return "point ID";
+}
+
+//data choice widget base class
+
+FLTKdataitem_choice::FLTKdataitem_choice (int x, int y):Fl_Choice(x,y,PARMENUWIDTH,STDPARWIDGETHEIGHT-PARTITLEMARGIN)
+{}
+
+void FLTKdataitem_choice::data_change (const Fl_Menu_Item * base_menu)
+{
+    //store selection
+    int selected_item=value();
+    long selected_vol=NOT_FOUND_ID;
+    
+    const Fl_Menu_Item *cur_menu=menu();   
+    
+    if (cur_menu !=NULL)
+        {selected_vol=cur_menu[selected_item].argument();}
+    
+    selected_item=0; //set to no selection if previous selection isn't found below
+    
+    //rebuild
+    Fl_Menu_Item new_menu[datamanager::IMAGEVECTORMAX+2];
+    
+    new_menu[0].label("(no selection)");
+    new_menu[0].shortcut(0);
+    new_menu[0].callback((Fl_Callback *)NULL,0);
+    new_menu[0].argument(0);
+    new_menu[0].flags= 0;
+    new_menu[0].labeltype(FL_NORMAL_LABEL);
+    new_menu[0].labelfont(0);
+    new_menu[0].labelsize(FLTK_LABEL_SIZE);
+    new_menu[0].labelcolor(FL_BLACK);
+    
+    int m=1;
+    
+    while (base_menu[m-1].label() !=NULL) 
+        {    
+        memcpy (&new_menu[m],&base_menu[m-1],sizeof(Fl_Menu_Item));
+        
+        if (new_menu[m].argument() == selected_vol)
+            {selected_item=m;}
+        m++;
+        }
+    new_menu[m].label(NULL);
+    
+    copy(new_menu);
+    value(selected_item);
+    redraw();
+}
+
+#pragma mark *** General image choice widget ***
+
+FLTKimage_choice::FLTKimage_choice (int x, int y) : FLTKdataitem_choice(x,y)
     {
-    image_vector_has_changed();
+    data_vector_has_changed();
     }
 
 imageIDtype FLTKimage_choice::id_value ()
@@ -238,53 +324,38 @@ imageIDtype FLTKimage_choice::id_value ()
     return NOT_FOUND_ID;
     }
 
-void FLTKimage_choice::image_vector_has_changed ()
-    {
-    //store selection
-    int selected_item=value();
-    long selected_vol=NOT_FOUND_ID;
+void FLTKimage_choice::data_vector_has_changed()
+{
+    data_change(datamanagement.FLTK_image_menu());
+}
 
-    const Fl_Menu_Item *base_menu;
+#pragma mark *** General point choice widget ***
+
+FLTKpoint_choice::FLTKpoint_choice (int x, int y) : FLTKdataitem_choice(x,y)
+{
+    data_vector_has_changed();
+}
+
+pointIDtype FLTKpoint_choice::id_value ()
+{
     const Fl_Menu_Item *cur_menu=menu();   
-
+    int selected_item=value();
+    
+    if (selected_item==0)
+        {return NOT_FOUND_ID;}
+    
     if (cur_menu !=NULL)
-        {selected_vol=cur_menu[selected_item].argument();}
+        {return cur_menu[selected_item].argument();}
+    
+    return NOT_FOUND_ID;
+}
 
-    selected_item=0; //set to no selection if previous selection isn't found below
+void FLTKpoint_choice::data_vector_has_changed()
+{
+    data_change(datamanagement.FLTK_point_menu());
+}
 
-    //rebuild
-    Fl_Menu_Item new_menu[datamanager::IMAGEVECTORMAX+2];
-
-    base_menu=datamanagement.FLTK_image_menu();
-
-    new_menu[0].label("(no selection)");
-    new_menu[0].shortcut(0);
-    new_menu[0].callback((Fl_Callback *)NULL,0);
-    new_menu[0].argument(0);
-    new_menu[0].flags= 0;
-    new_menu[0].labeltype(FL_NORMAL_LABEL);
-    new_menu[0].labelfont(0);
-    new_menu[0].labelsize(FLTK_LABEL_SIZE);
-    new_menu[0].labelcolor(FL_BLACK);
-
-    int m=1;
-
-    while (base_menu[m-1].label() !=NULL) 
-        {    
-        memcpy (&new_menu[m],&base_menu[m-1],sizeof(Fl_Menu_Item));
-
-        if (new_menu[m].argument() == selected_vol)
-            {selected_item=m;}
-        m++;
-        }
-    new_menu[m].label(NULL);
-
-    copy(new_menu);
-    value(selected_item);
-    redraw();
-    }
-
-// *** Histogram display widget ***
+#pragma mark *** Histogram display widget ***
 
     //TODO: variable resolution
     //right mouse button on whole widget acts as a slider
@@ -607,7 +678,7 @@ int FLTK_histogram_2D::handle(int event)
         damage (FL_DAMAGE_ALL);
         }
 
-    // *** Histogram parameters ***
+    #pragma mark *** Histogram parameters ***
 
     FLTKuserIOpar_histogram2D::FLTKuserIOpar_histogram2D (std::string name) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT+INITPARWIDGETWIDTH, name)
         {
@@ -675,10 +746,10 @@ int FLTK_histogram_2D::handle(int event)
         rect_button->position(this->x()+STDPARWIDGETHEIGHT-PARTITLEMARGIN,this->y()+STDPARWIDGETHEIGHT+histogram_widget->h());
         }
 
-    void FLTKuserIOpar_histogram2D::image_vector_has_changed ()
+    void FLTKuserIOpar_histogram2D::data_vector_has_changed ()
         {
-        image_h->image_vector_has_changed();
-        image_v->image_vector_has_changed();
+        image_h->data_vector_has_changed();
+        image_v->data_vector_has_changed();
 
         set_images (image_h->id_value(),image_v->id_value());
         }
@@ -704,7 +775,7 @@ int FLTK_histogram_2D::handle(int event)
         return "2D threshold";
         }
 
-// *** Message "parameter" ***
+#pragma mark *** Message "parameter" ***
 
     FLTKuserIOpar_message::FLTKuserIOpar_message (std::string name,std::string msgtext) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
         {

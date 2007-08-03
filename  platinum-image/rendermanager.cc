@@ -267,13 +267,13 @@ void rendermanager::geometry_update_callback (int g_id)
     viewmanagement.refresh_viewports_from_geometry(g_id);
     }
 
-void rendermanager::image_vector_has_changed() 
+void rendermanager::data_vector_has_changed() 
 {
     for (std::vector<renderer_base *>::iterator itr = renderers.begin();itr != renderers.end();itr++)
         {
         rendercombination * c = (*itr)->imagestorender;
         
-        (*itr)->imagestorender->image_vector_has_changed(); 
+        (*itr)->imagestorender->data_vector_has_changed(); 
         /*if ((*itr)->imagestorender->empty())
             {
             //renderer has no images, we might want to kill it - BUT
@@ -291,7 +291,7 @@ void rendermanager::image_vector_has_changed()
     
     /*for (std::vector<rendercombination *>::iterator citr = combinations.begin();citr != combinations.end();citr++)
         {
-        (*citr)->image_vector_has_changed();
+        (*citr)->data_vector_has_changed();
         }*/
     }
 

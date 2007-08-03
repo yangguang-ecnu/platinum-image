@@ -55,7 +55,7 @@ class userIOmanager
 
         void setup();                   //create FLTK list widget and all, puts associated widgets in Fl_Group::current()
 
-        void image_vector_has_changed();    //triggers rebuild of
+        void data_vector_has_changed();    //triggers rebuild of
 
         int add_userIO (std::string name, userIO_callback* cback = NULL,std::string ok_label = "");
         
@@ -81,6 +81,8 @@ class userIOmanager
         int add_par_bool(int userIO_ID, std::string new_param_name,bool init_status = false);
 
         int add_par_image(int userIO_ID, std::string new_param_name);
+        int add_par_points(int userIO_ID, std::string new_param_name);
+
         int add_par_histogram_2D(int userIO_ID, std::string new_param_name);
         int add_par_message(int userIO_ID, std::string new_param_name, std::string message);
 
