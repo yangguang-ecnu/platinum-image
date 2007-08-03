@@ -57,35 +57,18 @@ FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
     needs_rerendering();
     
     callback_action=CB_ACTION_NONE;
-    
-#ifndef VPT_TEST
-    //the regionofinterest acts as an overlay for each viewport/FLTKviewport, so it's
-    //created and deleted together with it
-    ROIhack=new FLTK2Dregionofinterest(this);
-    
-    //the thresholding overlay will be created when needed
-    thresholder=NULL;
-#endif
     }
 
 FLTKviewport::~FLTKviewport()
-{
-#ifndef VPT_TEST
-    delete ROIhack;
-    if (thresholder !=NULL)
-        {delete thresholder;}
-#endif
-}
+{}
 
 void FLTKviewport::draw()
     {
     //The draw() virtual method is called when FLTK wants you to redraw your widget.
     //It will be called if and only if damage()  is non-zero, and damage() will be cleared to zero after it returns
     
-#ifdef VPT_TEST
     callback_event = viewport_event (pt_event::draw,this);
     //callback_event.FLTK_event::attach (this);
-#endif // VPT_TEST
     
     do_callback(CB_ACTION_DRAW);
     }
@@ -109,41 +92,22 @@ void FLTKviewport::draw(unsigned char *rgbimage)
         #endif
         }
 
-    draw_feedback();
+    //draw_feedback();
     }
 
 void FLTKviewport::resize  	(int new_in_x,int new_in_y, int new_in_w,int new_in_h) {
     //store new size so CB_ACTION_RESIZE will know about it (via callback)
     resize_w=new_in_w; resize_h=new_in_h;
-#ifndef VPT_TEST
-    do_callback(CB_ACTION_RESIZE);
-#else
     callback_event = viewport_event (pt_event::resize, this);
     callback_event.set_resize(resize_w,resize_h);
     
     do_callback();
-#endif // VPT_TEST
+    
     //do the actual resize - redraw will follow, eventually
     Fl_Widget::resize (new_in_x,new_in_y,new_in_w,new_in_h);
     
     //Update "new" size so that pixmap reevaluation won't be triggered until next resize
     resize_w=w(); resize_h=h();
-    
-#if defined(SNAPPY_RESIZE)
-    //update viewport resizing immediately, 
-    //redraw will happen anyway, the rest of the UI will lag behind however
-    do_callback(CB_ACTION_DRAW);
-#endif
-    
-#ifndef VPT_TEST
-    //thresholding overlay has exact size - delete, it will be recreated
-    //at new size if needed
-    if (thresholder !=NULL)
-        {
-        delete thresholder;
-        thresholder=NULL;
-        }
-#endif
 }
 
 void FLTKviewport::do_callback (callbackAction action)
@@ -157,7 +121,6 @@ void FLTKviewport::do_callback (callbackAction action)
 
 int FLTKviewport::handle(int event){
     
-#ifdef VPT_TEST
     callback_event = viewport_event (event,this);
 
     switch (event)
@@ -188,125 +151,10 @@ int FLTKviewport::handle(int event){
     
     callback_event = viewport_event (pt_event::no_type,NULL);
     
-#else //not VPT_TEST
-
-    switch (event){
-        case FL_PUSH:
-            do_callback(CB_ACTION_CLICK_PASS);
-            break;
-            
-        case FL_RELEASE:
-            switch (Fl::event_button())
-                {
-                case FL_LEFT_MOUSE:
-                    if (ROIhack != NULL)
-                        {
-                        ROIhack->drag_end();
-                        }
-                    break;
-                }
-            break;
-        case FL_MOVE:
-            do_callback(CB_ACTION_HOVER);
-            
-            //redraw the rgbimage without rerendering
-            break;
-        case FL_ENTER:
-            window()->make_current(); //When entering window - make current!
-            break;
-            
-        case FL_LEAVE:
-            //redraw without cursor
-            //since the feedback_string may be applicable only to the current
-            //viewport, it should be cleared somewhere around here so that
-            //it is only displayed following a suitable event
-
-            do_callback(CB_ACTION_DRAW);
-            break;
-            
-        case FL_DRAG:
-            drag_dx = Fl::event_x() - mouse_pos[0];
-            drag_dy = Fl::event_y() - mouse_pos[1];
-            
-            if (drag_dx !=0 || drag_dy !=0)
-                {
-                if(Fl::event_button() == FL_LEFT_MOUSE){
-                    do_callback(CB_ACTION_DRAG_PASS);
-                    }
-                if(Fl::event_button() == FL_MIDDLE_MOUSE){
-                    do_callback(CB_ACTION_DRAG_PAN);
-                }
-                if(Fl::event_button() == FL_RIGHT_MOUSE){
-                    do_callback(CB_ACTION_DRAG_ZOOM);
-                }            
-            }
-                break;
-        case FL_MOUSEWHEEL:
-            wheel_y=Fl::event_dy();
-            
-            do_callback(CB_ACTION_WHEEL_FLIP);
-            
-            wheel_y=0;
-            
-            break;
-        default:
-            callback_action=0;
-            return 0;
-            
-    }
-    mouse_pos[0]=Fl::event_x();
-    mouse_pos[1]=Fl::event_y();
-
-    callback_action=0; //better safe than sorry
-    
-#endif //VPT_TEST
     return 1;
 }
 
 void FLTKviewport::needs_rerendering ()
 {
     needsReRendering = true;
-}
-
-
-void FLTKviewport::draw_feedback() // draws the cursor
-{
-#ifndef VPT_TEST 
-
-    int ex = Fl::event_x();
-    int ey = Fl::event_y();
-    
-    fl_push_clip(x(),y(),w(),h());
-    
-    fl_color(fl_rgb_color(0, 255, 255));
-
-    if (thresholder != NULL)
-    {
-        thresholder->FLTK_draw();
-    }
-    
-    if (ROIhack != NULL)
-    {
-        ROIhack->draw(this);
-    }
-    
-    if (!(ex < x() || ey < y() || ex > x()+w() || ey > y() + h()) )
-    {
-        //only draw cursor when mouse is inside viewport
-        //TODO: don't draw any extra fanciness during ROI interaction
-        
-        fl_font(FL_HELVETICA | FL_BOLD,14);
-        fl_draw(feedback_string.c_str(), x()+w()-20, y()+3,15,35, FL_ALIGN_RIGHT);
-        
-        fl_color(FL_DARK3);
-        
-        fl_begin_line();
-        
-        fl_xyline(x(),ey,x()+w(),ey);		//joel - horizontal line (x y x1 y1)
-        fl_xyline(ex,y(),ex,y()+h());		//joel - vertical line (x y x1 y1)
-        
-        fl_end_line();
-    }
-    fl_pop_clip();
-#endif
 }

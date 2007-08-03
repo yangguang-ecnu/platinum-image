@@ -46,8 +46,6 @@
 #include "histo2D_tool.h"
 #include "event.h"
 
-#define VPT_TEST //viewporttool development
-
 //Callback action identifiers.
 
 enum callbackAction {
@@ -63,10 +61,6 @@ enum callbackAction {
     CB_ACTION_WHEEL_ZOOM,	//mouse wheel zoom
     CB_ACTION_WHEEL_FLIP	//mouse wheel flip through rendered image sequence
     };
-
-//update viewport resizing immediately, the other UI widgets will lag behind however
-//no effect on double buffered systems like OSX
-#define SNAPPY_RESIZE
 
 class FLTKviewport : public Fl_Widget
 {
@@ -91,11 +85,6 @@ private:
 	    bool needsReRendering;	//set to true when we need to update the data drawn on screen
 	   
         std::string feedback_string;      //info (coordinates and such)
-#ifndef VPT_TEST
-        FLTK2Dregionofinterest * ROIhack;     //overlay for selecting and displaying a
-                                          //region of interest
-        threshold_overlay * thresholder;  //overlay displaying threshold from a histogram
-#endif //VPT_TEST
         void do_callback (callbackAction action = CB_ACTION_NONE);  //do callback with specified action
 
 	    //Variables used by callback function to process events

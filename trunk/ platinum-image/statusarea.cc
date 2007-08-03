@@ -19,7 +19,7 @@
 
 #include "statusarea.h"
 
-#include "FLTKviewport.h" //for VPT_TEST
+#include "FLTKviewport.h"
 #include "viewporttool.h"
 
 #include <FL/Enumerations.H>

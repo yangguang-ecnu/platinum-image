@@ -24,7 +24,7 @@
 
 #include "platinumprogram.h"
 
-#include "FLTKviewport.h"; //for VPT_TEST
+#include "FLTKviewport.h";
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
@@ -175,11 +175,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
          
     toolsNstatus->resizable(userIOmanagement.status_area);
     toolsNstatus->end();
-        
-#ifndef VPT_TEST
-    toolsNstatus->deactivate();
-#endif
-    
+            
     viewsNstatusStack->resizable(viewsNlists);
     viewsNstatusStack->end();
     

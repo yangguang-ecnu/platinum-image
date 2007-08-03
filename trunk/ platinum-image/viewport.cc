@@ -45,135 +45,130 @@ bool viewport::renderermenu_built=false;
 enum preset_direction {AXIAL, CORONAL, SAGITTAL,AXIAL_NEG, CORONAL_NEG, SAGITTAL_NEG};
 
 const char * preset_direction_labels[] =
-    {
+{
     "Axial",
     "Coronal",
     "Sagittal",
     "-Axial",
     "-Coronal",
     "-Sagittal"
-    };
+};
 
 const char * blend_mode_labels[] =
-    {
+{
     "Overwrite",
     "Max",
     "Min",
     "Average",
     "Tint"
-    };
+};
 
 struct menu_callback_params
-    {
+{
     //for blend & image callbacks
     int rend_index;
-
+    
     //for blend callback
     blendmode mode;
-
+    
     //for image callback
     int vol_id;
-
+    
     //for preset direction callback    
     viewport * vport;
     preset_direction direction;
-    };
+};
 
 void viewport::clear_rgbpixmap()
-    {
+{
     //blacken viewport
     for (long p=0; p < pixMapSize[0]*pixMapSize[1]*RGBpixmap_bytesperpixel; p +=RGBpixmap_bytesperpixel )
         {
         rgbpixmap[p] = rgbpixmap[p + 1] = rgbpixmap[p + 2] = 0;
         }
-   } 
+} 
 
 viewport::viewport()
-    {
+{
     ID = ++maxviewportID;
-
+    
     viewport_widget=NULL;
     imagemenu_button=NULL;
     renderermenu_button=NULL;
     viewport_buttons=NULL;
     busyTool = NULL;
-
+    
     rendererID=NO_RENDERER_ID;
     rendererIndex=-1;
-
+    
     //rgbpixmap = new uchar [0];
     rgbpixmap = NULL;
     pixMapSize[0] = 0;
     pixMapSize[1] = 0;
-    }
+}
 
 viewport::~viewport()
-    {
+{
     if (busyTool != NULL)
         {delete busyTool;}
-
+    
     if (rgbpixmap != NULL)
         {delete[] rgbpixmap; }
     
     if (renderermenu_button != NULL)
         { fl_menu_userdata_delete (renderermenu_button->menu()); }
-    }
+}
 
 void viewport::connect_renderer(int rID)
-    {
+{
     rendererID = rID;               //this is the unique renderer ID within the class, NOT the vector array index!!!
-
+    
     viewport_widget->needs_rerendering();
     refresh();
-    }
+}
 
 void viewport::refresh_from_combination(int c)
-    {
+{
     //conditional refresh, only perform if this instance uses
     //the argument rendercombination
-
+    
     if (rendererIndex >= 0 && rendermanagement.get_combination_id(rendererIndex) == c)
         {
         //this call means that the selection of rendered images has changed,
         //possibly into nothing
         
         clear_rgbpixmap();
-#ifndef VPT_TEST
-        if (viewport_widget->thresholder != NULL)
-            {
-            viewport_widget->thresholder->expire();
-            }
-#endif
+        
         refresh();
         }
-    }
+}
 
 void viewport::refresh_from_geometry(int g)
-    {
-     if (rendererIndex >= 0 && rendermanagement.get_geometry_id(rendererIndex) == g)
+{
+    if (rendererIndex >= 0 && rendermanagement.get_geometry_id(rendererIndex) == g)
         {
         refresh();
         }
-    }
+}
 
 void viewport::refresh_after_toolswitch()
-    {
+{
     if (busyTool != NULL)
         {
         delete busyTool;
         busyTool = NULL;
-
+        
         refresh();
         }
-    }
+}
 
 void viewport::refresh()
-    {
+{
     //called when re-render and redraw may be needed
-
+    
     // we cache the vector ID to speed things up - now it must be recomputed
     rendererIndex = rendermanagement.find_renderer_index(rendererID);
-
+    
     if (viewport_widget != NULL)
         {
         if (rendererIndex == -1)
@@ -185,39 +180,32 @@ void viewport::refresh()
             }
         else
             {
-#ifndef VPT_TEST
-            /*
-            if (viewport_widget->thresholder != NULL)
-                {viewport_widget->thresholder->renderer_index(rendermanagement.find_renderer_index(rendererID));}
-             */
-#else
             histo2D_tool * utool = dynamic_cast<histo2D_tool * > (busyTool);
             if (utool != NULL)
                 {utool->attach (this,rendermanagement.get_renderer(rendererID));}
-#endif
-
+            
             update_objects_menu();
             rebuild_renderer_menu();
             rebuild_blendmode_menu();
-
+            
             viewport_widget->needsReRendering=true;
             viewport_buttons->activate();
             }
-
+        
         viewport_widget->damage(FL_DAMAGE_ALL);
         }
-    }
+}
 
 void viewport::update_fbstring (FLTKviewport* f)
-    {
+{
     std::map<std::string,float> values;
     ostringstream infostring;
-
+    
     //Draw values picked from data at mouse position
     //in later revisions this event and clicks may be relayed to the actual application
-
+    
     values=rendermanagement.get_values(rendererIndex,f->mouse_pos[0]-f->x(),f->mouse_pos[1]-f->y(),pixMapSize[0],pixMapSize[1]);
-
+    
     for (std::map<std::string,float>::iterator itr = values.begin(); itr != values.end();itr++)
         {
         if (itr != values.begin()) 
@@ -226,13 +214,12 @@ void viewport::update_fbstring (FLTKviewport* f)
             }
         infostring << itr->first << ": " << itr->second;
         }
-
+    
     f->feedback_string=infostring.str();
-    }
+}
 
 threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * threshold_par)
-    {    
-#ifdef VPT_TEST
+{    
     histo2D_tool * utool = NULL;
     
     //2D histogram should only allow this call when the uim tool is selected
@@ -252,55 +239,22 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
             }
         }
     
-#else //VPT_TEST
-    /*
-    if (rendererID != NO_RENDERER_ID)
-        {
-        int p=0;
-        int rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
-
-        while (rendered_vol_ID > 0)
-            {
-            for (int d=0;threshold_par->id[d] != NOT_FOUND_ID ;d++)
-                {
-                if (rendered_vol_ID==threshold_par->id[d])
-                    {
-                    if (viewport_widget->thresholder == NULL)
-                        {viewport_widget->thresholder=new threshold_overlay(viewport_widget,rendererIndex);}
-                    return viewport_widget->thresholder;
-                    }
-                }
-            p++;
-            rendered_vol_ID=rendermanagement.image_at_priority (rendererIndex,p);
-            }
-
-        if (viewport_widget->thresholder != NULL)
-            {
-            viewport_widget->thresholder->expire();
-            viewport_widget->redraw();
-            }
-        }*/
-#endif //VPT_TEST
-
     return NULL;
-    }
+}
 
 //// Callback wrapper
 //
 void viewport::viewport_callback(Fl_Widget *callingwidget, void *thisviewport)
-    {
+{
     ((viewport*)thisviewport)->viewport_callback(callingwidget);
-    }
+}
 
 bool viewport::render_if_needed (FLTKviewport * f)
 {
     if (rendererIndex>=0 && f->needsReRendering)
         {
         rendermanagement.render(rendererIndex, rgbpixmap, pixMapSize[0], pixMapSize[1]);
-#ifndef VPT_TEST
-        if (viewport_widget->thresholder !=NULL)
-            {viewport_widget->thresholder->render();}
-#endif
+        
         f->needsReRendering = false;
         
         return true;
@@ -311,25 +265,23 @@ bool viewport::render_if_needed (FLTKviewport * f)
 void viewport::viewport_callback(Fl_Widget *callingwidget){
     FLTKviewport* f = (FLTKviewport*)callingwidget;
     //f points to the same GUI toolkit-dependent widget instance as viewport_widget
-    
-#ifdef VPT_TEST
-
+        
     if (f->callback_event.type() == pt_event::draw)
         {
         f->callback_event.grab();
-
+        
         render_if_needed(f);
         
         f->damage(FL_DAMAGE_ALL);
         f->draw(rgbpixmap);
         f->damage(0);
         }
-
+    
     if (busyTool == NULL)
         { 
         busyTool = viewporttool::taste(f->callback_event,this,rendermanagement.get_renderer(rendererID));
         }
-
+    
     if (busyTool != NULL) //might have been created earlier too
         {
         busyTool->handle(f->callback_event);
@@ -344,7 +296,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
         
         //call render_if_needed(); if image may need re-rendering
         }
-
+    
     //handle events regardless of whether a tool caught them
     switch (f->callback_event.type())
         {
@@ -352,167 +304,16 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
             if ((f->resize_w != pixMapSize[0] || f->resize_h != pixMapSize[1]))
                 {
                 //resize: just update view size, re-render but don't redraw...yet
-
+                
                 const int * r = f->callback_event.get_resize();
                 update_viewsize(r[0] ,r[1]);
-
+                
                 f->needs_rerendering();
                 }
             break;
         }
     
-#else //not VPT_TEST
-
-  //  if (f->callback_action == CB_ACTION_RESIZE)
-//        {
-//        if ((f->resize_w != pixMapSize[0] || f->resize_h != pixMapSize[1]))
-//            {
-//            //resize: just update view size, re-render but don't redraw...yet
-//            update_viewsize(f->resize_w ,f->resize_h);
-//
-//            if (f->ROIhack != NULL)
-//                {f->ROIhack->resize (0,0,1,f);}
-//
-//            f->needs_rerendering();
-//            }
-//        }
-//    else
-//        {
-//        //some kind of interactive action
-//
-//        //UI constants
-//        const float wheel_factor=0.02;
-//        const float zoom_factor=0.01;
-//        const float pan_factor=(float)1/(min(pixMapSize[0],pixMapSize[1]));
-//
-//        switch (f->callback_action) {
-//            case CB_ACTION_DRAG_PASS:
-//                //this callback is for general click & drag in viewport
-//                //however only function available yet is the histogram ROI
-//
-//                if (rendererID != NO_RENDERER_ID)
-//                    {
-//                    if (!f->ROIhack->dragging)
-//                        {
-//                        //to improve performance, the attached histograms are cached during drag
-//                        f->ROIhack->attach_histograms(rendererIndex);
-//                        }
-//
-//                    if (f->ROIhack->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
-//                        {
-//                        if(FLTK2Dregionofinterest::current_ROI != f->ROIhack)
-//                            {
-//                            viewmanagement.refresh_viewports(); //erase ROIs shown in other viewports
-//                            FLTK2Dregionofinterest::current_ROI = f->ROIhack;
-//                            }
-//
-//                        f->ROIhack->drag(f->mouse_pos[0],f->mouse_pos[1],f->drag_dx,f->drag_dy,f);
-//                        }
-//                    }
-//                break;
-//
-//            case CB_ACTION_DRAG_PAN:
-//                {
-//                float pan_x=0;
-//                float pan_y=0;
-//
-//                pan_x-=f->drag_dx*pan_factor; 
-//                pan_y-=f->drag_dy*pan_factor;
-//
-//                f->ROIhack->resize (f->drag_dx,f->drag_dy,1,f);
-//                rendermanagement.move(rendererIndex,pan_x,pan_y);
-//
-//                f->needs_rerendering();
-//                }
-//            break;
-//
-//            /*case CB_ACTION_WHEEL_ZOOM:
-//            zoom*=1+f->wheel_y*wheel_factor;
-//            f->needs_rerendering();
-//            break;*/
-//
-//            case CB_ACTION_DRAG_ZOOM:
-//                f->ROIhack->resize (0,0,1+f->drag_dy*zoom_factor,f);
-//                rendermanagement.move(rendererIndex,0,0,0,1+f->drag_dy*zoom_factor);
-//
-//                //zooming invalidates ROI
-//                FLTK2Dregionofinterest::current_ROI = NULL;
-//
-//                f->needs_rerendering();
-//                break;
-//
-//            case CB_ACTION_HOVER:
-//                {
-//                update_fbstring(f);
-//                }
-//            break;
-//
-//            case CB_ACTION_WHEEL_FLIP:
-//                rendermanagement.move(rendererIndex,0,0,f->wheel_y*wheel_factor);    //relative coordinates are designed so that
-//                //1 = one z voxel step for z pan
-//
-//                f->ROIhack->attach_histograms(rendererIndex);
-//
-//                f->needs_rerendering();
-//
-//                update_fbstring(f);
-//                break;
-//            }
-//        }
-//
-//        if (FLTK2Dregionofinterest::current_ROI == f->ROIhack && (f->callback_action == CB_ACTION_DRAG_PASS ) ||f->callback_action==CB_ACTION_WHEEL_FLIP || f->callback_action==CB_ACTION_DRAG_FLIP )
-//            {
-//            //each drag iteration or when moving in view Z direction:
-//            //convert coordinates for region of interest and make widgets update
-//
-//            vector<FLTKuserIOpar_histogram2D *>::iterator itr =f->ROIhack->histograms.begin();  
-//            while (itr != f->ROIhack->histograms.end())
-//                {
-//                int one_vol_ID= (*itr)->histogram_image_ID(0);     //assumption: same voxel size, dimensions, orientation etc.
-//                // - voxel coordinates for one apply to the other as well
-//
-//                regionofinterest reg;
-//                reg.start = rendermanagement.get_location (rendererIndex,one_vol_ID,f->ROIhack->region_start_x,f->ROIhack->region_start_y,f->w(),f->h());
-//                reg.size = rendermanagement.get_location (rendererIndex,one_vol_ID,f->ROIhack->region_end_x,f->ROIhack->region_end_y,f->w(),f->h())-reg.start;
-//                //remove sign from size
-//                for (int d=0; d < 3 ; d++)
-//                    {reg.size[d]=fabs(reg.size[d]);}
-//
-//                //sista steget; skicka det nya omrÂdet till histogrammet
-//                (*itr)->highlight_ROI (&reg);
-//
-//                itr++;
-//                }
-//            }
-//
-//    render_if_needed(f);
-//
-//int actionValue = f->callback_action;
-//        switch (actionValue)
-//            {
-//            case CB_ACTION_CLICK_PASS:
-//            case CB_ACTION_HOVER:
-//            case CB_ACTION_RESIZE:
-//            
-//            case CB_ACTION_DRAG_FLIP:
-//
-//                f->damage(FL_DAMAGE_ALL);
-//                break;
-//
-//            case CB_ACTION_WHEEL_ZOOM:
-//            case CB_ACTION_DRAG_ZOOM:
-//            case CB_ACTION_DRAG_PAN:
-//            case CB_ACTION_WHEEL_FLIP:
-//            case CB_ACTION_DRAG_PASS:
-//            case CB_ACTION_DRAW:
-//
-//                f->damage(FL_DAMAGE_ALL);
-//                f->draw(rgbpixmap);
-//                f->damage(0);
-//                break;
-//            } 
-#endif //VPT_TEST
-    }
+}
 
 int viewport::get_id () const
 {
@@ -535,7 +336,7 @@ void viewport::cb_renderer_select (Fl_Widget * o, void * v)
     const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
     
     /*par->receiver; //the viewport
-    par->Create(); //the new renderer*/
+        par->Create(); //the new renderer*/
     
     const_cast<Fl_Menu_Item *>(item)->setonly();
 }
@@ -685,7 +486,7 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     
     //attach MPR renderer - so that all viewports can be populated for additional views
     viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR));
-    }
+}
 
 
 void viewport::initialize_GL ()
@@ -734,13 +535,13 @@ void viewport::update_objects_menu()
             {       
                 const char * dummy = base_menu[m].label();
                 memcpy (&new_menu[m],&base_menu[m],sizeof(Fl_Menu_Item));
-
+                
                 if (new_menu[m].label()!=NULL)
                     {
                     //long v=base_menu[m].argument();
                     //attach menu_callback_params and
                     //set checkmarks according to displayed images
-                                        
+                    
                     menu_callback_params * p= new menu_callback_params;
                     p->rend_index=rendererIndex;
                     p->vol_id=base_menu[m].argument();  //image ID is stored in user data initially
@@ -763,140 +564,140 @@ void viewport::update_objects_menu()
         { imagemenu_button->menu(NULL); }
 }
 
-    void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
-        {
-        menu_callback_params * widget_user_data=(menu_callback_params *)params;
+void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
+{
+    menu_callback_params * widget_user_data=(menu_callback_params *)params;
+    
+    rendermanagement.toggle_image(widget_user_data->rend_index,widget_user_data->vol_id);
+}
 
-        rendermanagement.toggle_image(widget_user_data->rend_index,widget_user_data->vol_id);
-        }
-
-    void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
-        {
-        enum {x=0,y,z};
-        menu_callback_params * params=(menu_callback_params *)p;
-
-        Matrix3D dir;
-        dir.Fill(0);
-
-        /**dir[0][0]=1; //voxel direction of view x
+void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
+{
+    enum {x=0,y,z};
+    menu_callback_params * params=(menu_callback_params *)p;
+    
+    Matrix3D dir;
+    dir.Fill(0);
+    
+    /**dir[0][0]=1; //voxel direction of view x
         *dir[2][1]=1; //voxel direction of view y
-        *dir[1][2]=1; //voxel direction of slicing*/
-
-        //remember,
-        // A sagittal plane divides the body into left and right portions.
-        //The midsagittal plane is in the midline, i.e. it would pass through midline structures such as the navel or spine, and all other sagittal planes are parallel to it.
-        // A coronal plane divides the body into dorsal and ventral portions.
-        // A transverse plane divides the body into cranial (cephalic) and caudal portions.
-
-        switch (params->direction) {
+    *dir[1][2]=1; //voxel direction of slicing*/
+    
+    //remember,
+    // A sagittal plane divides the body into left and right portions.
+    //The midsagittal plane is in the midline, i.e. it would pass through midline structures such as the navel or spine, and all other sagittal planes are parallel to it.
+    // A coronal plane divides the body into dorsal and ventral portions.
+    // A transverse plane divides the body into cranial (cephalic) and caudal portions.
+    
+    switch (params->direction) {
         case AXIAL:
             dir[x][0]=1; //voxel direction of view x
             dir[y][1]=1; //voxel direction of view y
             dir[z][2]=1; //voxel direction of slicing
             break;
-
+            
         case CORONAL:
             dir[x][0]=1;
             dir[z][1]=-1;
             dir[y][2]=1;
             break;
-
+            
         case SAGITTAL:
             dir[y][0]=1;
             dir[z][1]=-1;
             dir[x][2]=1;
             break;
-
+            
         case AXIAL_NEG:
             dir[x][0]=1;
             dir[y][1]=-1;
             dir[z][2]=-1;
             break;
-
+            
         case CORONAL_NEG:
             dir[x][0]=-1;
             dir[z][1]=1;
             dir[y][2]=-1;
             break;
-
+            
         case SAGITTAL_NEG:
             dir[y][0]=-1;
             dir[z][1]=-1;
             dir[x][2]=1;
             break;
-            }
-
+    }
+    
     Matrix3D * dir_p=new Matrix3D(dir);
     rendermanagement.set_geometry(params->vport->rendererIndex,dir_p);
-
+    
     //callingwidget=directionmenu_button
     callingwidget->label(preset_direction_labels[params->direction]);
-
+    
     delete dir_p;
-        }
+}
 
-    void viewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
+void viewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
+{
+    menu_callback_params * params=(menu_callback_params *)p;
+    
+    rendermanagement.set_blendmode(params->rend_index,params->mode);
+}
+
+void viewport::rebuild_renderer_menu ()
+{
+    //since available renderer types do not change at runtime,
+    //the menu isn't really rebuilt - only the radio checkmark is reassigned
+    
+    if (renderermenu_button != NULL)
         {
-        menu_callback_params * params=(menu_callback_params *)p;
-
-        rendermanagement.set_blendmode(params->rend_index,params->mode);
-        }
-
-    void viewport::rebuild_renderer_menu ()
-        {
-        //since available renderer types do not change at runtime,
-        //the menu isn't really rebuilt - only the radio checkmark is reassigned
-
-        if (renderermenu_button != NULL)
+        Fl_Menu_Item * renderermenu=(Fl_Menu_Item *)renderermenu_button->menu();
+        int numItems = fl_menu_size (renderermenu);
+        
+        if (rendererIndex >= 0)
             {
-            Fl_Menu_Item * renderermenu=(Fl_Menu_Item *)renderermenu_button->menu();
-            int numItems = fl_menu_size (renderermenu);
-
-            if (rendererIndex >= 0)
+            std::string this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
+            
+            for (int m = 0; m < numItems;m++)
                 {
-                std::string this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
-
-                for (int m = 0; m < numItems;m++)
-                    {
-                    listedfactory<renderer_base>::lf_menu_params * p = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params * > (renderermenu[m].user_data());
-                    if (p->type == this_renderer_type)
-                        { renderermenu[m].setonly(); }
-                    }
-                }   
-            if (numItems == 1) //no real choice, disable
-                {
-                renderermenu[0].deactivate();
+                listedfactory<renderer_base>::lf_menu_params * p = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params * > (renderermenu[m].user_data());
+                if (p->type == this_renderer_type)
+                    { renderermenu[m].setonly(); }
                 }
+            }   
+        if (numItems == 1) //no real choice, disable
+            {
+            renderermenu[0].deactivate();
             }
         }
+}
 
-    void viewport::rebuild_blendmode_menu ()//update checkmark for current blend mode
+void viewport::rebuild_blendmode_menu ()//update checkmark for current blend mode
+{
+    if (blendmenu_button != NULL)
         {
-        if (blendmenu_button != NULL)
+        Fl_Menu_Item * blendmodemenu=(Fl_Menu_Item *)blendmenu_button->menu();
+        
+        //blend modes are different - or not available - for other renderer types
+        //basic check for this:
+        //int this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
+        
+        for (int m=0; m < NUM_BLEND_MODES ; m++)
             {
-            Fl_Menu_Item * blendmodemenu=(Fl_Menu_Item *)blendmenu_button->menu();
-
-            //blend modes are different - or not available - for other renderer types
-            //basic check for this:
-            //int this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
-
-            for (int m=0; m < NUM_BLEND_MODES ; m++)
-                {
-                ((menu_callback_params *)(blendmodemenu[m].argument()))->rend_index=rendererIndex;
-
-                if (rendererIndex <0 || rendermanagement.renderer_supports_mode(rendererIndex,m))
-                    {blendmodemenu[m].deactivate();}
-                else
-                    {blendmodemenu[m].activate();}
-                }
-
-            if (rendererIndex >= 0)
-                {
-                int this_blend_mode=rendermanagement.get_blend_mode(rendererIndex);
-
-                blendmodemenu[this_blend_mode].setonly();
-
-                blendmenu_button->label(blend_mode_labels[this_blend_mode]);
-                }
+            ((menu_callback_params *)(blendmodemenu[m].argument()))->rend_index=rendererIndex;
+            
+            if (rendererIndex <0 || rendermanagement.renderer_supports_mode(rendererIndex,m))
+                {blendmodemenu[m].deactivate();}
+            else
+                {blendmodemenu[m].activate();}
+            }
+        
+        if (rendererIndex >= 0)
+            {
+            int this_blend_mode=rendermanagement.get_blend_mode(rendererIndex);
+            
+            blendmodemenu[this_blend_mode].setonly();
+            
+            blendmenu_button->label(blend_mode_labels[this_blend_mode]);
             }
         }
+}
