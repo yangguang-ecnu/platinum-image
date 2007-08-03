@@ -1,0 +1,17 @@
+#summary Base for point classes
+#labels ClassDescription
+= Plans =
+The inheritance is planned as follows
+ * [data_base]
+  * [point_collection] base class of multiple points, no structure
+    * [point] a single point accepts all operations (=a subclass) of points
+    * [points_seq]
+     * [points_seq_closed] loop of points
+     * [points_seq_func] parametric = returned data `const`
+    * [points_mesh] interconnected points
+
+==Details==
+The location for a [point] uses the `origin` field of data_base, which means that it shares basic location operations with data_base and the [image_base] subclasses. Other point classes either
+ # Ignore this field
+ # Use it for the first point
+ # Use it as a global location, an offset for all member points
