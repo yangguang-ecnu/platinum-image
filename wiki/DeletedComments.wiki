@@ -502,6 +502,62 @@ volumehandler_base * volumehandler3D<VOLUMETYPE>::alike (int unit)
     return new_volume;
     }*/
 
+
+// *** planned custom file format ***
+
+// An identifier might look like:
+// Version: 5
+// ...or (the parameter gives the amount of bytes to read)...
+// Volumedata: 15748
+// ...or...
+// Volumedata: "kalle.via"
+
+// removes comments (# or // -lines), reads identifier and identifies data type (either size or variable type)
+
+    void datamanager::parse_identifier(ifstream &in, int &identifierindex) // index follows the IDENTIFIERS array
+        {
+        char aline[1000];
+
+        do
+            { in.getline(aline,1000); }
+        while (aline[0]=='#' || (aline[0]=='/' && aline[1]=='/'));
+
+
+        identifierindex = -1;
+
+        for (int i=0; i < NOOFIDENTIFIERS; i++)
+            { 
+            if (strncmp(aline, IDENTIFIERS[i].name, strlen(IDENTIFIERS[i].name)) == 0) // we found the target
+                {
+                identifierindex = i; return;
+                }
+            }
+        return;
+        }
+
+
+////////
+// loads spatial info and imagedata
+//
+
+void datamanager::parse_and_load_file(char filename[])
+    {
+    ifstream in(filename);
+
+    int identindex;
+
+    while (!in.eof())
+        {
+        parse_identifier(in, identindex);
+
+        for (int param=0; param < IDENTIFIERS[identindex].noofparams; param++) // how many params to read
+            {
+
+            }
+        }
+    }
+
+
 }}}
 
 ===CMakelists.txt===
@@ -870,4 +926,3 @@ viewport.cc:
      region_start_y = (region_start_y-canvas_size_y/2.0)*zoom + frame->h()/2.0;
      region_end_y = (region_end_y-canvas_size_y/2.0)*zoom + frame->h()/2.0;*/
 }}}
-
