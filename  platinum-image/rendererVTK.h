@@ -33,6 +33,8 @@ class rendererVTK : public renderer_base
 public:
         rendererVTK();
         void draw(void);
+        
+        virtual void connect_image(int rID) {}
     };
 
 #endif

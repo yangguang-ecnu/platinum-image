@@ -58,7 +58,7 @@ int fl_menu_size (const Fl_Menu_Item * const m)
     m = NULL;
     }*/
 
-void fl_menu_userdata_delete (Fl_Menu_Item * m)
+void fl_menu_userdata_delete (const Fl_Menu_Item * m)
     {
     int size = fl_menu_size(m);
 

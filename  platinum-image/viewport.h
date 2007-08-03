@@ -33,6 +33,7 @@
 
 #include "global.h"
 
+#include <FL/Fl_Gl_Window.H>
 #include <FL/Fl_Pack.H>
 #include <FL/Fl_Menu_Button.H>
 
@@ -77,7 +78,10 @@ private:
 
     void clear_rgbpixmap();             //fill for viewport without renderer
 
+    Fl_Group *containerwidget;          //the containerwidget is the full viewport area: image + controls
     FLTKviewport *viewport_widget;      //the frame ("viewport") displaying a rendered image
+    Fl_Gl_Window * GL_widget;
+    
     Fl_Menu_Button * imagemenu_button;   
     Fl_Menu_Button * directionmenu_button;
     Fl_Menu_Button * renderermenu_button;
@@ -88,14 +92,15 @@ private:
 	// will often call somehing in images (or, maybe it should be layer's, or cursor's) front end
 	// void  move_cursor_relative(position3D offset);
 	// void  set_cursor(position3D offset);
-
-
+    
+    
     void update_image_menu();   //set rendering status for images
-                                  //from rendercombination for this viewport's renderer
+                                //from rendercombination for this viewport's renderer
     void rebuild_renderer_menu ();//update checkmark for current renderer type
+    static void cb_renderer_select (Fl_Widget * o, void * v);
     void rebuild_blendmode_menu ();//update checkmark for current blend mode
 public:
-	viewport();
+    viewport();
     virtual ~viewport();
 
 	void viewport_callback(Fl_Widget *callingwidget);                               //callback that handles events
@@ -136,6 +141,8 @@ public:
 	friend std::ostream &operator<<(std::ostream &ut, const viewport &k) { ut << "[viewport. ID= " << k.ID << " rendererID: " << k.rendererID << " rendererIndex:  " << k.rendererIndex << "] "; return ut; }
 
 	void initialize_viewport(int xpos, int ypos, int width, int height); 
+    Fl_Gl_Window * initialize_GL ();
+    void hide_GL ();
     
     int get_id() const ;
 	int get_renderer_id() const ;
