@@ -35,7 +35,7 @@ public:
     point();
     point(pointStorage::value_type);
 
-    const pointStorage::value_type get_origin() const;
+    pointStorage::value_type get_origin() const;
     void set_origin(const pointStorage::value_type);
 
     void add (pointStorage::value_type);  //overloaded; don't add, change point #1 

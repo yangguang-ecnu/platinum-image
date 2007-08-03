@@ -168,6 +168,13 @@ int userIOmanager::add_par_image(int userIO_ID, std::string new_param_name)
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
+int userIOmanager::add_par_points(int userIO_ID, std::string new_param_name)
+{
+    FLTKuserIOparameter_base * par=new FLTKuserIOpar_points (new_param_name);
+    
+    return block_from_ID(userIO_ID)->add_par(par);
+}
+
 int userIOmanager::add_par_histogram_2D(int userIO_ID, std::string new_param_name)
 {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_histogram2D (new_param_name);
@@ -182,13 +189,13 @@ int userIOmanager::add_par_message(int userIO_ID, std::string new_param_name, st
     return block_from_ID(userIO_ID)->add_par(par);
 }
 
-void userIOmanager::image_vector_has_changed()
+void userIOmanager::data_vector_has_changed()
     {
     std::list<userIO *>::iterator itr=IOblocks.begin();
 
     while (itr != IOblocks.end())
         {
-        (*itr)->image_vector_has_changed();
+        (*itr)->data_vector_has_changed();
         itr++;
         }
     }

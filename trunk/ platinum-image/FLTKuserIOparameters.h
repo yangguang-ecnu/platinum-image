@@ -84,6 +84,7 @@ struct regionofinterest;
 #define PARMENUWIDTH 75
 
 typedef int imageIDtype;
+typedef int pointIDtype;
 
 const int par_control_height=20;   //height for each parameter control
 
@@ -91,16 +92,33 @@ typedef void (userIO_callback)(int block_ID,int param_num);
 
 // *** custom widgets ***
 
-class FLTKimage_choice : public Fl_Choice  //widget for choosing images, in FLTKuserIOpar_image
+class FLTKdataitem_choice : public Fl_Choice //base class
+{
+protected:
+    FLTKdataitem_choice (int x, int y);
+    void data_change (const Fl_Menu_Item * base_menu);
+};
+
+class FLTKimage_choice : public FLTKdataitem_choice  //widget for choosing images, in FLTKuserIOpar_image
                                             //and other widgets using specific images, like histograms or points
     {
     public:
         FLTKimage_choice (int x, int y);
 
-        void image_vector_has_changed ();   //update image menu from datamanager
+        void data_vector_has_changed ();   //update image menu from datamanager
 
         imageIDtype id_value ();                   //return selected image ID
     };
+
+class FLTKpoint_choice : public FLTKdataitem_choice
+{
+public:
+    FLTKpoint_choice (int x, int y);
+    
+    void data_vector_has_changed ();   //update image menu from datamanager
+    
+    imageIDtype id_value ();                   //return selected image ID
+};
 
 class FLTK_histogram_base : public Fl_Widget        //base class for widget displaying a histogram
     {
@@ -164,7 +182,7 @@ public:
     void set_callback(userIO_callback * p_callback);
     static void par_update_callback (Fl_Widget *callingwidget, void *);
 
-    virtual void image_vector_has_changed () {}   //trigger updating of parameters depending
+    virtual void data_vector_has_changed () {}   //trigger updating of parameters depending
                                                           //on available images
     
     //here are all possible value types in any subclass
@@ -251,12 +269,27 @@ class FLTKuserIOpar_image : public FLTKuserIOparameter_base   //image selection 
     public:
         FLTKuserIOpar_image(std::string name);
 
-        void image_vector_has_changed ();
+        void data_vector_has_changed ();
 
         void par_value(imageIDtype & v);                     //image ID
 
         const std::string type_name ();
     };
+
+class FLTKuserIOpar_points : public FLTKuserIOparameter_base   //point selection (using popup menu)
+{
+protected:
+    FLTKpoint_choice * control;
+public:
+    FLTKuserIOpar_points(std::string name);
+    
+    void data_vector_has_changed ();
+    
+    void par_value(pointIDtype & v);
+    void par_value(Vector3D & v);
+    
+    const std::string type_name ();
+};
 
 class FLTKuserIOpar_histogram2D : public FLTKuserIOparameter_base 
     {
@@ -276,7 +309,7 @@ class FLTKuserIOpar_histogram2D : public FLTKuserIOparameter_base
 
         static void vol_change_callback (Fl_Widget *callingwidget, void *);       //called when images are changed in popup menus
         static void selmode_change_callback (Fl_Widget *callingwidget, void *);   //called when oval/rect button is pushed
-        void image_vector_has_changed ();
+        void data_vector_has_changed ();
         int histogram_image_ID (int n);                                          //image used for axis n in histogram
         void FLTKuserIOpar_histogram2D::highlight_ROI (regionofinterest *);       //highlight region of interest
         void set_images (int hor, int vert);                                     //set images in histogram and refresh image
@@ -298,14 +331,14 @@ class FLTKuserIOpar_message : public FLTKuserIOparameter_base                  /
 
 // *** Planned parameters ***
 
-/*class FLTKuserIOpar_point : public FLTKuserIOparameter_base    //selection of a 3D location (global coords)
+/*class FLTKuserIOpar_points : public FLTKuserIOparameter_base    //selection of a 3D location (global coords)
     //by click in a viewport
     {
     protected:
         Fl_Button * control;
     public:
-        FLTKuserIOpar_point(std::string name);
-        ~FLTKuserIOpar_point();
+        FLTKuserIOpar_points(std::string name);
+        ~FLTKuserIOpar_points();
 
        void par_value (Vector3D & v); 
     };

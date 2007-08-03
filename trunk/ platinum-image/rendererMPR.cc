@@ -221,22 +221,24 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 
         the_image_pointer = dynamic_cast<image_base *> (pairItr->pointer);
         
+        bool OKrender = the_image_pointer != NULL;
+        
+        if (blend_mode == RENDER_THRESHOLD)
+            {
+            the_image_pointer       = datamanagement.get_image (threshold->id[0]);
+            the_other_image_pointer = datamanagement.get_image (threshold->id[1]);
+            
+            OKrender = the_image_pointer != NULL && the_other_image_pointer != NULL;
+            }
+        
         //render images in first pass, points in second
-        if (the_image_pointer != NULL )
+        if (OKrender )
             { 
             
             for(int d=0; d<3; d++)
                 {data_size[d]=the_image_pointer->get_size_by_dim(d);}
             
             const float scale = rgb_min_norm / display_scale; //constant = the number of mms that should fit inside a viewport at zoom 1
-            
-            if (blend_mode == RENDER_THRESHOLD)
-                {
-                the_image_pointer       = datamanagement.get_image (threshold->id[0]);
-                the_other_image_pointer = datamanagement.get_image (threshold->id[1]);
-                }
-            /*else
-                { the_image_pointer=(image_base *)the_image_pointer; }*/
             
             // *** loop variables common to scanline and orthogonal renderer ***
             

@@ -68,7 +68,7 @@ public:
         rendercombination(int ID);  //constructor that populates
         //the renderdata array 
         //from the beginning
-        void image_vector_has_changed ();   //image has been added or removed - update renderlist
+        void data_vector_has_changed ();   //image has been added or removed - update renderlist
         //bool image_remaining(int priority);        //at priority, is there an image to render?
         //int image_ID_by_priority (int priority);
         iterator begin() const;

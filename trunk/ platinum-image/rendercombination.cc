@@ -225,7 +225,7 @@ int rendercombination::get_id()
     return id;
     }
 
-void rendercombination::image_vector_has_changed()
+void rendercombination::data_vector_has_changed()
     {
     // we cache the vector ID to speed things up - now it must be recomputed
     //intermediate solution, later a list of images to be rendered will be stored in a separate object

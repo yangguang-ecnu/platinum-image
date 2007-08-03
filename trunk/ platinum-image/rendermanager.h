@@ -61,7 +61,7 @@ class rendermanager
         int find_renderer_id (int index);
         renderer_base * get_renderer (int ID);
         void connect_data_renderer(int rendererID, int data);
-        void image_vector_has_changed();
+        void data_vector_has_changed();
         void data_has_changed (int ID);
 
         void move(int rendererIndex, float panX, float panY, float panZ=0, float scale=1);//alter rendergeometry (pan,zoom)

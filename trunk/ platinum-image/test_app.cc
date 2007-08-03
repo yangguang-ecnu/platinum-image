@@ -52,6 +52,27 @@ void add_demo_image (int userIO_ID,int par_num)
         }
     }
 
+void pointInputDemoFcn (int userIO_ID,int par_num)
+{
+    if (par_num == USERIO_CB_OK)
+        {
+        //you can get either ID of the point_collection object:
+        int theID = userIOmanagement.get_parameter<pointIDtype>(userIO_ID,0);
+        
+        //or a Vector3D - which only works for the point class, because it's the
+        //only one with just 1 value:
+        Vector3D thePoint = userIOmanagement.get_parameter<Vector3D>(userIO_ID,0);
+        
+        //if you are interested in voxel coordinates of a point, call
+        //image->world_to_voxel(const Vector3D)
+        
+        std::ostringstream numbers;
+        numbers << "Global coordinates: (" << thePoint[0] << "," << thePoint[1] << "," << thePoint[2] << ")"; 
+        
+        userIOmanagement.show_message("Point parameter value",numbers.str(),userIOmanager::block);
+        }
+}
+
 int main(int argc, char *argv[])
     {
     //start up Platinum
@@ -71,6 +92,10 @@ int main(int argc, char *argv[])
     // *** begin userIO control definitions ***
 
     int create_vol_demo_ID=userIOmanagement.add_userIO("Add demo image",add_demo_image,"Add");
+    
+    int pointInputDemoID=userIOmanagement.add_userIO("Point input demo",pointInputDemoFcn,"OK");
+    userIOmanagement.add_par_points(pointInputDemoID,"What's the point?");
+
     userIOmanagement.finish_userIO(create_vol_demo_ID);
 
     // *** end userIO control definitions ***

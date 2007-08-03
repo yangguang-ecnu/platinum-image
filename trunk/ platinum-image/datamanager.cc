@@ -66,9 +66,16 @@ int NOOFIDENTIFIERS = 2;
 //int prioritet = -1;
 
 datamanager::datamanager()
-{
-    for (unsigned int m=0; m <datamanager::IMAGEVECTORMAX;m++)
-        {raw_image_menu[m].label (NULL); }
+{    
+    image_menu = NULL;
+    rebuild_image_menu();
+    
+    objects_menu = NULL;
+    rebuild_objects_menu();
+    
+    point_menu = NULL;
+    rebuild_point_menu();
+    
     closing = false;
 }
 
@@ -548,14 +555,88 @@ void datamanager::data_has_changed (int dataID, bool recalibrate)
 
 void datamanager::data_vector_has_changed()
     {
-    rebuild_image_menu();
-    rendermanagement.image_vector_has_changed();
-    userIOmanagement.image_vector_has_changed();
+    rebuild_objects_menu();
+    rendermanagement.data_vector_has_changed();
+    userIOmanagement.data_vector_has_changed();
     }
+
+template <class OCLASS>
+Fl_Menu_Item * datamanager::object_menu ()
+{    
+    std::vector<OCLASS *> objects;
+    
+    std::vector<data_base *>::iterator itr = dataItems.begin();
+    int m=0;
+    
+    while (itr != dataItems.end())
+        {
+        OCLASS * ptr = dynamic_cast<OCLASS *>(*itr);
+        if (ptr != NULL)
+            { objects.push_back(ptr); }
+        
+        itr++;
+        }
+    
+    Fl_Menu_Item * newMenu = new Fl_Menu_Item[objects.size()+1];
+    
+    typename std::vector<OCLASS *>::iterator oitr = objects.begin();
+    
+    while (oitr != objects.end())
+        {
+        init_fl_menu_item(newMenu[m]);
+        
+        string labelstring=datamanagement.get_data_name((*oitr)->get_id());
+        char * menulabel=strdup(labelstring.c_str());
+        
+        newMenu[m].callback((Fl_Callback *)NULL,0);
+        newMenu[m].argument((long)(*oitr)->get_id());
+        
+        newMenu[m].label(menulabel);
+        
+        m++;
+        oitr++;
+        }
+    
+    //terminate menu
+    init_fl_menu_item(newMenu[m]);
+    newMenu[m].label(NULL);
+    
+    return newMenu;
+}
+
+void datamanager::rebuild_point_menu()
+{
+if (point_menu != NULL)
+    { 
+    delete point_menu; 
+    point_menu = NULL;
+    }
+    point_menu = object_menu<point_collection>();
+}
+
+void datamanager::rebuild_objects_menu()
+{
+    if (objects_menu != NULL)
+        { 
+        delete objects_menu; 
+        objects_menu = NULL;
+        }
+    objects_menu = object_menu<data_base>();
+    
+    rebuild_point_menu();
+    rebuild_image_menu();
+}
 
 void datamanager::rebuild_image_menu()
 {
-    std::vector<data_base *>::iterator itr = dataItems.begin();
+    if (image_menu != NULL)
+        { 
+        delete image_menu; 
+        image_menu = NULL;
+        }
+    image_menu = object_menu<image_base>();
+    
+    /*std::vector<data_base *>::iterator itr = dataItems.begin();
     int m=0;
     
     //delete old labels
@@ -585,12 +666,22 @@ void datamanager::rebuild_image_menu()
     }
     
     //terminate menu
-    raw_image_menu[m].label(NULL);
+    raw_image_menu[m].label(NULL);*/
 }
 
-const Fl_Menu_Item * datamanager::FLTK_image_menu_items()
+const Fl_Menu_Item * datamanager::FLTK_image_menu() const
 {
-    return raw_image_menu;
+    return image_menu;
+}
+
+const Fl_Menu_Item * datamanager::FLTK_objects_menu() const
+{
+    return objects_menu;
+}
+
+const Fl_Menu_Item * datamanager::FLTK_point_menu() const
+{
+    return point_menu;
 }
 
 // *** planned custom file format ***
