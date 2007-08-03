@@ -879,7 +879,6 @@ viewport.cc:
 }}}
 ===datawidget.cc===
 {{{
-
         // DEMO 
         /*if (prioritet == 2)
         {
@@ -925,4 +924,47 @@ viewport.cc:
      region_end_x = (region_end_x-canvas_size_x/2.0)*zoom + frame->w()/2.0;
      region_start_y = (region_start_y-canvas_size_y/2.0)*zoom + frame->h()/2.0;
      region_end_y = (region_end_y-canvas_size_y/2.0)*zoom + frame->h()/2.0;*/
+}}}
+
+===mainwindow.cc===
+{{{
+ /*char aproject[100] = "";
+    char avolume[100] = "";*/
+
+    //std::cout << "Welcome to Platinum v. " << PLATINUM_MAJOR_VER << "." << PLATINUM_MINOR_VER << std::endl;
+    
+    std::cout << "You are going Platinum, please stand by!" << std::endl;
+
+    /*const int MAXBUFFER=100;*/
+    /*
+    #define ever (;;)
+    char c;
+    for ever
+
+    {
+    char *optspec = "hp:v:"; // the options. x: = x with single argument
+    if ((c = getopt(argc,argv,optspec)) == -1) break;
+    if (strlen(optarg) >= MAXBUFFER) { cout << "Input overflow ERROR!\n"; exit(0); } switch (c)
+    {
+    case -99:// end of options list - break the while loop
+    break;
+    // options will follow
+    case 'h':
+    cout  << "Options: "  << &optspec  << endl;
+    exit(1);
+    case 'p':
+    strcpy(aproject, optarg);
+    break;
+    case 'v':
+    strcpy(avolume, optarg);
+    break;
+    }
+    }
+    */
+    ////
+    // Ladda in (eventuellt) projekt, volymsdata eller annat
+    // INTE interaktivt - filnamn som inparametrar
+    //
+    //if (avolume[0] != 0) { datamanaging.load_volume(avolume); }
+    //if (aproject[0] != 0) { datamanaging.load_project(aproject); }
 }}}
