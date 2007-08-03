@@ -21,11 +21,13 @@
 #include "image_complex.h"
 #include "image_multi.hxx"
 
+#ifdef _DEBUG
 template <int IMAGEDIM>
 void image_complex<IMAGEDIM>::silly_test ()
     {
 	cout<<"* This is a silly test , JK"<<endl;
 	}
+#endif
 
 /*template <int IMAGEDIM>
 float image_complex<IMAGEDIM>::get_max_float()

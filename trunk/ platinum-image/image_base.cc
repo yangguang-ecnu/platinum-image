@@ -45,7 +45,6 @@ image_base::image_base():data_base()
 
 image_base::image_base(image_base* const s):data_base(s)
     {
-//cout << "Start image_base constructor"<<endl;//PRDEBUG
     set_parameters ();
     //setting copy name at the root would be neat,
     //but is not possible since the widget isn't
@@ -55,7 +54,6 @@ image_base::image_base(image_base* const s):data_base(s)
     orientation = s->get_orientation();
 
     name ("Copy of " + s->name());
-//cout << "End image_base constructor"<<endl;//PRDEBUG
     }
 
 void image_base::set_parameters ()    
@@ -267,9 +265,7 @@ image_base *vtkloader::read()
                         ((image_integer<short>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
                         break;
                     default:
-#ifdef _DEBUG
-                        cout << "Load scalar VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
-#endif
+                        pt_error::error("Load scalar VTK: unsupported component type: " + vtkIO->GetComponentTypeAsString (componentType), pt_error::warning)
 						;
                     }
                 break;
@@ -297,9 +293,7 @@ image_base *vtkloader::read()
                 }*/
                 break;
             default:
-#ifdef _DEBUG
-                std::cout << "image_base::load(...): unsupported pixel type: " << vtkIO->GetPixelTypeAsString(pixelType) << endl;
-#endif
+                pt_error::error("image_base::load(...): unsupported pixel type: " + vtkIO->GetPixelTypeAsString(pixelType), pt_error::warning);
 				;
 
             }
@@ -341,7 +335,7 @@ image_base *dicomloader::read()
             std::string labelId;
             if( itk::GDCMImageIO::GetLabelFromTag( tagkey, labelId ) )
                 {
-                std::cout << labelId << " (" << tagkey << "): ";
+                //std::cout << labelId << " (" << tagkey << "): ";
                 if( dicomIO->GetValueFromTag(tagkey, seriesIdentifier) )
                     {
                     //remove one garbage char at end
@@ -356,9 +350,8 @@ image_base *dicomloader::read()
                         {loaded_series.push_back(seriesIdentifier);}
                     else
                         {already_loaded = true; }
-#ifdef _DEBUG
-                    std::cout << seriesIdentifier << endl;
-#endif      
+                    //std::cout << seriesIdentifier << endl;
+
                     //get voxel type
                     itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
                     
@@ -388,18 +381,14 @@ image_base *dicomloader::read()
                                         ((image_integer<short>*)result)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
                                         break;
                                     default:
-#ifdef _DEBUG
-                                        cout << "Unsupported component type: " << dicomIO->GetComponentTypeAsString (componentType) << endl;
-#endif
+                                        pt_error::error("Unsupported component type: " + dicomIO->GetComponentTypeAsString (componentType), pt_error::warning);
 										;
                                     }
                                 break;
                             case itk::ImageIOBase::COMPLEX:
                                 break;
                             default:
-#ifdef _DEBUG
-                                std::cout << "image_base::load(...): unsupported pixel type: " << dicomIO->GetPixelTypeAsString(pixelType) << endl;
-#endif
+                                pt_error::error("image_base::load(...): unsupported pixel type: " + dicomIO->GetPixelTypeAsString(pixelType),pt_error::warning);
 								;
                                 
                             }
@@ -413,9 +402,8 @@ image_base *dicomloader::read()
                 {
                 //no series identifier, OK if the intention is to just load 1 frame
                 //(DICOM files can only contain 1 frame each)
-#ifdef _DEBUG
-                std::cout << "(No Value Found in File)";
-#endif
+
+                pt_error::error("(No Value Found in File)",pt_error::notice);
                 }
 
             files->clear(); //! if at least one file can be read, the rest are assumed to be part of the same series (or otherwise superfluos)

@@ -52,7 +52,7 @@ viewmanager viewmanagement;
 
 void viewmanager::listviewports()
 {
-std::cout << "Antal viewports: " << viewports.size() << std::endl;
+std::cout << "# of viewports: " << viewports.size() << std::endl;
 for (unsigned int i=0; i < viewports.size(); i++) { std::cout << viewports[i] << std::endl; } 
 }
 
@@ -322,10 +322,8 @@ void viewmanager::connect_views_viewports()
     
     for (int vv=0; vv < MAXVIRTUALVIEWS; vv++) // same pattern for each virtual view
         {
-        std::cout << "horiz " << noofhorizontaltiles[vv] << std::endl;
         for (int h=0; h < noofhorizontaltiles[vv] ; h++) // no use to waste views outside the visible space
             {
-            std::cout << "vert " <<noofverticaltiles[vv][h] << std::endl;
             for (int v=0; v < noofverticaltiles[vv][h]; v++) // no use to waste views outside the visible space
                 {
                 int nyvp = find_viewport_not_in_view();

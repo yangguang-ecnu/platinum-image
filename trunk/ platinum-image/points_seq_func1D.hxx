@@ -93,7 +93,7 @@ template <class KEY_TYPE, class VALUE_TYPE>
 void points_seq_func1D<KEY_TYPE, VALUE_TYPE>::set_data(KEY_TYPE this_key, KEY_TYPE new_k, VALUE_TYPE new_v)
 {
 #ifdef _DEBUG
-    std::cout<<"set_data"<<this_key<<"\t"<<new_k<<"\t"<<new_v<<std::endl;
+    //std::cout<<"set_data"<<this_key<<"\t"<<new_k<<"\t"<<new_v<<std::endl;
 #endif
     /*	
 	//make sure values dont go outside given boudaries...
@@ -185,7 +185,7 @@ template <class KEY_TYPE, class VALUE_TYPE>
 float* points_seq_func1D<KEY_TYPE, VALUE_TYPE>::get_spline_derivatives()
 {
 #ifdef _DEBUG
-    std::cout<<"get_spline_derivatives..."<<std::endl;
+    //std::cout<<"get_spline_derivatives..."<<std::endl;
 #endif
 
 	float *x = new float[size()+2];

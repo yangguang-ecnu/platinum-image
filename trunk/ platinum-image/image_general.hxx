@@ -161,9 +161,7 @@ image_base * image_general<ELEMTYPE, IMAGEDIM>::alike (imageDataType unit)
         case VOLDATA_DOUBLE:    new_image = new image_scalar<double, IMAGEDIM >(this,false);             break;
         default :
             {
-#ifdef _DEBUG
-                std::cout << "image_general::alike: attempting to create alike as unsupported data type (" << unit << ")" << std::endl;
-#endif
+                pt_error::error("image_general::alike: attempting to create alike as unsupported data type", pt_error::serious);
             }
             break;
         }
@@ -229,14 +227,12 @@ template <class ELEMTYPE, int IMAGEDIM>
 template<class SOURCETYPE>
 image_general<ELEMTYPE, IMAGEDIM>::image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData) : image_storage<ELEMTYPE > (old_image) //copy constructor
     {
-//cout << "Start image_general constructor"<<endl;//PRDEBUG
     initialize_dataset(old_image->get_size_by_dim(0), old_image->get_size_by_dim(1), old_image->get_size_by_dim(2), NULL);
 
     if (copyData)
         { copy_data (old_image,this); }
 
     set_parameters(old_image);
-//cout << "End image_general constructor"<<endl;//PRDEBUG
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -625,7 +621,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_mean_3D_in
 			}
 		}
 	ELEMTYPE res = sum/26.0;
-	std::cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<std::endl;
+	//std::cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<std::endl;
 
     return res;
     }
@@ -681,7 +677,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weigh
 		}
 	}
 	res = sum/(w1 + 6.0*w2 + 12*w3 + 8*w4);
-	std::cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<std::endl;
+	//std::cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<std::endl;
 
     return res;
     }
@@ -819,7 +815,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(int x, int y, int z, int 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::testpattern()
     {
-    std::cout << "Testpattern: " << datasize[2] << " " << datasize[1] << " " << datasize[0] << std::endl;
     //gradient test pattern
     for (int z=0; z < datasize[2]; z++)
         for (int y=0; y < datasize[1]; y++)
@@ -836,7 +831,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 template<class TARGETTYPE> 
 void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image)
 {
-	std::cout<<"image_general::resample_into_this_image_NN"<<std::endl;
+	//std::cout<<"image_general::resample_into_this_image_NN"<<std::endl;
 	this->print_geometry();
 	new_image->print_geometry();
 
@@ -960,7 +955,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_geometry(float ox,float oy,float oz,
 template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::read_geometry_from_dicom_file(std::string dcm_file)
 {
-	std::cout<<"read_geometry_from_dicom_file"<<std::endl;
+	//std::cout<<"read_geometry_from_dicom_file"<<std::endl;
 	bool b1 = this->read_origin_from_dicom_file(dcm_file);
 	bool b2 = this->read_orientation_from_dicom_file(dcm_file);
 	bool b3 = this->read_voxel_size_from_dicom_file(dcm_file);

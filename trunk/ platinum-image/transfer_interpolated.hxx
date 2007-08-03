@@ -127,7 +127,7 @@ int transfer_interpolated<ELEMTYPE >::transferchart::handle (int event)
 		return 1;
 
     case FL_DRAG:
-        std::cout<<"FL_DRAG dx="<<Fl::event_dx()<<" dy="<<Fl::event_dy()<<std::endl;
+        //std::cout<<"FL_DRAG dx="<<Fl::event_dx()<<" dy="<<Fl::event_dy()<<std::endl;
 
 		if(Fl::event_x()>=x() && Fl::event_x()<=x()+w() && Fl::event_y()>=y() && Fl::event_y()<=y()+h())
 		{

@@ -91,9 +91,6 @@ void viewport::clear_rgbpixmap()
 viewport::viewport()
     {
     ID = ++maxviewportID;
-#ifdef _DEBUG
-    cout << "viewport constructor" << ID << endl;
-#endif
 
     viewport_widget=NULL;
     imagemenu_button=NULL;
@@ -133,10 +130,6 @@ viewport::viewport()
 
 viewport::~viewport()
     {
-#ifdef _DEBUG
-    cout << "viewport destructor" << ID << endl;
-#endif
-
     if (busyTool != NULL)
         {delete busyTool;}
 
@@ -591,7 +584,6 @@ void viewport::update_viewsize(int des_width, int des_height)
         else
             {
             rgbpixmap=NULL;
-            cout << "RGBpixmap set to NULL "  << endl; 
             }
         }
     

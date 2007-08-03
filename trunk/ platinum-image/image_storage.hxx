@@ -107,9 +107,7 @@ template <class ELEMTYPE >
 template<class SOURCETYPE>
 image_storage<ELEMTYPE >::image_storage(image_storage<SOURCETYPE> * const s):image_base (s)
     {
-//cout << "Start image_storage constructor"<<endl;//PRDEBUG
     set_parameters();
-//cout << "End image_storage constructor"<<endl;//PRDEBUG
     }
 
 template <class ELEMTYPE >

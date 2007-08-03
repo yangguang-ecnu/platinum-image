@@ -105,7 +105,7 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_2nd
 template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im)
 {	
-	cout<<"image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl_speed..."<<endl;
+	//cout<<"image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl_speed..."<<endl;
 	Vector3D rvoxpos;	//integer voxel location in reference image
 	Matrix3D rdir2;		//precalculated reference direction data
 	//		Vector3D phys;		//physical location in target image
@@ -126,7 +126,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scala
 	float dz = s[2];
 	float norm_dxdydz = sqrt(dx*dx + dy*dy + dz*dz);
 	//		double val=0;
-	cout<<"nx/ny/nz/ xstep/ystep/zstep"<<nx<<"/"<<ny<<"/"<<nz<<"/ "<<xstep<<"/"<<ystep<<"/"<<zstep<<endl;
+	//cout<<"nx/ny/nz/ xstep/ystep/zstep"<<nx<<"/"<<ny<<"/"<<nz<<"/ "<<xstep<<"/"<<ystep<<"/"<<zstep<<endl;
 
 	//pre calculations for speedup...
 	rdir2 = this->orientation*this->get_voxel_resize();
@@ -143,7 +143,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scala
 	{
 //		sprintf(buffer, "%f", k );              
 //		userIOmanagement.status_area->message( "Trilinear interpolation: " + string(buffer) + "/" + string(buffer2) );
-		cout<<".";
+		//cout<<".";
 		for (int j=0; j < this->datasize[1]; j++)
 		{
 			for (int i=0; i < this->datasize[0]; i++)
@@ -214,7 +214,7 @@ double image_scalar<ELEMTYPE, IMAGEDIM >::tricubic_eval(double a[64], double x, 
 template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D(image_scalar<ELEMTYPE, IMAGEDIM > *src_im)
 {	
-	cout<<"image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D..."<<endl;
+	//cout<<"image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D..."<<endl;
 	Vector3D rvoxpos;	//integer voxel location in reference image
 	Matrix3D rdir2;		//precalculated reference direction data
 	Matrix3D sdir2;
@@ -273,7 +273,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D(image_scalar<ELE
 
 	for (int k=0; k < this->datasize[2]; k++)
 	{
-		cout<<".";
+		//cout<<".";
 		for (int j=0; j < this->datasize[1]; j++)
 		{
 			for (int i=0; i < this->datasize[0]; i++)

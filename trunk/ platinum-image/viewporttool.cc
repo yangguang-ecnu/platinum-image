@@ -399,7 +399,7 @@ void cursor_tool::cb_make(Fl_Widget*, void* p)
         {
         int renderer = selectionOwner->myPort->get_renderer_id();
         datamanagement.add(selection);
-        std::cout << "selection->ID " << selection->get_id() << std::endl;
+
         rendermanagement.connect_data_renderer(renderer,selection->get_id());
         }
     

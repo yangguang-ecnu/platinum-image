@@ -144,7 +144,6 @@ int rendermanager::get_geometry_id(int rendererIndex)
 
 void rendermanager::listrenderers()
     {
-    cout << "Antal renderare: " << renderers.size() << endl;
     for (unsigned int i=0; i < renderers.size(); i++) { std::cout << *renderers[i] << std::endl; } 
     }
 
@@ -159,7 +158,7 @@ int rendermanager::create_renderer(RENDERER_TYPES rendertype)
             break;
         default:
             arenderer=NULL;
-            cout << "Unknown renderer. Not initialized." << endl; break;
+            pt_error::error("Unknown renderer. Not initialized.",pt_error::fatal); break;
         }
     renderers.push_back(arenderer);
 

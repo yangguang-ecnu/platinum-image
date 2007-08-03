@@ -98,9 +98,6 @@ void datamanager::removedata_callback(Fl_Widget *callingwidget, void *thisdatama
 void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdatamanager)
     {
     datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
-#ifdef _DEBUG
-    cout << "Save VTK image ID=" << the_datawidget->get_data_id() << endl;
-#endif
 
     int image_index=((datamanager*)thisdatamanager)->find_data_index(the_datawidget->get_data_id());
 
@@ -395,9 +392,8 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
 
     if ( chooser.value() == NULL )
         {
-#ifdef _DEBUG
-        cout << "Cancel" << endl;
-#endif
+        pt_error::error("Image load dialog cancel",pt_error::notice);
+
         return;
         }
     //Load user's choice
@@ -413,9 +409,6 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
 
     for ( int t=1; t<=chooser.count(); t++ )
         {
-#ifdef _DEBUG
-        std::cout <<  chooser.value(t) << endl;
-#endif
         files.push_back(std::string(chooser.value(t)));
         }
 
@@ -436,7 +429,7 @@ int datamanager::create_empty_image(int x, int y, int z, int unit) // argument m
         case VOLDATA_SHORT:     animage=new image_integer<short>(); break;
         case VOLDATA_USHORT:    animage=new image_integer<unsigned short>(); break;
         case VOLDATA_DOUBLE:    animage=new image_scalar<double>(); break;
-        default: cout << "Unsupported data type\n" << endl;
+        default: pt_error::error("Unsupported data type",pt_error::serious);
         }
 
     animage->initialize_dataset(x,y,z);
@@ -459,7 +452,6 @@ int datamanager::create_empty_image(image_base * blueprint, imageDataType unit)
 
     return animage->get_id();
     }
-
 
 void datamanager::listimages()
     {
