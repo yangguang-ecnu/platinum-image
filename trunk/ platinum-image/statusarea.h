@@ -48,7 +48,7 @@ private:
     // end of FLUID output
 public:
     void message (std::string);
-    void progress (int step, std::string message = "", int num_steps = 0);
+    void progress (int step = 0, std::string message = "", int num_steps = 0);
     template <class FLGROUPTYPE>
     FLGROUPTYPE * add_pane (std::string); //!get controls pane which is also added to the statusarea's map
     void switch_pane (std::string key);

@@ -94,7 +94,7 @@ private:
 	// void  set_cursor(position3D offset);
     
     
-    void update_image_menu();   //set rendering status for images
+    void update_objects_menu();   //set rendering status for images
                                 //from rendercombination for this viewport's renderer
     void rebuild_renderer_menu ();//update checkmark for current renderer type
     static void cb_renderer_select (Fl_Widget * o, void * v);

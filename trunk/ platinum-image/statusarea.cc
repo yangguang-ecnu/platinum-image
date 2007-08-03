@@ -72,7 +72,7 @@ statusarea::statusarea(int X, int Y, int W, int H, const char *L)
         resizable(o);
     }            
     { Fl_Progress* o = progress_ = new Fl_Progress(W-progress_w, 0, progress_w, 24);
-        o->box(FL_NO_BOX);
+        o->box(FL_DOWN_BOX);
         o->color((Fl_Color)55);
         o->selection_color((Fl_Color)3);
         o->labeltype(FL_NO_LABEL);
@@ -99,18 +99,31 @@ void statusarea::message (const std::string m)
 void statusarea::progress (int step, std::string m, int num_steps)
 {
     message (m);
-    
+        
     if (num_steps > 0)
         {
         progress_->maximum (num_steps);
         }
     
+    if (step > 0)
+        {
+        progress_->activate();
+        
+        std::cout << step << "/" << progress_->maximum() << ": " << m << std::endl;
+        }
+    else
+        {
+        progress_->maximum(0);
+        progress_->deactivate();
+        }
+
     if (pt_error::error_if_true(step > progress_->maximum(),"Setting progress step higher than current # of steps",pt_error::warning))
         {
         progress_->maximum (step+1);
         }
     
     progress_->value(step);
+    progress_->parent()->redraw();
     
     Fl::check(); //update interface
 }

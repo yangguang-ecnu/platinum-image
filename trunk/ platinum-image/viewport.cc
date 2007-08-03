@@ -222,7 +222,7 @@ void viewport::refresh()
                 {utool->attach (this,rendermanagement.get_renderer(rendererID));}
 #endif
 
-            update_image_menu();
+            update_objects_menu();
             rebuild_renderer_menu();
             rebuild_blendmode_menu();
 
@@ -509,7 +509,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
                 for (int d=0; d < 3 ; d++)
                     {reg.size[d]=fabs(reg.size[d]);}
 
-                //sista steget; skicka det nya omrÃ‚det till histogrammet
+                //sista steget; skicka det nya omrÂdet till histogrammet
                 (*itr)->highlight_ROI (&reg);
 
                 itr++;
@@ -718,7 +718,7 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     
     //attach MPR renderer - so that all viewports can be populated for additional views
     viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR));
-}
+    }
 
 
 void viewport::initialize_GL ()
@@ -741,38 +741,43 @@ void viewport::hide_GL ()
         }
 }
 
-void viewport::update_image_menu()
+void viewport::update_objects_menu()
 {
     unsigned int m=0;
     
     const Fl_Menu_Item * cur_menu, *base_menu;
     
-    Fl_Menu_Item new_menu[datamanager::IMAGEVECTORMAX+1];
-    
-    base_menu=datamanagement.FLTK_image_menu_items();
+    base_menu=datamanagement.FLTK_objects_menu();
     cur_menu=imagemenu_button->menu();
+    
+    int baseMenuSize = fl_menu_size(base_menu);
+    
+    Fl_Menu_Item new_menu[baseMenuSize+1];
     
     if (cur_menu!=NULL)
         {
-        //delete old callback data
-        for(unsigned int i=0;cur_menu[i].label()!=NULL && i < datamanager::IMAGEVECTORMAX;i++)
-            {
+        //delete old callback data (menu is deleted by fl_menu::copy)
+        
+        fl_menu_userdata_delete(cur_menu);
+        /*for(unsigned int i=0;cur_menu[i].label()!=NULL && i < datamanager::IMAGEVECTORMAX;i++)
+        {
             delete ((menu_callback_params*)cur_menu[i].user_data());
-            }
+        }*/
         }
     
-    if (rendererIndex >= 0)
+    if (base_menu != NULL && rendererIndex >= 0)
         {
         do 
-            {            
+            {       
+                const char * dummy = base_menu[m].label();
+                memcpy (&new_menu[m],&base_menu[m],sizeof(Fl_Menu_Item));
+
                 if (new_menu[m].label()!=NULL)
                     {
                     //long v=base_menu[m].argument();
                     //attach menu_callback_params and
                     //set checkmarks according to displayed images
-                    
-                    memcpy (&new_menu[m],&base_menu[m],sizeof(Fl_Menu_Item));
-                    
+                                        
                     menu_callback_params * p= new menu_callback_params;
                     p->rend_index=rendererIndex;
                     p->vol_id=base_menu[m].argument();  //image ID is stored in user data initially
@@ -787,10 +792,12 @@ void viewport::update_image_menu()
                         new_menu[m].set();
                         }
                     }
-            } while (new_menu[m++].label() !=NULL && m < datamanager::IMAGEVECTORMAX);
+            } while (new_menu[m++].label() !=NULL && m <= baseMenuSize);
         
         imagemenu_button->copy(new_menu);
         }
+    else
+        { imagemenu_button->menu(NULL); }
 }
 
     void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )

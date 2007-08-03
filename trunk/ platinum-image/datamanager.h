@@ -63,10 +63,10 @@ class datamanager
         horizresizeablescroll *data_widget_box;  //widget that lists the datawidgets.
                                                  //Has to be available for adding and removing entries
 
-        Fl_Menu_Item raw_image_menu[IMAGEVECTORMAX];   //menu items for loaded images,
-                                                    //kept updated but without checkmarks
-
-        void rebuild_image_menu();
+        Fl_Menu_Item * image_menu,* objects_menu,* point_menu;
+        template <class OCLASS>
+            Fl_Menu_Item * object_menu ();
+        
         void data_vector_has_changed();
 
     public:
@@ -95,6 +95,11 @@ class datamanager
         
         std::string get_data_name(int ID);
         void set_image_name(int ID,std::string n);
+        
+        const Fl_Menu_Item * FLTK_image_menu() const;
+        const Fl_Menu_Item * FLTK_objects_menu() const;
+        const Fl_Menu_Item * FLTK_point_menu() const;
+        
         static void loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager);
         static void dcm_import_callback(Fl_Widget *callingwidget, void *thisdatamanager);
 		
@@ -117,6 +122,10 @@ class datamanager
         //recalibrate determines whether max values etc. are refreshed
         // - doing this may distort the display of changes to the image
         
+        void rebuild_point_menu();
+        void rebuild_objects_menu();
+        void rebuild_image_menu();
+        
         void loadvector_callback();
         int create_empty_image(int x, int y, int z, int unit);      //creates empty image of given size
                                                                     //and fills it with testpattern()
@@ -132,8 +141,6 @@ class datamanager
         
         void parse_and_load_file(char filename[]);
         void parse_identifier(std::ifstream &in, int &identifierindex);
-
-        const Fl_Menu_Item * FLTK_image_menu_items();
     };
 
 #endif
