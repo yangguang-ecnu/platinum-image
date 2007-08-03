@@ -103,9 +103,21 @@ Vector3D rendererMPR::view_to_voxel(int vx, int vy,int sx,int sy,int imageID) co
     //return Vector3D();
 }
 
-int rendererMPR::renderer_type()
+bool rendererMPR::supports_mode (int m)
 {
-    return RENDERER_MPR;
+    switch (m)
+        {
+        case BLEND_OVERWRITE:
+        case BLEND_MAX:
+        case BLEND_MIN:
+        case BLEND_AVG:
+        case BLEND_TINT:
+        case RENDER_THRESHOLD:
+            return true;
+            break;
+        default:
+            return false;
+        }
 }
 
 void rendererMPR::render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID)

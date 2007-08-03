@@ -50,7 +50,8 @@ class rendermanager
         std::vector<renderer_base*> renderers;
         
     public:
-        rendermanager::~rendermanager();
+        rendermanager ();
+        ~rendermanager();
         
         void listrenderers();
         int create_renderer(RENDERER_TYPES rendertype);
@@ -71,8 +72,12 @@ class rendermanager
         void toggle_image (int rendererIndex, int imageID);   //turn image on or off in a combination,
                                                                 //triggered by menu selection
 
-        int get_renderer_type(int rendererIndex);
+        //int get_renderer_type(int rendererIndex);
         int get_blend_mode (int rendererIndex);
+        bool renderer_supports_mode(int rendererIndex,int m);
+        
+        factoryIdType get_renderer_type (int ID);
+        
         int get_combination_id(int rendererIndex);              //get id of combination object associated with
                                                                 //renderer rendererIndex
 

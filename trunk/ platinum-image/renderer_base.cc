@@ -22,13 +22,12 @@
 int renderer_base::maxrendererID = 0;
 const float renderer_base::display_scale = 25;
 
+listedfactory<renderer_base> renderer_base::renderer_factory;
 
 renderer_base::renderer_base()
     {
     maxrendererID++;
     identitet=maxrendererID;
-
-    std::cout << "renderer_base-kontruktÃ¶r" << std::endl;
 
     imagestorender=NULL;
     imagestorender_id=0;

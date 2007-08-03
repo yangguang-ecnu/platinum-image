@@ -40,7 +40,7 @@ using namespace std;
 int viewport::maxviewportID = 0;
 bool viewport::renderermenu_built=false;
 
-static Fl_Menu_Item renderermenu_global[NUM_RENDERER_TYPES_PLUS_END];   //this one should be protected too
+//static Fl_Menu_Item renderermenu_global[NUM_RENDERER_TYPES_PLUS_END];   //this one should be protected too
 
 enum preset_direction {AXIAL, CORONAL, SAGITTAL,AXIAL_NEG, CORONAL_NEG, SAGITTAL_NEG};
 
@@ -109,7 +109,7 @@ viewport::viewport()
     pixMapSize[0] = 0;
     pixMapSize[1] = 0;
 
-    if (!renderermenu_built)
+    /*if (!renderermenu_built)
         {
         //static renderer menu not setup yet, build it once now
 
@@ -128,6 +128,7 @@ viewport::viewport()
 
         renderermenu_built=true;
         }
+    */
     }
 
 viewport::~viewport()
@@ -141,6 +142,9 @@ viewport::~viewport()
 
     if (rgbpixmap != NULL)
         {delete[] rgbpixmap; }
+    
+    if (renderermenu_button != NULL)
+        { fl_menu_userdata_delete (renderermenu_button->menu()); }
     }
 
 void viewport::connect_renderer(int rID)
@@ -505,7 +509,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
                 for (int d=0; d < 3 ; d++)
                     {reg.size[d]=fabs(reg.size[d]);}
 
-                //sista steget; skicka det nya området till histogrammet
+                //sista steget; skicka det nya omrÃ‚det till histogrammet
                 (*itr)->highlight_ROI (&reg);
 
                 itr++;
@@ -554,6 +558,17 @@ int viewport::get_renderer_id () const
 const int * viewport::pixmap_size () const
 {
     return pixMapSize;
+}
+
+void viewport::cb_renderer_select (Fl_Widget * o, void * v)
+{
+    listedfactory<renderer_base>::lf_menu_params * par = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params *>(v);
+    const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
+    
+    /*par->receiver; //the viewport
+    par->Create(); //the new renderer*/
+    
+    const_cast<Fl_Menu_Item *>(item)->setonly();
 }
 
 void viewport::update_viewsize(int des_width, int des_height)
@@ -606,8 +621,6 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     
     update_viewsize(width, drawheight);
     
-    //the containerwidget is the full viewport area: image + controls
-    Fl_Group *containerwidget;
     containerwidget = new Fl_Group(xpos,ypos,width,height);
     
     ////buttons controlling view & rendering
@@ -618,7 +631,8 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     imagemenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Objects");
     
     renderermenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Renderer");
-    renderermenu_button->copy(renderermenu_global);
+    //renderermenu_button->copy(renderermenu_global);
+    renderermenu_button->copy(renderer_base::renderer_factory.menu(cb_renderer_select,(void*)this));
     renderermenu_button->user_data(NULL);
     
     //direction menu is constant for each viewport
@@ -704,6 +718,25 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     
     //attach MPR renderer - so that all viewports can be populated for additional views
     viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR));
+}
+
+Fl_Gl_Window * viewport::initialize_GL ()
+{
+    Fl_Group::current(containerwidget);
+    
+    GL_widget = new Fl_Gl_Window(viewport_widget->x(),viewport_widget->y(),viewport_widget->w(),viewport_widget->h());
+    viewport_widget->hide();
+    
+    containerwidget->end();
+}
+
+void viewport::hide_GL ()
+{
+    if (pt_error::error_if_null(GL_widget,"Attempting to hide GL without having initialized first",pt_error::warning) != NULL)
+        { 
+        GL_widget->hide();
+        viewport_widget->show();
+        }
 }
 
 void viewport::update_image_menu()
@@ -844,19 +877,21 @@ void viewport::update_image_menu()
 
         if (renderermenu_button != NULL)
             {
-            Fl_Menu_Item * renderermenu=(Fl_Menu_Item *)renderermenu_button->menu();
+             Fl_Menu_Item * renderermenu=(Fl_Menu_Item *)renderermenu_button->menu();
             //Fl_Menu_Item *m = (Fl_Menu_Item*)&(menubar->menu()[t]);
 
             if (rendererIndex >= 0)
                 {
-                int this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
+                std::string this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
 
-                renderermenu[this_renderer_type].setonly();
-                }
-
-            //choice doesn't do anything right now, so menu should be disabled
-            for (int m=0; m < NUM_RENDERER_TYPES ; m++)
-                {(renderermenu[m]).deactivate();}
+                int numItems = fl_menu_size (renderermenu);
+                for (int m = 0; m < numItems;m++)
+                    {
+                    listedfactory<renderer_base>::lf_menu_params * p = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params * > (renderermenu[m].user_data());
+                    if (p->type == this_renderer_type)
+                        { renderermenu[m].setonly(); }
+                    }
+                }             
             }
         }
 
@@ -868,13 +903,13 @@ void viewport::update_image_menu()
 
             //blend modes are different - or not available - for other renderer types
             //basic check for this:
-            int this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
+            //int this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
 
             for (int m=0; m < NUM_BLEND_MODES ; m++)
                 {
                 ((menu_callback_params *)(blendmodemenu[m].argument()))->rend_index=rendererIndex;
 
-                if (rendererIndex <0 || this_renderer_type != RENDERER_MPR)
+                if (rendererIndex <0 || rendermanagement.renderer_supports_mode(rendererIndex,m))
                     {blendmodemenu[m].deactivate();}
                 else
                     {blendmodemenu[m].activate();}

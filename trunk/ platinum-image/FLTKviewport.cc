@@ -54,8 +54,6 @@ string eventnames[] =
 
 FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
     {
-    cout << "FLTKviewport: " << X << " " << Y << " " << W << " " << H << endl;
-    
     needs_rerendering();
     
     callback_action=CB_ACTION_NONE;
@@ -68,7 +66,6 @@ FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
     //the thresholding overlay will be created when needed
     thresholder=NULL;
 #endif
-
     }
 
 FLTKviewport::~FLTKviewport()

@@ -23,6 +23,7 @@
 
 #include "rendermanager.h"
 #include "rendererMPR.h"
+#include "rendererMIP.h"
 #include "viewmanager.h"
 
 rendermanager rendermanagement;
@@ -34,6 +35,12 @@ using namespace std;
     {
     renderers[rendererIndex]->move_view( undefinedVariable,panX, panY, panZ, scale);
     }*/
+
+rendermanager::rendermanager ()
+{
+    renderer_base::renderer_factory.Register<rendererMPR>();
+    renderer_base::renderer_factory.Register<rendererMIP>();
+}
 
 rendermanager::~rendermanager()
 {
@@ -116,6 +123,15 @@ vector<int> rendermanager::combinations_from_data (int dataID)
     return found_combinations;
     }
 
+factoryIdType rendermanager::get_renderer_type (int ID)
+{
+    renderer_base * r = get_renderer(ID);
+    if (r != NULL)
+        {return r->find_typekey();}
+    
+    return "";
+}
+
 int rendermanager::get_combination_id(int rendererIndex)
     {
     return renderers[rendererIndex]->imagestorender->get_id();
@@ -197,10 +213,15 @@ int rendermanager::renderer_empty (int rendererID)
     return -1;
     }
 
-int rendermanager::get_renderer_type(int rendererIndex)
+/*int rendermanager::get_renderer_type(int rendererIndex)
     {
     return renderers[rendererIndex]->renderer_type();
-    }
+    }*/
+
+bool rendermanager::renderer_supports_mode(int rendererIndex,int m)
+{
+    renderers[rendererIndex]->supports_mode (m);
+}
 
 std::map<std::string,float> rendermanager::get_values (int index, int px, int py,int sx, int sy)
     {

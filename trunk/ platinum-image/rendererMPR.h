@@ -57,6 +57,14 @@ class rendererMPR : public renderer_base
 
         virtual Vector3D view_to_voxel(int vx, int vy,int sx,int sy,int imageID = -1) const;
         virtual Vector3D view_to_world(int vx, int vy,int sx,int sy) const;
+        
+        virtual bool supports_mode (int m);
+        
+        static const std::string typekey ()
+            {return "MPR renderer";}
+        
+        virtual std::string find_typekey() const
+            {return typekey();}
         };
 
 #endif

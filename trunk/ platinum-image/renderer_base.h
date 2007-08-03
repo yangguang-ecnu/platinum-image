@@ -46,6 +46,8 @@ enum RENDERER_TYPES { RENDERER_MPR=0, NUM_RENDERER_TYPES, NUM_RENDERER_TYPES_PLU
 //name strings for renderer types
 const std::string renderer_labels[] = {"MPR renderer"};
 
+#include "listedfactory.h"
+
 class renderer_base
 {
 public:
@@ -63,6 +65,8 @@ protected:
 public:
         renderer_base();
     virtual ~renderer_base() {}
+    
+    static listedfactory<renderer_base> renderer_factory;
     
     // renderer_base(const renderer_base &k) { *this=k; ::renderer_base(); }
     
@@ -96,8 +100,10 @@ public:
     
 #pragma mark *** rendering & data interaction ***
     
-    virtual void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy) = 0;
-    virtual void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold) = 0;
+    virtual void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
+        {pt_error::error("Calling undefined render_position(...)",pt_error::warning);}
+    
+    virtual void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold) {pt_error::error("Calling undefined render_threshold(...)",pt_error::warning);}
     
     //get values from current view, pixel coordinates
     virtual std::map<std::string,float> get_values_view(int vx, int vy,int sx,int sy) const;    
@@ -108,8 +114,9 @@ public:
     //convert view coordinates to voxels, virtual since the result depends on what's visible,
     //which in turn depends on how it's rendered
     virtual Vector3D view_to_voxel(int vx, int vy, int sx, int sy,int imageID = -1) const    
-        = 0;
-    virtual Vector3D view_to_world(int vx, int vy,int sx,int sy) const = 0;
+        {pt_error::error("Calling undefined view_to_voxel(...)",pt_error::warning);}
+    virtual Vector3D view_to_world(int vx, int vy,int sx,int sy) const 
+        {pt_error::error("Calling undefined view_to_world(...)",pt_error::warning);}
     
     //result is deterministic regardless of what's visible, no virtual:
     std::vector<int> world_to_view (int view_size_x,int view_size_y,const Vector3D world_pos) const;
@@ -132,7 +139,10 @@ public:
     int get_id()
         { return identitet; }
     
-    virtual int renderer_type() = 0;
+    virtual std::string find_typekey() const = 0;
+    
+    virtual bool supports_mode (int m)
+        {return false;}
     
     virtual void connect_image(int rID)
         = 0;

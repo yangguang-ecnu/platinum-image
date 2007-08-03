@@ -27,6 +27,9 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#ifndef __listedfactory__
+#define __listedfactory__
+
 #include <FL/Fl_Menu.h>
 #include <FL/Fl_Button.h>
 
@@ -64,9 +67,29 @@ public:
     typedef typename std::map<factoryIdType, CreateObjectFunc>::const_iterator ConstIterator;
     typedef typename std::map<factoryIdType, CreateObjectFunc>::iterator Iterator;
     
-    template<typename ClassType>
-        bool Register(factoryIdType unique_id)
+    class lf_menu_params
         {
+public:
+            void * receiver;
+            factoryIdType type;
+            
+            lf_menu_params(void * r,factoryIdType t)
+                {
+                receiver = r;
+                type = t;
+                }
+            BaseClassType *Create()
+                {
+                return listedfactory::Create(type);
+                }
+        };
+    
+    template<typename ClassType>
+        bool Register(factoryIdType unique_id = "")
+        {
+            if (unique_id == "")
+                { unique_id = ClassType::typekey(); }
+                
             if (m_object_creator.find(unique_id) != m_object_creator.end())
                 return false;
             
@@ -117,10 +140,32 @@ public:
         return m_object_creator.size();
         }
     
-    Fl_Menu_Item * function_menu (Fl_Callback * cb);
-    
-    //TODO: copy code from transferfactory::function_menu
-    //      rename 'function_menu' to 'menu'
+    Fl_Menu_Item * menu (Fl_Callback * cb, void * receiver)
+        {    
+        Fl_Menu_Item * fmenu;
+        
+        int num_items = m_object_creator.size(); 
+        
+        fmenu = new Fl_Menu_Item [num_items+1];
+        
+        int m = 0;
+        
+        for (ConstIterator i = m_object_creator.begin();i != m_object_creator.end();i++)
+            {            
+            init_fl_menu_item(fmenu[m]);
+            
+            fmenu[m].label(i->first.c_str());
+            fmenu[m].callback(cb);
+            fmenu[m].user_data(new lf_menu_params(receiver,(i->first)));
+            fmenu[m].flags = FL_MENU_RADIO;
+            
+            m++;
+            }
+        
+        fmenu[num_items].label(NULL);
+        
+        return fmenu;
+        }
     
     void buttons (Fl_Group * box,bool horizontal,Fl_Callback * cb)
     {
@@ -140,7 +185,7 @@ public:
             button->box(FL_UP_BOX);
             button->down_box(FL_DOWN_BOX);
             button->type(FL_RADIO_BUTTON);
-            button->callback((cb));
+            button->callback(cb);
             button->user_data(reinterpret_cast<const void*>(&(i->first)));
             
             if (horizontal)
@@ -153,3 +198,5 @@ public:
         box->end();
     }
 };
+
+#endif
