@@ -36,74 +36,49 @@ int arg(int argc, char **argv, int &i) {
         visid = atoi(argv[i+1]);
         i += 2;
         return 2;
-        }
-return 0;
     }
+    return 0;
+}
 
 void add_demo_image (int userIO_ID,int par_num)
-    {
+{
     if (par_num == USERIO_CB_OK)
         {
         image_integer<unsigned char,3>* demo_image = new image_integer<unsigned char,3>(20,20,20,NULL);
         //demo_image->erase();
         demo_image->testpattern();
-
+        
         datamanagement.add(demo_image);
-        }
-    }
-
-void pointInputDemoFcn (int userIO_ID,int par_num)
-{
-    if (par_num == USERIO_CB_OK)
-        {
-        //you can get either ID of the point_collection object:
-        int theID = userIOmanagement.get_parameter<pointIDtype>(userIO_ID,0);
-        
-        //or a Vector3D - which only works for the point class, because it's the
-        //only one with just 1 value:
-        Vector3D thePoint = userIOmanagement.get_parameter<Vector3D>(userIO_ID,0);
-        
-        //if you are interested in voxel coordinates of a point, call
-        //image->world_to_voxel(const Vector3D)
-        
-        std::ostringstream numbers;
-        numbers << "Global coordinates: (" << thePoint[0] << "," << thePoint[1] << "," << thePoint[2] << ")"; 
-        
-        userIOmanagement.show_message("Point parameter value",numbers.str(),userIOmanager::block);
         }
 }
 
 int main(int argc, char *argv[])
-    {
+{
     //start up Platinum
     platinum_init();
-
+    
     //set up main window
-
+    
     //const int w_margin=15*2;
     //int windowwidth = 800-w_margin;
     //int windowheight = 600-w_margin;
-
+    
     Fl_Window window(800,600);
-
+    
     //prepare Platinum for userIO creation
     platinum_setup(window);
-
-    // *** begin userIO control definitions ***
-
-    int create_vol_demo_ID=userIOmanagement.add_userIO("Add demo image",add_demo_image,"Add");
     
-    int pointInputDemoID=userIOmanagement.add_userIO("Point input demo",pointInputDemoFcn,"OK");
-    userIOmanagement.add_par_points(pointInputDemoID,"What's the point?");
-
+    // *** begin userIO control definitions ***
+    
+    int create_vol_demo_ID=userIOmanagement.add_userIO("Add demo image",add_demo_image,"Add");
     userIOmanagement.finish_userIO(create_vol_demo_ID);
-
+    
     // *** end userIO control definitions ***
-
+    
     //finish the window creation
     window.end();
-
+    
     window.show(argc, argv);
-
+    
     return Fl::run();
-    }
+}
