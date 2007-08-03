@@ -664,9 +664,14 @@ void viewport::rebuild_renderer_menu ()
                     { renderermenu[m].setonly(); }
                 }
             }   
-        if (numItems == 1) //no real choice, disable
+        if (numItems <= 1) //no real choice, disable
             {
             renderermenu[0].deactivate();
+            }
+        
+        if (numItems == 0) //no choice at all, disable even more!
+            {
+            renderermenu_button->deactivate();
             }
         }
 }
