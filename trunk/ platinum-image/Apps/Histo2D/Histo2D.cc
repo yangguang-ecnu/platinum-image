@@ -98,6 +98,8 @@ void diff_images (int u,int p)
 
     if (p == USERIO_CB_OK)
         {
+        userIOmanagement.progress_update(1,"Converting data",3);
+        
         image_integer<theIndexedPixelType, 3> * truth_in =
             dynamic_cast<image_integer<theIndexedPixelType, 3> * >(
             datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0)));
@@ -117,6 +119,8 @@ void diff_images (int u,int p)
 
         if (truth_in!=NULL && test != NULL && truth_in->same_size(test))
             {
+            userIOmanagement.progress_update(2,"Comparing " + truth_in->name() + " with " + test->name(),3);
+            
             short size [3];
 
             for (int d=0; d < 3; d++)
@@ -212,6 +216,8 @@ void diff_images (int u,int p)
 
                 i++;o++;t++;m++;
                 }
+            
+            userIOmanagement.progress_update(3,"Cleaning up " + truth_in->name() + " with " + test->name(),3);
 
             datamanagement.add(result);
 
@@ -237,6 +243,8 @@ void diff_images (int u,int p)
             figures_stream << "True positive: " << TP << "%";
 
             userIOmanagement.show_message("Comparison result",figures_stream.str());
+            
+            userIOmanagement.progress_update();
             }
         }
     }
@@ -251,6 +259,9 @@ void threshold_artifact_process (int u,int p)
             )));
 
         delete boo;*/
+        
+        userIOmanagement.progress_update(1,"Converting data",5);
+        
         image_label<3> * input_vol = label_copycast<3>(
             datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0)));
             //using label_copycast, reason:
@@ -267,6 +278,8 @@ void threshold_artifact_process (int u,int p)
         int radius = userIOmanagement.get_parameter<long>(u,1);
 
         // *** erode ***
+        
+        userIOmanagement.progress_update(2,"Eroding",5);
 
         theBinaryPixelType erodeValue = 1; //input_vol->get_max();
         theErodeFilterType::Pointer  binaryErode  = theErodeFilterType::New();
@@ -355,6 +368,8 @@ void threshold_artifact_process (int u,int p)
 
         // *** dilate ***
 
+        userIOmanagement.progress_update(3,"Dilating",5);
+        
         theBinaryPixelType dilateValue = 1;
         theDilateFilterType::Pointer  binaryDilate  = theDilateFilterType::New();
 
@@ -374,6 +389,8 @@ void threshold_artifact_process (int u,int p)
         theBinaryImagePointer final = reducer->GetOutput ();*/
 
         // *** apply as mask to original
+        
+        userIOmanagement.progress_update(4,"Applying mask",5);
 
         itk::AndImageFilter<theBinaryImageType, theBinaryImageType, theBinaryImageType >::Pointer masker = itk::AndImageFilter<theBinaryImageType, theBinaryImageType, theBinaryImageType >::New ();
         masker->SetInput1 (input);
@@ -384,8 +401,11 @@ void threshold_artifact_process (int u,int p)
         delete input_vol; //input_vol was created inside this function using label_copycast
 
         // *** convert result to an image ***
+        userIOmanagement.progress_update(5,"Adding image",5);
 
         datamanagement.add(new image_label<3> (final));
+        
+        userIOmanagement.progress_update();
         }
     }
 
