@@ -2,7 +2,7 @@
 #labels Phase-Design,Phase-Implementation
 
 ==Platform-independence==
-Platinum was designed from an early stage to be run and developed while keeping the choice of opetating system and computer type open. This creates three concerns for writing code:
+Platinum was designed from an early stage to be run and developed while keeping the choice of operating system and computer type open. This creates three concerns for writing code:
  # Using compiler-independent (standard) *syntax*
    The Microsoft Visual C++ compiler has numerous non-standard extensions (reviewed in [http://www.tilander.org/aurora/articles/000018.html this article]) which are not part of the C/C++ standard and will not compile in GCC. Errors from nonstandard code are uncomplicated to fix, but annoying and can pile up if Platinum is developed on MSVC only for an extended period of time. A specific point is include paths: the *backslash* ( \ ) path separator works only on Microsoft systems (it is a regular name character on UNIX) while _a regular slash ( / ) works on all three file systems_ since it isn't allowed in names in Windows. 
  # Using platform-indpendent *toolkits and calls*
@@ -15,4 +15,3 @@ When code is written and syntax-checked using only MSVC (vs.net environment), it
 || *Error message* || *Condition* || *Solution* ||
 ||'_member_' was not declared in this scope ||Member of a parent class accessed without this-> prefix|| *this->*_member_||
 || expected `;' before '_object_', '_object_' was not declared in this scope || _object_ is of a templated class named without "typename" modifier e.g: classname<params> object; || *typename* _classname<params> object_; ||
-
