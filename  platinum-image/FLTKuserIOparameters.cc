@@ -371,19 +371,6 @@ FLTK_histogram_base::FLTK_histogram_base (int x, int y, int w, int h) : Fl_Widge
     //screen_image = new Fl_RGB_Image(screen_image_data, w, h,RGBpixmap_bytesperpixel, 0);
     }
 
-/*void FLTK_histogram_base::wipe_image_data ()
-    {
-    if (screen_image!=NULL)
-        {
-        delete screen_image;
-        screen_image=NULL;
-
-        delete []screen_image_data;
-        screen_image_data=NULL;
-        }
-    }*/
-
-
 FLTK_histogram_base::~FLTK_histogram_base ()
     {
     //delete screen_image;

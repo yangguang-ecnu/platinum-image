@@ -53,23 +53,6 @@ struct regionofinterest;
 
 #include "error.h"
 
-/*class subclass_type_error : public std::exception 
-    {
-    private:
-        std::string _M_msg;
-
-    public:
-        explicit 
-            subclass_type_error(const std::string& __arg)  : std::exception(), _M_msg(__arg) { }
-
-        virtual 
-            ~subclass_type_error() throw() { }
-
-        virtual const char* 
-            what() const throw()
-            { return _M_msg.c_str(); }
-    };*/
-
 // *** layout constants ***
 
 //default width for layout, widget will be resized as it is added to the block
@@ -331,19 +314,7 @@ class FLTKuserIOpar_message : public FLTKuserIOparameter_base                  /
 
 // *** Planned parameters ***
 
-/*class FLTKuserIOpar_points : public FLTKuserIOparameter_base    //selection of a 3D location (global coords)
-    //by click in a viewport
-    {
-    protected:
-        Fl_Button * control;
-    public:
-        FLTKuserIOpar_points(std::string name);
-        ~FLTKuserIOpar_points();
-
-       void par_value (Vector3D & v); 
-    };
-
-class FLTKuserIOpar_action : public FLTKuserIOparameter_base    //push button for doing something,
+/*class FLTKuserIOpar_action : public FLTKuserIOparameter_base    //push button for doing something,
     //like testing the integrity of parameters
     {
     protected:

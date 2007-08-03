@@ -146,17 +146,6 @@ std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,
     
     toView=world_to_view_matrix*(toView-g->look_at);
     
-    /*Matrix3D deRotate;
-    deRotate = g->dir.GetInverse();
-    toView = deRotate * toView;
-    toView = toView * g->zoom*(float)vmin/display_scale;*/
-    
-/*#ifdef _DEBUG
-    std::cout << "l x: " << l[0] << ", y: " << l[1] << ", (z: " << l[2] << ")" << std::endl;
-    std::cout << "toView x: " << toView[0] << ", y: " << toView[1] << ", (z: " << toView[2] << ")" << std::endl;
-#endif
-    */
-    
     view.push_back(toView[0]+sx/2);
     view.push_back(toView[1]+sy/2);
         
@@ -185,10 +174,6 @@ std::map<std::string,float> renderer_base::get_values_world(Vector3D worldPos) c
         if (image != NULL)
             {
             Vector3D vPos = image->world_to_voxel(worldPos);
-
-            /*#ifdef _DEBUG
-            std::cout << "x:" << vPos[0] << "y:" << vPos[1] << "z:" << vPos[2] << std::endl;
-            #endif*/
             
             if ( vPos[0] >= 0 && vPos[1] >= 0 && vPos[2] >= 0 && vPos[0] < image->get_size_by_dim(0) && vPos[1] < image->get_size_by_dim(1) && vPos[2] < image->get_size_by_dim(2))
                 {

@@ -74,12 +74,6 @@ class rawimporter : public Fl_Window
         template <class intype, class outtype>
             static void raw_convert (intype* &inpointer, outtype* &outpointer, long numVoxels, bool bigEndian);                                           //convert data type and endianness on arrays
 
-        /*template <template <class,int=3 > class IMGCLASS>
-            static image_base* allocate_image (bool floatType, bool signedType,unsigned int voxel_type, std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4));
-
-        template <class VOXTYPE, template <class,int=3 > class IMGCLASS>
-            static void try_allocate (image_base* &i,unsigned int voxel_type, std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4) );*/
-
     private:
         //Helpers
         void get_input ();                                  //copy FLTK inputs to the

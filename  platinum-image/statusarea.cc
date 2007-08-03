@@ -26,27 +26,6 @@
 #include <FL/Fl_Window.H>
 #include <stdio.h>
 
-/*statusarea::statusarea(int X, int Y, int W, int H, const char *L = 0):Fl_Group (x,y,w,h,label)
-{
-    const int progress_w = 40;
-    
-    box(FL_NO_BOX);
-
-    message_group = add_pane<Fl_Group> ("message");
-    
-    //Fl_Group::current (this);
-    status_message = new Fl_Output (X,Y,W,H);
-    status_message->box(FL_ENGRAVED_BOX);
-    status_message->value("Platinum $Revision: 305 $");
-    status_message->color(FL_BACKGROUND_COLOR);
-    
-    progress_ = new Fl_Progress (this->w()-progress_w,this->y(),progress_w,this->h());
-    
-    resizable(this);
-    end();
-     
-}*/
-
 statusarea::statusarea(int X, int Y, int W, int H, const char *L)
 : Fl_Group(0, 0, W, H, L) {
     const int progress_w = 100;
@@ -78,9 +57,6 @@ statusarea::statusarea(int X, int Y, int W, int H, const char *L)
         o->labeltype(FL_NO_LABEL);
         o->minimum(0);
         o->maximum(0);
-        
-        /*progress_->box(FL_FLAT_BOX);
-        progress_->color(FL_BLUE);*/
     }
 
 position(X, Y);

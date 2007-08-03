@@ -58,11 +58,6 @@ int main(int argc, char *argv[])
     platinum_init();
     
     //set up main window
-    
-    //const int w_margin=15*2;
-    //int windowwidth = 800-w_margin;
-    //int windowheight = 600-w_margin;
-    
     Fl_Window window(800,600);
     
     //prepare Platinum for userIO creation

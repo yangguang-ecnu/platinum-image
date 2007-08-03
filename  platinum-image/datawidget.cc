@@ -39,14 +39,6 @@ transferfactory::tf_menu_params::tf_menu_params (const std::string t,image_base 
     type = t;
     }
 
-/*void datawidget::tf_menu_params::image(image_base * i)
-    {
-    image = i;
-    }
-void datawidget::tf_menu_params::type (std::string t)
-    {
-    type = t;
-    }*/
 void transferfactory::tf_menu_params::switch_tf()
     {
     pt_error::error_if_null(image,"Trying to make tfunction menu item with image = NULL");
@@ -71,10 +63,6 @@ const Fl_Menu_Item datawidget_base::menu_featuremenu_base[] = {
  {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0}
 };
-
-/*Fl_Menu_Item* datawidget_base::remove_mi = datawidget_base::menu_featuremenu + 0;
-Fl_Menu_Item* datawidget_base::save_vtk_mi = datawidget_base::menu_featuremenu + 1;
-Fl_Menu_Item* datawidget_base::duplicate_mi = datawidget_base::menu_featuremenu + 2;*/
 
 // *** custom constructor declared in FLUID: ***
 
@@ -196,8 +184,6 @@ datawidget<image_base>::datawidget(image_base* im, std::string n): datawidget_ba
    
     int fMenuSize = fl_menu_size (menu_featuremenu_base);
     menu_featuremenu_plustf = new Fl_Menu_Item[fMenuSize+1+1];
-    
-    //Fl_Menu_Item * tfunctions = transfer_manufactured::factory.function_menu(static_cast<Fl_Callback*>(cb_transferswitch));
 
     for (int fmenuindex = 0; fmenuindex < fMenuSize ; fmenuindex++)
         {        

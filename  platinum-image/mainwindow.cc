@@ -59,49 +59,8 @@ return Fl::run();
 void platinum_init ()
 
     {
-    /*char aproject[100] = "";
-    char avolume[100] = "";*/
-
-    //std::cout << "Welcome to Platinum v. " << PLATINUM_MAJOR_VER << "." << PLATINUM_MINOR_VER << std::endl;
-    
     std::cout << "You are going Platinum, please stand by!" << std::endl;
 
-    /*const int MAXBUFFER=100;*/
-    /*
-    #define ever (;;)
-    char c;
-    for ever
-
-    {
-    char *optspec = "hp:v:"; // the options. x: = x with single argument
-    if ((c = getopt(argc,argv,optspec)) == -1) break;
-    if (strlen(optarg) >= MAXBUFFER) { cout << "Input overflow ERROR!\n"; exit(0); } switch (c)
-    {
-    case -99:// end of options list - break the while loop
-    break;
-    // options will follow
-    case 'h':
-    cout  << "Options: "  << &optspec  << endl;
-    exit(1);
-    case 'p':
-    strcpy(aproject, optarg);
-    break;
-    case 'v':
-    strcpy(avolume, optarg);
-    break;
-    }
-    }
-    */
-    ////
-    // Ladda in (eventuellt) projekt, volymsdata eller annat
-    // INTE interaktivt - filnamn som inparametrar
-    //
-    //if (avolume[0] != 0) { datamanaging.load_volume(avolume); }
-    //if (aproject[0] != 0) { datamanaging.load_project(aproject); }
-
-    ////
-    // S‰tt igÂng hela tjosanhejsan
-    //Main window
 #if !defined(WIN32) && !defined(__APPLE__)
     //setup for Xwindows only
     int i = 1;
@@ -134,12 +93,10 @@ void platinum_init ()
     //more OSX-like theme
 
     //"none", "plastic" or "gtk+"
-    //Fl::scheme("plastic");
-    //Fl::get_system_colors();
+    /*Fl::scheme("plastic");
+    Fl::get_system_colors();*/
 
     Fl::background(250,250,250);
-    /*Fl::foreground(0,0,0);
-    Fl::background2(255,255,255);*/
 #endif
 
     }
@@ -164,8 +121,6 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     //allows resizing the proportions of views & data/tools
     Fl_Tile * viewsNlists = new Fl_Tile(0,0,win_w,win_h-status_area_h);
 
-    //Fl_Tile * views = new Fl_Tile(0,0,view_w,view_h);
-
     // *** skapa ett antal views ***
     //
     const int antalvp = num_viewports_h * num_viewports_v;
@@ -186,9 +141,6 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     viewmanagement.setup_views(0, view_w, view_h); // 0...antal som anv‰nds-1
 
     //viewmanagement.listviewports();
-
-    //views->resizable(views);
-    //views->end();
     
 #pragma mark *** Create tool area ***
     
@@ -223,9 +175,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
          
     toolsNstatus->resizable(userIOmanagement.status_area);
     toolsNstatus->end();
-    
-    //progressGroup->end();
-    
+        
 #ifndef VPT_TEST
     toolsNstatus->deactivate();
 #endif
@@ -236,18 +186,3 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     window.resizable(viewsNlists);
     window.end();
     }
-
-/*int platinum_run (int argc, char *argv[])
-{
-////
-// ...finish the window creation
-window.end();
-
-////
-//  start the main loop
-
-window.show(argc, argv);
-
-return Fl::run();
-}*/
-

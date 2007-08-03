@@ -105,27 +105,6 @@ viewport::viewport()
     rgbpixmap = NULL;
     pixMapSize[0] = 0;
     pixMapSize[1] = 0;
-
-    /*if (!renderermenu_built)
-        {
-        //static renderer menu not setup yet, build it once now
-
-        int m;
-        for (m=0;m<NUM_RENDERER_TYPES;m++ )
-            {
-            init_fl_menu_item(renderermenu_global[m]);
-            renderermenu_global[m].label(renderer_labels[m].c_str());
-            renderermenu_global[m].flags= FL_MENU_RADIO;
-
-            //temporary, since choice does not do anything at the moment
-            renderermenu_global[m].deactivate();
-            }
-        //terminate menu
-        renderermenu_global[m].label(NULL);
-
-        renderermenu_built=true;
-        }
-    */
     }
 
 viewport::~viewport()
@@ -207,8 +186,10 @@ void viewport::refresh()
         else
             {
 #ifndef VPT_TEST
+            /*
             if (viewport_widget->thresholder != NULL)
                 {viewport_widget->thresholder->renderer_index(rendermanagement.find_renderer_index(rendererID));}
+             */
 #else
             histo2D_tool * utool = dynamic_cast<histo2D_tool * > (busyTool);
             if (utool != NULL)
@@ -272,6 +253,7 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
         }
     
 #else //VPT_TEST
+    /*
     if (rendererID != NO_RENDERER_ID)
         {
         int p=0;
@@ -297,7 +279,7 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
             viewport_widget->thresholder->expire();
             viewport_widget->redraw();
             }
-        }
+        }*/
 #endif //VPT_TEST
 
     return NULL;
@@ -346,12 +328,6 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
     if (busyTool == NULL)
         { 
         busyTool = viewporttool::taste(f->callback_event,this,rendermanagement.get_renderer(rendererID));
-                                    
-        /*(busyTool != NULL)
-            {
-            f->callback_event.attach (this); //give the event a pointer to this viewport
-            f->callback_event.attach(rendermanagement.get_renderer(rendererID));
-            }*/
         }
 
     if (busyTool != NULL) //might have been created earlier too
@@ -387,154 +363,154 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
     
 #else //not VPT_TEST
 
-    if (f->callback_action == CB_ACTION_RESIZE)
-        {
-        if ((f->resize_w != pixMapSize[0] || f->resize_h != pixMapSize[1]))
-            {
-            //resize: just update view size, re-render but don't redraw...yet
-            update_viewsize(f->resize_w ,f->resize_h);
-
-            if (f->ROIhack != NULL)
-                {f->ROIhack->resize (0,0,1,f);}
-
-            f->needs_rerendering();
-            }
-        }
-    else
-        {
-        //some kind of interactive action
-
-        //UI constants
-        const float wheel_factor=0.02;
-        const float zoom_factor=0.01;
-        const float pan_factor=(float)1/(min(pixMapSize[0],pixMapSize[1]));
-
-        switch (f->callback_action) {
-            case CB_ACTION_DRAG_PASS:
-                //this callback is for general click & drag in viewport
-                //however only function available yet is the histogram ROI
-
-                if (rendererID != NO_RENDERER_ID)
-                    {
-                    if (!f->ROIhack->dragging)
-                        {
-                        //to improve performance, the attached histograms are cached during drag
-                        f->ROIhack->attach_histograms(rendererIndex);
-                        }
-
-                    if (f->ROIhack->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
-                        {
-                        if(FLTK2Dregionofinterest::current_ROI != f->ROIhack)
-                            {
-                            viewmanagement.refresh_viewports(); //erase ROIs shown in other viewports
-                            FLTK2Dregionofinterest::current_ROI = f->ROIhack;
-                            }
-
-                        f->ROIhack->drag(f->mouse_pos[0],f->mouse_pos[1],f->drag_dx,f->drag_dy,f);
-                        }
-                    }
-                break;
-
-            case CB_ACTION_DRAG_PAN:
-                {
-                float pan_x=0;
-                float pan_y=0;
-
-                pan_x-=f->drag_dx*pan_factor; 
-                pan_y-=f->drag_dy*pan_factor;
-
-                f->ROIhack->resize (f->drag_dx,f->drag_dy,1,f);
-                rendermanagement.move(rendererIndex,pan_x,pan_y);
-
-                f->needs_rerendering();
-                }
-            break;
-
-            /*case CB_ACTION_WHEEL_ZOOM:
-            zoom*=1+f->wheel_y*wheel_factor;
-            f->needs_rerendering();
-            break;*/
-
-            case CB_ACTION_DRAG_ZOOM:
-                f->ROIhack->resize (0,0,1+f->drag_dy*zoom_factor,f);
-                rendermanagement.move(rendererIndex,0,0,0,1+f->drag_dy*zoom_factor);
-
-                //zooming invalidates ROI
-                FLTK2Dregionofinterest::current_ROI = NULL;
-
-                f->needs_rerendering();
-                break;
-
-            case CB_ACTION_HOVER:
-                {
-                update_fbstring(f);
-                }
-            break;
-
-            case CB_ACTION_WHEEL_FLIP:
-                rendermanagement.move(rendererIndex,0,0,f->wheel_y*wheel_factor);    //relative coordinates are designed so that
-                //1 = one z voxel step for z pan
-
-                f->ROIhack->attach_histograms(rendererIndex);
-
-                f->needs_rerendering();
-
-                update_fbstring(f);
-                break;
-            }
-        }
-
-        if (FLTK2Dregionofinterest::current_ROI == f->ROIhack && (f->callback_action == CB_ACTION_DRAG_PASS ) ||f->callback_action==CB_ACTION_WHEEL_FLIP || f->callback_action==CB_ACTION_DRAG_FLIP )
-            {
-            //each drag iteration or when moving in view Z direction:
-            //convert coordinates for region of interest and make widgets update
-
-            vector<FLTKuserIOpar_histogram2D *>::iterator itr =f->ROIhack->histograms.begin();  
-            while (itr != f->ROIhack->histograms.end())
-                {
-                int one_vol_ID= (*itr)->histogram_image_ID(0);     //assumption: same voxel size, dimensions, orientation etc.
-                // - voxel coordinates for one apply to the other as well
-
-                regionofinterest reg;
-                reg.start = rendermanagement.get_location (rendererIndex,one_vol_ID,f->ROIhack->region_start_x,f->ROIhack->region_start_y,f->w(),f->h());
-                reg.size = rendermanagement.get_location (rendererIndex,one_vol_ID,f->ROIhack->region_end_x,f->ROIhack->region_end_y,f->w(),f->h())-reg.start;
-                //remove sign from size
-                for (int d=0; d < 3 ; d++)
-                    {reg.size[d]=fabs(reg.size[d]);}
-
-                //sista steget; skicka det nya omrÂdet till histogrammet
-                (*itr)->highlight_ROI (&reg);
-
-                itr++;
-                }
-            }
-
-    render_if_needed(f);
-
-int actionValue = f->callback_action;
-        switch (actionValue)
-            {
-            case CB_ACTION_CLICK_PASS:
-            case CB_ACTION_HOVER:
-            case CB_ACTION_RESIZE:
-            
-            case CB_ACTION_DRAG_FLIP:
-
-                f->damage(FL_DAMAGE_ALL);
-                break;
-
-            case CB_ACTION_WHEEL_ZOOM:
-            case CB_ACTION_DRAG_ZOOM:
-            case CB_ACTION_DRAG_PAN:
-            case CB_ACTION_WHEEL_FLIP:
-            case CB_ACTION_DRAG_PASS:
-            case CB_ACTION_DRAW:
-
-                f->damage(FL_DAMAGE_ALL);
-                f->draw(rgbpixmap);
-                f->damage(0);
-                break;
-            }
+  //  if (f->callback_action == CB_ACTION_RESIZE)
+//        {
+//        if ((f->resize_w != pixMapSize[0] || f->resize_h != pixMapSize[1]))
+//            {
+//            //resize: just update view size, re-render but don't redraw...yet
+//            update_viewsize(f->resize_w ,f->resize_h);
+//
+//            if (f->ROIhack != NULL)
+//                {f->ROIhack->resize (0,0,1,f);}
+//
+//            f->needs_rerendering();
+//            }
+//        }
+//    else
+//        {
+//        //some kind of interactive action
+//
+//        //UI constants
+//        const float wheel_factor=0.02;
+//        const float zoom_factor=0.01;
+//        const float pan_factor=(float)1/(min(pixMapSize[0],pixMapSize[1]));
+//
+//        switch (f->callback_action) {
+//            case CB_ACTION_DRAG_PASS:
+//                //this callback is for general click & drag in viewport
+//                //however only function available yet is the histogram ROI
+//
+//                if (rendererID != NO_RENDERER_ID)
+//                    {
+//                    if (!f->ROIhack->dragging)
+//                        {
+//                        //to improve performance, the attached histograms are cached during drag
+//                        f->ROIhack->attach_histograms(rendererIndex);
+//                        }
+//
+//                    if (f->ROIhack->histograms.size() >0 )  //only ROI yourself if there is a suitable histogram around
+//                        {
+//                        if(FLTK2Dregionofinterest::current_ROI != f->ROIhack)
+//                            {
+//                            viewmanagement.refresh_viewports(); //erase ROIs shown in other viewports
+//                            FLTK2Dregionofinterest::current_ROI = f->ROIhack;
+//                            }
+//
+//                        f->ROIhack->drag(f->mouse_pos[0],f->mouse_pos[1],f->drag_dx,f->drag_dy,f);
+//                        }
+//                    }
+//                break;
+//
+//            case CB_ACTION_DRAG_PAN:
+//                {
+//                float pan_x=0;
+//                float pan_y=0;
+//
+//                pan_x-=f->drag_dx*pan_factor; 
+//                pan_y-=f->drag_dy*pan_factor;
+//
+//                f->ROIhack->resize (f->drag_dx,f->drag_dy,1,f);
+//                rendermanagement.move(rendererIndex,pan_x,pan_y);
+//
+//                f->needs_rerendering();
+//                }
+//            break;
+//
+//            /*case CB_ACTION_WHEEL_ZOOM:
+//            zoom*=1+f->wheel_y*wheel_factor;
+//            f->needs_rerendering();
+//            break;*/
+//
+//            case CB_ACTION_DRAG_ZOOM:
+//                f->ROIhack->resize (0,0,1+f->drag_dy*zoom_factor,f);
+//                rendermanagement.move(rendererIndex,0,0,0,1+f->drag_dy*zoom_factor);
+//
+//                //zooming invalidates ROI
+//                FLTK2Dregionofinterest::current_ROI = NULL;
+//
+//                f->needs_rerendering();
+//                break;
+//
+//            case CB_ACTION_HOVER:
+//                {
+//                update_fbstring(f);
+//                }
+//            break;
+//
+//            case CB_ACTION_WHEEL_FLIP:
+//                rendermanagement.move(rendererIndex,0,0,f->wheel_y*wheel_factor);    //relative coordinates are designed so that
+//                //1 = one z voxel step for z pan
+//
+//                f->ROIhack->attach_histograms(rendererIndex);
+//
+//                f->needs_rerendering();
+//
+//                update_fbstring(f);
+//                break;
+//            }
+//        }
+//
+//        if (FLTK2Dregionofinterest::current_ROI == f->ROIhack && (f->callback_action == CB_ACTION_DRAG_PASS ) ||f->callback_action==CB_ACTION_WHEEL_FLIP || f->callback_action==CB_ACTION_DRAG_FLIP )
+//            {
+//            //each drag iteration or when moving in view Z direction:
+//            //convert coordinates for region of interest and make widgets update
+//
+//            vector<FLTKuserIOpar_histogram2D *>::iterator itr =f->ROIhack->histograms.begin();  
+//            while (itr != f->ROIhack->histograms.end())
+//                {
+//                int one_vol_ID= (*itr)->histogram_image_ID(0);     //assumption: same voxel size, dimensions, orientation etc.
+//                // - voxel coordinates for one apply to the other as well
+//
+//                regionofinterest reg;
+//                reg.start = rendermanagement.get_location (rendererIndex,one_vol_ID,f->ROIhack->region_start_x,f->ROIhack->region_start_y,f->w(),f->h());
+//                reg.size = rendermanagement.get_location (rendererIndex,one_vol_ID,f->ROIhack->region_end_x,f->ROIhack->region_end_y,f->w(),f->h())-reg.start;
+//                //remove sign from size
+//                for (int d=0; d < 3 ; d++)
+//                    {reg.size[d]=fabs(reg.size[d]);}
+//
+//                //sista steget; skicka det nya omrÂdet till histogrammet
+//                (*itr)->highlight_ROI (&reg);
+//
+//                itr++;
+//                }
+//            }
+//
+//    render_if_needed(f);
+//
+//int actionValue = f->callback_action;
+//        switch (actionValue)
+//            {
+//            case CB_ACTION_CLICK_PASS:
+//            case CB_ACTION_HOVER:
+//            case CB_ACTION_RESIZE:
+//            
+//            case CB_ACTION_DRAG_FLIP:
+//
+//                f->damage(FL_DAMAGE_ALL);
+//                break;
+//
+//            case CB_ACTION_WHEEL_ZOOM:
+//            case CB_ACTION_DRAG_ZOOM:
+//            case CB_ACTION_DRAG_PAN:
+//            case CB_ACTION_WHEEL_FLIP:
+//            case CB_ACTION_DRAG_PASS:
+//            case CB_ACTION_DRAW:
+//
+//                f->damage(FL_DAMAGE_ALL);
+//                f->draw(rgbpixmap);
+//                f->damage(0);
+//                break;
+//            } 
 #endif //VPT_TEST
     }
 
@@ -623,7 +599,6 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     imagemenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Objects");
     
     renderermenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,"Renderer");
-    //renderermenu_button->copy(renderermenu_global);
     renderermenu_button->copy(renderer_base::renderer_factory.menu(cb_renderer_select,(void*)this));
     renderermenu_button->user_data(NULL);
     
@@ -751,10 +726,6 @@ void viewport::update_objects_menu()
         //delete old callback data (menu is deleted by fl_menu::copy)
         
         fl_menu_userdata_delete(cur_menu);
-        /*for(unsigned int i=0;cur_menu[i].label()!=NULL && i < datamanager::IMAGEVECTORMAX;i++)
-        {
-            delete ((menu_callback_params*)cur_menu[i].user_data());
-        }*/
         }
     
     if (base_menu != NULL && rendererIndex >= 0)

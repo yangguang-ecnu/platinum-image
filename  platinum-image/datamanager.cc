@@ -251,29 +251,6 @@ void datamanager::delete_data (int id)
             break;
             }
         }
-    
-    /*int index;
-    
-    index=find_data_index(id);
-    
-    if (index >=0)
-    {
-        delete dataItems[index];
-        
-        dataItems.erase(dataItems.begin()+index);
-    }
-#ifdef _DEBUG
-    if (index >=0)
-    {
-        cout << "Deleted image with ID=" << id << ", index=" << index << endl;
-        cout << "There are now " << dataItems.size() << " data items" << endl;
-    }
-    else
-    {
-        cout << "Danger danger: image with ID " << id << " not found" << endl;
-    }
-#endif
-    */
 }
 
 void datamanager::remove_data (int id)
@@ -303,48 +280,6 @@ void datamanager::remove_data (data_base * d)
             }
         }
 }
-
-/*int datamanager::first_image()
-    {
-    return dataItems[0]->get_id();
-    }
-
-int datamanager::last_image()
-    {
-	if(dataItems.size()==0)
-		return 0;
-    return dataItems.back()->get_id();
-    }
-
-int datamanager::next_image(int id)
-{
-    int index=find_data_index(id);
-
-    if (index != -1) {
-        if ((index + 1) < (signed int)dataItems.size()) {
-            //image exists and is not last
-            return dataItems[index+1]->get_id();
-        }
-
-        else {
-            //last image
-            return 0;
-        }
-    }
-
-    //error: id not found
-    return -1; 
-}*/
-
-/*std::vector<data_base* >::iterator datamanager::begin_data() const
-{
-    return dataItems.begin();
-}
-
-std::vector<data_base* >::iterator datamanager::end() const
-{
-    return dataItems.end();
-}*/
 
 string datamanager::get_data_name(int ID)
 {
@@ -627,38 +562,6 @@ void datamanager::rebuild_image_menu()
         image_menu = NULL;
         }
     image_menu = object_menu<image_base>();
-    
-    /*std::vector<data_base *>::iterator itr = dataItems.begin();
-    int m=0;
-    
-    //delete old labels
-    for(int i=0;raw_image_menu[i].label()!=NULL;i++)
-        {delete raw_image_menu[i].label();}
-    
-    while (itr != dataItems.end())
-    {
-        if (raw_image_menu[m].label()!=NULL)
-            {raw_image_menu[m].label(NULL);}
-        string labelstring=datamanagement.get_data_name((*itr)->get_id());
-        char * menulabel=strdup(labelstring.c_str());
-        
-        raw_image_menu[m].shortcut(0);
-        raw_image_menu[m].callback((Fl_Callback *)NULL,0);
-        raw_image_menu[m].argument((long)(*itr)->get_id());
-        raw_image_menu[m].flags= 0;
-        raw_image_menu[m].labeltype(FL_NORMAL_LABEL);
-        raw_image_menu[m].labelfont(0);
-        raw_image_menu[m].labelsize(FLTK_LABEL_SIZE);
-        raw_image_menu[m].labelcolor(FL_BLACK);
-        
-        raw_image_menu[m].label(menulabel);
-        
-        m++;
-        itr++;
-    }
-    
-    //terminate menu
-    raw_image_menu[m].label(NULL);*/
 }
 
 const Fl_Menu_Item * datamanager::FLTK_image_menu() const
@@ -675,57 +578,3 @@ const Fl_Menu_Item * datamanager::FLTK_point_menu() const
 {
     return point_menu;
 }
-
-// *** planned custom file format ***
-
-// An identifier might look like:
-// Version: 5
-// ...or (the parameter gives the amount of bytes to read)...
-// Volumedata: 15748
-// ...or...
-// Volumedata: "kalle.via"
-
-// removes comments (# or // -lines), reads identifier and identifies data type (either size or variable type)
-
-    void datamanager::parse_identifier(ifstream &in, int &identifierindex) // index follows the IDENTIFIERS array
-        {
-        char aline[1000];
-
-        do
-            { in.getline(aline,1000); }
-        while (aline[0]=='#' || (aline[0]=='/' && aline[1]=='/'));
-
-
-        identifierindex = -1;
-
-        for (int i=0; i < NOOFIDENTIFIERS; i++)
-            { 
-            if (strncmp(aline, IDENTIFIERS[i].name, strlen(IDENTIFIERS[i].name)) == 0) // we found the target
-                {
-                identifierindex = i; return;
-                }
-            }
-        return;
-        }
-
-
-////////
-// loads spatial info and imagedata
-//
-
-void datamanager::parse_and_load_file(char filename[])
-    {
-    ifstream in(filename);
-
-    int identindex;
-
-    while (!in.eof())
-        {
-        parse_identifier(in, identindex);
-
-        for (int param=0; param < IDENTIFIERS[identindex].noofparams; param++) // how many params to read
-            {
-
-            }
-        }
-    }

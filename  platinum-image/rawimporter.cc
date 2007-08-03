@@ -70,8 +70,6 @@ switch (v)
     return 0;
 }*/
 
-
-
 //templated string to num conversion
 
 template <class T>

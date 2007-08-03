@@ -127,15 +127,6 @@ transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):
     this->update();
     }
 
-/*template <class ELEMTYPE >
-transfer_mapcolor<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
-    {
-    if ( v > 0)
-        {p.set_rgb (255,255,255);}
-    else
-        {p.set_rgb (0,0,0);}
-    }*/
-
 template <class ELEMTYPE >
 void transfer_mapcolor<ELEMTYPE>::get (ELEMTYPE v, RGBvalue &p)
     {

@@ -124,16 +124,6 @@ std::istream& operator>>(std::istream& in, brukertoken& o)
     if (o.header_.at(0) == '$')   //skip leading $ in header
         { o.header_.erase(o.header_.begin()); }
 
-    //check if header is separated by "_", put
-    //tail in 'tag_'
-    //int tag_pos = o.header_.find_first_of ("_");
-
-    //if (tag_pos !=std::string::npos )
-    //    {
-    //    o.tag_ = o.header_.substr (tag_pos+1);
-
-    //    o.header_.erase (tag_pos);
-    //    }
 
     //check for multi-value
     if ( in.peek() == '(' )
@@ -264,7 +254,7 @@ image_base * brukerloader::read()
             //assumption: value is either "INT" or something to the amount of float
 
             //TODO: "RECO_rotate"
-
+            
             //TODO: figure out where voxel size is set and read it
 
             voxelsize.Fill (1);

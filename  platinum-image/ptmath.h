@@ -34,8 +34,6 @@
 ///...and types
 typedef itk::Vector<float,3> Vector3D;
 typedef itk::Point<float,3> Point3D;
-//typedef struct HistoPair				//Take a look at the STL map class, it might be the right thing!
-//{long index, count;};
 typedef std::pair<long, long> HistoPair;
 typedef itk::Matrix<float> Matrix3D;
 
@@ -43,7 +41,7 @@ typedef itk::Matrix<float> Matrix3D;
 
 template<class T>                   
 void t_swap(T & t1, T & t2){        //templated swap functions that's less
-	//(not at all) picky on input
+                                    //(not at all) picky on input
 	T tmp(t1); 
 	t1 = t2; 
 	t2  = tmp; 
@@ -62,14 +60,14 @@ T abs_ceil (T f)   //round to nearest higher, ignoring sign
 
 template <class sType, unsigned int vDim>
 void min_normalize (itk::Vector<sType, vDim> &V)     //normalize vector using
-//minimum norm
+                                                     //minimum norm
 {
 	sType min_norm = V[0];
-
+    
 	for (unsigned int d=0;d < vDim;d++)
-	{
+        {
 		min_norm=min(min_norm,V[d]);
-	}
+        }
 	V /=min_norm;
 }
 
@@ -78,53 +76,53 @@ template <class C, class D> void adjust_endian (D* data, C size,bool DataIsBigEn
 //and system value don't match
 {
 	bool RunsOnBigEndian;
-
+    
 #ifdef _MSC_VER
 	short word = 0x4321;
 	RunsOnBigEndian = (*(char *)& word) != 0x21 ;
 #else
 	RunsOnBigEndian = (htonl(1)==1 );
 #endif
-
+    
 	unsigned int swapSize = sizeof (D);
-
+    
 	if (RunsOnBigEndian ^ DataIsBigEndian)
-	{
+        {
 		for (C p =0;p < size;p++)
-		{
+            {
 			unsigned char * b = (unsigned char *) &(data[p]);
 			register int i = 0;
 			register int j = swapSize-1;
-
+            
 			while (i<j)
-			{
+                {
 				t_swap(b[i], b[j]);
 				i++, j--;
-			}
-		}
-	}
+                }
+            }
+        }
 }
 /*
-bool has_only_positive_or_zero_components(Vector3D v)
-{
-for(int i=0;i<=2;i++)
-{
-if(v[i]<0)
-return false;
-}
-return true;
-}
-
-bool has_only_negative_or_zero_components(Vector3D v)
-{
-for(int i=0;i<=2;i++)
-{
-if(v[i]>0)
-return false;
-}
-return true;
-}
-*/
+ bool has_only_positive_or_zero_components(Vector3D v)
+ {
+     for(int i=0;i<=2;i++)
+         {
+         if(v[i]<0)
+             return false;
+         }
+     return true;
+ }
+ 
+ bool has_only_negative_or_zero_components(Vector3D v)
+ {
+     for(int i=0;i<=2;i++)
+         {
+         if(v[i]>0)
+             return false;
+         }
+     return true;
+ }
+ */
 //Following rules can be notes about the rotation matrices below:
 // R^(-1)(fi) = R(-fi)
 // R^(-1)(fi) = R^T(fi)
@@ -132,10 +130,10 @@ return true;
 class matrix_generator{
 public:
 	Matrix3D get_rot_x_matrix_3D(float fi);			//fi in radians
-
+    
 	Matrix3D get_rot_y_matrix_3D(float fi);			//fi in radians
 	
-
+    
 	Matrix3D get_rot_z_matrix_3D(float fi);			//fi in radians
 	
 	//rotation examples based on the "basic" image processing coordinate system
