@@ -333,13 +333,6 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
         }
     //Load user's choice
 
-#ifdef _DEBUG
-    // Print what the user picked
-    fprintf(stdout, "--------------------\n");
-    fprintf(stdout, "DIRECTORY: '%s'\n", chooser.directory());
-    fprintf(stdout, "    COUNT: %d files selected\n", chooser.count());
-#endif
-
     vector<string> files;
 
     for ( int t=1; t<=chooser.count(); t++ )
