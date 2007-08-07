@@ -74,7 +74,7 @@ void image_storage<ELEMTYPE >::set_parameters()
     tfunction = NULL;
 
     set_stats_histogram (new histogram_1D<ELEMTYPE >(this));
-    transfer_function();  //set default transfer function
+	transfer_function();  //set default transfer function
 
     minvalue=std::numeric_limits<ELEMTYPE>::min();
     maxvalue=std::numeric_limits<ELEMTYPE>::max();

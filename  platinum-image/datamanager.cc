@@ -427,6 +427,13 @@ image_base * datamanager::get_image (int ID)
     return NULL;
     }
 
+int datamanager::last_image()
+    {
+	if(dataItems.size()==0)
+		return 0;
+    return dataItems.back()->get_id();
+    }
+
 bool datamanager::FLTK_running ()
     {
     return !closing;

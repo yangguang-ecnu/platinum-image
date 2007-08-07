@@ -33,7 +33,7 @@ using namespace std;
 
 rendermanager::rendermanager ()
 {
-    renderer_base::renderer_factory.Register<rendererMPR>();
+    //renderer_base::renderer_factory.Register<rendererMPR>();//JK-Ugly solution
     //renderer_base::renderer_factory.Register<rendererMIP>();
 }
 
