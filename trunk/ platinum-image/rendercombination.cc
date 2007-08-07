@@ -121,6 +121,7 @@ void rendercombination::remove_image(int ID)
             {
             renderdata.erase(itr);
             removed = true;
+			break;//To avoid undefined value for itr
             }
         }
     if (removed)
@@ -157,6 +158,7 @@ void rendercombination::data_vector_has_changed()
             //image at p does not exist
             
             renderdata.erase(itr);
+			itr = renderdata.begin();//To avoid undefined values of itr
             }
         };
     

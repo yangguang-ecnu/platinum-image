@@ -138,6 +138,7 @@ class datamanager
         int find_data_index(int uniqueID);
         image_base * get_image (int ID);
         data_base * get_data (int ID);
+		int last_image();
         
         void parse_and_load_file(char filename[]);
         void parse_identifier(std::ifstream &in, int &identifierindex);

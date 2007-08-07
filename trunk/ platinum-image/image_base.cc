@@ -67,7 +67,7 @@ void image_base::set_parameters ()
 
     Fl_Group::current(NULL); //evil bugfix: somehwere, sometime, a Group has not been ended
     
-    widget=new datawidget<image_base>(this,namestream.str());
+	widget=new datawidget<image_base>(this,namestream.str());
     name(namestream.str());
     }
 

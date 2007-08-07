@@ -31,7 +31,10 @@ template <class ELEMTYPE >
 transfer_base<ELEMTYPE >::transfer_base (image_storage<ELEMTYPE > * s)
     {
     source=s;
-    pane = pt_error::error_if_null(                                   dynamic_cast<datawidget<image_base>*>(source->widget)->reset_tf_controls(),"Trying to reset_tf_controls on widget of other type than datawidget<image_base>",pt_error::fatal);
+	if(source->widget!=NULL)
+		pane = pt_error::error_if_null(dynamic_cast<datawidget<image_base>*>(source->widget)->reset_tf_controls(),"Trying to reset_tf_controls on widget of other type than datawidget<image_base>",pt_error::fatal);
+	else
+		pane = NULL;
     }
 
 template <class ELEMTYPE >
@@ -210,6 +213,8 @@ void transfer_mapcolor<ELEMTYPE>::get (ELEMTYPE v, RGBvalue &p)
 template <class ELEMTYPE >
 transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
     {
+	if(this->pane == NULL)
+		return;
     this->pane->resize(0,0,270,35);
     this->pane->resizable(NULL);
 

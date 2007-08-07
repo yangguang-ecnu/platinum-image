@@ -115,8 +115,8 @@ viewport::~viewport()
     if (rgbpixmap != NULL)
         {delete[] rgbpixmap; }
     
-    if (renderermenu_button != NULL)
-        { fl_menu_userdata_delete (renderermenu_button->menu()); }
+    //if (renderermenu_button != NULL)
+    //    { fl_menu_userdata_delete (renderermenu_button->menu()); }
 }
 
 void viewport::connect_renderer(int rID)
@@ -520,7 +520,8 @@ void viewport::update_objects_menu()
     
     int baseMenuSize = fl_menu_size(base_menu);
     
-    Fl_Menu_Item new_menu[baseMenuSize+1];
+    //Fl_Menu_Item new_menu[baseMenuSize+1];
+    Fl_Menu_Item * new_menu = new Fl_Menu_Item[baseMenuSize+1];
     
     if (cur_menu!=NULL)
         {

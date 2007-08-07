@@ -20,7 +20,7 @@
 #include "renderer_base.h"
 
 int renderer_base::maxrendererID = 0;
-const float renderer_base::display_scale = 25;
+const float renderer_base::display_scale = 250;//25;
 
 listedfactory<renderer_base> renderer_base::renderer_factory;
 
