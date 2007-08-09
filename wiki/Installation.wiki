@@ -82,7 +82,8 @@ _VTK will be used in Platinum, however it is not necessary at the moment_
   # Check out (download) the latest Platinum source by right-clicking in the new source folder and selecting "SVN checkout..."
   # TortoiseSVN settings:
     * If you don not plan to contribute to the platinum source, you can use this address for SVN:
-    http://platinum-image.googlecode.com/svn/trunk/platinum-image
+    http://platinum-image.googlecode.com/svn/trunk/ platinum-image
+    * Note the space between trunk/ and platinum-image
     * If you are going to contribute, you will need to access SVN with your _GMail_ account. Contact one of the project administrators and give them your Google account name to be added as a member.
   # enter address from this page: http://code.google.com/p/platinum-image/source
   # Press `OK`, you will now be asked for name and password (also on the above page)
