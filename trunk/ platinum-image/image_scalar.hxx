@@ -336,5 +336,380 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D(image_scalar<ELE
 	delete fxyz;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM> * image_scalar<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE low, ELEMTYPE high, IMGBINARYTYPE true_inside_threshold)
+	{
+    image_binary<IMAGEDIM> * output = new image_binary<IMAGEDIM> (this,false);
+        
+    typename image_storage<ELEMTYPE >::iterator i = this->begin();
+    typename image_binary<IMAGEDIM>::iterator o = output->begin();
+    
+    while (i != this->end()) //images are same size and
+                       //should necessarily end at the same time
+        {
+        if(*i>=low && *i<=high)
+            {*o=true_inside_threshold;}
+        else
+            {*o=!true_inside_threshold;}
+
+        ++i; ++o;
+        }
+
+	//output->image_has_changed();    
+    return output;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>	
+void image_scalar<ELEMTYPE, IMAGEDIM>::draw_line_2D(int x0, int y0, int x1, int y1, int z, ELEMTYPE value, int direction)
+	{
+	bool steep=abs(y1-y0)>abs(x1-x0);
+	int temp;
+	if(steep)
+		{
+		temp=x0;
+		x0=y0;
+		y0=temp;
+		temp=x1;
+		x1=y1;
+		y1=temp;
+		}
+	if(x0>x1)
+		{
+		temp=x0;
+		x0=x1;
+		x1=temp;
+		temp=y0;
+		y0=y1;
+		y1=temp;
+		}
+	int deltax=x1-x0;
+	int deltay=abs(y1-y0);
+	int error= -deltax/2;
+	int ystep;
+	int y=y0;
+	if(y0<y1)
+		ystep=1;
+	else
+		ystep=-1;
+	int x;
+	for(x=x0; x<=x1; x++)
+		{
+		if(steep)
+			{
+			this->set_voxel_by_dir(y,x,z,value,direction);
+			}
+		else
+			{
+			this->set_voxel_by_dir(x,y,z,value,direction);
+			}
+		error+=deltay;
+		if(error>0)
+			{
+			y+=ystep;
+			error-=deltax;
+			}
+		}
+	//this->image_has_changed();
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_scalar<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low_thr, ELEMTYPE high_thr, int row_direction, int z_direction, int first_slice, int last_slice)
+	{
+	double totdiff=0;
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim_and_dir(0,z_direction);
+	max_v=this->get_size_by_dim_and_dir(1,z_direction);
+	max_w=this->get_size_by_dim_and_dir(2,z_direction);
+	
+	memset(res,0,sizeof(int)*max_w);
+	ELEMTYPE p;//pixel value
+	double sum=0;
+	int optthr;
+	if(first_slice<0)
+		first_slice=0;
+	if(last_slice<0)
+		last_slice=max_w-1;
+ 	if(row_direction==(z_direction+1)%3)
+		{
+		double* hist=new double[max_v];
+		for(w=first_slice; w<=last_slice; w++)
+			{
+			for(v=0; v<max_v; v++)
+				{
+				int sum=0;
+				for(u=0; u<max_u; u++)
+					{
+					p=this->get_voxel_by_dir(u,v,w,z_direction);
+					if(p>=low_thr && p<=high_thr)
+						{
+						sum++;
+						}
+					}
+				hist[v]=sum;
+				}
+
+			//Test all threshold values
+			double sum1=0;
+			double sum2=0;
+			double n1=0;
+			double n2=0;
+			double cumSum=0;
+			double cumSum_2=0;
+			double cumN=0;
+
+			int j;
+			for(j=0; j<max_v; j++)
+				{
+				cumSum+=j*hist[j];
+				cumSum_2+=j*j*hist[j];
+				cumN+=hist[j];
+				}
+			double maxvar=0;
+			optthr=0;
+			double optdiff=0;
+			for(j=0; j<max_v; j++)
+				{
+				//Compute mean and std
+				sum1+=j*hist[j];
+				n1+=hist[j];
+				sum2=cumSum-sum1;
+				n2=cumN-n1;		
+
+				if(n1>0 && n2>0)
+					{
+					double mean1=sum1/n1;
+					double mean2=sum2/n2;
+					double betweenvar=n1*n2*(mean1-mean2)*(mean1-mean2)/(n1+n2);
+					if(betweenvar>maxvar)
+						{
+						maxvar=betweenvar;
+						optthr=j;
+						optdiff=sum1-sum2;
+						}
+					}
+				}
+			totdiff+=optdiff;
+			//double cumSumU=0;
+			//double cumSumU_2=0;
+			//double cumSumV=0;
+			//double cumSumV_2=0;
+			//cumN=0;
+			//for(v=0; v<optthr; v++)
+			//	{
+			//	int sum=0;
+			//	for(u=0; u<max_u; u++)
+			//		{
+			//		p=this->get_voxel_by_dir(u,v,w,z_direction);
+			//		if(p>=low_thr && p<=high_thr)
+			//			{
+			//			cumSumV+=v;
+			//			cumSumV_2+=v*v;
+			//			cumSumU+=u;
+			//			cumSumU_2+=u*u;
+			//			cumN++;
+			//			}
+			//		}
+			//	}
+			//double stdU=sqrt((cumSumU_2-cumSumU*cumSumU/cumN)/(cumN-1));
+			//double stdV=sqrt((cumSumV_2-cumSumV*cumSumV/cumN)/(cumN-1));
+			//double widthU=(cumN*stdU/stdV);
+			//double widthV=(cumN*stdV/stdU);
+			//out << "Slice: " << w << " Thr: " << optthr << " WidthU: " << widthU << " WidthV: " << widthV << " StdU: " << stdU << " StdV: " << stdV << " Sum: " << cumN<< endl;
+			res[w]=optthr;
+			}
+		delete[] hist;
+        //std::cout << "Slice: " << w-1 << " Thr: " << optthr << std::endl;
+		}
+	else
+		{
+		//ofstream out("stduv.txt");
+		double* hist=new double[max_u];
+		for(w=first_slice; w<=last_slice; w++)
+			{
+			for(u=0; u<max_u; u++)
+				{
+				int sum=0;
+				for(v=0; v<max_v; v++)
+					{
+					p=this->get_voxel_by_dir(u,v,w,z_direction);
+					if(p>=low_thr && p<=high_thr)
+						{
+						sum++;
+						}
+					}
+				hist[u]=sum;
+				}
+
+			//Test all threshold values
+			double sum1=0;
+			double sum2=0;
+			double n1=0;
+			double n2=0;
+			double cumSum=0;
+			double cumSum_2=0;
+			double cumN=0;
+
+			int j;
+			for(j=0; j<max_u; j++)
+				{
+				cumSum+=j*hist[j];
+				cumSum_2+=j*j*hist[j];
+				cumN+=hist[j];
+				}
+			double maxvar=0;
+			optthr=0;
+			double optdiff=0;
+			for(j=0; j<max_u; j++)
+				{
+				//Compute mean and std
+				sum1+=j*hist[j];
+				n1+=hist[j];
+				sum2=cumSum-sum1;
+				n2=cumN-n1;		
+
+				if(n1>0 && n2>0)
+					{
+					double mean1=sum1/n1;
+					double mean2=sum2/n2;
+					double betweenvar=n1*n2*(mean1-mean2)*(mean1-mean2)/(n1+n2);
+					if(betweenvar>maxvar)
+						{
+						maxvar=betweenvar;
+						optthr=j;
+						optdiff=sum1-sum2;
+						}
+					}
+				}
+			totdiff+=optdiff;
+			//double cumSumU=0;
+			//double cumSumU_2=0;
+			//double cumSumV=0;
+			//double cumSumV_2=0;
+			//cumN=0;
+			//for(u=0; u<optthr; u++)
+			//	{
+			//	int sum=0;
+			//	for(v=0; v<max_v; v++)
+			//		{
+			//		p=this->get_voxel_by_dir(u,v,w,z_direction);
+			//		if(p>=low_thr && p<=high_thr)
+			//			{
+			//			cumSumV+=v;
+			//			cumSumV_2+=v*v;
+			//			cumSumU+=u;
+			//			cumSumU_2+=u*u;
+			//			cumN++;
+			//			}
+			//		}
+			//	}
+			//double stdU=sqrt((cumSumU_2-cumSumU*cumSumU/cumN)/(cumN-1));
+			//double stdV=sqrt((cumSumV_2-cumSumV*cumSumV/cumN)/(cumN-1));
+			//double widthU=sqrt(cumN*stdU/stdV);
+			//double widthV=sqrt(cumN*stdV/stdU);
+			//cout << "Slice: " << w << " Thr: " << optthr << " WidthU: " << widthU << " WidthV: " << widthV << " StdU: " << stdU << " StdV: " << stdV << " Sum: " << cumN<< endl;
+			res[w]=optthr;
+			}
+		//out.close();
+		delete[] hist;
+        //std::cout << "Slice: " << w-1 << " Thr: " << optthr << std::endl;
+		}
+	return totdiff>0;
+	}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value, ELEMTYPE blank)
+    {
+    typename image_storage<ELEMTYPE>::iterator i = this->begin();
+    image_storage<IMGBINARYTYPE >::iterator m = mask->begin();
+    while (i != this->end()) //images are same size and should necessarily end at the same time
+        {
+        if(*m != object_value)
+            {*i=blank;}
+        ++i; ++m;
+        }
+	//this->min_max_refresh();
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out(int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, ELEMTYPE blank)
+    {
+	int x,y,z;
+	int max_x, max_y, max_z;
+	max_x=this->get_size_by_dim(0);
+	max_y=this->get_size_by_dim(1);
+	max_z=this->get_size_by_dim(2);
+	if(low_x<0)
+		low_x=0;
+	if(low_y<0)
+		low_y=0;
+	if(low_z<0)
+		low_z=0;
+	if(high_x<0 || high_x>max_x)
+		high_x=max_x;
+	if(high_y<0 || high_y>max_y)
+		high_y=max_y;
+	if(high_z<0 || high_z>max_z)
+		high_z=max_z;
+	for(z=low_z; z<high_z; z++)
+		for(y=low_y; y<high_y; y++)
+			for(x=low_x; x<high_x; x++)
+				this->set_voxel(x,y,z,blank);
+    }
+	
+template <class ELEMTYPE, int IMAGEDIM>
+std::vector<double> image_scalar<ELEMTYPE, IMAGEDIM>::get_slice_sum(int direction)
+	{
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
+	ELEMTYPE p;//pixel value
+	double sum=0;
+    std::vector<double> res;
+	for(w=0; w<max_w; w++)
+		{
+		double sum=0;
+		for(v=0; v<max_v; v++)
+			{
+			for(u=0; u<max_u; u++)
+				{
+				p=this->get_voxel_by_dir(u,v,w,direction);
+				sum+=p;
+				}
+			}
+			res.push_back(sum);
+		}
+
+	return res;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::copy(image_integer<ELEMTYPE, IMAGEDIM> *source, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, int direction)
+    {
+	int x,y,z;
+	int max_x, max_y, max_z;
+	max_x=this->get_size_by_dim_and_dir(0,direction);
+	max_y=this->get_size_by_dim_and_dir(1,direction);
+	max_z=this->get_size_by_dim_and_dir(2,direction);
+	if(low_x<0)
+		low_x=0;
+	if(low_y<0)
+		low_y=0;
+	if(low_z<0)
+		low_z=0;
+	if(high_x<0 || high_x>max_x)
+		high_x=max_x;
+	if(high_y<0 || high_y>max_y)
+		high_y=max_y;
+	if(high_z<0 || high_z>max_z)
+		high_z=max_z;
+	for(z=low_z; z<high_z; z++)
+		for(y=low_y; y<high_y; y++)
+			for(x=low_x; x<high_x; x++)
+				this->set_voxel_by_dir(x,y,z,source->get_voxel_by_dir(x,y,z,direction),direction);
+    }
 
 #endif
