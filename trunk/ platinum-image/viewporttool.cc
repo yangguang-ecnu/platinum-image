@@ -372,7 +372,7 @@ cursor_tool::~cursor_tool()
 {
     if (selection != NULL && selectionOwner == this)
         { 
-        selectionOwner == NULL;
+        selectionOwner = NULL;
         
         delete selection;
         selection = NULL;
