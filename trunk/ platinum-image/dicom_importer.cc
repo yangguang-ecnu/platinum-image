@@ -300,7 +300,7 @@ void dcmtable::update_tabledata()
 //----------------------------------------------------------
 //----------------------------------------------------------
 //----------------------------------------------------------
-void dcmimportwin::button_cb(Fl_Button* b, void* bstring)
+void dcmimportwin::button_cb(Fl_Button* b, const void* bstring)
 {
 	dcmimportwin *w = (dcmimportwin*)b->parent();
 	w->button_cb2(string((const char*)bstring));

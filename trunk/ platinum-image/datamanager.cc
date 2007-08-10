@@ -406,6 +406,7 @@ data_base * datamanager::get_data (int ID)
             return *itr;
             }
         }
+	return NULL;//Pretty important line...
 }
 
 image_base * datamanager::get_image (int ID)
@@ -483,7 +484,9 @@ void datamanager::data_has_changed (int dataID, bool recalibrate)
 void datamanager::data_vector_has_changed()
     {
     rebuild_objects_menu();
+
     rendermanagement.data_vector_has_changed();
+
     userIOmanagement.data_vector_has_changed();
     }
 

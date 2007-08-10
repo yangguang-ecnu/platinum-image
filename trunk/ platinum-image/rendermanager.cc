@@ -255,7 +255,7 @@ void rendermanager::data_vector_has_changed()
 {
     for (std::vector<renderer_base *>::iterator itr = renderers.begin();itr != renderers.end();itr++)
         {
-        rendercombination * c = (*itr)->imagestorender;
+        //rendercombination * c = (*itr)->imagestorender;
         
         (*itr)->imagestorender->data_vector_has_changed(); 
         /*if ((*itr)->imagestorender->empty())

@@ -38,8 +38,9 @@ data_base::~data_base()
     //Fl::delete_widget is designed to avoid this
 
     if (widget != NULL)
-        {Fl::delete_widget (widget); }
-    
+        {
+		Fl::delete_widget (widget); 
+		}
     datamanagement.remove_data (this);
     }
 
