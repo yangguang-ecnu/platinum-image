@@ -265,18 +265,15 @@ bool viewport::render_if_needed (FLTKviewport * f)
 void viewport::viewport_callback(Fl_Widget *callingwidget){
     FLTKviewport* f = (FLTKviewport*)callingwidget;
     //f points to the same GUI toolkit-dependent widget instance as viewport_widget
-        
+
     if (f->callback_event.type() == pt_event::draw)
         {
         f->callback_event.grab();
-        
         render_if_needed(f);
-        
         f->damage(FL_DAMAGE_ALL);
         f->draw(rgbpixmap);
         f->damage(0);
         }
-    
     if (busyTool == NULL)
         { 
         busyTool = viewporttool::taste(f->callback_event,this,rendermanagement.get_renderer(rendererID));
@@ -312,7 +309,6 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
                 }
             break;
         }
-    
 }
 
 int viewport::get_id () const

@@ -119,7 +119,7 @@ private:
 	Fl_Check_Button* incl_subfolder_check_button;
 	Fl_Input* import_volume_input;
 
-	static void button_cb(Fl_Button* b, void* bstring);
+	static void button_cb(Fl_Button* b, const void* bstring);
 	void button_cb2(string s);
 	
 	vector<string> get_dcm_files_from_dir(const char *dir, vector<string> dcm_files, bool incl_sub_dirs);

@@ -66,7 +66,7 @@ void FLTKviewport::draw()
     {
     //The draw() virtual method is called when FLTK wants you to redraw your widget.
     //It will be called if and only if damage()  is non-zero, and damage() will be cleared to zero after it returns
-    
+   
     callback_event = viewport_event (pt_event::draw,this);
     //callback_event.FLTK_event::attach (this);
     

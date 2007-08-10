@@ -44,7 +44,7 @@ void rendererMPR::connect_image(int vHandlerID)
     {
     //TEST: wrapper, this should be done directly by rendermanagement
     imagestorender->add_data(vHandlerID);
-    }
+	}
 
 Vector3D rendererMPR::view_to_world(int vx, int vy,int sx,int sy) const
 {
@@ -198,18 +198,18 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             for (long p=0; p < rgb_sx*rgb_sy*RGBpixmap_bytesperpixel; p +=RGBpixmap_bytesperpixel )
                 {pixels[p] = pixels[p + 1] = pixels[p + 2]=0;}
         }
-    
-    
+       
     #pragma mark *** Per-image render loop ***
     
     Vector3D data_size;
     
     int the_image = 0;
+
     for (rendercombination::iterator pairItr = what->begin();pairItr != what->end();pairItr++)  
-        {
+        { 
         image_base *the_image_pointer, *the_other_image_pointer;
         
-        pt_error::error_if_null(pairItr->pointer,"Rendered data object is NULL");
+		pt_error::error_if_null(pairItr->pointer,"Rendered data object is NULL");//Crash here when closing an image
 
         the_image_pointer = dynamic_cast<image_base *> (pairItr->pointer);
         
@@ -292,7 +292,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             //3. render pixel
             //4. move along scanline (iterate x)
             //5. repeat
-            
+             
             for ( fill_y_start=0; fill_y_start < rgb_sy; fill_y_start++)
                 {
                 fill_y_end=fill_y_start+1;

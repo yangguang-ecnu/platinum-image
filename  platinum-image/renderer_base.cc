@@ -22,6 +22,7 @@
 int renderer_base::maxrendererID = 0;
 const float renderer_base::display_scale = 250;//25;
 
+using namespace std;
 listedfactory<renderer_base> renderer_base::renderer_factory;
 
 renderer_base::renderer_base()

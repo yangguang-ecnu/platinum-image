@@ -26,6 +26,7 @@ extern datamanager datamanagement;
 
 int rendercombination::new_rc_ID=1;
 
+using namespace std;
 rendercombination::renderpair::renderpair()
 {
     ID = NOT_FOUND_ID;
@@ -37,6 +38,7 @@ rendercombination::renderpair::renderpair(const int i,data_base* d,const blendmo
 {
     ID = i;
     pointer = d;
+	
     mode = m;
 };        
 
@@ -104,6 +106,7 @@ void rendercombination::toggle_data(int dataID)
             {
             remove_image(dataID);
             removed=true;
+			break;//To avoid undefined values of itr
             }
         }
     
@@ -149,7 +152,7 @@ void rendercombination::data_vector_has_changed()
     {
     //images may have been deleted too, we need to update both image ID and image pointer
 
-    for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
+	for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
         {
         itr->pointer=datamanagement.get_data(itr->ID);
         
