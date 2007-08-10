@@ -1185,10 +1185,97 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 					}
 				}
 			}
-	    if(n_diff==0)
-	        {
-			(*(output_iter+j))=class2;
-	        }
+	  //  if(n_diff==0)
+	  //      {
+			//(*(output_iter+j))=class2;
+	  //      }
+		if(n_diff==0)
+			{
+			//Test directions
+			bool hitTarget=false;
+			bool hitBkg=false;
+
+			//Left
+			x2=x-1;
+			while(!hitTarget && !hitBkg && x2>=0)
+				{
+				k=x2+max_x*(y+z*max_y);
+				if((*(output_iter+k))==class1)
+					hitTarget=true;
+				else if((*(output_iter+k))==bkg)
+					hitBkg=true;
+				x2--;
+				}
+			hitBkg=false;
+
+			//Right
+			x2=x+1;
+			while(!hitTarget && !hitBkg && x2<max_x)
+				{
+				k=x2+max_x*(y+z*max_y);
+				if((*(output_iter+k))==class1)
+					hitTarget=true;
+				else if((*(output_iter+k))==bkg)
+					hitBkg=true;
+				x2++;
+				}
+			hitBkg=false;
+
+			//Up
+			y2=y-1;
+			while(!hitTarget && !hitBkg && y2>=0)
+				{
+				k=x+max_x*(y2+z*max_y);
+				if((*(output_iter+k))==class1)
+					hitTarget=true;
+				else if((*(output_iter+k))==bkg)
+					hitBkg=true;
+				y2--;
+				}
+			hitBkg=false;
+
+			//Down
+			y2=y+1;
+			while(!hitTarget && !hitBkg && y2<max_y)
+				{
+				k=x+max_x*(y2+z*max_y);
+				if((*(output_iter+k))==class1)
+					hitTarget=true;
+				else if((*(output_iter+k))==bkg)
+					hitBkg=true;
+				y2++;
+				}
+			hitBkg=false;
+
+			//Above
+			z2=z-1;
+			while(!hitTarget && !hitBkg && z2>=0)
+				{
+				k=x+max_x*(y+z2*max_y);
+				if((*(output_iter+k))==class1)
+					hitTarget=true;
+				else if((*(output_iter+k))==bkg)
+					hitBkg=true;
+				z2--;
+				}
+			hitBkg=false;
+
+			//Below
+			z2=z+1;
+			while(!hitTarget && !hitBkg && z2<max_z)
+				{
+				k=x+max_x*(y+z2*max_y);
+				if((*(output_iter+k))==class1)
+					hitTarget=true;
+				else if((*(output_iter+k))==bkg)
+					hitBkg=true;
+				z2++;
+				}
+			hitBkg=false;
+
+			if(!hitTarget)
+				(*(output_iter+j))=class2;
+			}
 		}
 
 
@@ -1506,89 +1593,89 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 				}
 			if(n_diff==0)
 				{
-				////Test directions
-				//bool hitTarget=false;
-				//bool hitBkg=false;
+				//Test directions
+				bool hitTarget=false;
+				bool hitBkg=false;
 
-				////Left
-				//x2=x-1;
-				//while(!hitTarget && !hitBkg && x2>=low_x)
-				//	{
-				//	k=x2+max_x*(y+z*max_y);
-				//	if((*(output_iter+k))==class1)
-				//		hitTarget=true;
-				//	else if((*(output_iter+k))==bkg)
-				//		hitBkg=true;
-				//	x2--;
-				//	}
-				//hitBkg=false;
+				//Left
+				x2=x-1;
+				while(!hitTarget && !hitBkg && x2>=low_x)
+					{
+					k=x2+max_x*(y+z*max_y);
+					if((*(output_iter+k))==class1)
+						hitTarget=true;
+					else if((*(output_iter+k))==bkg)
+						hitBkg=true;
+					x2--;
+					}
+				hitBkg=false;
 
-				////Right
-				//x2=x+1;
-				//while(!hitTarget && !hitBkg && x2<high_x)
-				//	{
-				//	k=x2+max_x*(y+z*max_y);
-				//	if((*(output_iter+k))==class1)
-				//		hitTarget=true;
-				//	else if((*(output_iter+k))==bkg)
-				//		hitBkg=true;
-				//	x2++;
-				//	}
-				//hitBkg=false;
+				//Right
+				x2=x+1;
+				while(!hitTarget && !hitBkg && x2<high_x)
+					{
+					k=x2+max_x*(y+z*max_y);
+					if((*(output_iter+k))==class1)
+						hitTarget=true;
+					else if((*(output_iter+k))==bkg)
+						hitBkg=true;
+					x2++;
+					}
+				hitBkg=false;
 
-				////Up
-				//y2=y-1;
-				//while(!hitTarget && !hitBkg && y2>=low_y)
-				//	{
-				//	k=x+max_x*(y2+z*max_y);
-				//	if((*(output_iter+k))==class1)
-				//		hitTarget=true;
-				//	else if((*(output_iter+k))==bkg)
-				//		hitBkg=true;
-				//	y2--;
-				//	}
-				//hitBkg=false;
+				//Up
+				y2=y-1;
+				while(!hitTarget && !hitBkg && y2>=low_y)
+					{
+					k=x+max_x*(y2+z*max_y);
+					if((*(output_iter+k))==class1)
+						hitTarget=true;
+					else if((*(output_iter+k))==bkg)
+						hitBkg=true;
+					y2--;
+					}
+				hitBkg=false;
 
-				////Down
-				//y2=y+1;
-				//while(!hitTarget && !hitBkg && y2<high_y)
-				//	{
-				//	k=x+max_x*(y2+z*max_y);
-				//	if((*(output_iter+k))==class1)
-				//		hitTarget=true;
-				//	else if((*(output_iter+k))==bkg)
-				//		hitBkg=true;
-				//	y2++;
-				//	}
-				//hitBkg=false;
+				//Down
+				y2=y+1;
+				while(!hitTarget && !hitBkg && y2<high_y)
+					{
+					k=x+max_x*(y2+z*max_y);
+					if((*(output_iter+k))==class1)
+						hitTarget=true;
+					else if((*(output_iter+k))==bkg)
+						hitBkg=true;
+					y2++;
+					}
+				hitBkg=false;
 
-				////Above
-				//z2=z-1;
-				//while(!hitTarget && !hitBkg && z2>=low_z)
-				//	{
-				//	k=x+max_x*(y+z2*max_y);
-				//	if((*(output_iter+k))==class1)
-				//		hitTarget=true;
-				//	else if((*(output_iter+k))==bkg)
-				//		hitBkg=true;
-				//	z2--;
-				//	}
-				//hitBkg=false;
+				//Above
+				z2=z-1;
+				while(!hitTarget && !hitBkg && z2>=low_z)
+					{
+					k=x+max_x*(y+z2*max_y);
+					if((*(output_iter+k))==class1)
+						hitTarget=true;
+					else if((*(output_iter+k))==bkg)
+						hitBkg=true;
+					z2--;
+					}
+				hitBkg=false;
 
-				////Below
-				//z2=z+1;
-				//while(!hitTarget && !hitBkg && z2<high_z)
-				//	{
-				//	k=x+max_x*(y+z2*max_y);
-				//	if((*(output_iter+k))==class1)
-				//		hitTarget=true;
-				//	else if((*(output_iter+k))==bkg)
-				//		hitBkg=true;
-				//	z2++;
-				//	}
-				//hitBkg=false;
+				//Below
+				z2=z+1;
+				while(!hitTarget && !hitBkg && z2<high_z)
+					{
+					k=x+max_x*(y+z2*max_y);
+					if((*(output_iter+k))==class1)
+						hitTarget=true;
+					else if((*(output_iter+k))==bkg)
+						hitBkg=true;
+					z2++;
+					}
+				hitBkg=false;
 
-				//if(!hitTarget)
+				if(!hitTarget)
 					(*(output_iter+j))=class2;
 				}
 			}
