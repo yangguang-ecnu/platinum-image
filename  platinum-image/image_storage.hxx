@@ -222,6 +222,21 @@ void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)
 		}
 	}
 
+
+template <class ELEMTYPE >
+float image_storage<ELEMTYPE >::get_number_of_voxels_with_value(ELEMTYPE val)
+	{
+		iterator i = this->begin();
+		float nr=0;
+		while(i != this->end())
+		{
+			if(*i == val){nr++;}
+			i++;
+		}
+		return nr;
+	}
+
+
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::stats_refresh()
     {

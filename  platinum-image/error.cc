@@ -53,6 +53,12 @@ bool pt_error::error_if_true (bool condition, std::string message, pt_error::err
 
 void pt_error::error ( std::string message, pt_error::errorLevel l)
     {
+	//Simplifies debugging in "release mode"
+//	std::ofstream myfile;
+//	myfile.open("debug.txt");
+//	myfile<<message<<std::endl;
+//	myfile.close();
+
     if (l >= serious)
         {
         throw pt_error (message, l);

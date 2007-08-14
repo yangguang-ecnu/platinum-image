@@ -162,6 +162,7 @@ public:
     image_base * read ();
 };
 
+/*
 class dicomloader: public imageloader
 {
 private:
@@ -174,6 +175,7 @@ public:
     dicomloader (std::vector<std::string> *);
     image_base * read ();
 };
+*/
 
 vtkloader::vtkloader(std::vector<std::string> * f): imageloader(f)
 {

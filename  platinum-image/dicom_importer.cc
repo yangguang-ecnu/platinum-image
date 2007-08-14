@@ -23,10 +23,13 @@
 
 #define __dicom_importer_cc__
 
-#include "dicom_importer.h"
-//#include <sstream>
 #include <iostream>
 
+#include "dicom_importer.h"
+#include "datamanager.h"
+//#include <sstream>
+
+extern datamanager datamanagement;
 
 dcmtable::dcmtable(int x, int y, int w, int h, const char *l) : Fl_Table_Row(x,y,w,h,l)
 {
@@ -35,43 +38,52 @@ dcmtable::dcmtable(int x, int y, int w, int h, const char *l) : Fl_Table_Row(x,y
 	end();
 	callback(event_callback, (void*)this);
 
-
-	system("dir");
 	if(!file_exists("dcm_import_tags.csv")){
-		vector<string> row;
 
-		row.push_back("Patient Name"); 
-		row.push_back("0010"); 
-		row.push_back("0010");
-		dcmtags.add_row(row);
-		row.clear();
+		//		vector<string> row;
+		dcmtags.add_three_strings_row("Name","0010","0010");
+		dcmtags.add_three_strings_row("Study Date","0008","0020");
+		dcmtags.add_three_strings_row("Series Date","0008","0021");
+		dcmtags.add_three_strings_row("Series ID","0020","000e");
+		dcmtags.add_three_strings_row("Modality","0008","0060");
+		dcmtags.add_three_strings_row("Image Type","0008","0008");
+		dcmtags.add_three_strings_row("Study Descr.","0008","1030");
+		dcmtags.add_three_strings_row("Series Descr.","0008","103E");
 
-		row.push_back("Study Date"); 
-		row.push_back("0008"); 
-		row.push_back("0020");
-		dcmtags.add_row(row);	
-		row.clear();	
+		dcmtags.add_three_strings_row("Patient ID","0010","0020");
+		dcmtags.add_three_strings_row("Birth Date","0010","0030");
+		dcmtags.add_three_strings_row("Sex","0010","0040");
+		dcmtags.add_three_strings_row("Weight","0010","1030");
 
-		row.push_back("Modality");	
-		row.push_back("0008");	
-		row.push_back("0060");
-		dcmtags.add_row(row);	
-		row.clear();	
+		dcmtags.add_three_strings_row("TR","0018","0080");
+		dcmtags.add_three_strings_row("TE","0018","0081");
+		dcmtags.add_three_strings_row("Flip","0018","1314");
+		dcmtags.add_three_strings_row("NSA","0018","0083");
+		dcmtags.add_three_strings_row("Slc/Thickn","0018","0050");
+		dcmtags.add_three_strings_row("Slc/Space","0018","0088");
+
+		dcmtags.add_three_strings_row("FOV?","0018","1100");
+		dcmtags.add_three_strings_row("B0(T)","0018","0087");
+
+		dcmtags.add_three_strings_row("No phase enc.","0018","0089");
+		dcmtags.add_three_strings_row("Perc. sampl.","0018","0093");
+		dcmtags.add_three_strings_row("RFOV","0018","0094");
+		dcmtags.add_three_strings_row("Protocol","0018","1030");
+
+		dcmtags.add_three_strings_row("Transm Coil","0018","1251");
+		dcmtags.add_three_strings_row("Rcv Coil","0018","1250");
+
 
 		dcmtags.write_to_csvfile("dcm_import_tags.csv");
 
-		//The loaded file has typically this format...
+		//The saved file has typically this format...
 		//Patient Name;0010;0010;
-		//Study Date;0008;0020;
-		//Series Date;0008;0021;
-		//Acquisition Date;0008;0022;
-		//Image Date;0008;0023;
 		//Modality;0008;0060;
 
 	}else{
 		dcmtags.read_from_csvfile("dcm_import_tags.csv");
 	}
-	dcmtags.print_all();
+	//	dcmtags.print_all();
 
 	data = stringmatrix(1,dcmtags.rows()+1," ");
 	update_tabledata();
@@ -153,7 +165,7 @@ void dcmtable::draw_cell(TableContext context, int R, int C, int X, int Y, int W
 				fl_rectf(X, Y, W, H);
 
 				fl_color(FL_BLACK);
-				
+
 				fl_draw(data.get(R,C).c_str(), X+2, Y, W, H, FL_ALIGN_LEFT);	// +2=pad left
 
 				// BORDER
@@ -187,10 +199,8 @@ void dcmtable::autowidth(int pad)
 		for ( int c=0; c<(int)data.cols(); c++ )
 		{
 
-			//			fl_measure(_rowdata[r].words[c].c_str(), w, h, 0);	//let FLTK measure the text w/h
-
-			//jk4 - width test
-//			w = fl_width(_rowdata[r].words[c].c_str(),_rowdata[r].words[c].size()); //will include "white characters"
+			//fl_measure(_rowdata[r].words[c].c_str(), w, h, 0);	//let FLTK measure the text w/h
+			//w = fl_width(_rowdata[r].words[c].c_str(),_rowdata[r].words[c].size()); //will include "white characters"
 
 			if(c==0){ //compensate for the fact that the first col header is "Filename"
 				w1 = fl_width("Filename",8); //will include "white characters"
@@ -242,8 +252,29 @@ void dcmtable::event_callback2()
 				else
 				{ _sort_reverse = 0; } 	// Click diff column? Up sort 
 
-//				sort_column(C, _sort_reverse);
+				//				sort_column(C, _sort_reverse);
+
+				//TODO: JK-note what files are selected...
+				selected_filenames.clear();
+				for(int r=0;r<data.rows();r++){
+					if(row_selected(r)){
+						selected_filenames.push_back(data.get(r,0));
+						select_row(r,0);
+					}
+				}
+
 				data.sort_table_using_col(C,_sort_reverse);
+
+				//TODO: JK-select the same files again...
+				string s;
+				for(int i=0;i<selected_filenames.size();i++){
+					for(int r=0;r<data.rows();r++){
+						s = data.get(r,0);
+						if(selected_filenames[i]==s){
+							select_row(r);
+						}
+					}
+				}
 
 				cout<<"Sort...+redraw"<<endl;
 				redraw();
@@ -296,6 +327,16 @@ void dcmtable::update_tabledata()
 	redraw();
 }
 
+vector<string> dcmtable::get_selected_filenames()
+{
+	vector<string> v;
+	for(int r=0;r<data.rows();r++){
+		if(row_selected(r)){
+			v.push_back(data.get(r,0));
+		}
+	}
+	return v;
+}
 
 //----------------------------------------------------------
 //----------------------------------------------------------
@@ -317,39 +358,41 @@ void dcmimportwin::button_cb2(string s)
 		//		char * path = fl_file_chooser("Choose a directory", "", 0);
 		char * path = fl_dir_chooser("Choose a directory", "", 0);
 
-		cout<<"fl_dir_chooser-->"<<path<<endl;
-		cout<<"name-->"<<fl_filename_name(path)<<endl;
-		if(incl_subfolder_check_button->value()){
-			cout<<"include subfolders..."<<endl;
-		}else{
-			cout<<"DONT include subfolders..."<<endl;
+		pt_error::error("dcm_import path="+string(path),pt_error::notice);
+
+		if(path != ""){
+			cout<<"fl_dir_chooser-->"<<path<<endl;
+			cout<<"name-->"<<fl_filename_name(path)<<endl;
+
+			if(incl_subfolder_check_button->value()){
+				cout<<"include subfolders..."<<endl;
+			}else{
+				cout<<"DONT include subfolders..."<<endl;
+			}
+
+			//-----------------------
+			//-----------------------
+			vector<string> dcm_file_vector;
+			dcm_file_vector = get_dcm_files_from_dir(path, dcm_file_vector, incl_subfolder_check_button->value());
+			cout<<"***TOTAL NO files = "<<dcm_file_vector.size()<<endl;
+
+			//for each file... get the dcm info specified in the dcmtable-"dcmtags" object...
+			//fill the dcmtable-"data" with the data....
+			table->fill_table(dcm_file_vector);
 		}
-
-		//-----------------------
-		//-----------------------
-		vector<string> dcm_file_vector;
-		dcm_file_vector = get_dcm_files_from_dir(path, dcm_file_vector, incl_subfolder_check_button->value());
-		cout<<"***TOTAL NO files = "<<dcm_file_vector.size()<<endl;
-
-		//for each file... get the dcm info specified in the dcmtable-"dcmtags" object...
-		//fill the dcmtable-"data" with the data....
-		table->fill_table(dcm_file_vector);
 
 
 	}else if(s=="settings"){
-		settingswin::create(50,50,500,800,table,"Settings");
-//		table->update_tabledata();
+		settingswin::create(50,50,700,800,table,"Settings");
+		//		table->update_tabledata();
 
 	}else if(s=="import"){
-		//if file/files are selected -->  import and give the name in the input field
-		//geometry information will be difficult to import, as files can be chosen randomly...
-		//just set the geometry info to "default" (i.e no rotation, origin (0,0,0), scaling (1,1,1)
-		cout<<"*"<<import_volume_input->value()<<endl;
+		datamanagement.load_dcm_import_vector(table->get_selected_filenames(), import_vol_name_input->value());
 
 	}else if(s=="close"){
 		this->hide();
 	}else{
-		cout<<"*Warning*"<<endl;
+		pt_error::pt_error("dcmimportwin::button_cb2... No matching string",pt_error::debug);
 	}
 }
 
@@ -376,7 +419,7 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 
 	Fl_Button* o;
 	o = new Fl_Button(wm, wm, 100, wh, "Load directory");
-	o->callback((Fl_Callback*)button_cb, (void *)"load");
+	o->callback((Fl_Callback*)button_cb, (void*)"load");
 	//	o->callback((Fl_Callback*)load_button_cb, (void*)this);
 
 	//	Fl_Check_Button* incl_subfolder_check_button = new Fl_Check_Button(100+2*wm, wm, 160, wh, "Include subdirectories");
@@ -389,20 +432,20 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 	o->callback((Fl_Callback*)button_cb, (void*)"settings");
 	//	o->callback((Fl_Callback*)settings_button_cb, (void*)this);
 
-	//	Fl_Input* import_volume_input = new Fl_Input(w()-3*wm-2*65-170, h()-wm-wh, 170, wh, "Import Volume Name");
-	import_volume_input = new Fl_Input(w()-3*wm-2*65-170, h()-wm-wh, 170, wh, "Import Volume Name");
-	import_volume_input->box(FL_DOWN_BOX);
-	import_volume_input->color(FL_BACKGROUND2_COLOR);
-	import_volume_input->selection_color(FL_SELECTION_COLOR);
-	import_volume_input->labeltype(FL_NORMAL_LABEL);
-	import_volume_input->labelfont(0);
-	import_volume_input->labelsize(14);
-	import_volume_input->labelcolor(FL_FOREGROUND_COLOR);
-	//	import_volume_input->callback((Fl_Callback*)volume_name_field_cb, (void*)this);
-	import_volume_input->align(FL_ALIGN_LEFT);
-	import_volume_input->when(FL_WHEN_RELEASE);
+	//	Fl_Input* import_vol_name_input = new Fl_Input(w()-3*wm-2*65-170, h()-wm-wh, 170, wh, "Import Volume Name");
+	import_vol_name_input = new Fl_Input(w()-3*wm-2*65-170, h()-wm-wh, 170, wh, "Import Volume Name");
+	import_vol_name_input->box(FL_DOWN_BOX);
+	import_vol_name_input->color(FL_BACKGROUND2_COLOR);
+	import_vol_name_input->selection_color(FL_SELECTION_COLOR);
+	import_vol_name_input->labeltype(FL_NORMAL_LABEL);
+	import_vol_name_input->labelfont(0);
+	import_vol_name_input->labelsize(14);
+	import_vol_name_input->labelcolor(FL_FOREGROUND_COLOR);
+	//	import_vol_name_input->callback((Fl_Callback*)volume_name_field_cb, (void*)this);
+	import_vol_name_input->align(FL_ALIGN_LEFT);
+	import_vol_name_input->when(FL_WHEN_RELEASE);
 
-	import_volume_input->value("Dicom import volume");
+	import_vol_name_input->value("Dicom import volume");
 
 
 	o = new Fl_Button(w()-2*wm-2*65, h()-wm-wh, 65, wh, "Import");
@@ -422,42 +465,46 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 
 vector<string> dcmimportwin::get_dcm_files_from_dir(const char *dir, vector<string> dcm_files, bool incl_sub_dirs)
 {
-		cout<<"***get_dcm_files_from_dir...="<<dir<<endl;
-		struct dirent **files;
-		int num_files = fl_filename_list(dir, &files);
-		cout<<"num_files="<<num_files<<endl;
+	cout<<"***get_dcm_files_from_dir...="<<dir<<endl;
+	struct dirent **files;
+	int num_files = fl_filename_list(dir, &files);
+	cout<<"num_files="<<num_files<<endl;
 
-		itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
-		string d = string(dir);
-		string f;
-		string p;
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+	string d = string(dir);
+	string f;
+	string p;
 
-		for(int i=0; i<num_files; i++) {
-			f = string(files[i]->d_name);
-			p = d + f;
-//			cout<<"d="<<d<<" (f="<<f<<")"<<endl;
-			
-			if(incl_sub_dirs && fl_filename_isdir(p.c_str()) && f!="../" && f!="./")
-			{
-				dcm_files = get_dcm_files_from_dir( p.c_str(), dcm_files, incl_sub_dirs);
-			}
-			else if(dicomIO->CanReadFile(p.c_str()))
-			{
-				dcm_files.push_back(p);
-//				dicomIO->SetFileName(files[i]->d_name);
-//				dicomIO->ReadImageInformation();		//get basic DICOM header
-			}
-			free(files[i]);
+	for(int i=0; i<num_files; i++) {
+		f = string(files[i]->d_name);
+		p = d + f;
+		cout<<"d="<<d<<" (f="<<f<<")"<<endl;
+
+		if(incl_sub_dirs && fl_filename_isdir(p.c_str()) && f!="../" && f!="./")
+		{
+			dcm_files = get_dcm_files_from_dir( p.c_str(), dcm_files, incl_sub_dirs);
+			cout<<"*path*"<<endl;
 		}
+		else if(dicomIO->CanReadFile(p.c_str()))
+		{
+			dcm_files.push_back(p);
+			//				dicomIO->SetFileName(files[i]->d_name);
+			//				dicomIO->ReadImageInformation();		//get basic DICOM header
+			cout<<"*dcm*"<<endl;
+		}else{
+			cout<<"*none*"<<endl;
+		}
+		free(files[i]);
+	}
 
-		if (num_files > 0) 
-			free(files);
+	if (num_files > 0) 
+		free(files);
 
-//		cout<<"dcm_files.size()="<<dcm_files.size()<<endl;
-//		for (int i=0; i<dcm_files.size(); i++) {
-//			cout<<dcm_files[i]<<endl;
-//		}
-		return dcm_files;
+	//		cout<<"dcm_files.size()="<<dcm_files.size()<<endl;
+	//		for (int i=0; i<dcm_files.size(); i++) {
+	//			cout<<dcm_files[i]<<endl;
+	//		}
+	return dcm_files;
 }
 
 
@@ -620,11 +667,18 @@ void string_edit_table::event_callback2()
 	}
 }
 
-void input_cb(Fl_Widget*, void* v)
+void string_edit_table::input_cb(Fl_Widget*, void* v)
 { 
 	((string_edit_table*)v)->set_value(); 
 }
 
+
+/*
+void input_cb(Fl_Widget*, void* v)
+{ 
+((string_edit_table*)v)->set_value(); 
+}
+*/
 
 
 //----------------------------------------------------------
@@ -643,7 +697,7 @@ settingswin::settingswin(int x, int y, int w, int h, dcmtable *dt, const char *l
 
 	table = new string_edit_table(wm, wm, w-2*wm, h-3*wm-wh,"",5,3);
 	table->read_from_csvfile("dcm_import_tags.csv");
-	
+
 	dcmtable_ptr=dt;
 
 	// ROWS
@@ -659,13 +713,40 @@ settingswin::settingswin(int x, int y, int w, int h, dcmtable *dt, const char *l
 	table->col_width_all(70);
 
 	Fl_Button* o;
-	o = new Fl_Button(wm, h-wm-wh, 70, wh, "Add Row");
+	int y_level = h-wm-wh;
+	int x_acc = wm;		//accumulated x-value;
+
+	o = new Fl_Button(x_acc, y_level, 70, wh, "Add Row");
 	o->callback((Fl_Callback*)button_cb, (void*)"Add Row");
 
-	o = new Fl_Button(w-120-2*wm, h-wm-wh, 60, wh, "Cancel");
+
+	x_acc += 3*wm+70;
+	Fl_Box *b1 = new Fl_Box(FL_DOWN_BOX,x_acc-7, y_level-5, 167, wh+10, "");
+	//----
+	o = new Fl_Button(x_acc, y_level, 120, wh, "Insert Row");
+	o->callback((Fl_Callback*)button_cb, (void*)"Insert Row");
+	ins_row_input = new Fl_Input(x_acc+125, y_level, 30, wh,"");
+	ins_row_input->value("0");
+	cout<<"ins_row_input->value()="<<ins_row_input->value()<<endl;
+	//----
+
+	x_acc += 180;
+	Fl_Box *b2 = new Fl_Box(FL_DOWN_BOX,x_acc-7, y_level-5, 167, wh+10, "");
+	//----
+	o = new Fl_Button(x_acc, y_level, 120, wh, "Delete Row");
+	o->callback((Fl_Callback*)button_cb, (void*)"Delete Row");
+	del_row_input = new Fl_Input(x_acc+125,y_level, 30, wh,"");
+	char tmp[100];
+	sprintf(tmp, "%d", max(0,table->rows()-1));
+	del_row_input->value(tmp);
+	cout<<"del_row_input->value()="<<del_row_input->value()<<endl;
+	//----
+
+
+	o = new Fl_Button(w-120-2*wm, y_level, 60, wh, "Cancel");
 	o->callback((Fl_Callback*)button_cb, (void*)"Cancel");
 
-	o = new Fl_Button(w-60-wm, h-wm-wh, 60, wh, "OK");
+	o = new Fl_Button(w-60-wm, y_level, 60, wh, "OK");
 	o->callback((Fl_Callback*)button_cb, (void*)"OK");
 
 
@@ -677,8 +758,10 @@ settingswin::settingswin(int x, int y, int w, int h, dcmtable *dt, const char *l
 void settingswin::button_cb(Fl_Button* b, void* bstring)
 {
 	settingswin *w = (settingswin*)b->parent();
-	w->button_cb2(string((const char*)bstring));
+	string s = string((const char*)bstring);
+	w->button_cb2(s);
 }
+
 
 void settingswin::button_cb2(string s)
 {
@@ -691,10 +774,35 @@ void settingswin::button_cb2(string s)
 		v.push_back("");
 		table->dcmtags.add_row(v);
 		update_tabledata();
-	
+
+	}else if(s=="Insert Row"){
+
+		int r = atoi(ins_row_input->value());
+		cout<<"Insert Row: r="<<r<<endl;
+
+		if( r>=0 && r < table->dcmtags.rows())
+		{
+			vector<string> v;
+			v.push_back("");
+			v.push_back("");
+			v.push_back("");
+			table->dcmtags.insert_row(r,v);
+			update_tabledata();
+		}
+
+	}else if(s=="Delete Row"){
+
+		int r = atoi(del_row_input->value());
+		cout<<"Delete Row: r="<<r<<endl;
+
+		if( r>=0 && r < table->dcmtags.rows())
+		{
+			table->dcmtags.remove_row(r);
+			update_tabledata();
+		}
+
 	}else if(s=="OK"){
 		table->write_to_csvfile("dcm_import_tags.csv");
-//		((dcmimportwin*)parent())->update_tabledata();
 		dcmtable_ptr->update_tabledata();
 		hide();
 
@@ -702,9 +810,10 @@ void settingswin::button_cb2(string s)
 		hide();
 
 	}else{
-		cout<<"*Warning*"<<endl;
+		pt_error::pt_error("settingswin::button_cb2... No matching string",pt_error::debug);
 	}
 }
+
 
 void settingswin::update_tabledata()
 {

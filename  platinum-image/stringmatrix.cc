@@ -180,14 +180,27 @@ unsigned int stringmatrix::cols()
 
 void stringmatrix::add_row(vector<string> r, string space_holder)
 {
-	cout<<"add_row(...)"<<endl;
-
 	if( r.size()<=cols() || rows()==0 )
 	{
 		while(r.size()<cols()){	r.push_back(space_holder);}
 		data.push_back(r);
 	}
 }
+
+void stringmatrix::add_three_strings_row(string s1, string s2, string s3, string space_holder)
+{
+	if( 3<=cols() || rows()==0 )
+	{
+		vector<string> r;
+		r.push_back(s1);
+		r.push_back(s2);
+		r.push_back(s3);
+		while(r.size()<cols()){	r.push_back(space_holder);}
+		data.push_back(r);
+	}
+}
+
+
 
 void stringmatrix::remove_row(int pos)
 {
@@ -363,7 +376,7 @@ void stringmatrix::print_all()
 
 void stringmatrix::read_from_csvfile(string filepath, string sep)
 {
-	cout<<"read_from_csvfile... "<<endl;
+//	cout<<"read_from_csvfile... "<<endl;
 
 	ifstream myfile (filepath.c_str());
 	int ind1=0;

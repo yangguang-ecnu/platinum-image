@@ -689,6 +689,7 @@ float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) c
     return static_cast<float>(get_voxel (x, y, z));
     }
 
+
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_by_dir(int u, int v, int w, int direction)
 {	

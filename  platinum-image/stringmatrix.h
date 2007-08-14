@@ -86,6 +86,8 @@ public:
 
 	// --- row operations ---
 	void add_row(vector<string> r, string space_holder="");
+	void add_three_strings_row(string s1, string s2, string s3, string space_holder="");
+
 	void remove_row(int pos);
 	void insert_row(int pos, vector<string> r, string space_holder="");
 	void replace_row(int pos, vector<string> r, string space_holder="");
