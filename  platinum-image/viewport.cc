@@ -115,8 +115,8 @@ viewport::~viewport()
     if (rgbpixmap != NULL)
         {delete[] rgbpixmap; }
     
-    //if (renderermenu_button != NULL)
-    //    { fl_menu_userdata_delete (renderermenu_button->menu()); }
+    if (imagemenu_button != NULL) //objects menu has user data which was allocated in line 542
+        { fl_menu_userdata_delete (renderermenu_button->menu()); }
 }
 
 void viewport::connect_renderer(int rID)
@@ -514,7 +514,7 @@ void viewport::update_objects_menu()
     base_menu=datamanagement.FLTK_objects_menu();
     cur_menu=imagemenu_button->menu();
     
-    int baseMenuSize = fl_menu_size(base_menu);
+    unsigned int baseMenuSize = fl_menu_size(base_menu);
     
     //Fl_Menu_Item new_menu[baseMenuSize+1];
     Fl_Menu_Item * new_menu = new Fl_Menu_Item[baseMenuSize+1];
@@ -530,7 +530,6 @@ void viewport::update_objects_menu()
         {
         do 
             {       
-                const char * dummy = base_menu[m].label();
                 memcpy (&new_menu[m],&base_menu[m],sizeof(Fl_Menu_Item));
                 
                 if (new_menu[m].label()!=NULL)
@@ -556,6 +555,7 @@ void viewport::update_objects_menu()
             } while (new_menu[m++].label() !=NULL && m <= baseMenuSize);
         
         imagemenu_button->copy(new_menu);
+        delete new_menu;
         }
     else
         { imagemenu_button->menu(NULL); }
