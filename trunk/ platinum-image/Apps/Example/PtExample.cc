@@ -76,9 +76,9 @@ void add_demo_volume (int userIO_ID,int par_num)
     {
     if (par_num == USERIO_CB_OK)
         {
-        int volID = datamanagement.create_empty_volume(20,20,20,1);
+        int volID = datamanagement.create_empty_image(20,20,20,1);
         datamanagement.get_image(volID)->testpattern();
-        datamanagement.image_has_changed(volID);
+        datamanagement.data_has_changed(volID);
         }
     }
 
