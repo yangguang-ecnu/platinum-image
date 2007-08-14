@@ -348,6 +348,9 @@ const std::string dummy_tool::name()
 void dummy_tool::handle(viewport_event &event)
 {}
 
+void dummy_tool::init()
+{}
+
 threshold_overlay * histo2D_tool::get_overlay ()
 {
     return overlay;

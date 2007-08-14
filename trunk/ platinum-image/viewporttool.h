@@ -106,6 +106,7 @@ class dummy_tool : public viewporttool //test tool
 public:
     dummy_tool (viewport_event &);
     virtual void handle(viewport_event &);
+    static void init (); 
     static const std::string name ();
 };
 
