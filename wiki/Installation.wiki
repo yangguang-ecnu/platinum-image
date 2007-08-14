@@ -99,7 +99,7 @@ _VTK will be used in Platinum, however it is not necessary at the moment_
   # Enjoy!
 
 =3. Build (UNIX)=
-Repeat these steps for ITK, VTK, FLTK and Platinum - respectively, and in that order:
+Repeat these steps for ITK, VTK, FLTK and Platinum - respectively, and in that order. _See note below for bulding VTK on Mac OS X._
   # Set up a "build" directory - make a subdirectory inside where the ITK, FLTK and Platinum source code directories are kept. For example, if `~Myname/Projects/PT/ITK/` is the path to the ITK source, create `~Myname/Projects/PT/bin/`
   # Create one more directory level for each particular project, e.g. `~Myname/Projects/PT/bin/ITK/`. Enter this dir and run CMake:
    `cmake -i ~Myname/Projects/PT/ITK/`
@@ -111,9 +111,21 @@ Repeat these steps for ITK, VTK, FLTK and Platinum - respectively, and in that o
 
 *NOTE:* the UNIX build process is particular about the compiler used, and that all libraries used were compiled using the same compiler. If the build fails  without a descriptive error message this may be the case. Try setting the compiler manually for all three projects by running `cmake -D CMAKE_CXX_COMPILER:STRING=/usr/bin/c++` (this sets the compiler to `c++`) in each build directory, and then running `make` once again.  
 
+=Mac OS X notes=
+Since Mac OS X is UNIX, simply follow the general UNIX build procedure above. There are just a few important points to note when building Platinum on the Mac, listed below.
+
+==Building VTK==
+On the Mac, VTK can be built using either the legacy [http://en.wikipedia.org/wiki/Carbon_%28API%29 Carbon] or the current [http://en.wikipedia.org/wiki/Cocoa_%28API%29 Cocoa] classes. Platinum has been designed to work with Cocoa classes, and will not display images correctly if Carbon is used. Before running `make` on VTK, use the following commands to make the build a Cocoa one:
+
+`cmake -D VTK_USE_CARBON:BOOL=OFF`
+
+`cmake -D VTK_USE_COCOA:BOOL=ON`
+
 ==XCode==
 If you are on Mac OS X you may use the `-G Xcode` flag with CMake (all other instructions as above) to generate Platinum as an XCode project instead of a makefile. Once you have the XCode project file, the project is built by selecting the appropriate command inside XCode. NOTE: ITK, VTK or FLTK cannot be built with XCode, but are easy to build with `make` anyway.
 
 You may also use XCode for updating/commiting SVN: select "Configure SCM" from the SCM menu, choose Subversion as SCM system and click "Enable SCM". When CMakeLists is changed, the project file will be rewritten on the next Build. XCode will notice this shortly afterwards and ask You to reload. When this happens, SVN must be re-enabled as described above.
 
 *Note:* for Xcode SVN to work, you have to have SVN previously set up. This can be done by command-line or, preferrably, with a tool like [http://www.lachoseinteractive.net/en/community/subversion/svnx/features/ svnX].
+
+
