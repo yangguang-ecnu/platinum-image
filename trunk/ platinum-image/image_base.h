@@ -55,6 +55,7 @@ class image_base : public data_base
     {
     private:
         void set_parameters ();
+
     protected:
         image_base();
         image_base(image_base* const s);
@@ -117,5 +118,34 @@ class image_base : public data_base
         Matrix3D get_orientation () const;
         Vector3D get_origin () const;
     };
+
+
+class imageloader
+{
+protected:
+    std::vector<std::string> * files;
+public:
+    imageloader(std::vector<std::string> * f)
+        {
+        files = f;
+        }
+    ~imageloader()
+        { }
+};
+
+//The dicomloader loads a 
+class dicomloader: public imageloader
+{
+private:
+    itk::GDCMImageIO::Pointer dicomIO;
+    
+	std::vector<std::string> loaded_series; //! UIDs of the DICOM series loaded during this call
+                                  //! to prevent multiple selected frames
+                                  //! from loading the same series multiple times
+public:
+    dicomloader (std::vector<std::string> *);
+    image_base * read ();
+};
+
 
 #endif

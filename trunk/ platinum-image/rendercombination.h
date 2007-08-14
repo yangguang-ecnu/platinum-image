@@ -53,11 +53,13 @@ public:
             
             renderpair();
             renderpair(const int, data_base*,const blendmode);
+
         };        
         
 private:
         //int renderimages [MAXRENDERVOLUMES];
         std::list<renderpair> renderdata;
+
         //colormap colortable;
         int id; //id to identify this combination in callbacks
         static int new_rc_ID;   //unique id to assign newly created combinations

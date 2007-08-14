@@ -248,6 +248,7 @@ void datamanager::delete_data (data_base * d)
 
 void datamanager::delete_data (int id)
 {
+	pt_error::error("datamanager::delete_data",pt_error::debug);
     for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
         {
         if ((*itr)->get_id() == id)
@@ -318,7 +319,7 @@ void datamanager::dcm_import_callback(Fl_Widget *callingwidget, void *thisdatama
 void datamanager::loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager)
 // argument must tell us which instance, if multiple
     {
-    ((datamanager*)thisdatamanager)->loadimages();	//joel
+    ((datamanager*)thisdatamanager)->loadimages();	
     }
 
 void datamanager::loadimages() // argument must tell us which instance, if multiple
@@ -350,6 +351,15 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
         image_base::load(files);
         }
     }
+
+
+//JK geometry information will be difficult to import, as files can be chosen arbitraryly...
+//Set the geometry info to "default" (i.e no rotation, origin (0,0,0), scaling (1,1,1) )
+
+void datamanager::load_dcm_import_vector(std::vector<std::string> dcm_filenames, std::string import_vol_name)
+{
+
+}
 
 int datamanager::create_empty_image(int x, int y, int z, int unit) // argument must tell us which instance, if multiple
     {

@@ -226,6 +226,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
 
     itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
 
+
     NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
     nameGenerator->SetLoadPrivateTags ( true ); 
     nameGenerator->SetUseSeriesDetails( false );    //no details - crucial because existing
@@ -236,6 +237,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
     FileNamesContainer fileNames; 
     fileNames = nameGenerator->GetFileNames( seriesIdentifier );     
 
+	if(fileNames.size()>0){
+		dcmIO->SetFileName(fileNames[0].c_str());					//JK1
+	}
     // *** initialize reader ***
 
     typename theSeriesReaderType::Pointer reader = theSeriesReaderType::New();
@@ -302,6 +306,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
     name(namestring.str());
 
     this->from_file(true);
+
+	dcmIO->SetFileName(fileNames[0].c_str());	//JK1
     }
 
 template <class ELEMTYPE, int IMAGEDIM>

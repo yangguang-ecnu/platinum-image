@@ -84,8 +84,16 @@ class data_base
         
         void activate();
 
-        // *** Metadata ***
-        
+
+		// *** Metadata ***
+
+     	itk::GDCMImageIO::Pointer dcmIO; //Allows simple dicom meta data import
+		//dicom might store other data types than image data... 
+		//dcmIO->GetFileName()=="" if meta data is not available from dicom file.
+		//dcmIO->SetFileName("...filename...");
+		//dcmIO->ReadImageInformation();		//Needs to be called before accessing data...
+		//dcmIO->GetValueFromTag("0010"+"|"+"0010",string dcmdata);
+
         virtual void name (const std::string n);          //set name
         virtual const std::string name () const;          //get name
         

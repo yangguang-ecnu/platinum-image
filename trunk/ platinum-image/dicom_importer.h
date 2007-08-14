@@ -1,17 +1,24 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//   Dicom_importer $Revision$
+//   dicom_importer $Revision$
+
+///  Window for importing single/multiple dicom images
+///	 This file is adapted from "sortapp.cxx" example from The Fl_Table class (Version 3.12, 04/02/2006 )
+///	 created by Greg Ercolano (http://seriss.com/people/erco/fltk/).
+
+///  The "dcmimportwin" uses a "dcmtable" (Fl_Table) to handle dicom meta data.
+///  The "dcmtable" uses a "stringmatrix" for the string storage	
+///  The "settingswin" uses a "string_edit_table" (Fl_Table) to allow editable settings.
 ///
 ///  Window for importing single/multiple dicom images
 ///	 This file is adapted from "sortapp.cxx" example from The Fl_Table class (Version 3.12, 04/02/2006 )
 ///  created by Greg Ercolano (http://seriss.com/people/erco/fltk/).
-
-//  sortapp.cxx -- Test the Fl_Table_Row class with an actual app
-//  Click on the headers to sort that column.
-
-//  singleinput.cxx -- Sample table with a single Fl_Input for editing cells
-//  1.00 04/18/03 Mister Satan -- Initial implementation
-//  1.10 05/17/03 Greg Ercolano -- Small mods to follow changes to Fl_Table
+///  sortapp.cxx -- Test the Fl_Table_Row class with an actual app
+///  Click on the headers to sort that column.
+///
+///  singleinput.cxx -- Sample table with a single Fl_Input for editing cells
+///  1.00 04/18/03 Mister Satan -- Initial implementation
+///  1.10 05/17/03 Greg Ercolano -- Small mods to follow changes to Fl_Table
 
 //   $LastChangedBy$
 
@@ -47,7 +54,6 @@
 //#include <FL/Fl_Table_Row.H>
 #include "Utilities/fltk/Fl_Table_Row.H"
 
-//#include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Input.H>
@@ -60,6 +66,8 @@
 #include "itkGDCMImageIO.h"
 #include "stringmatrix.h"
 #include "fileutils.h"
+#include "error.h"
+#include "image_base.h"		//to include class image_loader
 
 
 //#ifdef MICROSOFT
@@ -72,6 +80,18 @@ using namespace std;
 //----------------------------------------------------------
 //----------------------------------------------------------
 //----------------------------------------------------------
+//JK - Note that the dicom loader declaration "needs" to be moved to the image_base .h file...
+
+class dicom_import_loader: public dicomloader 
+{
+private:
+    string	import_vol_name;
+    
+public:
+    dicom_import_loader (vector<string> *f, string vol_name);
+    image_base * read ();
+};
+
 
 class dcmtable : public Fl_Table_Row
 {
@@ -83,6 +103,8 @@ private:
 
 	static void event_callback(Fl_Widget*, void*);	// static callback for table events
 	void event_callback2();							// callback for table events
+
+	vector<string> selected_filenames;
 
 protected:
 	// table cell drawing 
@@ -104,6 +126,7 @@ public:
 	void fill_table(vector<string> dcm_files);
 	void autowidth(int pad);			// automatically set column widths to data maximum width
 	void update_tabledata();
+	vector<string> get_selected_filenames();
 };
 
 
@@ -117,7 +140,7 @@ private:
 	dcmimportwin(int xx, int yy, int ww, int hh, const char *ll=0);
 	dcmtable *table;
 	Fl_Check_Button* incl_subfolder_check_button;
-	Fl_Input* import_volume_input;
+	Fl_Input* import_vol_name_input;
 
 	static void button_cb(Fl_Button* b, const void* bstring);
 	void button_cb2(string s);
@@ -141,8 +164,11 @@ class string_edit_table : public Fl_Table
 
 protected:
 	void draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H); // Handle drawing all cells in table
+
 	static void event_callback(Fl_Widget*, void*);// Callback whenever someone clicks on different parts of the table
 	void event_callback2();
+
+	static void input_cb(Fl_Widget*, void* v);
 
 public:
 	string_edit_table(int x, int y, int w, int h, const char *l, int nr_r, int nr_c);
@@ -153,7 +179,6 @@ public:
 	void read_from_csvfile(string file);
 	void write_to_csvfile(string file);
 	void update_tabledata();
-
 };
 
 //----------------------------------------------------------
@@ -166,6 +191,8 @@ private:
 	settingswin(int xx, int yy, int ww, int hh, dcmtable *dt, const char *ll=0);
 	string_edit_table* table;
 	dcmtable* dcmtable_ptr;
+	Fl_Input* ins_row_input;
+	Fl_Input* del_row_input;
 
 	static void button_cb(Fl_Button* b, void* bstring);
 	void button_cb2(string s);
@@ -175,7 +202,7 @@ public:
 	static settingswin* create(int xx, int yy, int ww, int hh, dcmtable *dt, const char *ll=0);
 };
 
-Fl_Callback input_cb;
-void input_cb(Fl_Widget*, void* v);
+//Fl_Callback input_cb;
+//void input_cb(Fl_Widget*, void* v);
 
 #endif

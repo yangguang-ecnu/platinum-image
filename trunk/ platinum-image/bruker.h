@@ -34,8 +34,11 @@
 
 #include <string>
 #include <vector>
+#include "image_base.h"
 
+/*
 class image_base;
+
 
 class imageloader
 {
@@ -49,6 +52,7 @@ public:
     ~imageloader()
         { }
 };
+*/
 
 class brukerloader: public imageloader 
 {

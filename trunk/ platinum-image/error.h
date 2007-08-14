@@ -28,6 +28,8 @@
 #define __error__
 
 #include <string>
+//#include <stdio.h>
+#include <fstream>
 
 class pt_error : public std::exception 
     {

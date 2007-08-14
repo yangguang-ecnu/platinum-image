@@ -126,7 +126,10 @@ class datamanager
         void rebuild_objects_menu();
         void rebuild_image_menu();
         
-        void loadvector_callback();
+//        void loadvector_callback(); //JK this line can most likely be removed...
+		void load_dcm_import_vector(std::vector<std::string> dcm_filenames, std::string import_vol_name);
+
+
         int create_empty_image(int x, int y, int z, int unit);      //creates empty image of given size
                                                                     //and fills it with testpattern()
                                                                     //returns ID
