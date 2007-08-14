@@ -30,9 +30,6 @@
 
 #include "image_scalar.h"
 
-#define TRUE 1
-#define FALSE 0
-
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
     {

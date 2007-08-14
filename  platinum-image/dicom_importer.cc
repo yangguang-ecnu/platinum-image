@@ -376,7 +376,7 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 
 	Fl_Button* o;
 	o = new Fl_Button(wm, wm, 100, wh, "Load directory");
-	o->callback((Fl_Callback*)button_cb, "load");
+	o->callback((Fl_Callback*)button_cb, (void *)"load");
 	//	o->callback((Fl_Callback*)load_button_cb, (void*)this);
 
 	//	Fl_Check_Button* incl_subfolder_check_button = new Fl_Check_Button(100+2*wm, wm, 160, wh, "Include subdirectories");
@@ -386,7 +386,7 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 
 
 	o = new Fl_Button(wm, h()-wm-wh, 140, wh, "Dicom Tag Settings");
-	o->callback((Fl_Callback*)button_cb, "settings");
+	o->callback((Fl_Callback*)button_cb, (void*)"settings");
 	//	o->callback((Fl_Callback*)settings_button_cb, (void*)this);
 
 	//	Fl_Input* import_volume_input = new Fl_Input(w()-3*wm-2*65-170, h()-wm-wh, 170, wh, "Import Volume Name");
@@ -406,11 +406,11 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 
 
 	o = new Fl_Button(w()-2*wm-2*65, h()-wm-wh, 65, wh, "Import");
-	o->callback((Fl_Callback*)button_cb, "import");
+	o->callback((Fl_Callback*)button_cb, (void*)"import");
 	//	o->callback((Fl_Callback*)import_button_cb, (void*)this);
 
 	o = new Fl_Button(w()-wm-65, h()-wm-wh, 65, wh, "Close");
-	o->callback((Fl_Callback*)button_cb, "close");
+	o->callback((Fl_Callback*)button_cb, (void*)"close");
 	//	o->callback((Fl_Callback*)close_button_cb, (void*)this);
 
 	end();
@@ -660,13 +660,13 @@ settingswin::settingswin(int x, int y, int w, int h, dcmtable *dt, const char *l
 
 	Fl_Button* o;
 	o = new Fl_Button(wm, h-wm-wh, 70, wh, "Add Row");
-	o->callback((Fl_Callback*)button_cb, "Add Row");
+	o->callback((Fl_Callback*)button_cb, (void*)"Add Row");
 
 	o = new Fl_Button(w-120-2*wm, h-wm-wh, 60, wh, "Cancel");
-	o->callback((Fl_Callback*)button_cb, "Cancel");
+	o->callback((Fl_Callback*)button_cb, (void*)"Cancel");
 
 	o = new Fl_Button(w-60-wm, h-wm-wh, 60, wh, "OK");
-	o->callback((Fl_Callback*)button_cb, "OK");
+	o->callback((Fl_Callback*)button_cb, (void*)"OK");
 
 
 	resizable(table);
