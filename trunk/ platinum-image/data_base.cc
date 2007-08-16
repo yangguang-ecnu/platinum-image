@@ -70,8 +70,8 @@ data_base::data_base()
     widget = NULL;
     from_file(false);
 
-	dcmIO = itk::GDCMImageIO::New();	//JK1
-	dcmIO->SetFileName("");				//JK1
+	//dcmIO = itk::GDCMImageIO::New();	//JK1
+	//dcmIO->SetFileName("");				//JK1
     }
 
 data_base::data_base (data_base * const source)
@@ -81,7 +81,7 @@ data_base::data_base (data_base * const source)
     ID = data_next_ID++;
     widget = NULL;
     from_file(source->from_file());
-	dcmIO->SetFileName(dcmIO->GetFileName());//JK1
+//	dcmIO->SetFileName(source->dcmIO->GetFileName());//JK1 //Crash here 
     }
 
 void data_base::activate()

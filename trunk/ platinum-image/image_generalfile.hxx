@@ -238,7 +238,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
     fileNames = nameGenerator->GetFileNames( seriesIdentifier );     
 
 	if(fileNames.size()>0){
-		dcmIO->SetFileName(fileNames[0].c_str());					//JK1
+		//dcmIO->SetFileName(fileNames[0].c_str());					//JK1
 	}
     // *** initialize reader ***
 
@@ -307,7 +307,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
 
     this->from_file(true);
 
-	dcmIO->SetFileName(fileNames[0].c_str());	//JK1
+	//dcmIO->SetFileName(fileNames[0].c_str());	//JK1
     }
 
 template <class ELEMTYPE, int IMAGEDIM>

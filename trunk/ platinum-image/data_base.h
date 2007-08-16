@@ -87,7 +87,7 @@ class data_base
 
 		// *** Metadata ***
 
-     	itk::GDCMImageIO::Pointer dcmIO; //Allows simple dicom meta data import
+     	//itk::GDCMImageIO::Pointer dcmIO; //Allows simple dicom meta data import
 		//dicom might store other data types than image data... 
 		//dcmIO->GetFileName()=="" if meta data is not available from dicom file.
 		//dcmIO->SetFileName("...filename...");
