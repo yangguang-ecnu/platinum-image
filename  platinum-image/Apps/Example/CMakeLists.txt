@@ -6,7 +6,7 @@
 # when the project uses multiple files, the arguments for ADD_EXECUTABLE
 # have to be manually edited
 
-SET(APPNAME "PtExample")
+SET(APPNAME "T1Mapping")
 
 PROJECT(${APPNAME})
 
