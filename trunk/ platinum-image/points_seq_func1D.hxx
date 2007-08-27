@@ -234,12 +234,12 @@ float points_seq_func1D<KEY_TYPE, VALUE_TYPE>::get_value_interp_spline(float thi
 	float *x = new float[themap.size()+2];
 	float *y = new float[themap.size()+2];
 
-	int i=1;	//Note: index 1...n used in Numerical Recipies...
-	for (the_iterator = themap.begin(); the_iterator != themap.end(); the_iterator++) 
+	int i;	//Note: i -- index 1...n used in Numerical Recipies...
+	for (i=1, the_iterator = themap.begin(); the_iterator != themap.end(); the_iterator++, i++) 
 	{
 		x[i] = float(the_iterator->first);
 		y[i] = float(the_iterator->second);
-		i++;
+//		i++;
 	}
 
 	float ret = pt_splint1D(x,y,y2,size(),this_x);

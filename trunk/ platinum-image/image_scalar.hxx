@@ -21,6 +21,9 @@
 #include "image_scalar.h"
 #include "image_general.hxx"
 
+
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_1storder_central_diff_3D(int direction)
 {	
@@ -658,58 +661,103 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out(int low_x, int high_x, int low_y
 				this->set_voxel(x,y,z,blank);
     }
 	
-template <class ELEMTYPE, int IMAGEDIM>
-std::vector<double> image_scalar<ELEMTYPE, IMAGEDIM>::get_slice_sum(int direction)
+	template <class ELEMTYPE, int IMAGEDIM>
+		std::vector<double> image_scalar<ELEMTYPE, IMAGEDIM>::get_slice_sum(int direction)
 	{
-	int u,v,w;
-	int max_u, max_v, max_w;
-	max_u=this->get_size_by_dim_and_dir(0,direction);
-	max_v=this->get_size_by_dim_and_dir(1,direction);
-	max_w=this->get_size_by_dim_and_dir(2,direction);
-	ELEMTYPE p;//pixel value
-	double sum=0;
-    std::vector<double> res;
-	for(w=0; w<max_w; w++)
-		{
+		int u,v,w;
+		int max_u, max_v, max_w;
+		max_u=this->get_size_by_dim_and_dir(0,direction);
+		max_v=this->get_size_by_dim_and_dir(1,direction);
+		max_w=this->get_size_by_dim_and_dir(2,direction);
+		ELEMTYPE p;//pixel value
 		double sum=0;
-		for(v=0; v<max_v; v++)
+		std::vector<double> res;
+		for(w=0; w<max_w; w++)
+		{
+			double sum=0;
+			for(v=0; v<max_v; v++)
 			{
-			for(u=0; u<max_u; u++)
+				for(u=0; u<max_u; u++)
 				{
-				p=this->get_voxel_by_dir(u,v,w,direction);
-				sum+=p;
+					p=this->get_voxel_by_dir(u,v,w,direction);
+					sum+=p;
 				}
 			}
 			res.push_back(sum);
 		}
 
-	return res;
+		return res;
 	}
 
+	template <class ELEMTYPE, int IMAGEDIM>
+		void image_scalar<ELEMTYPE, IMAGEDIM>::copy(image_integer<ELEMTYPE, IMAGEDIM> *source, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, int direction)
+	{
+		int x,y,z;
+		int max_x, max_y, max_z;
+		max_x=this->get_size_by_dim_and_dir(0,direction);
+		max_y=this->get_size_by_dim_and_dir(1,direction);
+		max_z=this->get_size_by_dim_and_dir(2,direction);
+		if(low_x<0)
+			low_x=0;
+		if(low_y<0)
+			low_y=0;
+		if(low_z<0)
+			low_z=0;
+		if(high_x<0 || high_x>max_x)
+			high_x=max_x;
+		if(high_y<0 || high_y>max_y)
+			high_y=max_y;
+		if(high_z<0 || high_z>max_z)
+			high_z=max_z;
+		for(z=low_z; z<high_z; z++)
+			for(y=low_y; y<high_y; y++)
+				for(x=low_x; x<high_x; x++)
+					this->set_voxel_by_dir(x,y,z,source->get_voxel_by_dir(x,y,z,direction),direction);
+	}
+
+
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::copy(image_integer<ELEMTYPE, IMAGEDIM> *source, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, int direction)
-    {
-	int x,y,z;
-	int max_x, max_y, max_z;
-	max_x=this->get_size_by_dim_and_dir(0,direction);
-	max_y=this->get_size_by_dim_and_dir(1,direction);
-	max_z=this->get_size_by_dim_and_dir(2,direction);
-	if(low_x<0)
-		low_x=0;
-	if(low_y<0)
-		low_y=0;
-	if(low_z<0)
-		low_z=0;
-	if(high_x<0 || high_x>max_x)
-		high_x=max_x;
-	if(high_y<0 || high_y>max_y)
-		high_y=max_y;
-	if(high_z<0 || high_z>max_z)
-		high_z=max_z;
-	for(z=low_z; z<high_z; z++)
-		for(y=low_y; y<high_y; y++)
-			for(x=low_x; x<high_x; x++)
-				this->set_voxel_by_dir(x,y,z,source->get_voxel_by_dir(x,y,z,direction),direction);
-    }
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1Map_from_two_flip_angle_MRvolumes_3D(image_scalar<ELEMTYPE, IMAGEDIM > *small_flip, float body_thres, float t1_min, float t1_max)
+	{
+		float fa1 = this->meta.get_data_float(DCM_FLIP);
+		float fa2 = small_flip->meta.get_data_float(DCM_FLIP);
+		float tr = this->meta.get_data_float(DCM_TR);
+		float te = this->meta.get_data_float(DCM_TE);
+		image_scalar<ELEMTYPE, IMAGEDIM>* t1map = NULL;
+
+		if(fa1 <= fa2 || tr<=0 || te<=0){
+			pt_error::error("calculate_T1Map_from_two_flip_angle_MRvolumes - Wrong flip angles...",pt_error::debug);
+		}else{
+
+			t1map = new image_scalar<ELEMTYPE, IMAGEDIM>(this);
+
+			float alpha_l = PI*fa1/180.0;
+			float alpha_s = PI*fa2/180.0;
+			float sin_ratio = sin(alpha_l)/sin(alpha_s);
+			float A=0;
+			float t1=0;
+			float tmp=0;
+
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					for (int x=0; x < datasize[0]; x++){
+						tmp = this->get_voxel(x,y,z);
+						if(tmp<=body_thres){
+							t1=t1_min;
+						}else{
+							A = small_flip->get_voxel(x,y,z) / tmp * sin_ratio;
+							t1 = tr/ log( (cos(alpha_l)-A*cos(alpha_s))/(1-A) );
+
+							//limiting the resulting T1-Range...
+							if(t1<t1_min){t1=t1_min;}
+							if(t1>t1_max){t1=t1_max;}
+						}
+						t1map->set_voxel(x,y,z,t1);
+					}
+				}
+			}
+		}
+	return t1map;
+	}
 
 #endif

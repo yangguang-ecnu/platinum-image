@@ -261,6 +261,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
 
     image = reader->GetOutput();
 
+//	reader->	//JK1 - Load meta data from dicom reader...
+
     // *** transfer image data to our platform's data structure ***
     replicate_itk_to_image(image);
 
@@ -307,7 +309,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
 
     this->from_file(true);
 
-	//dcmIO->SetFileName(fileNames[0].c_str());	//JK1
+	meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -337,6 +339,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
         }
     catch (itk::ExceptionObject &ex){
         pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
+		std::cout<<ex<<std::endl;
         }
     }
 

@@ -70,15 +70,6 @@ switch (v)
     return 0;
 }*/
 
-//templated string to num conversion
-
-template <class T>
-bool dec_from_string(T& outType, const std::string& inString)
-    {
-    std::istringstream convstream(inString);
-
-    return !(convstream >> std::dec >> outType).fail();
-    }
 
 void dec_to_stringvalue (Fl_Input* i, long n)
     {
