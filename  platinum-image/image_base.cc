@@ -332,13 +332,16 @@ image_base *dicomloader::read()
                                         result = new image_integer<unsigned short>();
                                         ((image_integer<unsigned short>*)result)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
                                         break;
-                                        
                                     case itk::ImageIOBase::SHORT:
                                         result = new image_integer<short>();
                                         ((image_integer<short>*)result)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
                                         break;
+									case itk::ImageIOBase::FLOAT:
+                                        result = new image_integer<float>();
+                                        ((image_integer<float>*)result)->load_dataset_from_DICOM_files(path_parent(*file),seriesIdentifier);
+                                        break;
                                     default:
-                                        pt_error::error("Unsupported component type: " + dicomIO->GetComponentTypeAsString (componentType), pt_error::warning);
+                                        pt_error::error("dicomloader::read() --> Unsupported component type: " + dicomIO->GetComponentTypeAsString (componentType), pt_error::warning);
 										;
                                     }
                                 break;

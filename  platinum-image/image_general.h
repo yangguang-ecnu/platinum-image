@@ -150,14 +150,25 @@ class image_general : public image_storage <ELEMTYPE >
         unsigned short get_size_by_dim(int dim) const;
         unsigned short get_size_by_dim_and_dir(int dim, int direction); //! get size in direction orthogonal to direction arg
         
-        bool same_size (image_base * other);    //test whether other image
-                                                //has same voxel dimensions
+        bool same_size (image_base * other);				//test whether other image has same voxel dimensions
+        bool same_size (image_base * other, int direction); //test whether other image has same voxel dimensions
         
         Vector3D get_size () const;
         
         const Vector3D get_voxel_size () const;       //return voxel size
         Matrix3D get_voxel_resize () const;           //return voxel size as matrix
-        
+
+
+		//****** Sub volume operations ********
+		image_general<ELEMTYPE, IMAGEDIM>* get_subvolume_from_slices_3D(int start_slice, int every_no_slice, int slice_dir=2);	
+		void copy_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int to_slice_no, int slice_dir=2);
+	
+		void add_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int slice_dir=2);
+		//adds image slice (currently only of correct size...) in positive x/y/z directions... 
+		//A temporary image is needed, therefor, this cannot be implemented in "image_general"
+
+
+
         void make_image_an_itk_reader();               //initialize ITKimportfilter
 
         //return ITKimportfilter

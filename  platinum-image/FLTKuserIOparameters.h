@@ -184,6 +184,8 @@ public:
         {throw pt_error("requested image ID, actual type " + type_name(), pt_error::serious );}
     virtual void par_value (bool & v)
         {throw pt_error("requested bool, actual type " + type_name(), pt_error::serious );}
+	virtual void par_value (std::string & s)
+		{throw pt_error("requested std::string, actual type " + type_name(), pt_error::serious );}
     virtual void par_value (thresholdparvalue & v)
         {throw pt_error("requested thresholds, actual type " + type_name(), pt_error::serious );}
 
@@ -204,6 +206,20 @@ class FLTKuserIOpar_float : public FLTKuserIOparameter_base    //float value (us
                                                    //order of parameters reverse of expected,
                                                    //because min is more typically left at default
                                                    //than max
+        const std::string type_name ();
+        void par_value (float & v);
+    };
+
+class FLTKuserIOpar_float_box : public FLTKuserIOparameter_base    //float value (using input box)
+    {
+    protected:
+        Fl_Value_Input * control;
+    public:
+        FLTKuserIOpar_float_box (const std::string name, float ma=255, float mi=0);
+                                                   //order of parameters reverse of expected,
+                                                   //because min is more typically left at default
+                                                   //than max
+
         const std::string type_name ();
         void par_value (float & v);
     };
@@ -243,6 +259,18 @@ class FLTKuserIOpar_bool : public FLTKuserIOparameter_base    //boolean value (u
                                                   
         const std::string type_name ();
         void par_value (bool & v);
+    };
+
+
+class FLTKuserIOpar_string : public FLTKuserIOparameter_base    //string value
+    {
+    protected:
+        Fl_Input * control;
+    public:
+		FLTKuserIOpar_string (const std::string name, std::string init_status);
+                                                  
+        const std::string type_name ();
+		void par_value (std::string & s);
     };
 
 class FLTKuserIOpar_image : public FLTKuserIOparameter_base   //image selection (using popup menu)

@@ -44,6 +44,18 @@ data_base::~data_base()
     datamanagement.remove_data (this);
     }
 
+/*
+std::string data_base::get_dcm_parameter(const std::string dcm_tag)
+{
+	std::string ret="";
+	if(dcmIO->GetFileName()!="")
+	{
+		dcmIO->GetValueFromTag(dcm_tag,ret);
+	}
+	return ret;
+}
+*/
+
 void data_base::name (const string n)
     {
     if (widget != NULL)
@@ -70,8 +82,10 @@ data_base::data_base()
     widget = NULL;
     from_file(false);
 
-	//dcmIO = itk::GDCMImageIO::New();	//JK1
+	//dcmIO = itk::GDCMImageIO::New();		//JK1
 	//dcmIO->SetFileName("");				//JK1
+//	meta = new metadata();
+	meta = metadata();
     }
 
 data_base::data_base (data_base * const source)
@@ -82,6 +96,7 @@ data_base::data_base (data_base * const source)
     widget = NULL;
     from_file(source->from_file());
 //	dcmIO->SetFileName(source->dcmIO->GetFileName());//JK1 //Crash here 
+	meta = source->meta;
     }
 
 void data_base::activate()

@@ -118,10 +118,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
     {
     //this function only works when image dimensionality matches
 
-    short size [IMAGEDIM];
+    short size [IMAGEDIM];					//JK - I guess this is not used...
 
     for (int d=0; d < IMAGEDIM; d++)
-        { size[d]=sourceImage->get_size_by_dim(d); }
+        { size[d]=sourceImage->get_size_by_dim(d); }	//JK - I guess this is not used...
 
     //initialize_dataset(size[0],size[1],size[2]);
 
@@ -442,7 +442,18 @@ bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other)
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-	void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_size(float dx, float dy, float dz)
+bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other, int direction)
+	{
+		bool ret=false;
+		if (datasize[direction] == other->get_size_by_dim(direction))
+		{
+			ret=true;
+		}
+	return ret;
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_size(float dx, float dy, float dz)
 	{
         voxel_size[0] = dx;
         voxel_size[1] = dy;
@@ -481,6 +492,196 @@ template <class ELEMTYPE, int IMAGEDIM>
     
     return result;
     }
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slices_3D(int start_slice, int every_no_slice, int slice_dir)
+{
+	cout<<"get_subvolume_from_slices_3D...("<<slice_dir<<")"<<endl;
+
+	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>();
+
+	int nr_slices=0;
+	if(slice_dir ==0 || slice_dir ==1 || slice_dir ==2){
+		for(int i = start_slice; i<datasize[slice_dir]; i += every_no_slice){
+			nr_slices++;
+		}
+	}else{
+		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slices_3D -- slice_dir error",pt_error::debug);
+	}
+
+	if(slice_dir==2){
+		res->initialize_dataset(datasize[0],datasize[1],nr_slices);
+	}else if(slice_dir==1){
+		res->initialize_dataset(datasize[0],nr_slices,datasize[2]);
+	}else if(slice_dir==0){
+		res->initialize_dataset(nr_slices,datasize[1],datasize[2]);
+	}
+
+	for(int i = start_slice, int j=0; i<datasize[slice_dir]; i += every_no_slice, j++){
+		res->copy_slice_from_3D(this, i, j, slice_dir);
+	}
+
+/*
+	if(slice_dir==2){
+		res->initialize_dataset(datasize[0],datasize[1],1);
+		for(int i = start_slice; i<datasize[2]; i += every_no_slice){
+			if(i==start_slice){
+				res->copy_slice_from_3D(this, i, 0, 2);
+			}else{
+				res->add_slice_from_3D(this, i, 2);
+			}
+		}
+	}else if(slice_dir==1){
+		res->initialize_dataset(datasize[0],1,datasize[2]);
+		for(int i = start_slice; i<datasize[1]; i += every_no_slice){
+			if(i==start_slice){
+				res->copy_slice_from_3D(this, i, 0, 1);
+			}else{
+				res->add_slice_from_3D(this, i, 1);
+			}
+		}
+	}else if(slice_dir==0){
+		res->initialize_dataset(1,datasize[1],datasize[2]);
+		for(int i = start_slice; i<datasize[0]; i += every_no_slice){
+			if(i==start_slice){
+				res->copy_slice_from_3D(this, i, 0, 0);
+			}else{
+				res->add_slice_from_3D(this, i, 0);
+			}
+		}
+	}else{
+		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slices_3D -- slice_dir error",pt_error::debug);
+	}
+*/
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int to_slice_no, int slice_dir)
+{
+	cout<<"copy_slice_from_3D..("<<slice_dir<<")"<<endl;
+	int f = from_slice_no;
+	int t = to_slice_no;
+	if(slice_dir==2){
+		if(f >=0 && f<src->datasize[2] && t>=0 && t<this->datasize[2] && same_size(src,0) && same_size(src,1)){
+			cout<<"slices OK"<<endl;
+			for (int y=0; y < datasize[1]; y++){
+				for (int x=0; x < datasize[0]; x++){
+					set_voxel(x,y,t, src->get_voxel(x,y,f));
+				}
+			}
+			this->data_has_changed(true);
+		}
+	}else if(slice_dir==1){
+		if(f >=0 && f<src->datasize[1] && t>=0 && t<this->datasize[1] && same_size(src,0) && same_size(src,2)){
+			cout<<"slices OK"<<endl;
+			for (int z=0; z < datasize[2]; z++){
+				for (int x=0; x < datasize[0]; x++){
+					set_voxel(x,t,z, src->get_voxel(x,f,z));
+				}
+			}
+			this->data_has_changed(true);
+		}
+	}else if(slice_dir==0){
+		if(f >=0 && f<src->datasize[0] && t>=0 && t<this->datasize[0] && same_size(src,1) && same_size(src,2)){
+			cout<<"slices OK"<<endl;
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					set_voxel(t,y,z, src->get_voxel(f,y,z));
+				}
+			}
+			this->data_has_changed(true);
+		}
+	}else{
+		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D -- slice_dir error",pt_error::debug);
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::add_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int slice_dir)
+{
+	cout<<"image_scalar-add_slice_from_3D..("<<slice_dir<<")"<<endl;
+
+	int f = from_slice_no;
+	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
+
+	if(slice_dir==2){
+		res->name("res-2..");
+		if( f >=0 && f < src->datasize[2] && same_size(src,0) && same_size(src,1) ){
+			cout<<"...entered"<<endl;
+			res->initialize_dataset(datasize[0],datasize[1],datasize[2]+1);
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					for (int x=0; x < datasize[0]; x++){
+						res->set_voxel(x,y,z, get_voxel(x,y,z));
+					}
+				}
+			}
+			for (int y=0; y < datasize[1]; y++){
+				for (int x=0; x < datasize[0]; x++){
+					res->set_voxel(x,y,datasize[2], src->get_voxel(x,y,f));
+				}
+			}
+
+		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
+			copy_data(res,this);
+		    set_parameters(res);
+		}
+
+	}else if(slice_dir==1){
+		res->name("res-1..");
+		if( f >=0 && f < src->datasize[1] && same_size(src,0) && same_size(src,2) ){
+			cout<<"...entered"<<endl;
+			res->initialize_dataset(datasize[0],datasize[1]+1,datasize[2]);
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					for (int x=0; x < datasize[0]; x++){
+						res->set_voxel(x,y,z, get_voxel(x,y,z));
+					}
+				}
+			}
+			for (int z=0; z < datasize[2]; z++){
+				for (int x=0; x < datasize[0]; x++){
+					res->set_voxel(x,datasize[1],z, src->get_voxel(x,f,z));
+				}
+			}
+
+		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
+			copy_data(res,this);
+		    set_parameters(res);
+		}
+
+	}else if(slice_dir==0){
+		res->name("res-0..");
+		if( f >=0 && f < src->datasize[0] && same_size(src,1) && same_size(src,2) ){
+			cout<<"...entered"<<endl;
+			res->initialize_dataset(datasize[0]+1,datasize[1],datasize[2]);
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					for (int x=0; x < datasize[0]; x++){
+						res->set_voxel(x,y,z, get_voxel(x,y,z));
+					}
+				}
+			}
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					res->set_voxel(datasize[0],y,z, src->get_voxel(f,y,z));
+				}
+			}
+
+		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
+			copy_data(res,this);
+		    set_parameters(res);
+		}
+
+	}else{
+		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D -- slice_dir error",pt_error::debug);
+	}
+
+	delete res;		// ->deallocate();		//ÖÖÖ - JK WARNING MEMORY LEAK
+}
+
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 const Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxel_size () const

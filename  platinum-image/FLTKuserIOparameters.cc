@@ -100,6 +100,37 @@ const std::string FLTKuserIOpar_float::type_name ()
     return "float";
     }
 
+#pragma mark *** FLTKuserIOpar_float_box ***
+
+FLTKuserIOpar_float_box::FLTKuserIOpar_float_box (const std::string name, float ma, float mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
+    {
+    //label set by superclass constructor
+    //position & width set by parent userIO later, including margin
+    control = new Fl_Value_Input(x(),y()+PARTITLEMARGIN,PARMENUWIDTH,h()-PARTITLEMARGIN);
+
+    control->callback(par_update_callback);
+
+    control->maximum(ma);
+    control->minimum(mi);
+    control->step(0.001);
+//	control->value(default_val)
+
+    resizable(NULL);
+
+    end();
+    }
+
+void FLTKuserIOpar_float_box::par_value (float & v)
+    {
+    v=static_cast<float>(control->value());
+    }
+
+const std::string FLTKuserIOpar_float_box::type_name ()
+    {
+    return "float_box (Fl_Value_Input)";
+    }
+
+
 #pragma mark *** FLTKuserIOpar_longint ***
 
 FLTKuserIOpar_longint::FLTKuserIOpar_longint (const std::string name, long ma, long mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
@@ -186,6 +217,35 @@ const std::string FLTKuserIOpar_bool::type_name ()
     {
     return "boolean";
     }
+
+
+#pragma mark *** FLTKuserIOpar_string ***
+
+FLTKuserIOpar_string::FLTKuserIOpar_string (const std::string name, std::string init_status ) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
+    {
+    //label set by superclass constructor
+    //position & width set by parent userIO later, including margin
+    control = new Fl_Input(x(),y()+PARTITLEMARGIN,w(),h()-PARTITLEMARGIN);
+
+    control->callback(par_update_callback);
+//    control->type(FL_TOGGLE_BUTTON);
+	control->value(init_status.c_str());
+
+    resizable(control);
+
+    end();
+    }
+
+void FLTKuserIOpar_string::par_value (std::string & s)
+    {
+    s = std::string(control->value());
+    }
+
+const std::string FLTKuserIOpar_string::type_name ()
+    {
+	return "std::string";
+    }
+
 
 #pragma mark *** FLTKuserIOpar_image ***
 

@@ -129,6 +129,17 @@ template <class C, class D> void adjust_endian (D* data, C size,bool DataIsBigEn
             }
         }
 }
+
+
+//templated string to num conversion
+template <class T>
+bool dec_from_string(T& outType, const std::string& inString)
+    {
+    std::istringstream convstream(inString);
+    return !(convstream >> std::dec >> outType).fail();
+    }
+
+
 /*
  bool has_only_positive_or_zero_components(Vector3D v)
  {
