@@ -159,13 +159,22 @@ class image_general : public image_storage <ELEMTYPE >
         Matrix3D get_voxel_resize () const;           //return voxel size as matrix
 
 
-		//****** Sub volume operations ********
+		//****** Sub volume operations - regions ********
+		//... get_sub_region(...)
+
+		//****** Sub volume operations - slices********
+
 		image_general<ELEMTYPE, IMAGEDIM>* get_subvolume_from_slices_3D(int start_slice, int every_no_slice, int slice_dir=2);	
 		void copy_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int to_slice_no, int slice_dir=2);
 	
-		void add_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int slice_dir=2);
 		//adds image slice (currently only of correct size...) in positive x/y/z directions... 
 		//A temporary image is needed, therefor, this cannot be implemented in "image_general"
+		void add_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int slice_dir=2);
+
+		// slice reorganization function that sorts slices from many dynamic scans
+		// first used for slice sorting from DICOM export from "COMBI-acquisition" on Philips 1.5T MRI. 
+		void slice_reorganization_multicontrast(int no_dynamics, int no_contrasts);
+
 
 
 

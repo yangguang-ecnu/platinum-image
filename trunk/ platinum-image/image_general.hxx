@@ -559,38 +559,38 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvol
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int to_slice_no, int slice_dir)
 {
-	cout<<"copy_slice_from_3D..("<<slice_dir<<")"<<endl;
+//	cout<<"copy_slice_from_3D..("<<slice_dir<<")"<<endl;
 	int f = from_slice_no;
 	int t = to_slice_no;
 	if(slice_dir==2){
 		if(f >=0 && f<src->datasize[2] && t>=0 && t<this->datasize[2] && same_size(src,0) && same_size(src,1)){
-			cout<<"slices OK"<<endl;
+//			cout<<"slices OK"<<endl;
 			for (int y=0; y < datasize[1]; y++){
 				for (int x=0; x < datasize[0]; x++){
 					set_voxel(x,y,t, src->get_voxel(x,y,f));
 				}
 			}
-			this->data_has_changed(true);
+//			this->data_has_changed(true);
 		}
 	}else if(slice_dir==1){
 		if(f >=0 && f<src->datasize[1] && t>=0 && t<this->datasize[1] && same_size(src,0) && same_size(src,2)){
-			cout<<"slices OK"<<endl;
+//			cout<<"slices OK"<<endl;
 			for (int z=0; z < datasize[2]; z++){
 				for (int x=0; x < datasize[0]; x++){
 					set_voxel(x,t,z, src->get_voxel(x,f,z));
 				}
 			}
-			this->data_has_changed(true);
+//			this->data_has_changed(true);
 		}
 	}else if(slice_dir==0){
 		if(f >=0 && f<src->datasize[0] && t>=0 && t<this->datasize[0] && same_size(src,1) && same_size(src,2)){
-			cout<<"slices OK"<<endl;
+//			cout<<"slices OK"<<endl;
 			for (int z=0; z < datasize[2]; z++){
 				for (int y=0; y < datasize[1]; y++){
 					set_voxel(t,y,z, src->get_voxel(f,y,z));
 				}
 			}
-			this->data_has_changed(true);
+//			this->data_has_changed(true);
 		}
 	}else{
 		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D -- slice_dir error",pt_error::debug);
@@ -679,6 +679,58 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_from_3D(image_general<ELEMTYPE
 	}
 
 	delete res;		// ->deallocate();		//ÖÖÖ - JK WARNING MEMORY LEAK
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int no_dynamics, int no_contrasts)
+{
+	int nc = no_contrasts; //number of contrasts
+	int nd = no_dynamics; //number of dynamics
+	int nz = datasize[2];
+	int nz_res = int(float(nz)/float(nc));
+	int ns = int(float(nz)/float(nd)/float(nc));	//number of physical slices in each dynamic
+
+	cout<<"***** slice_reorganization_multicontrast *****"<<endl;
+	cout<<"nc = "<<nc<<endl;
+	cout<<"nd = "<<nd<<endl;
+	cout<<"nz = "<<nz<<endl;
+	cout<<"nz_res = "<<nz<<endl;
+	cout<<"ns = "<<ns<<endl;
+	cout<<"Total = "<<nd*nc*ns<<endl;
+
+	image_scalar<ELEMTYPE, IMAGEDIM>* im;
+	vector< image_scalar<ELEMTYPE, IMAGEDIM>* > vec;
+
+	for(int i=0; i<nc; i++)
+	{
+		im = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
+		im->initialize_dataset(datasize[0],datasize[1],nz_res);
+		vec.push_back(im);
+	}
+//	copy_data(res,this);
+//  set_parameters(res);
+
+
+	int this_slice=0;
+	int i=0;
+	for (int s=0; s<nd; s++){				//No physical slices per dynamic
+		for (int d=0; d<ns; d++){			//Dynamics
+			for (int c=0; c<nc; c++){		//No contrasts
+				i = s*nc + d*nd*nc + c;
+				cout<<"i = "<<i<<endl;
+				vec[c]->copy_slice_from_3D(this,i,this_slice);	//data_has_changed() is not called...
+			}
+			this_slice++;
+		}
+	}
+
+	char s[10];
+	for (int c=0; c<nc; c++){		//No contrasts
+	    sprintf(s,"%i",c);
+		vec[c]->data_has_changed(true);		//do not forget this part...
+		vec[c]->save_to_VTK_file("c:\\Joel\\TMP\\_reorg_"+string(s)+".vtk");
+		datamanagement.add(vec[c]);
+	}
 }
 
 

@@ -196,6 +196,26 @@ public:
     virtual int histogram_image_ID (int )
         {return NOT_FOUND_ID;}
     };
+//ööö
+
+class FLTKuserIOpar_coord3Ddisplay : public FLTKuserIOparameter_base    //3D coordinate value
+    {
+    protected:
+        Fl_Output * control;
+		Vector3D coord;
+		std::string coord_name;
+		std::string coord_type_name;
+		std::string resolve_teststring();
+
+	public:
+        FLTKuserIOpar_coord3Ddisplay(const std::string c_name, const std::string c_type_name, Vector3D v);
+        const std::string type_name();
+        void par_value(Vector3D &v);
+
+        void set_coordinate(Vector3D v);
+		void update();
+    };
+
 
 class FLTKuserIOpar_float : public FLTKuserIOparameter_base    //float value (using slider)
     {

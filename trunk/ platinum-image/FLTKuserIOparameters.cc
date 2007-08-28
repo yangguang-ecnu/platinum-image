@@ -70,6 +70,66 @@ void FLTKuserIOparameter_base::par_update_callback (Fl_Widget *callingwidget, vo
         }
     }
 
+
+#pragma mark *** FLTKuserIOpar_coord3Ddisplay ***
+
+std::string FLTKuserIOpar_coord3Ddisplay::resolve_teststring()
+	{
+		cout<<"FLTKuserIOpar_coord3Ddisplay...resolve_teststring()"<<endl;
+		cout<<"coord[0]="<<coord[0]<<endl;
+		cout<<"coord[1]="<<coord[1]<<endl;
+		cout<<"coord[2]="<<coord[2]<<endl;
+
+		char s[30];
+		string tmp = "(";
+		sprintf(s, "%5.1f", coord[0] );		tmp+=std::string(s);	//%5.1f - means five digits and one decimal...
+		sprintf(s, "%5.1f", coord[1] );		tmp+=", "+std::string(s);
+		sprintf(s, "%5.1f", coord[2] );		tmp+=", "+std::string(s)+")";
+
+		return coord_name+" - "+coord_type_name+" - "+tmp;
+	}
+
+FLTKuserIOpar_coord3Ddisplay::FLTKuserIOpar_coord3Ddisplay(std::string c_name, std::string c_type_name, Vector3D v) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,int(STDPARWIDGETHEIGHT/2), "")
+	{
+		cout<<"FLTKuserIOpar_coord3Ddisplay..."<<endl;
+		coord_name = c_name;
+		coord_type_name = c_type_name;
+		set_coordinate(v);
+
+		control = new Fl_Output(x(),y(),w(),STDPARWIDGETHEIGHT-PARTITLEMARGIN);
+		control->box(FL_FLAT_BOX);
+		control->color(FL_BACKGROUND_COLOR);
+		control->textsize(12);
+		control->value(resolve_teststring().c_str()); //update();
+
+		resizable(control);
+		end();
+	}
+
+const std::string FLTKuserIOpar_coord3Ddisplay::type_name ()
+	{
+		return "coord3Ddisplay";
+	}
+
+void FLTKuserIOpar_coord3Ddisplay::par_value (Vector3D &v)
+    {
+	v = coord;
+    }
+
+void FLTKuserIOpar_coord3Ddisplay::set_coordinate(Vector3D v)
+	{
+	coord = v;
+	}
+ 
+void FLTKuserIOpar_coord3Ddisplay::update()
+    {
+	cout<<"FLTKuserIOpar_coord3Ddisplay...update()"<<endl;
+	control->value(resolve_teststring().c_str());
+	control->redraw();
+    }
+
+
+
 #pragma mark *** FLTKuserIOpar_float ***
 
 FLTKuserIOpar_float::FLTKuserIOpar_float (const std::string name, float ma, float mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
