@@ -75,6 +75,7 @@ class userIOmanager
         void delete_userIO (int userIO_ID);
 
         //add parameter to userIO block, return parameter number
+		int add_par_coordinate3Ddisplay(int userIO_ID, std::string coord_name, std::string coord_type_name, Vector3D v);
         int add_par_float(int userIO_ID, std::string new_param_name,float max=1,float min=0);
         int add_par_float_box(int userIO_ID, std::string new_param_name,float max=1,float min=0);
         int add_par_longint(int userIO_ID, std::string new_param_name,long max=255,long min=0);

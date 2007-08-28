@@ -133,6 +133,13 @@ userIO * userIOmanager::block_from_ID(int IOblockID)
     return (NULL);
     }
 
+int userIOmanager::add_par_coordinate3Ddisplay(int userIO_ID, std::string coord_name, std::string coord_type_name, Vector3D v)
+    {
+    FLTKuserIOparameter_base * par=new FLTKuserIOpar_coord3Ddisplay(coord_name, coord_type_name, v);
+
+    return block_from_ID(userIO_ID)->add_par(par);
+    }
+
 int userIOmanager::add_par_float(int userIO_ID, std::string new_param_name,float max,float min)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_float (new_param_name,max,min);
