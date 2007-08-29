@@ -41,8 +41,8 @@ void trailing_slash (std::string &s);                           //! ensures an a
                                                                 //! adds a trailing slash ( / ) if
                                                                 //! there wasn't one already
 
-std::vector<std::string> get_dir_entries (std::string path);    //return string vector
-                                                                //listing contents of directory
+std::vector<std::string> get_dir_entries (std::string path);    //return string vector listing directory contents
+std::vector<std::string> get_dir_entries_ending_with(std::string path, std::string ending);    //return string vector listing directory contents that end with (ending)
 
 std::string path_parent (std::string);                          //!get parent (full path except file/indicated dir)
 std::string path_end (std::string);                             //!get file/dir name pointed to without path

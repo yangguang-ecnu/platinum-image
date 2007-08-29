@@ -58,6 +58,38 @@ std::vector<std::string> get_dir_entries (std::string path)
     return f;
     }
 
+std::vector<std::string> get_dir_entries_ending_with(std::string path, std::string ending)
+    {
+    // *** POSIX ***
+
+    std::vector<std::string> f;
+    dirent *ep;
+    char cpath[MAXPATHLENGTH];
+    strcpy (cpath,path.c_str());
+
+    DIR * dp = opendir (cpath);
+
+	while (ep = readdir (dp)){
+		std::string res = std::string(ep->d_name);
+		int s = ending.size();
+		int from = res.size()-s;
+		if(from<0){from=0;}
+
+		std::string this_ending = res.substr(from,s);
+//		std::cout<<"res="<<res<<std::endl;
+//		std::cout<<"this_ending="<<this_ending<<std::endl;
+		
+		if(this_ending == ending)
+		{
+			f.push_back (ep->d_name);
+		}
+	}
+
+    (void) closedir (dp);
+    return f;
+    }
+
+
 std::string path_end (std::string file_path)
     {
     unsigned int pos;

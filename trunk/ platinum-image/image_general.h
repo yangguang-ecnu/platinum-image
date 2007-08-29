@@ -51,6 +51,7 @@ template<class ELEMTYPE, int IMAGEDIM>
 #include "itkImportImageFilter.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
+#include "itkCastImageFilter.h"
 
 #include "global.h"
 #include "color.h"
@@ -190,6 +191,8 @@ class image_general : public image_storage <ELEMTYPE >
         void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier);
 
         void save_to_VTK_file(const std::string file_path);
+        void save_to_TIF_file_series_3D(const std::string file_path_base);
+		void save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice);
 
 		void set_geometry(float ox,float oy,float oz,float dx,float dy,float dz,float fi_x,float fi_y,float fi_z);
         bool read_geometry_from_dicom_file(std::string dcm_file);

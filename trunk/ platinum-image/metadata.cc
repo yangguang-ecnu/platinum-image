@@ -1,0 +1,289 @@
+// $Id: $
+
+// This file is part of the Platinum library.
+// Copyright (c) 2007 Uppsala University.
+//
+//    The Platinum library is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2 of the License, or
+//    (at your option) any later version.
+//
+//    The Platinum library is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU Lesser General Public License for more details.
+//
+//    You should have received a copy of the GNU Lesser General Public License
+//    along with the Platinum library; if not, write to the Free Software
+//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+#include "metadata.h"
+using namespace std;
+
+metadata::metadata()
+{
+//	cout<<"metadata - constructor..."<<endl;
+	meta_map = map<string,base*>();
+}
+
+metadata::metadata (metadata * const source)
+{
+//	cout<<"metadata - copy constructor..."<<endl;
+	pt_error::error_if_null(source,"Attempting to copyconstruct metadata object from NULL object");
+
+	meta_map = source->meta_map;
+
+//	copy_all_parameters(*source);
+//	TR = source->TR;
+}
+
+void metadata::set_data_int(string key, int data)
+{meta_map[key]= new base_int(data);}
+
+void metadata::set_data_float(string key, float data)
+{meta_map[key]= new base_float(data);}
+
+void metadata::set_data_string(string key, string data)
+{meta_map[key]= new base_string(data);}
+
+
+int metadata::get_data_int(string key)
+{
+	int s=0;
+	base* b = meta_map[key];
+	if(b!=NULL){
+		b->get(s,key);
+	}else{
+		pt_error::error("No metadata was found for key="+key, pt_error::debug);
+	}
+	return s;
+}
+
+float metadata::get_data_float(string key)
+{
+	float s=0;
+	base* b = meta_map[key];
+	if(b!=NULL){
+		b->get(s,key);
+	}else{
+		pt_error::error("No metadata was found for key="+key, pt_error::debug);
+	}
+	return s;
+}
+
+string metadata::get_data_string(string key)
+{
+	string s="";
+	base* b = meta_map[key];
+	if(b!=NULL){
+		b->get(s,key);
+	}else{
+		pt_error::error("No metadata was found for key="+key, pt_error::debug);
+	}
+	return s;
+}
+
+
+/*
+metadata::~metadata()
+{
+}
+*/
+
+
+void metadata::read_metadata_from_dcm_file(string dcm_file)
+{
+	itk::GDCMImageIO::Pointer dcmIO = itk::GDCMImageIO::New();		//Allows simple dicom meta data import
+	dcmIO->SetFileName(dcm_file);
+	if( !dcmIO->CanReadFile(dcm_file.c_str()) ){
+		pt_error::error("metadata::read_metadata_from_dcm_file...",pt_error::debug);
+	}else{
+		dcmIO->ReadImageInformation();		//Needs to be called before accessing data...
+
+		add_dcm_data_string(dcmIO,DCM_CREATION_DATE);
+		add_dcm_data_string(dcmIO,DCM_CREATION_TIME);
+		add_dcm_data_string(dcmIO,DCM_STUDY_DATE);
+		add_dcm_data_string(dcmIO,DCM_SERIES_DATE);
+		add_dcm_data_string(dcmIO,DCM_SERIES_ID);
+		add_dcm_data_string(dcmIO,DCM_MODALITY);
+		add_dcm_data_string(dcmIO,DCM_IMAGE_TYPE);
+		add_dcm_data_string(dcmIO,DCM_STUDY_DESCRIPTION);
+		add_dcm_data_string(dcmIO,DCM_SERIES_DESCRIPTION);
+
+		add_dcm_data_string(dcmIO,DCM_PATIENT_NAME);
+		add_dcm_data_string(dcmIO,DCM_PATIENT_ID);
+		add_dcm_data_string(dcmIO,DCM_PATIENT_BIRTH_DATE);
+		add_dcm_data_string(dcmIO,DCM_PATIENT_SEX);
+		add_dcm_data_float(dcmIO,DCM_PATIENT_WEIGHT);
+
+		add_dcm_data_string(dcmIO,DCM_SCANNING_SEQ);
+		add_dcm_data_string(dcmIO,DCM_SEQ_VARIANT);
+		add_dcm_data_string(dcmIO,DCM_SCAN_OPTION);
+		add_dcm_data_string(dcmIO,DCM_MR_ACQ_TYPE);
+		add_dcm_data_float(dcmIO,DCM_TR);
+		add_dcm_data_float(dcmIO,DCM_TE);
+		add_dcm_data_float(dcmIO,DCM_FLIP);
+		add_dcm_data_int(dcmIO,DCM_NSA);
+		add_dcm_data_float(dcmIO,DCM_IMAGING_FREQUENCY);
+		add_dcm_data_float(dcmIO,DCM_SLICE_THICKNESS);
+		add_dcm_data_float(dcmIO,DCM_SLICE_SPACING);
+		add_dcm_data_float(dcmIO,DCM_FOV);
+		add_dcm_data_float(dcmIO,DCM_B0);
+		add_dcm_data_int(dcmIO,DCM_NO_PHASE_ENC);
+		add_dcm_data_float(dcmIO,DCM_PERCENT_SAMPLING);
+		add_dcm_data_float(dcmIO,DCM_RFOV);
+		add_dcm_data_string(dcmIO,DCM_PROTOCOL_NAME);
+		add_dcm_data_string(dcmIO,DCM_TRANSMIT_COIL);
+
+		add_dcm_data_string(dcmIO,DCM_RECEIVE_COIL);
+		add_dcm_data_string(dcmIO,DCM_PHASE_ENCODING_DIRECTION);
+		add_dcm_data_string(dcmIO,DCM_PATIENT_POSITION);
+
+		add_dcm_data_int(dcmIO,DCM_SERIES_NUMBER);
+		add_dcm_data_int(dcmIO,DCM_ACQ_NUMBER);
+		add_dcm_data_string(dcmIO,DCM_IMAGE_POSITION_PATIENT);
+		add_dcm_data_string(dcmIO,DCM_IMAGE_ORIENTATION_PATIENT);
+
+		add_dcm_data_int(dcmIO,DCM_ROWS);
+		add_dcm_data_int(dcmIO,DCM_COLUMNS);
+		add_dcm_data_float(dcmIO,DCM_PIXEL_SPACING);
+		add_dcm_data_int(dcmIO,DCM_BITS_ALLOCATED);
+		add_dcm_data_int(dcmIO,DCM_BITS_STORED);
+		add_dcm_data_int(dcmIO,DCM_HIGH_BIT);
+		add_dcm_data_float(dcmIO,DCM_WINDOW_CENTER);
+		add_dcm_data_float(dcmIO,DCM_WINDOW_WIDTH);
+		add_dcm_data_float(dcmIO,DCM_RESCALE_INTERCEPT);
+		add_dcm_data_float(dcmIO,DCM_RESCALE_SLOPE);
+		add_dcm_data_string(dcmIO,DCM_RESCALE_TYPE);
+
+		add_dcm_data_float(dcmIO,DCM_SCALE_INTERCEPT);
+		add_dcm_data_float(dcmIO,DCM_SCALE_SLOPE);
+		add_dcm_data_float(dcmIO,DCM_SCALE_INTERCEPT2);
+		add_dcm_data_float(dcmIO,DCM_SCALE_SLOPE2);
+	}
+}
+
+int metadata::get_dcm_parameter_as_int(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING)
+{
+	string s = get_dcm_parameter_as_string(dcmIO, DCM_TAG_STRING);
+	int i = float(atoi(s.c_str()));
+	return i;
+}
+
+float metadata::get_dcm_parameter_as_float(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING)
+{
+	string s = get_dcm_parameter_as_string(dcmIO, DCM_TAG_STRING);
+	float f = float(atof(s.c_str()));
+	return f;
+}
+
+string metadata::get_dcm_parameter_as_string(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING)
+{
+	string dcmdata;
+	dcmIO->GetValueFromTag(DCM_TAG_STRING,dcmdata);
+	return dcmdata;
+}
+
+
+
+
+metadata& metadata::operator=(const metadata& source)
+{
+//	cout<<"metadata - operator (=) ..."<<endl;
+	meta_map = source.meta_map;
+	return *this;
+}
+
+
+void metadata::print_all()
+{
+	print_string(DCM_CREATION_DATE);
+	print_string(DCM_CREATION_TIME);
+	print_string(DCM_STUDY_DATE);
+	print_string(DCM_SERIES_DATE);
+	print_string(DCM_SERIES_ID);
+	print_string(DCM_MODALITY);
+	print_string(DCM_IMAGE_TYPE);
+	print_string(DCM_STUDY_DESCRIPTION);
+	print_string(DCM_SERIES_DESCRIPTION);
+
+	print_string(DCM_PATIENT_NAME);
+	print_string(DCM_PATIENT_ID);
+	print_string(DCM_PATIENT_BIRTH_DATE);
+	print_string(DCM_PATIENT_SEX);
+	print_float(DCM_PATIENT_WEIGHT);
+
+	print_string(DCM_SCANNING_SEQ);
+	print_string(DCM_SEQ_VARIANT);
+	print_string(DCM_SCAN_OPTION);
+	print_string(DCM_MR_ACQ_TYPE);
+	print_float(DCM_TR);
+	print_float(DCM_TE);
+	print_float(DCM_FLIP);
+	print_int(DCM_NSA);
+	print_float(DCM_IMAGING_FREQUENCY);
+	print_float(DCM_SLICE_THICKNESS);
+	print_float(DCM_SLICE_SPACING);
+	print_float(DCM_FOV);
+	print_float(DCM_B0);
+	print_int(DCM_NO_PHASE_ENC);
+	print_float(DCM_PERCENT_SAMPLING);
+	print_float(DCM_RFOV);
+	print_string(DCM_PROTOCOL_NAME);
+	print_string(DCM_TRANSMIT_COIL);
+	print_string(DCM_RECEIVE_COIL);
+	print_string(DCM_PHASE_ENCODING_DIRECTION);
+	print_string(DCM_PATIENT_POSITION);
+
+	print_int(DCM_SERIES_NUMBER);
+	print_int(DCM_ACQ_NUMBER);
+	print_string(DCM_IMAGE_POSITION_PATIENT);
+	print_string(DCM_IMAGE_ORIENTATION_PATIENT);
+
+	print_int(DCM_ROWS);
+	print_int(DCM_COLUMNS);
+	print_float(DCM_PIXEL_SPACING);
+	print_int(DCM_BITS_ALLOCATED);
+	print_int(DCM_BITS_STORED);
+	print_int(DCM_HIGH_BIT);
+	print_float(DCM_WINDOW_CENTER);
+	print_float(DCM_WINDOW_WIDTH);
+	print_float(DCM_RESCALE_INTERCEPT);
+	print_float(DCM_RESCALE_SLOPE);
+	print_string(DCM_RESCALE_TYPE);
+
+	print_float(DCM_SCALE_INTERCEPT);
+	print_float(DCM_SCALE_SLOPE);
+	print_float(DCM_SCALE_INTERCEPT2);
+	print_float(DCM_SCALE_SLOPE2);
+}
+
+void metadata::add_dcm_data_int(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG)
+{
+	set_data_int(DCM_TAG,get_dcm_parameter_as_int(dcmIO,DCM_TAG));
+}
+
+void metadata::add_dcm_data_float(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG)
+{
+	set_data_float(DCM_TAG,get_dcm_parameter_as_float(dcmIO,DCM_TAG));
+}
+
+void metadata::add_dcm_data_string(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG)
+{
+	set_data_string(DCM_TAG,get_dcm_parameter_as_string(dcmIO,DCM_TAG));
+}
+
+
+void metadata::print_int(string key)
+{
+	cout<<key<<" --> "<<get_data_int(key)<<endl;
+}
+
+void metadata::print_float(string key)
+{
+	cout<<key<<" --> "<<get_data_float(key)<<endl;
+}
+void metadata::print_string(string key)
+{
+	cout<<key<<" --> "<<get_data_string(key)<<endl;
+}
