@@ -196,9 +196,9 @@ public:
     virtual int histogram_image_ID (int )
         {return NOT_FOUND_ID;}
     };
-//ööö
 
-class FLTKuserIOpar_coord3Ddisplay : public FLTKuserIOparameter_base    //3D coordinate value
+//For Display and handling of 3D coordinate value: 50% of the "normal" GUI parameter height...
+class FLTKuserIOpar_coord3Ddisplay : public FLTKuserIOparameter_base    
     {
     protected:
         Fl_Output * control;

@@ -75,10 +75,10 @@ void FLTKuserIOparameter_base::par_update_callback (Fl_Widget *callingwidget, vo
 
 std::string FLTKuserIOpar_coord3Ddisplay::resolve_teststring()
 	{
-		cout<<"FLTKuserIOpar_coord3Ddisplay...resolve_teststring()"<<endl;
-		cout<<"coord[0]="<<coord[0]<<endl;
-		cout<<"coord[1]="<<coord[1]<<endl;
-		cout<<"coord[2]="<<coord[2]<<endl;
+//		cout<<"FLTKuserIOpar_coord3Ddisplay...resolve_teststring()"<<endl;
+//		cout<<"coord[0]="<<coord[0]<<endl;
+//		cout<<"coord[1]="<<coord[1]<<endl;
+//		cout<<"coord[2]="<<coord[2]<<endl;
 
 		char s[30];
 		string tmp = "(";

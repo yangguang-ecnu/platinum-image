@@ -216,14 +216,16 @@ image_base *vtkloader::read()
                         result = new image_integer<unsigned short>();
                         ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
                         break;
-
                     case itk::ImageIOBase::SHORT:
                         result = new image_integer<short>();
                         ((image_integer<short>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
                         break;
+                    case itk::ImageIOBase::FLOAT: //used for example in complex dixon data imported from deadface format (.df)
+                        result = new image_integer<float>();
+                        ((image_integer<float>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
+                        break;
                     default:
-                        pt_error::error("Load scalar VTK: unsupported component type: " + vtkIO->GetComponentTypeAsString (componentType), pt_error::warning)
-						;
+                        pt_error::error("Load scalar VTK: unsupported component type: " + vtkIO->GetComponentTypeAsString (componentType), pt_error::warning);
                     }
                 break;
 

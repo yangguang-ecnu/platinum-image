@@ -343,6 +343,45 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
         }
     }
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_TIF_file_series_3D(const std::string file_path_base)
+{
+	char buf[10];
+	for(int z=0;z<datasize[2];z++)
+	{
+		image_scalar<ELEMTYPE, IMAGEDIM> *slc = new image_scalar<ELEMTYPE, IMAGEDIM>();
+		slc->initialize_dataset(datasize[0],datasize[1],1);
+		slc->copy_slice_from_3D(this,z,0,2);
+		slc->scale(); //0...256
+		slc->data_has_changed(true);
+
+		sprintf(buf,"%04i",z);
+		image_scalar<unsigned char,3> *slc2 = new image_scalar<unsigned char,3>(slc);
+		slc2->save_uchar2D_to_TIF_file(file_path_base, string(buf));
+		delete slc;
+		delete slc2;
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice)
+{
+	typedef itk::ImageFileWriter<itk::Image<unsigned char,3> >	theTifWriterType;
+    make_image_an_itk_reader();
+
+	string s = file_path_base+"_"+slice+".tif";
+	theTifWriterType::Pointer writer = theTifWriterType::New();
+	writer->SetFileName(s.c_str());
+	writer->SetInput(ITKimportfilter->GetOutput());
+	try{
+		writer->Update();
+	}catch (itk::ExceptionObject &ex){
+		cout<<"Exception thrown saving file.....("<<s<<")"<<ex;
+	}
+}
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_path)
     {
