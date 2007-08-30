@@ -133,80 +133,78 @@ userIO * userIOmanager::block_from_ID(int IOblockID)
     return (NULL);
     }
 
+
+
+int userIOmanager::add_par_filepath(int userIO_ID, const std::string name, const std::string default_path)
+    {
+    FLTKuserIOparameter_base * par=new FLTKuserIOpar_filepath(name, default_path);
+    return block_from_ID(userIO_ID)->add_par(par);
+    }
+
+
 int userIOmanager::add_par_coordinate3Ddisplay(int userIO_ID, std::string coord_name, std::string coord_type_name, Vector3D v)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_coord3Ddisplay(coord_name, coord_type_name, v);
-
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
 int userIOmanager::add_par_float(int userIO_ID, std::string new_param_name,float max,float min)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_float (new_param_name,max,min);
-
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
 int userIOmanager::add_par_float_box(int userIO_ID, std::string new_param_name,float max,float min)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_float_box (new_param_name,max,min);
-
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
 int userIOmanager::add_par_longint(int userIO_ID, std::string new_param_name,long max,long min)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_longint (new_param_name,max,min);
-
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
 int userIOmanager::add_par_longint_box(int userIO_ID, std::string new_param_name,long max,long min)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_longint_box (new_param_name,max,min);
-
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
 int userIOmanager::add_par_bool (int userIO_ID, std::string new_param_name,bool init_status)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_bool (new_param_name,init_status);
-
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
 int userIOmanager::add_par_string(int userIO_ID, std::string new_param_name,std::string init_status)
 {
 	FLTKuserIOparameter_base * par=new FLTKuserIOpar_string (new_param_name,init_status);
-
     return block_from_ID(userIO_ID)->add_par(par);
 }
 
 int userIOmanager::add_par_image(int userIO_ID, std::string new_param_name)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_image (new_param_name);
-
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
 int userIOmanager::add_par_points(int userIO_ID, std::string new_param_name)
 {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_points (new_param_name);
-    
-    return block_from_ID(userIO_ID)->add_par(par);
+	return block_from_ID(userIO_ID)->add_par(par);
 }
 
 int userIOmanager::add_par_histogram_2D(int userIO_ID, std::string new_param_name)
 {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_histogram2D (new_param_name);
-    
     return block_from_ID(userIO_ID)->add_par(par);
 }
 
 int userIOmanager::add_par_message(int userIO_ID, std::string new_param_name, std::string message)
 {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_message (new_param_name, message);
-    
     return block_from_ID(userIO_ID)->add_par(par);
 }
 

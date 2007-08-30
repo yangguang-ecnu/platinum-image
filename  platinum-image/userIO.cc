@@ -48,6 +48,7 @@ userIO::userIO(int x_init, int y_init, int w_init, int h_init, string n,userIO_c
     box(FL_DOWN_FRAME);
     align(FL_ALIGN_TOP_LEFT|FL_ALIGN_INSIDE);
     labelsize(FLTK_SMALL_LABEL);
+	labelfont(FL_HELVETICA_BOLD); //JK
 
     strcpy(name,n.c_str());
     label(name);
