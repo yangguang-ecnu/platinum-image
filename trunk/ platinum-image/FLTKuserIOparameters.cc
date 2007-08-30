@@ -71,6 +71,69 @@ void FLTKuserIOparameter_base::par_update_callback (Fl_Widget *callingwidget, vo
     }
 
 
+
+#pragma mark *** FLTKuserIOpar_filepath ***
+
+FLTKuserIOpar_filepath::FLTKuserIOpar_filepath(const std::string name, const std::string default_path) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
+	{
+		int butt_width = 30;	// ;-)
+
+		load_button = new Fl_Button(x()+w()-butt_width,y(),butt_width,PARTITLEMARGIN,"Browse");
+		load_button->callback(load_button_cb);
+
+		control = new Fl_Input(x(),y()+PARTITLEMARGIN,w(),h()-PARTITLEMARGIN);
+		control->textsize(8);
+		control->value(default_path.c_str());
+
+		resizable(control);
+		end();
+	}
+
+const std::string FLTKuserIOpar_filepath::type_name ()
+	{
+		return "filepath_chooser";
+	}
+
+void FLTKuserIOpar_filepath::par_value (std::string &v)
+    {
+    v = string(control->value());
+    }
+
+void FLTKuserIOpar_filepath::load_button_cb(Fl_Widget *callingwidget, void *)
+{
+	cout<<"load_button..."<<endl;
+
+	Fl_File_Chooser fc(".","Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
+    fc.show();
+    while(fc.shown())
+        { Fl::wait(); }
+
+    if(fc.value() == NULL)
+        {
+        pt_error::error("FLTKuserIOpar_filepath-Image load dialog cancel",pt_error::notice);
+        return;
+        }
+	
+	//the callingwidget will always be the load_button
+	FLTKuserIOpar_filepath* fp = (FLTKuserIOpar_filepath*)callingwidget->parent();
+	fp->control->value(fc.value());
+}
+
+/*
+class FLTKuserIOpar_filepath : public FLTKuserIOparameter_base    
+    {
+    protected:
+        Fl_Button *load_button;
+        Fl_Output *control;
+
+	public:
+        FLTKuserIOpar_filepath(const std::string name, const std::string default_path="");
+        const std::string type_name();
+        void par_value(string &v);
+        static void load_button(Fl_Widget *callingwidget, void *);
+    };
+*/
+
 #pragma mark *** FLTKuserIOpar_coord3Ddisplay ***
 
 std::string FLTKuserIOpar_coord3Ddisplay::resolve_teststring()
