@@ -517,7 +517,7 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvol
 		res->initialize_dataset(nr_slices,datasize[1],datasize[2]);
 	}
 
-	for(int i = start_slice, int j=0; i<datasize[slice_dir]; i += every_no_slice, j++){
+	for(int i = start_slice,  j=0; i<datasize[slice_dir]; i += every_no_slice, j++){
 		res->copy_slice_from_3D(this, i, j, slice_dir);
 	}
 
@@ -678,7 +678,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_from_3D(image_general<ELEMTYPE
 		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D -- slice_dir error",pt_error::debug);
 	}
 
-	delete res;		// ->deallocate();		//ึึึ - JK WARNING MEMORY LEAK
+	delete res;		// ->deallocate();		//รทรทรท - JK WARNING MEMORY LEAK
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -729,7 +729,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int n
 	    sprintf(s,"%i",c);
 		vec[c]->data_has_changed(true);		//do not forget this part...
 		vec[c]->save_to_VTK_file("c:\\Joel\\TMP\\_reorg_"+string(s)+".vtk");
-		datamanagement.add(vec[c]);
+		this->datamanagement.add(vec[c]);
 	}
 }
 
