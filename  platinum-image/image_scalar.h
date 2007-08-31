@@ -85,6 +85,9 @@ public:
     std::vector<double> get_slice_sum(int direction=2);
     void copy(image_integer<ELEMTYPE, IMAGEDIM> *source, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, int direction=2); ///Copy subvolume
 
+
+	// ------------------------ image_scalarprocess.hxx ------------------------------
+
 	// See description in: Kullberg2006 - J Magn Reson Imaging. 2006 Aug;24(2):394-401.
 	// Whole-body T1 mapping improves the definition of adipose tissue: consequences for automated image analysis.
 	// Usage: large_flip->calc...(small_flip) 
