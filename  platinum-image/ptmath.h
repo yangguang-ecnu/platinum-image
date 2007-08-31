@@ -25,6 +25,8 @@
 #ifndef __ptmath__
 #define __ptmath__
 
+#include <limits>	//for example...  numeric_limits<float>
+
 //tensor algebra type defs, dependencies...
 #include "itkVector.h"
 #include "itkPoint.h"
@@ -204,5 +206,16 @@ float pt_splint1D(float xa[],float ya[],float y2a[],int n,float x);
 // ...used in the function: image_scalar.interpolate_tricubic_3D...
 
 extern const int A_tricubic[64][64]; //defined in ptmath.cc
+
+template <class T>
+void print_type_limits()
+{
+	std::cout<<std::numeric_limits<T>::min()<<"\t";
+	std::cout<<std::numeric_limits<T>::max()<<"\t";
+	std::cout<<std::numeric_limits<T>::digits<<std::endl;
+}
+
+void print_datatype_numerical_limits();
+
 
 #endif	//__ptmath.h__

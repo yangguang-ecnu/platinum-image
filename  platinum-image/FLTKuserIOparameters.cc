@@ -78,11 +78,11 @@ FLTKuserIOpar_filepath::FLTKuserIOpar_filepath(const std::string name, const std
 	{
 		int butt_width = 30;	// ;-)
 
-		load_button = new Fl_Button(x()+w()-butt_width,y(),butt_width,PARTITLEMARGIN,"Browse");
-		load_button->callback(load_button_cb);
+		browse_button = new Fl_Button(x()+w()-butt_width,y(),butt_width,PARTITLEMARGIN,"Browse");
+		browse_button->callback(browse_button_cb);
 
 		control = new Fl_Input(x(),y()+PARTITLEMARGIN,w(),h()-PARTITLEMARGIN);
-		control->textsize(8);
+		control->textsize(10);
 		control->value(default_path.c_str());
 
 		resizable(control);
@@ -99,9 +99,9 @@ void FLTKuserIOpar_filepath::par_value (std::string &v)
     v = string(control->value());
     }
 
-void FLTKuserIOpar_filepath::load_button_cb(Fl_Widget *callingwidget, void *)
+void FLTKuserIOpar_filepath::browse_button_cb(Fl_Widget *callingwidget, void *)
 {
-	cout<<"load_button..."<<endl;
+	cout<<"browse_button..."<<endl;
 
 	Fl_File_Chooser fc(".","Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
     fc.show();
@@ -119,20 +119,6 @@ void FLTKuserIOpar_filepath::load_button_cb(Fl_Widget *callingwidget, void *)
 	fp->control->value(fc.value());
 }
 
-/*
-class FLTKuserIOpar_filepath : public FLTKuserIOparameter_base    
-    {
-    protected:
-        Fl_Button *load_button;
-        Fl_Output *control;
-
-	public:
-        FLTKuserIOpar_filepath(const std::string name, const std::string default_path="");
-        const std::string type_name();
-        void par_value(string &v);
-        static void load_button(Fl_Widget *callingwidget, void *);
-    };
-*/
 
 #pragma mark *** FLTKuserIOpar_coord3Ddisplay ***
 

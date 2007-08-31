@@ -48,8 +48,10 @@ std::string path_parent (std::string);                          //!get parent (f
 std::string path_end (std::string);                             //!get file/dir name pointed to without path
 std::vector<std::string> subdirs (std::string dir_path);       //!get immediate subdirectories (full paths)
 
+bool file_exists (std::string file_path);   //! return whether file exists. //! NOTE: returns false for existing directory
+bool dir_exists (std::string file_path);                              
 
-bool file_exists (std::string file_path);   //! return whether file exists.
-                                            //! NOTE: returns false for existing directory
+bool does_string_end_with(std::string s, std::string ending);
+bool remove_file_lastname(std::string &s, int max_no_lastname_chars=3);
 
 #endif

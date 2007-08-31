@@ -151,6 +151,28 @@ bool dir_exists (std::string file_path)
     return false;
 }
 
+bool does_string_end_with(std::string s, std::string ending)
+{
+	if(s.find_last_of(ending) == s.size()-1)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool remove_file_lastname(std::string &s, int max_no_lastname_chars)
+{
+	int last = s.find_last_of(".");
+	std::cout<<"last="<<s.find_last_of(".")<<std::endl;
+	std::cout<<"size="<<s.size()<<std::endl;
+	if( last >= (s.size() -max_no_lastname_chars -1) )
+	{
+		s = s.substr(0,last);
+		return true;
+	}
+	return false;
+}
+
 std::vector<std::string> subdirs (std::string dir_path)
     {
     trailing_slash(dir_path);

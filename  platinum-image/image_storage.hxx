@@ -222,6 +222,17 @@ void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)
 		}
 	}
 
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::scale(float factor, ELEMTYPE old_center, ELEMTYPE new_center)
+	{
+	typename image_storage<ELEMTYPE>::iterator i = this->begin();
+	while (i != this->end())
+		{
+		*i = new_center + ELEMTYPE(float((*i)-old_center)*factor);
+		++i;
+		}
+	}
+
 
 template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_number_of_voxels_with_value(ELEMTYPE val)

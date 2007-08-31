@@ -682,7 +682,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_from_3D(image_general<ELEMTYPE
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int no_dynamics, int no_contrasts)
+//void image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int no_dynamics, int no_contrasts)
+vector< image_scalar<ELEMTYPE, IMAGEDIM>* > image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int no_dynamics, int no_contrasts)
+
 {
 	int nc = no_contrasts; //number of contrasts
 	int nd = no_dynamics; //number of dynamics
@@ -729,8 +731,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int n
 	    sprintf(s,"%i",c);
 		vec[c]->data_has_changed(true);		//do not forget this part...
 		vec[c]->save_to_VTK_file("c:\\Joel\\TMP\\_reorg_"+string(s)+".vtk");
-		this->datamanagement.add(vec[c]);
 	}
+	return vec;
 }
 
 
