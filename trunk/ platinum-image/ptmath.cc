@@ -206,3 +206,8 @@ void print_datatype_numerical_limits()
 	std::cout<<"signed char: \t";	print_type_limits<signed char>();
 	std::cout<<"bool: \t";			print_type_limits<bool>();
 }
+
+double get_random_number_in_span(double min, double max)
+{
+	return min + (max-min)*(double(rand())/double(RAND_MAX));
+}
