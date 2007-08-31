@@ -174,7 +174,7 @@ class image_general : public image_storage <ELEMTYPE >
 
 		// slice reorganization function that sorts slices from many dynamic scans
 		// first used for slice sorting from DICOM export from "COMBI-acquisition" on Philips 1.5T MRI. 
-		void slice_reorganization_multicontrast(int no_dynamics, int no_contrasts);
+		vector< image_scalar<ELEMTYPE, IMAGEDIM>* > slice_reorganization_multicontrast(int no_dynamics, int no_contrasts);
 
 
 

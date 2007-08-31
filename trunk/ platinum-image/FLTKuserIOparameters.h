@@ -201,14 +201,14 @@ public:
 class FLTKuserIOpar_filepath : public FLTKuserIOparameter_base    
     {
     protected:
-        Fl_Button *load_button;
+        Fl_Button *browse_button;
 
 	public:
         FLTKuserIOpar_filepath(const std::string name, const std::string default_path="");
         Fl_Input *control;	//public for simple access of static callback...
         const std::string type_name();
 		void par_value(std::string &v);
-        static void load_button_cb(Fl_Widget *callingwidget, void *);
+        static void browse_button_cb(Fl_Widget *callingwidget, void *);
     };
 
 //For Display and handling of 3D coordinate value: 50% of the "normal" GUI parameter height...

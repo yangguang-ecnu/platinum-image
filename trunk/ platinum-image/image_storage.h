@@ -109,7 +109,8 @@ class image_storage : public image_base
 
         void erase();
 		void fill(ELEMTYPE value);
-        void scale(ELEMTYPE new_min=0, ELEMTYPE new_max=255);
+        void scale(ELEMTYPE new_min=0, ELEMTYPE new_max=255);   
+		void scale(float factor, ELEMTYPE old_center=0, ELEMTYPE new_center=0);
 		float get_number_of_voxels_with_value(ELEMTYPE val);
         // *** iterator ***        
         class iterator : public std::iterator<std::forward_iterator_tag, ELEMTYPE>

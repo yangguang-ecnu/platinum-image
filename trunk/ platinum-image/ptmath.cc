@@ -188,3 +188,21 @@ const int A_tricubic[64][64] = {
 { 8,-8,-8, 8,-8, 8, 8,-8, 4, 4,-4,-4,-4,-4, 4, 4, 4,-4, 4,-4,-4, 4,-4, 4, 4,-4,-4, 4, 4,-4,-4, 4, 2, 2, 2, 2,-2,-2,-2,-2, 2, 2,-2,-2, 2, 2,-2,-2, 2,-2, 2,-2, 2,-2, 2,-2, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 
+void print_datatype_numerical_limits()
+{
+	std::cout<<"Data Type: \t min \t\t max \t\t digits"<<std::endl;
+	std::cout<<"---------------------------------------"<<std::endl;
+	std::cout<<"double:   \t";		print_type_limits<double>();
+//	std::cout<<"long double: \t";	print_type_limits<long double>();
+	std::cout<<"float: \t";			print_type_limits<float>();
+	std::cout<<"short: \t";			print_type_limits<short>();
+	std::cout<<"unsigned short: \t";print_type_limits<unsigned short>();
+	std::cout<<"int: \t";			print_type_limits<int>();
+	std::cout<<"unsigned int: \t";	print_type_limits<unsigned int>();
+	std::cout<<"long: \t";			print_type_limits<long>();
+	std::cout<<"unsigned long: \t";	print_type_limits<unsigned long>();
+	std::cout<<"char: \t";			print_type_limits<char>();
+	std::cout<<"unsigned char: \t";	print_type_limits<unsigned char>();
+	std::cout<<"signed char: \t";	print_type_limits<signed char>();
+	std::cout<<"bool: \t";			print_type_limits<bool>();
+}
