@@ -16,6 +16,7 @@
   * The SVN client
 
 =3. Build (Windows)=
+_Note: Windows instructions only, see below for Unix/Linux/Mac_
 ==ITK==
   # Decompress ”!InsightToolkit-3.0.1.zip” _(suggested location:   C:\Lib\InsightToolkit-3.0.1)_ 
   # Run CMake
