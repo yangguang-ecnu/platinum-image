@@ -109,15 +109,16 @@ public:
 template <>
 class datawidget<image_base>:public datawidget_base
 {   
-    const static Fl_Menu_Item tfunctionmenu;
-    const static Fl_Menu_Item transferfunction_mi;
+    const static Fl_Menu_Item tfunctionmenu;			//the extra "transfer_funtion row"
+    const static Fl_Menu_Item transferfunction_mi; 
     static void cb_transferswitch(Fl_Widget* o, void* v);
     static void toggle_tfunction(Fl_Widget* callingwidget, void*);
     
     Fl_Group *tfunction_;
-    Fl_Menu_Item * menu_featuremenu_plustf;
+    Fl_Menu_Item * menu_featuremenu_plustf;		//The "new" version of the "main menu"
 
-    Fl_Menu_Item * tfunction_submenu;
+    Fl_Menu_Item * tfunction_submenu;			//The transfer function submenu. Transferfactory handles all versions of transfer functions
+
     void setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im);
 public:
         datawidget(image_base* im, std::string n);

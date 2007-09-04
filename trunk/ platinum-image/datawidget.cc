@@ -43,6 +43,7 @@ void transferfactory::tf_menu_params::switch_tf()
     {
     pt_error::error_if_null(image,"Trying to make tfunction menu item with image = NULL");
     image->transfer_function(type);
+//	image->redraw(); //JK - to redraw the 
     }
 
 #pragma mark datawidget_base
@@ -291,20 +292,24 @@ Fl_Group * datawidget<image_base>::reset_tf_controls()
 }
 
 void datawidget<image_base>::cb_transferswitch(Fl_Widget* o, void* v) {
+	cout<<"cb_transferswitch"<<endl;
     transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(v);
     
-    //Each item has space for a callback function and an argument for that function. Due to back compatability, the Fl_Menu_Item itself is not passed to the callback, instead you have to get it by calling  ((Fl_Menu_*)w)->mvalue()  where w is the widget argument.
-    
-    const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
-    
-    /*transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(item->user_data());*/
+    //Each item has space for a callback function and an argument for that function. 
+	//Due to back compatability, the Fl_Menu_Item itself is not passed to the callback, 
+	//instead you have to get it by calling ((Fl_Menu_*)w)->mvalue() where w is the widget argument.
+     const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
+
+     /*transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(item->user_data());*/
     
     par->switch_tf();
     const_cast<Fl_Menu_Item *>(item)->setonly();
+
 }
 
 void datawidget<image_base>::toggle_tfunction(Fl_Widget* callingwidget, void*)
 {
+	cout<<"toggle_tfunction"<<endl;
     //datawidget_base * the_datawidget_base=reinterpret_cast<datawidget_base *>(callingwidget->user_data());
     datawidget<image_base> * the_datawidget = dynamic_cast<datawidget<image_base> * >(reinterpret_cast<datawidget_base *>(callingwidget->user_data()));
     

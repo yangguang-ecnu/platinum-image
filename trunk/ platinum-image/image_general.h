@@ -53,6 +53,9 @@ template<class ELEMTYPE, int IMAGEDIM>
 #include "itkImageFileWriter.h"
 #include "itkCastImageFilter.h"
 
+#include "itkMeanImageFilter.h"
+#include "itkMedianImageFilter.h"
+
 #include "global.h"
 #include "color.h"
 
