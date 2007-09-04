@@ -55,6 +55,7 @@ using namespace std;
 #define theSizeType theImageType::RegionType::SizeType
 #define theStatsFilterType itk::StatisticsImageFilter<theImageType >
 #define theStatsFilterPointerType theStatsFilterType::Pointer
+#define theMeanFilterType itk::MeanImageFilter<theImageType,theImageType>
 
 #include "image_general.h"
 #include "image_storage.hxx"

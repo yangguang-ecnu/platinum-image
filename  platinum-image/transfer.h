@@ -30,6 +30,7 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Slider.H>
+#include <FL/Fl_Value_Slider.H>
 #include <FL/fl_draw.H>
 
 #include "color.h"
@@ -63,6 +64,7 @@ class transfer_base: public transfer_manufactured
         image_storage<ELEMTYPE > * source;
         Fl_Group*  pane;
 
+
         transfer_base (image_storage<ELEMTYPE > * s);
 
         static void redraw_image_cb( Fl_Widget* o, void* p );//!redraw associated image after touching a control
@@ -91,13 +93,18 @@ template <class ELEMTYPE >
 class transfer_brightnesscontrast: public transfer_base <ELEMTYPE >
 {
 protected:
-	Fl_Slider* intensity_ctrl;
-	Fl_Slider* contrast_ctrl;
+//	Fl_Slider* intensity_ctrl;
+//	Fl_Slider* contrast_ctrl;
+	Fl_Value_Slider* intensity_ctrl;
+	Fl_Value_Slider* contrast_ctrl;
 	ELEMTYPE intensity;
+	ELEMTYPE intensity_inv;
 	float contrast;
 public:
 	transfer_brightnesscontrast (image_storage <ELEMTYPE > *);
 	void get (const ELEMTYPE v, RGBvalue &p);
+	void update();				//JK - updates intensity/contrast parameters...
+	static void slider_cb(Fl_Widget *o, void *v);		//JK - slider_callback...
 };
 
 template <class ELEMTYPE >

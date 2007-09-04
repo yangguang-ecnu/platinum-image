@@ -138,14 +138,9 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scala
 	a = sdir2*(this->origin - src_im->origin);
 	b = sdir2*rdir2;
 
-//	char buffer[100];
-//	char buffer2[100];
-//	sprintf(buffer2, "%f", this->datasize[2] );              
-
 	for (int k=0; k < this->datasize[2]; k++)
 	{
-//		sprintf(buffer, "%f", k );              
-//		userIOmanagement.status_area->message( "Trilinear interpolation: " + string(buffer) + "/" + string(buffer2) );
+		userIOmanagement.status_area->progress(k,"Trilinear interp. progress...",this->datasize[2]);
 		//cout<<".";
 		for (int j=0; j < this->datasize[1]; j++)
 		{
@@ -265,17 +260,24 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D(image_scalar<ELE
 	int ypos=0;
 	int zpos=0;
 
+	userIOmanagement.status_area->progress(1,"Precalculating derivatives...",7);
 	image_scalar<double,3> *fx = get_num_diff_image_1storder_central_diff_3D(0);
+	userIOmanagement.status_area->progress(2,"Precalculating derivatives...",7);
 	image_scalar<double,3> *fy = get_num_diff_image_1storder_central_diff_3D(1);
+	userIOmanagement.status_area->progress(3,"Precalculating derivatives...",7);
 	image_scalar<double,3> *fz = get_num_diff_image_1storder_central_diff_3D(2);
+	userIOmanagement.status_area->progress(4,"Precalculating derivatives...",7);
 	image_scalar<double,3> *fxy = get_num_diff_image_2ndorder_central_diff_3D(fx,1);
+	userIOmanagement.status_area->progress(5,"Precalculating derivatives...",7);
 	image_scalar<double,3> *fxz = get_num_diff_image_2ndorder_central_diff_3D(fx,2);
+	userIOmanagement.status_area->progress(6,"Precalculating derivatives...",7);
 	image_scalar<double,3> *fyz = get_num_diff_image_2ndorder_central_diff_3D(fy,2);
+	userIOmanagement.status_area->progress(7,"Precalculating derivatives...",7);
 	image_scalar<double,3> *fxyz = get_num_diff_image_2ndorder_central_diff_3D(fxy,2);
-
 
 	for (int k=0; k < this->datasize[2]; k++)
 	{
+		userIOmanagement.status_area->progress(k,"interpolate_tricubic_3D - progress...",this->datasize[2]);
 		//cout<<".";
 		for (int j=0; j < this->datasize[1]; j++)
 		{

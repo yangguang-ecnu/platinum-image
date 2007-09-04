@@ -65,6 +65,8 @@ public:
 	// Tricubic Interpolation in Three Dimensions
 	// International Journal for Numerical Methods in Engineering, 63 (3), 455-471, 2005
 
+	void interpolate_tricubic_3D(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation from "libtricubic" package
+
 	//Speed the "interpolate_tricubic_3D" function up by precalculationg the numericla diffs for the whole image.
 	image_scalar<double,3>* get_num_diff_image_1storder_central_diff_3D(int direction);	//voxel based (i.e. no real/physical dimensions included),  alpha-tested
 	image_scalar<double,3>* get_num_diff_image_2ndorder_central_diff_3D(image_scalar<double,3>*df_dir1, int direction2);	//voxel based (i.e. no real/physical dimensions included) , alpha-tested
@@ -74,7 +76,7 @@ public:
 //	void set_a_coeff_stacked(double a[64], double x[64]);
 	double tricubic_eval(double a[64], double x, double y, double z);
 
-	void interpolate_tricubic_3D(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation from "libtricubic" package
+
 
 
     image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, IMGBINARYTYPE true_inside_threshold=true); ///Return a image_binary where all voxels with values between low and high gets the value true_inside_threshold.
@@ -94,6 +96,15 @@ public:
 	// Meta data required: TR, Flip_angle
 	// Note that function can be moved to image_storage...
     image_scalar<ELEMTYPE, IMAGEDIM>* calculate_T1Map_from_two_flip_angle_MRvolumes_3D(image_scalar<ELEMTYPE, IMAGEDIM > *small_flip, float body_thres=0, float t1_min=0, float t1_max=2000); 
+
+	void smooth_ITK(Vector3D radius); 
+	void smooth_3D(Vector3D radius); 
+//	void medianFilter2D();
+//	void meanFilter();
+//	void discreteGaussFilter(double gaussianVariance,int maxKernelWidth);
+//	void gradientFilter();
+//	void gradientFilter2D();
+//	itk::MeanImageFilter<theImageType,theImageType>::Pointer filter = itk::MeanImageFilter<theImageType,theImageType>::New();
 };
 
 #endif

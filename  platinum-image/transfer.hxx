@@ -54,29 +54,72 @@ void transfer_base<ELEMTYPE >::redraw_image_cb( Fl_Widget* o, void* p )
 template <class ELEMTYPE >
 transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_storage<ELEMTYPE > * s) : transfer_base<ELEMTYPE >(s)
     {
+	Fl_Group* frame = this->pane;
+	frame->resize(0,0,270,80);
+	frame->callback(transfer_base<ELEMTYPE >::redraw_image_cb);
+	frame->user_data( static_cast<REDRAWCALLBACKPTYPE>(this->source) );
+
     ELEMTYPE intrange = this->source->get_max() - this->source->get_min();
-    float contrange =4 * (std::numeric_limits<ELEMTYPE>::max() - std::numeric_limits<ELEMTYPE>::min())/intrange; //4 is arbitrary, the formula gives some basic headroom
+    intensity = float(intrange)/2.0; //JK
+    contrast = 255.0/float(intrange);
+    float contrast_max = contrast*4.0;
+    float contrast_min = contrast*0.1;
 
-    this->pane->label ("Intensity/contrast");
-    intensity = 0;
-    contrast = 1.0;
+//	cout<<"intensity="<<intensity<<endl;
+//	cout<<"contrast="<<contrast<<endl;
 
-    intensity_ctrl = new Fl_Slider (FL_HORIZONTAL,0,20,300,16,"Intensity");
-    intensity_ctrl->value (intensity);
-    intensity_ctrl->bounds(-intrange,intrange);
+	//JK - GUI modification
+	int xx = frame->x();
+	int yy = frame->y();
+	int ww = frame->w();
 
-    contrast_ctrl = new Fl_Slider (FL_HORIZONTAL,0,50,300,16,"Contrast");
-    contrast_ctrl->value (contrast);
-    contrast_ctrl->bounds(-contrange,contrange);
+    intensity_ctrl = new Fl_Value_Slider(xx,yy+5,ww,16,"Intensity");
+	intensity_ctrl->type(FL_HOR_SLIDER);
+    intensity_ctrl->value(intensity);
+    intensity_ctrl->bounds(this->source->get_min(),this->source->get_max());
+	intensity_ctrl->precision(1);
+	intensity_ctrl->callback(slider_cb,this);
 
-    this->pane->end();
+
+    contrast_ctrl = new Fl_Value_Slider(xx,yy+40,ww,16,"Contrast");
+	contrast_ctrl->type(FL_HOR_SLIDER);
+    contrast_ctrl->value(contrast);
+    contrast_ctrl->bounds(contrast_min,contrast_max);
+	contrast_ctrl->step(0.01*(contrast_max-contrast_min));
+	contrast_ctrl->precision(2);
+	contrast_ctrl->callback(slider_cb,this);
+
+	frame->end();
+
+	this->update();
+    frame->do_callback(); //redraw image that the transfer function is attached to ( 
     }
 
 template <class ELEMTYPE >
 void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
     {
-    p.set_mono(v * this->intensity + this->contrast);
+	float res = 127.5 + contrast*float(v-intensity_inv);
+	if(res<0){res=0.0;}
+	if(res>255){res=255.0;}
+	p.set_mono(res);
     }
+
+template <class ELEMTYPE >
+void transfer_brightnesscontrast<ELEMTYPE >::update()
+{
+	intensity = this->intensity_ctrl->value();
+	intensity_inv = this->intensity_ctrl->maximum() + this->intensity_ctrl->minimum()-intensity;
+	contrast = this->contrast_ctrl->value();
+}
+
+template <class ELEMTYPE >
+void transfer_brightnesscontrast<ELEMTYPE >::slider_cb(Fl_Widget *o, void *v)
+{
+//	cout<<"slider_cb"<<endl;
+	transfer_brightnesscontrast<ELEMTYPE>* tf = (transfer_brightnesscontrast<ELEMTYPE>*)v;
+	tf->update();
+    tf->pane->do_callback(); //redraw image that the transfer function is attached to ( 
+}
 
 
 // *** transfer_mapcolor ***
