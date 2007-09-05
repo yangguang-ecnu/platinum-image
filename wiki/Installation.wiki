@@ -124,7 +124,7 @@ On the Mac, VTK can be built using either the legacy [http://en.wikipedia.org/wi
 
 ==Building FLTK==
 
-On the Mac, FLTK can be built using either the legacy [http://en.wikipedia.org/wiki/QuickDraw QuickDraw] or the current [http://en.wikipedia.org/wiki/Quartz_%28graphics_layer%29 Quartz] graphics layer. Platinum has been designed for work with Quartz classes, and *will not display images correctly if QuickDraw is used* (if you get stripes instead of the expected image in Platinum, this is the problem). Before running `make` on FLTK, use the following command to set Quartz as the graphics layer:
+On the Mac, FLTK can be built using either the legacy [http://en.wikipedia.org/wiki/QuickDraw QuickDraw] or the current [http://en.wikipedia.org/wiki/Quartz_%28graphics_layer%29 Quartz] graphics layer. Platinum has been designed for work with Quartz, and *will not display images correctly if !QuickDraw is used* (if you get stripes instead of the expected image in Platinum, this is the problem). Before running `make` on FLTK, use the following command to set Quartz as the graphics layer:
 
 `cmake -D FLTK_QUARTZ:BOOL=ON`
 
@@ -134,5 +134,4 @@ If you are on Mac OS X you may use the `-G Xcode` flag with CMake (all other ins
 You may also use Xcode for updating/commiting SVN: select "Configure SCM" from the SCM menu, choose Subversion as SCM system and click "Enable SCM". When CMakeLists is changed, the project file will be rewritten on the next Build. Xcode will notice this shortly afterwards and ask You to reload. When this happens, SVN must be re-enabled as described above.
 
 *Note:* for Xcode SVN to work, you have to have SVN previously set up. This can be done by command-line or, preferrably, with a tool like [http://www.lachoseinteractive.net/en/community/subversion/svnx/features/ svnX].
-
 
