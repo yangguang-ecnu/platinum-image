@@ -116,11 +116,17 @@ Repeat these steps for ITK, VTK, FLTK and Platinum - respectively, and in that o
 Since Mac OS X is UNIX, simply follow the general UNIX build procedure above. There are just a few important points to note when building Platinum on the Mac, listed below.
 
 ==Building VTK==
-On the Mac, VTK can be built using either the legacy [http://en.wikipedia.org/wiki/Carbon_%28API%29 Carbon] or the current [http://en.wikipedia.org/wiki/Cocoa_%28API%29 Cocoa] classes. Platinum has been designed to work with Cocoa classes, and will not display images correctly if Carbon is used. Before running `make` on VTK, use the following commands to make the build a Cocoa one:
+On the Mac, VTK can be built using either the legacy [http://en.wikipedia.org/wiki/Carbon_%28API%29 Carbon] or the current [http://en.wikipedia.org/wiki/Cocoa_%28API%29 Cocoa] classes. Platinum is intended to use Cocoa classes – before running `make` on VTK, use the following commands to make the build a Cocoa one:
 
 `cmake -D VTK_USE_CARBON:BOOL=OFF`
 
 `cmake -D VTK_USE_COCOA:BOOL=ON`
+
+==Building FLTK==
+
+On the Mac, FLTK can be built using either the legacy [http://en.wikipedia.org/wiki/QuickDraw QuickDraw] or the current [http://en.wikipedia.org/wiki/Quartz_%28graphics_layer%29 Quartz] graphics layer. Platinum has been designed for work with Quartz classes, and *will not display images correctly if QuickDraw is used* (if you get stripes instead of the expected image in Platinum, this is the problem). Before running `make` on FLTK, use the following command to set Quartz as the graphics layer:
+
+`cmake -D FLTK_QUARTZ:BOOL=ON`
 
 ==Xcode==
 If you are on Mac OS X you may use the `-G Xcode` flag with CMake (all other instructions as above) to generate Platinum as an Xcode project instead of a makefile. Once you have the Xcode project file, the project is built by selecting the appropriate command inside Xcode. NOTE: ITK, VTK or FLTK cannot be built with Xcode, but are easy to build with `make` anyway.
@@ -128,4 +134,5 @@ If you are on Mac OS X you may use the `-G Xcode` flag with CMake (all other ins
 You may also use Xcode for updating/commiting SVN: select "Configure SCM" from the SCM menu, choose Subversion as SCM system and click "Enable SCM". When CMakeLists is changed, the project file will be rewritten on the next Build. Xcode will notice this shortly afterwards and ask You to reload. When this happens, SVN must be re-enabled as described above.
 
 *Note:* for Xcode SVN to work, you have to have SVN previously set up. This can be done by command-line or, preferrably, with a tool like [http://www.lachoseinteractive.net/en/community/subversion/svnx/features/ svnX].
+
 
