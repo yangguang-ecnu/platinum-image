@@ -691,8 +691,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out(int low_x, int high_x, int low_y
 		return res;
 	}
 
-	template <class ELEMTYPE, int IMAGEDIM>
-		void image_scalar<ELEMTYPE, IMAGEDIM>::copy(image_integer<ELEMTYPE, IMAGEDIM> *source, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, int direction)
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::copy(image_integer<ELEMTYPE, IMAGEDIM> *source, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, int direction)
 	{
 		int x,y,z;
 		int max_x, max_y, max_z;
@@ -717,7 +717,51 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out(int low_x, int high_x, int low_y
 					this->set_voxel_by_dir(x,y,z,source->get_voxel_by_dir(x,y,z,direction),direction);
 	}
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
+	{
+		//loop over floor(half) of the volume and copy that half to the other...
+		ELEMTYPE tmp;
 
+		switch(direction){
+		case 0:
+			for(int z=0; z<datasize[2]; z++){		
+				for(int y=0; y<datasize[1]; y++){
+					for(int x=0; x<datasize[0]/2; x++){
+						tmp = get_voxel(x,y,z);
+						set_voxel(x,y,z,get_voxel(datasize[0]-x-1,y,z));
+						set_voxel(datasize[0]-x-1,y,z,tmp);
+					}
+				}
+			}
+			break;
+		case 1: 
+			for(int z=0; z<datasize[2]; z++){		
+				for(int y=0; y<datasize[1]/2; y++){
+					for(int x=0; x<datasize[0]; x++){
+						tmp = get_voxel(x,y,z);
+						set_voxel(x,y,z,get_voxel(x,datasize[1]-y-1,z));
+						set_voxel(x,datasize[1]-y-1,z,tmp);
+					}
+				}
+			}
+			break;
+		case 2: 
+			for(int z=0; z<datasize[2]/2; z++){
+				for(int y=0; y<datasize[1]; y++){
+					for(int x=0; x<datasize[0]; x++){
+						tmp = get_voxel(x,y,z);
+						set_voxel(x,y,z,get_voxel(x,y,datasize[2]-z-1));
+						set_voxel(x,y,datasize[2]-z-1,tmp);
+					}
+				}
+			}
+			break;
+		default:
+			pt_error::error("image_scalar<>-flip_voxel_data_3D(), erroneous direction",pt_error::debug);
+			break;
+		}
+	}
 
 #include "image_scalarprocess.hxx"
 

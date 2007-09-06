@@ -4,6 +4,7 @@
 //
 //  The datawidget is the GUI representation of a dataset (image/point).
 //  It provides controls for saving, deleting and shows the thumbnail.
+//	The FLTKgeom_base class aids the displaying/editing of geometrical information.
 //
 //  $LastChangedBy$
 //
@@ -34,6 +35,7 @@
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Pack.H>
 #include <FL/Fl_Input.H>
+#include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Box.H>
 
@@ -52,6 +54,9 @@
 class image_base;
 class point_collection;*/
 
+class FLTKgeom_base;
+
+
 class datawidget_base : public Fl_Pack {
 protected:
     int data_id;  
@@ -62,7 +67,8 @@ protected:
     Fl_Input *datanamebutton;
     void cb_filenamebutton_i(Fl_Input*, void*);
     static void cb_filenamebutton(Fl_Input*, void*);
-    Fl_Menu_Button *featuremenu;
+	static void edit_geometry_callback(Fl_Widget *callingwidget, void *);
+	Fl_Menu_Button *featuremenu;
 
     // *** thumbnail
     const static int thumbnail_size;
@@ -76,10 +82,14 @@ protected:
     const static Fl_Menu_Item *save_vtk_mi;
     const static Fl_Menu_Item *duplicate_mi;
     Fl_Pack *extras;
+
+	FLTKgeom_base *geom_widget; //JK
     
     datawidget_base(data_base * d, std::string n);
 public:
-    static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);;
+    static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);
+
+
     //void make_window();
 
     virtual ~datawidget_base ();
@@ -93,6 +103,8 @@ public:
     
     void from_file(bool);
     bool from_file() const;
+
+	void show_hide_edit_geometry();
     };
 
 template <class DATATYPE>
@@ -121,12 +133,67 @@ class datawidget<image_base>:public datawidget_base
 
     void setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im);
 public:
-        datawidget(image_base* im, std::string n);
+	datawidget(image_base* im, std::string n);
     virtual ~datawidget();
     
     void tfunction(Fl_Group * t);
     Fl_Group * reset_tf_controls();
     
+};
+
+
+//----------------------
+class FLTKVector3D : public Fl_Group {
+protected:
+	Fl_Value_Input *data_x;
+	Fl_Value_Input *data_y;
+	Fl_Value_Input *data_z;
+	static void vector_cb(Fl_Widget *w, void*);
+public:
+	FLTKVector3D(Vector3D v, int x=0, int y=0, int w=30, int h=50, const char *sx=0, const char *sy=0, const char *sz=0);
+	void value(Vector3D v);
+	Vector3D value();
+};
+
+//----------------------
+class FLTKMatrix3D : public Fl_Group {
+protected:
+	Fl_Value_Input *data_00;	Fl_Value_Input *data_10;	Fl_Value_Input *data_20;
+	Fl_Value_Input *data_01;	Fl_Value_Input *data_11;	Fl_Value_Input *data_21;
+	Fl_Value_Input *data_02;	Fl_Value_Input *data_12;	Fl_Value_Input *data_22;
+	static void matrix_cb(Fl_Widget *w, void*);
+public:
+	FLTKMatrix3D(Matrix3D m, int x=0, int y=0, int w=90, int h=50);
+	void value(Matrix3D m);
+	Matrix3D value();
+};
+
+
+//----------------------
+class FLTKgeom_base : public Fl_Group{
+protected:
+    int data_id;  
+public:
+	FLTKgeom_base(int id, int x=0, int y=0, int w=100, int h=30);
+};
+
+/*
+FLTKgeom_point_collection:public FLTKgeom_base{
+public:
+//    FLTKgeom_point_collection(point_collection* p, std::string n);
+};
+*/
+
+class FLTKgeom_image : public FLTKgeom_base{
+protected:
+	FLTKVector3D *orig;
+	FLTKVector3D *size;
+	FLTKMatrix3D *orient;
+public:
+	static void orig_update_cb(Fl_Widget *w, void*);
+	static void size_update_cb(Fl_Widget *w, void*);
+	static void orient_update_cb(Fl_Widget *w, void*);
+	FLTKgeom_image(int id, int x=0, int y=0, int w=200, int h=70);
 };
 
 #endif
