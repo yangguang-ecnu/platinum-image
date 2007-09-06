@@ -160,6 +160,7 @@ class image_general : public image_storage <ELEMTYPE >
         Vector3D get_size () const;
         
         const Vector3D get_voxel_size () const;       //return voxel size
+		void set_voxel_size(const Vector3D v);
         Matrix3D get_voxel_resize () const;           //return voxel size as matrix
 
 

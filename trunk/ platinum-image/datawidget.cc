@@ -31,6 +31,8 @@ extern uchar *animage; //defined in datamanager.cc
 
 const int datawidget_base::thumbnail_size = 128;
 
+
+
 #pragma mark transferfactory statics
 
 transferfactory::tf_menu_params::tf_menu_params (const std::string t,image_base * i)
@@ -57,10 +59,17 @@ void datawidget_base::cb_filenamebutton(Fl_Input* o, void* v) {
   ((datawidget_base*)(o->parent()->parent()))->cb_filenamebutton_i(o,v);
 }
 
+void datawidget_base::edit_geometry_callback(Fl_Widget *callingwidget, void *){
+    datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
+	cout<<"the_datawidget->get_data_id()="<<the_datawidget->get_data_id()<<endl;
+    the_datawidget->show_hide_edit_geometry();
+}
+
 const Fl_Menu_Item datawidget_base::menu_featuremenu_base[] = {
  {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Save as VTK...", 0,  (Fl_Callback*)datamanager::save_vtk_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Duplicate", 0,  0, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Geometry Edit(Show/Hide)", 0, (Fl_Callback*)datawidget_base::edit_geometry_callback,0,0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0}
 };
@@ -167,6 +176,23 @@ bool datawidget_base::from_file() const
     return fromFile;
     }
 
+void datawidget_base::show_hide_edit_geometry()
+{
+	if(geom_widget==NULL){
+		geom_widget = new FLTKgeom_image(data_id); //JK
+		extras->add(geom_widget);
+		geom_widget->hide();
+		geom_widget->show();
+	}else{
+		if(geom_widget->visible()){
+			geom_widget->hide();
+		}else{
+			geom_widget->show();
+		}
+	}
+}
+
+
 #pragma mark datawidget<image_base>
 
 const Fl_Menu_Item datawidget<image_base>::tfunctionmenu = {"Transfer function", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0};
@@ -182,6 +208,11 @@ datawidget<image_base>::datawidget(image_base* im, std::string n): datawidget_ba
         o->end();
     }
     extras->add(tfunction_);
+
+	//JK Cannot get geometry data yet since data has not been added to datamanagement 
+	geom_widget=NULL;			
+//    extras->add(geom_widget);
+
    
     int fMenuSize = fl_menu_size (menu_featuremenu_base);
     menu_featuremenu_plustf = new Fl_Menu_Item[fMenuSize+1+1];
@@ -236,6 +267,8 @@ datawidget<image_base>::datawidget(image_base* im, std::string n): datawidget_ba
     menu_featuremenu_plustf[fMenuSize+1].label(NULL);
     
     featuremenu->menu(menu_featuremenu_plustf);
+
+
     }
 
 datawidget<image_base>::~datawidget()
@@ -328,6 +361,8 @@ void datawidget<image_base>::toggle_tfunction(Fl_Widget* callingwidget, void*)
     the_datawidget->parent()->parent()->redraw();
 }
 
+
+
 #pragma mark datawidget<point_collection>
 
 datawidget<point_collection>::datawidget (point_collection* p, std::string n): datawidget_base (p,n)
@@ -336,3 +371,166 @@ datawidget<point_collection>::datawidget (point_collection* p, std::string n): d
     
     //TODO: disable Save as VTK
 }
+
+
+
+
+//-----------------------------
+FLTKVector3D::FLTKVector3D(Vector3D v, int x, int y, int w, int h, const char *sx, const char *sy, const char *sz):Fl_Group(x,y,w,h)
+{
+	int dh = int(float(h)/3.0);
+	data_x = new Fl_Value_Input(x+7,y		,w-7,dh-2,sx);
+	data_y = new Fl_Value_Input(x+7,y+dh	,w-7,dh-2,sy);
+	data_z = new Fl_Value_Input(x+7,y+2*dh	,w-7,dh-2,sz);
+
+	data_x->callback(vector_cb);	data_x->when(FL_WHEN_RELEASE);
+	data_y->callback(vector_cb);	data_y->when(FL_WHEN_RELEASE);
+	data_z->callback(vector_cb);	data_z->when(FL_WHEN_RELEASE);
+
+	value(v);
+
+	end();
+}	
+
+void FLTKVector3D::value(Vector3D v)
+{
+	data_x->value(v[0]);
+	data_y->value(v[1]);
+	data_z->value(v[2]);
+}
+
+Vector3D FLTKVector3D::value()
+{
+	Vector3D v;
+	v[0] = data_x->value();
+	v[1] = data_y->value();
+	v[2] = data_z->value();
+	return v;
+}
+
+void FLTKVector3D::vector_cb(Fl_Widget *w, void*)
+{
+//	cout<<"vector_cb(Fl_Widget *w, void*)"<<endl;
+	FLTKVector3D* v3D = (FLTKVector3D*)w->parent();
+	v3D->do_callback(v3D);
+}
+//-----------------------------
+FLTKMatrix3D::FLTKMatrix3D(Matrix3D m, int x, int y, int w, int h):Fl_Group(x,y,w,h)
+{
+	int dh = int(float(h)/3.0);
+	int dw = int(float(w)/3.0);
+	data_00 = new Fl_Value_Input(x+5	,y		,dw-5,dh-2);
+	data_01 = new Fl_Value_Input(x+5	,y+dh	,dw-5,dh-2);
+	data_02 = new Fl_Value_Input(x+5	,y+2*dh	,dw-5,dh-2);
+	data_10 = new Fl_Value_Input(x+5+dw	,y		,dw-5,dh-2);
+	data_11 = new Fl_Value_Input(x+5+dw	,y+dh	,dw-5,dh-2);
+	data_12 = new Fl_Value_Input(x+5+dw	,y+2*dh	,dw-5,dh-2);
+	data_20 = new Fl_Value_Input(x+5+2*dw,y		,dw-5,dh-2);
+	data_21 = new Fl_Value_Input(x+5+2*dw,y+dh	,dw-5,dh-2);
+	data_22 = new Fl_Value_Input(x+5+2*dw,y+2*dh,dw-5,dh-2);
+
+	data_00->callback(matrix_cb);	data_00->when(FL_WHEN_RELEASE);
+	data_01->callback(matrix_cb);	data_01->when(FL_WHEN_RELEASE);
+	data_02->callback(matrix_cb);	data_02->when(FL_WHEN_RELEASE);
+	data_10->callback(matrix_cb);	data_10->when(FL_WHEN_RELEASE);
+	data_11->callback(matrix_cb);	data_11->when(FL_WHEN_RELEASE);
+	data_12->callback(matrix_cb);	data_12->when(FL_WHEN_RELEASE);
+	data_20->callback(matrix_cb);	data_20->when(FL_WHEN_RELEASE);
+	data_21->callback(matrix_cb);	data_21->when(FL_WHEN_RELEASE);
+	data_22->callback(matrix_cb);	data_22->when(FL_WHEN_RELEASE);
+
+	value(m);
+
+	end();
+}	
+
+void FLTKMatrix3D::value(Matrix3D m)
+{
+	data_00->value(m[0][0]);
+	data_01->value(m[0][1]);
+	data_02->value(m[0][2]);
+
+	data_10->value(m[1][0]);
+	data_11->value(m[1][1]);
+	data_12->value(m[1][2]);
+
+	data_20->value(m[2][0]);
+	data_21->value(m[2][1]);
+	data_22->value(m[2][2]);
+}
+
+Matrix3D FLTKMatrix3D::value()
+{
+	Matrix3D m;
+	m[0][0] = data_00->value();
+	m[0][1] = data_01->value();
+	m[0][2] = data_02->value();
+
+	m[1][0] = data_10->value();
+	m[1][1] = data_11->value();
+	m[1][2] = data_12->value();
+
+	m[2][0] = data_20->value();
+	m[2][1] = data_21->value();
+	m[2][2] = data_22->value();
+	return m;
+}
+void FLTKMatrix3D::matrix_cb(Fl_Widget *w, void*)
+{
+//	cout<<"matrix_cb(Fl_Widget *w, void*)"<<endl;
+	FLTKMatrix3D* m3D = (FLTKMatrix3D*)w->parent();
+	m3D->do_callback(m3D);
+}
+
+
+//--------------------------
+#pragma mark FLTKgeom_base
+FLTKgeom_base::FLTKgeom_base(int id, int x, int y, int w, int h):Fl_Group(x,y,w,h)
+{
+    data_id = id;
+//	end();
+}
+
+//FLTKgeom_image::FLTKgeom_image(image_base *im):FLTKgeom_image(im->get_id()){}
+
+
+FLTKgeom_image::FLTKgeom_image(int id, int x, int y, int w, int h):FLTKgeom_base(id,x,y,w,h)
+{
+//	cout<<"origin="<<datamanagement.get_image(data_id)->get_origin()<<endl;
+	orig = new FLTKVector3D(datamanagement.get_image(data_id)->get_origin(),x,y,20,h,"x","y","z");
+	size = new FLTKVector3D(datamanagement.get_image(data_id)->get_voxel_size(),x+20,y,20,h,"dx","dy","dz");
+	orient = new FLTKMatrix3D(datamanagement.get_image(data_id)->get_orientation(),x+45,y,w-45,h);
+
+	orig->callback(orig_update_cb);
+	size->callback(size_update_cb);
+	orient->callback(orient_update_cb);
+
+	end();
+}
+
+void FLTKgeom_image::orig_update_cb(Fl_Widget *w, void*)
+{
+	FLTKVector3D *v = (FLTKVector3D*)w;
+	FLTKgeom_image *g = (FLTKgeom_image*)v->parent();
+	datamanagement.get_image(g->data_id)->set_origin(v->value());	
+	datamanagement.data_has_changed(g->data_id);
+}
+
+void FLTKgeom_image::size_update_cb(Fl_Widget *w, void*)
+{
+	FLTKVector3D *v = (FLTKVector3D*)w;
+	FLTKgeom_image *g = (FLTKgeom_image*)v->parent();
+	datamanagement.get_image(g->data_id)->set_voxel_size(v->value());
+	datamanagement.data_has_changed(g->data_id);
+}
+
+void FLTKgeom_image::orient_update_cb(Fl_Widget *w, void*)
+{
+	FLTKMatrix3D *m = (FLTKMatrix3D*)w;
+	FLTKgeom_image *g = (FLTKgeom_image*)m->parent();
+	datamanagement.get_image(g->data_id)->set_orientation(m->value());
+	datamanagement.data_has_changed(g->data_id);
+}
+
+
+//	static void orient_update_cb(Fl_Widget *w, void*);

@@ -130,10 +130,21 @@ Matrix3D image_base::get_orientation () const
     return orientation;
 }
 
+void image_base::set_orientation(const Matrix3D m)
+{
+    orientation = m;
+}
+
 Vector3D image_base::get_origin () const
 {
     return origin;
 }
+
+void image_base::set_origin(const Vector3D v)
+{
+    origin = v;
+}
+
 
 Vector3D image_base::world_to_voxel(const Vector3D wpos) const
     {

@@ -744,6 +744,11 @@ const Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxel_size () const
     return voxel_size;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_size(const Vector3D v)
+{
+    voxel_size = v;
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z)

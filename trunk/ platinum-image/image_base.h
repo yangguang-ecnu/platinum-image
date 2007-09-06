@@ -69,6 +69,7 @@ class image_base : public data_base
         
         Vector3D origin;
         Matrix3D orientation;
+		//Note: Vector3D voxel_size is defined in image_general...
 
     public:
         virtual image_base * alike (imageDataType unit) = 0;
@@ -113,10 +114,12 @@ class image_base : public data_base
 
         virtual Matrix3D get_voxel_resize () const = 0;
         virtual const Vector3D get_voxel_size () const = 0;
-
+        virtual void set_voxel_size(const Vector3D v) = 0;
         
         Matrix3D get_orientation () const;
-        Vector3D get_origin () const;
+		void set_orientation(const Matrix3D m);
+        Vector3D get_origin() const;
+        void set_origin(const Vector3D v);
     };
 
 

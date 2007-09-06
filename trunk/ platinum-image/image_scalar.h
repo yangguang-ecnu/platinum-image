@@ -87,6 +87,8 @@ public:
     std::vector<double> get_slice_sum(int direction=2);
     void copy(image_integer<ELEMTYPE, IMAGEDIM> *source, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, int direction=2); ///Copy subvolume
 
+	void flip_voxel_data_3D(int direction);
+
 
 	// ------------------------ image_scalarprocess.hxx ------------------------------
 
