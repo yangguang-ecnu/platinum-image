@@ -172,9 +172,10 @@ class image_general : public image_storage <ELEMTYPE >
 		image_general<ELEMTYPE, IMAGEDIM>* get_subvolume_from_slices_3D(int start_slice, int every_no_slice, int slice_dir=2);	
 		void copy_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int to_slice_no, int slice_dir=2);
 	
-		//adds image slice (currently only of correct size...) in positive x/y/z directions... 
+		//adds image volume/slice (currently only of same in-plane size...) in positive x/y/z directions... 
 		//A temporary image is needed, therefor, this cannot be implemented in "image_general"
-		void add_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int slice_dir=2);
+		void add_volume_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int slice_dir=2);
+		void add_slice_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no=0, int slice_dir=2);
 
 		// slice reorganization function that sorts slices from many dynamic scans
 		// first used for slice sorting from DICOM export from "COMBI-acquisition" on Philips 1.5T MRI. 
@@ -193,6 +194,7 @@ class image_general : public image_storage <ELEMTYPE >
 
         void load_dataset_from_VTK_file(std::string file_path);
         void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier);
+		void load_dataset_from_all_DICOM_files_in_dir(std::string dir_path);
 
         void save_to_VTK_file(const std::string file_path);
         void save_to_TIF_file_series_3D(const std::string file_path_base);

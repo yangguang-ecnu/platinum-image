@@ -44,19 +44,28 @@ void histogram_1D<ELEMTYPE >::image (int vol)
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
 {
+	cout<<"void histogram_1D<ELEMTYPE>::resize("<<newNum<<")"<<endl;
+
     this->num_buckets = newNum;
-    
     this->buckets = new unsigned long [this->num_buckets];
-    
-    calculate();
+
+	//resize() is called from the constructor
+    calculate();	
 }
 
 template <class ELEMTYPE>
 histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> * i):histogram_typed<ELEMTYPE>()
 {
     this->images[0] = i;
+	cout<<"histogram_1D constructor..."<<endl;
     
-    resize (std::max (static_cast<unsigned long>(256),static_cast<unsigned long>((std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4.0)));
+//    resize (std::max (static_cast<unsigned long>(256),static_cast<unsigned long>((std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4.0)));
+
+//	if(i->get_max()>i->get_min()){
+//		resize(static_cast<unsigned long>(i->get_max()-i->get_min()));//JK-hist Default number of buckets...
+//	}else{
+		resize(500);//JK-hist Default number of buckets...
+//	}
 }
 
 template <class ELEMTYPE>
@@ -72,21 +81,21 @@ histogram_1D<ELEMTYPE>::histogram_1D (ELEMTYPE * start,ELEMTYPE * end ):histogra
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
     {
-    if (new_num_buckets !=0 || this->buckets==NULL)
+	cout<<"---histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)---"<<endl;
+
+	if (new_num_buckets !=0 || this->buckets==NULL){
         //resize(...) isn't used here because this function is called from resize,
         //however the above condition will be false in that case
-        {
-        if (new_num_buckets !=0)    //change #buckets
-            {this->num_buckets=new_num_buckets;}
 
-        hi_low = 0;
-        hi_hi =0;
+		if (new_num_buckets !=0){    //change #buckets
+            this->num_buckets=new_num_buckets;
+		}
 
         this->buckets=new unsigned long [this->num_buckets];
-        }
+	}
 
-    this->max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
-    this->min_value = std::numeric_limits<ELEMTYPE>::max();
+//    this->max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
+//    this->min_value = std::numeric_limits<ELEMTYPE>::max();
     this->num_distinct_values = 0;
     this->bucket_max=0;
 
@@ -117,14 +126,24 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         float typeMax = std::numeric_limits<ELEMTYPE>::max();
         float typeMin = std::numeric_limits<ELEMTYPE>::min();
 
-        float scalefactor=(this->num_buckets-1)/(typeMax-typeMin);
-        unsigned short bucketpos;
+//        float scalefactor=(this->num_buckets-1)/(typeMax-typeMin);
+//        float scalefactor=(this->num_buckets-1)/(imageMax-imageMin); //JK-hist
+        float scalefactor = float(this->max()-this->min())/float(this->num_buckets); //JK-hist
 
+		cout<<"calculate - this->num_buckets="<<this->num_buckets<<endl;
+		cout<<"calculate - max()="<<max()<<endl;
+		cout<<"calculate - min()="<<min()<<endl;
+		cout<<"calculate - scalefactor="<<scalefactor<<endl;
+
+        unsigned short bucketpos;
         ELEMTYPE * voxel;
 
         for (voxel = this->i_start;voxel != this->i_end;++voxel)
             {
-            bucketpos=((*voxel)-std::numeric_limits<ELEMTYPE>::min())*scalefactor;
+//            bucketpos=((*voxel)-std::numeric_limits<ELEMTYPE>::min())*scalefactor; 
+//            bucketpos=((*voxel)-typeMin)*scalefactor; //JK
+//            bucketpos=((*voxel)-imageMin)*scalefactor; //JK-hist
+            bucketpos=((*voxel)-this->min())/scalefactor; //JK-hist
 
             //calculate distinct value count
             if (this->buckets[bucketpos] == 0)
@@ -141,6 +160,8 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
             this->min_value = std::min (this->min_value,*voxel);
             this->max_value = std::max (this->max_value,*voxel);
             }
+
+
 
         this->bucket_mean=0;
         for (unsigned short i = 0; i < this->num_buckets; i++)
@@ -203,3 +224,44 @@ image_storage<ELEMTYPE> * histogram_1D<ELEMTYPE>::image ()
     {
     return (this->images[0]); //will be NULL if historam uses data pointers
     }
+
+
+template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, std::string separator)
+	{
+		cout<<"save_histogram_to_txt_file(std::string file)..."<<endl;
+
+		this->images[0]->min_max_refresh(); //make sure to update image min and max before calling calculate() 
+		calculate(); //update histogram statistics...
+
+        float typeMin = std::numeric_limits<ELEMTYPE>::min();
+		float typeMax = std::numeric_limits<ELEMTYPE>::max();
+//        float scalefactor=(this->num_buckets-1)/(typeMax-typeMin);
+        float scalefactor=float((this->max()-this->min()))/float(this->num_buckets);
+
+		ofstream myfile;
+		myfile.open(filepath.c_str());
+		myfile<<"num_buckets"<<separator<<this->num_buckets<<"\n";
+		myfile<<"min_value"<<separator<<this->min()<<"\n";
+		myfile<<"max_value"<<separator<<this->max()<<"\n";
+		myfile<<"num_distinct_values"<<separator<<this->num_distinct_values<<"\n";
+		myfile<<"bucket_mean"<<separator<<this->bucket_mean<<"\n";
+		myfile<<"bucket_max"<<separator<<this->bucket_max<<"\n";
+		myfile<<"readytorender"<<separator<<this->readytorender<<"\n";
+		myfile<<"typeMin"<<separator<<typeMin<<"\n";
+		myfile<<"typeMax"<<separator<<typeMax<<"\n";
+		myfile<<"scalefactor"<<separator<<scalefactor<<"\n";
+		myfile<<"\n";
+
+		//unsigned short bucketpos; //=i   (bucketpos=((*voxel)-typeMin)*scalefactor;) --->
+		ELEMTYPE voxel=0;																	// = float(i)/scalefactor + typeMin;
+
+		myfile<<"bucket"<<separator<<"intensity"<<separator<<"bucketvalue\n";
+		for(unsigned short i=0; i<this->num_buckets; i++){
+//			voxel = float(i)/scalefactor + typeMin;
+			voxel = this->min() + float(i)*scalefactor;
+			myfile<<i<<separator<<voxel<<separator<<this->buckets[i]<<"\n";
+        }
+
+		myfile.close();
+	}

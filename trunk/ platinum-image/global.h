@@ -107,7 +107,7 @@ enum ROImode {ROI_RECT, ROI_CIRCLE};
 
 #define DCM_ROWS "0028|0010"						//int (256)
 #define DCM_COLUMNS "0028|0011"						//int (256)
-#define DCM_PIXEL_SPACING "0028|0030"				//float (2.07031\2.07031 // dx\dy)
+#define DCM_PIXEL_SPACING "0028|0030"				//string (2.07031\2.07031 // dx\dy)
 #define DCM_BITS_ALLOCATED "0028|0100"				//int (16)
 #define DCM_BITS_STORED "0028|0101"					//int (12)
 #define DCM_HIGH_BIT "0028|0102"					//int (11)

@@ -120,6 +120,8 @@ public:
 	float get_dcm_parameter_as_float(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING);
 	string get_dcm_parameter_as_string(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING);
 
+	float get_dx();
+	float get_flip();
 	void print_all();
 
 private:

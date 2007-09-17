@@ -95,17 +95,19 @@ class histogram_typed : public histogram_base //!features common to histograms o
     public:
         histogram_typed();
 
-        ELEMTYPE min ()
+        ELEMTYPE min()							//returns histogram and also image "intensity min"
             {return min_value;}
-        ELEMTYPE max ()
+        void min (ELEMTYPE new_min)			
+            {min_value=new_min;}
+        ELEMTYPE max ()							//returns histogram and also image "intensity max"
             {return max_value;}
+        void max (ELEMTYPE new_max)			
+            {max_value=new_max;}
     };
 
 template <class ELEMTYPE>
 class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph histogram
     {
-    ELEMTYPE hi_low, hi_hi;
-
     unsigned long render_max;
 
     protected:
@@ -118,15 +120,16 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 
         ~histogram_1D () {}
         
-        void render (unsigned char * image, unsigned int width,unsigned int height);
+        void render(unsigned char * image, unsigned int width,unsigned int height);
 
-    //void image (int vol);
+	    //void image (int vol);
 
-    void calculate(int number_of_buckets=0);
-    //thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
-    virtual bool ready ()
-        {return this->readytorender;}   
-    image_storage<ELEMTYPE> * image ();
+		void calculate(int number_of_buckets=0);
+		//thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
+		virtual bool ready ()
+			{return this->readytorender;}   
+		image_storage<ELEMTYPE> * image ();
+		void save_histogram_to_txt_file(std::string filepath, std::string separator=";");
     };
 
 

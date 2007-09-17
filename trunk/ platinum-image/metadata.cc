@@ -146,7 +146,7 @@ void metadata::read_metadata_from_dcm_file(string dcm_file)
 
 		add_dcm_data_int(dcmIO,DCM_ROWS);
 		add_dcm_data_int(dcmIO,DCM_COLUMNS);
-		add_dcm_data_float(dcmIO,DCM_PIXEL_SPACING);
+		add_dcm_data_string(dcmIO,DCM_PIXEL_SPACING);
 		add_dcm_data_int(dcmIO,DCM_BITS_ALLOCATED);
 		add_dcm_data_int(dcmIO,DCM_BITS_STORED);
 		add_dcm_data_int(dcmIO,DCM_HIGH_BIT);
@@ -183,6 +183,17 @@ string metadata::get_dcm_parameter_as_string(itk::GDCMImageIO::Pointer dcmIO, st
 	dcmIO->GetValueFromTag(DCM_TAG_STRING,dcmdata);
 	return dcmdata;
 }
+
+float metadata::get_dx()
+{
+	return 0;//JK warning...
+}
+
+float metadata::get_flip()
+{
+	return get_data_float(DCM_FLIP);
+}
+
 
 
 
@@ -242,7 +253,7 @@ void metadata::print_all()
 
 	print_int(DCM_ROWS);
 	print_int(DCM_COLUMNS);
-	print_float(DCM_PIXEL_SPACING);
+	print_string(DCM_PIXEL_SPACING);
 	print_int(DCM_BITS_ALLOCATED);
 	print_int(DCM_BITS_STORED);
 	print_int(DCM_HIGH_BIT);

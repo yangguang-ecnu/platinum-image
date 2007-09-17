@@ -73,11 +73,12 @@ void image_storage<ELEMTYPE >::set_parameters()
     stats = NULL;
     tfunction = NULL;
 
+
     set_stats_histogram (new histogram_1D<ELEMTYPE >(this));
 	transfer_function();  //set default transfer function
 
-    minvalue=std::numeric_limits<ELEMTYPE>::min();
-    maxvalue=std::numeric_limits<ELEMTYPE>::max();
+//    minvalue=std::numeric_limits<ELEMTYPE>::min(); //JK
+//    maxvalue=std::numeric_limits<ELEMTYPE>::max();
     }
 
 template <class ELEMTYPE >
@@ -143,44 +144,42 @@ void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)
         }
     }
 
-/*
-template <> //JK2 image_complex testing
-float image_storage<std::complex<float> >::get_min_float()
-    {
-    return abs(minvalue);
-    }
-*/
-
-template <class ELEMTYPE >
-float image_storage<ELEMTYPE >::get_min_float() const
-    {
-    return minvalue;
-    }
 
 
 template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_min() const
     {
-    return minvalue;
+//    return minvalue;
+		if(stats == NULL){
+			pt_error::error_if_null(stats,"image_storage<ELEMTYPE >::get_min() called when stats=NULL",pt_error::debug);
+			return 0;
+		}
+		return stats->min();
     }
-/*
-template <> // image_complex testing
-float image_storage<std::complex<float> >::get_max_float()
-    {
-    return abs(maxvalue);
-    }
-*/
-template <class ELEMTYPE >
-float image_storage<ELEMTYPE >::get_max_float() const
-    {
-    return maxvalue;
-    }
+
+
 
 
 template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_max() const
     {
-    return maxvalue;
+//    return maxvalue;
+		if(stats == NULL){
+			pt_error::error_if_null(stats,"image_storage<ELEMTYPE >::get_max() called when stats=NULL",pt_error::debug);
+			return 0;
+		}
+		return stats->max();
+    }
+
+template <class ELEMTYPE >
+float image_storage<ELEMTYPE >::get_max_float() const
+    {
+//    return maxvalue;
+		if(stats == NULL){
+			pt_error::error_if_null(stats,"image_storage<ELEMTYPE >::get_max_float() called when stats=NULL",pt_error::debug);
+			return 0;
+		}
+		return stats->max();
     }
 
 
@@ -249,8 +248,11 @@ float image_storage<ELEMTYPE >::get_number_of_voxels_with_value(ELEMTYPE val)
 
 
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::stats_refresh()
+void image_storage<ELEMTYPE >::stats_refresh(bool min_max_refresh)
     {
+	if(min_max_refresh){
+		this->min_max_refresh();
+	}
     stats->calculate(); 
 
     //TODO:
@@ -258,11 +260,13 @@ void image_storage<ELEMTYPE >::stats_refresh()
    
     //don't change if values don't make sense - 
     //that would be an empty/zero image
+/*
     if (stats->min() < stats->max())
         {
         this->maxvalue=stats->max();
         this->minvalue=stats->min();
         }
+*/
     }
 
 template <class ELEMTYPE >
@@ -288,9 +292,19 @@ void image_storage<ELEMTYPE >::min_max_refresh()
     //that would be an empty/zero image
     if (pre_min < pre_max)
         {
-        this->maxvalue=pre_max;
-        this->minvalue=pre_min;
+//        this->maxvalue=pre_max;
+  //      this->minvalue=pre_min;
+			this->stats->max(pre_max);
+			this->stats->min(pre_min);
         }
     }
+
+
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::save_histogram_to_txt_file(std::string filepath, std::string separator=";")
+{
+	stats->save_histogram_to_txt_file(filepath,separator);
+}
+
 
 #endif

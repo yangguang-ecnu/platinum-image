@@ -98,6 +98,7 @@ public:
 	// Meta data required: TR, Flip_angle
 	// Note that function can be moved to image_storage...
     image_scalar<ELEMTYPE, IMAGEDIM>* calculate_T1Map_from_two_flip_angle_MRvolumes_3D(image_scalar<ELEMTYPE, IMAGEDIM > *small_flip, float body_thres=0, float t1_min=0, float t1_max=2000); 
+    image_scalar<ELEMTYPE, IMAGEDIM>* calculate_T1Map_3D(vector<image_scalar<ELEMTYPE, IMAGEDIM > *> v, float body_thres=0, float t1_min=0, float t1_max=2000); 
 
 	void smooth_ITK(Vector3D radius); 
 	void smooth_3D(Vector3D radius); 
