@@ -313,6 +313,62 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir(std::string dir_path)
+    {  
+		cout<<"load_dataset_from_all_DICOM_files_in_dir...("<<dir_path<<")"<<endl;
+		
+		//-- Remove final "\\" of dir_path...
+		while(dir_path.find_last_of("\\")==dir_path.size()-1){
+			cout<<"substring...ing..."<<endl;
+			dir_path = dir_path.substr(0,dir_path.size()-1);
+		}
+//		cout<<"dir_path="<<dir_path<<endl;
+
+		if(!dir_exists(dir_path)){
+			pt_error::error("load_dataset_from_all_DICOM_files_in_dir - No Such Dir ("+dir_path+")",pt_error::debug);
+		}else{
+			itk::DICOMImageIO2::Pointer dicomIO = itk::DICOMImageIO2::New();
+			itk::DICOMSeriesFileNames::Pointer nameGenerator = itk::DICOMSeriesFileNames::New();
+			nameGenerator->SetDirectory( dir_path.c_str() );
+
+			typedef vector<string> seriesIdContainer;
+			const seriesIdContainer & seriesUID = nameGenerator->GetSeriesUIDs();
+			seriesIdContainer::const_iterator seriesItr = seriesUID.begin();
+			seriesIdContainer::const_iterator seriesEnd = seriesUID.end();
+
+			nameGenerator->SetFileNameSortingOrderToSortByImageNumber();//in order...
+			typedef vector<string> fileNamesContainer;
+			fileNamesContainer fileNames;
+			fileNames = nameGenerator->GetFileNames();					//stores all dicom filenames...
+
+			cout<<"fileNames.size()"<<fileNames.size()<<endl;
+
+			//-------------READER-------------
+			theSeriesReaderType::Pointer reader = theSeriesReaderType::New();
+			reader->SetFileNames( fileNames );
+			reader->SetImageIO( dicomIO );
+			try{
+				reader->Update();
+			}catch (itk::ExceptionObject &ex){
+				cout<<ex<<endl;
+			}
+
+			// *** transfer image data to our platform's data structure ***
+			typename theImagePointer image = theImageType::New();
+			image = reader->GetOutput();
+			replicate_itk_to_image(image);
+
+			name("Dicomfiles");
+
+			this->from_file(true);
+
+			meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
+		}
+	}
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_path)
     {
     //replicate image to ITK image and save it as VTK file

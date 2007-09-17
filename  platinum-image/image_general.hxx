@@ -129,8 +129,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
     ITKimportfilter=NULL;
     ITKimportimage=NULL;
 
-    this->maxvalue        = sourceImage->get_max();
-    this->minvalue        = sourceImage->get_min();
+//    this->maxvalue        = sourceImage->get_max();
+//    this->minvalue        = sourceImage->get_min();
+    this->stats->max(sourceImage->get_max());
+    this->stats->min(sourceImage->get_min());
+
 
     this->voxel_size    = sourceImage->get_voxel_size();
 	//origin & direction are copied in data_base... 
@@ -290,7 +293,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::data_has_changed(bool stat_refresh)
     //recalculate min/max
     if(stat_refresh)
         {
-        this->stats_refresh();
+        this->stats_refresh(true);
 
         //refresh transfer function
         this->tfunction->update();
@@ -522,38 +525,6 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvol
 		res->copy_slice_from_3D(this, i, j, slice_dir);
 	}
 
-/*
-	if(slice_dir==2){
-		res->initialize_dataset(datasize[0],datasize[1],1);
-		for(int i = start_slice; i<datasize[2]; i += every_no_slice){
-			if(i==start_slice){
-				res->copy_slice_from_3D(this, i, 0, 2);
-			}else{
-				res->add_slice_from_3D(this, i, 2);
-			}
-		}
-	}else if(slice_dir==1){
-		res->initialize_dataset(datasize[0],1,datasize[2]);
-		for(int i = start_slice; i<datasize[1]; i += every_no_slice){
-			if(i==start_slice){
-				res->copy_slice_from_3D(this, i, 0, 1);
-			}else{
-				res->add_slice_from_3D(this, i, 1);
-			}
-		}
-	}else if(slice_dir==0){
-		res->initialize_dataset(1,datasize[1],datasize[2]);
-		for(int i = start_slice; i<datasize[0]; i += every_no_slice){
-			if(i==start_slice){
-				res->copy_slice_from_3D(this, i, 0, 0);
-			}else{
-				res->add_slice_from_3D(this, i, 0);
-			}
-		}
-	}else{
-		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slices_3D -- slice_dir error",pt_error::debug);
-	}
-*/
 	return res;
 }
 
@@ -598,10 +569,54 @@ void image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D(image_general<ELEMTYP
 	}
 }
 
+
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::add_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int slice_dir)
+void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int slice_dir)
 {
-	cout<<"image_scalar-add_slice_from_3D..("<<slice_dir<<")"<<endl;
+	cout<<"image_scalar-add_volume_3D..("<<slice_dir<<")"<<endl;
+
+	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
+
+	if(slice_dir==2){
+		res->name("res-2..");
+		if( same_size(src,0) && same_size(src,1) ){
+			cout<<"...entered"<<endl;
+			res->initialize_dataset(datasize[0],datasize[1],datasize[2]+src->get_size()[2]);
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					for (int x=0; x < datasize[0]; x++){
+						res->set_voxel(x,y,z, get_voxel(x,y,z));
+					}
+				}
+			}
+			for (int z=datasize[2]; z < datasize[2]+src->get_size()[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					for (int x=0; x < datasize[0]; x++){
+						res->set_voxel(x,y,z, src->get_voxel(x,y,z-datasize[2]));
+					}
+				}
+			}
+			deallocate(); //Important... avoids huge memory leaks
+		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
+			copy_data(res,this);
+		    set_parameters(res);
+		}
+
+	}else if(slice_dir==1){
+	}else if(slice_dir==0){
+	}else{
+		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D -- slice_dir error",pt_error::debug);
+	}
+
+	delete res;		// ->deallocate();		//÷÷÷ - JK WARNING MEMORY LEAK???
+}
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int slice_dir)
+{
+	cout<<"image_scalar-add_slice_3D..("<<slice_dir<<")"<<endl;
 
 	int f = from_slice_no;
 	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
@@ -623,7 +638,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_from_3D(image_general<ELEMTYPE
 					res->set_voxel(x,y,datasize[2], src->get_voxel(x,y,f));
 				}
 			}
-
+			deallocate(); //Important... avoids huge memory leaks
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
@@ -647,6 +662,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_from_3D(image_general<ELEMTYPE
 				}
 			}
 
+			deallocate(); //Important... avoids huge memory leaks
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
@@ -670,6 +686,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_from_3D(image_general<ELEMTYPE
 				}
 			}
 
+			deallocate(); //Important... avoids huge memory leaks
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
@@ -679,7 +696,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_from_3D(image_general<ELEMTYPE
 		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D -- slice_dir error",pt_error::debug);
 	}
 
-	delete res;		// ->deallocate();		//÷÷÷ - JK WARNING MEMORY LEAK
+	delete res;		// ->deallocate();		//÷÷÷ - JK WARNING MEMORY LEAK???
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -1117,7 +1134,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     statsFilter->SetInput(i);
     statsFilter->Update();
 
-    this->minvalue            = statsFilter->GetMinimum();
+//    this->minvalue    = statsFilter->GetMinimum();
+    this->stats->min(statsFilter->GetMinimum());
     ELEMTYPE new_max  = statsFilter->GetMaximum();
 
     //we don't want to lose pixel-data correspondence by scaling chars,
@@ -1129,13 +1147,15 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     //images with just a few classes (20) starting with 0
     //(eg. binary) still get their scaling
 
-    if (new_max - this->minvalue > 255 || (this->minvalue ==0 && new_max - this->minvalue < 20) )
+    if (new_max - this->get_min() > 255 || (this->get_min() ==0 && new_max - this->get_min() < 20) )
         {
-        this->maxvalue=new_max;
+        //this->maxvalue=new_max;
+		this->stats->max(new_max);
         }
     else
         {
-        this->maxvalue = this->minvalue + 255;
+        //this->maxvalue = this->minvalue + 255;
+		this->stats->max(this->stats->min() + 255);
         }
     }
 

@@ -45,8 +45,6 @@ public:
     
     image_complex (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_multi<complex<float> , IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
 
-	float get_max_float();	//overrides function in image_base
-	float get_min_float();	//overrides function in image_base
 */
 	void silly_test();
 

@@ -29,18 +29,5 @@ void image_complex<IMAGEDIM>::silly_test ()
 	}
 #endif
 
-/*template <int IMAGEDIM>
-float image_complex<IMAGEDIM>::get_max_float()
-    {
-	cout<<"*** image_complex<ELEMTYPE, IMAGEDIM>::get_max_float() JK***"<<endl;
-    return 0;//abs(maxvalue);		//returns maximum magnitude
-    }
-
-template <int IMAGEDIM>
-float image_complex<IMAGEDIM>::get_min_float()
-    {
-	cout<<"*** image_complex<ELEMTYPE, IMAGEDIM>::get_min_float() JK***"<<endl;
-    return 0;//abs(minvalue);		//returns minimun magnitude
-    }*/
 
 #endif

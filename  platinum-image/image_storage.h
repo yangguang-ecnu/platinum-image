@@ -84,14 +84,14 @@ class image_storage : public image_base
 
         unsigned long num_elements;        //image size in # pixels/voxels
 
-        ELEMTYPE maxvalue;
-        ELEMTYPE minvalue;
+//        ELEMTYPE maxvalue;		//JK move these to histogram instead...
+//        ELEMTYPE minvalue;
 
     public:
         virtual ~image_storage();
 
         float get_max_float() const;
-        float get_min_float() const;
+//        float get_min_float() const;
         ELEMTYPE get_max() const;
         ELEMTYPE get_min() const;
         ELEMTYPE get_num_values()
@@ -103,9 +103,10 @@ class image_storage : public image_base
             return stats;
             }
         virtual void data_has_changed(bool stats_refresh = true) = 0;   
-        void stats_refresh();
+        void stats_refresh(bool min_max_refresh = false);
         void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
                                     //! for use inside processing functions
+		void save_histogram_to_txt_file(std::string filepath, std::string separator=";");
 
         void erase();
 		void fill(ELEMTYPE value);

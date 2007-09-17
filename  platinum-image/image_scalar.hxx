@@ -763,6 +763,88 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 		}
 	}
 
+// The "calculate_T1Map_3D" function is based on following publication... (Chen2006)
+// Rapid High-Resolution T1 Mapping by Variable Flip Angles: Accurate and Precise Measurements in the Presence of Radiofrequency Field Inhomogeneity
+// Hai-Ling Margaret Cheng and Graham A Wright, Magnetic Resonance in Medicine 55:566–574 (2006)
+
+// The "FLASH" signal equation is use din linear form.
+// least square based linear regression is used to determine the T1-values..
+// Add all volumes to the vector v for simple implementation...
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1Map_3D(vector<image_scalar<ELEMTYPE, IMAGEDIM > *> v, float body_thres, float t1_min, float t1_max)
+{
+	cout<<"calculate_T1Map_3D..."<<endl;
+
+	int N = v.size();
+//	int N = 3;
+	if(N<2){
+		cout<<"...to few volumes loaded!"<<endl;
+		return NULL;
+	}else{
+
+	image_scalar<ELEMTYPE, IMAGEDIM>* t1map = new image_scalar<ELEMTYPE, IMAGEDIM>(this);
+	t1map->fill(0);
+
+	vnl_vector<float> alpha(N);		//flip angles...
+	for( int i=0;i<N;i++){
+		alpha(i) = v[i]->meta.get_flip()*PI/180.0;
+	}
+	cout<<"alpha="<<alpha<<endl;
+
+//	vnl_vector<float> S(N);	 //MR signal... 3*1, printed as 1*3 echo times for the N echoes...
+	vnl_vector<float> y(N);
+	vnl_vector<float> x(N);
+	float TR = v[0]->meta.get_data_float(DCM_TR);
+	cout<<"TR="<<TR<<endl;
+	float y_mean=0;
+	float x_mean=0;
+	float Sxx=0;
+	float Sxy=0;
+	float t1=0;
+
+	for(int k=0; k<t1map->datasize[2]; k++){
+		cout<<".";
+		for(int j=0; j<t1map->datasize[1]; j++){
+			for(int i=0; i<t1map->datasize[0]; i++){
+
+				t1=0;
+				if( v[0]->get_voxel(i,j,k)>body_thres ){		//intensity in first image
+					for(int l=0; l<N; l++){
+						//S(l) = v[l]->get_voxel(i,j,k);
+						//y(l) = S(l)/sin(alpha(l));
+						//x(l) = S(l)/tan(alpha(l));
+						y(l) = v[l]->get_voxel(i,j,k)/sin(alpha(l));
+						x(l) = v[l]->get_voxel(i,j,k)/tan(alpha(l));
+					}
+
+					y_mean = y.sum()/float(N);
+					x_mean = x.sum()/float(N);
+					Sxx=0;
+					Sxy=0;
+
+					for(int l=0; l<N; l++){
+						Sxx += (x(l)-x_mean)*(x(l)-x_mean);
+						Sxy += (x(l)-x_mean)*(y(l)-y_mean);
+					}
+					t1 = -TR/log(Sxy/Sxx);
+
+				}
+				if(t1<t1_min){t1=t1_min;}
+				if(t1>t1_max){t1=t1_max;}
+
+				t1map->set_voxel(i,j,k,t1);
+			}
+		}
+	}
+
+	cout<<"Done"<<endl;
+
+	t1map->data_has_changed(true);	//true is needed since intensity min/max needs to be recalculated...
+	return t1map;
+	}
+}
+
 #include "image_scalarprocess.hxx"
 
 #endif
