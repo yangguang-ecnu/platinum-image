@@ -22,7 +22,6 @@ using namespace std;
 
 metadata::metadata()
 {
-//	cout<<"metadata - constructor..."<<endl;
 	meta_map = map<string,base*>();
 }
 
@@ -93,6 +92,14 @@ metadata::~metadata()
 
 void metadata::read_metadata_from_dcm_file(string dcm_file)
 {
+     	//itk::GDCMImageIO::Pointer dcmIO; //Allows simple dicom meta data import
+		//dicom might store other data types than image data... 
+		//dcmIO->GetFileName()=="" if meta data is not available from dicom file.
+		//dcmIO->SetFileName("...filename...");
+		//dcmIO->ReadImageInformation();		//Needs to be called before accessing data...
+		//dcmIO->GetValueFromTag("0010"+"|"+"0010",string dcmdata);
+
+
 	itk::GDCMImageIO::Pointer dcmIO = itk::GDCMImageIO::New();		//Allows simple dicom meta data import
 	dcmIO->SetFileName(dcm_file);
 	if( !dcmIO->CanReadFile(dcm_file.c_str()) ){

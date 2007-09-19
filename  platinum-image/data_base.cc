@@ -33,6 +33,7 @@ using namespace std;
 
 data_base::~data_base()
     {
+	cout<<"~data_base()"<<endl;
     //destructor may be called from a menu choice in widget,
     //it would crash if deleted with delete(...)
     //Fl::delete_widget is designed to avoid this
@@ -44,17 +45,6 @@ data_base::~data_base()
     datamanagement.remove_data (this);
     }
 
-/*
-std::string data_base::get_dcm_parameter(const std::string dcm_tag)
-{
-	std::string ret="";
-	if(dcmIO->GetFileName()!="")
-	{
-		dcmIO->GetValueFromTag(dcm_tag,ret);
-	}
-	return ret;
-}
-*/
 
 void data_base::name (const string n)
     {
