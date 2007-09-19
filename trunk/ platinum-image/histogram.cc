@@ -45,8 +45,11 @@ histogram_base::histogram_base ()
 
 histogram_base::~histogram_base ()
     {
-    if (buckets != NULL)
-        {delete []buckets; }
+    if (buckets != NULL){
+		//JK - Avoid memory loss... 
+		//If you have written outside the allocated memory, you might crashh here at runtime
+		delete []buckets;  
+		}
     }
 
 int histogram_base::image_ID (int axis)

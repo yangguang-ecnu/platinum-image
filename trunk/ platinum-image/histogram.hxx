@@ -46,7 +46,14 @@ void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
 {
 	cout<<"void histogram_1D<ELEMTYPE>::resize("<<newNum<<")"<<endl;
 
+
     this->num_buckets = newNum;
+
+	if(buckets != NULL){	//JK - Prevent memory loss....
+//		cout<<"...delete buckets...."<<endl;
+		delete []buckets;  
+		buckets = NULL;
+	}
     this->buckets = new unsigned long [this->num_buckets];
 
 	//resize() is called from the constructor
@@ -128,38 +135,45 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 
 //        float scalefactor=(this->num_buckets-1)/(typeMax-typeMin);
 //        float scalefactor=(this->num_buckets-1)/(imageMax-imageMin); //JK-hist
-        float scalefactor = float(this->max()-this->min())/float(this->num_buckets); //JK-hist
+        float scalefactor = float(this->max()-this->min())/float(this->num_buckets+1); //JK-hist
 
-		cout<<"calculate - this->num_buckets="<<this->num_buckets<<endl;
-		cout<<"calculate - max()="<<max()<<endl;
-		cout<<"calculate - min()="<<min()<<endl;
-		cout<<"calculate - scalefactor="<<scalefactor<<endl;
+//		cout<<"calculate - this->num_buckets="<<this->num_buckets<<endl;
+//		cout<<"calculate - max()="<<max()<<endl;
+//		cout<<"calculate - min()="<<min()<<endl;
+//		cout<<"calculate - scalefactor="<<scalefactor<<endl;
 
         unsigned short bucketpos;
         ELEMTYPE * voxel;
 
-        for (voxel = this->i_start;voxel != this->i_end;++voxel)
-            {
-//            bucketpos=((*voxel)-std::numeric_limits<ELEMTYPE>::min())*scalefactor; 
-//            bucketpos=((*voxel)-typeMin)*scalefactor; //JK
-//            bucketpos=((*voxel)-imageMin)*scalefactor; //JK-hist
-            bucketpos=((*voxel)-this->min())/scalefactor; //JK-hist
+		for (voxel = this->i_start;voxel != this->i_end;++voxel)
+		{
+			//bucketpos=((*voxel)-std::numeric_limits<ELEMTYPE>::min())*scalefactor; 
+			//bucketpos=((*voxel)-typeMin)*scalefactor; //JK
+			//bucketpos=((*voxel)-imageMin)*scalefactor; //JK-hist
+			bucketpos=((*voxel)-this->min())/scalefactor; //JK-hist
 
-            //calculate distinct value count
-            if (this->buckets[bucketpos] == 0)
-                {this->num_distinct_values++;}
+			//NOT VERY good to write outside allocated memory
+			if(bucketpos>=0 && bucketpos<this->num_buckets){	
 
-            //increment bucket 
-            this->buckets[bucketpos]++;
+				//calculate distinct value count
+				if (this->buckets[bucketpos] == 0)
+				{this->num_distinct_values++;}
 
-            //update bucket_max
-            if (*voxel != 0 &&  *voxel != 1) //! feature: ignore 0 and true to get more sensible display scaling
-                { this->bucket_max=std::max(this->buckets[bucketpos],this->bucket_max); }
+				//increment bucket 
+				this->buckets[bucketpos]++;
 
-            //calculate min/max
-            this->min_value = std::min (this->min_value,*voxel);
-            this->max_value = std::max (this->max_value,*voxel);
-            }
+				//update bucket_max
+				if (*voxel != 0 &&  *voxel != 1) //! feature: ignore 0 and true to get more sensible display scaling
+				{ this->bucket_max=std::max(this->buckets[bucketpos],this->bucket_max); }
+
+				//calculate min/max
+				this->min_value = std::min (this->min_value,*voxel);
+				this->max_value = std::max (this->max_value,*voxel);
+			}else{
+				pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
+				cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
+			}
+		}
 
 
 

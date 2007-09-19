@@ -101,7 +101,7 @@ void FLTKuserIOpar_filepath::par_value (std::string &v)
 
 void FLTKuserIOpar_filepath::browse_button_cb(Fl_Widget *callingwidget, void *)
 {
-	cout<<"browse_button..."<<endl;
+//	cout<<"browse_button_cb..."<<endl;
 
 	Fl_File_Chooser fc(".","Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
     fc.show();
@@ -140,7 +140,7 @@ std::string FLTKuserIOpar_coord3Ddisplay::resolve_teststring()
 
 FLTKuserIOpar_coord3Ddisplay::FLTKuserIOpar_coord3Ddisplay(std::string c_name, std::string c_type_name, Vector3D v) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,int(STDPARWIDGETHEIGHT/2), "")
 	{
-		cout<<"FLTKuserIOpar_coord3Ddisplay..."<<endl;
+//		cout<<"FLTKuserIOpar_coord3Ddisplay..."<<endl;
 		coord_name = c_name;
 		coord_type_name = c_type_name;
 		set_coordinate(v);
@@ -172,7 +172,7 @@ void FLTKuserIOpar_coord3Ddisplay::set_coordinate(Vector3D v)
  
 void FLTKuserIOpar_coord3Ddisplay::update()
     {
-	cout<<"FLTKuserIOpar_coord3Ddisplay...update()"<<endl;
+//	cout<<"FLTKuserIOpar_coord3Ddisplay...update()"<<endl;
 	control->value(resolve_teststring().c_str());
 	control->redraw();
     }

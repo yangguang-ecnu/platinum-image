@@ -254,6 +254,7 @@ void datamanager::delete_data (int id)
         if ((*itr)->get_id() == id)
             {
             delete *itr;
+
             break;
             }
         }

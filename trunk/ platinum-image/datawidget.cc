@@ -61,7 +61,7 @@ void datawidget_base::cb_filenamebutton(Fl_Input* o, void* v) {
 
 void datawidget_base::edit_geometry_callback(Fl_Widget *callingwidget, void *){
     datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
-	cout<<"the_datawidget->get_data_id()="<<the_datawidget->get_data_id()<<endl;
+//	cout<<"the_datawidget->get_data_id()="<<the_datawidget->get_data_id()<<endl;
     the_datawidget->show_hide_edit_geometry();
 }
 
@@ -130,13 +130,42 @@ datawidget_base::datawidget_base(data_base * d, std::string n):Fl_Pack(0,0,270,1
 
 datawidget_base::~datawidget_base ()
     {
+	cout<<"~datawidget_base ()"<<endl;
     datamanagement.remove_datawidget(this);
 
     delete image();
     image(NULL);
 
-    if (thumbnail_image != NULL)
-        {delete [] thumbnail_image;}
+    if (thumbnail_image != NULL){
+		delete [] thumbnail_image;
+		cout<<"delete [] thumbnail_image"<<endl;
+	}
+
+	/*
+	Fl_Pack *hpacker;
+    Fl_Input *datanamebutton;
+    void cb_filenamebutton_i(Fl_Input*, void*);
+    static void cb_filenamebutton(Fl_Input*, void*);
+	static void edit_geometry_callback(Fl_Widget *callingwidget, void *);
+	Fl_Menu_Button *featuremenu;
+
+    // *** thumbnail
+    const static int thumbnail_size;
+    uchar * thumbnail_image;
+    Fl_Box *thumbnail;
+    
+    // *** menus       
+    enum {remove_mi_num=0,save_mi_num, dup_mi_num};
+    const static Fl_Menu_Item menu_featuremenu_base[];
+    const static Fl_Menu_Item *remove_mi;
+    const static Fl_Menu_Item *save_vtk_mi;
+    const static Fl_Menu_Item *duplicate_mi;
+    Fl_Pack *extras;
+
+	FLTKgeom_base *geom_widget; //JK
+
+	*/
+
     }
 
 void datawidget_base::refresh_thumbnail ()
