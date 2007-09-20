@@ -89,7 +89,8 @@ datawidget_base::datawidget_base(data_base * d, std::string n):Fl_Pack(0,0,270,1
     o->color(FL_BACKGROUND_COLOR);
     o->selection_color(FL_BACKGROUND_COLOR);
     o->labeltype(FL_NO_LABEL);
-    o->labelfont(0);
+    o->labelfont(FL_HELVETICA_BOLD);
+//    o->labelfont(0);//ööö
     o->labelsize(14);
     o->labelcolor(FL_FOREGROUND_COLOR);
     o->align(FL_ALIGN_TOP);
@@ -225,7 +226,7 @@ void datawidget_base::show_hide_edit_geometry()
 #pragma mark datawidget<image_base>
 
 const Fl_Menu_Item datawidget<image_base>::tfunctionmenu = {"Transfer function", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0};
-const Fl_Menu_Item datawidget<image_base>::transferfunction_mi = {"Show/hide", 0,  (Fl_Callback*)toggle_tfunction, 0, 128, FL_NORMAL_LABEL, 0, 14, 0};
+const Fl_Menu_Item datawidget<image_base>::transferfunction_mi = {"Show/hide", 0,  (Fl_Callback*)cb_show_hide_tfunction, 0, 128, FL_NORMAL_LABEL, 0, 14, 0};
 
 datawidget<image_base>::datawidget(image_base* im, std::string n): datawidget_base (im,n)
 {
@@ -260,7 +261,7 @@ datawidget<image_base>::datawidget(image_base* im, std::string n): datawidget_ba
         
         showhide_item.label("Show/hide");
         showhide_item.shortcut (0);
-        showhide_item.callback(static_cast<Fl_Callback*>(toggle_tfunction));
+        showhide_item.callback(static_cast<Fl_Callback*>(cb_show_hide_tfunction));
         showhide_item.user_data(NULL);
         showhide_item.flags = 128;
         showhide_item.labeltype(FL_NORMAL_LABEL);
@@ -313,7 +314,7 @@ void datawidget<image_base>::setup_transfer_menu(Fl_Menu_Item* submenuitem, imag
     
     showhide_item.label("Show/hide");
     showhide_item.shortcut (0);
-    showhide_item.callback(static_cast<Fl_Callback*>(toggle_tfunction));
+    showhide_item.callback(static_cast<Fl_Callback*>(cb_show_hide_tfunction));
     showhide_item.user_data(NULL);
     showhide_item.flags = 128;
     showhide_item.labeltype(FL_NORMAL_LABEL);
@@ -353,29 +354,35 @@ Fl_Group * datawidget<image_base>::reset_tf_controls()
     return tfunction_;
 }
 
-void datawidget<image_base>::cb_transferswitch(Fl_Widget* o, void* v) {
+void datawidget<image_base>::cb_transferswitch(Fl_Widget* callingwidget, void* v) {
 	cout<<"cb_transferswitch"<<endl;
-    transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(v);
-    
-    //Each item has space for a callback function and an argument for that function. 
+	transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(v);
+	par->switch_tf();
+
+	//Each item has space for a callback function and an argument for that function. 
 	//Due to back compatability, the Fl_Menu_Item itself is not passed to the callback, 
 	//instead you have to get it by calling ((Fl_Menu_*)w)->mvalue() where w is the widget argument.
-     const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
+	const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(callingwidget)->mvalue();
+	const_cast<Fl_Menu_Item *>(item)->setonly();
 
-     /*transferfactory::tf_menu_params * par = reinterpret_cast<transferfactory::tf_menu_params *>(item->user_data());*/
-    
-    par->switch_tf();
-    const_cast<Fl_Menu_Item *>(item)->setonly();
+	datawidget<image_base> * the_datawidget = dynamic_cast<datawidget<image_base> * >(reinterpret_cast<datawidget_base *>(callingwidget->user_data()));
+	pt_error::error_if_null(the_datawidget,"cb_transferswitch called with datawidget type not being datawidget<image_base>",pt_error::fatal);
 
+	//    the_datawidget->tfunction_->hide();
+	//resize the the current "extras" Fl_Pack...
+	the_datawidget->extras->size(the_datawidget->extras->w(),the_datawidget->extras->h()+the_datawidget->tfunction_->h());
+	the_datawidget->tfunction_->show();	//Always show the GUI for a selected transfer function 
+	the_datawidget->parent()->parent()->redraw();	
 }
 
-void datawidget<image_base>::toggle_tfunction(Fl_Widget* callingwidget, void*)
+
+void datawidget<image_base>::cb_show_hide_tfunction(Fl_Widget* callingwidget, void*)
 {
-	cout<<"toggle_tfunction"<<endl;
+	cout<<"cb_show_hide_tfunction"<<endl;
     //datawidget_base * the_datawidget_base=reinterpret_cast<datawidget_base *>(callingwidget->user_data());
     datawidget<image_base> * the_datawidget = dynamic_cast<datawidget<image_base> * >(reinterpret_cast<datawidget_base *>(callingwidget->user_data()));
     
-    pt_error::error_if_null(the_datawidget,"toggle_tfunction called with datawidget type not being datawidget<image_base>",pt_error::fatal);
+    pt_error::error_if_null(the_datawidget,"cb_show_hide_tfunction called with datawidget type not being datawidget<image_base>",pt_error::fatal);
     
     if (the_datawidget->tfunction_->visible())
         {

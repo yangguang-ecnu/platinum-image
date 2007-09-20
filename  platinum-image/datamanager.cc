@@ -137,7 +137,7 @@ void datamanager::datawidgets_setup()
     outergroup=new Fl_Group (xpos,ypos,width,DATALISTINITHEIGHT);
 
     Fl_Box * datalabel = new Fl_Box(xpos,ypos,width,LISTHEADERHEIGHT,"Data");
-    datalabel->labelfont(FL_HELVETICA_BOLD );
+    datalabel->labelfont(FL_HELVETICA_BOLD);
 
     //we should create a bitmap here (i.e. the "animage"), and fill it with
     //color gradient or solid color depending on image type

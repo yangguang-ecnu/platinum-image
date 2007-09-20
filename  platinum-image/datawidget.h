@@ -123,8 +123,8 @@ class datawidget<image_base>:public datawidget_base
 {   
     const static Fl_Menu_Item tfunctionmenu;			//the extra "transfer_funtion row"
     const static Fl_Menu_Item transferfunction_mi; 
-    static void cb_transferswitch(Fl_Widget* o, void* v);
-    static void toggle_tfunction(Fl_Widget* callingwidget, void*);
+    static void cb_transferswitch(Fl_Widget* callingwidget, void* v);			//JK - does not update GUI correctly..
+    static void cb_show_hide_tfunction(Fl_Widget* callingwidget, void*);	//JK - updated GUI correctly..
     
     Fl_Group *tfunction_;
     Fl_Menu_Item * menu_featuremenu_plustf;		//The "new" version of the "main menu"
