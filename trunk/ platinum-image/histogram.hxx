@@ -204,7 +204,8 @@ void histogram_1D<ELEMTYPE>::render (unsigned char * image, unsigned int width,u
 typedef IMGELEMCOMPTYPE RGBpixel[RGBpixmap_bytesperpixel];
 
     RGBpixel * pixels = reinterpret_cast<RGBpixel *>(image);
-    
+ /*   
+	//JK2-tmp-fix....
     if (this->buckets != NULL && this->bucket_max > 0)
         {
         for (unsigned int x = 0; x < width; x ++)
@@ -226,11 +227,12 @@ typedef IMGELEMCOMPTYPE RGBpixel[RGBpixmap_bytesperpixel];
         }
     else
         { //empty histogram
+*/
         for (unsigned short p = 0; p < width * height; p ++)
             {
             pixels [p][RADDR] = pixels [p][GADDR] = pixels [p][BADDR] = 0;
             }
-        }
+//        }
 }
 
 template <class ELEMTYPE>
