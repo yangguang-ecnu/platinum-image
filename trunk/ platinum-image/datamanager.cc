@@ -99,16 +99,12 @@ void datamanager::removedata_callback(Fl_Widget *callingwidget, void *thisdatama
 void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdatamanager)
     {
     datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
-
     int image_index=((datamanager*)thisdatamanager)->find_data_index(the_datawidget->get_data_id());
 
     Fl_File_Chooser chooser(".","Visualization Toolkit image (*.vtk)",Fl_File_Chooser::CREATE,"Save VTK image");
-
     chooser.ok_label("Save") ;
     chooser.preview(false); 
-
     chooser.show();
-
     while(chooser.shown())
         { Fl::wait(); }
 
@@ -120,6 +116,30 @@ void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdataman
 
     ((datamanager*)thisdatamanager)->dataItems[image_index]->save_to_VTK_file(chooser.value(1));
     }
+
+
+void datamanager::save_hist_callback(Fl_Widget *callingwidget, void * thisdatamanager)
+    {
+    datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
+    int image_index=((datamanager*)thisdatamanager)->find_data_index(the_datawidget->get_data_id());
+
+    Fl_File_Chooser chooser(".","Histogram text file (*.txt)",Fl_File_Chooser::CREATE,"Save Histogram");
+    chooser.ok_label("Save") ;
+    chooser.preview(false); 
+    chooser.show();
+    while(chooser.shown())
+        { Fl::wait(); }
+
+    if ( chooser.value() == NULL )
+    {
+        fprintf(stderr, "(User hit 'Cancel')\n");
+        return;
+    }
+
+    ((datamanager*)thisdatamanager)->dataItems[image_index]->save_histogram_to_txt_file(chooser.value(1)); //ööö
+    }
+
+
 
 #define LISTHEADERHEIGHT 25
 

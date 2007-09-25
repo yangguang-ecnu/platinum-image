@@ -106,6 +106,7 @@ class datamanager
         void loadimages();
         static void removedata_callback(Fl_Widget *, void *);
         static void save_vtk_callback(Fl_Widget *, void *);
+        static void save_hist_callback(Fl_Widget *, void *);
 
         void add(image_base * v);           //add image to vector, notify other managers
         void add(point_collection * v); 
