@@ -89,8 +89,12 @@ public:
 
 	void flip_voxel_data_3D(int direction);
 
+    void save_histogram_to_txt_file(const std::string filename, const std::string separator=";"); //ööö
+
+    image_scalar<ELEMTYPE, IMAGEDIM>* create2Dhistogram(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_x=-1, int scale_y=-1); 
 
 	// ------------------------ image_scalarprocess.hxx ------------------------------
+	// ---- file for very application specific implmentations ----
 
 	// See description in: Kullberg2006 - J Magn Reson Imaging. 2006 Aug;24(2):394-401.
 	// Whole-body T1 mapping improves the definition of adipose tissue: consequences for automated image analysis.

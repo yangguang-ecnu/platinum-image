@@ -106,7 +106,7 @@ class image_storage : public image_base
         void stats_refresh(bool min_max_refresh = false);
         void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
                                     //! for use inside processing functions
-		void save_histogram_to_txt_file(std::string filepath, std::string separator=";");
+//		void save_histogram_to_txt_file(std::string filepath, std::string separator=";");
 
         void erase();
 		void fill(ELEMTYPE value);

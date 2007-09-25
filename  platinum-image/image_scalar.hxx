@@ -765,6 +765,63 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 		}
 	}
 
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, const std::string separator) //ööö
+	{
+		cout<<"save_histogram_to_txt_file..."<<endl;
+		cout<<this->stats<<endl;
+//		this->min_max_refresh();
+//		this->stats->calculate();
+//		this->stats->print_histogram_content();
+		pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
+		this->stats->save_histogram_to_txt_file(filename,separator);
+	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity, int scale_x, int scale_y)
+{
+	if(scale_x<=0){	scale_x = this->get_max(); }
+	if(scale_y<=0){	scale_y = second_image->get_max(); }
+
+	image_scalar<ELEMTYPE, IMAGEDIM> *hist = new image_scalar<ELEMTYPE, IMAGEDIM>(scale_x,scale_y,1);
+	hist->fill(0);
+
+	if(!this->same_size(second_image)){
+		pt_error::error("image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram - image size not equal",pt_error::warning);
+
+	}else{
+		ELEMTYPE vx;
+		ELEMTYPE vy;
+		int this_x;
+		int this_y;
+		for(int z=0; z<datasize[2]; z++){
+			for(int y=0; y<datasize[1]; y++){
+				for(int x=0; x<datasize[0]; x++){
+					vx = this->get_voxel(x,y,z);
+					vy = second_image->get_voxel(x,y,z);
+					this_x = vx*float(scale_x)/this->get_max_float();
+					this_y = vy*float(scale_y)/second_image->get_max_float();
+
+					hist->set_voxel(this_x,this_y,0,hist->get_voxel(this_x,this_y,0)+1);
+				}
+			}
+		}
+	}
+	if(remove_zero_intensity){
+		hist->set_voxel(0,0,0,0);
+	}
+	hist->data_has_changed(true);
+	return hist;
+}
+
+
+
+
+
+
+
 // The "calculate_T1Map_3D" function is based on following publication... (Chen2006)
 // Rapid High-Resolution T1 Mapping by Variable Flip Angles: Accurate and Precise Measurements in the Presence of Radiofrequency Field Inhomogeneity
 // Hai-Ling Margaret Cheng and Graham A Wright, Magnetic Resonance in Medicine 55:566Ã±574 (2006)

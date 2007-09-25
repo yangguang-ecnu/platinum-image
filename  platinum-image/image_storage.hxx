@@ -75,14 +75,12 @@ void image_storage<ELEMTYPE >::set_parameters()
     stats = NULL;
     tfunction = NULL;
 
-    set_stats_histogram (new histogram_1D<ELEMTYPE >(this));
+    set_stats_histogram (new histogram_1D<ELEMTYPE >(this));  //hist1D constructor calls resze() and calculate()
 	transfer_function();  //set default transfer function
-
+	
     stats->min(std::numeric_limits<ELEMTYPE>::min());
     stats->max(std::numeric_limits<ELEMTYPE>::max());
-
-//    minvalue=std::numeric_limits<ELEMTYPE>::min();
-//    maxvalue=std::numeric_limits<ELEMTYPE>::max();
+//	this->min_max_refresh();	//JK2 - The image data is not available yet!
     }
 
 template <class ELEMTYPE >
@@ -306,10 +304,18 @@ void image_storage<ELEMTYPE >::min_max_refresh()
   //      this->minvalue=pre_min;
         }
     }
-
-	template <class ELEMTYPE >
+/*
+template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::save_histogram_to_txt_file(std::string filepath, std::string separator)
 	{
-		stats->save_histogram_to_txt_file(filepath,separator);
+		cout<<"save_histogram_to_txt_file..."<<endl;
+		cout<<this->stats<<endl;
+//		this->min_max_refresh();
+//		this->stats->calculate();
+//		this->stats->print_histogram_content();
+		pt_error::error_if_null(this->stats,"image_storage<ELEMTYPE >::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
+		this->stats->save_histogram_to_txt_file(filepath,separator);
 	}
+*/
+
 #endif

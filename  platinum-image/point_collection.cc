@@ -131,13 +131,7 @@ point_collection::pointStorage::mapped_type point_collection::get_point (int i)
 //}
 
 
-
-
-
-
-
-
-
-
-
-
+void point_collection::save_histogram_to_txt_file(const std::string filename, const std::string separator)
+    {
+        pt_error::pt_error ("Attempt to save_histogram_to_txt_file on a point_collection object",pt_error::warning);
+    }

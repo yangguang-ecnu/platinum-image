@@ -120,6 +120,9 @@ class image_base : public data_base
 		void set_orientation(const Matrix3D m);
         Vector3D get_origin() const;
         void set_origin(const Vector3D v);
+
+		void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");//ööö
+
     };
 
 

@@ -66,6 +66,7 @@ class point_collection : public data_base
             pt_error::error("Attempting save_to_VTK_file on point_collection, not implemented yet");
             }
 			
+		virtual	void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
 			
     };
 	
