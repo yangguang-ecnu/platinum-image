@@ -48,7 +48,7 @@ class viewmanager
         
         int viewportmapping[MAXVERTICALGRID][MAXHORIZONTALGRID][MAXVIRTUALVIEWS];
         int noofvirtualviews;
-        int noofhorizontaltiles[MAXVIRTUALVIEWS]; // x- & y-storlek för grid
+        int noofhorizontaltiles[MAXVIRTUALVIEWS]; // x- & y-storlek fË†r grid
         int noofverticaltiles[MAXHORIZONTALGRID][MAXVIRTUALVIEWS];
         float tilewidthpercent[MAXVIRTUALVIEWS][MAXHORIZONTALGRID];
         float tileheightpercent[MAXVIRTUALVIEWS][MAXHORIZONTALGRID][MAXVERTICALGRID];
@@ -56,7 +56,7 @@ class viewmanager
         bool irregular_tiles;
 
     public:
-        void setup_views(int virtualview, int windowwidth, int windowheight); // 0...antal som används-1
+        void setup_views(int virtualview, int windowwidth, int windowheight); // 0...antal som anvâ€°nds-1
         void erase_all_connections();
         void connect_views_viewports();
         void manipulate_views_setup();
@@ -82,6 +82,7 @@ class viewmanager
 
         int get_viewport_id(int v, int h, int virtualview);
         int get_renderer_id(int viewportid);
+		
     };
 
 #endif

@@ -45,9 +45,9 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1
 		float t1=0;
 		float tmp=0;
 
-		for (int z=0; z < datasize[2]; z++){
-			for (int y=0; y < datasize[1]; y++){
-				for (int x=0; x < datasize[0]; x++){
+		for (int z=0; z < this->datasize[2]; z++){
+			for (int y=0; y < this->datasize[1]; y++){
+				for (int x=0; x < this->datasize[0]; x++){
 					tmp = this->get_voxel(x,y,z);
 					if(tmp<=body_thres){
 						t1=t1_min;
@@ -74,11 +74,11 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_ITK(Vector3D radius)
 {
-	make_image_an_itk_reader();
+	image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader();		// without 'image_general<ELEMTYPE, IMAGEDIM>::' generates compiler error
 
-	itk::MeanImageFilter<theImageType,theImageType>::Pointer filter = itk::MeanImageFilter<theImageType,theImageType>::New();
+	typename itk::MeanImageFilter<theImageType,theImageType>::Pointer filter = itk::MeanImageFilter<theImageType,theImageType>::New();
 
-	theSizeType r;
+	typename theSizeType r;
 	//	r[0] = 1; // radius along x
 	//	r[1] = 1; // radius along y
 	//	r[2] = 1; // radius along z
@@ -87,11 +87,11 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_ITK(Vector3D radius)
 	r[2] = radius[2];
 
 	filter->SetRadius(r);
-	filter->SetInput(ITKimportfilter->GetOutput());
+	filter->SetInput(this->ITKimportfilter->GetOutput());
 	filter->Update();
 
-	ITKimportimage = filter->GetOutput();
-	replicate_itk_to_image();
+	this->ITKimportimage = filter->GetOutput();
+	image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image();
 }
 
 

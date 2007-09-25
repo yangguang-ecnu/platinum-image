@@ -596,7 +596,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 					}
 				}
 			}
-			deallocate(); //Important... avoids huge memory leaks
+			this->deallocate(); //Important... avoids huge memory leaks
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
@@ -638,7 +638,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMA
 					res->set_voxel(x,y,datasize[2], src->get_voxel(x,y,f));
 				}
 			}
-			deallocate(); //Important... avoids huge memory leaks
+			this->deallocate(); //Important... avoids huge memory leaks
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
@@ -662,7 +662,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMA
 				}
 			}
 
-			deallocate(); //Important... avoids huge memory leaks
+			this->deallocate(); //Important... avoids huge memory leaks
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
@@ -686,7 +686,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMA
 				}
 			}
 
-			deallocate(); //Important... avoids huge memory leaks
+			this->deallocate(); //Important... avoids huge memory leaks
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);

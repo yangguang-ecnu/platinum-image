@@ -56,6 +56,10 @@ class rendergeometry
         int get_id();
 
         void refresh_viewports();   //refresh viewports using this combination
-    };
-
+		
+		Matrix3D get_dir();
+		
+		//AF
+		float distance_to_viewing_plane(Vector3D point);
+	};
 #endif

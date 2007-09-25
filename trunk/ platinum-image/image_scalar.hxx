@@ -21,7 +21,9 @@
 #include "image_scalar.h"
 #include "image_general.hxx"
 
+#include "userIOmanager.h"
 
+extern userIOmanager userIOmanagement;
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -725,34 +727,34 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 
 		switch(direction){
 		case 0:
-			for(int z=0; z<datasize[2]; z++){		
-				for(int y=0; y<datasize[1]; y++){
-					for(int x=0; x<datasize[0]/2; x++){
-						tmp = get_voxel(x,y,z);
-						set_voxel(x,y,z,get_voxel(datasize[0]-x-1,y,z));
-						set_voxel(datasize[0]-x-1,y,z,tmp);
+			for(int z=0; z<this->datasize[2]; z++){		
+				for(int y=0; y<this->datasize[1]; y++){
+					for(int x=0; x<this->datasize[0]/2; x++){
+						tmp = this->get_voxel(x,y,z);
+						this->set_voxel(x,y,z,this->get_voxel(this->datasize[0]-x-1,y,z));
+						this->set_voxel(this->datasize[0]-x-1,y,z,tmp);
 					}
 				}
 			}
 			break;
 		case 1: 
-			for(int z=0; z<datasize[2]; z++){		
-				for(int y=0; y<datasize[1]/2; y++){
-					for(int x=0; x<datasize[0]; x++){
-						tmp = get_voxel(x,y,z);
-						set_voxel(x,y,z,get_voxel(x,datasize[1]-y-1,z));
-						set_voxel(x,datasize[1]-y-1,z,tmp);
+			for(int z=0; z<this->datasize[2]; z++){		
+				for(int y=0; y<this->datasize[1]/2; y++){
+					for(int x=0; x<this->datasize[0]; x++){
+						tmp = this->get_voxel(x,y,z);
+						this->set_voxel(x,y,z,this->get_voxel(x,this->datasize[1]-y-1,z));
+						this->set_voxel(x,this->datasize[1]-y-1,z,tmp);
 					}
 				}
 			}
 			break;
 		case 2: 
-			for(int z=0; z<datasize[2]/2; z++){
-				for(int y=0; y<datasize[1]; y++){
-					for(int x=0; x<datasize[0]; x++){
-						tmp = get_voxel(x,y,z);
-						set_voxel(x,y,z,get_voxel(x,y,datasize[2]-z-1));
-						set_voxel(x,y,datasize[2]-z-1,tmp);
+			for(int z=0; z<this->datasize[2]/2; z++){
+				for(int y=0; y<this->datasize[1]; y++){
+					for(int x=0; x<this->datasize[0]; x++){
+						tmp = this->get_voxel(x,y,z);
+						this->set_voxel(x,y,z,get_voxel(x,y,this->datasize[2]-z-1));
+						this->set_voxel(x,y,this->datasize[2]-z-1,tmp);
 					}
 				}
 			}
@@ -765,7 +767,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 
 // The "calculate_T1Map_3D" function is based on following publication... (Chen2006)
 // Rapid High-Resolution T1 Mapping by Variable Flip Angles: Accurate and Precise Measurements in the Presence of Radiofrequency Field Inhomogeneity
-// Hai-Ling Margaret Cheng and Graham A Wright, Magnetic Resonance in Medicine 55:566–574 (2006)
+// Hai-Ling Margaret Cheng and Graham A Wright, Magnetic Resonance in Medicine 55:566Ã±574 (2006)
 
 // The "FLASH" signal equation is use din linear form.
 // least square based linear regression is used to determine the T1-values..

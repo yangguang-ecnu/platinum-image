@@ -430,7 +430,41 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         
         //NOTE: dynamic_cast to point means that point_collections are excluded,
         //for now
+	
+		
+				
+		//AF --- begin ---
+
+		
+		point_collection * points;		
+		if ( !dynamic_cast<point *> (pairItr->pointer) )
+		{
+			//std::cout << "------> " << "This is not a point! Maybe a point_collection?" << std::endl;
+			if ( points = dynamic_cast<point_collection *> (pairItr->pointer) )
+			{
+				//std::cout << "------> " << "It is a point_collection!" << std::endl;
+			}
+		}
+
+
+		if (points != NULL )
+		{
+			point_collection::pointStorage::iterator iter;
+			for (iter = points->begin(); iter != points->end(); iter++)
+			{
+				//ofs << iter->first << "   " << iter->second << std::endl;
+				Vector3D point = points->get_point(iter->first);
+				draw_cross(pixels, rgb_sx, rgb_sy, where, point);
+				
+			}
+		}
+
+
+		//AF --- end ---
         
+		
+		
+		
         if (pointPointer != NULL )
             {
             std::vector<int> loc = world_to_view (where,rgb_sx,rgb_sy,pointPointer->get_origin());
@@ -478,3 +512,61 @@ void rendererMPR::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int
         }
 
     }
+
+//AF
+void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D point)
+{
+	int default_size = 2;
+	int on_spot_size = 4;
+	float default_threshold = 10.0;
+	float on_spot_threshold = 0.5;
+	float distance = where->distance_to_viewing_plane(point);
+	float alpha = abs(distance - default_threshold) / default_threshold;
+
+	vector<int> default_rgb(3);	
+	default_rgb[0] = 255;
+	default_rgb[1] = 255;
+	default_rgb[2] = 0;
+	
+	vector<int> on_spot_rgb(3);
+	on_spot_rgb[0] = 255;
+	on_spot_rgb[1] = 0;
+	on_spot_rgb[2] = 0;
+
+	
+
+	std::vector<int> loc = world_to_view(where, rgb_sx, rgb_sy, point);
+
+	if ( distance > default_threshold )
+		{ return; }
+		
+	int size = default_size;
+	vector<int> rgb = default_rgb;
+	
+	if ( distance < on_spot_threshold )
+	{
+		size = on_spot_size;
+		rgb = on_spot_rgb;
+	}
+		
+	for (int d = -size; d <= size; d++)
+	{
+		float current_horizontal_r = pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + RADDR];
+		float current_horizontal_g = pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + GADDR];
+		float current_horizontal_b = pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + BADDR];
+
+		float current_vertical_r = pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + RADDR];
+		float current_vertical_g = pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + GADDR];
+		float current_vertical_b = pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + BADDR];
+		
+		pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + RADDR] = rgb[0] * alpha + current_horizontal_r * (1 - alpha);
+		pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + GADDR] = rgb[1] * alpha + current_horizontal_g * (1 - alpha);
+		pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + BADDR] = rgb[2] * alpha + current_horizontal_b * (1 - alpha);
+				
+		pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + RADDR] = rgb[0] * alpha + current_vertical_r * (1 - alpha);
+		pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + GADDR] = rgb[1] * alpha + current_vertical_g * (1 - alpha);
+		pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + BADDR] = rgb[2] * alpha + current_vertical_b * (1 - alpha);     
+	}
+}
+
+

@@ -67,7 +67,7 @@ int viewmanager::create_viewport()
 
 void create_viewport(char namn[])
     {
-    //... int identifierare ... ger unik identifierare åt varje objekt?
+    //... int identifierare ... ger unik identifierare Ã‚t varje objekt?
 
     //viewports.assign(...); 
     }
@@ -158,9 +158,9 @@ void viewmanager::setup_regular_tiles(int t_h, int t_v, int t_vv)
     }
 
 
-// Vilken av de N vyerna ska vi visa (vi kan bara titta på en åt gången)?
+// Vilken av de N vyerna ska vi visa (vi kan bara titta pÃ‚ en Ã‚t gÃ‚ngen)?
 //
-void viewmanager::setup_views(int virtualview, int areawidth, int areaheight) // 0...antal som används-1
+void viewmanager::setup_views(int virtualview, int areawidth, int areaheight) // 0...antal som anvâ€°nds-1
     {
     // storage for all tiles et.c. generated in the loop (not really needed)
     Fl_Widget *boxes[MAXHORIZONTALGRID*MAXVERTICALGRID];
@@ -220,9 +220,9 @@ void viewmanager::setup_views(int virtualview, int areawidth, int areaheight) //
 
 void viewmanager::erase_all_connections()
     {
-    //// sätt upp kopplingsarrayen mellan de virtuella vyerna (varav en är synlig) och de viewport:s som finns
+    //// sâ€°tt upp kopplingsarrayen mellan de virtuella vyerna (varav en â€°r synlig) och de viewport:s som finns
     //
-    for (int vv=0; vv < MAXVIRTUALVIEWS; vv++) // samma mönster för alla virtuella vyer - distribuera viewports
+    for (int vv=0; vv < MAXVIRTUALVIEWS; vv++) // samma mË†nster fË†r alla virtuella vyer - distribuera viewports
         {
         for (int v=0; v < MAXVERTICALGRID; v++)
             for (int h=0; h < MAXHORIZONTALGRID; h++)
@@ -262,7 +262,7 @@ int viewmanager::find_viewport_not_in_view()
     for (unsigned int i=0; i < viewports.size(); i++) 
         {
         int alreadyinuse = 0;
-        for (int vv=0; vv < MAXVIRTUALVIEWS; vv++) // samma mönster för alla virtuella vyer - distribuera viewports
+        for (int vv=0; vv < MAXVIRTUALVIEWS; vv++) // samma mË†nster fË†r alla virtuella vyer - distribuera viewports
             {
             for (int v=0; v < MAXVERTICALGRID; v++)
                 for (int h=0; h < MAXHORIZONTALGRID; h++)
@@ -347,7 +347,7 @@ void viewmanager::list_connections()
     //int antalvp = viewports.size();
 
     std::cout << "Listing of viewport to view connections:" << std::endl;
-    for (int vv=0; vv < MAXVIRTUALVIEWS; vv++) // samma mönster för alla virtuella vyer - distribuera viewports
+    for (int vv=0; vv < MAXVIRTUALVIEWS; vv++) // samma mË†nster fË†r alla virtuella vyer - distribuera viewports
         {
         std::cout << "Virtual view " << vv << std::endl;
         for (int v=0; v < MAXVERTICALGRID; v++)
@@ -412,3 +412,6 @@ std::vector<threshold_overlay *> viewmanager::get_overlays (thresholdparvalue * 
         }
     return result;
     }
+	
+
+

@@ -51,3 +51,33 @@ void rendergeometry::refresh_viewports()
     {
     rendermanagement.geometry_update_callback(this->id);
     }
+	
+//AF	
+float rendergeometry::distance_to_viewing_plane(Vector3D point)
+{
+	// distance to viewing plane
+	// http://www.math.umn.edu/~nykamp/m2374/readings/planedist/index.html
+
+	Vector3D direction;
+	direction[0] = 0;
+	direction[1] = 0;
+	direction[2] = 1;
+
+	Vector3D N = dir * direction;  
+
+	float N_magnitude = sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
+
+	Vector3D n;
+	n[0] = N[0] / N_magnitude;
+	n[1] = N[1] / N_magnitude;
+	n[2] = N[2] / N_magnitude;
+
+	Vector3D v;
+	v[0] = point[0] - look_at[0] ;
+	v[1] = point[1] - look_at[1] ;
+	v[2] = point[2] - look_at[2] ;
+
+	float distance = sqrt( pow((v[0]*n[0] + v[1]*n[1] + v[2]*n[2]), 2) );
+	
+	return distance;
+}

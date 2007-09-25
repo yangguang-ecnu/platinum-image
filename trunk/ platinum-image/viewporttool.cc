@@ -23,6 +23,8 @@
 #include "datamanager.h"
 #include "rendermanager.h"
 #include "userIOmanager.h"
+#include "landmark_tool.h"			//AF
+
 
 extern viewmanager viewmanagement;
 extern rendermanager rendermanagement;
@@ -65,6 +67,7 @@ void viewporttool::init (int posX, int posY,statusarea * s)
     //viewporttool::Register<dummy_tool>();
     viewporttool::Register<cursor_tool>();
     viewporttool::Register<histo2D_tool>();
+	viewporttool::Register<landmark_tool>();	//AF
     
     selected = "Navigation";
     
@@ -391,10 +394,10 @@ void cursor_tool::cb_make(Fl_Widget*, void* p)
 {    
     if (selection != NULL)
         {
-        int renderer = selectionOwner->myPort->get_renderer_id();
+        int rendererID = selectionOwner->myPort->get_renderer_id();		//AF - Changed the variable name from renderer to rendererID
         datamanagement.add(selection);
 
-        rendermanagement.connect_data_renderer(renderer,selection->get_id());
+        rendermanagement.connect_data_renderer(rendererID,selection->get_id());
         }
     
     selection = NULL;

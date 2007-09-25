@@ -148,6 +148,13 @@ int userIOmanager::add_par_coordinate3Ddisplay(int userIO_ID, std::string coord_
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
+//AF
+int userIOmanager::add_par_landmarks(int userIO_ID, const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, int landmarks_id)
+{
+	FLTKuserIOpar_landmarks * par = new FLTKuserIOpar_landmarks(name, landmark_names, option_names, landmarks_id);
+	return block_from_ID(userIO_ID)->add_par(par);
+}
+
 int userIOmanager::add_par_float(int userIO_ID, std::string new_param_name,float max,float min)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_float (new_param_name,max,min);
@@ -251,3 +258,31 @@ std::vector<FLTKuserIOpar_histogram2D *> userIOmanager::get_histogram_for_image 
 
     return result;
     }
+	
+
+//AF --- private ---
+FLTKuserIOpar_landmarks * userIOmanager::get_landmarks(int userIO_ID)
+{
+	FLTKuserIOpar_landmarks * landmarks;
+	
+	userIO * userIO_block = block_from_ID(userIO_ID);
+	
+	int nc = userIO_block->children();
+	
+	for (int c = 0; c < nc; c++)
+	{
+		if ( landmarks = dynamic_cast<FLTKuserIOpar_landmarks *>(userIO_block->child(c)) )
+		{
+			return landmarks;
+		}
+	}
+	
+	return landmarks;
+}
+
+//AF
+void userIOmanager::set_landmark(int userIO_ID, int index, Vector3D v)
+{
+	 get_landmarks(userIO_ID)->set(index, v);
+}
+
