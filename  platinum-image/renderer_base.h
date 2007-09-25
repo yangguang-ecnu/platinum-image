@@ -63,7 +63,7 @@ protected:
     static int maxrendererID;
     
 public:
-        renderer_base();
+	renderer_base();
     virtual ~renderer_base() {}
     
     static listedfactory<renderer_base> renderer_factory;

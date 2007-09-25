@@ -230,7 +230,7 @@ void rendermanager::connect_data_renderer(int rendererID, int dataID)
 
     renderers[renderindex]->connect_image(dataID);
     }
-
+	
 void rendermanager::data_has_changed(int ID)
     {
     vector<int> combos = rendermanager::combinations_from_data (ID);

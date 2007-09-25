@@ -23,12 +23,17 @@
 
 #include <FL/fl_draw.H>
 
+#include <iomanip>	//AF
+
 #include "userIOmanager.h"
 #include "datamanager.h"
 #include "viewmanager.h"
+#include "rendermanager.h" //AF
 
 extern datamanager datamanagement;
 extern viewmanager viewmanagement;
+extern rendermanager rendermanagement;  //AF
+extern userIOmanager userIOmanagement;
 
 //for testing, various 2D histogram classes can be interchanged:
 #define HISTOGRAM2DVARIETY histogram_2D
@@ -176,6 +181,150 @@ void FLTKuserIOpar_coord3Ddisplay::update()
 	control->value(resolve_teststring().c_str());
 	control->redraw();
     }
+
+//AF
+#pragma mark *** FLTKuserIOpar_landmarks ***
+
+FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & l_names, const std::vector<std::string> & o_names, const int landmarks_id) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,int(STDPARWIDGETHEIGHT*4), name)
+{
+	landmark_names = l_names;
+	option_names = o_names;
+
+	control = new Fl_Hold_Browser(x(),y(),w(),4*STDPARWIDGETHEIGHT-PARTITLEMARGIN);
+
+	control->callback(browser_callback, (void *)landmarks_id);
+	//control->when(...)	
+	
+	control->textsize(12);
+	
+	//int widths[] = { 50, 50, 0 };
+	//control->column_widths(widths);
+	//control->column_char('\t');
+	//control->type(FL_HOLD_BROWSER);
+			
+	
+//	for ( std::vector<Vector3D>::iterator itr = l->begin(); itr != l->end(); itr++) { }
+
+	//std::string s;
+	for (unsigned int i = 0; i < landmark_names.size(); i++)
+	{
+		control->add(resolve_string(i).c_str());
+	}
+		
+	control->value(1);	// set the first landmark active
+	
+	
+	resizable(control);
+	end();
+
+}
+
+
+void FLTKuserIOpar_landmarks::browser_callback(Fl_Widget *callingwidget, void * landmark_id_pointer)
+{
+	int image_id = -1;
+
+    userIO * userIO_block = (userIO *)callingwidget->parent()->parent();
+	
+	for (int c = 0; c < userIO_block->children(); c++)
+	{	
+		FLTKuserIOpar_image * image_par;
+		if ( image_par = dynamic_cast<FLTKuserIOpar_image *>(userIO_block->child(c)) )
+		{
+			image_par->par_value(image_id);
+			break;
+		}
+	}
+			
+			
+	Vector3D point;
+
+	point_collection * points = dynamic_cast<point_collection *>(datamanagement.get_data((int) landmark_id_pointer));
+	
+	int index = ((Fl_Hold_Browser*)callingwidget)->value();
+	
+	try
+	{
+		point = points->get_point(index); 
+	}
+	catch(out_of_range) { return; }			// Threre is no point with that index
+	
+	
+	
+	//image_base * top = rendermanagement.get_combination(myRenderer->combination_id())->top_image());
+
+	std::vector<int> combinations = rendermanagement.combinations_from_data(image_id);
+	
+	for ( int i = 0; i < combinations.size(); i++ )
+	{
+		std::cout << "combinations " << combinations[i] << std::endl;
+	}
+}
+
+std::string FLTKuserIOpar_landmarks::resolve_string(int index)
+{
+
+	// OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS!
+	// lös detta med printf i stället! strömmens information om formatering försvinner ändå
+	// när den castas till const char *!!
+	
+
+	
+	const int name_width = 40;
+	const int option_width = 15;
+	const int space_width = 3;
+
+	ostringstream name;
+	name.setf(ios::left); 
+	name.width(name_width);
+	name << landmark_names.at(index).substr(0, name_width - space_width);
+	
+	
+	ostringstream option;
+	option.setf(ios::left);
+	option.width(option_width);
+	option << option_names.at(index).substr(0, option_width - space_width);
+	
+	
+	//std::cout << name.str() << option.str() << std::endl;
+	
+	return name.str() + option.str();
+
+
+//	return landmark_names.at(index).substr(0, 15) + " - " + option_names.at(index).substr(0, 20);
+}
+
+const std::string FLTKuserIOpar_landmarks::type_name()
+{
+	return "active landmark";
+}
+
+void FLTKuserIOpar_landmarks::par_value(landmarksIDtype &v)
+{	
+	v = control->value();
+}
+
+void FLTKuserIOpar_landmarks::set(int index, Vector3D v)
+{
+	std::ostringstream oss;
+	oss << resolve_string(index-1) << " " << v;			// the first index of the Fl_Hold_Browser is 1
+
+	
+	control->text(index, oss.str().c_str());
+	
+	next();
+}
+
+void FLTKuserIOpar_landmarks::next()
+{
+	if ( control->value() != 0 && control->value() < control->size() ) 	// 0 means that no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
+	{
+		control->value(control->value() + 1);
+	}
+}
+
+
+
 
 
 

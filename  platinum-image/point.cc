@@ -21,23 +21,23 @@
 
 point::point() : point_collection()
 {
-    pointStorage::value_type init = pointStorage::value_type();
+    pointStorage::mapped_type init = pointStorage::mapped_type();
     init.Fill(0);
-    thePoints = pointStorage (1,init);
+    thePoints[1] = init;
 }
 
-point::point(pointStorage::value_type p): point_collection()
+point::point(pointStorage::mapped_type p): point_collection()
 {
-    thePoints = pointStorage (1,p);
+    thePoints[1] = p;
 }
 
-point_collection::pointStorage::value_type point::get_origin () const
+point_collection::pointStorage::mapped_type point::get_origin ()
 {
-    return thePoints.front();
+    return thePoints[1];
 }
 
-void point::set_origin(const point_collection::pointStorage::value_type o)
+void point::set_origin(const point_collection::pointStorage::mapped_type o)
 {
-    thePoints.front() = o;
+    thePoints[1] = o;
 }
 

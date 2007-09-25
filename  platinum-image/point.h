@@ -33,13 +33,12 @@ class point : public point_collection
 {
 public:
     point();
-    point(pointStorage::value_type);
+    point(pointStorage::mapped_type);
 
-    pointStorage::value_type get_origin() const;
-    void set_origin(const pointStorage::value_type);
+    pointStorage::mapped_type get_origin();
+    void set_origin(const pointStorage::mapped_type);
 
-    void add (pointStorage::value_type);  //overloaded; don't add, change point #1 
-
+    void add (pointStorage::mapped_type);  //overloaded; don't add, change point #1 
 };
 
 #endif

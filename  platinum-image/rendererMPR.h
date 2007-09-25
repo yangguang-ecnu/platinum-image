@@ -46,6 +46,9 @@ class rendererMPR : public renderer_base
 
         static void render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry * where,rendercombination * what,thresholdparvalue * threshold);
 
+		//AF
+		static void draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D  point);
+
     public:
 
         void connect_image(int vHandlerID); //add image to rendering combination

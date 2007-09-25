@@ -49,10 +49,10 @@ void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
 
     this->num_buckets = newNum;
 
-	if(buckets != NULL){	//JK - Prevent memory loss....
+	if(this->buckets != NULL){	//JK - Prevent memory loss....
 //		cout<<"...delete buckets...."<<endl;
-		delete []buckets;  
-		buckets = NULL;
+		delete []this->buckets;  
+		this->buckets = NULL;
 	}
     this->buckets = new unsigned long [this->num_buckets];
 

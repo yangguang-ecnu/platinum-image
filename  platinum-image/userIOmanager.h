@@ -46,6 +46,8 @@ class userIOmanager
         std::list<userIO *> IOblocks;
         userIO * block_from_ID(int IOblockID);
 
+		FLTKuserIOpar_landmarks * userIOmanager::get_landmarks(int userIO_ID);	//AF
+		
         //void maintenance ();    //called on idle or other time, to cleanup deleted objects and such
 
     public:
@@ -77,6 +79,7 @@ class userIOmanager
         //add parameter to userIO block, return parameter number
 		int add_par_filepath(int userIO_ID, const std::string name, const std::string default_path="");
 		int add_par_coordinate3Ddisplay(int userIO_ID, std::string coord_name, std::string coord_type_name, Vector3D v);
+		int add_par_landmarks(int userIO_ID, const std::string name,  const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, int landmarks_id); //AF
         int add_par_float(int userIO_ID, std::string new_param_name,float max=1,float min=0);
         int add_par_float_box(int userIO_ID, std::string new_param_name,float max=1,float min=0);
         int add_par_longint(int userIO_ID, std::string new_param_name,long max=255,long min=0);
@@ -95,6 +98,8 @@ class userIOmanager
         void select_tool (std::string);
 
         std::vector<FLTKuserIOpar_histogram2D *> get_histogram_for_image (int imageID);
+		
+		void set_landmark(int userIO_ID, int index, Vector3D v);				//AF
     };
 
 template <class ptype>

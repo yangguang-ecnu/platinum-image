@@ -309,7 +309,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
 
     this->from_file(true);
 
-	meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
+	this->meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -344,7 +344,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir
 			cout<<"fileNames.size()"<<fileNames.size()<<endl;
 
 			//-------------READER-------------
-			theSeriesReaderType::Pointer reader = theSeriesReaderType::New();
+			typename theSeriesReaderType::Pointer reader = theSeriesReaderType::New();
 			reader->SetFileNames( fileNames );
 			reader->SetImageIO( dicomIO );
 			try{
@@ -358,11 +358,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir
 			image = reader->GetOutput();
 			replicate_itk_to_image(image);
 
-			name("Dicomfiles");
+			this->name("Dicomfiles");
 
 			this->from_file(true);
 
-			meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
+			this->meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
 		}
 	}
 
