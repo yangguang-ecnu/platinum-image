@@ -112,6 +112,22 @@ vector<int> rendermanager::combinations_from_data (int dataID)
 
     return found_combinations;
     }
+	
+//AF
+std::vector<int> rendermanager::renderers_from_combinations(std::vector<int> & combination_ids)
+{
+	std::vector<int> renderer_ids;
+
+	for ( std::vector<int>::iterator citr = combination_ids.begin(); citr != combination_ids.end(); citr++ )
+	{
+		for ( std::vector<renderer_base*>::iterator ritr = renderers.begin(); ritr != renderers.end(); ritr++ )
+		{
+			if ( (*ritr)->combination_id() == *citr )
+				{ renderer_ids.push_back((*ritr)->get_id()); }
+		}
+	}
+    return renderer_ids;
+}
 
 factoryIdType rendermanager::get_renderer_type (int ID)
 {
@@ -126,7 +142,7 @@ int rendermanager::get_combination_id(int rendererIndex)
     {
     return renderers[rendererIndex]->imagestorender->get_id();
     }
-
+	
 int rendermanager::get_geometry_id(int rendererIndex)
     {
     return renderers[rendererIndex]->wheretorender->get_id();
