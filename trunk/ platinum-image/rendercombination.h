@@ -46,7 +46,7 @@ class rendercombination
     {
 public:
         class renderpair {
-public:
+		public:
             int ID;
             data_base * pointer;
             blendmode mode;

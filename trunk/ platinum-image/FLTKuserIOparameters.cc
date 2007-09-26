@@ -253,11 +253,16 @@ void FLTKuserIOpar_landmarks::browser_callback(Fl_Widget *callingwidget, void * 
 	
 	//image_base * top = rendermanagement.get_combination(myRenderer->combination_id())->top_image());
 
-	std::vector<int> combinations = rendermanagement.combinations_from_data(image_id);
 	
-	for ( int i = 0; i < combinations.size(); i++ )
-	{
-		std::cout << "combinations " << combinations[i] << std::endl;
+	std::vector<int> combination_ids = rendermanagement.combinations_from_data(image_id);
+
+	std::vector<int> renderer_ids = rendermanagement.renderers_from_combinations(combination_ids);
+
+	for ( std::vector<int>::iterator itr = renderer_ids.begin(); itr != renderer_ids.end(); itr++ )
+	{ 
+		// float zoom = renderer_base::display_scale / max_norm (size);
+		
+		rendermanagement.set_geometry(*itr, point); 
 	}
 }
 
@@ -265,7 +270,7 @@ std::string FLTKuserIOpar_landmarks::resolve_string(int index)
 {
 
 	// OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS!
-	// lös detta med printf i stället! strömmens information om formatering försvinner ändå
+	// lös detta med sprintf i stället! strömmens information om formatering försvinner ändå
 	// när den castas till const char *!!
 	
 

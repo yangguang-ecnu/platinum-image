@@ -796,9 +796,9 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhist
 		ELEMTYPE vy;
 		int this_x;
 		int this_y;
-		for(int z=0; z<datasize[2]; z++){
-			for(int y=0; y<datasize[1]; y++){
-				for(int x=0; x<datasize[0]; x++){
+		for(int z=0; z<this->datasize[2]; z++){
+			for(int y=0; y<this->datasize[1]; y++){
+				for(int x=0; x<this->datasize[0]; x++){
 					vx = this->get_voxel(x,y,z);
 					vy = second_image->get_voxel(x,y,z);
 					this_x = vx*float(scale_x)/this->get_max_float();
