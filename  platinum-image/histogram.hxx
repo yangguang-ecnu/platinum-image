@@ -44,8 +44,7 @@ void histogram_1D<ELEMTYPE >::image (int vol)
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
 {
-	cout<<"void histogram_1D<ELEMTYPE>::resize("<<newNum<<")"<<endl;
-
+//	cout<<"void histogram_1D<ELEMTYPE>::resize("<<newNum<<")"<<endl;
 
     this->num_buckets = newNum;
 
@@ -64,7 +63,7 @@ template <class ELEMTYPE>
 histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> * i):histogram_typed<ELEMTYPE>()
 {
     this->images[0] = i;
-	cout<<"histogram_1D constructor..."<<endl;
+//	cout<<"histogram_1D constructor..."<<endl;
     
 //    resize (std::max (static_cast<unsigned long>(256),static_cast<unsigned long>((std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4.0)));
 
@@ -88,7 +87,7 @@ histogram_1D<ELEMTYPE>::histogram_1D (ELEMTYPE * start,ELEMTYPE * end ):histogra
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
     {
-	cout<<"---histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)---"<<endl;
+//	cout<<"---histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)---"<<endl;
 
 	if (new_num_buckets !=0 || this->buckets==NULL){
         //resize(...) isn't used here because this function is called from resize,
@@ -135,7 +134,7 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 
 //        float scalefactor=(this->num_buckets-1)/(typeMax-typeMin);
 //        float scalefactor=(this->num_buckets-1)/(imageMax-imageMin); //JK-hist
-        float scalefactor = float(this->max()-this->min())/float(this->num_buckets+1); //JK-hist
+        float scalefactor = float(this->max()-this->min())/float(this->num_buckets-1); //JK-hist
 
 //		cout<<"calculate - this->num_buckets="<<this->num_buckets<<endl;
 //		cout<<"calculate - max()="<<max()<<endl;
@@ -170,8 +169,8 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 				this->min_value = std::min (this->min_value,*voxel);
 				this->max_value = std::max (this->max_value,*voxel);
 			}else{
-				pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
-				cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
+//				pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
+//				cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
 			}
 		}
 

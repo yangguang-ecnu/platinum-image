@@ -211,7 +211,7 @@ void datamanager::add(image_base * v)
                     if (rendermanagement.renderer_empty(rendererID))
                         {
                         //get a zoom factor that will show the entire image
-                        Vector3D size = v->get_size();
+                        Vector3D size = v->get_physical_size();
                         float maxsize = max_norm (size);
                         
                         rendermanagement.set_geometry(rendererID,v->get_origin(),renderer_base::display_scale/maxsize);

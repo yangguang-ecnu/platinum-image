@@ -33,7 +33,8 @@ using namespace std;
 
 data_base::~data_base()
     {
-	cout<<"~data_base()"<<endl;
+//jk	cout<<"~data_base()"<<endl;
+
     //destructor may be called from a menu choice in widget,
     //it would crash if deleted with delete(...)
     //Fl::delete_widget is designed to avoid this
@@ -52,7 +53,7 @@ void data_base::name (const string n)
         { widget->name(n); }
     else
         {
-        pt_error::pt_error ("Attempt to set name(const string) on a widget-less data object",pt_error::warning);
+//jk-tmp    pt_error::pt_error ("Attempt to set name(const string) on a widget-less data object",pt_error::warning);
         }
     }
 
@@ -110,7 +111,7 @@ void data_base::from_file(bool f)
 
     else
         {
-        pt_error::error("Attempt to set from_file(bool) on a widget-less data object",pt_error::warning);
+//        pt_error::error("Attempt to set from_file(bool) on a widget-less data object",pt_error::warning);
         }
     }
 

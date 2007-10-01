@@ -125,7 +125,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scala
 	int ystep = nx;
 	int zstep = nx*ny;
 
-	Vector3D s = this->get_size();
+	Vector3D s = this->get_physical_size();
 	float dx = s[0];
 	float dy = s[1];
 	float dz = s[2];

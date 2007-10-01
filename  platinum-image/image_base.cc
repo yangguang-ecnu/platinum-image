@@ -158,7 +158,7 @@ Vector3D image_base::world_to_voxel(const Vector3D wpos) const
     Matrix3D rDir; 
     rDir = get_orientation();
 
-    Vector3D size = get_size();
+    Vector3D size = get_physical_size();
     vPos +=  rDir*(size/2);
 
     Matrix3D pSize;
