@@ -412,7 +412,7 @@ unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_size_by_dim_and_dir(int di
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_size () const
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_size () const
 {
     Vector3D result;
     
@@ -571,17 +571,16 @@ void image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D(image_general<ELEMTYP
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int slice_dir)
+void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int add_dir)
 {
-	cout<<"image_scalar-add_volume_3D..("<<slice_dir<<")"<<endl;
+//	cout<<"image_scalar-add_volume_3D..("<<add_dir<<")"<<endl;
 
 	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
 
-	if(slice_dir==2){
-		res->name("res-2..");
+	if(add_dir==2){
+		res->name(this->name() + "_add_dir2_" + src->name());
 		if( same_size(src,0) && same_size(src,1) ){
-			cout<<"...entered"<<endl;
-			res->initialize_dataset(datasize[0],datasize[1],datasize[2]+src->get_size()[2]);
+			res->initialize_dataset(datasize[0],datasize[1],datasize[2]+src->datasize[2]);
 			for (int z=0; z < datasize[2]; z++){
 				for (int y=0; y < datasize[1]; y++){
 					for (int x=0; x < datasize[0]; x++){
@@ -589,7 +588,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 					}
 				}
 			}
-			for (int z=datasize[2]; z < datasize[2]+src->get_size()[2]; z++){
+			for (int z=datasize[2]; z < datasize[2]+src->datasize[2]; z++){
 				for (int y=0; y < datasize[1]; y++){
 					for (int x=0; x < datasize[0]; x++){
 						res->set_voxel(x,y,z, src->get_voxel(x,y,z-datasize[2]));
@@ -602,10 +601,59 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 		    set_parameters(res);
 		}
 
-	}else if(slice_dir==1){
-	}else if(slice_dir==0){
+
+	}else if(add_dir==1){
+		res->name(this->name() + "_add_dir1_" + src->name());
+		if( same_size(src,0) && same_size(src,2) ){
+			res->initialize_dataset(datasize[0],datasize[1]+src->datasize[1],datasize[2]);
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					for (int x=0; x < datasize[0]; x++){
+						res->set_voxel(x,y,z, get_voxel(x,y,z));
+					}
+				}
+			}
+
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=datasize[1]; y < datasize[1]+src->datasize[1]; y++){
+					for (int x=0; x < datasize[0]; x++){
+						res->set_voxel(x,y,z, src->get_voxel(x,y-datasize[1],z));
+					}
+				}
+			}
+			this->deallocate(); //Important... avoids huge memory leaks
+		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
+			copy_data(res,this);
+		    set_parameters(res);
+		}
+
+	}else if(add_dir==0){
+		res->name(this->name() + "_add_dir0_" + src->name());
+		if( same_size(src,1) && same_size(src,2) ){
+			res->initialize_dataset(datasize[0]+src->datasize[0],datasize[1],datasize[2]);
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					for (int x=0; x < datasize[0]; x++){
+						res->set_voxel(x,y,z, get_voxel(x,y,z));
+					}
+				}
+			}
+
+			for (int z=0; z < datasize[2]; z++){
+				for (int y=0; y < datasize[1]; y++){
+					for (int x=datasize[0]; x < datasize[0]+src->datasize[0]; x++){
+						res->set_voxel(x,y,z, src->get_voxel(x-datasize[0],y,z));
+					}
+				}
+			}
+			this->deallocate(); //Important... avoids huge memory leaks
+		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
+			copy_data(res,this);
+		    set_parameters(res);
+		}
+
 	}else{
-		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D -- slice_dir error",pt_error::debug);
+		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D -- add_dir error",pt_error::debug);
 	}
 
 	delete res;		// ->deallocate();		//÷÷÷ - JK WARNING MEMORY LEAK???
@@ -616,7 +664,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int slice_dir)
 {
-	cout<<"image_scalar-add_slice_3D..("<<slice_dir<<")"<<endl;
+//	cout<<"image_scalar-add_slice_3D..("<<slice_dir<<")"<<endl;
 
 	int f = from_slice_no;
 	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
@@ -1029,6 +1077,25 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(int x, int y, int z, int 
 		}
 	}
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::fill_region_of_mask_3D(image_general<ELEMTYPE, IMAGEDIM> *mask, ELEMTYPE value)
+{
+	if(this->same_size(mask)){
+		for (int k=0; k<this->datasize[2]; k++){
+			for (int j=0; j<this->datasize[1]; j++){
+				for (int i=0; i<this->datasize[0]; i++){
+					if(mask->get_voxel(i,j,k)>0){
+						this->set_voxel(i,j,k,value);
+					}
+				}
+			}
+		}
+	}else{
+		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::fill_region_of_mask_3D - images do not have same size", pt_error::debug);
+	}
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::testpattern()

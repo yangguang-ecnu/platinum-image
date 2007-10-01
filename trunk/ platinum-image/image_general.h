@@ -146,6 +146,7 @@ class image_general : public image_storage <ELEMTYPE >
         void set_voxel(int x, int y, int z, ELEMTYPE voxelvalue);
 		void set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction=2);
 		void fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
+		void fill_region_of_mask_3D(image_general<ELEMTYPE, IMAGEDIM> *mask, ELEMTYPE value);
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();
@@ -157,7 +158,7 @@ class image_general : public image_storage <ELEMTYPE >
         bool same_size (image_base * other);				//test whether other image has same voxel dimensions
         bool same_size (image_base * other, int direction); //test whether other image has same voxel dimensions
         
-        Vector3D get_size () const;
+        Vector3D get_physical_size () const;
         
         const Vector3D get_voxel_size () const;       //return voxel size
 		void set_voxel_size(const Vector3D v);
@@ -174,7 +175,7 @@ class image_general : public image_storage <ELEMTYPE >
 	
 		//adds image volume/slice (currently only of same in-plane size...) in positive x/y/z directions... 
 		//A temporary image is needed, therefor, this cannot be implemented in "image_general"
-		void add_volume_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int slice_dir=2);
+		void add_volume_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int add_dir=2);
 		void add_slice_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no=0, int slice_dir=2);
 
 		// slice reorganization function that sorts slices from many dynamic scans

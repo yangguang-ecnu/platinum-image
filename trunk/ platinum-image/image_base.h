@@ -85,8 +85,7 @@ class image_base : public data_base
         virtual void transfer_function(std::string functionName) = 0; //! replace transfer function using string identifier
                     
         virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const = 0;
-        virtual float get_number_voxel(int x, int y, int z) const //get value as float for onscreen display in numbers
-            = 0;
+        virtual float get_number_voxel(int x, int y, int z) const = 0;//get value as float for onscreen display in numbers
                                                                     //when other kinds than 3D images are implemented,
                                                                     //one might want to make these dimensionality-independent 
                                                                     //like get_size_by_dim(int dim)
@@ -99,7 +98,7 @@ class image_base : public data_base
         virtual void make_image_an_itk_reader() = 0;
 
         virtual unsigned short get_size_by_dim(int dim) const = 0;  //return voxel dimensions
-        virtual Vector3D get_size () const = 0; //return size in world coordinates
+        virtual Vector3D get_physical_size () const = 0; //return size in world coordinates
         virtual bool same_size (image_base *) = 0;
         
         bool read_origin_from_dicom_file(std::string dcm_file);
@@ -109,7 +108,7 @@ class image_base : public data_base
         Vector3D world_to_voxel(const Vector3D) const;
 
         
-         virtual void data_has_changed(bool stats_refresh = true) = 0;
+        virtual void data_has_changed(bool stats_refresh = true) = 0;
         // *** access methods ***
 
         virtual Matrix3D get_voxel_resize () const = 0;
