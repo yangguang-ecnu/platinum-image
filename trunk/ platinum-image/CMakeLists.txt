@@ -265,7 +265,7 @@ TARGET_LINK_LIBRARIES(PlatinumTest platinumlib)
 #TARGET_LINK_LIBRARIES(my_application platinumlib)							#Modify this line to include application in this project
 
 ADD_DEPENDENCIES(PlatinumTest platinumlib)
-ADD_DEPENDENCIES(my_application platinumlib)								#Modify this line to include application in this project
+#ADD_DEPENDENCIES(my_application platinumlib)								#Modify this line to include application in this project
 
 #SOURCE_GROUP(Headers REGULAR_EXPRESSION ".*[.]h$")
 #SOURCE_GROUP(Headers FILES global.h platinumprogram.h ptmath.h)

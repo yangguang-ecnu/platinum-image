@@ -1,4 +1,5 @@
 //AF
+#include <iomanip>
 
 #include "landmark_tool.h"
 #include "renderer_base.h"	
@@ -10,7 +11,7 @@
 extern datamanager datamanagement;
 
 extern rendermanager rendermanagement;
-//extern viewmanager viewmanagement;
+extern viewmanager viewmanagement;
 extern userIOmanager userIOmanagement;
 
 int landmark_tool::userIO_ID = -1;
@@ -36,22 +37,6 @@ const std::string landmark_tool::name()
 void landmark_tool::init()
 {
 }
-
-std::string landmark_tool::vector3d_to_string(Vector3D v)
-{
-
-	// returns the largest integer not greater than v[i]
-	for (int i=0; i<3; i++)
-	{
-		v[i] = floor(v[i]);
-	}
-
-	std::ostringstream v_str;
-	v_str << v;
-	
-	return v_str.str();
-}
-
 
 void landmark_tool::handle(viewport_event &event)
 {
@@ -92,7 +77,7 @@ void landmark_tool::handle(viewport_event &event)
 
 			event.grab();
 			
-			rendermanagement.connect_data_renderer(myPort->get_renderer_id(), point_collection_ID);
+			rendermanagement.connect_data_renderer(myPort->get_renderer_id(), point_collection_ID);			
 			
 			if (event.state() == pt_event::begin)
 			{				
@@ -104,46 +89,38 @@ void landmark_tool::handle(viewport_event &event)
 				
 				point_collection * points = dynamic_cast<point_collection *>(datamanagement.get_data(point_collection_ID));
 						
-				int index_of_active = userIOmanagement.get_parameter<landmarksIDtype>(userIO_ID, 1);
+				int index_of_active = userIOmanagement.get_parameter<landmarksIDtype>(userIO_ID, 1);				
+				points->set_active(index_of_active);
 				
-				if (index_of_active == 0)	// 0 means that no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
-				{
-					std::cout << "No landmark is active" << std::endl;
+				if (index_of_active <= 0)	// -1 means active is not set
+				{							// 0 means no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
+					std::cout << "No landmark is active" << std::endl;		
 					return;
 				}
 								
-//					Vector3D & v = points->get_point_at(index_of_active - 1);	// the first index of the Fl_Hold_Browser is 1
-//					v = mouse3d;												// update the data in datamanagement
-				//points->set_point(index_of_active - 1, mouse3d);	// the first index of the Fl_Hold_Browser is 1
-
-				points->add_pair(index_of_active, mouse3d);	// the first index of the Fl_Hold_Browser is 1
+				points->add_pair(index_of_active, mouse3d);
 				
 				userIOmanagement.set_landmark(userIO_ID, index_of_active, mouse3d);
+				
 
+				viewmanagement.show_point(mouse3d, point_collection_ID);
+
+				
 			}
 		break;	
 		
 		case pt_event::hover:
 			event.grab();	
-			//Vector3D pos = myRenderer->view_to_voxel(mouse[0], mouse[1], fvp->w(), fvp->h());			
-			Vector3D pos = myRenderer->view_to_world(mouse[0], mouse[1], fvp->w(), fvp->h());			
-//			if (pos[0]<0)	// negative coordinates signify outside of bounds
-//			{
-//				userIOmanagement.interactive_message();
-//			}
-//			else
-//			{			
-				//userIOmanagement.interactive_message("Voxel " + vector3d_to_string(pos));
-				// OBS!! FIXA SNYGGARE UTSKRIFT AV KOORDINATER!! mha printf EJ cout
-				
-				std::ostringstream oss;
-				oss << pos;
 
-				userIOmanagement.interactive_message("World " + oss.str());
-				
-				
-				
-//			}
+			Vector3D pos = myRenderer->view_to_world(mouse[0], mouse[1], fvp->w(), fvp->h());			
+
+			std::ostringstream oss;
+			oss.setf ( ios::fixed );
+
+			oss << setprecision(1) << pos;
+
+			userIOmanagement.interactive_message("World " + oss.str());
+			
 		break;
 	}
 	

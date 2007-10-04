@@ -48,6 +48,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 using std::string;
 
@@ -232,14 +233,14 @@ void ConfigFile::add( string key, const T& value )
 template<class T>
 void ConfigFile::update_value_in_file(const string filename, const string& key, const T& value )
 {
-	//ööö
+	//Ë†Ë†Ë†
 
-	cout<<"update_value_in_file...."<<endl;
+	std::cout<<"update_value_in_file...."<< std::endl;
 	string value_string = T_as_string(value);
 
 	std::ifstream in( filename.c_str() );
 	if( !in ) throw file_not_found( filename ); 
-	vector<string> lines;
+	std::vector<std::string> lines;
 	while(!in.eof()){
 		string line;
 		std::getline( in, line );
@@ -311,7 +312,7 @@ void ConfigFile::update_value_in_file(const string filename, const string& key, 
 	std::ofstream out( filename.c_str() );
 //	if( !in ) throw file_not_found( filename ); 
 	for(int i=0;i<lines.size();i++){
-		out<<lines[i]<<endl;
+		out<<lines[i]<<std::endl;
 	}
 	out.close();
 

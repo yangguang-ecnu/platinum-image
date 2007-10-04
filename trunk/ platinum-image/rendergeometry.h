@@ -61,5 +61,8 @@ class rendergeometry
 		
 		//AF
 		float distance_to_viewing_plane(Vector3D point);
+		
+		//AF
+		Vector3D get_n();
 	};
 #endif

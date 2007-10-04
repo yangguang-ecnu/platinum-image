@@ -30,7 +30,7 @@ void pt_config::initialize(string filename){
 	}else{
 		std::ofstream out( filename.c_str() );
 
-		out<<"Platinum default configuration file" <<endl;
+		out<<"//Platinum default configuration file" <<endl;
 		out<<endl;
 		out<<"latest_path = . \t//Latest path used from platinum" <<endl;
 

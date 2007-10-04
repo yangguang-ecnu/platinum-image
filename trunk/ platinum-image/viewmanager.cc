@@ -52,8 +52,8 @@ viewmanager viewmanagement;
 
 void viewmanager::listviewports()
 {
-std::cout << "# of viewports: " << viewports.size() << std::endl;
-for (unsigned int i=0; i < viewports.size(); i++) { std::cout << viewports[i] << std::endl; } 
+	std::cout << "# of viewports: " << viewports.size() << std::endl;
+	for (unsigned int i=0; i < viewports.size(); i++) { std::cout << viewports[i] << std::endl; } 
 }
 
 int viewmanager::create_viewport()
@@ -413,5 +413,96 @@ std::vector<threshold_overlay *> viewmanager::get_overlays (thresholdparvalue * 
     return result;
     }
 	
+//AF
+std::vector<int> viewmanager::viewports_from_renderers(const std::vector<int> & renderer_ids)
+{
+	// Two viewports can not have the same renderer
+	
+	std::vector<int> viewport_ids;
+
+	for ( std::vector<int>::const_iterator ritr = renderer_ids.begin(); ritr != renderer_ids.end(); ritr++ )
+	{	
+		int vp = viewport_from_renderer(*ritr);
+		
+		if ( vp != -1 )
+			{ viewport_ids.push_back(vp); }		
+	}
+	
+	return viewport_ids;
+}
+
+//AF
+int viewmanager::viewport_from_renderer(int renderer_id)
+{
+	for ( std::vector<viewport>::iterator vitr = viewports.begin(); vitr != viewports.end(); vitr++ )
+	{
+		if ( (*vitr).get_renderer_id() == renderer_id )
+			{ return (*vitr).get_id(); }
+	}
+		
+	return -1;
+}
+
+
+//AF
+const viewport * viewmanager::get_viewport(int viewport_id)
+{
+	int viewport_index = find_viewport_index(viewport_id);
+	
+	if ( viewport_index != NOT_FOUND_ID )
+	{ 
+		return & viewports[viewport_index];
+	}
+	
+	return NULL;
+}
+
+//AF
+void viewmanager::show_point(const Vector3D & point, const int dataID, const unsigned int margin )
+{
+	std::vector<int> combination_ids = rendermanagement.combinations_from_data(dataID);
+	std::vector<int> renderer_ids = rendermanagement.renderers_from_combinations(combination_ids);
+
+	Vector3D tmp;
+
+	for ( std::vector<int>::iterator itr = renderer_ids.begin(); itr != renderer_ids.end(); itr++ )
+	{ 
+		rendergeometry * geometry = rendermanagement.get_geometry(*itr);				
+		Vector3D at = geometry->look_at;
+
+		const int viewport_id = viewmanagement.viewport_from_renderer(*itr);
+		const viewport * vp = viewmanagement.get_viewport(viewport_id);
+		
+		const int sx = vp->pixmap_size()[0];
+		const int sy = vp->pixmap_size()[1];
+
+		renderer_base * myRenderer = rendermanagement.get_renderer(*itr);
+		std::vector<int> point_in_view = myRenderer->world_to_view(sx, sy, point);
+		
+		if ( point_in_view[0] < 0 + margin || point_in_view[0] > sx - margin || point_in_view[1] < 0 + margin || point_in_view[1] > sy - margin )
+		{	// the point is outside the viewport margin -> show the plane of the point AND center the point 
+			tmp = point;
+		}
+		else
+		{	// the point is inside the viewport margin -> show the plane of the point
+			Vector3D n = geometry->get_n();
+			
+			tmp[0] = point[0] * n[0] + at[0] * (1 - n[0]);
+			tmp[1] = point[1] * n[1] + at[1] * (1 - n[1]);
+			tmp[2] = point[2] * n[2] + at[2] * (1 - n[2]);
+		}
+		
+		rendermanagement.set_geometry(*itr, tmp); 
+	}
+
+}
+
+
+
+
+
+
+
+
 
 

@@ -25,6 +25,8 @@
 
 #define _rendererMPR_cc_
 #include "rendererMPR.h"
+#include "viewmanager.h"	//AF
+#include "rendermanager.h"	//AF
 
 #define MAXRENDERVOLUMES 50
 
@@ -32,6 +34,8 @@
 #define USE_ARBITRARY
 
 extern datamanager datamanagement;
+extern viewmanager viewmanagement;	//AF
+extern rendermanager rendermanagement; //AF
 
 using namespace std;
 
@@ -225,7 +229,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         
         //render images in first pass, points in second
         if (OKrender )
-            { 
+		{ 
             
             for(int d=0; d<3; d++)
                 {data_size[d]=the_image_pointer->get_size_by_dim(d);}
@@ -404,96 +408,84 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                     } //fill_y_start loop
             
             if (blend_mode== BLEND_MIN)
-                {
+			{
                 for (long p=0; p < rgb_sx*rgb_sy*RGBpixmap_bytesperpixel; p +=RGBpixmap_bytesperpixel )
-                    {
+				{
                     if (pixels[p] != pixels[p+1])
-                        {
+					{
                         //unaltered background, fill with final background color
                         
                         pixels[p] = pixels[p + 1] = 0;
                         pixels[p + 2] = 127;
-                        }
-                    }
-                }
+					}
+				}
+			}
             
-                } //the_image_pointer != NULL
-        
+		} //the_image_pointer != NULL
+        				
         the_image++;
-        }   //per-image loop
-    
+	} //per-image loop
+    	
     #pragma mark *** per-point render loop ***
-    
+    	
     for (rendercombination::iterator pairItr = what->begin();pairItr != what->end();pairItr++)  
-        {
+	{
         point *pointPointer = dynamic_cast<point *> (pairItr->pointer);
-        
-        //NOTE: dynamic_cast to point means that point_collections are excluded,
-        //for now
-	
-		
 				
-		//AF --- begin ---
-
-		
-		point_collection * points;		
+				
+		//AF		
 		if ( !dynamic_cast<point *> (pairItr->pointer) )
-		{
-			//std::cout << "------> " << "This is not a point! Maybe a point_collection?" << std::endl;
-			if ( points = dynamic_cast<point_collection *> (pairItr->pointer) )
-			{
-				//std::cout << "------> " << "It is a point_collection!" << std::endl;
+		{	// Not a point
+			if ( point_collection * points = dynamic_cast<point_collection *> (pairItr->pointer) )
+			{	// A point_collection
+				point_collection::pointStorage::iterator iter;
+				for (iter = points->begin(); iter != points->end(); iter++)
+				{
+					vector<int> on_spot_rgb(3);
+					on_spot_rgb[0] = 0;
+					on_spot_rgb[1] = 0;
+					on_spot_rgb[2] = 255;
+
+					if ( points->get_active() >= 1 && points->get_active() ==  iter->first )	// -1 means active is not set
+					{	// this point is active													//  0 means no line in the Fl_Hold_Browser i chosen
+						on_spot_rgb[0] = 255;													// (the index of the first row in Fl_Hold_Browser is 1)
+						on_spot_rgb[1] = 0;
+						on_spot_rgb[2] = 0;
+					}
+
+					draw_cross ( pixels, rgb_sx, rgb_sy, where, points->get_point(iter->first), on_spot_rgb );
+				}
 			}
 		}
 
 
-		if (points != NULL )
-		{
-			point_collection::pointStorage::iterator iter;
-			for (iter = points->begin(); iter != points->end(); iter++)
-			{
-				//ofs << iter->first << "   " << iter->second << std::endl;
-				Vector3D point = points->get_point(iter->first);
-				draw_cross(pixels, rgb_sx, rgb_sy, where, point);
-				
-			}
-		}
-
-
-		//AF --- end ---
-        
-		
-		
-		
         if (pointPointer != NULL )
-            {
-            std::vector<int> loc = world_to_view (where,rgb_sx,rgb_sy,pointPointer->get_origin());
-            
-            //TODO: color according to distance to viewing plane
-            //http://www.math.umn.edu/~nykamp/m2374/readings/planedist/index.html
-
-            
-            //draw cross
-            for (int d = -2;d <= 2; d++)
-                {
-                pixels[RGBpixmap_bytesperpixel *
-                    (loc[0]+d+rgb_sx*loc[1]) + RADDR] = 255;
-                pixels[RGBpixmap_bytesperpixel *
-                    (loc[0]+d+rgb_sx*loc[1]) + GADDR] = 0;
-                pixels[RGBpixmap_bytesperpixel *
-                    (loc[0]+d+rgb_sx*loc[1]) + BADDR] = 0;   
-                
-                pixels[RGBpixmap_bytesperpixel *
-                    (loc[0]+rgb_sx*(loc[1]+d)) + RADDR] = 255;
-                pixels[RGBpixmap_bytesperpixel *
-                    (loc[0]+rgb_sx*(loc[1]+d)) + GADDR] = 0;
-                pixels[RGBpixmap_bytesperpixel *
-                    (loc[0]+rgb_sx*(loc[1]+d)) + BADDR] = 0;     
-                }
-            }
-        }//point rendering loop
+		{	// A point (a point_collection with one element)
+			vector<int> on_spot_rgb(3);
+			on_spot_rgb[0] = 0;
+			on_spot_rgb[1] = 0;
+			on_spot_rgb[2] = 255;
+		
+			draw_cross ( pixels, rgb_sx, rgb_sy, where, pointPointer->get_origin(), on_spot_rgb );
+		}
+	
+	}//point rendering loop
     
-    }//render_ function
+	
+	
+	std::vector<int> test = rendermanagement.renderers_with_images();
+	for ( std::vector<int>::const_iterator itr = test.begin(); itr != test.end(); itr++ )
+	{
+		std::cout << *itr << " - ";
+	}
+	std::cout << std::endl;	
+	
+	
+	
+}//render_ function
+
+
+
 
 void rendererMPR::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int w, int h, int rgb_sx, int value){
 
@@ -514,10 +506,12 @@ void rendererMPR::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int
     }
 
 //AF
-void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D point)
+void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D point, std::vector<int> on_spot_rgb)
 {
+
+
 	int default_size = 2;
-	int on_spot_size = 4;
+	int on_spot_size = 3;
 	float default_threshold = 10.0;
 	float on_spot_threshold = 0.5;
 	float distance = where->distance_to_viewing_plane(point);
@@ -528,14 +522,12 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 	default_rgb[1] = 255;
 	default_rgb[2] = 0;
 	
-	vector<int> on_spot_rgb(3);
-	on_spot_rgb[0] = 255;
-	on_spot_rgb[1] = 0;
-	on_spot_rgb[2] = 0;
+//	vector<int> on_spot_rgb(3);
+//	on_spot_rgb[0] = 255;
+//	on_spot_rgb[1] = 0;
+//	on_spot_rgb[2] = 0;
 
 	
-
-	std::vector<int> loc = world_to_view(where, rgb_sx, rgb_sy, point);
 
 	if ( distance > default_threshold )
 		{ return; }
@@ -548,25 +540,63 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 		size = on_spot_size;
 		rgb = on_spot_rgb;
 	}
-		
-	for (int d = -size; d <= size; d++)
-	{
-		float current_horizontal_r = pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + RADDR];
-		float current_horizontal_g = pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + GADDR];
-		float current_horizontal_b = pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + BADDR];
 
-		float current_vertical_r = pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + RADDR];
-		float current_vertical_g = pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + GADDR];
-		float current_vertical_b = pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + BADDR];
-		
-		pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + RADDR] = rgb[0] * alpha + current_horizontal_r * (1 - alpha);
-		pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + GADDR] = rgb[1] * alpha + current_horizontal_g * (1 - alpha);
-		pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + BADDR] = rgb[2] * alpha + current_horizontal_b * (1 - alpha);
-				
-		pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + RADDR] = rgb[0] * alpha + current_vertical_r * (1 - alpha);
-		pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + GADDR] = rgb[1] * alpha + current_vertical_g * (1 - alpha);
-		pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + BADDR] = rgb[2] * alpha + current_vertical_b * (1 - alpha);     
+	std::vector<int> loc = world_to_view(where, rgb_sx, rgb_sy, point);
+	
+	// Vertical
+	if ( loc[0] >= 0 && loc[0] <= rgb_sx )
+	{
+		for (int d = -size; d <= size; d++)
+		{
+			if ( loc[1] + d >= 0 && loc[1] + d <= rgb_sy )
+			{	
+				float current_vertical_r = pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + RADDR];
+				float current_vertical_g = pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + GADDR];
+				float current_vertical_b = pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + BADDR];
+								
+				pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + RADDR] = rgb[0] * alpha + current_vertical_r * (1 - alpha);
+				pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + GADDR] = rgb[1] * alpha + current_vertical_g * (1 - alpha);
+				pixels[RGBpixmap_bytesperpixel * (loc[0]+rgb_sx*(loc[1]+d)) + BADDR] = rgb[2] * alpha + current_vertical_b * (1 - alpha);
+			}
+		}
 	}
+
+	// Horizontal
+	if ( loc[1] >= 0 && loc[1] <= rgb_sy )
+	{								
+		for (int d = -size; d <= size; d++)
+		{
+			if ( loc[0] + d >= 0 && loc[0] + d <= rgb_sx )
+			{
+				float current_horizontal_r = pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + RADDR];
+				float current_horizontal_g = pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + GADDR];
+				float current_horizontal_b = pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + BADDR];
+
+				pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + RADDR] = rgb[0] * alpha + current_horizontal_r * (1 - alpha);
+				pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + GADDR] = rgb[1] * alpha + current_horizontal_g * (1 - alpha);
+				pixels[RGBpixmap_bytesperpixel * (loc[0]+d+rgb_sx*loc[1]) + BADDR] = rgb[2] * alpha + current_horizontal_b * (1 - alpha);
+			}
+		}
+	}
+
+	//where->refresh_viewports();	// remove if not needed
 }
+
+//AF
+//void rendererMPR::draw_slice_locators()
+//{
+//	std::vector<int> combination_ids = rendermanagement.combinations_from_data(imageID);
+//	std::vector<int> renderer_ids = rendermanagement.renderers_from_combinations(combination_ids);
+//
+//	for ( std::vector<int>::iterator itr = renderer_ids.begin(); itr != renderer_ids.end(); itr++ )
+//	{ 
+//		rendergeometry * geometry = rendermanagement.get_geometry(*itr);				
+//		Vector3D at = geometry->look_at;
+//		
+//		std::cout << "at: " << at << std::endl;
+//	}
+//	
+//	
+//}
 
 

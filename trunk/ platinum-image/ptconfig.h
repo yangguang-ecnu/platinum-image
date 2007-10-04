@@ -33,6 +33,7 @@
 //#include "configfile.h"
 #include "Utilities/configfile/configfile.h"
 #include "fileutils.h"
+#include "error.h"
 
 #define DEFAULT_CONFIG_FILE "pt_settings.inp"
 

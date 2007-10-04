@@ -85,13 +85,21 @@ class rendermanager
 
         int get_geometry_id(int rendererIndex);                 //get id of geometry object associated with
                                                                 //renderer rendererIndex
+		//AF														
+		rendergeometry * get_geometry (int ID);
+																
         void combination_update_callback (int c_id);
         std::vector<int> combinations_from_data (int dataID);    //return any combinations containing the data object with dataID
 
 		//AF
-		std::vector<int> renderers_from_combinations(std::vector<int> & combination_ids);
-
+		int renderer_from_combination(const int combination_id) const; // return a renderer id from a combination id
 		
+		//AF
+		std::vector<int> renderers_from_combinations(const std::vector<int> & combination_ids);	// return a set of renderer ids from a set of combination ids
+		
+		//AF
+		std::vector<int> renderers_with_images () const;
+				
         void geometry_update_callback (int g_id);
 
         int image_rendered(int rendererIndex, int volID);  //pass-through for checking if

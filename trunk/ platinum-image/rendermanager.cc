@@ -25,6 +25,7 @@
 #include "rendererMPR.h"
 #include "rendererMIP.h"
 #include "viewmanager.h"
+#include "rendercombination.h"
 
 rendermanager rendermanagement;
 extern viewmanager viewmanagement;
@@ -112,21 +113,51 @@ vector<int> rendermanager::combinations_from_data (int dataID)
 
     return found_combinations;
     }
+
+
+//AF
+int rendermanager::renderer_from_combination(const int combination_id) const
+{
+	for ( std::vector<renderer_base*>::const_iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
+	{
+		if ( (*itr)->combination_id() == combination_id )
+			{ return (*itr)->get_id(); }
+	}
+	return -1;	
+}
 	
 //AF
-std::vector<int> rendermanager::renderers_from_combinations(std::vector<int> & combination_ids)
+std::vector<int> rendermanager::renderers_from_combinations(const std::vector<int> & combination_ids)
 {
 	std::vector<int> renderer_ids;
+	
+	for ( std::vector<int>::const_iterator itr = combination_ids.begin(); itr != combination_ids.end(); itr++ )
+		{ renderer_ids.push_back( renderer_from_combination(*itr) ); }
+		
+    return renderer_ids;
+}
 
-	for ( std::vector<int>::iterator citr = combination_ids.begin(); citr != combination_ids.end(); citr++ )
+//AF
+std::vector<int> rendermanager::renderers_with_images() const
+{
+	std::vector<int> renderers;
+
+	for ( std::vector<rendercombination *>::const_iterator itr = combinations.begin(); itr != combinations.end(); itr++ )
 	{
-		for ( std::vector<renderer_base*>::iterator ritr = renderers.begin(); ritr != renderers.end(); ritr++ )
-		{
-			if ( (*ritr)->combination_id() == *citr )
-				{ renderer_ids.push_back((*ritr)->get_id()); }
+		if ( !(*itr)->empty() )
+		{	// the rendercombination is not empty
+		
+//			for ( std::vector<renderpair>::const_iterator rpitr = (*itr)->begin(); rpitr != (*itr)->end(); rpitr++ )
+//			{ 
+//				if ( dynamic_cast<image_base* >( (*rpitr)->pointer ) )
+//				{	// it is an image
+//					renderers.push_back( renderer_from_combination( (*itr)->get_id() ) );
+//				}
+//			}
 		}
 	}
-    return renderer_ids;
+	
+	return renderers;
 }
 
 factoryIdType rendermanager::get_renderer_type (int ID)
@@ -147,6 +178,12 @@ int rendermanager::get_geometry_id(int rendererIndex)
     {
     return renderers[rendererIndex]->wheretorender->get_id();
     }
+	
+//AF
+rendergeometry * rendermanager::get_geometry (int ID)
+{
+	return get_renderer(ID)->wheretorender;
+}
 
 void rendermanager::listrenderers()
     {
