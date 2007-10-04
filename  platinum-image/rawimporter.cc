@@ -621,8 +621,6 @@ void rawimporter::cb_rawimportok_i(Fl_Return_Button* o, void*)
             {
             case 8:
                 {
-                bool fewValues;
-
                 if (!is_signed)
                     {
                     unsigned long datasize = 0;

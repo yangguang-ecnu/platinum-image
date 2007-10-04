@@ -108,7 +108,8 @@ void FLTKuserIOpar_filepath::browse_button_cb(Fl_Widget *callingwidget, void *)
 {
 //	cout<<"browse_button_cb..."<<endl;
 
-	Fl_File_Chooser fc(".","Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
+	string last_path = pt_config::read<string>("latest_path");
+	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
     fc.show();
     while(fc.shown())
         { Fl::wait(); }
@@ -122,6 +123,7 @@ void FLTKuserIOpar_filepath::browse_button_cb(Fl_Widget *callingwidget, void *)
 	//the callingwidget will always be the load_button
 	FLTKuserIOpar_filepath* fp = (FLTKuserIOpar_filepath*)callingwidget->parent();
 	fp->control->value(fc.value());
+	pt_config::write("latest_path",path_parent(fc.value()));
 }
 
 

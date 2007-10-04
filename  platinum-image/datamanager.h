@@ -42,6 +42,7 @@
 
 //#include "point_base.h"
 #include "datawidget.h"
+#include "ptconfig.h"
 //#include "image_base.h"
 
 enum imageFileType {UNKNOWN_TYPE=-1, VTK_TYPE, DICOM_TYPE};

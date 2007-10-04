@@ -42,6 +42,9 @@
 #include "list_visuals.cxx"
 #endif
 
+#include "ptconfig.h"
+#include "fileutils.h"
+
 /*int platinum_run (int argc, char *argv[])
 {
 ////
@@ -181,4 +184,26 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     
     window.resizable(viewsNlists);
     window.end();
+
+
+	//------------------------------------------
+	//JK - Load Platinum Settings from XML-file...
+
+	pt_config::initialize();
+//	cout<<"price="<<pt_config::read<float>("price")<<endl;
+//	pt_config::write("price",27.27);
+//	cout<<"price="<<pt_config::read<float>("price")<<endl;
+
+/*
+//	system("dir");
+	if(file_exists("pt_settings.inp")){
+		ConfigFile cf = ConfigFile("pt_settings.inp", "=", "//");
+//		std::cout<<"Platinum settings-->"<<cf.read<string>("title")<<std::endl;
+//		cf.save_to_file("pt_settings_saved.inp");
+
+		cf.update_value_in_file<string>("pt_settings.inp","title","new_title");
+		cf.update_value_in_file<float>("pt_settings.inp","price",7.777);
+	}
+*/
+
     }

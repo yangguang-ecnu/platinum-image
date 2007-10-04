@@ -162,7 +162,7 @@ bool does_string_end_with(std::string s, std::string ending)
 
 bool remove_file_lastname(std::string &s, int max_no_lastname_chars)
 {
-	int last = s.find_last_of(".");
+	unsigned int last = s.find_last_of(".");
 	std::cout<<"last="<<s.find_last_of(".")<<std::endl;
 	std::cout<<"size="<<s.size()<<std::endl;
 	if( last >= (s.size() -max_no_lastname_chars -1) )

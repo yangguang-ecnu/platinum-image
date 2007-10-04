@@ -234,8 +234,9 @@ float points_seq_func1D<KEY_TYPE, VALUE_TYPE>::get_value_interp_spline(float thi
 	float *x = new float[themap.size()+2];
 	float *y = new float[themap.size()+2];
 
-	int i;	//Note: i -- index 1...n used in Numerical Recipies...
-	for (i=1, the_iterator = themap.begin(); the_iterator != themap.end(); the_iterator++, i++) 
+//	int i;	//Note: i -- index 1...n used in Numerical Recipies...
+	the_iterator = themap.begin();
+	for(int i=1; the_iterator != themap.end(); the_iterator++, i++) 
 	{
 		x[i] = float(the_iterator->first);
 		y[i] = float(the_iterator->second);
