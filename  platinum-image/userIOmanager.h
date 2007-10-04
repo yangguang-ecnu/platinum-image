@@ -99,7 +99,8 @@ class userIOmanager
 
         std::vector<FLTKuserIOpar_histogram2D *> get_histogram_for_image (int imageID);
 		
-		void set_landmark(int userIO_ID, int index, Vector3D v);				//AF
+		//AF
+		void set_landmark(int userIO_ID, int index, Vector3D v);
     };
 
 template <class ptype>

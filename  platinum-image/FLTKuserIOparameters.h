@@ -237,6 +237,8 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 {
 	protected:
 		Fl_Hold_Browser * control;
+        Fl_Button * open_button;
+		Fl_Button * new_button;		
 		std::vector<std::string> landmark_names;
 		std::vector<std::string> option_names;
 		std::string resolve_string(int index);
@@ -244,6 +246,8 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 	public:
 		FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, const int landmarks_id);
 
+		static void open_callback(Fl_Widget *callingwidget, void *);
+		static void new_callback(Fl_Widget *callingwidget, void *);
 		static void browser_callback(Fl_Widget *callingwidget, void *);
 
 		const std::string type_name();

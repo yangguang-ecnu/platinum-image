@@ -394,7 +394,7 @@ void cursor_tool::cb_make(Fl_Widget*, void* p)
 {    
     if (selection != NULL)
         {
-        int rendererID = selectionOwner->myPort->get_renderer_id();		//AF - Changed the variable name from renderer to rendererID
+        int rendererID = selectionOwner->myPort->get_renderer_id();
         datamanagement.add(selection);
 
         rendermanagement.connect_data_renderer(rendererID,selection->get_id());

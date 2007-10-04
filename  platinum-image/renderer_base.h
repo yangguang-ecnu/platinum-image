@@ -55,8 +55,8 @@ public:
 protected:
     int identitet;
     
-    int imagestorender_id;
-    int wheretorender_id;
+    int imagestorender_id;	// rendergeometry id
+    int wheretorender_id;	// rendercombination id
     
     image_base *get_imagepointer(int imageindex);
     

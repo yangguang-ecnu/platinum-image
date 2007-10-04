@@ -47,12 +47,16 @@ class rendererMPR : public renderer_base
         static void render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry * where,rendercombination * what,thresholdparvalue * threshold);
 
 		//AF
-		static void draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D  point);
+		static void draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D  point, std::vector<int>);
+		
+		//AF
+		//static void draw_slice_locators();
+
 
     public:
 
-        void connect_image(int vHandlerID); //add image to rendering combination
-        int renderer_type();                        //return RENDERER_MPR
+        void connect_image(int vHandlerID);	//add image to rendering combination
+        int renderer_type(); //return RENDERER_MPR
 
         static void render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID);
         void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold);

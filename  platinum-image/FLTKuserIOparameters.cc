@@ -193,21 +193,30 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks(const std::string name, const s
 	option_names = o_names;
 
 	control = new Fl_Hold_Browser(x(),y(),w(),4*STDPARWIDGETHEIGHT-PARTITLEMARGIN);
-
 	control->callback(browser_callback, (void *)landmarks_id);
-	//control->when(...)	
-	
 	control->textsize(12);
+	//control->when(...)		
 	
 	//int widths[] = { 50, 50, 0 };
 	//control->column_widths(widths);
 	//control->column_char('\t');
 	//control->type(FL_HOLD_BROWSER);
 			
+	int button_width = 50;
+
+			
+	open_button = new Fl_Button(x()+w()-button_width,y()+170,button_width,PARTITLEMARGIN,"Open model...");
+	open_button->callback(open_callback);
+	//open_button->labelsize(9);
+	//open_button->argument(OPEN);
+
+	new_button = new Fl_Button(x()+w()-button_width,y()+200,button_width,PARTITLEMARGIN,"New set of landmarks");
+	new_button->callback(new_callback);
+	//new_button->labelsize(9);
+	//new_button->argument(CLEAR);
+
 	
 //	for ( std::vector<Vector3D>::iterator itr = l->begin(); itr != l->end(); itr++) { }
-
-	//std::string s;
 	for (unsigned int i = 0; i < landmark_names.size(); i++)
 	{
 		control->add(resolve_string(i).c_str());
@@ -221,65 +230,66 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks(const std::string name, const s
 
 }
 
-
-void FLTKuserIOpar_landmarks::browser_callback(Fl_Widget *callingwidget, void * landmark_id_pointer)
+void FLTKuserIOpar_landmarks::open_callback(Fl_Widget *callingwidget, void * foo)
 {
-	int image_id = -1;
+	std::cout << "open model..." << std::endl;
+}
 
-    userIO * userIO_block = (userIO *)callingwidget->parent()->parent();
-	
-	for (int c = 0; c < userIO_block->children(); c++)
-	{	
-		FLTKuserIOpar_image * image_par;
-		if ( image_par = dynamic_cast<FLTKuserIOpar_image *>(userIO_block->child(c)) )
-		{
-			image_par->par_value(image_id);
-			break;
-		}
-	}
-			
-			
-	Vector3D point;
+void FLTKuserIOpar_landmarks::new_callback(Fl_Widget *callingwidget, void * foo)
+{
+	std::cout << "New set of landmarks" << std::endl;
+	// remove the present point_colection and open a new (or just clear the present?)
+}
 
-	point_collection * points = dynamic_cast<point_collection *>(datamanagement.get_data((int) landmark_id_pointer));
+void FLTKuserIOpar_landmarks::browser_callback(Fl_Widget *callingwidget, void * landmarks_id_pointer)
+{
+	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data((int) landmarks_id_pointer) );
 	
 	int index = ((Fl_Hold_Browser*)callingwidget)->value();
+	points->set_active(index);
 	
+	Vector3D point;
 	try
 	{
-		point = points->get_point(index); 
+		viewmanagement.show_point(points->get_point(index), (int) landmarks_id_pointer);
 	}
-	catch(out_of_range) { return; }			// Threre is no point with that index
-	
-	
-	
-	//image_base * top = rendermanagement.get_combination(myRenderer->combination_id())->top_image());
-
-	
-	std::vector<int> combination_ids = rendermanagement.combinations_from_data(image_id);
-
-	std::vector<int> renderer_ids = rendermanagement.renderers_from_combinations(combination_ids);
-
-	for ( std::vector<int>::iterator itr = renderer_ids.begin(); itr != renderer_ids.end(); itr++ )
-	{ 
-		// float zoom = renderer_base::display_scale / max_norm (size);
-		
-		rendermanagement.set_geometry(*itr, point); 
-	}
+	catch(out_of_range) { return; }			// There is no point at that index
 }
 
 std::string FLTKuserIOpar_landmarks::resolve_string(int index)
 {
-
-	// OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS! OBS!
-	// lös detta med sprintf i stället! strömmens information om formatering försvinner ändå
-	// när den castas till const char *!!
+	const unsigned int name_width = 50;
+	const unsigned int option_width = 15;
+	const unsigned int space_width = 3;
 	
-
 	
-	const int name_width = 40;
-	const int option_width = 15;
-	const int space_width = 3;
+	std::string name_and_option;
+	std::string nameX;
+	std::string optionX;
+	
+	if ( landmark_names.at(index).size() > name_width )
+	{
+		nameX = landmark_names.at(index).substr(0, name_width - 3) + "...";
+	}
+	else
+	{
+		nameX = landmark_names.at(index);
+		nameX.resize(name_width, ' ');
+	}
+	
+	if ( option_names.at(index).size() > option_width )
+	{
+		optionX = option_names.at(index).substr(0, option_width - 3) + "...";
+	}
+	else
+	{
+		optionX = option_names.at(index);
+		optionX.resize(option_width, ' ');
+	}
+	
+	
+	name_and_option = nameX + " - " +  optionX;
+	
 
 	ostringstream name;
 	name.setf(ios::left); 
@@ -292,11 +302,8 @@ std::string FLTKuserIOpar_landmarks::resolve_string(int index)
 	option.width(option_width);
 	option << option_names.at(index).substr(0, option_width - space_width);
 	
-	
-	//std::cout << name.str() << option.str() << std::endl;
-	
-	return name.str() + option.str();
 
+	return name_and_option;
 
 //	return landmark_names.at(index).substr(0, 15) + " - " + option_names.at(index).substr(0, 20);
 }
@@ -314,7 +321,8 @@ void FLTKuserIOpar_landmarks::par_value(landmarksIDtype &v)
 void FLTKuserIOpar_landmarks::set(int index, Vector3D v)
 {
 	std::ostringstream oss;
-	oss << resolve_string(index-1) << " " << v;			// the first index of the Fl_Hold_Browser is 1
+	oss.setf ( ios::fixed );
+	oss << resolve_string(index-1) << " " << setprecision(1) << v;			// the first index of the Fl_Hold_Browser is 1 but is 0 for thes string vector 
 
 	
 	control->text(index, oss.str().c_str());

@@ -65,7 +65,7 @@ private:
         static int new_rc_ID;   //unique id to assign newly created combinations
         blendmode blend_mode_;
 public:
-            rendercombination();
+		rendercombination();
         typedef std::list<renderpair>::const_iterator iterator;
         rendercombination(int ID);  //constructor that populates
                                     //the renderdata array 

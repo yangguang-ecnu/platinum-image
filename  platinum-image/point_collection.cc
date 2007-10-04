@@ -24,6 +24,7 @@ point_collection::point_collection() : data_base()
 {
     //start empty
     widget=new datawidget<point_collection>(this,"Untitled point");
+	active = -1;
 }
 
 //AF
@@ -41,18 +42,16 @@ point_collection::pointStorage::iterator point_collection::end()
 //AF
 void point_collection::add(pointStorage::mapped_type point)
 {
-	if ( thePoints.empty() )
-	{
-		thePoints[1] = point;
-		std::cout << "thePoints is empty" << std::endl;
-	}
-	else
+	pointStorage::key_type index = 1;
+	
+	if ( !thePoints.empty() )
 	{
 		pointStorage::reverse_iterator riter;
 		riter = thePoints.rbegin();
-		std::cout << "riter->first: "<< riter->first << std::endl;
-		thePoints[riter->first + 1] = point;
+		index = riter->first + 1;
 	}
+	
+	add_pair (index, point);
 }
 
 //AF
@@ -72,64 +71,19 @@ point_collection::pointStorage::mapped_type point_collection::get_point (int i)
 	{
 		throw out_of_range("Unvalid key");
 	}
-
 }
 
-
+//AF
+void point_collection::set_active(int a)
+{
+	active = a;
+}
 
 //AF
-//void point_collection::set_point (pointStorage::key_type index, pointStorage::mapped_type point)
-//{
-//	pointStorage::mapped_type & p = thePoints[index];
-//	p = point;
-//}
-
-//AF
-//int point_collection::size()
-//{
-//	return thePoints.size();
-//}
-
-//AF
-//void point_collection::save_to_file (const std::string)
-//{
-//	//TODO: implement a solution that uses iterators
-//
-//	std::cout << "save_to_file is not implemented yet";
-//
-//}
-
-
-
-//#pragma mark *** landmark_collection ***
-
-//AF
-//landmark_collection::landmark_collection()
-//{
-//	std::cout << "landmark_collection" << std::endl;
-//
-//    // widget=new datawidget<point_collection>(this,"Untitled point");
-//
-//	// vet inte om jag behöver ovanstående...
-//	// landmark_collection ärver ju av point_collection och är därmed av den typen
-//	// så därför borde det räcka med att den raden finns i konstruktorn för point_collection
-//	// om det nu räcker så behöver jag inte lägga till någon extra metod  datawidget.cc
-//	// möjligtvis så måste jag lägga till :point_collection()
-//	// vet inte om det behövs eller om defaultkonstruktorn för den klassen jag ärver ifrån
-//	// automatiskt körs
-//	// -> prova genom att lägga till en std::cout i point_collection-konstruktorn
-//}
-//
-//point_collection::pointStorage::iterator landmark_collection::begin()
-//{
-//	return pointStorage::iterator(landmarkdata.begin());
-//}
-//
-//point_collection::pointStorage::iterator landmark_collection::end()
-//{
-//	return pointStorage::iterator(thePoints.end());
-//}
-
+int point_collection::get_active()
+{
+	return active;
+}
 
 void point_collection::save_histogram_to_txt_file(const std::string filename, const std::string separator)
     {

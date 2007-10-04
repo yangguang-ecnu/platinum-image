@@ -93,7 +93,7 @@ stringmatrix::~stringmatrix()
 string stringmatrix::get(int r, int c)
 {
 	string ret="";
-	if(r>=0 && c>=0 && unsigned int(r)<rows() && unsigned int(c)<cols())
+	if(r>=0 && c>=0 && (unsigned int)(r)<rows() && (unsigned int)(c)<cols())
 	{
 		ret = data[r][c];
 	}

@@ -147,10 +147,10 @@ std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,
     world_to_view_matrix = g->view_to_world_matrix(vmin).GetInverse();
     
     toView=world_to_view_matrix*(toView-g->look_at);
-    
-    view.push_back(toView[0]+sx/2);
-    view.push_back(toView[1]+sy/2);
-        
+    	
+    view.push_back(round(toView[0]+sx/2.0));
+    view.push_back(round(toView[1]+sy/2.0));
+
     return view;
 }
 
@@ -163,7 +163,7 @@ std::map<std::string,float> renderer_base::get_values_view(int vx, int vy,int sx
 {
     //virtual function, MSVC gets hickups without namespace spec however :(
     return renderer_base::get_values_world(view_to_world(vx,vy,sx,sy));
-    }
+}
 
 std::map<std::string,float> renderer_base::get_values_world(Vector3D worldPos) const
 {
