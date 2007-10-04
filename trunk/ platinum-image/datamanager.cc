@@ -101,7 +101,8 @@ void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdataman
     datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
     int image_index=((datamanager*)thisdatamanager)->find_data_index(the_datawidget->get_data_id());
 
-    Fl_File_Chooser chooser(".","Visualization Toolkit image (*.vtk)",Fl_File_Chooser::CREATE,"Save VTK image");
+	string last_path = pt_config::read<string>("latest_path");
+	Fl_File_Chooser chooser(last_path.c_str(),"Visualization Toolkit image (*.vtk)",Fl_File_Chooser::CREATE,"Save VTK image");
     chooser.ok_label("Save") ;
     chooser.preview(false); 
     chooser.show();
@@ -115,6 +116,7 @@ void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdataman
     }
 
     ((datamanager*)thisdatamanager)->dataItems[image_index]->save_to_VTK_file(chooser.value(1));
+	pt_config::write("latest_path",path_parent(chooser.value(1)));
     }
 
 
@@ -123,7 +125,8 @@ void datamanager::save_hist_callback(Fl_Widget *callingwidget, void * thisdatama
     datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
     int image_index=((datamanager*)thisdatamanager)->find_data_index(the_datawidget->get_data_id());
 
-    Fl_File_Chooser chooser(".","Histogram text file (*.txt)",Fl_File_Chooser::CREATE,"Save Histogram");
+	string last_path = pt_config::read<string>("latest_path");
+	Fl_File_Chooser chooser(last_path.c_str(),"Histogram text file (*.txt)",Fl_File_Chooser::CREATE,"Save Histogram");
     chooser.ok_label("Save") ;
     chooser.preview(false); 
     chooser.show();
@@ -137,6 +140,7 @@ void datamanager::save_hist_callback(Fl_Widget *callingwidget, void * thisdatama
     }
 
     ((datamanager*)thisdatamanager)->dataItems[image_index]->save_histogram_to_txt_file(chooser.value(1)); //ööö
+	pt_config::write("latest_path",path_parent(chooser.value(1)));
     }
 
 
@@ -345,7 +349,10 @@ void datamanager::loadimage_callback(Fl_Widget *callingwidget, void *thisdataman
 
 void datamanager::loadimages() // argument must tell us which instance, if multiple
     {
-    Fl_File_Chooser chooser(".","Any file - raw (*)\tVisualization Toolkit image (*.vtk)\tTyped DICOM file (*.dcm)\tAnalyze .hdr image (*.hdr)\tAnalyze .obj image (*.obj)",Fl_File_Chooser::MULTI,"Load VTK/DICOM image");
+	string last_path = pt_config::read<string>("latest_path");
+	cout<<"last_path="<<last_path<<endl;
+	Fl_File_Chooser chooser(last_path.c_str(),"Any file - raw (*)\tVisualization Toolkit image (*.vtk)\tTyped DICOM file (*.dcm)\tAnalyze .hdr image (*.hdr)\tAnalyze .obj image (*.obj)",Fl_File_Chooser::MULTI,"Load VTK/DICOM image");
+	cout<<"last_path="<<last_path<<endl;
 
     chooser.show();
 
@@ -367,9 +374,11 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
         files.push_back(std::string(chooser.value(t)));
         }
 
+
     if (!files.empty())
         {  
         image_base::load(files);
+		pt_config::write("latest_path",path_parent(files[0]));
         }
     }
 
