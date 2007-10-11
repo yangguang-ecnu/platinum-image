@@ -37,5 +37,5 @@ The viewporttool instance can store things like past drag coordinates or a selec
 
 ==Some classes that inherits from viewporttool==
  * viewporttool
-  * nav_tool
-   * cursor_tool
+  * nav_tool - zoom, pan, scroll, shows the pixel value
+   * cursor_tool - set point, shows the view coordinates
