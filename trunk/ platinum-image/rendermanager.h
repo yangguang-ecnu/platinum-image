@@ -35,6 +35,7 @@
 #include "rendergeometry.h"
 #include "renderer_base.h"
 
+
 #include "global.h"
 
 //-1 is used as empty status value (when the renderer could not be found),
@@ -96,6 +97,9 @@ class rendermanager
 		
 		//AF
 		std::vector<int> renderers_from_combinations(const std::vector<int> & combination_ids);	// return a set of renderer ids from a set of combination ids
+		
+		//AF
+		int renderer_from_geometry(const int geometry_id) const;	 // return a renderer id from a geometry id
 		
 		//AF
 		std::vector<int> renderers_with_images () const;

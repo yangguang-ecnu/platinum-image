@@ -25,7 +25,6 @@
 #include "rendererMPR.h"
 #include "rendererMIP.h"
 #include "viewmanager.h"
-#include "rendercombination.h"
 
 rendermanager rendermanagement;
 extern viewmanager viewmanagement;
@@ -125,6 +124,17 @@ int rendermanager::renderer_from_combination(const int combination_id) const
 	}
 	return -1;	
 }
+
+//AF
+int rendermanager::renderer_from_geometry(const int geometry_id) const
+{
+	for ( std::vector<renderer_base*>::const_iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
+	{
+		if ( (*itr)->geometry_id() == geometry_id )
+			{ return (*itr)->get_id(); }
+	}
+	return -1;	
+}
 	
 //AF
 std::vector<int> rendermanager::renderers_from_combinations(const std::vector<int> & combination_ids)
@@ -146,17 +156,15 @@ std::vector<int> rendermanager::renderers_with_images() const
 	{
 		if ( !(*itr)->empty() )
 		{	// the rendercombination is not empty
-		
-//			for ( std::vector<renderpair>::const_iterator rpitr = (*itr)->begin(); rpitr != (*itr)->end(); rpitr++ )
-//			{ 
-//				if ( dynamic_cast<image_base* >( (*rpitr)->pointer ) )
-//				{	// it is an image
-//					renderers.push_back( renderer_from_combination( (*itr)->get_id() ) );
-//				}
-//			}
+			for ( std::list<rendercombination::renderpair>::const_iterator rpitr = (*itr)->begin(); rpitr != (*itr)->end(); rpitr++ )
+			{ 
+				if ( dynamic_cast<image_base* >( (rpitr)->pointer ) )
+				{	// it is an image
+					renderers.push_back( renderer_from_combination( (*itr)->get_id() ) );
+				}
+			}
 		}
 	}
-	
 	return renderers;
 }
 

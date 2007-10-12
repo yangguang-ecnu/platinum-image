@@ -55,8 +55,8 @@ public:
 protected:
     int identitet;
     
-    int imagestorender_id;	// rendergeometry id
-    int wheretorender_id;	// rendercombination id
+    int imagestorender_id;	// rendercombination id
+    int wheretorender_id;	// rendergeometry id
     
     image_base *get_imagepointer(int imageindex);
     
@@ -95,9 +95,12 @@ public:
     
     rendergeometry * wheretorender;                 //lookat and direction vectors for rendering
     void connect_geometry (rendergeometry *);       //attach a certain geometry to this renderer
-    int combination_id();
-    void connect_combination (rendercombination *);
-    
+    int combination_id();    
+	void connect_combination (rendercombination *);
+	
+	//AF
+	int geometry_id() const;
+	
 #pragma mark *** rendering & data interaction ***
     
     virtual void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)

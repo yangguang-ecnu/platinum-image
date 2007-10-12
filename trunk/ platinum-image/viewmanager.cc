@@ -445,7 +445,7 @@ int viewmanager::viewport_from_renderer(int renderer_id)
 
 
 //AF
-const viewport * viewmanager::get_viewport(int viewport_id)
+const viewport * const viewmanager::get_viewport(int viewport_id)
 {
 	int viewport_index = find_viewport_index(viewport_id);
 	
@@ -471,7 +471,7 @@ void viewmanager::show_point(const Vector3D & point, const int dataID, const uns
 		Vector3D at = geometry->look_at;
 
 		const int viewport_id = viewmanagement.viewport_from_renderer(*itr);
-		const viewport * vp = viewmanagement.get_viewport(viewport_id);
+		const viewport * const vp = viewmanagement.get_viewport(viewport_id);
 		
 		const int sx = vp->pixmap_size()[0];
 		const int sy = vp->pixmap_size()[1];

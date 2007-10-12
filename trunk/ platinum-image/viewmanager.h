@@ -91,7 +91,7 @@ class viewmanager
 		int viewport_from_renderer(int); // return a viewport id
 		
 		//AF
-		const viewport * get_viewport(int viewport_id);	// return a viewport
+		const viewport * const get_viewport(int viewport_id);	// return a viewport
 		
 		//AF
 		void show_point(const Vector3D & point, const int dataID, const unsigned int margin = 5);	// shows a point in all viewports that has the

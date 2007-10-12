@@ -207,28 +207,49 @@ void nav_tool::init()
 
 void nav_tool::handle(viewport_event &event)
 {
+
+	FLTKviewport * fvp = event.get_FLTK_viewport();
+
     if ( event.state() == pt_event::begin)
-        {
+	{
         event.grab();
-        
+        		
         //get pointer to renderer
         renderer = rendermanagement.get_renderer( myPort->get_renderer_id());
 
         dragLast[0] = event.mouse_pos_global()[0];
         dragLast[1] = event.mouse_pos_global()[1];
-        }
+		
+		//AF
+		if ( event.type() == pt_event::focus )
+		{
+			image_base * top;
+			if ( top = rendermanagement.get_combination(renderer->combination_id())->top_image() )
+			{	// there is an image in current viewport
+			
+				// The coordinate of the mouse pointer in the current viewport is shown in the other viewports
+				// (if there is an image in the viewport).
+				// TODO: implement a drop-down menu for each viewport where the user can set which viewports it should connect with.
+	
+				std::vector<int> mouse2d = event.mouse_pos_local();
+				Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
+				viewmanagement.show_point(mouse3d, top->get_id());
+			}
+		}
+
+    }
     
     if (!event.handled())
         {
+
         const int * pms = myPort->pixmap_size();
         int viewSize = std::min(pms[0],pms[1]);
         //const float pan_factor=renderer_base::display_scale/(std::min(pms[0],pms[1]));
         const int * mouse = event.mouse_pos_global();
-        
-        FLTKviewport * fvp = event.get_FLTK_viewport();
-        
+                
         switch (event.type())
             {
+			
             case pt_event::browse:
                 if ( event.state() == pt_event::iterate)
                     {
@@ -248,7 +269,7 @@ void nav_tool::handle(viewport_event &event)
                     myRenderer->move_view(viewSize,0,0,0,1+(mouse[1]-dragLast[1])*zoom_factor);
                     
                     fvp->needs_rerendering();
-                    }
+                    }					
                 break;
                 
             case pt_event::scroll:
