@@ -27,6 +27,7 @@
 #include "rendererMPR.h"
 #include "viewmanager.h"	//AF
 #include "rendermanager.h"	//AF
+//#include "image_scalar.h" //AF
 
 #define MAXRENDERVOLUMES 50
 
@@ -470,25 +471,16 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 		}
 	
 	}//point rendering loop
-    
 	
-	
-	std::vector<int> test = rendermanagement.renderers_with_images();
-	for ( std::vector<int>::const_iterator itr = test.begin(); itr != test.end(); itr++ )
-	{
-		std::cout << *itr << " - ";
-	}
-	std::cout << std::endl;	
-	
-	
-	
+	draw_slice_locators(pixels, rgb_sx, rgb_sy, where);
+
 }//render_ function
 
 
 
 
-void rendererMPR::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int w, int h, int rgb_sx, int value){
-
+void rendererMPR::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int w, int h, int rgb_sx, int value)
+{
     for (int rgb_y=y; rgb_y < y+h; rgb_y++){
 
         for (int rgb_x=x; rgb_x < x+w; rgb_x++){
@@ -503,7 +495,7 @@ void rendererMPR::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int
 
         }
 
-    }
+}
 
 //AF
 void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D point, std::vector<int> on_spot_rgb)
@@ -578,25 +570,192 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 			}
 		}
 	}
-
-	//where->refresh_viewports();	// remove if not needed
 }
 
 //AF
-//void rendererMPR::draw_slice_locators()
-//{
-//	std::vector<int> combination_ids = rendermanagement.combinations_from_data(imageID);
-//	std::vector<int> renderer_ids = rendermanagement.renderers_from_combinations(combination_ids);
-//
-//	for ( std::vector<int>::iterator itr = renderer_ids.begin(); itr != renderer_ids.end(); itr++ )
-//	{ 
-//		rendergeometry * geometry = rendermanagement.get_geometry(*itr);				
-//		Vector3D at = geometry->look_at;
-//		
-//		std::cout << "at: " << at << std::endl;
-//	}
-//	
-//	
-//}
+void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry * where)
+{
+	std::vector<rendergeometry *> geometries;
+
+	std::vector<int> renderers = rendermanagement.renderers_with_images();	
+	
+	for ( std::vector<int>::iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
+	{ 
+		rendergeometry * geometry = rendermanagement.get_geometry(*itr);
+			
+		if ( where->get_id() != geometry->get_id() )
+		{	// not the "active" one
+//			if ( where->get_N() != geometry->get_N()  || where->get_N() != -geometry->get_N() )
+//			{ // neither parallell or in opposite direction of each other 
+				geometries.push_back(geometry);
+//			}
+		}
+		
+	}
+	
+	renderer_base * renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(where->get_id()) );
+	
+	int smin = std::min(sx, sy);
+	
+	Vector3D vmin = renderer->view_to_world(smin, 0, sx, sy) - renderer->view_to_world(0, 0, sx, sy);
+	float vmin_norm = sqrt(vmin[0]*vmin[0] + vmin[1]*vmin[1] + vmin[2]*vmin[2]); // Euclidean norm	
+	
+	Vector3D a = where->get_N();
+
+	Vector3D zeros;
+	zeros[0] = 0;
+	zeros[1] = 0;
+	zeros[2] = 0;
+
+
+	for ( std::vector<rendergeometry *>::iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
+	{
+	
+		
+		Vector3D b = (*itr)->get_N();
+		
+		// cross product axb
+		Vector3D c;
+		c[0] = a[1]*b[2] - a[2]*b[1];
+		c[1] = a[2]*b[0] - a[0]*b[2];
+		c[2] = a[0]*b[1] - a[1]*b[0];
+
+		if ( c != zeros )
+		{	// neither parallell or in opposite direction of each other 
+
+			
+			float c_norm = sqrt ( c[0]*c[0] + c[1]*c[1] + c[2]*c[2] );
+	
+			float factor = vmin_norm / c_norm;
+
+			c[0] = c[0] * (factor / 2);
+			c[1] = c[1] * (factor / 2);
+			c[2] = c[2] * (factor / 2);
+
+
+			std::vector<int> p = world_to_view(where, sx, sy, (*itr)->look_at);	// determine the position of one of the "other" planes in the active viewport
+			std::vector<int> v = world_to_view(where, sx, sy, c + (*itr)->look_at);
+			
+
+			int dx = abs ( p[0] - v[0] );
+			int dy = abs ( p[1] - v[1] );
+
+			std::vector<int> begin(2);
+			std::vector<int> end(2);
+
+			if ( dx == 0 )
+			{	// a vertical line
+				begin[0] = p[0];
+				begin[1] = 0;
+				end[0] = p[0];
+				end[1] = sy;
+			}
+			else if ( dy == 0 )
+			{	// a horizontal line
+				begin[0] = 0;
+				begin[1] = p[1];
+				end[0] = sx;
+				end[1] = p[1];
+			}
+			else 
+			{
+				// TODO: solve with equations instead
+			
+				int t = 0;
+				while ( (p[0] + t * v[0]) >= 0 && (p[0] + t * v[0]) <= sx && (p[1] + t * v[1]) >= 0  && (p[1] + t * v[1]) <= sy)
+				{
+					t++;
+				}
+
+				begin[0] = p[0] + t * v[0];
+				begin[1] = p[1] + t * v[0];
+
+				t = 0;
+				while ( (p[0] + t * v[0]) >= 0 && (p[0] + t * v[0]) <= sx && (p[1] + t * v[1]) >= 0  && (p[1] + t * v[1]) <= sy)
+				{
+					t--;
+				}
+
+				end[0] = p[0] + t * v[0];
+				end[1] = p[1] + t * v[0];
+
+			}
+			
+			
+			vector<int> line_color(3);
+			line_color[0] = 0;
+			line_color[1] = 255;
+			line_color[2] = 0;
+
+			draw_line(pixels, sx, sy, begin[0], begin[1], end[0], end[1], line_color);
+
+	
+			viewmanagement.refresh_viewports_from_geometry((*itr)->get_id());
+		}
+		
+		//viewmanagement.refresh_viewports_from_geometry(where->get_id());
+	}			
+}
+
+int rendererMPR::sgn (long a)
+{
+	if (a > 0)
+		{ return +1; }
+	else if (a < 0) 
+		{ return -1; }
+	else
+		{ return 0; }
+}
+	
+void rendererMPR::draw_line(uchar *pixels, int sx, int sy, int a, int b, int c, int d,  std::vector<int> color)
+{
+	long u, s, v, d1x, d1y, d2x, d2y, m, n;
+	int  i;
+	
+	u = c - a;
+	v = d - b;
+	
+	d1x = sgn(u);
+	d1y = sgn(v);
+	
+	d2x = sgn(u);
+	d2y = 0;
+	
+	m = abs(u);
+	n = abs(v);
+	
+	if ( m <= n )
+	{
+		d2x = 0;
+		d2y = sgn(v);
+		m = abs(v);
+		n = abs(u);
+	}
+	
+	s = (int) (m / 2);
+	
+	for ( i=0; i < round(m); i++ )
+	{
+		if ( a >= 0 && a <= sx && b >= 0 && b <= sy )
+		{	// inside the viewport
+			pixels[RGBpixmap_bytesperpixel * (a + sx * b) + RADDR] = color[0];
+			pixels[RGBpixmap_bytesperpixel * (a + sx * b) + GADDR] = color[1];
+			pixels[RGBpixmap_bytesperpixel * (a + sx * b) + BADDR] = color[2]; 
+		}  
+	
+		s += n;
+		if (s >= m)
+		{
+		  s -= m;
+		  a += d1x;
+		  b += d1y;
+		}
+		else 
+		{
+		  a += d2x;
+		  b += d2y;
+		}
+	}
+}
 
 

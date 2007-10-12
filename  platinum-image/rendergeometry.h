@@ -61,8 +61,11 @@ class rendergeometry
 		
 		//AF
 		float distance_to_viewing_plane(Vector3D point);
+
+		//AF
+		Vector3D get_N();	// return normal vector
 		
 		//AF
-		Vector3D get_n();
+		Vector3D get_n();	// return unit normal vector
 	};
 #endif

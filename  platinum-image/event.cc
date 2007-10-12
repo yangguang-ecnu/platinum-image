@@ -147,6 +147,13 @@ void FLTK_event::set_type ()
     if(state & FL_BUTTON3 || (state & FL_BUTTON1) && (state & FL_ALT) )
         //if (Fl::event_state(FL_BUTTON3) ||  (Fl::event_state() & ~(FL_BUTTON1 | FL_ALT)))
         { type_ = create; }
+		
+	//AF
+	if ( Fl::event_clicks() > 0 )
+	{	//  Fl::event_clicks returns non-zero if the most recent FL_PUSH or FL_KEYBOARD was a "double click"
+		type_ = focus;
+		Fl::event_clicks(0);	// set it to zero so that later code does not think an item was double-clicked
+	}
 }
 
 FLTK_event::FLTK_event (FLTKviewport * fvp) : pt_event ()

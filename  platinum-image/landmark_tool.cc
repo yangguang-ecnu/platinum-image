@@ -40,10 +40,10 @@ void landmark_tool::init()
 
 void landmark_tool::handle(viewport_event &event)
 {
-	std::vector<int> mouse = event.mouse_pos_local();
+	std::vector<int> mouse2d = event.mouse_pos_local();
 	
     FLTKviewport * fvp = event.get_FLTK_viewport();
-	Vector3D mouse3d = myRenderer->view_to_world(mouse[0], mouse[1], fvp->w(), fvp->h());
+	Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
 		
 	switch (event.type())
 	{	
@@ -109,10 +109,27 @@ void landmark_tool::handle(viewport_event &event)
 			}
 		break;	
 		
+		// This event is handled exactly the same as in nav_tool but the code has to be duplicated here because there is no
+		// break after the pt_event::scroll in nav_tool and therefore the pt_event::hover is handled there if this event is
+		// not taken care of here.
+		case pt_event::scroll:
+			if ( event.state() == pt_event::iterate)
+			{
+				const int * pms = myPort->pixmap_size();
+				int viewSize = std::min(pms[0],pms[1]);
+
+				event.grab();
+				
+				myRenderer->move_view(viewSize,0,0,event.scroll_delta()*wheel_factor);
+				
+				fvp->needs_rerendering();
+			}
+			//NOTE: no break, update hovering also
+
 		case pt_event::hover:
 			event.grab();	
 
-			Vector3D pos = myRenderer->view_to_world(mouse[0], mouse[1], fvp->w(), fvp->h());			
+			Vector3D pos = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());			
 
 			std::ostringstream oss;
 			oss.setf ( ios::fixed );

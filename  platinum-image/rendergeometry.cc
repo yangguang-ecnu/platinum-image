@@ -58,12 +58,12 @@ float rendergeometry::distance_to_viewing_plane(Vector3D point)
 	// distance to viewing plane
 	// http://www.math.umn.edu/~nykamp/m2374/readings/planedist/index.html
 
-	Vector3D n = get_n();
-
 	Vector3D v;
 	v[0] = point[0] - look_at[0] ;
 	v[1] = point[1] - look_at[1] ;
 	v[2] = point[2] - look_at[2] ;
+
+	Vector3D n = get_n();
 
 	float distance = sqrt( pow((v[0]*n[0] + v[1]*n[1] + v[2]*n[2]), 2) );
 	
@@ -71,21 +71,27 @@ float rendergeometry::distance_to_viewing_plane(Vector3D point)
 }
 
 //AF
-Vector3D rendergeometry::get_n()
+Vector3D rendergeometry::get_N()
 {
 	Vector3D direction;
 	direction[0] = 0;
 	direction[1] = 0;
 	direction[2] = 1;
 
-	Vector3D N = dir * direction; 
+	return dir * direction;
+}
 
-	float N_magnitude = sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
+//AF
+Vector3D rendergeometry::get_n()
+{
+	Vector3D N = get_N();
+
+	float N_norm = sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);		// Euclidean norm
 
 	Vector3D n;
-	n[0] = N[0] / N_magnitude;
-	n[1] = N[1] / N_magnitude;
-	n[2] = N[2] / N_magnitude;
+	n[0] = N[0] / N_norm;
+	n[1] = N[1] / N_norm;
+	n[2] = N[2] / N_norm;
 	
 	return n;
 }

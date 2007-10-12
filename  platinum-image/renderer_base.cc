@@ -52,6 +52,12 @@ int renderer_base::combination_id()
     {
     return imagestorender_id;
     }
+	
+//AF
+int renderer_base::geometry_id() const
+{
+	return wheretorender_id;
+}
 
 void renderer_base::look_at(float x, float y, float z,float zoom)
     {
@@ -146,7 +152,7 @@ std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,
     Matrix3D world_to_view_matrix;
     world_to_view_matrix = g->view_to_world_matrix(vmin).GetInverse();
     
-    toView=world_to_view_matrix*(toView-g->look_at);
+    toView = world_to_view_matrix * (toView - g->look_at);
     	
     view.push_back(round(toView[0]+sx/2.0));
     view.push_back(round(toView[1]+sy/2.0));
