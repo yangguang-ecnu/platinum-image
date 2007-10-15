@@ -91,7 +91,7 @@ datawidget_base::datawidget_base(data_base * d, std::string n):Fl_Pack(0,0,270,1
     o->selection_color(FL_BACKGROUND_COLOR);
     o->labeltype(FL_NO_LABEL);
     o->labelfont(FL_HELVETICA_BOLD);
-//    o->labelfont(0);//ööö
+//    o->labelfont(0);
     o->labelsize(14);
     o->labelcolor(FL_FOREGROUND_COLOR);
     o->align(FL_ALIGN_TOP);

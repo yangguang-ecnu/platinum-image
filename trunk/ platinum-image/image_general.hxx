@@ -33,12 +33,19 @@
 #include "itkImageRegionIterator.h"	//most basic, fastest pixel order...
 #include "itkGDCMImageIO.h"
 #include "itkGDCMSeriesFileNames.h"
+
 #include "itkImageSeriesReader.h"
 #include "itkDICOMImageIO2.h"
 #include "itkDICOMSeriesFileNames.h"
 #include "itkVTKImageIO.h"
 #include "itkImageSliceIteratorWithIndex.h"
 #include "itkStatisticsImageFilter.h"
+
+#include "itkDICOMImageIO2Factory.h"
+//#include "itkDICOMImageIO2.h"
+//#include "itkImageSeriesReader.h"
+//#include "itkDICOMSeriesFileNames.h"
+
 
 //#define RENDER_ORTHOGONALLY_ONLY
 

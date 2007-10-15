@@ -238,6 +238,20 @@ void image_storage<ELEMTYPE >::scale(float factor, ELEMTYPE old_center, ELEMTYPE
 
 
 template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::map_values(ELEMTYPE map_from, ELEMTYPE map_to, ELEMTYPE result_value)
+	{
+	typename image_storage<ELEMTYPE>::iterator i = this->begin();
+	while (i != this->end())
+		{
+		if(*i>=map_from && *i<=map_to){
+			*i = result_value;
+		}
+		++i;
+		}
+	}
+
+
+template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_number_of_voxels_with_value(ELEMTYPE val)
 	{
 		iterator i = this->begin();

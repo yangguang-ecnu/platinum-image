@@ -120,7 +120,7 @@ class image_base : public data_base
         Vector3D get_origin() const;
         void set_origin(const Vector3D v);
 
-		void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");//ööö
+		void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
 
     };
 

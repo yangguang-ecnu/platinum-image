@@ -768,42 +768,34 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, const std::string separator) //ööö
+void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, const std::string separator)
 	{
 		cout<<"save_histogram_to_txt_file..."<<endl;
 		cout<<this->stats<<endl;
-//		this->min_max_refresh();
-//		this->stats->calculate();
-//		this->stats->print_histogram_content();
 		pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
 		this->stats->save_histogram_to_txt_file(filename,separator);
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity, int scale_x, int scale_y)
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity, int scale_a, int scale_b)
 {
-	if(scale_x<=0){	scale_x = this->get_max(); }
-	if(scale_y<=0){	scale_y = second_image->get_max(); }
+	if(scale_a<=0){	scale_a = this->get_max(); }
+	if(scale_b<=0){	scale_b = second_image->get_max(); }
 
-	image_scalar<ELEMTYPE, IMAGEDIM> *hist = new image_scalar<ELEMTYPE, IMAGEDIM>(scale_x,scale_y,1);
+	image_scalar<ELEMTYPE, IMAGEDIM> *hist = new image_scalar<ELEMTYPE, IMAGEDIM>(scale_a,scale_b,1);
 	hist->fill(0);
 
 	if(!this->same_size(second_image)){
 		pt_error::error("image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram - image size not equal",pt_error::warning);
 
 	}else{
-		ELEMTYPE vx;
-		ELEMTYPE vy;
 		int this_x;
 		int this_y;
 		for(int z=0; z<this->datasize[2]; z++){
 			for(int y=0; y<this->datasize[1]; y++){
 				for(int x=0; x<this->datasize[0]; x++){
-					vx = this->get_voxel(x,y,z);
-					vy = second_image->get_voxel(x,y,z);
-					this_x = vx*float(scale_x)/this->get_max_float();
-					this_y = vy*float(scale_y)/second_image->get_max_float();
-
+					this_x = this->get_voxel(x,y,z)*float(scale_a)/this->get_max_float();
+					this_y = second_image->get_voxel(x,y,z)*float(scale_b)/second_image->get_max_float();
 					hist->set_voxel(this_x,this_y,0,hist->get_voxel(this_x,this_y,0)+1);
 				}
 			}
@@ -816,8 +808,72 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhist
 	return hist;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir, bool remove_zero_intensity, int scale_a, int scale_b){
 
+	if(scale_a<=0){	scale_a = this->get_max(); }
+	if(scale_b<=0){	scale_b = second_image->get_max(); }
 
+	image_scalar<ELEMTYPE, IMAGEDIM> *hist;
+
+	if(!this->same_size(second_image)){
+		pt_error::error("image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram - image size not equal",pt_error::warning);
+		return NULL;
+	}else{
+		int this_a;
+		int this_b;
+
+		if(hist_slc_dir==2){
+			hist = new image_scalar<ELEMTYPE, IMAGEDIM>(scale_a,scale_b,this->datasize[2]);
+			hist->fill(0);
+			for(int z=0; z<this->datasize[2]; z++){
+				for(int y=0; y<this->datasize[1]; y++){
+					for(int x=0; x<this->datasize[0]; x++){
+						this_a = this->get_voxel(x,y,z)*float(scale_a-1)/this->get_max_float();
+						this_b = second_image->get_voxel(x,y,z)*float(scale_b-1)/second_image->get_max_float();
+						hist->set_voxel(this_a,this_b,z, hist->get_voxel(this_a,this_b,z)+1);
+					}
+				}
+			}
+		}else if(hist_slc_dir==1){
+			hist = new image_scalar<ELEMTYPE, IMAGEDIM>(scale_a,scale_b,this->datasize[1]);
+			hist->fill(0);
+			for(int z=0; z<this->datasize[2]; z++){
+				for(int y=0; y<this->datasize[1]; y++){
+					for(int x=0; x<this->datasize[0]; x++){
+						this_a = this->get_voxel(x,y,z)*float(scale_a-1)/this->get_max_float();
+						this_b = second_image->get_voxel(x,y,z)*float(scale_b-1)/second_image->get_max_float();
+						hist->set_voxel(this_a,this_b,y, hist->get_voxel(this_a,this_b,y)+1);
+					}
+				}
+			}
+		}else if(hist_slc_dir==0){
+			hist = new image_scalar<ELEMTYPE, IMAGEDIM>(scale_a,scale_b,this->datasize[0]);
+			hist->fill(0);
+			for(int z=0; z<this->datasize[2]; z++){
+				for(int y=0; y<this->datasize[1]; y++){
+					for(int x=0; x<this->datasize[0]; x++){
+						this_a = this->get_voxel(x,y,z)*float(scale_a-1)/this->get_max_float();
+						this_b = second_image->get_voxel(x,y,z)*float(scale_b-1)/second_image->get_max_float();
+						hist->set_voxel(this_a,this_b,x, hist->get_voxel(this_a,this_b,x)+1);
+					}
+				}
+			}
+
+		}else{
+			pt_error::error("image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram - image directions nor recognized",pt_error::warning);	
+		}
+
+		if(remove_zero_intensity){
+			for(int z=0; z<hist->datasize[2]; z++){
+				hist->set_voxel(0,0,z,0);
+			}
+		}
+
+	hist->data_has_changed(true);
+	return hist;
+	}
+}
 
 
 

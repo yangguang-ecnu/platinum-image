@@ -28,8 +28,8 @@
 #ifndef __image_scalar__
 #define __image_scalar__
 
+#include <stack>
 #include "image_general.h"
-
 #include "Utilities/vxl/contrib/mil3d_trilin_interp_3d.h"
 //#include "Utilities/tricubic1.0.0/libtricubic/tricubic.h" (//http://www.lekien.com/~francois/software/tricubic/)
 
@@ -89,9 +89,13 @@ public:
 
 	void flip_voxel_data_3D(int direction);
 
-    void save_histogram_to_txt_file(const std::string filename, const std::string separator=";"); //ööö
+    void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
 
-    image_scalar<ELEMTYPE, IMAGEDIM>* create2Dhistogram(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_x=-1, int scale_y=-1); 
+    image_scalar<ELEMTYPE, IMAGEDIM>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
+
+	//the resulting histogram volume will have the intensities of first/second in the x/y directions.
+	//The z direction will gives the different 2D-histograms in the specified direction "hist_slc_dir"
+	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
 
 	// ------------------------ image_scalarprocess.hxx ------------------------------
 	// ---- file for very application specific implmentations ----
@@ -106,6 +110,7 @@ public:
 
 	void smooth_ITK(Vector3D radius); 
 	void smooth_3D(Vector3D radius); 
+	void region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 //	void medianFilter2D();
 //	void meanFilter();
 //	void discreteGaussFilter(double gaussianVariance,int maxKernelWidth);
