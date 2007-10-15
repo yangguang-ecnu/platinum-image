@@ -312,6 +312,54 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
 	this->meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
     }
 
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier)
+{
+	//ööö
+//  typedef itk::Image<unsigned short,5> ImageNDType;
+//  typedef itk::ImageSeriesReader<ImageNDType> ReaderType;
+
+	typedef itk::ImageSeriesReader<theImageType> ReaderType;
+
+	itk::DICOMImageIO2::Pointer io = itk::DICOMImageIO2::New();
+	itk::DICOMSeriesFileNames::Pointer names = itk::DICOMSeriesFileNames::New();
+	names->SetDirectory(dir_path.c_str());
+	  
+	ReaderType::Pointer reader = ReaderType::New();
+//	reader->SetFileNames(names->GetFileNames(seriesIdentifier));
+	//  reader->SetFileNames(names->GetFileNames());
+
+    std::vector<std::string> fileNames; 
+    fileNames = names->GetFileNames(seriesIdentifier);     
+	reader->SetFileNames(fileNames);
+
+
+	reader->SetImageIO(io);
+	std::cout << names;
+
+	//  FilterWatcher watcher(reader);
+
+	try{
+	//    if (1){reader->ReverseOrderOn();}
+		reader->Update();
+		reader->GetOutput()->Print(std::cout);
+	}catch (itk::ExceptionObject &ex){
+		std::cout << ex;
+	}
+
+	typename theImagePointer image = theImageType::New();
+	image = reader->GetOutput();
+	replicate_itk_to_image(image);
+
+    name("imported dcm");
+    this->from_file(true);
+	this->meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
+
+}
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir(std::string dir_path)
     {  

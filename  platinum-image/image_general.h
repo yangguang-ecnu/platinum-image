@@ -194,7 +194,8 @@ class image_general : public image_storage <ELEMTYPE >
         typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer                itk_image();
 
         void load_dataset_from_VTK_file(std::string file_path);
-        void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier);
+        void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier); //gdcm
+        void load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier);//itk-dcm
 		void load_dataset_from_all_DICOM_files_in_dir(std::string dir_path);
 
         void save_to_VTK_file(const std::string file_path);

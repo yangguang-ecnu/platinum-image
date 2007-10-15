@@ -151,6 +151,56 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 }
 
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
+{
+	image_scalar<ELEMTYPE, IMAGEDIM> *res = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0);
+	res->fill(0);
+	res->set_voxel(seed[0],seed[1],seed[2],255);
+
+	int sx = this->datasize[0];
+	int sy = this->datasize[1];
+	int sz = this->datasize[2];
+	stack<Vector3D> s;
+	s.push(seed);
+	Vector3D pos;
+	Vector3D pos2;
+	ELEMTYPE val;
+	char c;
+
+	for(int i=0; i < s.size(); i++ ){
+		cout<<"i="<<i<<endl;
+//		cin>>c;
+		pos = s.top();
+		val = this->get_voxel(pos[0],pos[1],pos[2]);
+		cout<<"val="<<val<<" ("<<pos<<")"<<endl;
+
+		if(val>=min_intensity && val<=max_intensity){
+
+			for(int x=std::max(0,int(pos[0]-1)); x<std::min(int(pos[0]+1),sx); x++){
+				for(int y=std::max(0,int(pos[1]-1)); y<std::min(int(pos[1]+1),sy); y++){
+					for(int z=std::max(0,int(pos[2]-1)); z<std::min(int(pos[2]+1),sz); z++){
+						val = this->get_voxel(x,y,z);
+						cout<<"val2="<<val<<endl;
+						if(val>=min_intensity && val<=max_intensity && res->get_voxel(x,y,z)==0){
+							pos2[0]=x; pos2[1]=y; pos2[2]=z;
+							cout<<"*** add_pos2="<<pos2<<endl;
+							s.push(pos2);
+							res->set_voxel(x,y,z,255);
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	cout<<"region_grow_3D --> Done..."<<endl;
+	cout<<"s.size()="<<s.size()<<endl;
+	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
+}
+
+
 /*
 typedef itk::MedianImageFilter<theImageType, theImageType>					theMedianFilterType;
 typedef theMedianFilterType::Pointer										theMedianFilterPointer;
