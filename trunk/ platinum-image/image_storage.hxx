@@ -226,7 +226,7 @@ void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)
 	}
 
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::scale(float factor, ELEMTYPE old_center, ELEMTYPE new_center)
+void image_storage<ELEMTYPE >::scale_by_factor(float factor, ELEMTYPE old_center, ELEMTYPE new_center)
 	{
 	typename image_storage<ELEMTYPE>::iterator i = this->begin();
 	while (i != this->end())
@@ -264,6 +264,95 @@ float image_storage<ELEMTYPE >::get_number_of_voxels_with_value(ELEMTYPE val)
 		return nr;
 	}
 
+template <class ELEMTYPE >
+bool image_storage<ELEMTYPE >::same_size(image_storage<ELEMTYPE> *const image2)
+{
+	return (this->num_elements == image2->num_elements)?true:false;
+}
+
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, COMBINE_MODE mode)
+{
+	cout<<"Combine...";
+	if(this->same_size(image2)){
+	    typename image_storage<ELEMTYPE>::iterator i = this->begin();
+	    typename image_storage<ELEMTYPE>::iterator i2 = image2->begin();
+
+		switch(mode)
+        {
+        case COMB_ADD:
+			cout<<"...ADD";
+			while(i != this->end())
+			{
+				*i = *i + *i2;
+				++i;
+				++i2;
+			}
+            break;
+
+        case COMB_SUB:
+			cout<<"...SUB";
+			while(i != this->end())
+			{
+				*i = *i - *i2;
+				++i;
+				++i2;
+			}
+            break;
+
+        case COMB_MULT:
+			cout<<"...MULT";
+			while(i != this->end())
+			{
+				*i = (*i)*(*i2);
+				++i;
+				++i2;
+			}
+            break;
+
+        case COMB_DIV:
+			cout<<"...DIV";
+			while(i != this->end())
+			{
+				if(*i2==0){
+					*i = 0;
+				}else{
+					*i = *i / *i2;
+				}
+				++i;
+				++i2;
+			}
+            break;
+
+        case COMB_MAX:
+			cout<<"...MAX";
+			while(i != this->end())
+			{
+				*i = std::max(*i,*i2);
+				++i;
+				++i2;
+			}
+            break;
+
+		case COMB_MIN:
+			cout<<"...MIN";
+			while(i != this->end())
+			{
+				*i = std::min(*i,*i2);
+				++i;
+				++i2;
+			}
+            break;
+
+		default:
+			pt_error::error("image_storage<ELEMTYPE >::combine --> COMBINE_TYPE not recognized",pt_error::debug);
+			break;
+		}
+		cout<<"...DONE"<<endl;
+	}else{
+		pt_error::error("image_storage<ELEMTYPE >::combine --> Not same size",pt_error::debug);
+	}
+}
 
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::stats_refresh(bool min_max_refresh)

@@ -102,6 +102,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 	cout<<"smooth_3D..."<<endl;
 	image_scalar<ELEMTYPE, IMAGEDIM> *res = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0);
 
+	res->fill(0); //not very time efficient... the outer borders would be enough...
+
 	if(r[0]>0 && r[1]>0 && r[2]>0)
 	{
 		float num_neighbours = (1+2*r[0])*(1+2*r[1])*(1+2*r[2]);
@@ -148,12 +150,16 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 	}
 
 	copy_data(res,this);
+	//JK shouldn't res be deleted...
+//	delete res
 }
 
+	
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
 {
+
 	image_scalar<ELEMTYPE, IMAGEDIM> *res = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0);
 	res->fill(0);
 	res->set_voxel(seed[0],seed[1],seed[2],255);
@@ -161,45 +167,122 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(Vector3D seed, ELEMTYPE mi
 	int sx = this->datasize[0];
 	int sy = this->datasize[1];
 	int sz = this->datasize[2];
+	cout<<sx<<" "<<sy<<" "<<sz<<endl;
+
 	stack<Vector3D> s;
 	s.push(seed);
 	Vector3D pos;
 	Vector3D pos2;
 	ELEMTYPE val;
-	char c;
 
-	for(int i=0; i < s.size(); i++ ){
-		cout<<"i="<<i<<endl;
-//		cin>>c;
+	while(s.size()>0){
 		pos = s.top();
+		s.pop();
 		val = this->get_voxel(pos[0],pos[1],pos[2]);
-		cout<<"val="<<val<<" ("<<pos<<")"<<endl;
 
-		if(val>=min_intensity && val<=max_intensity){
+//		if(val>=min_intensity && val<=max_intensity){
 
-			for(int x=std::max(0,int(pos[0]-1)); x<std::min(int(pos[0]+1),sx); x++){
-				for(int y=std::max(0,int(pos[1]-1)); y<std::min(int(pos[1]+1),sy); y++){
-					for(int z=std::max(0,int(pos[2]-1)); z<std::min(int(pos[2]+1),sz); z++){
+			for(int x=std::max(0,int(pos[0]-1)); x<=std::min(int(pos[0]+1),sx-1); x++){
+				for(int y=std::max(0,int(pos[1]-1)); y<=std::min(int(pos[1]+1),sy-1); y++){
+					for(int z=std::max(0,int(pos[2]-1)); z<=std::min(int(pos[2]+1),sz-1); z++){
 						val = this->get_voxel(x,y,z);
-						cout<<"val2="<<val<<endl;
+
 						if(val>=min_intensity && val<=max_intensity && res->get_voxel(x,y,z)==0){
 							pos2[0]=x; pos2[1]=y; pos2[2]=z;
-							cout<<"*** add_pos2="<<pos2<<endl;
 							s.push(pos2);
 							res->set_voxel(x,y,z,255);
 						}
+
 					}
 				}
 			}
 
-		}
 	}
 
-	cout<<"region_grow_3D --> Done..."<<endl;
-	cout<<"s.size()="<<s.size()<<endl;
-	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
+//	cout<<"region_grow_3D --> Done...(s.size()="<<s.size()<<")"<<endl;
+//	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
+//	cout<<"before..."<<endl;
+	copy_data(res,this);
+//	cout<<"before2..."<<endl;
+	delete res;
+//	cout<<"after..."<<endl;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity, int nr_accepted_neighbours, int radius)
+{
+	image_scalar<ELEMTYPE, IMAGEDIM> *res = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0);
+	res->fill(0);
+	res->set_voxel(seed[0],seed[1],seed[2],255);
+
+	image_scalar<ELEMTYPE, IMAGEDIM> *neighb = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0);
+	neighb->fill(0);
+
+	int sx = this->datasize[0];
+	int sy = this->datasize[1];
+	int sz = this->datasize[2];
+	cout<<sx<<" "<<sy<<" "<<sz<<endl;
+	int r = radius;
+
+	stack<Vector3D> s;
+	s.push(seed);
+	Vector3D pos;
+	Vector3D pos2;
+	ELEMTYPE val;
+	ELEMTYPE val2;
+	int nr_acc=0;
+
+	while(s.size()>0){
+		pos = s.top();
+		s.pop();
+		val = this->get_voxel(pos[0],pos[1],pos[2]);
+
+		if(val>=min_intensity && val<=max_intensity){
+
+			for(int x=std::max(0,int(pos[0]-1)); x<=std::min(int(pos[0]+1),sx-1); x++){
+				for(int y=std::max(0,int(pos[1]-1)); y<=std::min(int(pos[1]+1),sy-1); y++){
+					for(int z=std::max(0,int(pos[2]-1)); z<=std::min(int(pos[2]+1),sz-1); z++){
+						val = this->get_voxel(x,y,z);
+						if(val>=min_intensity && val<=max_intensity && res->get_voxel(x,y,z)==0){
+
+							//check number of accepted neighbours...
+							nr_acc=0;
+							for(int a=std::max(0,int(x-r)); a<=std::min(int(x+r),sx-1); a++){
+								for(int b=std::max(0,int(y-r)); b<=std::min(int(y+r),sy-1); b++){
+									for(int c=std::max(0,int(z-r)); c<=std::min(int(z+r),sz-1); c++){
+										val2 = this->get_voxel(a,b,c);
+										if(val2>=min_intensity && val2<=max_intensity){
+											nr_acc++;
+										}
+									}
+								}
+							}
+							neighb->set_voxel(x,y,z,nr_acc);
+
+							if(nr_acc>=nr_accepted_neighbours){
+								pos2[0]=x; pos2[1]=y; pos2[2]=z;
+								s.push(pos2);
+								res->set_voxel(x,y,z,255);
+							}
+
+						}//if
+					}//z
+				}//y
+			}//x
+
+		}//if val...
+	}//while
+
+//	cout<<"region_grow_robust_3D --> Done..."<<endl;
+//	cout<<"s.size()="<<s.size()<<endl;
+//	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
+//	neighb->save_to_VTK_file("c:\\Joel\\TMP\\region_grow_nr_acc.vtk");
+
+	copy_data(res,this);
+
+	delete res;
+	delete neighb;
+}
 
 /*
 typedef itk::MedianImageFilter<theImageType, theImageType>					theMedianFilterType;

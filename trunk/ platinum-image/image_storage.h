@@ -111,9 +111,12 @@ class image_storage : public image_base
         void erase();
 		void fill(ELEMTYPE value);
         void scale(ELEMTYPE new_min=0, ELEMTYPE new_max=255);   
-		void scale(float factor, ELEMTYPE old_center=0, ELEMTYPE new_center=0);
+		void scale_by_factor(float factor, ELEMTYPE old_center=0, ELEMTYPE new_center=0);
 		void map_values(ELEMTYPE map_from=1, ELEMTYPE map_to=255, ELEMTYPE result_value=255);
 		float get_number_of_voxels_with_value(ELEMTYPE val);
+		
+		bool same_size(image_storage<ELEMTYPE> *const image2); //checks the data size only... (not the dimension)
+		void combine(image_storage<ELEMTYPE> *const image2, COMBINE_MODE mode);
         // *** iterator ***        
         class iterator : public std::iterator<std::forward_iterator_tag, ELEMTYPE>
             {

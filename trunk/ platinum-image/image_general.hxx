@@ -1006,6 +1006,10 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, in
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE voxelvalue)
     {
+	//JK - uncomment these rows to detect writing outside allocated memory...
+	if(x<0||x>=datasize[0] || y<0||y>=datasize[1] || z<0||z>=datasize[2])
+		{cout<<"set_voxel-->x="<<x<<" y="<<y<<" z="<<z<<"..."<<endl;}
+
     this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
     }
 
