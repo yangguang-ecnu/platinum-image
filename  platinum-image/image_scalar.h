@@ -111,6 +111,7 @@ public:
 	void smooth_ITK(Vector3D radius); 
 	void smooth_3D(Vector3D radius); 
 	void region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
+	void region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
 //	void medianFilter2D();
 //	void meanFilter();
 //	void discreteGaussFilter(double gaussianVariance,int maxKernelWidth);

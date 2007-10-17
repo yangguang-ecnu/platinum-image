@@ -489,19 +489,23 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_uchar2D_to_TIF_file(const std::stri
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_path)
     {
-    typename theReaderType::Pointer r = theReaderType::New();
-    itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
+	if(file_exists(file_path)){
+		typename theReaderType::Pointer r = theReaderType::New();
+		itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
 
-    r->SetFileName(file_path.c_str());
+		r->SetFileName(file_path.c_str());
 
-    r->SetImageIO( VTKIO );
+		r->SetImageIO( VTKIO );
 
-    typename theImagePointer image = theImageType::New();
-    image = r->GetOutput();
-    r->Update();
-    typename theSizeType s = image->GetBufferedRegion().GetSize();
+		typename theImagePointer image = theImageType::New();
+		image = r->GetOutput();
+		r->Update();
+		typename theSizeType s = image->GetBufferedRegion().GetSize();
 
-    replicate_itk_to_image(image);
+		replicate_itk_to_image(image);
 
-    this->name_from_path (file_path);
+		this->name_from_path (file_path);
+	}else{
+		pt_error::error("image_general::load_dataset_from_VTK_file()--> file does not exist...",pt_error::debug);
+	}
     }
