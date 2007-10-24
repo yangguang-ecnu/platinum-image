@@ -109,6 +109,8 @@ Matrix3D matrix_generator::get_rot_z_matrix_3D(float fi)			//fi in radians
 //+fi_z rotates the image volume: "Counterclockwise" of the z-direction
 //+fi_y rotates the image volume: "Counterclockwise" of the y-direction
 //+fi_x rotates the image volume: "Counterclockwise" of the x-direction
+
+// Note that order of the angles are z, y and x!
 Matrix3D matrix_generator::get_rot_matrix_3D(float fi_z, float fi_y, float fi_x)	//fi_z/y/x in radians
 {
     return get_rot_z_matrix_3D(fi_z)*get_rot_y_matrix_3D(fi_y)*get_rot_x_matrix_3D(fi_x);

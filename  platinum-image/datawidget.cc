@@ -212,7 +212,7 @@ void datawidget_base::show_hide_edit_geometry()
 	if(geom_widget==NULL){
 		geom_widget = new FLTKgeom_image(data_id); //JK
 		extras->add(geom_widget);
-		geom_widget->hide();
+//		geom_widget->hide();	// unnecessary
 		geom_widget->show();
 	}else{
 		if(geom_widget->visible()){
@@ -221,6 +221,8 @@ void datawidget_base::show_hide_edit_geometry()
 			geom_widget->show();
 		}
 	}
+	
+	geom_widget->parent()->parent()->parent()->parent()->redraw();
 }
 
 
@@ -407,6 +409,7 @@ datawidget<point_collection>::datawidget (point_collection* p, std::string n): d
     featuremenu->menu(menu_featuremenu_base);
     
     //TODO: disable Save as VTK
+	//TODO: disable geometry edit
 }
 
 
@@ -416,15 +419,19 @@ datawidget<point_collection>::datawidget (point_collection* p, std::string n): d
 FLTKVector3D::FLTKVector3D(Vector3D v, int x, int y, int w, int h, const char *sx, const char *sy, const char *sz):Fl_Group(x,y,w,h)
 {
 	int dh = int(float(h)/3.0);
-	data_x = new Fl_Value_Input(x+7,y		,w-7,dh-2,sx);
-	data_y = new Fl_Value_Input(x+7,y+dh	,w-7,dh-2,sy);
-	data_z = new Fl_Value_Input(x+7,y+2*dh	,w-7,dh-2,sz);
+	const int margin = 15;
+	
+	data_x = new Fl_Value_Input(x + margin, y, w - margin, dh-2, sx);
+	data_y = new Fl_Value_Input(x + margin, y + dh, w - margin, dh-2, sy);
+	data_z = new Fl_Value_Input(x + margin, y + 2*dh, w - margin, dh-2, sz);
 
 	data_x->callback(vector_cb);	data_x->when(FL_WHEN_RELEASE);
 	data_y->callback(vector_cb);	data_y->when(FL_WHEN_RELEASE);
 	data_z->callback(vector_cb);	data_z->when(FL_WHEN_RELEASE);
 
 	value(v);
+	
+//	resizable(NULL);
 
 	end();
 }	
@@ -533,15 +540,30 @@ FLTKgeom_base::FLTKgeom_base(int id, int x, int y, int w, int h):Fl_Group(x,y,w,
 
 FLTKgeom_image::FLTKgeom_image(int id, int x, int y, int w, int h):FLTKgeom_base(id,x,y,w,h)
 {
-//	cout<<"origin="<<datamanagement.get_image(data_id)->get_origin()<<endl;
-	orig = new FLTKVector3D(datamanagement.get_image(data_id)->get_origin(),x,y,20,h,"x","y","z");
-	size = new FLTKVector3D(datamanagement.get_image(data_id)->get_voxel_size(),x+20,y,20,h,"dx","dy","dz");
-	orient = new FLTKMatrix3D(datamanagement.get_image(data_id)->get_orientation(),x+45,y,w-45,h);
 
+	// the sum of these should be <= w
+	const int orig_w = 80;
+	const int size_w = 40;
+	const int orient_w = 100;
+	const int rotation_w = 60;
+
+	orig = new FLTKVector3D(datamanagement.get_image(data_id)->get_origin(), x, y, orig_w, h, "x", "y", "z");
+	size = new FLTKVector3D(datamanagement.get_image(data_id)->get_voxel_size(), x + orig_w, y, size_w, h, "dx", "dy", "dz");
+	orient = new FLTKMatrix3D(datamanagement.get_image(data_id)->get_orientation(), x + orig_w + size_w, y, orient_w, h);
+	
+	start = datamanagement.get_image(data_id)->get_orientation();
+	
+	Vector3D r;
+	r.Fill(0);
+	rotation = new FLTKVector3D(r, x + orig_w + size_w + orient_w, y, rotation_w, h, "x", "y", "z");
+	
 	orig->callback(orig_update_cb);
 	size->callback(size_update_cb);
 	orient->callback(orient_update_cb);
-
+	rotation->callback(rotation_update_cb);
+		
+	resizable(NULL);
+	
 	end();
 }
 
@@ -567,6 +589,43 @@ void FLTKgeom_image::orient_update_cb(Fl_Widget *w, void*)
 	FLTKgeom_image *g = (FLTKgeom_image*)m->parent();
 	datamanagement.get_image(g->data_id)->set_orientation(m->value());
 	datamanagement.data_has_changed(g->data_id);
+}
+
+void FLTKgeom_image::rotation_update_cb ( Fl_Widget * w, void * )
+{
+	FLTKVector3D * v = dynamic_cast<FLTKVector3D *> ( w );
+	FLTKgeom_image * g = dynamic_cast<FLTKgeom_image *> ( v->parent() );
+
+	int nc = g->children();
+	
+	FLTKMatrix3D * matrix3d;
+	
+	for ( int c = 0; c < nc; c++ )
+	{
+		if ( matrix3d = dynamic_cast<FLTKMatrix3D *>( g->child(c) ) )
+			{ break; }
+	}
+	
+	Matrix3D m = matrix3d->value();
+	
+	Vector3D angle = v->value();
+	
+	// convert degrees to radians
+	angle *= ( M_PI / 180.0 );	
+	
+	matrix_generator mg;
+	m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * g->get_start();
+
+	matrix3d->value(m);
+	
+	datamanagement.get_image(g->data_id)->set_orientation(m);
+	datamanagement.data_has_changed(g->data_id);
+	
+}
+
+const Matrix3D FLTKgeom_image::get_start() const
+{
+	return start;
 }
 
 

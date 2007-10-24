@@ -51,7 +51,7 @@ image_base::image_base(image_base* const s):data_base(s)
     
     origin = s->get_origin();
     orientation = s->get_orientation();
-
+	
     name ("Copy of " + s->name());
     }
 
@@ -152,21 +152,21 @@ void image_base::save_histogram_to_txt_file(const std::string filename, const st
     }
 
 Vector3D image_base::world_to_voxel(const Vector3D wpos) const
-    {
-    Vector3D vPos = wpos - origin;
-    
-    Matrix3D rDir; 
-    rDir = get_orientation();
+{
+	Vector3D vPos = wpos - origin;
 
-    Vector3D size = get_physical_size();
-    vPos +=  rDir*(size/2);
+	Vector3D center_of_the_image = get_physical_size() / 2;
 
-    Matrix3D pSize;
-    pSize = get_voxel_resize().GetInverse();
-    vPos = pSize * vPos;
-    
+	Matrix3D inv_orientation;
+	inv_orientation = get_orientation().GetInverse();
+	
+	Matrix3D vSize;
+	vSize = get_voxel_resize().GetInverse();
+	
+	vPos = inv_orientation * vSize * vPos + center_of_the_image;	
+
     return vPos;
-    }
+}
 
 class vtkloader: public imageloader
 {

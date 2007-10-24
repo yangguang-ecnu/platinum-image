@@ -65,7 +65,7 @@ float rendergeometry::distance_to_viewing_plane(Vector3D point)
 
 	Vector3D n = get_n();
 
-	float distance = sqrt( pow((v[0]*n[0] + v[1]*n[1] + v[2]*n[2]), 2) );
+	float distance = sqrt( pow((v[0]*n[0] + v[1]*n[1] + v[2]*n[2]), 2) ); // change to ( v * n ).GetNorm(); and check that it is working
 	
 	return distance;
 }
@@ -86,12 +86,12 @@ Vector3D rendergeometry::get_n()
 {
 	Vector3D N = get_N();
 
-	float N_norm = sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);		// Euclidean norm
+//	float N_norm = sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);		// Euclidean norm
 
-	Vector3D n;
-	n[0] = N[0] / N_norm;
-	n[1] = N[1] / N_norm;
-	n[2] = N[2] / N_norm;
+//	Vector3D n;
+//	n[0] = N[0] / N_norm;
+//	n[1] = N[1] / N_norm;
+//	n[2] = N[2] / N_norm;
 	
-	return n;
+	return N / N.GetNorm();
 }

@@ -47,7 +47,9 @@ public:
 	virtual void get(string &v, string key_info)
 	{throw pt_error("metadata base --> " + type_name() + " did not match key: "+key_info, pt_error::serious);}
 
-	virtual string type_name()=0;
+	virtual string type_name() = 0;
+	
+	virtual string get_data_as_string ( std::string key )  =  0;
 };
 
 class base_int : public base
@@ -58,6 +60,9 @@ public:
 	void get(int &v, string key_info){	v = value;}
 	
 	string type_name(){return "INT";}
+	
+	//AF
+	std::string get_data_as_string ( std::string key );
 };
 
 class base_float : public base
@@ -68,6 +73,9 @@ public:
 	void get(float &v, string key_info){	v = value;}
 	
 	string type_name(){return "FLOAT";}
+
+	//AF
+	std::string get_data_as_string ( std::string key );
 };
 
 class base_string : public base
@@ -78,6 +86,9 @@ public:
 	void get(string &v, string key_info){v = value;}
 	
 	string type_name(){return "STRING";}
+
+	//AF
+	std::string get_data_as_string ( std::string key );
 };
 
 
@@ -116,13 +127,17 @@ public:
 */
 
 	void read_metadata_from_dcm_file(string dcm_file);
-	int get_dcm_parameter_as_int(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING);
-	float get_dcm_parameter_as_float(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING);
-	string get_dcm_parameter_as_string(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING);
 
 	float get_dx();
 	float get_flip();
+	
 	void print_all();
+	
+	//AF
+	string metadata::get_data_as_string ( std::string key );
+
+	//AF
+	std::string get_name();
 
 private:
 	void add_dcm_data_int(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG);
@@ -131,6 +146,10 @@ private:
 	void print_int(string key);
 	void print_float(string key);
 	void print_string(string key);
+
+	int get_dcm_parameter_as_int(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING);
+	float get_dcm_parameter_as_float(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING);
+	string get_dcm_parameter_as_string(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG_STRING);
 };
 
 #endif

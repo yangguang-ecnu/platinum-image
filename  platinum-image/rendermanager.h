@@ -87,7 +87,7 @@ class rendermanager
         int get_geometry_id(int rendererIndex);                 //get id of geometry object associated with
                                                                 //renderer rendererIndex
 		//AF														
-		rendergeometry * get_geometry (int ID);
+		rendergeometry * get_geometry (int ID);		// get rendergeometry from renderer id
 																
         void combination_update_callback (int c_id);
         std::vector<int> combinations_from_data (int dataID);    //return any combinations containing the data object with dataID
@@ -118,8 +118,8 @@ class rendermanager
         std::map<std::string,float> get_values (int rendererIndex, int px, int py,int sx, int sy);
         Vector3D get_location (int rendererIndex, int imageID, int px, int py, int sx, int sy);
 
-        void set_geometry(int renderer_index,Vector3D look_at,float zoom = 0);
-        void set_geometry(int renderer_ID,Matrix3D * dir);
+        void set_geometry(int renderer_index, Matrix3D * dir);
+        void set_geometry(int renderer_ID, Vector3D look_at,float zoom = 0);
 
         void set_blendmode(int rend_index,blendmode mode);   //sets combination-wide blend mode, if blendmode is later defined
                                                              //for each image in a combination, this should set all of them

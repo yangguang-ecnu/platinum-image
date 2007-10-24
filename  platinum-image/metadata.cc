@@ -58,6 +58,19 @@ int metadata::get_data_int(string key)
 	return s;
 }
 
+//AF
+string metadata::get_data_as_string ( std::string key )
+{
+	base * b = meta_map[key];
+	std::string s;
+	if ( b != NULL )
+		{ s = b->get_data_as_string( key ); }
+	else
+		{ pt_error::error ( "No metadata was found for key = " + key, pt_error::debug ); }
+		
+	return s;
+}
+
 float metadata::get_data_float(string key)
 {
 	float s=0;
@@ -145,6 +158,7 @@ void metadata::read_metadata_from_dcm_file(string dcm_file)
 		add_dcm_data_string(dcmIO,DCM_RECEIVE_COIL);
 		add_dcm_data_string(dcmIO,DCM_PHASE_ENCODING_DIRECTION);
 		add_dcm_data_string(dcmIO,DCM_PATIENT_POSITION);
+		add_dcm_data_string(dcmIO,DCM_PULSE_SEQUENCE_NAME);
 
 		add_dcm_data_int(dcmIO,DCM_SERIES_NUMBER);
 		add_dcm_data_int(dcmIO,DCM_ACQ_NUMBER);
@@ -201,7 +215,37 @@ float metadata::get_flip()
 	return get_data_float(DCM_FLIP);
 }
 
-
+//AF
+std::string metadata::get_name()
+{
+	std::vector<std::string> name;
+	
+	name.push_back( DCM_SCANNING_SEQ );
+	name.push_back( DCM_PROTOCOL_NAME );
+	name.push_back( DCM_TR );
+	name.push_back( DCM_TE );
+	name.push_back( DCM_FLIP );
+	name.push_back( DCM_PULSE_SEQUENCE_NAME );
+	name.push_back( DCM_STUDY_DESCRIPTION );
+	name.push_back( DCM_SERIES_DESCRIPTION );
+	name.push_back( DCM_PATIENT_BIRTH_DATE );
+		
+	stringstream namestring;
+	for ( std::vector<std::string>::iterator itr = name.begin(); itr != name.end(); itr++ )
+	{
+		std::string temp = get_data_as_string ( *itr );
+	
+		if ( itr != name.begin() )
+			{ namestring << "/"; }
+	
+		if ( temp != "" )
+			{ namestring << temp; }
+		else
+			{ namestring << "#"; }
+	}
+	
+	return namestring.str();
+}
 
 
 
@@ -252,6 +296,7 @@ void metadata::print_all()
 	print_string(DCM_RECEIVE_COIL);
 	print_string(DCM_PHASE_ENCODING_DIRECTION);
 	print_string(DCM_PATIENT_POSITION);
+	print_string(DCM_PULSE_SEQUENCE_NAME);
 
 	print_int(DCM_SERIES_NUMBER);
 	print_int(DCM_ACQ_NUMBER);
@@ -305,3 +350,26 @@ void metadata::print_string(string key)
 {
 	cout<<key<<" --> "<<get_data_string(key)<<endl;
 }
+
+//AF
+std::string base_int::get_data_as_string ( std::string key )
+{
+	stringstream ss;
+	ss << value;
+	return ss.str();
+}
+
+//AF
+std::string base_float::get_data_as_string ( std::string key )
+{
+	stringstream ss;
+	ss << value;
+	return ss.str();
+}
+
+//AF
+std::string base_string::get_data_as_string ( std::string key )
+{
+	return value;
+}
+
