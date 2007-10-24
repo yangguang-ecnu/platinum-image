@@ -622,6 +622,43 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
             dir[z][1]=-1;
             dir[x][2]=1;
             break;
+
+// "original"
+//        case AXIAL:
+//            dir[x][0]=1; //voxel direction of view x
+//            dir[y][1]=1; //voxel direction of view y
+//            dir[z][2]=1; //voxel direction of slicing
+//            break;
+//            
+//        case CORONAL:
+//            dir[x][0]=1;
+//            dir[z][1]=-1;
+//            dir[y][2]=1;
+//            break;
+//            
+//        case SAGITTAL:
+//            dir[y][0]=1;
+//            dir[z][1]=-1;
+//            dir[x][2]=1;
+//            break;
+//            
+//        case AXIAL_NEG:
+//            dir[x][0]=1;
+//            dir[y][1]=-1;
+//            dir[z][2]=-1;
+//            break;
+//            
+//        case CORONAL_NEG:
+//            dir[x][0]=-1;
+//            dir[z][1]=1;
+//            dir[y][2]=-1;
+//            break;
+//            
+//        case SAGITTAL_NEG:
+//            dir[y][0]=-1;
+//            dir[z][1]=-1;
+//            dir[x][2]=1;
+//            break;
     }
     
     Matrix3D * dir_p=new Matrix3D(dir);

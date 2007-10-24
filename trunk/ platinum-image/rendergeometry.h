@@ -52,12 +52,12 @@ class rendergeometry
         //obtain the actual rendering scale
 
         Vector3D look_at;           //center viewpoint, this will be the middle of the
-        //rendering and pivot point for the slice direction.
+									//rendering and pivot point for the slice direction.
         int get_id();
 
         void refresh_viewports();   //refresh viewports using this combination
 		
-		Matrix3D get_dir();
+		// Matrix3D get_dir();	// is not in use since dir is already public. why?
 		
 		//AF
 		float distance_to_viewing_plane(Vector3D point);

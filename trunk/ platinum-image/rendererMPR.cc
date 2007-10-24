@@ -169,7 +169,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
     Vector3D screen_center;
     
     screen_center[0]=rgb_sx; 
-    screen_center[1]=rgb_sy; 
+    screen_center[1]=rgb_sy;
     screen_center[2]=0;
     
     screen_center/=2;
@@ -260,9 +260,15 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             //derived from these
             
             //start position in image
-                  
-            voxel_offset[the_image] = the_image_pointer->world_to_voxel(where->look_at-((where->dir*screen_center)/(where->zoom*scale)));
+ 
+			Matrix3D revDir;
             
+            revDir = the_image_pointer->get_orientation().GetInverse();
+
+			Vector3D origin = the_image_pointer->get_origin();
+
+			voxel_offset[the_image] = the_image_pointer->world_to_voxel( where->look_at - ( (where->dir * screen_center) / (where->zoom * scale) ) );
+
             start = voxel_offset[the_image];
                         
             //set slope to size of render plane in unit coordinates
@@ -270,9 +276,6 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             Matrix3D slope;
             slope = the_image_pointer->get_voxel_resize().GetInverse();
             
-            Matrix3D revDir;
-            
-            revDir = the_image_pointer->get_orientation().GetInverse();
             slope = revDir * slope;
             
             slope/= where->zoom * scale;
@@ -595,17 +598,18 @@ void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeome
 	
 	renderer_base * renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(where->get_id()) );
 	
+	// increase the length of the vector to eliminate problems when convering from world to view coordinates (ie it becomes zero at certain scales) 
 	int smin = std::min(sx, sy);
-	
 	Vector3D vmin = renderer->view_to_world(smin, 0, sx, sy) - renderer->view_to_world(0, 0, sx, sy);
 	float vmin_norm = sqrt(vmin[0]*vmin[0] + vmin[1]*vmin[1] + vmin[2]*vmin[2]); // Euclidean norm	
 	
 	Vector3D a = where->get_N();
 
 	Vector3D zeros;
-	zeros[0] = 0;
-	zeros[1] = 0;
-	zeros[2] = 0;
+	zeros.Fill(0);
+//	zeros[0] = 0;
+//	zeros[1] = 0;
+//	zeros[2] = 0;
 
 
 	for ( std::vector<rendergeometry *>::iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
@@ -615,6 +619,7 @@ void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeome
 		Vector3D b = (*itr)->get_N();
 		
 		// cross product axb
+		// TODO: use the built-in cross product instead (itkVector.h)
 		Vector3D c;
 		c[0] = a[1]*b[2] - a[2]*b[1];
 		c[1] = a[2]*b[0] - a[0]*b[2];
@@ -627,7 +632,8 @@ void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeome
 			float c_norm = sqrt ( c[0]*c[0] + c[1]*c[1] + c[2]*c[2] );
 	
 			float factor = vmin_norm / c_norm;
-
+	
+			// TODO: use the built-in scalar operator instead (itkVector.h)
 			c[0] = c[0] * (factor / 2);
 			c[1] = c[1] * (factor / 2);
 			c[2] = c[2] * (factor / 2);
@@ -658,7 +664,7 @@ void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeome
 				end[1] = p[1];
 			}
 			else 
-			{
+			{	// calculate start and end point for the line to draw in the viewport
 				// TODO: solve with equations instead
 			
 				int t = 0;

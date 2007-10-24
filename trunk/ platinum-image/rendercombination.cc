@@ -75,7 +75,7 @@ bool rendercombination::empty() const
     return renderdata.empty();    
 }
 
-image_base* rendercombination::top_image ()const
+image_base* rendercombination::top_image () const
 {
     for (std::list<renderpair>::const_iterator itr = renderdata.begin();itr != renderdata.end();itr++)
         {

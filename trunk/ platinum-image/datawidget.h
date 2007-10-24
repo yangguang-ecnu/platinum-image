@@ -174,7 +174,7 @@ class FLTKgeom_base : public Fl_Group{
 protected:
     int data_id;  
 public:
-	FLTKgeom_base(int id, int x=0, int y=0, int w=100, int h=30);
+	FLTKgeom_base(int id, int x=0, int y=0, int w=280, int h=50);
 };
 
 /*
@@ -189,11 +189,18 @@ protected:
 	FLTKVector3D *orig;
 	FLTKVector3D *size;
 	FLTKMatrix3D *orient;
+	FLTKVector3D * rotation;
+	
+	Matrix3D start;
+	
 public:
 	static void orig_update_cb(Fl_Widget *w, void*);
 	static void size_update_cb(Fl_Widget *w, void*);
 	static void orient_update_cb(Fl_Widget *w, void*);
+	static void rotation_update_cb ( Fl_Widget * w, void * );
 	FLTKgeom_image(int id, int x=0, int y=0, int w=200, int h=70);
+	
+	const Matrix3D get_start() const;
 };
 
 #endif

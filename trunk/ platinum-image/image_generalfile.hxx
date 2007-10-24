@@ -317,7 +317,18 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier)
 {
-	//ööö
+//	 message from ITK/Examples/IO/DicomSeriesReadImageWrite.cxx
+//   
+//   The DICOM classes illustrated here are OBSOLETE and are
+//   scheduled for being removed from the toolkit.
+//
+//   Please refer to DicomSeriesReadImageWrite2.cxx instead, where the GDCM
+//   classes are used. GDCM classes are the ones currently recommended for
+//   performing reading and writing of DICOM images.
+
+
+
+
 //  typedef itk::Image<unsigned short,5> ImageNDType;
 //  typedef itk::ImageSeriesReader<ImageNDType> ReaderType;
 
@@ -327,7 +338,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::stri
 	itk::DICOMSeriesFileNames::Pointer names = itk::DICOMSeriesFileNames::New();
 	names->SetDirectory(dir_path.c_str());
 	  
-	ReaderType::Pointer reader = ReaderType::New();
+	typename ReaderType::Pointer reader = ReaderType::New();
 //	reader->SetFileNames(names->GetFileNames(seriesIdentifier));
 	//  reader->SetFileNames(names->GetFileNames());
 
@@ -353,9 +364,15 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::stri
 	image = reader->GetOutput();
 	replicate_itk_to_image(image);
 
-    name("imported dcm");
     this->from_file(true);
 	this->meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
+
+	std::cout << fileNames[0].c_str() << std::endl;
+	
+	this->name( this->meta.get_name() );
+	
+	//AF
+	this->read_geometry_from_dicom_file( fileNames[0].c_str() );
 
 }
 

@@ -222,13 +222,13 @@ void nav_tool::handle(viewport_event &event)
 		
 		//AF
 		if ( event.type() == pt_event::focus )
-		{
+		{		
 			image_base * top;
 			if ( top = rendermanagement.get_combination(renderer->combination_id())->top_image() )
 			{	// there is an image in current viewport
 			
 				// The coordinate of the mouse pointer in the current viewport is shown in the other viewports
-				// (if there is an image in the viewport).
+				// (if there is an image (the top image) in the viewport).
 				// TODO: implement a drop-down menu for each viewport where the user can set which viewports it should connect with.
 	
 				std::vector<int> mouse2d = event.mouse_pos_local();
@@ -324,9 +324,24 @@ void nav_tool::handle(viewport_event &event)
                         break;
                         
                     }
-                break;        
+                break;
+
             case pt_event::key:
                 
+				//AF
+				if ( event.key_combo(pt_event::space_key) )
+				{
+					event.grab();
+	
+					renderer = rendermanagement.get_renderer( myPort->get_renderer_id());
+
+					image_base * top;
+					if ( top = rendermanagement.get_combination(renderer->combination_id())->top_image() )
+					{	// there is an image in current viewport			
+						viewmanagement.fit_image ( renderer->get_id(), top );
+					}
+				}
+				
                 if (event.key_combo(pt_event::pageup_key))
                     {
                     event.grab();

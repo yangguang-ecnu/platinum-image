@@ -218,6 +218,7 @@ void datamanager::add(image_base * v)
                         Vector3D size = v->get_physical_size();
                         float maxsize = max_norm (size);
                         
+						//TODO: rather use center_image() - write a method (wrapper) in rendermanagement that calls center_image() in viewmanagement
                         rendermanagement.set_geometry(rendererID,v->get_origin(),renderer_base::display_scale/maxsize);
                         }
                     

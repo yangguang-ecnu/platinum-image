@@ -98,7 +98,9 @@ class viewmanager
 																									// data with the specific id active. if the point
 																									// is outside the margin of viewport it is centered
 																									// otherwise only the correct plane is shown
-		
+		//AF
+		void fit_image ( const int rendererID, image_base * image );	// center and scale the image to fit in the viewport
+
     };
 
 #endif

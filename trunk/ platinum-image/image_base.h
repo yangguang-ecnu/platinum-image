@@ -150,6 +150,8 @@ private:
 public:
     dicomloader (std::vector<std::string> *);
     image_base * read ();
+
+	
 };
 
 

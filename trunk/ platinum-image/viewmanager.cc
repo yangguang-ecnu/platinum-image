@@ -414,13 +414,13 @@ std::vector<threshold_overlay *> viewmanager::get_overlays (thresholdparvalue * 
     }
 	
 //AF
-std::vector<int> viewmanager::viewports_from_renderers(const std::vector<int> & renderer_ids)
+std::vector<int> viewmanager::viewports_from_renderers(const std::vector<int> & renderers)
 {
 	// Two viewports can not have the same renderer
 	
 	std::vector<int> viewport_ids;
 
-	for ( std::vector<int>::const_iterator ritr = renderer_ids.begin(); ritr != renderer_ids.end(); ritr++ )
+	for ( std::vector<int>::const_iterator ritr = renderers.begin(); ritr != renderers.end(); ritr++ )
 	{	
 		int vp = viewport_from_renderer(*ritr);
 		
@@ -460,12 +460,12 @@ const viewport * const viewmanager::get_viewport(int viewport_id)
 //AF
 void viewmanager::show_point(const Vector3D & point, const int dataID, const unsigned int margin )
 {
-	std::vector<int> combination_ids = rendermanagement.combinations_from_data(dataID);
-	std::vector<int> renderer_ids = rendermanagement.renderers_from_combinations(combination_ids);
+	std::vector<int> combinations = rendermanagement.combinations_from_data(dataID);
+	std::vector<int> renderers = rendermanagement.renderers_from_combinations(combinations);
 
 	Vector3D tmp;
 
-	for ( std::vector<int>::iterator itr = renderer_ids.begin(); itr != renderer_ids.end(); itr++ )
+	for ( std::vector<int>::iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
 	{ 
 		rendergeometry * geometry = rendermanagement.get_geometry(*itr);				
 		Vector3D at = geometry->look_at;
@@ -497,12 +497,19 @@ void viewmanager::show_point(const Vector3D & point, const int dataID, const uns
 
 }
 
+void viewmanager::fit_image ( const int rendererID, image_base * image )
+{
+	// get a zoom factor that will show the entire image
+	Vector3D size = image->get_physical_size();
+	float maxsize = max_norm (size);
 
+	Vector3D center;
+	center.Fill(0);
+	
+	image->set_origin(center);
 
-
-
-
-
+	rendermanagement.set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
+}
 
 
 
