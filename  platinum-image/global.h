@@ -59,6 +59,7 @@
 
 enum ROImode {ROI_RECT, ROI_CIRCLE};
 enum COMBINE_MODE {COMB_ADD, COMB_SUB, COMB_MULT, COMB_DIV, COMB_MAX, COMB_MIN}; //and, xor, mask...
+enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
 
 //Dicom Tag definitions
 //More DICOM tag definitions can be found at:  http://medical.nema.org/dicom/2007/07_06pu.pdf

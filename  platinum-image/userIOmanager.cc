@@ -202,7 +202,13 @@ int userIOmanager::add_par_points(int userIO_ID, std::string new_param_name)
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_points (new_param_name);
 	return block_from_ID(userIO_ID)->add_par(par);
 }
-
+/*
+int userIOmanager::add_par_voxelseed(int userIO_ID, std::string new_param_name)
+{
+    FLTKuserIOparameter_base * par=new FLTKuserIOpar_voxelseed (new_param_name + "(Activate Cursor Tool, Right click, and Catch..)");
+	return block_from_ID(userIO_ID)->add_par(par);
+}
+*/
 int userIOmanager::add_par_histogram_2D(int userIO_ID, std::string new_param_name)
 {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_histogram2D (new_param_name);

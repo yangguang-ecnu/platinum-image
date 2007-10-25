@@ -1358,3 +1358,111 @@ void image_binary<IMAGEDIM>::outline_3D(int thickness, IMGBINARYTYPE object_valu
 	copy_data(threshold_image,this);
 	delete threshold_image;
 	}
+
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::dilate_3D_26Nbh(IMGBINARYTYPE object_value)
+{
+	int x,y,z,r,s,t;
+    image_binary<IMAGEDIM> * res = new image_binary<IMAGEDIM>(this,0); //resulting image...
+	cout<<"object_value="<<object_value<<endl;
+	cout<<"!object_value="<<!object_value<<endl;
+	res->fill(!object_value);
+
+	int max_x=this->get_size_by_dim(0);
+	int max_y=this->get_size_by_dim(1);
+	int max_z=this->get_size_by_dim(2);
+		
+	//x,y,z
+	for(z=0; z<max_z; z++){
+		for(y=0; y<max_y; y++){
+			for(x=0; x<max_x; x++){
+				//if you find an object voxel... 
+				//fill the whole neighbourhood in the resulting image...
+				
+				if(this->get_voxel(x,y,z)==object_value){
+					//r,s,t
+					for(t=std::max(0,z-1); t<std::min(max_z,z+1); t++){
+						for(s=std::max(0,y-1); s<std::min(max_y,y+1); s++){
+							for(r=std::max(0,x-1); r<std::min(max_x,x+1); r++){
+								res->set_voxel(r,s,t,object_value);
+							}
+						}
+					}
+				}
+
+			}
+		}
+	}
+
+	copy_data(res,this);
+	delete res;
+}
+
+
+template <int IMAGEDIM>
+int image_binary<IMAGEDIM>::find_voxel_index_percent_object_content(int dir, int object_content_percent, IMGBINARYTYPE object_value)
+{
+	float total = this->get_number_of_voxels_with_value(object_value);
+	int p = object_content_percent;
+	if(p<0 || p>100){
+		pt_error::error("find_voxel_index_percent_object_content - Strange percent value...",pt_error::debug);
+	}
+
+	float limit = float(p)/100.0*total;
+	float current_number=0;
+	int backup_return_value=0;
+
+	switch(dir){
+	case 0:
+		for(int x=0; x<this->datasize[0]; x++){
+			for(int z=0; z<this->datasize[2]; z++){		
+				for(int y=0; y<this->datasize[1]; y++){
+					if(this->get_voxel(x,y,z) == object_value){
+						current_number++;
+					}
+				}
+			}
+			if(current_number>=limit){
+				return x;
+			}
+			backup_return_value=x;
+		}
+		break;
+	case 1: 
+		for(int y=0; y<this->datasize[1]; y++){
+			for(int z=0; z<this->datasize[2]; z++){		
+				for(int x=0; x<this->datasize[0]; x++){
+					if(this->get_voxel(x,y,z) == object_value){
+						current_number++;
+					}
+				}
+			}
+			if(current_number>=limit){
+				return y;
+			}
+			backup_return_value=y;
+		}
+		break;
+	case 2: 
+		for(int z=0; z<this->datasize[2]; z++){		
+			for(int y=0; y<this->datasize[1]; y++){
+				for(int x=0; x<this->datasize[0]; x++){
+					if(this->get_voxel(x,y,z) == object_value){
+						current_number++;
+					}
+				}
+			}
+			if(current_number>=limit){
+				return z;
+			}
+			backup_return_value=z;
+		}
+		break;
+	default:
+		pt_error::error("find_voxel_index_percent_object_content, eroenous direction...",pt_error::debug);
+		break;
+	}
+
+	return backup_return_value;
+}

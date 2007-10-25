@@ -213,3 +213,13 @@ double get_random_number_in_span(double min, double max)
 {
 	return min + (max-min)*(double(rand())/double(RAND_MAX));
 }
+
+Vector3D create_Vector3D(float x, float y, float z)
+{
+	Vector3D v;
+	v[0]=x;
+	v[1]=y;
+	v[2]=z;
+	return v;
+}
+

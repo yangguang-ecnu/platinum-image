@@ -89,6 +89,7 @@ class userIOmanager
 
         int add_par_image(int userIO_ID, std::string new_param_name);
         int add_par_points(int userIO_ID, std::string new_param_name);
+        int add_par_voxelseed(int userIO_ID, std::string new_param_name);
 
         int add_par_histogram_2D(int userIO_ID, std::string new_param_name);
         int add_par_message(int userIO_ID, std::string new_param_name, std::string message);

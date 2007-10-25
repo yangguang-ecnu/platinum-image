@@ -36,6 +36,7 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Value_Input.H>
+#include <FL/Fl_Float_Input.H>
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Hold_Browser.H>		//AF
 //#include <FL/Fl_Counter.H>
@@ -150,6 +151,20 @@ class FLTK_histogram_2D : public FLTK_histogram_base
         void set_selmode (int);                    //set rectangular/oval selection mode
         void set_images (int hor, int vert);      //set image IDs and update
     };
+
+class FLTK_Vector3D : public Fl_Group
+{
+	protected:
+		Fl_Value_Input *inp_x;
+		Fl_Value_Input *inp_y;
+		Fl_Value_Input *inp_z;
+
+    public:
+        FLTK_Vector3D(int x, int y, int w, int h);
+		Vector3D get();
+		void set(Vector3D v);
+};
+
 
 // *** Parameter classes ***
 
@@ -361,6 +376,22 @@ public:
     
     const std::string type_name ();
 };
+
+/*
+class FLTKuserIOpar_voxelseed : public FLTKuserIOparameter_base //direct seed point allocation via the "landmark tool"
+{
+protected:
+    Fl_Button *catch_button;
+	FLTK_Vector3D *v;
+	static void catch_button_cb(Fl_Widget *callingwidget, void *);//ööö
+
+public:
+    FLTKuserIOpar_voxelseed(std::string name);
+    void par_value(Vector3D & v);
+    
+    const std::string type_name ();
+};
+*/
 
 class FLTKuserIOpar_histogram2D : public FLTKuserIOparameter_base 
     {
