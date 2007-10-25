@@ -109,7 +109,8 @@ void FLTKuserIOpar_filepath::browse_button_cb(Fl_Widget *callingwidget, void *)
 //	cout<<"browse_button_cb..."<<endl;
 
 	string last_path = pt_config::read<string>("latest_path");
-	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
+	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::CREATE,"Choose file");
+//	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
     fc.show();
     while(fc.shown())
         { Fl::wait(); }
@@ -550,6 +551,7 @@ const std::string FLTKuserIOpar_image::type_name ()
     return "image ID";
     }
 
+
 #pragma mark *** FLTKuserIOpar_points ***
 
 FLTKuserIOpar_points::FLTKuserIOpar_points (const std::string name) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
@@ -587,6 +589,46 @@ const std::string FLTKuserIOpar_points::type_name ()
 {
     return "point ID";
 }
+
+
+/*
+//FLTKuserIOpar_voxelseed
+#pragma mark *** FLTKuserIOpar_voxelseed ***
+
+FLTKuserIOpar_voxelseed::FLTKuserIOpar_voxelseed (const std::string name) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
+{
+	//ööö
+    catch_button = new Fl_Button(x(),y()+PARTITLEMARGIN,50,STDPARWIDGETHEIGHT-PARTITLEMARGIN,"Catch..");
+    catch_button->callback(catch_button_cb);
+	
+	v = new FLTK_Vector3D(x()+60,y()+PARTITLEMARGIN,150,STDPARWIDGETHEIGHT-PARTITLEMARGIN);
+    resizable(NULL);
+    end();
+}
+
+void FLTKuserIOpar_voxelseed::par_value (Vector3D & vec)
+{
+	vec = v->get(); //ööö
+}
+
+const std::string FLTKuserIOpar_voxelseed::type_name ()
+{
+    return "Vector3D voxel seedpoint";
+}
+
+void FLTKuserIOpar_voxelseed::catch_button_cb(Fl_Widget *callingwidget, void *)
+{
+	cout<<"catch_button_cb..."<<end;
+	FLTKuserIOpar_voxelseed *vs = (FLTKuserIOpar_voxelseed*)callingwidget->parent();
+	Vector3D a;
+	a[0]=0;
+	a[1]=1;
+	a[2]=2;
+	cursor_tool::get_global_selection_coords();
+	vs->v->set(a);
+}
+*/
+
 
 //data choice widget base class
 
@@ -931,18 +973,18 @@ int FLTK_histogram_2D::handle(int event)
     return 1;
     }
 
-    void FLTK_histogram_2D::set_selmode(int mode)
-        {
-        if (mode==THRESHOLD_2D_MODE_OVAL)
-            {drag_mode=READY_OVAL;}
+void FLTK_histogram_2D::set_selmode(int mode)
+	{
+		if (mode==THRESHOLD_2D_MODE_OVAL)
+		{drag_mode=READY_OVAL;}
 
-        if (mode==THRESHOLD_2D_MODE_RECT)
-            {drag_mode=READY_RECT;}
+		if (mode==THRESHOLD_2D_MODE_RECT)
+		{drag_mode=READY_RECT;}
 
-        damage (FL_DAMAGE_ALL);
-        }
+		damage (FL_DAMAGE_ALL);
+	}
 
-    void FLTK_histogram_2D::set_images (int hor, int vert)
+   void FLTK_histogram_2D::set_images (int hor, int vert)
         {
         ((HISTOGRAM2DVARIETY *)histogram)->images(hor,vert);
 
@@ -1092,6 +1134,34 @@ int FLTK_histogram_2D::handle(int event)
         {
         return "2D threshold";
         }
+
+
+FLTK_Vector3D::FLTK_Vector3D(int x, int y, int w, int h) : Fl_Group (x,y,w,h)
+{
+	inp_x = new Fl_Value_Input(x,		y, 30, h);
+	inp_y = new Fl_Value_Input(x+35,	y, 30, h);
+	inp_z = new Fl_Value_Input(x+2*35,	y, 30, h);
+	Vector3D v;
+	v.Fill(0);
+	set(v);
+}
+
+Vector3D FLTK_Vector3D::get()
+{
+	Vector3D v;
+	v[0] = inp_x->value();
+	v[1] = inp_y->value();
+	v[2] = inp_z->value();
+	return v;
+}
+void FLTK_Vector3D::set(Vector3D v)
+{
+	inp_x->value(v[0]);
+	inp_y->value(v[1]);
+	inp_z->value(v[2]);
+}
+
+
 
 #pragma mark *** Message "parameter" ***
 

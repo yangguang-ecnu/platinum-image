@@ -102,6 +102,13 @@ void platinum_init ()
     Fl::background(250,250,250);
 #endif
 
+//JK-Remove pragma warnings in VS...
+//JK ööö
+#ifdef _MSC_VER
+	//warning C4068: unknown pragma
+	#pragma warning(disable: 4068)
+#endif
+
     }
 
 void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )

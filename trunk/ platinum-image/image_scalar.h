@@ -29,6 +29,7 @@
 #define __image_scalar__
 
 #include <stack>
+#include <queue>
 #include "image_general.h"
 #include "Utilities/vxl/contrib/mil3d_trilin_interp_3d.h"
 //#include "Utilities/tricubic1.0.0/libtricubic/tricubic.h" (//http://www.lekien.com/~francois/software/tricubic/)
@@ -79,7 +80,7 @@ public:
 
 
 
-    image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high, IMGBINARYTYPE true_inside_threshold=true); ///Return a image_binary where all voxels with values between low and high gets the value true_inside_threshold.
+    image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high=std::numeric_limits<ELEMTYPE>::max(), IMGBINARYTYPE true_inside_threshold=true); ///Return a image_binary where all voxels with values between low and high gets the value true_inside_threshold.
 	void draw_line_2D(int x0, int y0, int x1, int y1, int z, ELEMTYPE value, int direction=2); ///Draw a line between (x0,y0) and (x1,y1) in plane z using color described by value. The coordinates are given on the plane orthogonal to the axis given by direction.
 	bool row_sum_threshold(int* res, ELEMTYPE low_thr, ELEMTYPE high_thr, int row_direction=0, int z_direction=2, int first_slice=-1, int last_slice=-1); ///Compute optimal split level for each slice
     void mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value=TRUE, ELEMTYPE blank=0); ///All voxels in the current image where the corresponding mask voxels != object_value are set to blank.
@@ -97,8 +98,21 @@ public:
 	//The z direction will gives the different 2D-histograms in the specified direction "hist_slc_dir"
 	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
 
-	// ------------------------ image_scalarprocess.hxx ------------------------------
-	// ---- file for very application specific implmentations ----
+	void smooth_ITK(Vector3D radius); 
+	void smooth_3D(Vector3D radius); 
+	image_binary<IMAGEDIM>* region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
+	image_binary<IMAGEDIM>* region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
+//	void medianFilter2D();
+//	void meanFilter();
+//	void discreteGaussFilter(double gaussianVariance,int maxKernelWidth);
+//	void gradientFilter();
+//	void gradientFilter2D();
+//	itk::MeanImageFilter<theImageType,theImageType>::Pointer filter = itk::MeanImageFilter<theImageType,theImageType>::New();
+
+    image_scalar<ELEMTYPE, 3>* create_projection(int dir, PROJECTION_MODE PROJ=PROJ_MAX); //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
+
+
+	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----
 
 	// See description in: Kullberg2006 - J Magn Reson Imaging. 2006 Aug;24(2):394-401.
 	// Whole-body T1 mapping improves the definition of adipose tissue: consequences for automated image analysis.
@@ -108,16 +122,7 @@ public:
     image_scalar<ELEMTYPE, IMAGEDIM>* calculate_T1Map_from_two_flip_angle_MRvolumes_3D(image_scalar<ELEMTYPE, IMAGEDIM > *small_flip, float body_thres=0, float t1_min=0, float t1_max=2000); 
     image_scalar<ELEMTYPE, IMAGEDIM>* calculate_T1Map_3D(vector<image_scalar<ELEMTYPE, IMAGEDIM > *> v, float body_thres=0, float t1_min=0, float t1_max=2000); 
 
-	void smooth_ITK(Vector3D radius); 
-	void smooth_3D(Vector3D radius); 
-	void region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
-	void region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
-//	void medianFilter2D();
-//	void meanFilter();
-//	void discreteGaussFilter(double gaussianVariance,int maxKernelWidth);
-//	void gradientFilter();
-//	void gradientFilter2D();
-//	itk::MeanImageFilter<theImageType,theImageType>::Pointer filter = itk::MeanImageFilter<theImageType,theImageType>::New();
+
 };
 
 #endif

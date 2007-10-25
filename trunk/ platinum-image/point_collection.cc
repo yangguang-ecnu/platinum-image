@@ -63,12 +63,13 @@ void point_collection::add_pair(pointStorage::key_type index, pointStorage::mapp
 //AF
 point_collection::pointStorage::mapped_type point_collection::get_point (int i)
 {
-	if ( thePoints.count(i) != 0)
+	if ( thePoints.size()>0 && thePoints.count(i) != 0)
 	{	// the point exists
 		return thePoints[i];
 	}
 	else
 	{
+		pt_error::error("point_collection::get_point...",pt_error::debug);
 		throw out_of_range("Unvalid key");
 	}
 }

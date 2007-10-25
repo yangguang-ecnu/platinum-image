@@ -723,16 +723,20 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 	{
 		//loop over floor(half) of the volume and copy that half to the other...
-		ELEMTYPE tmp;
+		ELEMTYPE tmp1;
+		ELEMTYPE tmp2;
+		int pos2;
 
 		switch(direction){
 		case 0:
 			for(int z=0; z<this->datasize[2]; z++){		
 				for(int y=0; y<this->datasize[1]; y++){
 					for(int x=0; x<this->datasize[0]/2; x++){
-						tmp = this->get_voxel(x,y,z);
-						this->set_voxel(x,y,z,this->get_voxel(this->datasize[0]-x-1,y,z));
-						this->set_voxel(this->datasize[0]-x-1,y,z,tmp);
+						pos2 = this->datasize[0]-1-x;
+						tmp1 = this->get_voxel(x,y,z);
+						tmp2 = this->get_voxel(pos2,y,z);
+						this->set_voxel(x,y,z,tmp2);
+						this->set_voxel(pos2,y,z,tmp1);
 					}
 				}
 			}
@@ -741,9 +745,11 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 			for(int z=0; z<this->datasize[2]; z++){		
 				for(int y=0; y<this->datasize[1]/2; y++){
 					for(int x=0; x<this->datasize[0]; x++){
-						tmp = this->get_voxel(x,y,z);
-						this->set_voxel(x,y,z,this->get_voxel(x,this->datasize[1]-y-1,z));
-						this->set_voxel(x,this->datasize[1]-y-1,z,tmp);
+						pos2 = this->datasize[1]-1-y;
+						tmp1 = this->get_voxel(x,y,z);
+						tmp2 = this->get_voxel(x,pos2,z);
+						this->set_voxel(x,y,z,tmp2);
+						this->set_voxel(x,pos2,z,tmp1);
 					}
 				}
 			}
@@ -752,9 +758,11 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 			for(int z=0; z<this->datasize[2]/2; z++){
 				for(int y=0; y<this->datasize[1]; y++){
 					for(int x=0; x<this->datasize[0]; x++){
-						tmp = this->get_voxel(x,y,z);
-						this->set_voxel(x,y,z,get_voxel(x,y,this->datasize[2]-z-1));
-						this->set_voxel(x,y,this->datasize[2]-z-1,tmp);
+						pos2 = this->datasize[2]-1-z;
+						tmp1 = this->get_voxel(x,y,z);
+						tmp2 = this->get_voxel(x,y,pos2);
+						this->set_voxel(x,y,z,tmp2);
+						this->set_voxel(x,y,pos2,tmp1);
 					}
 				}
 			}
@@ -959,6 +967,366 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1
 	return t1map;
 	}
 }
+
+
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_ITK(Vector3D radius)
+{
+	image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader();		// without 'image_general<ELEMTYPE, IMAGEDIM>::' generates compiler error
+
+	typename itk::MeanImageFilter<theImageType,theImageType>::Pointer filter = itk::MeanImageFilter<theImageType,theImageType>::New();
+
+	typename theSizeType r;
+	//	r[0] = 1; // radius along x
+	//	r[1] = 1; // radius along y
+	//	r[2] = 1; // radius along z
+	r[0] = radius[0];
+	r[1] = radius[1];
+	r[2] = radius[2];
+
+	filter->SetRadius(r);
+	filter->SetInput(this->ITKimportfilter->GetOutput());
+	filter->Update();
+
+	this->ITKimportimage = filter->GetOutput();
+	image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image();
+}
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
+{
+	cout<<"smooth_3D..."<<endl;
+	image_scalar<ELEMTYPE, IMAGEDIM> *res = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0);
+
+	res->fill(0); //not very time efficient... the outer borders would be enough...
+
+	if(r[0]>0 && r[1]>0 && r[2]>0)
+	{
+		float num_neighbours = (1+2*r[0])*(1+2*r[1])*(1+2*r[2]);
+		float sum = 0;
+		float mean1 = 0;
+		float tmp = 0;
+		float limit = 100;
+		float num_counted = 0;
+
+		for(int k=r[2]; k < this->datasize[2]-r[2]; k++){
+			cout<<"k="<<k<<endl;
+			for(int j=r[1]; j < this->datasize[1]-r[1]; j++){
+				for(int i=r[0]; i < this->datasize[0]-r[0]; i++){
+
+					sum = 0;
+					for(int n=k-r[2]; n<=k+r[2]; n++){
+						for(int m=j-r[1]; m<=j+r[1]; m++){
+							for(int l=i-r[0]; l<=i+r[0]; l++){
+								sum += float(this->get_voxel(l,m,n));
+							}
+						}
+					}
+					mean1 = sum/num_neighbours;
+//					res->set_voxel(i,j,k,);
+
+					sum = 0;
+					num_counted = 0;
+					for(int n=k-r[2]; n<=k+r[2]; n++){
+						for(int m=j-r[1]; m<=j+r[1]; m++){
+							for(int l=i-r[0]; l<=i+r[0]; l++){
+								tmp = float(this->get_voxel(l,m,n));
+								if(abs(tmp-mean1)<limit)
+								{
+									sum += tmp;
+									num_counted++;
+								}
+							}
+						}
+					}
+					res->set_voxel(i,j,k,sum/num_counted);	//mean2...
+				}
+			}
+		}
+	}
+
+	copy_data(res,this);
+	//JK shouldn't res be deleted...
+//	delete res
+}
+
+	
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
+{
+
+	image_binary<IMAGEDIM> *res = new image_binary<IMAGEDIM>(this,0);
+	res->fill(false);
+	res->set_voxel(seed[0],seed[1],seed[2],true);
+
+	int sx = this->datasize[0];
+	int sy = this->datasize[1];
+	int sz = this->datasize[2];
+	cout<<sx<<" "<<sy<<" "<<sz<<endl;
+
+/*
+	int* seed2 = new int[3];
+	seed2[0] = int(seed[0]);
+	seed2[1] = int(seed[1]);
+	seed2[2] = int(seed[2]);
+	stack<int*> s;
+	s.push(seed2);
+	int* pos = new int[3];
+	int* pos2 = new int[3];
+
+
+	stack<Vector3D> s;
+	s.push(seed);
+	Vector3D pos;
+	Vector3D pos2;
+*/
+/*
+	stack<int> stack_x;
+	stack<int> stack_y;
+	stack<int> stack_z;
+	stack_x.push(seed[0]);
+	stack_y.push(seed[1]);
+	stack_z.push(seed[2]);
+	int pos_x;
+	int pos_y;
+	int pos_z;
+*/
+	queue<Vector3D> s;
+	s.push(seed);
+	Vector3D pos;
+	Vector3D pos2;
+
+	ELEMTYPE val;
+/*
+	while(stack_x.size()>0){
+		pos_x = stack_x.top();
+		pos_y = stack_y.top();
+		pos_z = stack_z.top();
+		stack_x.pop();
+		stack_y.pop();
+		stack_z.pop();
+
+
+		for(int x=std::max(0,int(pos_x-1)); x<=std::min(int(pos_x+1),sx-1); x++){
+			for(int y=std::max(0,int(pos_y-1)); y<=std::min(int(pos_y+1),sy-1); y++){
+				for(int z=std::max(0,int(pos_z-1)); z<=std::min(int(pos_z+1),sz-1); z++){
+					val = this->get_voxel(x,y,z);
+
+					if(val>=min_intensity && val<=max_intensity && res->get_voxel(x,y,z)==false){
+						stack_x.push(x);
+						stack_y.push(y);
+						stack_z.push(z);
+						res->set_voxel(x,y,z,true);
+					}
+				}
+			}
+		}
+	}
+*/
+
+
+	while(s.size()>0){
+		pos = s.front();
+		s.pop();
+
+//		if(i%100000==0){
+//			val = this->get_voxel(pos[0],pos[1],pos[2]);
+//			cout<<"i="<<i<<" pos="<<pos[0]<<" "<<pos[1]<<" "<<pos[2]<<" val="<<val<<" s.size()="<<s.size()<<endl;
+//			cin>>c;
+//		}
+//		i++;
+
+		for(int x=std::max(0,int(pos[0]-1)); x<=std::min(int(pos[0]+1),sx-1); x++){
+			for(int y=std::max(0,int(pos[1]-1)); y<=std::min(int(pos[1]+1),sy-1); y++){
+				for(int z=std::max(0,int(pos[2]-1)); z<=std::min(int(pos[2]+1),sz-1); z++){
+					val = this->get_voxel(x,y,z);
+
+					if(val>=min_intensity && val<=max_intensity && res->get_voxel(x,y,z)==false){
+						pos2[0]=x; pos2[1]=y; pos2[2]=z;
+						s.push(pos2);
+						res->set_voxel(x,y,z,true);
+					}
+				}
+			}
+		}
+	}
+	cout<<"region_grow_3D --> Done...(s.size()="<<s.size()<<")"<<endl;
+	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
+	cout<<"before..."<<endl;
+//	copy_data(res,this);
+	return res;
+/*
+	cout<<"region_grow_3D --> Done...(stack_x.size()="<<stack_x.size()<<")"<<endl;
+	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
+	cout<<"before..."<<endl;
+//	copy_data(res,this);
+	return res;
+*/
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity, int nr_accepted_neighbours, int radius)
+{
+	image_binary<IMAGEDIM> *res = new image_binary<IMAGEDIM>(this,0);
+	res->fill(false);
+	res->set_voxel(seed[0],seed[1],seed[2],true);
+
+	image_scalar<ELEMTYPE, IMAGEDIM> *neighb = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0);
+	neighb->fill(0);
+
+	int sx = this->datasize[0];
+	int sy = this->datasize[1];
+	int sz = this->datasize[2];
+	cout<<sx<<" "<<sy<<" "<<sz<<endl;
+	int r = radius;
+
+	int* seed2 = new int[3];
+	int* pos = new int[3];
+	int* pos2 = new int[3];
+	seed2[0] = int(seed[0]);
+	seed2[1] = int(seed[1]);
+	seed2[2] = int(seed[2]);
+	stack<int*> s;
+	s.push(seed2);
+
+//	stack<Vector3D> s;
+//	s.push(seed);
+//	Vector3D pos;
+//	Vector3D pos2;
+
+	ELEMTYPE val;
+	ELEMTYPE val2;
+	int nr_acc=0;
+
+	while(s.size()>0){
+		pos = s.top();
+		s.pop();
+		val = this->get_voxel(pos[0],pos[1],pos[2]);
+
+		if(val>=min_intensity && val<=max_intensity){
+
+			for(int x=std::max(0,int(pos[0]-1)); x<=std::min(int(pos[0]+1),sx-1); x++){
+				for(int y=std::max(0,int(pos[1]-1)); y<=std::min(int(pos[1]+1),sy-1); y++){
+					for(int z=std::max(0,int(pos[2]-1)); z<=std::min(int(pos[2]+1),sz-1); z++){
+						val = this->get_voxel(x,y,z);
+						if(val>=min_intensity && val<=max_intensity && res->get_voxel(x,y,z)==false){
+
+							//check number of accepted neighbours...
+							nr_acc=0;
+							for(int a=std::max(0,int(x-r)); a<=std::min(int(x+r),sx-1); a++){
+								for(int b=std::max(0,int(y-r)); b<=std::min(int(y+r),sy-1); b++){
+									for(int c=std::max(0,int(z-r)); c<=std::min(int(z+r),sz-1); c++){
+										val2 = this->get_voxel(a,b,c);
+										if(val2>=min_intensity && val2<=max_intensity){
+											nr_acc++;
+										}
+									}
+								}
+							}
+							neighb->set_voxel(x,y,z,nr_acc);
+
+							if(nr_acc>=nr_accepted_neighbours){
+								pos2[0]=x; pos2[1]=y; pos2[2]=z;
+								s.push(pos2);
+								res->set_voxel(x,y,z,true);
+							}
+
+						}//if
+					}//z
+				}//y
+			}//x
+
+		}//if val...
+	}//while
+
+	cout<<"region_grow_robust_3D --> Done..."<<endl;
+//	cout<<"s.size()="<<s.size()<<endl;
+//	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
+
+
+//	neighb->save_to_VTK_file("c:\\Joel\\TMP\\region_grow_nr_acc.vtk");
+	delete neighb;
+
+//	copy_data(res,this);
+	//delete res;
+	return res;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection(int dir, PROJECTION_MODE PROJ)
+{ //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
+
+	image_scalar<ELEMTYPE, 3>* res = new image_scalar<ELEMTYPE, 3>(); 
+	//JK change this to 2D later, when there is time for 3D-->2D verification...
+
+	int dx = this->get_size_by_dim(0);
+	int dy = this->get_size_by_dim(1);
+	int dz = this->get_size_by_dim(2);
+
+	float line_max=0;
+	float line_sum=0;
+
+
+	switch(dir){
+	case 0:
+		res->initialize_dataset(dz,dy,1);
+
+		for(int z=0; z<this->datasize[2]; z++){		
+			for(int y=0; y<this->datasize[1]; y++){
+				if(PROJ==PROJ_MAX){
+					line_max=0;
+					for(int x=0; x<this->datasize[0]; x++){
+						line_max = std::max(line_max,float(this->get_voxel(x,y,z)));
+					}
+					res->set_voxel(z,y,0,line_max);
+				}
+			}
+		}
+		break;
+	case 1: 
+		res->initialize_dataset(dx,dz,1);
+
+		for(int z=0; z<this->datasize[2]; z++){		
+			for(int x=0; x<this->datasize[0]; x++){
+				if(PROJ==PROJ_MAX){
+					line_max=0;
+					for(int y=0; y<this->datasize[1]; y++){
+						line_max = std::max(line_max,float(this->get_voxel(x,y,z)));
+					}
+					res->set_voxel(x,z,0,line_max);
+				}
+			}
+		}
+		break;
+	case 2: 
+		res->initialize_dataset(dx,dy,1);
+
+		for(int y=0; y<this->datasize[1]; y++){		
+			for(int x=0; x<this->datasize[0]; x++){
+				if(PROJ==PROJ_MAX){
+					line_max=0;
+					for(int z=0; z<this->datasize[2]; z++){
+						line_max = std::max(line_max,float(this->get_voxel(x,y,z)));
+					}
+					res->set_voxel(x,y,0,line_max);
+				}
+			}
+		}
+		break;
+	default:
+		pt_error::error("create_projection-->strange direction...",pt_error::debug);
+		break;
+	}
+	return res;
+}
+ 
 
 #include "image_scalarprocess.hxx"
 

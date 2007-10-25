@@ -126,24 +126,22 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
     {
     //this function only works when image dimensionality matches
 
-    short size [IMAGEDIM];					//JK - I guess this is not used...
-
-    for (int d=0; d < IMAGEDIM; d++)
-        { size[d]=sourceImage->get_size_by_dim(d); }	//JK - I guess this is not used...
+//    short size [IMAGEDIM];					//JK - I guess this is not used...
+//    for (int d=0; d < IMAGEDIM; d++)
+//        { size[d]=sourceImage->get_size_by_dim(d); }	//JK - I guess this is not used...
 
     //initialize_dataset(size[0],size[1],size[2]);
 
     ITKimportfilter=NULL;
     ITKimportimage=NULL;
 
-//    this->maxvalue        = sourceImage->get_max();
-//    this->minvalue        = sourceImage->get_min();
     this->stats->max(sourceImage->get_max());
     this->stats->min(sourceImage->get_min());
 
 
-    this->voxel_size    = sourceImage->get_voxel_size();
-	//origin & direction are copied in data_base... 
+	this->set_origin(sourceImage->get_origin());			//JK - Is this the best good solution?
+	this->set_orientation(sourceImage->get_orientation());
+    this->set_voxel_size(sourceImage->get_voxel_size());
 
     // *ID, from_file, imagename and widget are assigned in image_base constructor
     }
@@ -1008,7 +1006,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE 
     {
 	//JK - uncomment these rows to detect writing outside allocated memory...
 	if(x<0||x>=datasize[0] || y<0||y>=datasize[1] || z<0||z>=datasize[2])
-		{cout<<"set_voxel-->x="<<x<<" y="<<y<<" z="<<z<<"..."<<endl;}
+		{cout<<"set_voxel--> strange index... x="<<x<<" y="<<y<<" z="<<z<<"... datasize=("<<datasize<<")"<<endl;}
 
     this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
     }

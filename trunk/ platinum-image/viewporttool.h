@@ -130,6 +130,7 @@ public:
     cursor_tool (viewport_event &);
     ~cursor_tool();
     
+	static Vector3D get_global_selection_coords();
     static const std::string name ();
     static void init (); //initialize controls in statusArea
     virtual void handle(viewport_event &);

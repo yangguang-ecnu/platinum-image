@@ -420,6 +420,15 @@ cursor_tool::~cursor_tool()
         selection = NULL;
         }
 }
+Vector3D cursor_tool::get_global_selection_coords()
+{
+	if(selection==NULL){
+		cout<<"selection==NULL"<<endl;
+	}
+	Vector3D coord = selection->get_point(0);
+	cout<<"cursor_tool::get_global_selection_coords()="<<coord<<endl;
+	return coord;
+}
 
 const std::string cursor_tool::name()
 {

@@ -221,6 +221,7 @@ void print_datatype_numerical_limits();
 
 double get_random_number_in_span(double min, double max);
 
+Vector3D create_Vector3D(float x, float y, float z);
 
 
 #endif	//__ptmath.h__
