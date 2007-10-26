@@ -220,7 +220,6 @@ void nav_tool::handle(viewport_event &event)
         dragLast[0] = event.mouse_pos_global()[0];
         dragLast[1] = event.mouse_pos_global()[1];
 		
-		//AF
 		if ( event.type() == pt_event::focus )
 		{		
 			image_base * top;
@@ -328,7 +327,6 @@ void nav_tool::handle(viewport_event &event)
 
             case pt_event::key:
                 
-				//AF
 				if ( event.key_combo(pt_event::space_key) )
 				{
 					event.grab();
@@ -338,22 +336,25 @@ void nav_tool::handle(viewport_event &event)
 					image_base * top;
 					if ( top = rendermanagement.get_combination(renderer->combination_id())->top_image() )
 					{	// there is an image in current viewport			
-						viewmanagement.fit_image ( renderer->get_id(), top );
+						rendermanagement.fit_image ( renderer->get_id(), top );
 					}
 				}
 				
                 if (event.key_combo(pt_event::pageup_key))
-                    {
+				{
                     event.grab();
                     
-                    myRenderer->move_voxels (0,0,-1);
-                    }
+					if ( rendermanagement.renderer_empty(myRenderer->get_id()) == RENDERER_NOT_EMPTY )
+						{ myRenderer->move_voxels (0,0,-1); }
+				}
+				
                 if (event.key_combo(pt_event::pagedown_key))
-                    {
+				{
                     event.grab();
                     
-                    myRenderer->move_voxels (0,0,1);
-                    }
+					if ( rendermanagement.renderer_empty(myRenderer->get_id()) == RENDERER_NOT_EMPTY )
+						{ myRenderer->move_voxels (0,0,1); }
+				}
                 
                 if (event.handled())
                     {

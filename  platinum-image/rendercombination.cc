@@ -89,9 +89,8 @@ image_base* rendercombination::top_image () const
 }
 
 void rendercombination::add_data(int dataID)
-    {
+{
     renderdata.push_back(renderpair(dataID,datamanagement.get_data(dataID),BLEND_OVERWRITE));
-    
     rendermanagement.combination_update_callback(this->id);
 }
 
@@ -111,8 +110,17 @@ void rendercombination::toggle_data(int dataID)
         }
     
     if (!removed)
-        {add_data(dataID);  }
-   }
+	{
+		add_data(dataID);
+	
+        image_base * image = dynamic_cast<image_base *>( datamanagement.get_data(dataID) );
+        
+        if ( image != NULL )
+		{	// it is an image
+			rendermanagement.fit_image( rendermanagement.renderer_from_combination(get_id()), image );
+		}
+	}
+}
 
 void rendercombination::remove_image(int ID)
     {

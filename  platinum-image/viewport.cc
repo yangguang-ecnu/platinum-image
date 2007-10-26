@@ -418,8 +418,8 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
         
         //backwards slices do not work in the orthogonal renderer yet
         //so we'll disable those choices
-        if (m > SAGITTAL)
-            {dir_menu_items[m].deactivate();}
+//        if (m > SAGITTAL)
+//            {dir_menu_items[m].deactivate();}
         }
     //terminate menu
     dir_menu_items[m].label(NULL);

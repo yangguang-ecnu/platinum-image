@@ -123,6 +123,8 @@ class rendermanager
 
         void set_blendmode(int rend_index,blendmode mode);   //sets combination-wide blend mode, if blendmode is later defined
                                                              //for each image in a combination, this should set all of them
+															 
+		void fit_image ( const int rendererID, image_base * image );
     };
 
 #endif
