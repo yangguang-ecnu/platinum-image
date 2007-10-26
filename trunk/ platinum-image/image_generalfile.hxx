@@ -376,6 +376,60 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::stri
 
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::string dir_path,std::string seriesIdentifier)
+{  
+    typename theSeriesReaderType::Pointer reader = theSeriesReaderType::New();
+
+    itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+
+    reader->SetImageIO ( dicomIO );
+
+    typedef itk::GDCMSeriesFileNames NamesGeneratorType;
+    NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
+
+    nameGenerator->SetUseSeriesDetails ( true );			// no details - crucial because existing
+    nameGenerator->SetLoadPrivateTags ( true ); 
+	
+    nameGenerator->SetDirectory ( dir_path.c_str() );
+
+
+	std::cout << "---seriesIdentifier " << seriesIdentifier << std::endl;
+
+    typedef std::vector< std::string > SeriesIdContainer;
+    const SeriesIdContainer & seriesUID = nameGenerator->GetSeriesUIDs();
+	seriesIdentifier = seriesUID.begin()->c_str();
+
+
+
+
+    typedef std::vector< std::string > FileNamesContainer; 
+    FileNamesContainer fileNames; 
+	
+    fileNames = nameGenerator->GetFileNames ( seriesIdentifier );     
+
+	reader->SetFileNames ( fileNames );
+
+    try 
+		{ reader->Update(); }
+    catch (itk::ExceptionObject &ex)
+		{ std::cout << ex << std::endl; }
+
+    typename theImagePointer image = theImageType::New();
+    image = reader->GetOutput();
+
+    // *** transfer image data to our platform's data structure ***
+    replicate_itk_to_image(image);
+
+    this->from_file(true);
+
+	this->meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
+
+	this->name( this->meta.get_name() );
+
+	this->read_geometry_from_dicom_file ( fileNames[0].c_str() );
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir(std::string dir_path)

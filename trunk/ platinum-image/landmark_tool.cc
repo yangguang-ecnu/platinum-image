@@ -45,37 +45,6 @@ void landmark_tool::handle(viewport_event &event)
     FLTKviewport * fvp = event.get_FLTK_viewport();
 	Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
 
-// ---- BEGIN REMOVE
-Vector3D pos;
-std::ostringstream oss;
-// ---- BEGIN REMOVE
-
-			pos = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());			
-
-			oss.setf ( ios::fixed );
-
-			oss << "World " << setprecision(1) << pos;
-
-			
-			
-			
-			
-			rendergeometry * g = rendermanagement.get_geometry ( myRenderer->geometry_id() );
-			oss << " --- View [" << mouse2d[0] << "," << mouse2d[1] << "] --- look_at " << setprecision(1) << g->look_at;
-
-
-
-			userIOmanagement.interactive_message( oss.str() );
-			
-
-
-
-// --- END REMOVE
-
-
-// --- END REMOVE
-
-		
 	switch (event.type())
 	{	
 		case pt_event::create:
@@ -164,24 +133,14 @@ std::ostringstream oss;
 		case pt_event::hover:
 			event.grab();	
 
-			/*Vector3D*/ pos = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());			
+			Vector3D pos = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());			
 
-			//std::ostringstream oss;
+			std::ostringstream oss;
 			oss.setf ( ios::fixed );
 
 			oss << "World " << setprecision(1) << pos;
 
-			
-			
-			
-			
-			/*rendergeometry *   */g = rendermanagement.get_geometry ( myRenderer->geometry_id() );
-			oss << " --- View [" << mouse2d[0] << "," << mouse2d[1] << "] --- look_at " << setprecision(1) << g->look_at;
-
-
-
 			userIOmanagement.interactive_message( oss.str() );
-			
 			
 		break;
 	}

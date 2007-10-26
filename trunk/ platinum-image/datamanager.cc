@@ -214,12 +214,7 @@ void datamanager::add(image_base * v)
                     
                     if (rendermanagement.renderer_empty(rendererID))
                         {
-                        //get a zoom factor that will show the entire image
-                        Vector3D size = v->get_physical_size();
-                        float maxsize = max_norm (size);
-                        
-						//TODO: rather use center_image() - write a method (wrapper) in rendermanagement that calls center_image() in viewmanagement
-                        rendermanagement.set_geometry(rendererID,v->get_origin(),renderer_base::display_scale/maxsize);
+							rendermanagement.fit_image( rendererID, v );
                         }
                     
                     rendermanagement.connect_data_renderer(rendererID,the_image_id);

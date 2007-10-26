@@ -496,20 +496,3 @@ void viewmanager::show_point(const Vector3D & point, const int dataID, const uns
 	}
 
 }
-
-void viewmanager::fit_image ( const int rendererID, image_base * image )
-{
-	// get a zoom factor that will show the entire image
-	Vector3D size = image->get_physical_size();
-	float maxsize = max_norm (size);
-
-	Vector3D center;
-	center.Fill(0);
-	
-	image->set_origin(center);
-
-	rendermanagement.set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
-}
-
-
-
