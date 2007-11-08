@@ -69,7 +69,7 @@ userIO::userIO(int x_init, int y_init, int w_init, int h_init, string n,userIO_c
         OK_button = NULL;
         }
 
-    close_button = new Fl_Button(x()+button_pos,y(),main_button_width,BUTTONHEIGHT, "Close");
+	close_button = new Fl_Button(x()+button_pos,y(),main_button_width,BUTTONHEIGHT, "Close");
     close_button->callback(FLTK_callback);
     close_button->box(FL_THIN_UP_BOX);
 

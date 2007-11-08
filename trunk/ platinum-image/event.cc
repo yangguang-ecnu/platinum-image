@@ -148,12 +148,16 @@ void FLTK_event::set_type ()
         //if (Fl::event_state(FL_BUTTON3) ||  (Fl::event_state() & ~(FL_BUTTON1 | FL_ALT)))
         { type_ = create; }
 		
-	//AF
+	// double click
 	if ( Fl::event_clicks() > 0 )
 	{	//  Fl::event_clicks returns non-zero if the most recent FL_PUSH or FL_KEYBOARD was a "double click"
 		type_ = focus;
 		Fl::event_clicks(0);	// set it to zero so that later code does not think an item was double-clicked
 	}
+	
+	// left MB + ctrl key
+	if ( (state & FL_BUTTON1) && (state & FL_CTRL) )
+		{ type_ = rotate; }
 }
 
 FLTK_event::FLTK_event (FLTKviewport * fvp) : pt_event ()

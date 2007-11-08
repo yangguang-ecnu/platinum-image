@@ -113,8 +113,27 @@ vector<int> rendermanager::combinations_from_data (int dataID)
     return found_combinations;
     }
 
-
 //AF
+std::vector<int> rendermanager::renderers_from_data( int dataID )
+{
+	std::vector<int> rendererIDs;
+
+	for ( std::vector<renderer_base *>::const_iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
+	{
+		int rendererIndex = find_renderer_index( (*itr)->get_id() );
+		rendercombination * combination = get_combination( get_combination_id( rendererIndex ) );
+
+		for ( std::list<rendercombination::renderpair>::const_iterator rpitr = combination->begin(); rpitr != combination->end(); rpitr++ )
+		{ 
+			if ( rpitr->pointer->get_id() == dataID )
+			{
+				rendererIDs.push_back( renderer_from_combination( (*itr)->get_id() ) );
+			}
+		}
+	}
+	return rendererIDs;
+}
+ 
 int rendermanager::renderer_from_combination(const int combination_id) const
 {
 	for ( std::vector<renderer_base*>::const_iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
@@ -125,7 +144,6 @@ int rendermanager::renderer_from_combination(const int combination_id) const
 	return -1;	
 }
 
-//AF
 int rendermanager::renderer_from_geometry(const int geometry_id) const
 {
 	for ( std::vector<renderer_base*>::const_iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
@@ -136,7 +154,6 @@ int rendermanager::renderer_from_geometry(const int geometry_id) const
 	return -1;	
 }
 	
-//AF
 std::vector<int> rendermanager::renderers_from_combinations(const std::vector<int> & combination_ids)
 {
 	std::vector<int> renderer_ids;
@@ -147,7 +164,6 @@ std::vector<int> rendermanager::renderers_from_combinations(const std::vector<in
     return renderer_ids;
 }
 
-//AF
 std::vector<int> rendermanager::renderers_with_images() const
 {
 	std::vector<int> renderers;
@@ -187,7 +203,6 @@ int rendermanager::get_geometry_id(int rendererIndex)
     return renderers[rendererIndex]->wheretorender->get_id();
     }
 	
-//AF
 rendergeometry * rendermanager::get_geometry (int ID)
 {
 	return get_renderer(ID)->wheretorender;
@@ -368,16 +383,51 @@ void rendermanager::set_blendmode(int renderer_index,blendmode mode)
     renderers[renderer_index]->imagestorender->blend_mode(mode);
     }
 	
-void rendermanager::fit_image( const int rendererID, image_base * image )
+void rendermanager::center_and_fit( const int rendererID, image_base * image )
 {
+	Vector3D size = image->get_physical_size();
+
+	Vector3D image_center;
+	image_center = size / 2;
+		
+	
+	float maxsize = max_norm ( size );
+		
+	Matrix3D orientation = image->get_orientation();	
+	
+	Vector3D center;
+	center = image->get_origin() + orientation * image_center;
+	
+	set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
+	//set_geometry ( rendererID, center, 0 );
+
+	
+
+/*working
 	// get a zoom factor that will show the entire image
 	Vector3D size = image->get_physical_size();
-	float maxsize = max_norm (size);
+	float maxsize = max_norm ( size );
 
+	Matrix3D orientation = image->get_orientation();
+		
+	Vector3D image_center;
+	image_center = size / 2;
+	
 	Vector3D center;
-	center.Fill(0);
 	
-	image->set_origin(center);
+	center =  image->get_origin() + orientation * image_center;
 	
-	rendermanagement.set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
+	set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
+*/
 }
+
+void rendermanager::center_and_fit( image_base * image )
+{
+	std::vector<int> rendererIDs = rendermanagement.renderers_from_data( image->get_id() );
+	
+	for ( std::vector<int>::iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
+	{
+		center_and_fit( *itr, image );
+	}
+}
+	

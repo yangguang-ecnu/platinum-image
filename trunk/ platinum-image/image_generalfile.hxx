@@ -222,6 +222,10 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier)
     {  
+	std::cout << "--- load_dataset_from_DICOM_files" << std::endl;
+
+
+
     typedef itk::GDCMSeriesFileNames                NamesGeneratorType;
 
     itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
@@ -317,6 +321,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier)
 {
+	std::cout << "--- load_dataset_from_DICOM_files2" << std::endl;
+
+
 //	 message from ITK/Examples/IO/DicomSeriesReadImageWrite.cxx
 //   
 //   The DICOM classes illustrated here are OBSOLETE and are
@@ -379,6 +386,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::stri
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::string dir_path,std::string seriesIdentifier)
 {  
+	std::cout << "--- load_dataset_from_DICOM_filesAF" << std::endl;
+	
     typename theSeriesReaderType::Pointer reader = theSeriesReaderType::New();
 
     itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
@@ -388,20 +397,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::str
     typedef itk::GDCMSeriesFileNames NamesGeneratorType;
     NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
 
-    nameGenerator->SetUseSeriesDetails ( true );			// no details - crucial because existing
+    nameGenerator->SetUseSeriesDetails ( false );			// no details - crucial because existing
     nameGenerator->SetLoadPrivateTags ( true ); 
 	
     nameGenerator->SetDirectory ( dir_path.c_str() );
-
-
-	std::cout << "---seriesIdentifier " << seriesIdentifier << std::endl;
-
-    typedef std::vector< std::string > SeriesIdContainer;
-    const SeriesIdContainer & seriesUID = nameGenerator->GetSeriesUIDs();
-	seriesIdentifier = seriesUID.begin()->c_str();
-
-
-
 
     typedef std::vector< std::string > FileNamesContainer; 
     FileNamesContainer fileNames; 
@@ -427,7 +426,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::str
 
 	this->name( this->meta.get_name() );
 
-	this->read_geometry_from_dicom_file ( fileNames[0].c_str() );
+	this->read_geometry_from_dicom_file ( fileNames[0].c_str() );			// use the first file name in the vector
+	//this->read_geometry_from_dicom_file ( fileNames.back().c_str() );		// use the last file name in the vector
+	
 }
 
 

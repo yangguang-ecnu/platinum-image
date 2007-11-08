@@ -271,6 +271,48 @@ void nav_tool::handle(viewport_event &event)
                     }					
                 break;
                 
+			case pt_event::rotate:
+				if ( event.state() == pt_event::iterate )
+				{
+					event.grab();
+					
+					renderer = rendermanagement.get_renderer( myPort->get_renderer_id() );
+
+					image_base * top;
+					if ( top = rendermanagement.get_combination(renderer->combination_id())->top_image() )
+					{	// there is an image in current viewport
+					
+						Matrix3D m = datamanagement.get_image(top->get_id())->get_orientation();
+
+						Vector3D angle;
+//						angle[0] = -(mouse[0]-dragLast[0]);
+//						angle[1] = -(mouse[1]-dragLast[1]);
+//						angle[2] = 0.0;
+						angle[0] = 0.0;
+						angle[1] = 0.0;
+						angle[2] = -(mouse[0]-dragLast[0]);
+						
+						// convert degrees to radians
+						angle *= ( PI / 180.0 );	
+						
+						matrix_generator mg;
+						m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * m;
+						
+						datamanagement.get_image(top->get_id())->set_orientation(m);
+						datamanagement.data_has_changed(top->get_id());
+
+						
+						// skriv en metod som roterarar en bild (volym) kring dess centrum (ändrar orientation och origin.
+						// origin måste ändras för att rotationen ska bli "korrekt")
+						// och en metod som roterar bild kring dess origin (ändrar endast orientation)
+					
+												
+						//rendermanagement.center_and_fit ( renderer->get_id(), top );
+						
+					}
+					
+				}
+				
             case pt_event::scroll:
                 if ( event.state() == pt_event::iterate)
                     {
@@ -327,7 +369,7 @@ void nav_tool::handle(viewport_event &event)
 
             case pt_event::key:
                 
-				if ( event.key_combo(pt_event::space_key) )
+				if ( event.key_combo( pt_event::space_key ) )
 				{
 					event.grab();
 	
@@ -336,7 +378,7 @@ void nav_tool::handle(viewport_event &event)
 					image_base * top;
 					if ( top = rendermanagement.get_combination(renderer->combination_id())->top_image() )
 					{	// there is an image in current viewport			
-						rendermanagement.fit_image ( renderer->get_id(), top );
+						rendermanagement.center_and_fit ( renderer->get_id(), top );
 					}
 				}
 				
