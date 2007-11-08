@@ -133,10 +133,8 @@ public:
 	
 	void print_all();
 	
-	//AF
 	string metadata::get_data_as_string ( std::string key );
 
-	//AF
 	std::string get_name();
 
 private:

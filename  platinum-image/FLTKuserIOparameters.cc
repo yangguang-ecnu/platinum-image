@@ -192,57 +192,88 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks(const std::string name, const s
 {
 	landmark_names = l_names;
 	option_names = o_names;
+/*
+	const int btnWidth = 25;
+	const int textWidth = 50;
 
-	control = new Fl_Hold_Browser(x(),y(),w(),4*STDPARWIDGETHEIGHT-PARTITLEMARGIN);
-	control->callback(browser_callback, (void *)landmarks_id);
-	control->textsize(12);
+	descriptorText = new Fl_Output ( x(), y() + PARBOXBORDER, textWidth, BUTTONHEIGHT - PARBOXBORDER );
+	descriptorText->box(FL_FLAT_BOX);
+	descriptorText->color(FL_BACKGROUND_COLOR);
+	descriptorText->value ( "Descriptor file" );
+
+	loadDescriptorBtn = new Fl_Button ( w() - btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load" );
+    loadDescriptorBtn->callback( loadDescriptorCb ); // loadBtn->callback( loadCb, this );
+
+
+		
+	landmarkText = new Fl_Output ( x(), y() + BUTTONHEIGHT + PARBOXBORDER, textWidth, BUTTONHEIGHT - PARBOXBORDER );
+	landmarkText->box(FL_FLAT_BOX);
+	landmarkText->color(FL_BACKGROUND_COLOR);
+	landmarkText->value ( "Landmark set" );
+	
+	newSetBtn = new Fl_Button( w() - 3 * btnWidth, y() + BUTTONHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "New");
+	newSetBtn->callback(newSetCb);
+
+	saveSetBtn = new Fl_Button( w() - 2 * btnWidth, y() + BUTTONHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Save");
+	saveSetBtn->callback(saveSetCb);
+
+	loadSetBtn = new Fl_Button( w() - btnWidth, y() + BUTTONHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load");
+	loadSetBtn->callback(loadSetCb);
+
+
+
+	browser = new Fl_Hold_Browser( x(), y() + 2 * BUTTONHEIGHT + PARTITLEMARGIN, w(), 4 * STDPARWIDGETHEIGHT - PARTITLEMARGIN );
+	browser->callback(browserCb, (void *)landmarks_id);
+	browser->textsize(12);
+	//browser->when(...)		
+*/
+
+	browser = new Fl_Hold_Browser(x(),y(),w(),4*STDPARWIDGETHEIGHT-PARTITLEMARGIN);
+	browser->callback(browserCb, (void *)landmarks_id);
+	browser->textsize(12);
 	//control->when(...)		
 	
 	//int widths[] = { 50, 50, 0 };
-	//control->column_widths(widths);
-	//control->column_char('\t');
-	//control->type(FL_HOLD_BROWSER);
-			
-	int button_width = 50;
-
-			
-	open_button = new Fl_Button(x()+w()-button_width,y()+170,button_width,PARTITLEMARGIN,"Open model...");
-	open_button->callback(open_callback);
-	//open_button->labelsize(9);
-	//open_button->argument(OPEN);
-
-	new_button = new Fl_Button(x()+w()-button_width,y()+200,button_width,PARTITLEMARGIN,"New set of landmarks");
-	new_button->callback(new_callback);
-	//new_button->labelsize(9);
-	//new_button->argument(CLEAR);
+	//browser->column_widths(widths);
+	//browser->column_char('\t');
+	//browser->type(FL_HOLD_BROWSER);
 
 	
-//	for ( std::vector<Vector3D>::iterator itr = l->begin(); itr != l->end(); itr++) { }
 	for (unsigned int i = 0; i < landmark_names.size(); i++)
 	{
-		control->add(resolve_string(i).c_str());
+		browser->add( resolve_string(i).c_str() );
 	}
 		
-	control->value(1);	// set the first landmark active
+	browser->value(1);	// set the first landmark as active
 	
 	
-	resizable(control);
+	resizable(browser);
 	end();
 
 }
 
-void FLTKuserIOpar_landmarks::open_callback(Fl_Widget *callingwidget, void * foo)
+void FLTKuserIOpar_landmarks::loadDescriptorCb(Fl_Widget *callingwidget, void * foo)
 {
-	std::cout << "open model..." << std::endl;
+	std::cout << "Load descriptor file" << std::endl;
 }
 
-void FLTKuserIOpar_landmarks::new_callback(Fl_Widget *callingwidget, void * foo)
+void FLTKuserIOpar_landmarks::newSetCb(Fl_Widget *callingwidget, void * foo)
 {
-	std::cout << "New set of landmarks" << std::endl;
+	std::cout << "New landmark set" << std::endl;
 	// remove the present point_colection and open a new (or just clear the present?)
 }
 
-void FLTKuserIOpar_landmarks::browser_callback(Fl_Widget *callingwidget, void * landmarks_id_pointer)
+void FLTKuserIOpar_landmarks::saveSetCb(Fl_Widget *callingwidget, void * foo)
+{
+	std::cout << "Save landmark set" << std::endl;
+}
+
+void FLTKuserIOpar_landmarks::loadSetCb(Fl_Widget *callingwidget, void * foo)
+{
+	std::cout << "Load landmark set" << std::endl;
+}
+
+void FLTKuserIOpar_landmarks::browserCb(Fl_Widget *callingwidget, void * landmarks_id_pointer)
 {
 	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data((int) landmarks_id_pointer) );
 	
@@ -316,7 +347,7 @@ const std::string FLTKuserIOpar_landmarks::type_name()
 
 void FLTKuserIOpar_landmarks::par_value(landmarksIDtype &v)
 {	
-	v = control->value();
+	v = browser->value();
 }
 
 void FLTKuserIOpar_landmarks::set(int index, Vector3D v)
@@ -326,16 +357,16 @@ void FLTKuserIOpar_landmarks::set(int index, Vector3D v)
 	oss << resolve_string(index-1) << " " << setprecision(1) << v;			// the first index of the Fl_Hold_Browser is 1 but is 0 for thes string vector 
 
 	
-	control->text(index, oss.str().c_str());
+	browser->text(index, oss.str().c_str());
 	
 	next();
 }
 
 void FLTKuserIOpar_landmarks::next()
 {
-	if ( control->value() != 0 && control->value() < control->size() ) 	// 0 means that no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
+	if ( browser->value() != 0 && browser->value() < browser->size() ) 	// 0 means that no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
 	{
-		control->value(control->value() + 1);
+		browser->value(browser->value() + 1);
 	}
 }
 
@@ -597,7 +628,7 @@ const std::string FLTKuserIOpar_points::type_name ()
 
 FLTKuserIOpar_voxelseed::FLTKuserIOpar_voxelseed (const std::string name) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
 {
-	//ööö
+	//Ë†Ë†Ë†
     catch_button = new Fl_Button(x(),y()+PARTITLEMARGIN,50,STDPARWIDGETHEIGHT-PARTITLEMARGIN,"Catch..");
     catch_button->callback(catch_button_cb);
 	
@@ -608,7 +639,7 @@ FLTKuserIOpar_voxelseed::FLTKuserIOpar_voxelseed (const std::string name) : FLTK
 
 void FLTKuserIOpar_voxelseed::par_value (Vector3D & vec)
 {
-	vec = v->get(); //ööö
+	vec = v->get(); //Ë†Ë†Ë†
 }
 
 const std::string FLTKuserIOpar_voxelseed::type_name ()

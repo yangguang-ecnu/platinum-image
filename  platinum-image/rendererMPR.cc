@@ -430,6 +430,10 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         the_image++;
 	} //per-image loop
     	
+
+	draw_slice_locators(pixels, rgb_sx, rgb_sy, where, what);
+
+
     #pragma mark *** per-point render loop ***
     	
     for (rendercombination::iterator pairItr = what->begin();pairItr != what->end();pairItr++)  
@@ -475,7 +479,6 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 	
 	}//point rendering loop
 	
-	draw_slice_locators(pixels, rgb_sx, rgb_sy, where);
 
 }//render_ function
 
@@ -575,12 +578,17 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 	}
 }
 
-//AF
-void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry * where)
+void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry * where, rendercombination * what)
 {
+	if ( !dynamic_cast<image_base *>( what->top_image() ) )
+	{	// not an image (i.e. a point_collection or something else)
+		return;
+	}
+
 	std::vector<rendergeometry *> geometries;
 
-	std::vector<int> renderers = rendermanagement.renderers_with_images();	
+	std::vector<int> renderers = rendermanagement.renderers_from_data( what->top_image()->get_id() );
+	//std::vector<int> renderers = rendermanagement.renderers_with_images();	
 	
 	for ( std::vector<int>::iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
 	{ 
@@ -607,10 +615,6 @@ void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeome
 
 	Vector3D zeros;
 	zeros.Fill(0);
-//	zeros[0] = 0;
-//	zeros[1] = 0;
-//	zeros[2] = 0;
-
 
 	for ( std::vector<rendergeometry *>::iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
 	{
@@ -703,7 +707,7 @@ void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeome
 	}			
 }
 
-int rendererMPR::sgn (long a)
+int rendererMPR::sgn ( long a )
 {
 	if (a > 0)
 		{ return +1; }
@@ -715,6 +719,9 @@ int rendererMPR::sgn (long a)
 	
 void rendererMPR::draw_line(uchar *pixels, int sx, int sy, int a, int b, int c, int d,  std::vector<int> color)
 {
+	// Line algorithm
+	// http://www.cprogramming.com/tutorial/tut3.html
+
 	long u, s, v, d1x, d1y, d2x, d2y, m, n;
 	int  i;
 	

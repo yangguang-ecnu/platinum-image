@@ -47,7 +47,8 @@ public:
         dragNdrop,
         draw,
         resize,
-		focus	// focus all viewports where the mouse is (typically double LMB) //AF
+		focus,	// focus all viewports where the mouse is (typically double LMB) //AF
+		rotate
     }pt_event_type;
     typedef enum  { no_state,
         idle,                      // for pressing modifier keys

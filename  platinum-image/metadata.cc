@@ -58,7 +58,6 @@ int metadata::get_data_int(string key)
 	return s;
 }
 
-//AF
 string metadata::get_data_as_string ( std::string key )
 {
 	base * b = meta_map[key];

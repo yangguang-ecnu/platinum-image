@@ -251,9 +251,14 @@ class FLTKuserIOpar_coord3Ddisplay : public FLTKuserIOparameter_base
 class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 {
 	protected:
-		Fl_Hold_Browser * control;
-        Fl_Button * open_button;
-		Fl_Button * new_button;		
+		Fl_Output * descriptorText;
+		Fl_Output * landmarkText;
+        Fl_Button * loadDescriptorBtn;
+		Fl_Button * newSetBtn;		
+		Fl_Button * saveSetBtn;		
+		Fl_Button * loadSetBtn;		
+		Fl_Hold_Browser * browser;
+        FLTKimage_choice * image;
 		std::vector<std::string> landmark_names;
 		std::vector<std::string> option_names;
 		std::string resolve_string(int index);
@@ -261,9 +266,11 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 	public:
 		FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, const int landmarks_id);
 
-		static void open_callback(Fl_Widget *callingwidget, void *);
-		static void new_callback(Fl_Widget *callingwidget, void *);
-		static void browser_callback(Fl_Widget *callingwidget, void *);
+		static void loadDescriptorCb(Fl_Widget *callingwidget, void *);
+		static void newSetCb(Fl_Widget *callingwidget, void *);
+		static void saveSetCb(Fl_Widget *callingwidget, void *);
+		static void loadSetCb(Fl_Widget *callingwidget, void *);
+		static void browserCb(Fl_Widget *callingwidget, void *);
 
 		const std::string type_name();
         void par_value(landmarksIDtype &v);
@@ -383,7 +390,7 @@ class FLTKuserIOpar_voxelseed : public FLTKuserIOparameter_base //direct seed po
 protected:
     Fl_Button *catch_button;
 	FLTK_Vector3D *v;
-	static void catch_button_cb(Fl_Widget *callingwidget, void *);//ööö
+	static void catch_button_cb(Fl_Widget *callingwidget, void *);//Ë†Ë†Ë†
 
 public:
     FLTKuserIOpar_voxelseed(std::string name);

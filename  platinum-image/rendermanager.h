@@ -92,6 +92,8 @@ class rendermanager
         void combination_update_callback (int c_id);
         std::vector<int> combinations_from_data (int dataID);    //return any combinations containing the data object with dataID
 
+		std::vector<int> renderers_from_data ( int dataID );
+
 		//AF
 		int renderer_from_combination(const int combination_id) const; // return a renderer id from a combination id
 		
@@ -124,7 +126,8 @@ class rendermanager
         void set_blendmode(int rend_index,blendmode mode);   //sets combination-wide blend mode, if blendmode is later defined
                                                              //for each image in a combination, this should set all of them
 															 
-		void fit_image ( const int rendererID, image_base * image );
+		void center_and_fit ( const int rendererID, image_base * image );
+		void center_and_fit ( image_base * image );
     };
 
 #endif

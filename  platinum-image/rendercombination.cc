@@ -117,7 +117,7 @@ void rendercombination::toggle_data(int dataID)
         
         if ( image != NULL )
 		{	// it is an image
-			rendermanagement.fit_image( rendermanagement.renderer_from_combination(get_id()), image );
+			rendermanagement.center_and_fit( rendermanagement.renderer_from_combination(get_id()), image );
 		}
 	}
 }
