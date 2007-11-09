@@ -1460,9 +1460,91 @@ int image_binary<IMAGEDIM>::find_voxel_index_percent_object_content(int dir, int
 		}
 		break;
 	default:
-		pt_error::error("find_voxel_index_percent_object_content, eroenous direction...",pt_error::debug);
+		pt_error::error("find_voxel_index_percent_object_content, erroneous direction...",pt_error::debug);
 		break;
 	}
 
 	return backup_return_value;
 }
+
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::convex_hull_line_filling_3D(int dir, IMGBINARYTYPE object_value)
+{
+	int first;
+	int last;
+	int sx = this->datasize[0];
+	int sy = this->datasize[1];
+	int sz = this->datasize[2];
+
+	switch(dir){
+	case 0:
+		for(int z=0; z<sz; z++){		
+			for(int y=0; y<sy; y++){
+				first=-1;
+				last=-1;
+				for(int x=0; x<sx; x++){
+					if(this->get_voxel(x,y,z) == object_value){
+						if(first==-1){
+							first = x;
+						}else{
+							last = x;
+						}
+					}
+				}
+				if(last>-1){
+					this->draw_line_2D(first,y,last,y,z,object_value);
+				}
+			}
+		}
+		break;
+	case 1:
+		for(int z=0; z<sz; z++){		
+			for(int x=0; x<sx; x++){
+				first=-1;
+				last=-1;
+				for(int y=0; y<sy; y++){
+					if(this->get_voxel(x,y,z) == object_value){
+						if(first==-1){
+							first = y;
+						}else{
+							last = y;
+						}
+					}
+				}
+				if(last>-1){
+					this->draw_line_2D(x,first,x,last,z,object_value);
+				}
+			}
+		}
+		break;
+	case 2:
+		for(int y=0; y<sy; y++){
+			for(int x=0; x<sx; x++){
+				first=-1;
+				last=-1;
+				for(int z=0; z<sz; z++){		
+					if(this->get_voxel(x,y,z) == object_value){
+						if(first==-1){
+							first = z;
+						}else{
+							last = z;
+						}
+					}
+				}
+				if(last>-1){
+					for(int z=first; z<=last; z++){	
+						this->set_voxel(x,y,z,object_value);
+					}
+				}
+			}
+		}
+		break;
+	default:
+		pt_error::error("convex_hull_line_filling_3D, erroneous direction...",pt_error::debug);
+		break;
+	}
+
+}
+
+	 

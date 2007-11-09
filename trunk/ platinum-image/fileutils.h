@@ -3,7 +3,7 @@
 //  FileUtils
 //
 //  File & directory functions
-//
+//	String handling
 //
 
 // This file is part of the Platinum library.
@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 #include <sys/stat.h>
+#include <sstream>
 
 #define MAXPATHLENGTH 512
 
@@ -51,7 +52,44 @@ std::vector<std::string> subdirs (std::string dir_path);       //!get immediate 
 bool file_exists (std::string file_path);   //! return whether file exists. //! NOTE: returns false for existing directory
 bool dir_exists (std::string file_path);                              
 
+
+//------------- String handling functions ----------------------
+
 bool does_string_end_with(std::string s, std::string ending);
 bool remove_file_lastname(std::string &s, int max_no_lastname_chars=3);
+
+std::string int2str(int i);
+std::string float2str(float f);
+
+template <class ELEMTYPE >
+std::string templ_to_string (ELEMTYPE t)
+    {
+    std::ostringstream output;
+    output.flags( std::ios::boolalpha | std::ios::dec );
+    output.fill(' ');
+
+    //a true templated function would *not* cast to float,
+    //instead use a specialization for bool and unsigned char,
+    //however that causes a problem with the current structure (see below)
+    output << static_cast<float>(t);
+
+    return output.str();
+    }
+
+//template specialization seems to be treated as regular function body,
+//and creates a link error for being multiply defined here
+
+/*template <>
+std::string templ_to_string (unsigned char t)
+    {
+    std::ostringstream output;
+    output.flags( std::ios::boolalpha | std::ios::dec );
+    output.fill(' ');
+
+    output << static_cast<unsigned char>(t);
+
+    return output.str();
+    }*/
+
 
 #endif

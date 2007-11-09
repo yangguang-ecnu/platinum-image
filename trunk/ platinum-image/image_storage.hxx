@@ -75,7 +75,7 @@ void image_storage<ELEMTYPE >::set_parameters()
     stats = NULL;
     tfunction = NULL;
 
-    set_stats_histogram (new histogram_1D<ELEMTYPE >(this));  //hist1D constructor calls resze() and calculate()
+    set_stats_histogram (new histogram_1D<ELEMTYPE >(this));  //hist1D constructor calls resize()... and calculate()
 	transfer_function();  //set default transfer function
 	
     stats->min(std::numeric_limits<ELEMTYPE>::min());
@@ -379,34 +379,39 @@ void image_storage<ELEMTYPE >::stats_refresh(bool min_max_refresh)
 
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::min_max_refresh()
-    {
-    ELEMTYPE val;
-
-    ELEMTYPE pre_max=std::numeric_limits<ELEMTYPE>::min();
-    ELEMTYPE pre_min=std::numeric_limits<ELEMTYPE>::max();
-    
-    typename image_storage<ELEMTYPE>::iterator itr = this->begin();
-    while (itr != this->end())
-        {
-        val=*itr;
-        
-        pre_max = max (val, pre_max);
-        pre_min = min (val, pre_min);
-        
-        ++itr;
-        }
+{
+    ELEMTYPE minimum, maximum;
+	get_min_max_values(minimum, maximum);
    
     //don't change if values don't make sense - 
     //that would be an empty/zero image
-    if (pre_min < pre_max)
+    if (minimum < maximum)
         {
-        this->stats->max(pre_max);
-        this->stats->min(pre_min);
-
-//        this->maxvalue=pre_max;
-  //      this->minvalue=pre_min;
+        this->stats->min(minimum);
+        this->stats->max(maximum);
         }
-    }
+}
+
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &maximum)
+{
+//	if(num_elements>0){ //prevents code from being executed on none initiated/allocated images...
+		minimum=std::numeric_limits<ELEMTYPE>::max();
+		maximum=std::numeric_limits<ELEMTYPE>::min();
+
+		ELEMTYPE val;
+		typename image_storage<ELEMTYPE>::iterator itr = this->begin();
+		while (itr != this->end())
+		{
+			val=*itr;
+			minimum = min (val, minimum);
+			maximum = max (val, maximum);
+			++itr;
+		}
+//	}
+}
+
+
 /*
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::save_histogram_to_txt_file(std::string filepath, std::string separator)

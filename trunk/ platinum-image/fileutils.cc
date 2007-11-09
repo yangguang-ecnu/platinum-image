@@ -200,3 +200,13 @@ std::vector<std::string> subdirs (std::string dir_path)
         }
     return result;
     }
+
+
+std::string int2str(int i){
+return templ_to_string(i);
+}
+
+std::string float2str(float f){
+return templ_to_string(f);
+}
+
