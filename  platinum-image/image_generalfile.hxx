@@ -388,47 +388,60 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::str
 {  
 	std::cout << "--- load_dataset_from_DICOM_filesAF" << std::endl;
 	
-    typename theSeriesReaderType::Pointer reader = theSeriesReaderType::New();
-
-    itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
-
-    reader->SetImageIO ( dicomIO );
-
     typedef itk::GDCMSeriesFileNames NamesGeneratorType;
     NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
-
     nameGenerator->SetUseSeriesDetails ( false );			// no details - crucial because existing
     nameGenerator->SetLoadPrivateTags ( true ); 
-	
     nameGenerator->SetDirectory ( dir_path.c_str() );
 
     typedef std::vector< std::string > FileNamesContainer; 
-    FileNamesContainer fileNames; 
-	
-    fileNames = nameGenerator->GetFileNames ( seriesIdentifier );     
+    FileNamesContainer fileNames = nameGenerator->GetFileNames ( seriesIdentifier );     
+//    fileNames = nameGenerator->GetFileNames ( seriesIdentifier );     
 
-	reader->SetFileNames ( fileNames );
 
-    try 
-		{ reader->Update(); }
-    catch (itk::ExceptionObject &ex)
-		{ std::cout << ex << std::endl; }
+	//No check if zero or only one file...
+	if(fileNames.size()==1){
+		typename theReaderType::Pointer reader = theReaderType::New();
 
-    typename theImagePointer image = theImageType::New();
-    image = reader->GetOutput();
+		itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+		reader->SetImageIO ( dicomIO );
+		reader->SetFileName ( fileNames[0].c_str() );
+		try { reader->Update(); }
+		catch (itk::ExceptionObject &ex)
+			{ std::cout << ex << std::endl; }
 
-    // *** transfer image data to our platform's data structure ***
-    replicate_itk_to_image(image);
+		typename theImagePointer image = theImageType::New();
+		image = reader->GetOutput();
+
+		// *** transfer image data to our platform's data structure ***
+		replicate_itk_to_image(image);
+
+	}else if(fileNames.size()>1){
+		typename theSeriesReaderType::Pointer reader = theSeriesReaderType::New();
+
+		itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+		reader->SetImageIO ( dicomIO );
+		reader->SetFileNames ( fileNames );
+		try { reader->Update(); }
+		catch (itk::ExceptionObject &ex)
+			{ std::cout << ex << std::endl; }
+
+		typename theImagePointer image = theImageType::New();
+		image = reader->GetOutput();
+
+		// *** transfer image data to our platform's data structure ***
+		replicate_itk_to_image(image);
+
+	}else{
+		pt_error::error("load_dataset_from_DICOM_filesAF--> fileNames.size()==0",pt_error::debug);
+	}
+
 
     this->from_file(true);
-
 	this->meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
-
 	this->name( this->meta.get_name() );
-
 	this->read_geometry_from_dicom_file ( fileNames[0].c_str() );			// use the first file name in the vector
 	//this->read_geometry_from_dicom_file ( fileNames.back().c_str() );		// use the last file name in the vector
-	
 }
 
 
