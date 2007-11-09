@@ -776,14 +776,23 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, const std::string separator)
+void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, bool reload_hist_from_image, gaussian *g, const std::string separator)
 	{
 		cout<<"save_histogram_to_txt_file..."<<endl;
 		cout<<this->stats<<endl;
 		pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
-		this->stats->save_histogram_to_txt_file(filename,separator);
+		this->stats->save_histogram_to_txt_file(filename, reload_hist_from_image, g, separator);
 	}
-
+/*
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file2(const std::string filename, bool reload_hist_from_image, const std::string separator)
+	{
+		cout<<"save_histogram_to_txt_file..."<<endl;
+		cout<<this->stats<<endl;
+		pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file2 - stats==NULL",pt_error::debug);
+		this->stats->save_histogram_to_txt_file2(filename, reload_hist_from_image, separator);
+	}
+*/
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity, int scale_a, int scale_b)
 {
@@ -1260,7 +1269,7 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection(int dir, PROJECTION_MODE PROJ)
+image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3D(int dir, PROJECTION_MODE PROJ)
 { //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
 
 	image_scalar<ELEMTYPE, 3>* res = new image_scalar<ELEMTYPE, 3>(); 
@@ -1327,6 +1336,132 @@ image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection(i
 	return res;
 }
  
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D(int rot_axis, int pos_neg_dir)
+{ 
+	cout<<"rotate_voxeldata_3D("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")"<<endl;
+
+	image_scalar<ELEMTYPE, 3>* res = new image_scalar<ELEMTYPE, 3>(); 
+	int sx = this->get_size_by_dim(0);
+	int sy = this->get_size_by_dim(1);
+	int sz = this->get_size_by_dim(2);
+
+	if(rot_axis == 0 && pos_neg_dir == +1){
+
+		res->initialize_dataset(sx,sz,sy);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(x,sz-1-z,y,this->get_voxel(x,y,z));
+				}
+			}
+		}
+	}
+	else if(rot_axis == 0 && pos_neg_dir == -1){
+		//change orientation matrix
+		res->initialize_dataset(sx,sz,sy);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(x,z,sy-1-y,this->get_voxel(x,y,z));
+				}
+			}
+		}
+
+	}else if(rot_axis == 1 && pos_neg_dir == +1){
+
+		res->initialize_dataset(sz,sy,sx);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(z,y,sx-1-x,this->get_voxel(x,y,z));
+				}
+			}
+		}
+
+	}else if(rot_axis == 1 && pos_neg_dir == -1){
+
+		res->initialize_dataset(sz,sy,sx);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(sz-1-z,y,x,this->get_voxel(x,y,z));
+				}
+			}
+		}
+
+	}else if(rot_axis == 2 && pos_neg_dir == +1){
+
+		res->initialize_dataset(sy,sx,sz);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(sy-1-y,x,z,this->get_voxel(x,y,z));
+				}
+			}
+		}
+
+	}else if(rot_axis == 2 && pos_neg_dir == -1){
+
+		res->initialize_dataset(sy,sx,sz);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(y,sx-1-x,z,this->get_voxel(x,y,z));
+				}
+			}
+		}
+
+	}else{
+		pt_error::error("rotate_voxeldata_3D-->parameters...("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")",pt_error::debug);
+	}
+
+	return res;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::calculate_TP_FP_Udupa_3D(float &tp, float &fp, float &udupa, image_scalar<ELEMTYPE, IMAGEDIM>* ground_truth, ELEMTYPE gt_obj_val, ELEMTYPE this_obj_val)
+{
+	pt_error::error_if_false(this->same_size(ground_truth)," calculate_TP_FP_Udupa-->NOT same size...",pt_error::debug);
+
+	float any_object=0;
+	float hit=0;
+	float over=0;
+	float under=0;
+	float nr_in_gt=0;
+
+	bool val;
+	bool gt;
+
+	for(int z=0; z<this->datasize[2]; z++){
+		for(int y=0; y<this->datasize[1]; y++){
+			for(int x=0; x<this->datasize[0]; x++){
+				val = this->get_voxel(x,y,z)>0?true:false;
+				gt = ground_truth->get_voxel(x,y,z)>0?true:false;
+
+				if(val&&gt){
+					hit++;
+					any_object++;
+					nr_in_gt++;
+				}else if(val){
+					over++;
+					any_object++;
+				}else if(gt){
+					under++;
+					any_object++;
+					nr_in_gt++;
+				}
+			}
+		}
+	}
+
+	tp = hit/nr_in_gt;
+	fp = over/nr_in_gt;
+	udupa = hit/any_object;
+}
+
 
 #include "image_scalarprocess.hxx"
 

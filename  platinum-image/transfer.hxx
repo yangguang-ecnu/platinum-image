@@ -302,36 +302,6 @@ void transfer_default<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 
 
 template <class ELEMTYPE >
-std::string templ_to_string (ELEMTYPE t)
-    {
-    std::ostringstream output;
-    output.flags( std::ios::boolalpha | std::ios::dec );
-    output.fill(' ');
-
-    //a true templated function would *not* cast to float,
-    //instead use a specialization for bool and unsigned char,
-    //however that causes a problem with the current structure (see below)
-    output << static_cast<float>(t);
-
-    return output.str();
-    }
-
-//template specialization seems to be treated as regular function body,
-//and creates a link error for being multiply defined here
-
-/*template <>
-std::string templ_to_string (unsigned char t)
-    {
-    std::ostringstream output;
-    output.flags( std::ios::boolalpha | std::ios::dec );
-    output.fill(' ');
-
-    output << static_cast<unsigned char>(t);
-
-    return output.str();
-    }*/
-
-template <class ELEMTYPE >
 void transfer_default<ELEMTYPE >::update()
     {
     std::string label = templ_to_string (this->source->get_min());

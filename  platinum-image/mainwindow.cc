@@ -24,7 +24,7 @@
 
 #include "platinumprogram.h"
 
-#include "FLTKviewport.h";
+#include "FLTKviewport.h"
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
@@ -103,9 +103,8 @@ void platinum_init ()
 #endif
 
 //JK-Remove pragma warnings in VS...
-//JK ööö
 #ifdef _MSC_VER
-	//warning C4068: unknown pragma
+	//disable warning C4068: "unknown pragma"
 	#pragma warning(disable: 4068)
 #endif
 

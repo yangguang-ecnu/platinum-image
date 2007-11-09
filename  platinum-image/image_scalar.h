@@ -90,7 +90,8 @@ public:
 
 	void flip_voxel_data_3D(int direction);
 
-    void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
+    void save_histogram_to_txt_file(const std::string filename, bool reload_hist_from_image=true, gaussian *g=NULL, const std::string separator=";");
+//    void save_histogram_to_txt_file2(const std::string filename, bool reload_hist_from_image=true, const std::string separator=";");
 
     image_scalar<ELEMTYPE, IMAGEDIM>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
 
@@ -109,7 +110,15 @@ public:
 //	void gradientFilter2D();
 //	itk::MeanImageFilter<theImageType,theImageType>::Pointer filter = itk::MeanImageFilter<theImageType,theImageType>::New();
 
-    image_scalar<ELEMTYPE, 3>* create_projection(int dir, PROJECTION_MODE PROJ=PROJ_MAX); //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
+    image_scalar<ELEMTYPE, 3>* create_projection_3D(int dir, PROJECTION_MODE PROJ=PROJ_MAX); //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
+	
+	//resamples the voxel data +x +y +z -x -y -z 
+	//positive direction defines anticlockwise rotation around rot_axis...
+	//JK-also (Note Warning) No changes are mead to geometry origin, orientation size...
+	image_scalar<ELEMTYPE, IMAGEDIM>* rotate_voxeldata_3D(int rot_axis, int pos_neg_dir=+1);
+
+	//Calculates TruePositive, FalsePositive values and "Udupa-index" for voxels larger than zero...
+	void calculate_TP_FP_Udupa_3D(float &tp, float &fp, float &udupa, image_scalar<ELEMTYPE, IMAGEDIM>* ground_truth, ELEMTYPE gt_obj_val=1, ELEMTYPE this_obj_val=1 ); 
 
 
 	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----

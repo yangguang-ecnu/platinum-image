@@ -146,6 +146,7 @@ class image_general : public image_storage <ELEMTYPE >
         void set_voxel(int x, int y, int z, ELEMTYPE voxelvalue);
 		void set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction=2);
 		void fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
+		void fill_region_3D(int dir, int start_index, int end_index, ELEMTYPE value);
 		void fill_region_of_mask_3D(image_general<ELEMTYPE, IMAGEDIM> *mask, ELEMTYPE value);
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
@@ -166,6 +167,7 @@ class image_general : public image_storage <ELEMTYPE >
 
 
 		//****** Sub volume operations - regions ********
+		image_general<ELEMTYPE, IMAGEDIM>* get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2);	
 		//... get_sub_region(...)
 
 		//****** Sub volume operations - slices********

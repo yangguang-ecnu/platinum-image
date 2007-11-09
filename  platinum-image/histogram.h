@@ -105,21 +105,33 @@ class histogram_typed : public histogram_base //!features common to histograms o
             {max_value=new_max;}
     };
 
+
+class gaussian{
+public:
+	gaussian(float amp, float cent, float sig);
+	~gaussian(void);
+	float amplitude;	
+	float center;
+	float sigma;		//standard deviation
+	float evaluate_at(int x);
+};
+
+
 template <class ELEMTYPE>
 class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph histogram
     {
     unsigned long render_max;
 
     protected:
-        void render_(unsigned char * image, unsigned int w,unsigned int h)
+        void render_(unsigned char * image, unsigned int w, unsigned int h)
             {}
-        void resize (unsigned long);
     public:
-        histogram_1D (image_storage<ELEMTYPE> * i);
+        histogram_1D (image_storage<ELEMTYPE> * i, int num_buckets=-1);
         histogram_1D (ELEMTYPE * start,ELEMTYPE * end );
 
         ~histogram_1D () {}
         
+        void resize (unsigned long); //JK - Should maybe be protected...
         void render(unsigned char * image, unsigned int width,unsigned int height);
 
 	    //void image (int vol);
@@ -130,7 +142,25 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		virtual bool ready ()
 			{return this->readytorender;}   
 		image_storage<ELEMTYPE> * image ();
-		void save_histogram_to_txt_file(std::string filepath, std::string separator=";");
+
+		void save_histogram_to_txt_file(std::string filepath, bool reload_hist_from_image=true, gaussian *g=NULL, std::string separator="\t");
+		
+		ELEMTYPE bucketpos_to_intensity(int bucketpos);
+		int intensity_to_bucketpos(ELEMTYPE intensity);
+
+//		void smooth_mean(int nr_of_neighbours=3, int nr_of_times=1);
+		void smooth_mean(int nr_of_neighbours, int nr_of_times, int from, int to);
+
+		//------ Fitting of gaussian functions ------
+		void fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to);
+		float find_better_amplitude(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
+		float find_better_center(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
+		float find_better_sigma(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
+		double get_least_square_diff(gaussian g, int from_bucket, int to_bucket);
+		int get_max_value_in_bucket_range(int from, int to);
+		int get_max_value_in_bucket_range(int from, int to, int &max_val_bucket_pos);
+		float get_mean_intensity_in_bucket_range(int from, int to);
+		float get_variance_in_bucket_range(int from, int to);
     };
 
 

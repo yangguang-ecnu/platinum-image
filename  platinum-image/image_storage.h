@@ -94,18 +94,28 @@ class image_storage : public image_base
 //        float get_min_float() const;
         ELEMTYPE get_max() const;
         ELEMTYPE get_min() const;
+
+		//JK - A ".cc" file needs to be created... and following three bodies should be moved...
         ELEMTYPE get_num_values()
             { return stats->num_values(); }
         histogram_1D<ELEMTYPE> * get_histogram()
             {
             pt_error::error_if_null(stats,"Trying to get_histogram() which is NULL");
-                
             return stats;
+            }
+
+		histogram_1D<ELEMTYPE> * get_new_histogram()
+            {
+				ELEMTYPE minimum=1000, maximum=-1000;
+				get_min_max_values(minimum, maximum);
+				return new histogram_1D<ELEMTYPE>(this,int(maximum-minimum));
             }
         virtual void data_has_changed(bool stats_refresh = true) = 0;   
         void stats_refresh(bool min_max_refresh = false);
         void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
                                     //! for use inside processing functions
+        void get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &maximum);
+
 //		void save_histogram_to_txt_file(std::string filepath, std::string separator=";");
 
         void erase();
@@ -114,6 +124,7 @@ class image_storage : public image_base
 		void scale_by_factor(float factor, ELEMTYPE old_center=0, ELEMTYPE new_center=0);
 		void map_values(ELEMTYPE map_from=1, ELEMTYPE map_to=255, ELEMTYPE result_value=255);
 		float get_number_of_voxels_with_value(ELEMTYPE val);
+
 		
 		bool same_size(image_storage<ELEMTYPE> *const image2); //checks the data size only... (not the dimension)
 		void combine(image_storage<ELEMTYPE> *const image2, COMBINE_MODE mode);

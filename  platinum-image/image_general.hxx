@@ -503,6 +503,28 @@ template <class ELEMTYPE, int IMAGEDIM>
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2){
+	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>();
+	res->initialize_dataset(x2-x1+1,y2-y1+1,z2-z1+1);
+
+	cout<<"get_subvolume_from_region_3D..."<<endl;
+//	this->print_geometry();
+//	res->print_geometry();
+//	char c;
+//	cin>>c;
+
+	for (int z=z1,int res_z=0; z<=z2; z++, res_z++){
+		for (int y=y1,int res_y=0; y<=y2; y++,res_y++){
+			for (int x=x1,int res_x=0; x<=x2; x++,res_x++){
+				res->set_voxel(res_x,res_y,res_z, this->get_voxel(x,y,z));
+			}
+		}
+	}
+	return res;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slices_3D(int start_slice, int every_no_slice, int slice_dir)
 {
 	cout<<"get_subvolume_from_slices_3D...("<<slice_dir<<")"<<endl;
@@ -1075,6 +1097,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_by_dir(int u, int v, int w, EL
 	else
 		set_voxel(u,v,w,value);//Loop over z
 }
+
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value)
 {
@@ -1086,6 +1109,56 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(int x, int y, int z, int 
 		}
 	}
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(int dir, int start_index, int end_index, ELEMTYPE value)
+{
+	switch(dir){
+	case 0:
+		if(start_index<0 || start_index>=this->get_size_by_dim(0) || end_index<0 || end_index>=this->get_size_by_dim(0))
+			{pt_error::error("fill_region_3D--> erroneous index...",pt_error::debug);}
+		
+		for(int x=start_index; x<=end_index; x++){
+			for(int z=0; z<this->datasize[2]; z++){
+				for(int y=0; y<this->datasize[1]; y++){
+					this->set_voxel(x,y,z,value);
+				}
+			}
+		}
+		break;
+
+	case 1:
+		if(start_index<0 || start_index>=this->get_size_by_dim(1) || end_index<0 || end_index>=this->get_size_by_dim(1))
+			{pt_error::error("fill_region_3D--> erroneous index...",pt_error::debug);}
+		
+		for(int y=start_index; y<=end_index; y++){
+			for(int z=0; z<this->datasize[2]; z++){
+				for(int x=0; x<this->datasize[0]; x++){
+					this->set_voxel(x,y,z,value);
+				}
+			}
+		}
+		break;
+
+	case 2:
+		if(start_index<0 || start_index>=this->get_size_by_dim(2) || end_index<0 || end_index>=this->get_size_by_dim(2))
+			{pt_error::error("fill_region_3D--> erroneous index...",pt_error::debug);}
+		
+		for(int z=start_index; z<=end_index; z++){
+			for(int y=0; y<this->datasize[1]; y++){
+				for(int x=0; x<this->datasize[0]; x++){
+					this->set_voxel(x,y,z,value);
+				}
+			}
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+		
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::fill_region_of_mask_3D(image_general<ELEMTYPE, IMAGEDIM> *mask, ELEMTYPE value)
