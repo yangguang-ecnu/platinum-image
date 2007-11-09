@@ -158,7 +158,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
     
     // *** Volume setup ***
     
-    Vector3D voxel_offset[MAXRENDERVOLUMES]; //offset (translation) from origin in image
+    Vector3D voxel_offset[MAXRENDERVOLUMES]; //The voxel index ,for each volume, that should be displayed in the top left corner of the viewport
     
     float rgb_min_norm=min(float(rgb_sx),float(rgb_sy));
     
@@ -254,41 +254,42 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             RGBvalue value = RGBvalue();
             bool threshold_value = false;
             
-            Vector3D start,end;
-            
-            //end of direction vectors and precomputed variables
-            //derived from these
-            
-            //start position in image
- 
-			Matrix3D revDir;
-            
-            revDir = the_image_pointer->get_orientation().GetInverse();
 
-			Vector3D origin = the_image_pointer->get_origin();
-
+			//"(where->dir * screen_center)/(where->zoom * scale)"  
+			//This rotates/scales/returns vector from top left viewport corner to viewport center in world coordinates...
 			voxel_offset[the_image] = the_image_pointer->world_to_voxel( where->look_at - ( (where->dir * screen_center) / (where->zoom * scale) ) );
 
+            //start position in image
+            Vector3D start,end;
             start = voxel_offset[the_image];
                         
-            //set slope to size of render plane in unit coordinates
+
+			//set slope to size of render plane in unit coordinates
+			Matrix3D orientation_inv;
+            orientation_inv = the_image_pointer->get_orientation().GetInverse();
+//			Vector3D origin = the_image_pointer->get_origin();
                         
-            Matrix3D slope;
-            slope = the_image_pointer->get_voxel_resize().GetInverse();
-            
-            slope = revDir * slope;
+            Matrix3D slope;			//this matrix transforms translations in viewport pixels to translations in volume voxels
+			slope.SetIdentity();
+            slope = orientation_inv * slope;
+			
+			Matrix3D inv_size;
+			inv_size = the_image_pointer->get_voxel_resize().GetInverse();
+            slope = inv_size * slope;
             
             slope/= where->zoom * scale;
-            
+
+			//calculate the "slope" in volume voxels for x-steps in viewpost pixels 
             Vector3D slope_x;
             slope_x.Fill(0);
             slope_x[0] = 1;
-            slope_x = slope * where->dir * slope_x;
+            slope_x = slope * slope_x;
             
+			//calculate the "slope" in volume voxels for y-steps in viewpost pixels 
             Vector3D slope_y;
             slope_y.Fill(0);
             slope_y[1] = 1;
-            slope_y = slope * where->dir * slope_y;
+            slope_y = slope * slope_y;
             
             //position to read in voxel data grid
             Vector3D vox;

@@ -421,6 +421,7 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
 //        if (m > SAGITTAL)
 //            {dir_menu_items[m].deactivate();}
         }
+
     //terminate menu
     dir_menu_items[m].label(NULL);
     

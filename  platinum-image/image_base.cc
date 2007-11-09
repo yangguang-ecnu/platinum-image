@@ -160,7 +160,7 @@ Vector3D image_base::world_to_voxel(const Vector3D wpos) const
 	Matrix3D inv_voxel_resize;
 	inv_voxel_resize = get_voxel_resize().GetInverse();
 		
-	vPos = inv_orientation * inv_voxel_resize * vPos;
+	vPos = inv_voxel_resize* inv_orientation * vPos;
 	
 	return vPos;
 
