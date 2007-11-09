@@ -283,14 +283,19 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             Vector3D slope_x;
             slope_x.Fill(0);
             slope_x[0] = 1;
-            slope_x = slope * slope_x;
-            
+
+            slope_x = slope * where->dir * slope_x;
+			//where->dir is required to make other views than axial "z-dir" possible...
+
+
 			//calculate the "slope" in volume voxels for y-steps in viewpost pixels 
             Vector3D slope_y;
             slope_y.Fill(0);
             slope_y[1] = 1;
-            slope_y = slope * slope_y;
-            
+            slope_y = slope * where->dir * slope_y;
+			//where->dir is required to make other views than axial "z-dir" possible...
+
+
             //position to read in voxel data grid
             Vector3D vox;
             
