@@ -53,19 +53,19 @@ public:
 	image_scalar(ELEMTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize) : image_general<ELEMTYPE, IMAGEDIM>(inData,inDataNumElems, width, height, voxelSize) {}
     //raw constructor
     image_scalar(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile = 1,unsigned int increment = 1) : image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment){};
+    image_scalar(const string filepath):image_general<ELEMTYPE, IMAGEDIM>(filepath){}
 
 
+	//------------------------- Interpolations -------------------------
 
 //	void interpolate_bilinear_2D(float phys_x, float phys_y, int vox_z);
 //	void interpolate_trilinear_3D_ITK(float phys_x, float phys_y, float phys_z); //no boundary checks in "itkLinearInterpolateImageFunction.h" 
 	void interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation using the vxl package, alpha-tested
 
-
 	// Tricubic interpolation using method described in:
 	// F. Lekien, J.E. Marsden
 	// Tricubic Interpolation in Three Dimensions
 	// International Journal for Numerical Methods in Engineering, 63 (3), 455-471, 2005
-
 	void interpolate_tricubic_3D(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation from "libtricubic" package
 
 	//Speed the "interpolate_tricubic_3D" function up by precalculationg the numericla diffs for the whole image.
@@ -79,6 +79,7 @@ public:
 
 
 
+	//------------------------- Various Operations -------------------------
 
     image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high=std::numeric_limits<ELEMTYPE>::max(), IMGBINARYTYPE true_inside_threshold=true); ///Return a image_binary where all voxels with values between low and high gets the value true_inside_threshold.
 	void draw_line_2D(int x0, int y0, int x1, int y1, int z, ELEMTYPE value, int direction=2); ///Draw a line between (x0,y0) and (x1,y1) in plane z using color described by value. The coordinates are given on the plane orthogonal to the axis given by direction.
@@ -110,7 +111,8 @@ public:
 //	void gradientFilter2D();
 //	itk::MeanImageFilter<theImageType,theImageType>::Pointer filter = itk::MeanImageFilter<theImageType,theImageType>::New();
 
-    image_scalar<ELEMTYPE, 3>* create_projection_3D(int dir, PROJECTION_MODE PROJ=PROJ_MAX); //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
+	//TODO: to implement different PROJ_MODES and to return a 2D Image...
+	image_scalar<ELEMTYPE, 3>* create_projection_3D(int dir, PROJECTION_MODE PROJ=PROJ_MAX); //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
 	
 	//resamples the voxel data +x +y +z -x -y -z 
 	//positive direction defines anticlockwise rotation around rot_axis...
@@ -119,6 +121,9 @@ public:
 
 	//Calculates TruePositive, FalsePositive values and "Udupa-index" for voxels larger than zero...
 	void calculate_TP_FP_Udupa_3D(float &tp, float &fp, float &udupa, image_scalar<ELEMTYPE, IMAGEDIM>* ground_truth, ELEMTYPE gt_obj_val=1, ELEMTYPE this_obj_val=1 ); 
+
+
+
 
 
 	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----
@@ -130,7 +135,6 @@ public:
 	// Note that function can be moved to image_storage...
     image_scalar<ELEMTYPE, IMAGEDIM>* calculate_T1Map_from_two_flip_angle_MRvolumes_3D(image_scalar<ELEMTYPE, IMAGEDIM > *small_flip, float body_thres=0, float t1_min=0, float t1_max=2000); 
     image_scalar<ELEMTYPE, IMAGEDIM>* calculate_T1Map_3D(vector<image_scalar<ELEMTYPE, IMAGEDIM > *> v, float body_thres=0, float t1_min=0, float t1_max=2000); 
-
 
 };
 

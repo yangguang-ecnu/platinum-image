@@ -252,9 +252,17 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(int w, int h, int d, ELEMTYPE *
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_general<ELEMTYPE, IMAGEDIM>::image_general(const string filepath)
+{
+	//ööö
+	this->load_file_to_this(filepath);
+	this->data_has_changed();
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d)
-//this definition catches the virtual
-//initialize_dataset in image_base
+//this definition catches the virtual initialize_dataset in image_base
     {
     initialize_dataset( w,  h,  d, NULL);
     }
@@ -284,6 +292,44 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
         
     set_parameters();
     }
+
+//öööö
+template <class ELEMTYPE, int IMAGEDIM>
+template <class LOADERTYPE>
+bool image_general<ELEMTYPE, IMAGEDIM>::try_single_loader(std::string s) //! helper for image_base::load
+{
+    std::vector<std::string> v;
+	v.push_back(s);
+	LOADERTYPE loader = LOADERTYPE(&v);
+	image_general<ELEMTYPE, IMAGEDIM> *new_image = dynamic_cast< image_general<ELEMTYPE, IMAGEDIM> * >(loader.read());
+
+	if(new_image != NULL){
+		this->initialize_dataset(new_image->datasize[0],new_image->datasize[1], new_image->datasize[2]);
+		copy_data(new_image,this);
+		this->set_parameters(new_image);
+		delete new_image;
+		return true;
+	}
+	delete new_image;
+	return false;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::load_file_to_this(std::string f)	//loads one file to this...
+{
+	if(file_exists(f)){
+		bool success = false;
+		success = try_single_loader<vtkloader>(f);
+		if(!success){success = try_single_loader<dicomloader>(f);}
+		if(!success){success = try_single_loader<analyze_objloader>(f);}
+		if(!success){success = try_single_loader<analyze_hdrloader>(f);}
+		if(!success){success = try_single_loader<brukerloader>(f);}
+
+		//do not pop up a raw_importer window...
+	    //rawimporter::create(chosen_files);
+	}
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::data_has_changed(bool stat_refresh)
@@ -327,13 +373,13 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters()
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void  image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image()
+void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image()
     {
     replicate_itk_to_image(ITKimportimage);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void  image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i)
+void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i)
     {
     pt_error::error_if_false (i.IsNotNull (), "Attempting to create ITK image from unitialized image object", pt_error::fatal ); 
 

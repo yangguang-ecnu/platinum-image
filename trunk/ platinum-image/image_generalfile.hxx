@@ -219,6 +219,8 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(std::vector<std::string> files,
         }
     }
 
+/*
+
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier)
     {  
@@ -315,9 +317,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files(std::strin
 
 	this->meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
     }
+*/
 
-
-
+/*
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier)
 {
@@ -382,11 +384,15 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::stri
 	this->read_geometry_from_dicom_file( fileNames[0].c_str() );
 
 }
+*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::string dir_path,std::string seriesIdentifier)
 {  
-	std::cout << "--- load_dataset_from_DICOM_filesAF" << std::endl;
+	std::cout<< "--- load_dataset_from_DICOM_filesAF" << std::endl;
+	std::cout<<"dir_path="<<dir_path<<std::endl;
+	dir_path = path_parent(dir_path);
+	std::cout<<"dir_path="<<dir_path<<std::endl;
 	
     typedef itk::GDCMSeriesFileNames NamesGeneratorType;
     NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
@@ -398,8 +404,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::str
     FileNamesContainer fileNames = nameGenerator->GetFileNames ( seriesIdentifier );     
 //    fileNames = nameGenerator->GetFileNames ( seriesIdentifier );     
 
+	load_dataset_from_these_DICOM_files(fileNames);
+}
 
-	//No check if zero or only one file...
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_these_DICOM_files(vector<string> fileNames){
 	if(fileNames.size()==1){
 		typename theReaderType::Pointer reader = theReaderType::New();
 
@@ -422,6 +431,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::str
 		itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
 		reader->SetImageIO ( dicomIO );
 		reader->SetFileNames ( fileNames );
+
 		try { reader->Update(); }
 		catch (itk::ExceptionObject &ex)
 			{ std::cout << ex << std::endl; }
@@ -442,6 +452,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::str
 	this->name( this->meta.get_name() );
 	this->read_geometry_from_dicom_file ( fileNames[0].c_str() );			// use the first file name in the vector
 	//this->read_geometry_from_dicom_file ( fileNames.back().c_str() );		// use the last file name in the vector
+
 }
 
 

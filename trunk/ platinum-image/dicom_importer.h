@@ -81,7 +81,7 @@ using namespace std;
 //----------------------------------------------------------
 //----------------------------------------------------------
 //JK - Note that the dicom loader declaration "needs" to be moved to the image_base .h file...
-
+/*
 class dicom_import_loader: public dicomloader 
 {
 private:
@@ -91,7 +91,7 @@ public:
     dicom_import_loader (vector<string> *f, string vol_name);
     image_base * read ();
 };
-
+*/
 
 class dcmtable : public Fl_Table_Row
 {

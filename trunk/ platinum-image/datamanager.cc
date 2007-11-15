@@ -27,6 +27,8 @@
 #include "image_integer.hxx"
 #include "stringmatrix.h"
 //#include "renderer_base.h"
+#include "image_base.h"
+
 
 datamanager datamanagement;
 extern rendermanager rendermanagement;
@@ -44,7 +46,7 @@ extern userIOmanager userIOmanagement;
 
 using namespace std;
 
-//#define TESTMODE	//JK4 test mode --> "dcm_import_button"
+#define TESTMODE	//JK4 test mode --> "dcm_import_button"
 
 uchar *animage;
 
@@ -384,7 +386,15 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
 
 void datamanager::load_dcm_import_vector(std::vector<std::string> dcm_filenames, std::string import_vol_name)
 {
-
+	if(dcm_filenames.size()>0){
+		//ööö JK Warning... there is some error in the selected slices / the slice order...
+		cout<<"load_dcm_import_vector..."<<endl;
+		for(int i=0;i<dcm_filenames.size();i++){
+			cout<<"i="<<i<<" "<<dcm_filenames[i]<<endl;
+		}
+		dicomloader dl = dicomloader(&dcm_filenames,DCM_LOAD_ALL);
+		datamanagement.add(dl.read());
+	}
 }
 
 int datamanager::create_empty_image(int x, int y, int z, int unit) // argument must tell us which instance, if multiple

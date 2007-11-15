@@ -40,11 +40,11 @@ extern rendermanager rendermanagement;
 extern viewmanager viewmanagement;
 
 image_base::image_base():data_base()
-    {set_parameters ();}
+    {set_parameters();}
 
 image_base::image_base(image_base* const s):data_base(s)
     {
-    set_parameters ();
+    set_parameters();
     //setting copy name at the root would be neat,
     //but is not possible since the widget isn't
     //created yet
@@ -54,6 +54,16 @@ image_base::image_base(image_base* const s):data_base(s)
 	
     name ("Copy of " + s->name());
     }
+
+/*
+image_base::image_base(const string filepath):data_base()
+	{
+		//ööö
+		set_parameters();
+		this->load_file_to_this(filepath);
+		//this->load(v); //load one volume and set it to "this"
+	}
+*/
 
 void image_base::set_parameters ()    
     {
@@ -164,7 +174,7 @@ Vector3D image_base::world_to_voxel(const Vector3D wpos) const
 	
 	return vPos;
 }
-
+/*
 class vtkloader: public imageloader
 {
 private:
@@ -172,20 +182,6 @@ private:
     
 public:
     vtkloader (std::vector<std::string> *);
-    image_base * read ();
-};
-
-/*
-class dicomloader: public imageloader
-{
-private:
-    itk::GDCMImageIO::Pointer dicomIO;
-    
-	std::vector<std::string> loaded_series; //! UIDs of the DICOM series loaded during this call
-                                  //! to prevent multiple selected frames
-                                  //! from loading the same series multiple times
-public:
-    dicomloader (std::vector<std::string> *);
     image_base * read ();
 };
 */
@@ -278,127 +274,140 @@ image_base *vtkloader::read()
     return result;
     }
 
-dicomloader::dicomloader (std::vector<std::string> * f): imageloader(f)
+
+
+
+
+
+dicomloader::dicomloader(std::vector<std::string> *f): imageloader(f)
 {
-    dicomIO = itk::GDCMImageIO::New();
+	dicomIO = itk::GDCMImageIO::New();
+	this->this_load_type = DCM_LOAD_SERIES_ID_ONLY;
 }
+
+dicomloader::dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type): imageloader(f)
+{
+   dicomIO = itk::GDCMImageIO::New();
+   this_load_type = type;
+}
+
 
 image_base * dicomloader::read()
 {    
-    image_base * result = NULL;
-    
-    for (std::vector<std::string>::const_iterator file = files->begin();file != files->end() && result == NULL;file++) // Repeat until one image has been read
-        {
-        if (dicomIO->CanReadFile (file->c_str()))
-            {
-            dicomIO->SetFileName(file->c_str());
+	image_base * result = NULL;
 
-			//get basic DICOM header
-            dicomIO->ReadImageInformation();
-            
-            //get series UID
-            std::string seriesIdentifier;
-            
-            //"0020|000e" - Series Instance UID (series defined by the scanner)
-            //series ID identifies the series (out of possibly multiple series in
-            //one directory)
-            std::string tagkey = "0020|000e";
-            
-            std::string labelId;
-            if( itk::GDCMImageIO::GetLabelFromTag( tagkey, labelId ) )
-                {
-                //std::cout << labelId << " (" << tagkey << "): ";
-                if( dicomIO->GetValueFromTag(tagkey, seriesIdentifier) )
-                    {
-					
-                    //remove one garbage char at end
-					seriesIdentifier = seriesIdentifier.c_str();
-					
-                    //check if another file in the same series was part of the
-                    //selection (and loaded)
+	for (std::vector<std::string>::const_iterator file = files->begin();file != files->end() && result == NULL;file++){ // Repeat until one image has been read
+		if (dicomIO->CanReadFile (file->c_str())){
+
+			dicomIO->SetFileName(file->c_str());
+			dicomIO->ReadImageInformation();	//get basic DICOM header
+			std::string seriesIdentifier;		//get series UID
+
+			//"0020|000e" - Series Instance UID (series defined by the scanner) series 
+			//ID identifies the series (out of possibly multiple series in one directory)
+			std::string tagkey = "0020|000e";
+
+			std::string labelId;
+			if( itk::GDCMImageIO::GetLabelFromTag( tagkey, labelId ) ){
+				//std::cout << labelId << " (" << tagkey << "): ";
+				if( dicomIO->GetValueFromTag(tagkey, seriesIdentifier) ){
+
+					seriesIdentifier = seriesIdentifier.c_str();//remove one garbage char at end
+
+					//check if another file in the same series was part of the selection (and loaded)
 					std::vector<string>::const_iterator series_itr=loaded_series.begin();
-                    bool already_loaded=false;
-                    
-                    if (find(loaded_series.begin(),loaded_series.end(),seriesIdentifier)
-                        == loaded_series.end())
-                        {loaded_series.push_back(seriesIdentifier);}
-                    else
-                        {already_loaded = true; }
-                    //std::cout << seriesIdentifier << endl;
+					bool already_loaded=false;
 
-                    //get voxel type
-                    itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
-                    
-                    if (!already_loaded) 
-                        {
-                        itk::ImageIOBase::IOComponentType componentType = dicomIO->GetComponentType();
-                        switch ( pixelType)
-                            {
-                            case itk::ImageIOBase::SCALAR:
-                                
-                                
-                                //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
-                                
-                                switch (componentType)
-                                    {
-                                    case itk::ImageIOBase::UCHAR:
-                                        result = new image_integer<unsigned char>();
-                                        ((image_integer<unsigned char>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
-                                        break;
-                                    case itk::ImageIOBase::USHORT:
-                                        result = new image_integer<unsigned short>();
-                                        ((image_integer<unsigned short>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
-                                        break;
-                                    case itk::ImageIOBase::SHORT:
-                                        result = new image_integer<short>();
-                                        ((image_integer<short>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
-                                        break;
-									case itk::ImageIOBase::FLOAT:
-                                        result = new image_integer<float>();
-                                        ((image_integer<float>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
-                                        break;
-                                    default:
-                                        pt_error::error("dicomloader::read() --> Unsupported component type: " + dicomIO->GetComponentTypeAsString (componentType), pt_error::warning);
-										;
-                                    }
-                                break;
-                            case itk::ImageIOBase::COMPLEX:
-                                break;
-                            default:
-                                pt_error::error("image_base::load(...): unsupported pixel type: " + dicomIO->GetPixelTypeAsString(pixelType),pt_error::warning);
-								;
-                                
-                            }
-                        
-                        }//not already loaded
-                    
-                    } //found series tag
-                
-                }//series tag exists
-            else
-                {
-                //no series identifier, OK if the intention is to just load 1 frame
-                //(DICOM files can only contain 1 frame each)
+					if (find(loaded_series.begin(),loaded_series.end(),seriesIdentifier) == loaded_series.end())
+					{loaded_series.push_back(seriesIdentifier);}
+					else
+					{already_loaded = true; }
+					//std::cout << seriesIdentifier << endl;
 
-                pt_error::error("(No Value Found in File)",pt_error::notice);
-                }
+					//get voxel type
+					itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
 
-            files->clear(); //! if at least one file can be read, the rest are assumed to be part of the same series (or otherwise superfluos)
-            }
-        }
-    
-    return result;
+					if (!already_loaded){
+						itk::ImageIOBase::IOComponentType componentType = dicomIO->GetComponentType();
+
+						switch (pixelType){ 							//Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
+						case itk::ImageIOBase::SCALAR:
+							if(this_load_type==DCM_LOAD_SERIES_ID_ONLY){
+								switch(componentType){
+								case itk::ImageIOBase::UCHAR:
+									result = new image_integer<unsigned char>();
+									((image_integer<unsigned char>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
+									break;
+								case itk::ImageIOBase::USHORT:
+									result = new image_integer<unsigned short>();
+									((image_integer<unsigned short>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
+									break;
+								case itk::ImageIOBase::SHORT:
+									result = new image_integer<short>();
+									((image_integer<short>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
+									break;
+								case itk::ImageIOBase::FLOAT:
+									result = new image_integer<float>();
+									((image_integer<float>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
+									break;
+								default:
+									pt_error::error("dicomloader::read() --> Unsupported component type: " + dicomIO->GetComponentTypeAsString (componentType), pt_error::warning);
+								}
+
+							}else if(this_load_type==DCM_LOAD_ALL){
+
+								switch (componentType){
+								case itk::ImageIOBase::UCHAR:
+									result = new image_integer<unsigned char>();
+									((image_integer<unsigned char>*)result)->load_dataset_from_these_DICOM_files(*files);
+									return result;
+									break;
+								case itk::ImageIOBase::USHORT:
+									result = new image_integer<unsigned short>();
+									((image_integer<unsigned short>*)result)->load_dataset_from_these_DICOM_files(*files);
+									return result;
+									break;
+								case itk::ImageIOBase::SHORT:
+									result = new image_integer<short>();
+									((image_integer<short>*)result)->load_dataset_from_these_DICOM_files(*files);
+									return result;
+									break;
+								case itk::ImageIOBase::FLOAT:
+									result = new image_integer<float>();
+									((image_integer<float>*)result)->load_dataset_from_these_DICOM_files(*files);
+									return result;
+									break;
+								default:
+									pt_error::error("dicomloader::read() --> Unsupported component type: " + dicomIO->GetComponentTypeAsString (componentType), pt_error::warning);
+								}//switch
+							}//DCM_LOAD_ALL
+
+						break;
+							case itk::ImageIOBase::COMPLEX:
+								break;
+							default:
+								pt_error::error("image_base::load(...): unsupported pixel type: " + dicomIO->GetPixelTypeAsString(pixelType),pt_error::warning);
+					}//switch -scalar-complex
+
+				}//not already loaded
+
+			} //found series tag
+
+		}//series tag exists
+		else
+		{
+			//no series identifier, OK if the intention is to just load 1 frame
+			//(DICOM files can only contain 1 frame each)
+			pt_error::error("(No Value Found in File)",pt_error::notice);
+		}
+
+		files->clear(); //! if at least one file can be read, the rest are assumed to be part of the same series (or otherwise superfluos)
+	}
 }
 
-class analyze_hdrloader: public imageloader 
-{
-private:
-	int buf2int(unsigned char* buf);
-	short buf2short(unsigned char* buf);
-public:
-    analyze_hdrloader (std::vector<std::string> *);
-    image_base * read ();
-};
+return result;
+}
+
 
 analyze_hdrloader::analyze_hdrloader(std::vector<std::string> * files): imageloader(files)
 	{
@@ -531,12 +540,6 @@ image_base * analyze_hdrloader::read()
     return newImage;
     }
 
-class analyze_objloader: public imageloader 
-{
-public:
-    analyze_objloader (std::vector<std::string> *);
-    image_base * read ();
-};
 
 analyze_objloader::analyze_objloader(std::vector<std::string> * files): imageloader(files)
 	{
@@ -638,12 +641,13 @@ void image_base::try_loader (std::vector<std::string> * f) //! helper for image_
 	}
 }
 
-void image_base::load( std::vector<std::string> f)
+
+void image_base::load( std::vector<std::string> f)	//loads all files and adds them to datamanagement...
     {
     std::vector<std::string> chosen_files(f);
     
-    //try Analyze obj
-    try_loader<analyze_objloader>(&chosen_files);
+    //try Analyze obj   //loads all images it can and removes "them" from the vector
+    try_loader<analyze_objloader>(&chosen_files);	
 
     //try Analyze hdr
     try_loader<analyze_hdrloader>(&chosen_files);
@@ -664,4 +668,34 @@ void image_base::load( std::vector<std::string> f)
         rawimporter::create(chosen_files);
         }
     }
+/*
+template <class LOADERTYPE>
+bool image_base::try_single_loader(std::string s) //! helper for image_base::load
+{
+    std::vector<std::string> v;
+	v.push_back(s);
+	LOADERTYPE loader = LOADERTYPE(&v);
 
+	image_base *new_image = loader.read();
+	if(new_image != NULL){
+		copy_data(new_image,this);
+		return true;
+	}
+	return false;
+}
+
+
+void image_base::load_file_to_this( std::string f)	//loads one file to this...
+{
+	if(file_exists(f)){
+		bool success = false;
+		success = try_single_loader<vtkloader>(f);
+		if(!success){success = try_single_loader<analyze_objloader>(f);}
+		if(!success){success = try_single_loader<analyze_hdrloader>(f);}
+		if(!success){success = try_single_loader<brukerloader>(f);}
+		if(!success){success = try_single_loader<dicomloader>(f);}
+		//do not pop up a raw_importer window...
+	    //rawimporter::create(chosen_files);
+	}
+}
+*/

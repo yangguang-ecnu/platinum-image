@@ -33,6 +33,9 @@
 #include "global.h"
 #include "color.h"
 
+#include "itkVTKImageIO.h"
+//#include "bruker.h"
+
 enum imageDataType
     {
     VOLDATA_UNDEFINED,
@@ -59,6 +62,7 @@ class image_base : public data_base
     protected:
         image_base();
         image_base(image_base* const s);
+//        image_base(const string filepath);	//JK Loads image data from file
 
         void redraw();
 
@@ -78,9 +82,13 @@ class image_base : public data_base
 
         template <class LOADERTYPE>
             static void try_loader (std::vector<std::string> * f); //! helper for image_base::load
-
         static void load(const std::vector<std::string> files);  //load files in supported formats
                                                     //as selected in "files" vector
+//ööö
+//        template <class LOADERTYPE>
+//			bool try_single_loader(std::string s); //! helper for image_base::load_file_to_this
+//		void load_file_to_this( std::string f);	//loads one file to this...
+
 
         virtual void transfer_function(std::string functionName) = 0; //! replace transfer function using string identifier
                     
@@ -138,20 +146,46 @@ public:
         { }
 };
 
-//The dicomloader loads a 
+
 class dicomloader: public imageloader
 {
 private:
+	DICOM_LOADER_TYPE this_load_type;
     itk::GDCMImageIO::Pointer dicomIO;
-    
 	std::vector<std::string> loaded_series; //! UIDs of the DICOM series loaded during this call
-                                  //! to prevent multiple selected frames
-                                  //! from loading the same series multiple times
+                         //! to prevent multiple selected frames from loading the same series multiple times
 public:
-    dicomloader (std::vector<std::string> *);
-    image_base * read ();
+    dicomloader(std::vector<std::string> *f);
+    dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type);
+    image_base * read();
+};
 
-	
+
+class vtkloader: public imageloader
+{
+private:
+    itk::VTKImageIO::Pointer vtkIO;
+    
+public:
+    vtkloader (std::vector<std::string> *);
+    image_base * read ();
+};
+
+class analyze_objloader: public imageloader 
+{
+public:
+    analyze_objloader (std::vector<std::string> *);
+    image_base * read ();
+};
+
+class analyze_hdrloader: public imageloader 
+{
+private:
+	int buf2int(unsigned char* buf);
+	short buf2short(unsigned char* buf);
+public:
+    analyze_hdrloader (std::vector<std::string> *);
+    image_base * read ();
 };
 
 
