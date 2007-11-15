@@ -130,8 +130,8 @@ public:
 		}
     
     //result is deterministic regardless of what's visible, no virtual:
-    std::vector<int> world_to_view (int view_size_x,int view_size_y,const Vector3D world_pos) const;
-    static std::vector<int> world_to_view (rendergeometry * g,int sx,int sy,const Vector3D l);
+    std::vector<int> world_to_view (int view_size_x,int view_size_y,const Vector3D wpos) const;
+    static std::vector<int> world_to_view (rendergeometry * g,int sx,int sy,const Vector3D wpos);
 
     void look_at (float x, float y, float z,float zoom=0);
     

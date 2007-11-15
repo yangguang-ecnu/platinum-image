@@ -38,7 +38,9 @@
 #include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Float_Input.H>
 #include <FL/Fl_Check_Button.H>
-#include <FL/Fl_Hold_Browser.H>		//AF
+#include <FL/Fl_Hold_Browser.H>
+#include <FL/Fl_Box.H>
+
 //#include <FL/Fl_Counter.H>
 //#include <FL/Fl_Menu_Button.H>
 
@@ -252,6 +254,7 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 {
 	protected:
 		Fl_Output * descriptorText;
+		Fl_Box * emptyBox;
 		Fl_Output * landmarkText;
         Fl_Button * loadDescriptorBtn;
 		Fl_Button * newSetBtn;		
@@ -263,8 +266,11 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		std::vector<std::string> option_names;
 		std::string resolve_string(int index);
 		
+		int landmarksID;
+		
 	public:
-		FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, const int landmarks_id);
+		FLTKuserIOpar_landmarks ( const std::string name );
+//		FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, const int landmarks_id);
 
 		static void loadDescriptorCb(Fl_Widget *callingwidget, void *);
 		static void newSetCb(Fl_Widget *callingwidget, void *);
@@ -272,11 +278,14 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		static void loadSetCb(Fl_Widget *callingwidget, void *);
 		static void browserCb(Fl_Widget *callingwidget, void *);
 
+
 		const std::string type_name();
         void par_value(landmarksIDtype &v);
 						
 		void set(int index, Vector3D v);
 		void next();
+		
+		int get_landmarksID();
 };
 
 class FLTKuserIOpar_float : public FLTKuserIOparameter_base    //float value (using slider)

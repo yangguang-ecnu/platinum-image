@@ -39,6 +39,7 @@ class point_collection : public data_base
 		
 	public:
         point_collection();
+		~point_collection();
          
         pointStorage::iterator begin();
         pointStorage::iterator end();

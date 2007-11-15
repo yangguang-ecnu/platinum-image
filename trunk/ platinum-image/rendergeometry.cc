@@ -52,14 +52,14 @@ void rendergeometry::refresh_viewports()
     rendermanagement.geometry_update_callback(this->id);
     }
 	
-//AF	
 float rendergeometry::distance_to_viewing_plane(Vector3D point)
 {
 	// distance to viewing plane
 	// http://www.math.umn.edu/~nykamp/m2374/readings/planedist/index.html
 
+	
 	Vector3D v;
-	v[0] = point[0] - look_at[0] ;
+	v[0] = point[0] - look_at[0] ;		// change to "v = point - look_at" and check that it is working
 	v[1] = point[1] - look_at[1] ;
 	v[2] = point[2] - look_at[2] ;
 
@@ -70,28 +70,14 @@ float rendergeometry::distance_to_viewing_plane(Vector3D point)
 	return distance;
 }
 
-//AF
 Vector3D rendergeometry::get_N()
 {
-	Vector3D direction;
-	direction[0] = 0;
-	direction[1] = 0;
-	direction[2] = 1;
-
+	Vector3D direction = create_Vector3D(0, 0, 1);
 	return dir * direction;
 }
 
-//AF
 Vector3D rendergeometry::get_n()
 {
 	Vector3D N = get_N();
-
-//	float N_norm = sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);		// Euclidean norm
-
-//	Vector3D n;
-//	n[0] = N[0] / N_norm;
-//	n[1] = N[1] / N_norm;
-//	n[2] = N[2] / N_norm;
-	
-	return N / N.GetNorm();
+	return get_N() / N.GetNorm();
 }

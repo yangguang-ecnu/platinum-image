@@ -113,8 +113,7 @@ vector<int> rendermanager::combinations_from_data (int dataID)
     return found_combinations;
     }
 
-//AF
-std::vector<int> rendermanager::renderers_from_data( int dataID )
+std::vector<int> rendermanager::renderers_from_data ( int dataID )
 {
 	std::vector<int> rendererIDs;
 
@@ -128,11 +127,33 @@ std::vector<int> rendermanager::renderers_from_data( int dataID )
 			if ( rpitr->pointer->get_id() == dataID )
 			{
 				rendererIDs.push_back( renderer_from_combination( (*itr)->get_id() ) );
+				break;
 			}
 		}
 	}
 	return rendererIDs;
 }
+
+std::vector<int> rendermanager::renderers_from_data ( const std::vector<int> & dataIDs )
+{
+	std::vector<int> rendererIDs;
+
+	for ( std::vector<renderer_base *>::const_iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
+	{	
+		std::vector<int> images = images_from_combination ( (*itr)->combination_id() );
+		
+		for ( std::vector<int>::const_iterator ditr = dataIDs.begin(); ditr != dataIDs.end(); ditr++ )
+		{
+			if ( find ( images.begin(), images.end(), *ditr ) != images.end() )
+			{	// the renderer holds at least one of the items in the data set (dataIDs)
+				rendererIDs.push_back( (*itr)->get_id() );
+				break;	// leave this iteration
+			}
+		}
+	}
+	return rendererIDs;
+}
+
  
 int rendermanager::renderer_from_combination(const int combination_id) const
 {
@@ -153,6 +174,65 @@ int rendermanager::renderer_from_geometry(const int geometry_id) const
 	}
 	return -1;	
 }
+
+std::vector<int> rendermanager::geometries_from_renderers ( const std::vector<int> & rendererIDs )
+{
+	std::vector<int> geometryIDs;
+	
+	for ( std::vector<int>::const_iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
+	{
+		geometryIDs.push_back( get_geometry_id( find_renderer_index(*itr) ) );
+	}
+	
+	return geometryIDs;
+}
+
+
+std::vector<int> rendermanager::geometries_from_geometry ( const int geometryID, const std::vector<int> & geometryIDs )
+{
+	std::vector<int> IDs;
+
+	Vector3D  a = get_geometry(geometryID)->get_N();
+
+	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
+	{
+		Vector3D b = get_geometry(*itr)->get_N();
+		Vector3D c = CrossProduct( a, b);
+		
+		Vector3D zeros = create_Vector3D(0, 0, 0);
+		
+		if ( c != zeros )
+		{	// a and b are not parallel (i.e. the angle between a and b is 0 or 180)
+			IDs.push_back( *itr );
+		}
+	}
+	return IDs;
+}
+
+std::vector<int> rendermanager::geometries_from_geometry ( const int geometryID )
+{
+	std::vector<int> geometryIDs;
+	
+	for ( std::vector<rendergeometry *>::const_iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
+	{
+		geometryIDs.push_back( (*itr)->get_id() );
+	} 
+	
+	return geometries_from_geometry ( geometryID, geometryIDs );
+}
+
+std::vector<int> rendermanager::geometries_from_combination ( const int combinationID )
+{
+	int rendererID = renderer_from_combination( combinationID );
+	int geometryID = get_geometry_id( find_renderer_index( rendererID ) );
+
+	std::vector<int> imageIDs = images_from_combination( combinationID );		// get the images in the combination
+	std::vector<int> rendererIDs = renderers_from_data( imageIDs );				// get the renderers that holds at least one of the images
+	std::vector<int> geometryIDs = geometries_from_renderers( rendererIDs );	// get the geometry for each renderer
+	geometryIDs = geometries_from_geometry( geometryID, geometryIDs );			// get the geometries, from the given set, that have a different direction than
+																				// the input geomtry (i.e. not the same direction nor the opposite direction)
+	return geometryIDs;
+}
 	
 std::vector<int> rendermanager::renderers_from_combinations(const std::vector<int> & combination_ids)
 {
@@ -166,7 +246,7 @@ std::vector<int> rendermanager::renderers_from_combinations(const std::vector<in
 
 std::vector<int> rendermanager::renderers_with_images() const
 {
-	std::vector<int> renderers;
+	std::vector<int> rendererIDs;
 
 	for ( std::vector<rendercombination *>::const_iterator itr = combinations.begin(); itr != combinations.end(); itr++ )
 	{
@@ -176,12 +256,12 @@ std::vector<int> rendermanager::renderers_with_images() const
 			{ 
 				if ( dynamic_cast<image_base* >( (rpitr)->pointer ) )
 				{	// it is an image
-					renderers.push_back( renderer_from_combination( (*itr)->get_id() ) );
+					rendererIDs.push_back( renderer_from_combination( (*itr)->get_id() ) );
 				}
 			}
 		}
 	}
-	return renderers;
+	return rendererIDs;
 }
 
 factoryIdType rendermanager::get_renderer_type (int ID)
@@ -203,9 +283,9 @@ int rendermanager::get_geometry_id(int rendererIndex)
     return renderers[rendererIndex]->wheretorender->get_id();
     }
 	
-rendergeometry * rendermanager::get_geometry (int ID)
+rendergeometry * rendermanager::get_geometry ( int rendererID )
 {
-	return get_renderer(ID)->wheretorender;
+	return get_renderer(rendererID)->wheretorender;
 }
 
 void rendermanager::listrenderers()
@@ -387,20 +467,52 @@ void rendermanager::center_and_fit( const int rendererID, image_base * image )
 {
 	Vector3D size = image->get_physical_size();
 
-	Vector3D image_center;
-	image_center = size / 2;
+	Vector3D half_size;
+	half_size = size / 2;
 		
-	
+	// måste beräkna maxstorleken på annat sätt eftersom om bilden är tex en
+	// kvadrat och den är roterad 45 grader och står på ett hörn så blir ju
+	// maxstorleken diagonalen av kvadraten (bilden)
 	float maxsize = max_norm ( size );
 		
 	Matrix3D orientation = image->get_orientation();	
 	
 	Vector3D center;
-	center = image->get_origin() + orientation * image_center;
+	center = image->get_origin() + orientation * half_size;
+
+
+/*
+
+	rendergeometry * geometry = rendermanagement.get_geometry(rendererID);
+	Vector3D xDir = create_Vector3D(1,0,0);
+	xDir = geometry->dir * xDir;
+	Vector3D yDir = create_Vector3D(0,1,0);
+	yDir = geometry->dir * yDir;
 	
+	xDir = orientation * xDir;
+	yDir = orientation * yDir;
+	
+	
+	xDir[0] = abs(xDir[0]);
+	xDir[1] = abs(xDir[1]);
+	xDir[2] = abs(xDir[2]);
+	
+	Vector3D test;
+	test = center;
+	
+	while ( xDir[0] <= half_size[0] && xDir[1] <= half_size[1] && xDir[2] <= half_size[2]  )
+	{ 
+		test += xDir;
+	}
+		
+	std::cout << std::endl << size << std::endl;
+	std::cout << "test.GetNorm() " << test.GetNorm() << std::endl;
+*/	
+	
+	//set_geometry ( rendererID, center, renderer_base::display_scale /  test.GetNorm() );
 	set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
 	//set_geometry ( rendererID, center, 0 );
-
+	
 	
 
 /*working
@@ -410,12 +522,12 @@ void rendermanager::center_and_fit( const int rendererID, image_base * image )
 
 	Matrix3D orientation = image->get_orientation();
 		
-	Vector3D image_center;
-	image_center = size / 2;
+	Vector3D half_size;
+	half_size = size / 2;
 	
 	Vector3D center;
 	
-	center =  image->get_origin() + orientation * image_center;
+	center =  image->get_origin() + orientation * half_size;
 	
 	set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
 */
@@ -430,4 +542,23 @@ void rendermanager::center_and_fit( image_base * image )
 		center_and_fit( *itr, image );
 	}
 }
+
+std::vector<int> rendermanager::images_from_combination ( const int combinationID ) 
+{
+	std::vector<int> images;
+
+	rendercombination * combination = get_combination ( combinationID );
+	
+	for ( std::list<rendercombination::renderpair>::const_iterator itr = combination->begin(); itr != combination->end(); itr++ )
+	{
+		if ( dynamic_cast<image_base* >( (itr)->pointer ) )
+		{	// an image
+			images.push_back( itr->ID );
+		}
+	}
+	
+	return images;
+}
+
+
 	

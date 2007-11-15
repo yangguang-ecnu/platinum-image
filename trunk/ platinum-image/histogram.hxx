@@ -317,7 +317,7 @@ template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, int from, int to){
 	cout<<"smooth....("<<nr_of_neighbours<<","<<nr_of_times<<")...";
 
-	to = std::min(unsigned short(to), this->num_buckets);
+	to = std::min((unsigned short) to, this->num_buckets);
 
 	//this variable is filled in the smoothing loop to not affect the smooth input values...
 	//the "res-results" are then copied to the buckets[] variable for each iteration...	
@@ -428,7 +428,7 @@ float histogram_1D<ELEMTYPE>::find_better_amplitude(gaussian g, int from_bucket,
 	float step = (end-start)/float(nr_steps);
 	float best = 0;
 	double error_sum = 0;
-	double error_min = 100000000000000000;
+	double error_min = 100000000000000000.0;
 
 	for(g.amplitude=start; g.amplitude<=end; g.amplitude+=step){
 		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
@@ -448,7 +448,7 @@ float histogram_1D<ELEMTYPE>::find_better_center(gaussian g, int from_bucket, in
 	float step = (end-start)/float(nr_steps);
 	float best = 0;
 	double error_sum = 0;
-	double error_min = 100000000000000000;
+	double error_min = 100000000000000000.0;
 
 	for(g.center=start; g.center<=end; g.center+=step){
 		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
@@ -468,7 +468,7 @@ float histogram_1D<ELEMTYPE>::find_better_sigma(gaussian g, int from_bucket, int
 	float step = (end-start)/float(nr_steps);
 	float best = 0;
 	double error_sum = 0;
-	double error_min = 100000000000000000;
+	double error_min = 100000000000000000.0;
 
 	for(g.sigma=start; g.sigma<=end; g.sigma+=step){
 		error_sum = get_least_square_diff(g, from_bucket, to_bucket);

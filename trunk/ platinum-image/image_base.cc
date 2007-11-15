@@ -156,65 +156,13 @@ Vector3D image_base::world_to_voxel(const Vector3D wpos) const
 
 	Matrix3D inv_orientation;
 	inv_orientation = get_orientation().GetInverse();
-
+	
 	Matrix3D inv_voxel_resize;
 	inv_voxel_resize = get_voxel_resize().GetInverse();
-		
-	vPos = inv_voxel_resize* inv_orientation * vPos;
+
+	vPos = inv_voxel_resize * inv_orientation * vPos;	// the operations are done from right to left
 	
 	return vPos;
-
-
-/* koden innan jag började göra någon modifikation
-    Vector3D vPos = wpos - origin;
-    
-    Matrix3D rDir; 
-    rDir = get_orientation();
-
-    Vector3D size = get_physical_size();
-    vPos +=  rDir*(size/2);
-
-    Matrix3D pSize;
-    pSize = get_voxel_resize().GetInverse();
-    vPos = pSize * vPos;
-    
-    return vPos;
-*/
-
-/*
-	Vector3D vPos = wpos - origin;
-	
-	Matrix3D inv_orientation;
-	inv_orientation = get_orientation().GetInverse();
-
-	//vPos = inv_orientation * vPos;
-	
-	Matrix3D pSize;
-	pSize = get_voxel_resize().GetInverse();
-	pSize = get_orientation() * pSize;
-	
-	vPos = pSize * vPos;
-	
-//	vPos = inv_orientation * vPos;
-	
-	return vPos;
-*/
-
-
-/*
-	Vector3D vPos = wpos - origin;
-
-	Matrix3D inv_orientation;
-	inv_orientation = get_orientation().GetInverse();
-
-	Matrix3D pSize;
-	pSize = get_voxel_resize().GetInverse();
-	
-	vPos = pSize * inv_orientation * vPos;
-	
-
-	return vPos;
-*/
 }
 
 class vtkloader: public imageloader

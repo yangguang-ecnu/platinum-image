@@ -148,10 +148,11 @@ int userIOmanager::add_par_coordinate3Ddisplay(int userIO_ID, std::string coord_
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
-//AF
-int userIOmanager::add_par_landmarks(int userIO_ID, const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, int landmarks_id)
+int userIOmanager::add_par_landmarks(int userIO_ID, const std::string name)
+//int userIOmanager::add_par_landmarks(int userIO_ID, const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, int landmarks_id)
 {
-	FLTKuserIOpar_landmarks * par = new FLTKuserIOpar_landmarks(name, landmark_names, option_names, landmarks_id);
+	FLTKuserIOpar_landmarks * par = new FLTKuserIOpar_landmarks( name );
+//	FLTKuserIOpar_landmarks * par = new FLTKuserIOpar_landmarks(name, landmark_names, option_names, landmarks_id);
 	return block_from_ID(userIO_ID)->add_par(par);
 }
 
@@ -286,9 +287,13 @@ FLTKuserIOpar_landmarks * userIOmanager::get_landmarks(int userIO_ID)
 	return landmarks;
 }
 
-//AF
 void userIOmanager::set_landmark(int userIO_ID, int index, Vector3D v)
 {
 	 get_landmarks(userIO_ID)->set(index, v);
+}
+
+int userIOmanager::get_landmarksID(int userIO_ID)
+{
+	 get_landmarks(userIO_ID)->get_landmarksID();
 }
 

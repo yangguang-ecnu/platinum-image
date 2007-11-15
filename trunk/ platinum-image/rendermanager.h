@@ -86,24 +86,37 @@ class rendermanager
 
         int get_geometry_id(int rendererIndex);                 //get id of geometry object associated with
                                                                 //renderer rendererIndex
-		//AF														
-		rendergeometry * get_geometry (int ID);		// get rendergeometry from renderer id
+		rendergeometry * get_geometry (int rendererID);		// get rendergeometry from renderer id
+		
 																
         void combination_update_callback (int c_id);
         std::vector<int> combinations_from_data (int dataID);    //return any combinations containing the data object with dataID
 
 		std::vector<int> renderers_from_data ( int dataID );
+		
+		std::vector<int> renderers_from_data ( const std::vector<int> & dataIDs);	// return a set of renderers. each renderer in the returned set
+																					// holds at least one of the items in the data set
 
-		//AF
 		int renderer_from_combination(const int combination_id) const; // return a renderer id from a combination id
 		
-		//AF
 		std::vector<int> renderers_from_combinations(const std::vector<int> & combination_ids);	// return a set of renderer ids from a set of combination ids
 		
-		//AF
 		int renderer_from_geometry(const int geometry_id) const;	 // return a renderer id from a geometry id
 		
-		//AF
+		std::vector<int> geometries_from_renderers ( const std::vector<int> & renderer_ids );	// return a set of geometries from a set of renderers
+		
+		
+		std::vector<int> geometries_from_geometry ( const int geometryID, const std::vector<int> & geometryIDs );	// return geometries from the given set that have a different direction than the input geometry
+																													// i.e. not the same direction nor the opposite direction
+
+		std::vector<int> geometries_from_geometry ( const int geometryID );	// return geometries that has a different direction than the input geometry
+																			// i.e not the same direction nor the opposite direction
+		
+		std::vector<int> geometries_from_combination ( const int combinationID );	// return geometries that holds at least one of the images in the input combination
+																					// and have a different direction than the input geometry (i.e. not the same direction nor the opposite direction)
+																					// uses images_from_geometry(), renderers_from_data(), geometries_from_renderers(),
+																					// and geometries_from_geometry()
+		
 		std::vector<int> renderers_with_images () const;
 				
         void geometry_update_callback (int g_id);
@@ -128,6 +141,9 @@ class rendermanager
 															 
 		void center_and_fit ( const int rendererID, image_base * image );
 		void center_and_fit ( image_base * image );
+		
+		std::vector<int> images_from_combination ( const int combinationID );	// return the images in a combination
+
     };
 
 #endif
