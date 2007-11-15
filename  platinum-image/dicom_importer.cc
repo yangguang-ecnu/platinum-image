@@ -309,7 +309,7 @@ void dcmtable::fill_table(vector<string> dcm_files)
 		}
 
 		data.add_row(dcm_data_row);
-		data.print_all();
+//		data.print_all();
 		dcm_data_row.clear();
 	}
 	update_tabledata();
@@ -413,7 +413,7 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 	table->col_header(1);
 	table->col_resize(1);
 	table->when(FL_WHEN_RELEASE);		// handle table events on release
-	table->print_all();
+//	table->print_all();
 	table->row_height_all(18);			// height of all rows
 	table->end();
 
@@ -478,21 +478,21 @@ vector<string> dcmimportwin::get_dcm_files_from_dir(const char *dir, vector<stri
 	for(int i=0; i<num_files; i++) {
 		f = string(files[i]->d_name);
 		p = d + f;
-		cout<<"d="<<d<<" (f="<<f<<")"<<endl;
+//		cout<<"d="<<d<<" (f="<<f<<")"<<endl;
 
 		if(incl_sub_dirs && fl_filename_isdir(p.c_str()) && f!="../" && f!="./")
 		{
 			dcm_files = get_dcm_files_from_dir( p.c_str(), dcm_files, incl_sub_dirs);
-			cout<<"*path*"<<endl;
+//			cout<<"*path*"<<endl;
 		}
 		else if(dicomIO->CanReadFile(p.c_str()))
 		{
 			dcm_files.push_back(p);
 			//				dicomIO->SetFileName(files[i]->d_name);
 			//				dicomIO->ReadImageInformation();		//get basic DICOM header
-			cout<<"*dcm*"<<endl;
+//			cout<<"*dcm*"<<endl;
 		}else{
-			cout<<"*none*"<<endl;
+//			cout<<"*none*"<<endl;
 		}
 		free(files[i]);
 	}

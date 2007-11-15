@@ -112,6 +112,11 @@ image_storage<ELEMTYPE >::image_storage(image_storage<SOURCETYPE> * const s):ima
     {
     set_parameters();
     }
+/*
+template <class ELEMTYPE >
+image_storage<ELEMTYPE >::image_storage(const string filepath):image_base(filepath)
+{}
+*/
 
 template <class ELEMTYPE >
 image_storage<ELEMTYPE >::~image_storage()
@@ -127,6 +132,7 @@ image_storage<ELEMTYPE >::~image_storage()
     //minvalue=std::numeric_limits<ELEMTYPE>::min();
     //maxvalue=std::numeric_limits<ELEMTYPE>::max();
     }
+
 
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)

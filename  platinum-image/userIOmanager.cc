@@ -294,6 +294,6 @@ void userIOmanager::set_landmark(int userIO_ID, int index, Vector3D v)
 
 int userIOmanager::get_landmarksID(int userIO_ID)
 {
-	 get_landmarks(userIO_ID)->get_landmarksID();
+	 return get_landmarks(userIO_ID)->get_landmarksID();
 }
 

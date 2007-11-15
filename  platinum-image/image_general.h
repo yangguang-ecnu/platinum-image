@@ -43,6 +43,8 @@ template<int IMAGEDIM>
 template<class ELEMTYPE, int IMAGEDIM>
     class image_multi; 
 
+
+
 #include <string>
 #include <vector>
 #include <iterator>
@@ -58,6 +60,7 @@ template<class ELEMTYPE, int IMAGEDIM>
 
 #include "global.h"
 #include "color.h"
+#include "bruker.h"
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_general : public image_storage <ELEMTYPE >
@@ -79,6 +82,8 @@ class image_general : public image_storage <ELEMTYPE >
         image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
         template<class SOURCETYPE> 
             image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true);
+		image_general(const string filepath);
+
 
         void set_parameters ();                                                     //reset & calculate parameters
         void set_parameters (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
@@ -105,6 +110,12 @@ class image_general : public image_storage <ELEMTYPE >
 
         void initialize_dataset(int w, int h, int d);                           //overloading from image_base
         void initialize_dataset(int w, int h, int d, ELEMTYPE *ptr);          //load might happen outside class
+        void initialize_dataset_same_size(image_general<ELEMTYPE, IMAGEDIM> *size_template);          //load might happen outside class
+
+        template <class LOADERTYPE>
+			bool try_single_loader(std::string s); //! helper for image_base::load_file_to_this
+		void load_file_to_this( std::string f);	//loads one file to this...
+
 
         //initialize image from ITK image
         void replicate_itk_to_image();     //use object's own ITK image pointer
@@ -196,9 +207,10 @@ class image_general : public image_storage <ELEMTYPE >
         typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer                itk_image();
 
         void load_dataset_from_VTK_file(std::string file_path);
-        void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier); //gdcm
-        void load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier);//"itk-dcm"
+//        void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier); //gdcm
+  //      void load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier);//"itk-dcm"
         void load_dataset_from_DICOM_filesAF(std::string dir_path,std::string seriesIdentifier);//"itk-dcm"
+        void load_dataset_from_these_DICOM_files(vector<string> filenames);
 		void load_dataset_from_all_DICOM_files_in_dir(std::string dir_path);
 
         void save_to_VTK_file(const std::string file_path);
@@ -213,11 +225,14 @@ class image_general : public image_storage <ELEMTYPE >
         // *** processing ***
         template<class TARGETTYPE>	//Nearest neighbour image re-sampling-test
             void resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image);
+
         double get_num_diff_1storder_central_diff_3D(int x, int y, int z, int direction);	//voxel based (i.e. no real dimensions included)
 		double get_num_diff_2ndorder_central_diff_3D(int x, int y, int z, int direction1, int direction2);	//voxel based (i.e. no real dimensions included)
 		double get_num_diff_3rdorder_central_diff_3D(int x, int y, int z, int direction1, int direction2, int direction3); //voxel based (i.e. no real dimensions included)
-        void filter_image_slw_mean_4NB_3D();
+
+//		void filter_image_slw_mean_4NB_3D();
 };
+
 
 template <template <class,int=3 > class IMGCLASS>
 image_base* allocate_image (bool floatType, bool signedType, unsigned int voxel_type, std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize);

@@ -42,6 +42,8 @@ void landmark_tool::handle(viewport_event &event)
 {
 	std::vector<int> mouse2d = event.mouse_pos_local();
 	
+	int point_collection_ID;
+
     FLTKviewport * fvp = event.get_FLTK_viewport();
 	Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
 
@@ -78,7 +80,7 @@ void landmark_tool::handle(viewport_event &event)
 
 			event.grab();
 			
-			int point_collection_ID = userIOmanagement.get_landmarksID(userIO_ID);
+			point_collection_ID = userIOmanagement.get_landmarksID(userIO_ID);
 			
 			rendermanagement.connect_data_renderer(myPort->get_renderer_id(), point_collection_ID);			
 			

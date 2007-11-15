@@ -281,7 +281,7 @@ void FLTKuserIOpar_landmarks::loadDescriptorCb( Fl_Widget * callingwidget, void 
 	std::string landmark_name;
 	std::string option_name;
 
-	int line_length = 1000;
+	const int line_length = 1000;
 	char buffer[line_length];
 
 	while (!ifs.eof())

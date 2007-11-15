@@ -49,6 +49,7 @@ class image_storage : public image_base
         image_storage();
         template<class SOURCETYPE>
         image_storage(image_storage<SOURCETYPE> * const s);
+//        image_storage(const string filepath);
 
         transfer_base<ELEMTYPE> * tfunction;
         histogram_1D<ELEMTYPE> * stats;

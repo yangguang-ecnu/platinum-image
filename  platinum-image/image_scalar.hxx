@@ -334,6 +334,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D(image_scalar<ELE
 			}
 		}
 	}
+	userIOmanagement.progress_update(0,"interpolate_tricubic_3D - progress...Done",this->datasize[2]);
+
 	delete fx;
 	delete fy;
 	delete fz;
@@ -342,6 +344,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D(image_scalar<ELE
 	delete fyz;
 	delete fxyz;
 }
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM> * image_scalar<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE low, ELEMTYPE high, IMGBINARYTYPE true_inside_threshold)

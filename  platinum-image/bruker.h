@@ -36,6 +36,7 @@
 #include <vector>
 #include "image_base.h"
 
+
 /*
 class image_base;
 

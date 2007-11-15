@@ -566,12 +566,20 @@ void viewport::update_objects_menu()
 void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
 {
     menu_callback_params * widget_user_data=(menu_callback_params *)params;
+
+//	cout<<"toggle_image_callback..."<<endl;
+//	cout<<"widget_user_data->rend_index="<<widget_user_data->rend_index<<endl;
+//	cout<<"widget_user_data->vol_id="<<widget_user_data->vol_id<<endl;
     
     rendermanagement.toggle_image(widget_user_data->rend_index,widget_user_data->vol_id);
+	
+	cout<<"after: rendermanagement.toggle_image"<<endl;
+
 }
 
 void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
 {
+
     enum {x=0,y,z};
     menu_callback_params * params = (menu_callback_params *) p;
     
@@ -631,7 +639,7 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
     
     //callingwidget=directionmenu_button
     callingwidget->label(preset_direction_labels[params->direction]);
-    
+
     delete dir_p;
 	
 	int combinationID = rendermanagement.get_combination_id( params->vport->rendererIndex );
