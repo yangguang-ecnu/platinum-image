@@ -464,13 +464,13 @@ FLTKMatrix3D::FLTKMatrix3D(Matrix3D m, int x, int y, int w, int h):Fl_Group(x,y,
 	int dh = int(float(h)/3.0);
 	int dw = int(float(w)/3.0);
 	data_00 = new Fl_Value_Input(x+5	,y		,dw-5,dh-2);
-	data_01 = new Fl_Value_Input(x+5	,y+dh	,dw-5,dh-2);
-	data_02 = new Fl_Value_Input(x+5	,y+2*dh	,dw-5,dh-2);
-	data_10 = new Fl_Value_Input(x+5+dw	,y		,dw-5,dh-2);
+	data_10 = new Fl_Value_Input(x+5	,y+dh	,dw-5,dh-2);
+	data_20 = new Fl_Value_Input(x+5	,y+2*dh	,dw-5,dh-2);
+	data_01 = new Fl_Value_Input(x+5+dw	,y		,dw-5,dh-2);
 	data_11 = new Fl_Value_Input(x+5+dw	,y+dh	,dw-5,dh-2);
-	data_12 = new Fl_Value_Input(x+5+dw	,y+2*dh	,dw-5,dh-2);
-	data_20 = new Fl_Value_Input(x+5+2*dw,y		,dw-5,dh-2);
-	data_21 = new Fl_Value_Input(x+5+2*dw,y+dh	,dw-5,dh-2);
+	data_21 = new Fl_Value_Input(x+5+dw	,y+2*dh	,dw-5,dh-2);
+	data_02 = new Fl_Value_Input(x+5+2*dw,y		,dw-5,dh-2);
+	data_12 = new Fl_Value_Input(x+5+2*dw,y+dh	,dw-5,dh-2);
 	data_22 = new Fl_Value_Input(x+5+2*dw,y+2*dh,dw-5,dh-2);
 
 	data_00->callback(matrix_cb);	data_00->when(FL_WHEN_RELEASE);
@@ -551,7 +551,7 @@ FLTKgeom_image::FLTKgeom_image(int id, int x, int y, int w, int h):FLTKgeom_base
 	size = new FLTKVector3D(datamanagement.get_image(data_id)->get_voxel_size(), x + orig_w, y, size_w, h, "dx", "dy", "dz");
 	orient = new FLTKMatrix3D(datamanagement.get_image(data_id)->get_orientation(), x + orig_w + size_w, y, orient_w, h);
 	
-	start = datamanagement.get_image(data_id)->get_orientation();
+	//start = datamanagement.get_image(data_id)->get_orientation();
 	
 	Vector3D r;
 	r.Fill(0);
@@ -614,7 +614,8 @@ void FLTKgeom_image::rotation_update_cb ( Fl_Widget * w, void * )
 	angle *= ( PI / 180.0 );	
 	
 	matrix_generator mg;
-	m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * g->get_start();
+	m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * datamanagement.get_image(g->data_id)->get_orientation();
+//	m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * g->get_start();
 
 	matrix3d->value(m);
 	
@@ -624,10 +625,10 @@ void FLTKgeom_image::rotation_update_cb ( Fl_Widget * w, void * )
 	// rendermanagement.center_and_fit( datamanagement.get_image(g->data_id) );	
 }
 
-const Matrix3D FLTKgeom_image::get_start() const
-{
-	return start;
-}
+//const Matrix3D FLTKgeom_image::get_start() const
+//{
+//	return start;
+//}
 
 
 //	static void orient_update_cb(Fl_Widget *w, void*);

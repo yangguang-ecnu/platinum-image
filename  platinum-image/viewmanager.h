@@ -84,16 +84,12 @@ class viewmanager
         int get_renderer_id(int viewportid);
 		
 		
-		//AF
 		std::vector<int> viewports_from_renderers(const std::vector<int> & viewport_ids);	// return a set of viewport ids
 
-		//AF
 		int viewport_from_renderer(int); // return a viewport id
 		
-		//AF
 		const viewport * const get_viewport(int viewport_id);	// return a viewport
 		
-		//AF
 		void show_point(const Vector3D & point, const int dataID, const unsigned int margin = 5);	// shows a point in all viewports that has the
 																									// data with the specific id active. if the point
 																									// is outside the margin of viewport it is centered

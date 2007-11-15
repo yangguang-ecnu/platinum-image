@@ -249,7 +249,7 @@ void nav_tool::handle(viewport_event &event)
         switch (event.type())
             {
 			
-            case pt_event::browse:
+            case pt_event::browse:	// pan
                 if ( event.state() == pt_event::iterate)
                     {
                     event.grab();
@@ -260,7 +260,7 @@ void nav_tool::handle(viewport_event &event)
                     }
                 break;
                 
-            case pt_event::adjust:
+            case pt_event::adjust:	// zoom
                 if ( event.state() == pt_event::iterate)
                     {
                     event.grab();
@@ -290,7 +290,7 @@ void nav_tool::handle(viewport_event &event)
 //						angle[2] = 0.0;
 						angle[0] = 0.0;
 						angle[1] = 0.0;
-						angle[2] = -(mouse[0]-dragLast[0]);
+						angle[2] = (mouse[0]-dragLast[0]);
 						
 						// convert degrees to radians
 						angle *= ( PI / 180.0 );	
@@ -310,18 +310,30 @@ void nav_tool::handle(viewport_event &event)
 						//rendermanagement.center_and_fit ( renderer->get_id(), top );
 						
 					}
-					
 				}
+				break;
 				
-            case pt_event::scroll:
+            case pt_event::scroll:	// pan in z-direction
                 if ( event.state() == pt_event::iterate)
-                    {
+				{
                     event.grab();
                     
                     myRenderer->move_view(viewSize,0,0,event.scroll_delta()*wheel_factor);
                     
                     fvp->needs_rerendering();
-                    }
+
+					// get geometries that holds at least one of the images in the input combination and have a different
+					// direction than the input geometry (i.e. not the same direction nor the opposite direction)					
+					std::vector<int> geometryIDs = rendermanagement.geometries_from_combination( myRenderer->combination_id() );
+					
+					for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
+					{
+						viewmanagement.refresh_viewports_from_geometry( *itr ) ;
+					}
+
+					
+					
+				}
                 //NOTE: no break, update hovering also
             case pt_event::hover:
                 //display values
@@ -359,7 +371,7 @@ void nav_tool::handle(viewport_event &event)
                                 }
                         }
                         break;
-                    case pt_event::end:
+                    case pt_event::end:	// leaving a viewport
                         event.grab();
                         userIOmanagement.interactive_message();
                         break;

@@ -15,7 +15,7 @@ extern viewmanager viewmanagement;
 extern userIOmanager userIOmanagement;
 
 int landmark_tool::userIO_ID = -1;
-int landmark_tool::point_collection_ID = -1;
+//int landmark_tool::point_collection_ID = -1;
 
 landmark_tool::landmark_tool(viewport_event & event) : nav_tool(event) //viewporttool(event)
 {
@@ -49,14 +49,11 @@ void landmark_tool::handle(viewport_event &event)
 	{	
 		case pt_event::create:
 		
-		
-		
-		
-			if (point_collection_ID == -1)
-			{
-				std::cout << "point_collection_ID is not registered in landmark_tool" << std::endl;
-				return;
-			}
+//			if (point_collection_ID == -1)
+//			{
+//				std::cout << "point_collection_ID is not registered in landmark_tool" << std::endl;
+//				return;
+//			}
 			
 			if (userIO_ID == -1)
 			{
@@ -81,6 +78,8 @@ void landmark_tool::handle(viewport_event &event)
 
 			event.grab();
 			
+			int point_collection_ID = userIOmanagement.get_landmarksID(userIO_ID);
+			
 			rendermanagement.connect_data_renderer(myPort->get_renderer_id(), point_collection_ID);			
 			
 			if (event.state() == pt_event::begin)
@@ -93,11 +92,13 @@ void landmark_tool::handle(viewport_event &event)
 				
 				point_collection * points = dynamic_cast<point_collection *>(datamanagement.get_data(point_collection_ID));
 						
-				int index_of_active = userIOmanagement.get_parameter<landmarksIDtype>(userIO_ID, 1);				
-				points->set_active(index_of_active);
+//				int index_of_active = userIOmanagement.get_parameter<landmarksIDtype>(userIO_ID, 1);				
+//				points->set_active(index_of_active);
+				int index_of_active = points->get_active();
 				
 				if (index_of_active <= 0)	// -1 means active is not set
-				{							// 0 means no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
+				{							//  0 means no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
+					// TODO: use pt_error
 					std::cout << "No landmark is active" << std::endl;		
 					return;
 				}
@@ -155,10 +156,10 @@ void landmark_tool::register_userIO_ID(int id)
 	userIO_ID = id;
 }
 
-void landmark_tool::register_point_collection_ID (int id)
-{
-	point_collection_ID = id;
-}
+//void landmark_tool::register_point_collection_ID (int id)
+//{
+//	point_collection_ID = id;
+//}
 
 
 

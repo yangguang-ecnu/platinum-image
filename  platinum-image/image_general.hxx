@@ -513,9 +513,9 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvol
 //	char c;
 //	cin>>c;
 
-	for (int z=z1,int res_z=0; z<=z2; z++, res_z++){
-		for (int y=y1,int res_y=0; y<=y2; y++,res_y++){
-			for (int x=x1,int res_x=0; x<=x2; x++,res_x++){
+	for (int z=z1, res_z=0; z<=z2; z++, res_z++){
+		for (int y=y1, res_y=0; y<=y2; y++,res_y++){
+			for (int x=x1, res_x=0; x<=x2; x++,res_x++){
 				res->set_voxel(res_x,res_y,res_z, this->get_voxel(x,y,z));
 			}
 		}

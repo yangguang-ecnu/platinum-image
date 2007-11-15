@@ -158,9 +158,9 @@ public:
 //----------------------
 class FLTKMatrix3D : public Fl_Group {
 protected:
-	Fl_Value_Input *data_00;	Fl_Value_Input *data_10;	Fl_Value_Input *data_20;
-	Fl_Value_Input *data_01;	Fl_Value_Input *data_11;	Fl_Value_Input *data_21;
-	Fl_Value_Input *data_02;	Fl_Value_Input *data_12;	Fl_Value_Input *data_22;
+	Fl_Value_Input *data_00;	Fl_Value_Input *data_01;	Fl_Value_Input *data_02;
+	Fl_Value_Input *data_10;	Fl_Value_Input *data_11;	Fl_Value_Input *data_12;
+	Fl_Value_Input *data_20;	Fl_Value_Input *data_21;	Fl_Value_Input *data_22;
 	static void matrix_cb(Fl_Widget *w, void*);
 public:
 	FLTKMatrix3D(Matrix3D m, int x=0, int y=0, int w=90, int h=50);
@@ -191,7 +191,7 @@ protected:
 	FLTKMatrix3D *orient;
 	FLTKVector3D * rotation;
 	
-	Matrix3D start;
+	//Matrix3D start;
 	
 public:
 	static void orig_update_cb(Fl_Widget *w, void*);
@@ -200,7 +200,7 @@ public:
 	static void rotation_update_cb ( Fl_Widget * w, void * );
 	FLTKgeom_image(int id, int x=0, int y=0, int w=200, int h=70);
 	
-	const Matrix3D get_start() const;
+	//const Matrix3D get_start() const;
 };
 
 #endif

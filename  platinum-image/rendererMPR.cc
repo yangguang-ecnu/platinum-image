@@ -270,8 +270,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 //			Vector3D origin = the_image_pointer->get_origin();
                         
             Matrix3D slope;			//this matrix transforms translations in viewport pixels to translations in volume voxels
-			slope.SetIdentity();
-            slope = orientation_inv * slope;
+            slope = orientation_inv;
 			
 			Matrix3D inv_size;
 			inv_size = the_image_pointer->get_voxel_resize().GetInverse();
@@ -586,131 +585,127 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 
 void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry * where, rendercombination * what)
 {
-	if ( !dynamic_cast<image_base *>( what->top_image() ) )
-	{	// not an image (i.e. a point_collection or something else)
-		return;
-	}
+//	std::vector<int> images = rendermanagement.images_from_combination ( what->get_id() );
+//	
+//	if ( images.empty() )
+//		{ return; }
+//	
+//	std::vector<int> renderers = rendermanagement.renderers_from_data( images );
+//
+//	std::vector<rendergeometry *> geometries;
+//	
+//	
+//
+//	std::vector<int> test = rendermanagement.geometries_from_combination( what->get_id() );		// get geometries that holds at least one of the existing images in the input combination
+//		
+//	for ( std::vector<int>::const_iterator itr = test.begin(); itr != test.end(); itr++ )
+//	{
+//		std::cout << *itr << ", ";
+//	}
+//	if ( !test.empty() )
+//		{ std::cout << std::endl; }
+//	
+//	
+//	
+//	for ( std::vector<int>::iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
+//	{ 
+//		rendergeometry * geometry = rendermanagement.get_geometry(*itr);
+//			
+//		if ( where->get_id() != geometry->get_id() )
+//		{	// not the "active" viewport (renderer)
+//			geometries.push_back(geometry);
+//		}
+//		
+//	}
 
+
+
+	std::vector<int> geometryIDs = rendermanagement.geometries_from_combination( what->get_id() );	// get geometries that holds at least one of the images in the input combination
+																									// and have a different direction than the input geometry (i.e. not the same
+																									// direction nor the opposite direction)
 	std::vector<rendergeometry *> geometries;
-
-	std::vector<int> renderers = rendermanagement.renderers_from_data( what->top_image()->get_id() );
-	//std::vector<int> renderers = rendermanagement.renderers_with_images();	
 	
-	for ( std::vector<int>::iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
-	{ 
-		rendergeometry * geometry = rendermanagement.get_geometry(*itr);
-			
-		if ( where->get_id() != geometry->get_id() )
-		{	// not the "active" one
-//			if ( where->get_N() != geometry->get_N()  || where->get_N() != -geometry->get_N() )
-//			{ // neither parallell or in opposite direction of each other 
-				geometries.push_back(geometry);
-//			}
-		}
-		
+	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )	// get the geometries for each geometry id
+	{
+		geometries.push_back( rendermanagement.get_geometry(*itr) );		
 	}
 	
+
+
 	renderer_base * renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(where->get_id()) );
-	
-	// increase the length of the vector to eliminate problems when convering from world to view coordinates (ie it becomes zero at certain scales) 
+
+	// increase the length of the vector to eliminate problems when converting from world to view coordinates (ie it becomes zero at certain scales) 
 	int smin = std::min(sx, sy);
 	Vector3D vmin = renderer->view_to_world(smin, 0, sx, sy) - renderer->view_to_world(0, 0, sx, sy);
-	float vmin_norm = sqrt(vmin[0]*vmin[0] + vmin[1]*vmin[1] + vmin[2]*vmin[2]); // Euclidean norm	
 	
 	Vector3D a = where->get_N();
 
-	Vector3D zeros;
-	zeros.Fill(0);
-
-	for ( std::vector<rendergeometry *>::iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
-	{
-	
-		
+	for ( std::vector<rendergeometry *>::const_iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
+	{			
 		Vector3D b = (*itr)->get_N();
 		
-		// cross product axb
-		// TODO: use the built-in cross product instead (itkVector.h)
-		Vector3D c;
-		c[0] = a[1]*b[2] - a[2]*b[1];
-		c[1] = a[2]*b[0] - a[0]*b[2];
-		c[2] = a[0]*b[1] - a[1]*b[0];
+		Vector3D c = CrossProduct( a, b);
 
-		if ( c != zeros )
-		{	// neither parallell or in opposite direction of each other 
+		float factor = vmin.GetNorm() / c.GetNorm();
 
-			
-			float c_norm = sqrt ( c[0]*c[0] + c[1]*c[1] + c[2]*c[2] );
-	
-			float factor = vmin_norm / c_norm;
-	
-			// TODO: use the built-in scalar operator instead (itkVector.h)
-			c[0] = c[0] * (factor / 2);
-			c[1] = c[1] * (factor / 2);
-			c[2] = c[2] * (factor / 2);
+		c *= factor / 2;
 
+		std::vector<int> p = world_to_view(where, sx, sy, (*itr)->look_at);	// determine the position of one of the "other" planes in the active viewport
+		std::vector<int> v = world_to_view(where, sx, sy, c + (*itr)->look_at);
+		
 
-			std::vector<int> p = world_to_view(where, sx, sy, (*itr)->look_at);	// determine the position of one of the "other" planes in the active viewport
-			std::vector<int> v = world_to_view(where, sx, sy, c + (*itr)->look_at);
-			
+		int dx = abs ( p[0] - v[0] );
+		int dy = abs ( p[1] - v[1] );
 
-			int dx = abs ( p[0] - v[0] );
-			int dy = abs ( p[1] - v[1] );
+		std::vector<int> begin(2);
+		std::vector<int> end(2);
 
-			std::vector<int> begin(2);
-			std::vector<int> end(2);
-
-			if ( dx == 0 )
-			{	// a vertical line
-				begin[0] = p[0];
-				begin[1] = 0;
-				end[0] = p[0];
-				end[1] = sy;
+		if ( dx == 0 )
+		{	// a vertical line
+			begin[0] = p[0];
+			begin[1] = 0;
+			end[0] = p[0];
+			end[1] = sy;
+		}
+		else if ( dy == 0 )
+		{	// a horizontal line
+			begin[0] = 0;
+			begin[1] = p[1];
+			end[0] = sx;
+			end[1] = p[1];
+		}
+		else 
+		{	// calculate start and end point for the line to draw in the viewport
+			// TODO: solve with equations instead!!
+		
+			int t = 0;
+			while ( (p[0] + t * v[0]) >= 0 && (p[0] + t * v[0]) <= sx && (p[1] + t * v[1]) >= 0  && (p[1] + t * v[1]) <= sy)
+			{
+				t++;
 			}
-			else if ( dy == 0 )
-			{	// a horizontal line
-				begin[0] = 0;
-				begin[1] = p[1];
-				end[0] = sx;
-				end[1] = p[1];
+
+			begin[0] = p[0] + t * v[0];
+			begin[1] = p[1] + t * v[0];
+
+			t = 0;
+			while ( (p[0] + t * v[0]) >= 0 && (p[0] + t * v[0]) <= sx && (p[1] + t * v[1]) >= 0  && (p[1] + t * v[1]) <= sy)
+			{
+				t--;
 			}
-			else 
-			{	// calculate start and end point for the line to draw in the viewport
-				// TODO: solve with equations instead
-			
-				int t = 0;
-				while ( (p[0] + t * v[0]) >= 0 && (p[0] + t * v[0]) <= sx && (p[1] + t * v[1]) >= 0  && (p[1] + t * v[1]) <= sy)
-				{
-					t++;
-				}
 
-				begin[0] = p[0] + t * v[0];
-				begin[1] = p[1] + t * v[0];
+			end[0] = p[0] + t * v[0];
+			end[1] = p[1] + t * v[0];
 
-				t = 0;
-				while ( (p[0] + t * v[0]) >= 0 && (p[0] + t * v[0]) <= sx && (p[1] + t * v[1]) >= 0  && (p[1] + t * v[1]) <= sy)
-				{
-					t--;
-				}
-
-				end[0] = p[0] + t * v[0];
-				end[1] = p[1] + t * v[0];
-
-			}
-			
-			
-			vector<int> line_color(3);
-			line_color[0] = 0;
-			line_color[1] = 255;
-			line_color[2] = 0;
-
-			draw_line(pixels, sx, sy, begin[0], begin[1], end[0], end[1], line_color);
-
-	
-			viewmanagement.refresh_viewports_from_geometry((*itr)->get_id());
 		}
 		
-		//viewmanagement.refresh_viewports_from_geometry(where->get_id());
-	}			
+		vector<int> line_color(3);
+		line_color[0] = 0;
+		line_color[1] = 255;
+		line_color[2] = 0;
+
+		draw_line(pixels, sx, sy, begin[0], begin[1], end[0], end[1], line_color);
+
+	}
 }
 
 int rendererMPR::sgn ( long a )

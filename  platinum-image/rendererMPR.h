@@ -46,16 +46,12 @@ class rendererMPR : public renderer_base
 
         static void render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry * where,rendercombination * what,thresholdparvalue * threshold);
 
-		//AF
 		static void draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D  point, std::vector<int>);
 		
-		//AF
 		static void draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry * where, rendercombination * what);
 		
-		//AF
 		static int sgn(long a);
 		
-		//AF
 		static void draw_line(uchar *pixels, int sx, int sy, int a, int b, int c, int d, std::vector<int> color);
 
     public:

@@ -189,7 +189,8 @@ void viewport::refresh()
             rebuild_blendmode_menu();
             
             viewport_widget->needsReRendering=true;
-            viewport_buttons->activate();
+
+			viewport_buttons->activate();
             }
         
         viewport_widget->damage(FL_DAMAGE_ALL);
@@ -507,7 +508,7 @@ void viewport::hide_GL ()
 }
 
 void viewport::update_objects_menu()
-{
+{	
     unsigned int m=0;
     
     const Fl_Menu_Item * cur_menu, *base_menu;
@@ -572,7 +573,7 @@ void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
 void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
 {
     enum {x=0,y,z};
-    menu_callback_params * params=(menu_callback_params *)p;
+    menu_callback_params * params = (menu_callback_params *) p;
     
     Matrix3D dir;
     dir.Fill(0);
@@ -623,43 +624,6 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
             dir[z][1]=-1;
             dir[x][2]=1;
             break;
-
-// "original"
-//        case AXIAL:
-//            dir[x][0]=1; //voxel direction of view x
-//            dir[y][1]=1; //voxel direction of view y
-//            dir[z][2]=1; //voxel direction of slicing
-//            break;
-//            
-//        case CORONAL:
-//            dir[x][0]=1;
-//            dir[z][1]=-1;
-//            dir[y][2]=1;
-//            break;
-//            
-//        case SAGITTAL:
-//            dir[y][0]=1;
-//            dir[z][1]=-1;
-//            dir[x][2]=1;
-//            break;
-//            
-//        case AXIAL_NEG:
-//            dir[x][0]=1;
-//            dir[y][1]=-1;
-//            dir[z][2]=-1;
-//            break;
-//            
-//        case CORONAL_NEG:
-//            dir[x][0]=-1;
-//            dir[z][1]=1;
-//            dir[y][2]=-1;
-//            break;
-//            
-//        case SAGITTAL_NEG:
-//            dir[y][0]=-1;
-//            dir[z][1]=-1;
-//            dir[x][2]=1;
-//            break;
     }
     
     Matrix3D * dir_p=new Matrix3D(dir);
@@ -669,6 +633,15 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
     callingwidget->label(preset_direction_labels[params->direction]);
     
     delete dir_p;
+	
+	int combinationID = rendermanagement.get_combination_id( params->vport->rendererIndex );
+	std::vector<int> geometryIDs = rendermanagement.geometries_from_combination( combinationID );	// get geometries that holds at least one of the images in the input combination
+																									// and have a different direction than the input geometry (i.e. not the same
+																									// direction nor the opposite direction)
+	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
+	{
+		viewmanagement.refresh_viewports_from_geometry( *itr ) ;
+	}
 }
 
 void viewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )

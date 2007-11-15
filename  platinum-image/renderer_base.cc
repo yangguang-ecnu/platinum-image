@@ -53,7 +53,6 @@ int renderer_base::combination_id()
     return imagestorender_id;
     }
 	
-//AF
 int renderer_base::geometry_id() const
 {
 	return wheretorender_id;
@@ -142,10 +141,10 @@ void renderer_base::move_voxels (int x,int y,int z)
     move(dir[0],dir[1],dir[2]);
 }
 
-std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,const Vector3D l)
+std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,const Vector3D wpos)
 {
     std::vector<int> view;
-    Vector3D toView = l;
+    Vector3D toView = wpos;
     int vmin = std::min (sx,sy);
     //float wtvCenterScale = renderer_base::display_scale/((float)vmin*g->zoom*2);
    
@@ -160,9 +159,9 @@ std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,
     return view;
 }
 
-std::vector<int> renderer_base::world_to_view (int sx,int sy,const Vector3D l) const
+std::vector<int> renderer_base::world_to_view (int sx,int sy,const Vector3D wpos) const
 {
-    return world_to_view(wheretorender,sx,sy,l);
+    return world_to_view(wheretorender,sx,sy,wpos);
 }
 
 std::map<std::string,float> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const

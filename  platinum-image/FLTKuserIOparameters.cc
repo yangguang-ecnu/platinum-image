@@ -23,16 +23,16 @@
 
 #include <FL/fl_draw.H>
 
-#include <iomanip>	//AF
+#include <iomanip>
 
 #include "userIOmanager.h"
 #include "datamanager.h"
 #include "viewmanager.h"
-#include "rendermanager.h" //AF
+#include "rendermanager.h"
 
 extern datamanager datamanagement;
 extern viewmanager viewmanagement;
-extern rendermanager rendermanagement;  //AF
+extern rendermanager rendermanagement;
 extern userIOmanager userIOmanagement;
 
 //for testing, various 2D histogram classes can be interchanged:
@@ -188,50 +188,42 @@ void FLTKuserIOpar_coord3Ddisplay::update()
 //AF
 #pragma mark *** FLTKuserIOpar_landmarks ***
 
-FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & l_names, const std::vector<std::string> & o_names, const int landmarks_id) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,int(STDPARWIDGETHEIGHT*4), name)
+FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,int(STDPARWIDGETHEIGHT*6), name)
+//FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & l_names, const std::vector<std::string> & o_names, const int landmarks_id) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,int(STDPARWIDGETHEIGHT*6), name)
 {
-	landmark_names = l_names;
-	option_names = o_names;
-/*
-	const int btnWidth = 25;
-	const int textWidth = 50;
+	const int btnWidth = 30;
+	const int textWidth = 10;
 
-	descriptorText = new Fl_Output ( x(), y() + PARBOXBORDER, textWidth, BUTTONHEIGHT - PARBOXBORDER );
+	descriptorText = new Fl_Output ( x(), y() + PARBOXBORDER, textWidth, STDPARWIDGETHEIGHT - PARBOXBORDER );
 	descriptorText->box(FL_FLAT_BOX);
 	descriptorText->color(FL_BACKGROUND_COLOR);
 	descriptorText->value ( "Descriptor file" );
 
+//	emptyBox = new Fl_Box( w() - 3 * btnWidth, y() + PARBOXBORDER, 2 * btnWidth, STDPARWIDGETHEIGHT - PARBOXBORDER);
+
 	loadDescriptorBtn = new Fl_Button ( w() - btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load" );
-    loadDescriptorBtn->callback( loadDescriptorCb ); // loadBtn->callback( loadCb, this );
-
-
+    loadDescriptorBtn->callback( loadDescriptorCb, (void*)this ); // loadBtn->callback( loadCb, this );
 		
-	landmarkText = new Fl_Output ( x(), y() + BUTTONHEIGHT + PARBOXBORDER, textWidth, BUTTONHEIGHT - PARBOXBORDER );
+	landmarkText = new Fl_Output ( x(), y() + STDPARWIDGETHEIGHT + PARBOXBORDER, textWidth, BUTTONHEIGHT - PARBOXBORDER );
 	landmarkText->box(FL_FLAT_BOX);
 	landmarkText->color(FL_BACKGROUND_COLOR);
 	landmarkText->value ( "Landmark set" );
 	
-	newSetBtn = new Fl_Button( w() - 3 * btnWidth, y() + BUTTONHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "New");
+	newSetBtn = new Fl_Button( w() - 3 * btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "New");
 	newSetBtn->callback(newSetCb);
 
-	saveSetBtn = new Fl_Button( w() - 2 * btnWidth, y() + BUTTONHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Save");
+	saveSetBtn = new Fl_Button( w() - 2 * btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Save");
 	saveSetBtn->callback(saveSetCb);
 
-	loadSetBtn = new Fl_Button( w() - btnWidth, y() + BUTTONHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load");
+	loadSetBtn = new Fl_Button( w() - btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load");
 	loadSetBtn->callback(loadSetCb);
 
 
-
-	browser = new Fl_Hold_Browser( x(), y() + 2 * BUTTONHEIGHT + PARTITLEMARGIN, w(), 4 * STDPARWIDGETHEIGHT - PARTITLEMARGIN );
-	browser->callback(browserCb, (void *)landmarks_id);
+	browser = new Fl_Hold_Browser( x(), y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), 4 * STDPARWIDGETHEIGHT - PARTITLEMARGIN );
+	browser->callback( browserCb, (void *)landmarksID );
 	browser->textsize(12);
 	//browser->when(...)		
-*/
 
-	browser = new Fl_Hold_Browser(x(),y(),w(),4*STDPARWIDGETHEIGHT-PARTITLEMARGIN);
-	browser->callback(browserCb, (void *)landmarks_id);
-	browser->textsize(12);
-	//control->when(...)		
 	
 	//int widths[] = { 50, 50, 0 };
 	//browser->column_widths(widths);
@@ -239,22 +231,90 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks(const std::string name, const s
 	//browser->type(FL_HOLD_BROWSER);
 
 	
-	for (unsigned int i = 0; i < landmark_names.size(); i++)
-	{
-		browser->add( resolve_string(i).c_str() );
-	}
-		
-	browser->value(1);	// set the first landmark as active
 	
-	
-	resizable(browser);
+	resizable(landmarkText);	
+//	resizable(browser);
 	end();
+
+
+
+	point_collection * landmarks = new point_collection();
+	landmarks->name("Landmark collection");
+	
+	datamanagement.add(landmarks);
+
+	landmarksID = landmarks->get_id();
+	
+//	landmark_tool::register_point_collection_ID( landmarksID );
 
 }
 
-void FLTKuserIOpar_landmarks::loadDescriptorCb(Fl_Widget *callingwidget, void * foo)
+void FLTKuserIOpar_landmarks::loadDescriptorCb( Fl_Widget * callingwidget, void * thisLandmarks )
 {
-	std::cout << "Load descriptor file" << std::endl;
+	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
+
+	Fl_File_Chooser chooser( ".", "Descriptor file (*.txt)\tAny file (*)", Fl_File_Chooser::SINGLE, "Load descriptor file" );
+	
+	chooser.show();
+	
+	while( chooser.shown() )
+		{ Fl::wait(); }
+		
+	if ( chooser.value() == NULL )
+	{
+        pt_error::error("Descriptor load dialog cancel",pt_error::notice);
+		return;
+	}
+	
+	ifstream ifs( chooser.value() );
+	
+	if ( !ifs )
+	{
+		// TODO: use the pt_error class to generate an error message
+		return;
+	}
+
+	l->landmark_names.clear();
+	l->option_names.clear();
+	l->browser->clear();
+	
+	std::string landmark_name;
+	std::string option_name;
+
+	int line_length = 1000;
+	char buffer[line_length];
+
+	while (!ifs.eof())
+	{
+		ifs.getline(buffer, line_length);
+		
+		std::string s = std::string(buffer);
+		
+		if (!s.empty())			// ignore empty lines
+		{
+			if (s.at(0) != '#')	// ignore comments ie a row beginning with '#'
+			{
+				landmark_name = s.substr(0,s.find(';',0));
+				option_name = s.substr( s.find(';', 0) + 1, s.size() );
+				
+				// remove unnecessary white spaces
+				landmark_name = landmark_name.substr(landmark_name.find_first_not_of(' '), landmark_name.find_last_not_of(' ') - landmark_name.find_first_not_of(' ') + 1);
+				option_name = option_name.substr(option_name.find_first_not_of(' '), option_name.find_last_not_of(' ') - option_name.find_first_not_of(' ') + 1);
+								
+				l->landmark_names.push_back(landmark_name);
+				l->option_names.push_back(option_name);
+			}
+		}
+	}
+	
+	ifs.close();	
+
+	for (unsigned int i = 0; i < l->landmark_names.size(); i++)
+	{
+		l->browser->add( l->resolve_string(i).c_str() );
+	}
+		
+	l->browser->value(1);	// set the first landmark as active	
 }
 
 void FLTKuserIOpar_landmarks::newSetCb(Fl_Widget *callingwidget, void * foo)
@@ -370,8 +430,10 @@ void FLTKuserIOpar_landmarks::next()
 	}
 }
 
-
-
+int FLTKuserIOpar_landmarks::get_landmarksID()
+{
+	return landmarksID;
+}
 
 
 

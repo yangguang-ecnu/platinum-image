@@ -19,7 +19,6 @@
 //#include "point_base.h"
 #include "datawidget.h"
 
-
 point_collection::point_collection() : data_base()
 {
     //start empty
@@ -27,19 +26,19 @@ point_collection::point_collection() : data_base()
 	active = -1;
 }
 
-//AF
+point_collection::~point_collection() {}
+
 point_collection::pointStorage::iterator point_collection::begin()
 {
 	return pointStorage::iterator(thePoints.begin());
 }
 
-//AF
+
 point_collection::pointStorage::iterator point_collection::end()
 {
 	return pointStorage::iterator(thePoints.end());
 }
 
-//AF
 void point_collection::add(pointStorage::mapped_type point)
 {
 	pointStorage::key_type index = 1;
@@ -54,13 +53,11 @@ void point_collection::add(pointStorage::mapped_type point)
 	add_pair (index, point);
 }
 
-//AF
 void point_collection::add_pair(pointStorage::key_type index, pointStorage::mapped_type point)
 {
 	thePoints[index] = point;
 }
 
-//AF
 point_collection::pointStorage::mapped_type point_collection::get_point (int i)
 {
 	if ( thePoints.size()>0 && thePoints.count(i) != 0)
@@ -74,13 +71,11 @@ point_collection::pointStorage::mapped_type point_collection::get_point (int i)
 	}
 }
 
-//AF
 void point_collection::set_active(int a)
 {
 	active = a;
 }
 
-//AF
 int point_collection::get_active()
 {
 	return active;
