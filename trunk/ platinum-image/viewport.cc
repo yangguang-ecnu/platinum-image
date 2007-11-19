@@ -42,8 +42,19 @@ bool viewport::renderermenu_built=false;
 
 //static Fl_Menu_Item renderermenu_global[NUM_RENDERER_TYPES_PLUS_END];   //this one should be protected too
 
-enum preset_direction {AXIAL, CORONAL, SAGITTAL,AXIAL_NEG, CORONAL_NEG, SAGITTAL_NEG};
+enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG};
+//enum preset_direction {AXIAL, CORONAL, SAGITTAL,AXIAL_NEG, CORONAL_NEG, SAGITTAL_NEG};
 
+const char * preset_direction_labels[] =
+{
+    "Z",
+    "Y",
+    "X",
+    "-Z",
+    "-Y",
+    "-X"
+};
+/*
 const char * preset_direction_labels[] =
 {
     "Axial",
@@ -53,7 +64,7 @@ const char * preset_direction_labels[] =
     "-Coronal",
     "-Sagittal"
 };
-
+*/
 const char * blend_mode_labels[] =
 {
     "Overwrite",
@@ -427,9 +438,11 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     dir_menu_items[m].label(NULL);
     
     //Axial is pre-set, set checkmark accordingly
-    dir_menu_items[AXIAL].setonly();
+    dir_menu_items[Z_DIR].setonly();
+//    dir_menu_items[AXIAL].setonly(); //AXIAL_NEG
     
-    directionmenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,preset_direction_labels[AXIAL]);
+    directionmenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,preset_direction_labels[Z_DIR]);
+//    directionmenu_button = new Fl_Menu_Button(xpos+(buttonleft+=buttonwidth),ypos,buttonwidth,buttonheight,preset_direction_labels[AXIAL]); //AXIAL_NEG
     directionmenu_button->copy(dir_menu_items);
     
     Fl_Menu_Item blend_menu_items [NUM_BLEND_MODES+1];
@@ -447,9 +460,9 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
         blend_menu_items[m].user_data(cbp);
         blend_menu_items[m].flags= FL_MENU_RADIO;
         
-        if (rendererIndex < 0)
-            {blend_menu_items[m].deactivate();}
-        }
+//        if (rendererIndex < 0)
+  //          {blend_menu_items[m].deactivate();}
+      }
     //terminate menu
     blend_menu_items[m].label(NULL);
     
@@ -606,38 +619,46 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
     // A coronal plane divides the body into dorsal and ventral portions.
     // A transverse plane divides the body into cranial (cephalic) and caudal portions.
     
+	//enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG};
+
     switch (params->direction) {
-        case AXIAL:
+        case Z_DIR:
+        //case AXIAL:
             dir[x][0]=1; //voxel direction of view x
             dir[y][1]=1; //voxel direction of view y
             dir[z][2]=1; //voxel direction of slicing
             break;
             
-        case CORONAL:
+        case Y_DIR:
+//        case CORONAL:
             dir[x][0]=1;
             dir[z][1]=-1;
             dir[y][2]=1;
             break;
             
-        case SAGITTAL:
+        case X_DIR:
+//        case SAGITTAL:
             dir[y][0]=1;
             dir[z][1]=-1;
             dir[x][2]=1;
             break;
             
-        case AXIAL_NEG:
+        case Z_DIR_NEG:
+//        case AXIAL_NEG:
             dir[x][0]=1;
             dir[y][1]=-1;
             dir[z][2]=-1;
             break;
             
-        case CORONAL_NEG:
+        case Y_DIR_NEG:
+//        case CORONAL_NEG:
             dir[x][0]=-1;
             dir[z][1]=1;
             dir[y][2]=-1;
             break;
             
-        case SAGITTAL_NEG:
+        case X_DIR_NEG:
+//        case SAGITTAL_NEG:
             dir[y][0]=-1;
             dir[z][1]=-1;
             dir[x][2]=1;
@@ -710,7 +731,7 @@ void viewport::rebuild_blendmode_menu ()//update checkmark for current blend mod
         {
         Fl_Menu_Item * blendmodemenu=(Fl_Menu_Item *)blendmenu_button->menu();
         
-        //blend modes are different - or not available - for other renderer types
+        //blend modes are different - or not available - for other renderer types (than MPR...)
         //basic check for this:
         //int this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
         
@@ -718,7 +739,7 @@ void viewport::rebuild_blendmode_menu ()//update checkmark for current blend mod
             {
             ((menu_callback_params *)(blendmodemenu[m].argument()))->rend_index=rendererIndex;
             
-            if (rendererIndex <0 || rendermanagement.renderer_supports_mode(rendererIndex,m))
+            if (rendererIndex <0 || !rendermanagement.renderer_supports_mode(rendererIndex,m))
                 {blendmodemenu[m].deactivate();}
             else
                 {blendmodemenu[m].activate();}

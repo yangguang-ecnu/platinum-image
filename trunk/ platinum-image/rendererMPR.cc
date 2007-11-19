@@ -240,9 +240,10 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             // *** loop variables common to scanline and orthogonal renderer ***
             
             //color for tint mode
+			//Note that the order is set to RED, BLUE, GREEN 
             int tint_r=(((the_image % 3) ==0) ^ (the_image > 2));
-            int tint_g=(((the_image % 3) ==1) ^ (the_image > 2));
-            int tint_b=(((the_image % 3) ==2) ^ (the_image > 2));
+            int tint_b=(((the_image % 3) ==1) ^ (the_image > 2));	
+            int tint_g=(((the_image % 3) ==2) ^ (the_image > 2));
             
             //pixel fill start & end points, used in common blend mode code
             long fill_x_start,
