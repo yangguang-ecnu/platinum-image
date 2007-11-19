@@ -83,7 +83,6 @@ void landmark_tool::handle(viewport_event &event)
 			event.grab();
 			
 			point_collection_ID = userIOmanagement.get_landmarksID(userIO_ID);
-			std::cout << "point_collection_ID " << point_collection_ID << std::endl;
 			
 			rendermanagement.connect_data_renderer(myPort->get_renderer_id(), point_collection_ID);			
 			
@@ -101,6 +100,8 @@ void landmark_tool::handle(viewport_event &event)
 //				int index_of_active = userIOmanagement.get_parameter<landmarksIDtype>(userIO_ID, 1);				
 //				points->set_active(index_of_active);
 				int index_of_active = points->get_active();
+
+				std::cout << "index_of_active " << index_of_active << std::endl;
 				
 				if (index_of_active <= 0)	// -1 means active is not set
 				{							//  0 means no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
@@ -114,7 +115,7 @@ void landmark_tool::handle(viewport_event &event)
 				userIOmanagement.set_landmark(userIO_ID, index_of_active, mouse3d);
 				
 
-				viewmanagement.show_point(mouse3d, point_collection_ID);
+				viewmanagement.show_point_by_data ( mouse3d, point_collection_ID );
 
 				
 			}

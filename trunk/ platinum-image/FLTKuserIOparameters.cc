@@ -202,7 +202,7 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 //	emptyBox = new Fl_Box( w() - 3 * btnWidth, y() + PARBOXBORDER, 2 * btnWidth, STDPARWIDGETHEIGHT - PARBOXBORDER);
 
 	loadDescriptorBtn = new Fl_Button ( w() - btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load" );
-    loadDescriptorBtn->callback( loadDescriptorCb, (void*) this );
+    loadDescriptorBtn->callback( loadDescriptorCB, (void*) this );
 		
 	landmarkText = new Fl_Output ( x(), y() + STDPARWIDGETHEIGHT + PARBOXBORDER, textWidth, BUTTONHEIGHT - PARBOXBORDER );
 	landmarkText->box(FL_FLAT_BOX);
@@ -210,17 +210,17 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 	landmarkText->value ( "Landmark set" );
 	
 	newSetBtn = new Fl_Button( w() - 3 * btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "New");
-	newSetBtn->callback( newSetCb,  (void*) this );
+	newSetBtn->callback( newSetCB,  (void*) this );
 
 	saveSetBtn = new Fl_Button( w() - 2 * btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Save");
-	saveSetBtn->callback(saveSetCb);
+	saveSetBtn->callback(saveSetCB);
 
 	loadSetBtn = new Fl_Button( w() - btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load");
-	loadSetBtn->callback(loadSetCb);
+	loadSetBtn->callback(loadSetCB);
 
 
 	browser = new Fl_Hold_Browser( x(), y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), 4 * STDPARWIDGETHEIGHT - PARTITLEMARGIN );
-	browser->callback( browserCb,  (void*)this );
+	browser->callback( browserCB,  (void*)this );
 	browser->textsize(12);
 	//browser->when(...)		
 
@@ -249,7 +249,7 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 
 }
 
-void FLTKuserIOpar_landmarks::loadDescriptorCb( Fl_Widget * callingwidget, void * thisLandmarks )
+void FLTKuserIOpar_landmarks::loadDescriptorCB( Fl_Widget * callingwidget, void * thisLandmarks )
 {
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
@@ -317,7 +317,7 @@ void FLTKuserIOpar_landmarks::loadDescriptorCb( Fl_Widget * callingwidget, void 
 	l->browser->value(1);	// set the first landmark as active	
 }
 
-void FLTKuserIOpar_landmarks::newSetCb( Fl_Widget *callingwidget, void * thisLandmarks )
+void FLTKuserIOpar_landmarks::newSetCB( Fl_Widget *callingwidget, void * thisLandmarks )
 {
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
@@ -334,29 +334,31 @@ void FLTKuserIOpar_landmarks::newSetCb( Fl_Widget *callingwidget, void * thisLan
 	l->browser->value(1);	// set the first landmark as active		
 }
 
-void FLTKuserIOpar_landmarks::saveSetCb(Fl_Widget *callingwidget, void * foo)
+void FLTKuserIOpar_landmarks::saveSetCB(Fl_Widget *callingwidget, void * foo)
 {
 	std::cout << "Save landmark set" << std::endl;
 }
 
-void FLTKuserIOpar_landmarks::loadSetCb(Fl_Widget *callingwidget, void * foo)
+void FLTKuserIOpar_landmarks::loadSetCB(Fl_Widget *callingwidget, void * foo)
 {
 	std::cout << "Load landmark set" << std::endl;
 }
 
-void FLTKuserIOpar_landmarks::browserCb(Fl_Widget *callingwidget, void * thisLandmarks )
+void FLTKuserIOpar_landmarks::browserCB(Fl_Widget *callingwidget, void * thisLandmarks )
 {
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
 	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( l->get_landmarksID() ) );
 	
-	int index = ((Fl_Hold_Browser*)callingwidget)->value();
-	points->set_active(index);
+	int index = l->browser->value();
+//	int index = ((Fl_Hold_Browser*)callingwidget)->value();
+	points->set_active( index );
 	
 	Vector3D point;
 	try
 	{
-		viewmanagement.show_point(points->get_point(index), l->get_landmarksID() );
+		viewmanagement.show_point_by_data ( points->get_point(index), l->get_landmarksID() );
+//		viewmanagement.show_point(points->get_point(index), l->get_landmarksID() );
 	}
 	catch(out_of_range) { return; }			// There is no point at that index
 }
@@ -440,6 +442,8 @@ void FLTKuserIOpar_landmarks::next()
 	if ( browser->value() != 0 && browser->value() < browser->size() ) 	// 0 means that no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
 	{
 		browser->value(browser->value() + 1);
+		point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( landmarksID ) );
+		points->set_active( browser->value() );
 	}
 }
 

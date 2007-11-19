@@ -62,7 +62,7 @@ Vector3D rendererMPR::view_to_world(int vx, int vy,int sx,int sy) const
     viewCentered[2]=0;
     
     //transform to world coordinates
-    world=wheretorender->view_to_world_matrix(viewmin)*viewCentered;
+    world=wheretorender->view_to_world_matrix(viewmin) * viewCentered;
     world=world+wheretorender->look_at;
     
     return world;

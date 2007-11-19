@@ -188,9 +188,7 @@ const float nav_tool::wheel_factor=renderer_base::display_scale/10;
 const float nav_tool::zoom_factor=0.01;
 
 nav_tool::nav_tool (viewport_event & event):viewporttool(event)
-    {
-    renderer = NULL;
-    
+    {    
     //a tool constructor has to respond to the type of events it accepts by grabbing them,
     //or it won't be created
     if (event.type() == pt_event::hover || event.type() == pt_event::browse || event.type() == pt_event::adjust || event.type() == pt_event::scroll || event.type() == pt_event::key )
@@ -214,25 +212,21 @@ void nav_tool::handle(viewport_event &event)
 	{
         event.grab();
         		
-        //get pointer to renderer
-        renderer = rendermanagement.get_renderer( myPort->get_renderer_id());
-
         dragLast[0] = event.mouse_pos_global()[0];
         dragLast[1] = event.mouse_pos_global()[1];
 		
 		if ( event.type() == pt_event::focus )
-		{		
-			image_base * top;
-			if ( top = rendermanagement.get_combination(renderer->combination_id())->top_image() )
+		{
+			if ( rendermanagement.get_combination(myRenderer->combination_id())->top_image() != NULL )
 			{	// there is an image in current viewport
 			
 				// The coordinate of the mouse pointer in the current viewport is shown in the other viewports
-				// (if there is an image (the top image) in the viewport).
+				// (if there is at least one image in the viewport)
 				// TODO: implement a drop-down menu for each viewport where the user can set which viewports it should connect with.
 	
 				std::vector<int> mouse2d = event.mouse_pos_local();
 				Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
-				viewmanagement.show_point(mouse3d, top->get_id());
+				viewmanagement.show_point_by_combination ( mouse3d, myRenderer->combination_id() );
 			}
 		}
 
@@ -276,10 +270,8 @@ void nav_tool::handle(viewport_event &event)
 				{
 					event.grab();
 					
-					renderer = rendermanagement.get_renderer( myPort->get_renderer_id() );
-
 					image_base * top;
-					if ( top = rendermanagement.get_combination(renderer->combination_id())->top_image() )
+					if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
 					{	// there is an image in current viewport
 					
 						Matrix3D m = datamanagement.get_image(top->get_id())->get_orientation();
@@ -307,7 +299,7 @@ void nav_tool::handle(viewport_event &event)
 						// och en metod som roterar bild kring dess origin (ändrar endast orientation)
 					
 												
-						//rendermanagement.center_and_fit ( renderer->get_id(), top );
+						//rendermanagement.center_and_fit ( myRenderer->get_id(), top );
 						
 					}
 				}
@@ -322,15 +314,7 @@ void nav_tool::handle(viewport_event &event)
                     
                     fvp->needs_rerendering();
 
-					// get geometries that holds at least one of the images in the input combination and have a different
-					// direction than the input geometry (i.e. not the same nor the opposite direction)					
-					std::vector<int> geometryIDs = rendermanagement.geometries_by_image_and_direction( myRenderer->combination_id() );
-
-					for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
-					{
-						viewmanagement.refresh_viewports_from_geometry( *itr ) ;
-					}
-
+					refresh_by_image_and_direction();
 				}
                 //NOTE: no break, update hovering also
             case pt_event::hover:
@@ -383,12 +367,11 @@ void nav_tool::handle(viewport_event &event)
 				{
 					event.grab();
 	
-					renderer = rendermanagement.get_renderer( myPort->get_renderer_id());
-
 					image_base * top;
-					if ( top = rendermanagement.get_combination(renderer->combination_id())->top_image() )
+					if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
 					{	// there is an image in current viewport			
-						rendermanagement.center_and_fit ( renderer->get_id(), top );
+						rendermanagement.center_and_fit ( myRenderer->get_id(), top );
+						refresh_by_image_and_direction();
 					}
 				}
 				
@@ -397,7 +380,10 @@ void nav_tool::handle(viewport_event &event)
                     event.grab();
                     
 					if ( rendermanagement.renderer_empty(myRenderer->get_id()) == RENDERER_NOT_EMPTY )
-						{ myRenderer->move_voxels (0,0,-1); }
+					{ 
+						myRenderer->move_voxels (0,0,-1);
+						refresh_by_image_and_direction();
+					}
 				}
 				
                 if (event.key_combo(pt_event::pagedown_key))
@@ -405,7 +391,10 @@ void nav_tool::handle(viewport_event &event)
                     event.grab();
                     
 					if ( rendermanagement.renderer_empty(myRenderer->get_id()) == RENDERER_NOT_EMPTY )
-						{ myRenderer->move_voxels (0,0,1); }
+					{ 
+						myRenderer->move_voxels (0,0,1);
+						refresh_by_image_and_direction();
+					}
 				}
                 
                 if (event.handled())
@@ -417,7 +406,7 @@ void nav_tool::handle(viewport_event &event)
         
         if (event.state() == pt_event::end)
             {
-            renderer = NULL;
+
             }
         
         dragLast[0] = mouse[0];
@@ -425,17 +414,17 @@ void nav_tool::handle(viewport_event &event)
         }
 }
 
-//void nav_tool::refresh_by_image_and_direction()
-//{
-//	// get geometries that holds at least one of the images in the input combination and have a different
-//	// direction than the input geometry (i.e. not the same nor the opposite direction)					
-//	std::vector<int> geometryIDs = rendermanagement.geometries_by_image_and_direction( myRenderer->combination_id() );
-//
-//	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
-//	{
-//		viewmanagement.refresh_viewports_from_geometry( *itr ) ;
-//	}
-//}
+void nav_tool::refresh_by_image_and_direction()
+{
+	// get geometries that holds at least one of the images in the input combination and have a different
+	// direction than the input geometry (i.e. not the same nor the opposite direction)					
+	std::vector<int> geometryIDs = rendermanagement.geometries_by_image_and_direction( myRenderer->combination_id() );
+
+	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
+	{
+		viewmanagement.refresh_viewports_from_geometry( *itr ) ;
+	}
+}
 
 
 #pragma mark *** dummy tool ***

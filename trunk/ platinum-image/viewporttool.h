@@ -95,7 +95,7 @@ protected:
     renderer_base * renderer;
     std::ostringstream numbers;
 
-//	void refresh_by_image_and_direction();
+	void refresh_by_image_and_direction();
 		
 public:
     nav_tool (viewport_event &);

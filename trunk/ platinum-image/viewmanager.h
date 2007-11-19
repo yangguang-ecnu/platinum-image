@@ -54,6 +54,8 @@ class viewmanager
         float tileheightpercent[MAXVIRTUALVIEWS][MAXHORIZONTALGRID][MAXVERTICALGRID];
         std::vector<viewport> viewports;
         bool irregular_tiles;
+		
+		void show_point_by_renderers ( const Vector3D & point, const std::vector<int> & rendererIDs, const unsigned int margin = 5 );	// show this point in each viewport connected to one of the renderer ids
 
     public:
         void setup_views(int virtualview, int windowwidth, int windowheight); // 0...antal som anv‰nds-1
@@ -90,10 +92,10 @@ class viewmanager
 		
 		const viewport * const get_viewport(int viewport_id);	// return a viewport
 		
-		void show_point(const Vector3D & point, const int dataID, const unsigned int margin = 5);	// shows a point in all viewports that has the
-																									// data with the specific id active. if the point
-																									// is outside the margin of viewport it is centered
-																									// otherwise only the correct plane is shown
+		void viewmanager::show_point_by_combination ( const Vector3D & point, const int combinationID,  const unsigned int margin = 5 );	// show this point in all viewports that has at least on of ids in combinationIDs active
+	
+		void viewmanager::show_point_by_data ( const Vector3D & point, const int dataID, const unsigned int margin = 5 );	// show this point in all viewports that has the dataID active
+																									
     };
 
 #endif

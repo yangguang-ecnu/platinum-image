@@ -249,7 +249,6 @@ class FLTKuserIOpar_coord3Ddisplay : public FLTKuserIOparameter_base
 		void update();
     };
 	
-//AF
 class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 {
 	protected:
@@ -265,18 +264,18 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		std::vector<std::string> landmark_names;
 		std::vector<std::string> option_names;
 		std::string resolve_string(int index);
-		
+				
 		int landmarksID;
 		
 	public:
 		FLTKuserIOpar_landmarks ( const std::string name );
 //		FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, const int landmarks_id);
 
-		static void loadDescriptorCb(Fl_Widget *callingwidget, void *);
-		static void newSetCb(Fl_Widget *callingwidget, void *);
-		static void saveSetCb(Fl_Widget *callingwidget, void *);
-		static void loadSetCb(Fl_Widget *callingwidget, void *);
-		static void browserCb(Fl_Widget *callingwidget, void *);
+		static void loadDescriptorCB(Fl_Widget *callingwidget, void *);
+		static void newSetCB(Fl_Widget *callingwidget, void *);
+		static void saveSetCB(Fl_Widget *callingwidget, void *);
+		static void loadSetCB(Fl_Widget *callingwidget, void *);
+		static void browserCB(Fl_Widget *callingwidget, void *);
 
 
 		const std::string type_name();
