@@ -585,42 +585,7 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 
 void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry * where, rendercombination * what)
 {
-//	std::vector<int> images = rendermanagement.images_from_combination ( what->get_id() );
-//	
-//	if ( images.empty() )
-//		{ return; }
-//	
-//	std::vector<int> renderers = rendermanagement.renderers_from_data( images );
-//
-//	std::vector<rendergeometry *> geometries;
-//	
-//	
-//
-//	std::vector<int> test = rendermanagement.geometries_from_combination( what->get_id() );		// get geometries that holds at least one of the existing images in the input combination
-//		
-//	for ( std::vector<int>::const_iterator itr = test.begin(); itr != test.end(); itr++ )
-//	{
-//		std::cout << *itr << ", ";
-//	}
-//	if ( !test.empty() )
-//		{ std::cout << std::endl; }
-//	
-//	
-//	
-//	for ( std::vector<int>::iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
-//	{ 
-//		rendergeometry * geometry = rendermanagement.get_geometry(*itr);
-//			
-//		if ( where->get_id() != geometry->get_id() )
-//		{	// not the "active" viewport (renderer)
-//			geometries.push_back(geometry);
-//		}
-//		
-//	}
-
-
-
-	std::vector<int> geometryIDs = rendermanagement.geometries_from_combination( what->get_id() );	// get geometries that holds at least one of the images in the input combination
+	std::vector<int> geometryIDs = rendermanagement.geometries_by_image_and_direction( what->get_id() );	// get geometries that holds at least one of the images in the input combination
 																									// and have a different direction than the input geometry (i.e. not the same
 																									// direction nor the opposite direction)
 	std::vector<rendergeometry *> geometries;

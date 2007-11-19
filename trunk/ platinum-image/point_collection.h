@@ -64,10 +64,10 @@ class point_collection : public data_base
 			
 		virtual	void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
 		
-		//AF
 		void set_active(int);
 		int get_active();
-			
+
+		void clear();
     };
 	
 #endif

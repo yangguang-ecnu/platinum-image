@@ -323,16 +323,14 @@ void nav_tool::handle(viewport_event &event)
                     fvp->needs_rerendering();
 
 					// get geometries that holds at least one of the images in the input combination and have a different
-					// direction than the input geometry (i.e. not the same direction nor the opposite direction)					
-					std::vector<int> geometryIDs = rendermanagement.geometries_from_combination( myRenderer->combination_id() );
-					
+					// direction than the input geometry (i.e. not the same nor the opposite direction)					
+					std::vector<int> geometryIDs = rendermanagement.geometries_by_image_and_direction( myRenderer->combination_id() );
+
 					for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
 					{
 						viewmanagement.refresh_viewports_from_geometry( *itr ) ;
 					}
 
-					
-					
 				}
                 //NOTE: no break, update hovering also
             case pt_event::hover:
@@ -426,6 +424,19 @@ void nav_tool::handle(viewport_event &event)
         dragLast[1] = mouse[1];
         }
 }
+
+//void nav_tool::refresh_by_image_and_direction()
+//{
+//	// get geometries that holds at least one of the images in the input combination and have a different
+//	// direction than the input geometry (i.e. not the same nor the opposite direction)					
+//	std::vector<int> geometryIDs = rendermanagement.geometries_by_image_and_direction( myRenderer->combination_id() );
+//
+//	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
+//	{
+//		viewmanagement.refresh_viewports_from_geometry( *itr ) ;
+//	}
+//}
+
 
 #pragma mark *** dummy tool ***
 
