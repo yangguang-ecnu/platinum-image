@@ -92,7 +92,7 @@ class rendermanager
         void combination_update_callback (int c_id);
         std::vector<int> combinations_from_data (int dataID);    //return any combinations containing the data object with dataID
 
-		std::vector<int> renderers_from_data ( int dataID );
+		std::vector<int> renderers_from_data ( int dataID );	// return any renderer connected to this data id
 		
 		std::vector<int> renderers_from_data ( const std::vector<int> & dataIDs);	// return a set of renderers. each renderer in the returned set
 																					// holds at least one of the items in the data set
@@ -142,7 +142,9 @@ class rendermanager
 		void center_and_fit ( const int rendererID, image_base * image );
 		void center_and_fit ( image_base * image );
 		
-		std::vector<int> images_from_combination ( const int combinationID );	// return the images in a combination
+		std::vector<int> images_from_combination ( const int combinationID );	// return all image ids in a combination
+		
+		std::vector<int> data_from_combination ( const int combinationID );		// return all data ids in a combination
 
     };
 

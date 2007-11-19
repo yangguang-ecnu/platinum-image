@@ -226,17 +226,17 @@ std::vector<int> rendermanager::geometries_by_image_and_direction ( const int co
 	int geometryID = get_geometry_id( find_renderer_index( rendererID ) );
 
 	std::vector<int> imageIDs = images_from_combination( combinationID );		// get the images in the combination
-	std::vector<int> rendererIDs = renderers_from_data( imageIDs );				// get the renderers that holds at least one of the images
+	std::vector<int> rendererIDs = renderers_from_data( imageIDs );				// get the renderers that is connected to at least one of the images
 	std::vector<int> geometryIDs = geometries_from_renderers( rendererIDs );	// get the geometry for each renderer
 	geometryIDs = geometries_by_direction( geometryID, geometryIDs );			// get the geometries, from the given set, that have a different direction than
 																				// the input geomtry (i.e. not the same nor the opposite direction)
 	return geometryIDs;
 }
 
-std::vector<int> rendermanager::geometries_by_image ( const int combinationID)
+std::vector<int> rendermanager::geometries_by_image ( const int combinationID )
 {
 	std::vector<int> imageIDs = images_from_combination( combinationID );		// get the images in the combination
-	std::vector<int> rendererIDs = renderers_from_data( imageIDs );				// get the renderers that holds at least one of the images
+	std::vector<int> rendererIDs = renderers_from_data( imageIDs );				// get the renderers that is connected to at least one of the images
 	std::vector<int> geometryIDs = geometries_from_renderers( rendererIDs );	// get the geometry for each renderer
 	
 	return geometryIDs;
@@ -553,7 +553,7 @@ void rendermanager::center_and_fit( image_base * image )
 
 std::vector<int> rendermanager::images_from_combination ( const int combinationID ) 
 {
-	std::vector<int> images;
+	std::vector<int> imageIDs;
 
 	rendercombination * combination = get_combination ( combinationID );
 	
@@ -561,12 +561,26 @@ std::vector<int> rendermanager::images_from_combination ( const int combinationI
 	{
 		if ( dynamic_cast<image_base* >( (itr)->pointer ) )
 		{	// an image
-			images.push_back( itr->ID );
+			imageIDs.push_back( itr->ID );
 		}
 	}
 	
-	return images;
+	return imageIDs;
+}
+
+std::vector<int> rendermanager::data_from_combination ( const int combinationID )
+{
+	std::vector<int> dataIDs;
+	
+	rendercombination * combination = get_combination ( combinationID );
+	
+	for ( std::list<rendercombination::renderpair>::const_iterator itr = combination->begin(); itr != combination->end(); itr++ )
+	{
+		dataIDs.push_back( itr->ID );
+	}
+	
+	return dataIDs;
 }
 
 
-	
+

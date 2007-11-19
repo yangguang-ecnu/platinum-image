@@ -431,7 +431,6 @@ std::vector<int> viewmanager::viewports_from_renderers(const std::vector<int> & 
 	return viewport_ids;
 }
 
-//AF
 int viewmanager::viewport_from_renderer(int renderer_id)
 {
 	for ( std::vector<viewport>::iterator vitr = viewports.begin(); vitr != viewports.end(); vitr++ )
@@ -444,7 +443,6 @@ int viewmanager::viewport_from_renderer(int renderer_id)
 }
 
 
-//AF
 const viewport * const viewmanager::get_viewport(int viewport_id)
 {
 	int viewport_index = find_viewport_index(viewport_id);
@@ -457,17 +455,15 @@ const viewport * const viewmanager::get_viewport(int viewport_id)
 	return NULL;
 }
 
-//AF
-void viewmanager::show_point(const Vector3D & point, const int dataID, const unsigned int margin )
+void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::vector<int> & rendererIDs, const unsigned int margin )
 {
-	std::vector<int> combinations = rendermanagement.combinations_from_data(dataID);
-	std::vector<int> renderers = rendermanagement.renderers_from_combinations(combinations);
-
 	Vector3D tmp;
 
-	for ( std::vector<int>::iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
+	for ( std::vector<int>::const_iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
 	{ 
-		rendergeometry * geometry = rendermanagement.get_geometry(*itr);				
+		tmp.Fill(0);
+	
+		rendergeometry * geometry = rendermanagement.get_geometry ( *itr );
 		Vector3D at = geometry->look_at;
 
 		const int viewport_id = viewmanagement.viewport_from_renderer(*itr);
@@ -479,20 +475,39 @@ void viewmanager::show_point(const Vector3D & point, const int dataID, const uns
 		renderer_base * myRenderer = rendermanagement.get_renderer(*itr);
 		std::vector<int> point_in_view = myRenderer->world_to_view(sx, sy, point);
 		
+		
 		if ( point_in_view[0] < 0 + margin || point_in_view[0] > sx - margin || point_in_view[1] < 0 + margin || point_in_view[1] > sy - margin )
 		{	// the point is outside the viewport margin -> show the plane of the point AND center the point 
 			tmp = point;
 		}
 		else
 		{	// the point is inside the viewport margin -> show the plane of the point
-			Vector3D n = geometry->get_n();
+					
+			Vector3D N = geometry->get_N();
 			
-			tmp[0] = point[0] * n[0] + at[0] * (1 - n[0]);
-			tmp[1] = point[1] * n[1] + at[1] * (1 - n[1]);
-			tmp[2] = point[2] * n[2] + at[2] * (1 - n[2]);
+			tmp = at;
+			
+			if ( abs( N[0] ) == 1 ) { tmp[0] = point[0]; }
+			else if ( abs( N[1] ) == 1 ) { tmp[1] = point[1]; }
+			else if ( abs( N[2] ) == 1 ) { tmp[2] = point[2]; }
+			
 		}
+		
 		
 		rendermanagement.set_geometry(*itr, tmp); 
 	}
 
+}
+
+void viewmanager::show_point_by_combination ( const Vector3D & point, const int combinationID,  const unsigned int margin )
+{
+	std::vector<int> dataIDs = rendermanagement.data_from_combination ( combinationID );	// get all data ids in the combination
+	std::vector<int> rendererIDs = rendermanagement.renderers_from_data ( dataIDs );		// get the renderers that is connected to at least one of the images
+	show_point_by_renderers ( point, rendererIDs, margin );
+}
+
+void viewmanager::show_point_by_data ( const Vector3D & point, const int dataID, const unsigned int margin )
+{
+	std::vector<int> rendererIDs = rendermanagement.renderers_from_data ( dataID );		// return any renderer connected to this data id
+	show_point_by_renderers ( point, rendererIDs, margin );
 }
