@@ -567,13 +567,23 @@ void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
 {
     menu_callback_params * widget_user_data=(menu_callback_params *)params;
 
-//	cout<<"toggle_image_callback..."<<endl;
-//	cout<<"widget_user_data->rend_index="<<widget_user_data->rend_index<<endl;
-//	cout<<"widget_user_data->vol_id="<<widget_user_data->vol_id<<endl;
-    
     rendermanagement.toggle_image(widget_user_data->rend_index,widget_user_data->vol_id);
-	
-	cout<<"after: rendermanagement.toggle_image"<<endl;
+
+	// update all viewports that shows at least one of the images in the current viewport:
+		
+//	int combinationID = rendermanagement.get_combination_id( widget_user_data->rend_index );
+//		
+//	std::vector<int> geometryIDs = rendermanagement.geometries_by_image ( combinationID );				// return geometries that holds at least one of the images in the input combination
+//
+//	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
+//	{
+//		viewmanagement.refresh_viewports_from_geometry( *itr );
+//	}
+
+	// TODO: only refresh viewports that holds the addded/removed image
+	// hur kan det aktuella bild id:et erhållas? undersök om det verkligen är en bild (dvs exkludera tex en point_collection)
+	// möjlig lösning är att jämföra de bilder combination innehåller före och efter toggle_image() 
+	viewmanagement.refresh_viewports();
 
 }
 
@@ -642,13 +652,15 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
 
     delete dir_p;
 	
+			
+	// update all viewports that shows at least one of the images in the current viewport:
+		
 	int combinationID = rendermanagement.get_combination_id( params->vport->rendererIndex );
-	std::vector<int> geometryIDs = rendermanagement.geometries_from_combination( combinationID );	// get geometries that holds at least one of the images in the input combination
-																									// and have a different direction than the input geometry (i.e. not the same
-																									// direction nor the opposite direction)
+	std::vector<int> geometryIDs = rendermanagement.geometries_by_image ( combinationID );		// return geometries that holds at least one of the images in the input combination
+
 	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
 	{
-		viewmanagement.refresh_viewports_from_geometry( *itr ) ;
+		viewmanagement.refresh_viewports_from_geometry( *itr );
 	}
 }
 

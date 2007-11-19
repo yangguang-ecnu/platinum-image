@@ -41,9 +41,9 @@ void landmark_tool::init()
 void landmark_tool::handle(viewport_event &event)
 {
 	std::vector<int> mouse2d = event.mouse_pos_local();
-	
-	int point_collection_ID;
 
+	int point_collection_ID;
+	
     FLTKviewport * fvp = event.get_FLTK_viewport();
 	Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
 
@@ -68,12 +68,14 @@ void landmark_tool::handle(viewport_event &event)
 			image_base * top;
 			if ( !(top = rendermanagement.get_combination(myRenderer->combination_id())->top_image()) )
 			{
+				// TODO: use pt_error
 				std::cout << "No image in current viewport" << std::endl;
 				return; 
 			}
 			
 			if ( userIOmanagement.get_parameter<imageIDtype>(userIO_ID, 0) !=  top->get_id() )
 			{
+				// TODO: use pt_error
 				std::cout << "The id of the selected image and the top image are not the same" << std::endl;
 				return;
 			}
@@ -81,6 +83,7 @@ void landmark_tool::handle(viewport_event &event)
 			event.grab();
 			
 			point_collection_ID = userIOmanagement.get_landmarksID(userIO_ID);
+			std::cout << "point_collection_ID " << point_collection_ID << std::endl;
 			
 			rendermanagement.connect_data_renderer(myPort->get_renderer_id(), point_collection_ID);			
 			
@@ -88,6 +91,7 @@ void landmark_tool::handle(viewport_event &event)
 			{				
 				if ( datamanagement.find_data_index(point_collection_ID) == -1 )
 				{	// not found
+					// TODO: use pt_error
 					std::cout << "The point_collection is not found in the datamanager" << std::endl;
 					return;
 				}

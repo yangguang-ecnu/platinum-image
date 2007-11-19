@@ -94,11 +94,15 @@ protected:
                       //for panning we need the pos at last iteration
     renderer_base * renderer;
     std::ostringstream numbers;
+
+//	void refresh_by_image_and_direction();
+		
 public:
     nav_tool (viewport_event &);
     virtual void handle(viewport_event &);
     static void init (); 
     static const std::string name ();
+
 };
 
 class dummy_tool : public viewporttool //test tool
