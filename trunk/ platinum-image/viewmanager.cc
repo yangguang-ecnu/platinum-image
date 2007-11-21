@@ -457,14 +457,12 @@ const viewport * const viewmanager::get_viewport(int viewport_id)
 
 void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::vector<int> & rendererIDs, const unsigned int margin )
 {
-	Vector3D tmp;
 
 	for ( std::vector<int>::const_iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
 	{ 
-		tmp.Fill(0);
-	
+		Vector3D tmp;
+		
 		rendergeometry * geometry = rendermanagement.get_geometry ( *itr );
-		Vector3D at = geometry->look_at;
 
 		const int viewport_id = viewmanagement.viewport_from_renderer(*itr);
 		const viewport * const vp = viewmanagement.get_viewport(viewport_id);
@@ -475,22 +473,22 @@ void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::v
 		renderer_base * myRenderer = rendermanagement.get_renderer(*itr);
 		std::vector<int> point_in_view = myRenderer->world_to_view(sx, sy, point);
 		
-		
+		Vector3D at = geometry->look_at;
+
 		if ( point_in_view[0] < 0 + margin || point_in_view[0] > sx - margin || point_in_view[1] < 0 + margin || point_in_view[1] > sy - margin )
 		{	// the point is outside the viewport margin -> show the plane of the point AND center the point 
 			tmp = point;
 		}
 		else
 		{	// the point is inside the viewport margin -> show the plane of the point
-					
-			Vector3D N = geometry->get_N();
-			
-			tmp = at;
-			
-			if ( abs( N[0] ) == 1 ) { tmp[0] = point[0]; }
-			else if ( abs( N[1] ) == 1 ) { tmp[1] = point[1]; }
-			else if ( abs( N[2] ) == 1 ) { tmp[2] = point[2]; }
-			
+
+			Vector3D v = point - at;			// vector from look_at to point
+
+			Vector3D n = geometry->get_n();		// unit normal vector
+
+			Vector3D v_proj_n = n * ( v * n );	// orthogonal projection of v onto n
+
+			tmp =  at + v_proj_n;
 		}
 		
 		

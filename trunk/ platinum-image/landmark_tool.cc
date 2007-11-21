@@ -97,11 +97,8 @@ void landmark_tool::handle(viewport_event &event)
 				
 				point_collection * points = dynamic_cast<point_collection *>(datamanagement.get_data(point_collection_ID));
 						
-//				int index_of_active = userIOmanagement.get_parameter<landmarksIDtype>(userIO_ID, 1);				
-//				points->set_active(index_of_active);
-				int index_of_active = points->get_active();
-
-				std::cout << "index_of_active " << index_of_active << std::endl;
+				int index_of_active = userIOmanagement.get_parameter<landmarksIDtype>(userIO_ID, 1);				
+				points->set_active(index_of_active);
 				
 				if (index_of_active <= 0)	// -1 means active is not set
 				{							//  0 means no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
