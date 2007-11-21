@@ -59,13 +59,12 @@ float rendergeometry::distance_to_viewing_plane(Vector3D point)
 
 	
 	Vector3D v;
-	v[0] = point[0] - look_at[0] ;		// change to "v = point - look_at" and check that it is working
-	v[1] = point[1] - look_at[1] ;
-	v[2] = point[2] - look_at[2] ;
+	
+	v = point - look_at;
 
 	Vector3D n = get_n();
 
-	float distance = sqrt( pow((v[0]*n[0] + v[1]*n[1] + v[2]*n[2]), 2) ); // change to ( v * n ).GetNorm(); and check that it is working
+	float distance = abs ( v * n);
 	
 	return distance;
 }

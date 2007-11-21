@@ -210,17 +210,17 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 	landmarkText->value ( "Landmark set" );
 	
 	newSetBtn = new Fl_Button( w() - 3 * btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "New");
-	newSetBtn->callback( newSetCB,  (void*) this );
+	newSetBtn->callback( newSetCB, (void *) this );
 
 	saveSetBtn = new Fl_Button( w() - 2 * btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Save");
-	saveSetBtn->callback(saveSetCB);
+	saveSetBtn->callback( saveSetCB, (void *) this );
 
 	loadSetBtn = new Fl_Button( w() - btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load");
 	loadSetBtn->callback(loadSetCB);
 
 
 	browser = new Fl_Hold_Browser( x(), y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), 4 * STDPARWIDGETHEIGHT - PARTITLEMARGIN );
-	browser->callback( browserCB,  (void*)this );
+	browser->callback( browserCB,  (void *) this );
 	browser->textsize(12);
 	//browser->when(...)		
 
@@ -245,28 +245,26 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 
 	landmarksID = landmarks->get_id();
 	
-//	landmark_tool::register_point_collection_ID( landmarksID );
-
 }
 
 void FLTKuserIOpar_landmarks::loadDescriptorCB( Fl_Widget * callingwidget, void * thisLandmarks )
 {
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
-	Fl_File_Chooser chooser( ".", "Descriptor file (*.txt)\tAny file (*)", Fl_File_Chooser::SINGLE, "Load descriptor file" );
-	
+	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_descriptor_path	
+	Fl_File_Chooser chooser( ".", "Descriptor file (*.txt)\tAny file (*)", Fl_File_Chooser::SINGLE, "Load descriptor file" );	
 	chooser.show();
-	
+		
 	while( chooser.shown() )
 		{ Fl::wait(); }
 		
 	if ( chooser.value() == NULL )
 	{
-        pt_error::error("Descriptor load dialog cancel",pt_error::notice);
+        pt_error::error ( "Descriptor load dialog cancel", pt_error::notice );
 		return;
 	}
 	
-	ifstream ifs( chooser.value() );
+	ifstream ifs ( chooser.value() );
 	
 	if ( !ifs )
 	{
@@ -314,10 +312,12 @@ void FLTKuserIOpar_landmarks::loadDescriptorCB( Fl_Widget * callingwidget, void 
 		l->browser->add( l->resolve_string(i).c_str() );
 	}
 		
-	l->browser->value(1);	// set the first landmark as active	
+	l->browser->value(1);	// set the first landmark as active
+	
+	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1)));  but change to latest_descriptor_path
 }
 
-void FLTKuserIOpar_landmarks::newSetCB( Fl_Widget *callingwidget, void * thisLandmarks )
+void FLTKuserIOpar_landmarks::newSetCB( Fl_Widget * callingwidget, void * thisLandmarks )
 {
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
@@ -331,12 +331,52 @@ void FLTKuserIOpar_landmarks::newSetCB( Fl_Widget *callingwidget, void * thisLan
 		l->browser->add( l->resolve_string(i).c_str() );
 	}
 		
-	l->browser->value(1);	// set the first landmark as active		
+	l->browser->value(1);	// set the first landmark as active
+	
+	std::vector<int> combinationIDs = rendermanagement.combinations_from_data ( l->get_landmarksID() );
+	
+	for ( std::vector<int>::const_iterator itr = combinationIDs.begin(); itr != combinationIDs.end(); itr++ )
+	{
+		viewmanagement.refresh_viewports_from_combination( *itr );
+	}
 }
 
-void FLTKuserIOpar_landmarks::saveSetCB(Fl_Widget *callingwidget, void * foo)
+void FLTKuserIOpar_landmarks::saveSetCB(Fl_Widget *callingwidget, void * thisLandmarks)
 {
-	std::cout << "Save landmark set" << std::endl;
+	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
+
+	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( l->get_landmarksID() ) );
+
+
+	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_landmarks_path
+	Fl_File_Chooser chooser( ".", "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::CREATE, "Save landmarks" );	
+	chooser.show();
+		
+	while( chooser.shown() )
+		{ Fl::wait(); }
+		
+	if ( chooser.value() == NULL )
+	{
+        pt_error::error ( "Save landmarks dialog cancel", pt_error::notice );
+		return;
+	}
+	
+	ofstream ofs ( chooser.value() );
+	
+	if ( !ofs )
+	{
+		// TODO: use the pt_error class to generate an error message
+		return;
+	}
+
+	for (point_collection::pointStorage::iterator itr = points->begin(); itr != points->end(); itr++)
+	{
+		ofs << itr->first << ";" << itr->second << std::endl;
+	}
+			
+	ofs.close();
+	
+	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1))); but change to latest_landmarks_path
 }
 
 void FLTKuserIOpar_landmarks::loadSetCB(Fl_Widget *callingwidget, void * foo)
@@ -351,14 +391,12 @@ void FLTKuserIOpar_landmarks::browserCB(Fl_Widget *callingwidget, void * thisLan
 	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( l->get_landmarksID() ) );
 	
 	int index = l->browser->value();
-//	int index = ((Fl_Hold_Browser*)callingwidget)->value();
 	points->set_active( index );
 	
 	Vector3D point;
 	try
 	{
 		viewmanagement.show_point_by_data ( points->get_point(index), l->get_landmarksID() );
-//		viewmanagement.show_point(points->get_point(index), l->get_landmarksID() );
 	}
 	catch(out_of_range) { return; }			// There is no point at that index
 }

@@ -584,7 +584,7 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 	}
 }
 
-void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry * where, rendercombination * what)
+void rendererMPR::draw_slice_locators ( uchar *pixels, int sx, int sy, rendergeometry * where, rendercombination * what )
 {
 	std::vector<int> geometryIDs = rendermanagement.geometries_by_image_and_direction( what->get_id() );	// get geometries that holds at least one of the images in the input combination
 																									// and have a different direction than the input geometry (i.e. not the same

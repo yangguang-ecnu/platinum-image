@@ -271,11 +271,11 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		FLTKuserIOpar_landmarks ( const std::string name );
 //		FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, const int landmarks_id);
 
-		static void loadDescriptorCB(Fl_Widget *callingwidget, void *);
-		static void newSetCB(Fl_Widget *callingwidget, void *);
-		static void saveSetCB(Fl_Widget *callingwidget, void *);
-		static void loadSetCB(Fl_Widget *callingwidget, void *);
-		static void browserCB(Fl_Widget *callingwidget, void *);
+		static void loadDescriptorCB(Fl_Widget *callingwidget, void * thisLandmarks);
+		static void newSetCB( Fl_Widget * callingwidget, void * thisLandmarks );
+		static void saveSetCB( Fl_Widget * callingwidget, void * thisLandmarks );
+		static void loadSetCB( Fl_Widget * callingwidget, void * );
+		static void browserCB( Fl_Widget * callingwidget, void * thisLandmarks );
 
 
 		const std::string type_name();
