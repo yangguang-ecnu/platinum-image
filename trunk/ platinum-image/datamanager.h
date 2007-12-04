@@ -106,6 +106,7 @@ class datamanager
 		
         void loadimages();
         static void removedata_callback(Fl_Widget *, void *);
+        static void save_dcm_callback(Fl_Widget *, void *);
         static void save_vtk_callback(Fl_Widget *, void *);
         static void save_hist_callback(Fl_Widget *, void *);
 

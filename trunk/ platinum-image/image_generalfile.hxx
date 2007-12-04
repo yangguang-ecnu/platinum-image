@@ -391,8 +391,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::str
 {  
 	std::cout<< "--- load_dataset_from_DICOM_filesAF" << std::endl;
 	std::cout<<"dir_path="<<dir_path<<std::endl;
+	std::cout<<"seriesIdentifier="<<seriesIdentifier<<std::endl;
 	dir_path = path_parent(dir_path);
-	std::cout<<"dir_path="<<dir_path<<std::endl;
+	std::cout<<"path_parent(dir_path)="<<dir_path<<std::endl;
 	
     typedef itk::GDCMSeriesFileNames NamesGeneratorType;
     NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
@@ -401,8 +402,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::str
     nameGenerator->SetDirectory ( dir_path.c_str() );
 
     typedef std::vector< std::string > FileNamesContainer; 
-    FileNamesContainer fileNames = nameGenerator->GetFileNames ( seriesIdentifier );     
+	FileNamesContainer fileNames = nameGenerator->GetFileNames ( seriesIdentifier ); 
 //    fileNames = nameGenerator->GetFileNames ( seriesIdentifier );     
+
+	std::cout<<"Number of files in series..."<<fileNames.size()<<std::endl;
 
 	load_dataset_from_these_DICOM_files(fileNames);
 }
@@ -529,6 +532,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
     typename theImagePointer output_image=ITKimportfilter->GetOutput();
 
     output_image->SetDirection(itk_orientation);
+//	cout<<"save_to_VTK_file - itk_orientation="<<itk_orientation<<endl;
 
     typename theWriterType::Pointer writer = theWriterType::New();   //default file type is VTK
     writer->SetFileName( file_path.c_str() );
@@ -542,6 +546,66 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
 		std::cout<<ex<<std::endl;
         }
     }
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_path)
+    {
+		cout<<"save_to_DCM_file..."<<endl;
+    //replicate image to ITK image and save it as DCM file
+
+    typename theImageType::DirectionType itk_orientation;
+
+    for (unsigned int d=0;d<3;d++)
+        {
+        for (unsigned int c=0;c<3;c++)
+            {itk_orientation[d][c]=this->orientation[d][c];}
+        }
+
+    make_image_an_itk_reader();
+    typename theImagePointer output_image=ITKimportfilter->GetOutput();
+
+    output_image->SetDirection(itk_orientation);
+
+	cout<<"save_to_DCM_file - itk_orientation=";
+	cout<<endl;
+	cout<<itk_orientation<<endl;
+	cout<<output_image->GetDirection()<<endl;
+
+    typename theWriterType::Pointer writer = theWriterType::New();   //default file type is DCM
+    writer->SetFileName( file_path.c_str() );
+    writer->SetInput(output_image);
+
+	//--- ööö ---
+	//-----------------------------
+	//-----------------------------
+	typedef itk::GDCMImageIO		ImageIOType;
+	ImageIOType::Pointer gdcmImageIO = ImageIOType::New();
+	writer->SetImageIO( gdcmImageIO );
+
+	typedef itk::MetaDataDictionary   DictionaryType;
+	DictionaryType & dictionary = output_image->GetMetaDataDictionary();
+
+	std::string id = "";
+	gdcmImageIO->GetValueFromTag(DCM_SERIES_ID,id);
+	cout<<"id="<<id<<endl;
+	//-----------------------------
+	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_NAME, "Anonymized" );
+	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_ID, "Anonymized" );
+	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_BIRTH_DATE, "Anonymized" );
+//	itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_POSITION_PATIENT, "1,2,3" );
+	itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_ORIENTATION_PATIENT, this->get_orientation_as_dcm_string() );
+	cout<<"orientation-->dcm="<<this->get_orientation_as_dcm_string()<<endl;
+	//-----------------------------
+	//-----------------------------
+
+    try{
+        writer->Update();
+    }catch (itk::ExceptionObject &ex){
+        pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
+		std::cout<<ex<<std::endl;
+    }
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>

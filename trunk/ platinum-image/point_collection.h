@@ -57,6 +57,10 @@ class point_collection : public data_base
             pt_error::error("Attempting redraw() on point_collection, not implemented yet");
             }
         
+        virtual void save_to_DCM_file (const std::string)
+            {
+            pt_error::error("Attempting save_to_DCM_file on point_collection, not implemented yet");
+            }
         virtual void save_to_VTK_file (const std::string)
             {
             pt_error::error("Attempting save_to_VTK_file on point_collection, not implemented yet");
