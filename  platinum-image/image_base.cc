@@ -139,6 +139,16 @@ Matrix3D image_base::get_orientation () const
 {
     return orientation;
 }
+string image_base::get_orientation_as_dcm_string()
+{
+	string s="";
+	for(unsigned int d=0;d<2;d++){
+		for(unsigned int c=0;c<3;c++){
+            s += float2str(this->orientation[c][d]) + "/";
+		}
+	}
+	return s;
+}
 
 void image_base::set_orientation(const Matrix3D m)
 {
@@ -407,7 +417,213 @@ image_base * dicomloader::read()
 
 return result;
 }
+/*
+void dicomloader::anonymize_single_dcm_file(string load_path, string save_path){
+	// #if defined(_MSC_VER)
+	// #pragma warning ( disable : 4786 )
+	// #endif
 
+	// This example illustrates how to read a single DICOM slice and write it back
+	// with some changed header information as another DICOM slice. Header
+	// Key/Value pairs can be specified on the command line. The keys are defined
+	// in the file  \code{Insight/Utilities/gdcm/Dicts/dicomV3.dic}
+
+	// #include <list>
+	// #include <fstream>
+
+	// std::cerr << "Usage: " << argv[0] << " DicomImage OutputDicomImage Entry Value\n";
+
+	typedef unsigned short InputPixelType;
+	const unsigned int   Dimension = 2;
+	typedef itk::Image< InputPixelType, Dimension > InputImageType;
+	typedef itk::ImageFileReader< InputImageType > ReaderType;
+	ReaderType::Pointer reader = ReaderType::New();
+	reader->SetFileName( load_path.c_str() );
+	typedef itk::GDCMImageIO           ImageIOType;
+	ImageIOType::Pointer gdcmImageIO = ImageIOType::New();
+	reader->SetImageIO( gdcmImageIO );
+	try{
+		reader->Update();
+	}catch (itk::ExceptionObject & e){
+		std::cerr << "exception in file reader " << std::endl;
+		std::cerr << e.GetDescription() << std::endl;
+		std::cerr << e.GetLocation() << std::endl;
+	}
+
+	InputImageType::Pointer inputImage = reader->GetOutput();
+	typedef itk::MetaDataDictionary   DictionaryType;
+	DictionaryType & dictionary = inputImage->GetMetaDataDictionary();
+
+	//JK -ööö Print seriesIDs and make sure it is copied right....
+	std::string id = "";
+	gdcmImageIO->GetValueFromTag(DCM_SERIES_ID,id);
+//	gdcmImageIO->setv
+
+	cout<<"id="<<id<<endl;
+
+	//-----------------------------
+	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_NAME, "Anonymized" );
+	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_ID, "Anonymized" );
+	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_BIRTH_DATE, "Anonymized" );
+
+//	gdcm::FileHelper fh = gdcm::FileHelper();
+//	fh.SetKeepMediaStorageSOPClassUID(true);
+//	gdcm::FileHelper::SetKeepMediaStorageSOPClassUID(true); //JK-ööö: compile error--> try updating ITK...
+
+	//see: http://www.creatis.insa-lyon.fr/pipermail/dcmlib/2006-January/002730.html
+	//??? KeepOriginalUIDOn ???
+
+	// Makes sure the seriesID is copied correctly... 
+	// Allowing correct later "Opening" of file series in Platinum
+//	itk::EncapsulateMetaData<std::string>( dictionary, DCM_SERIES_ID, id ); 
+	//-----------------------------
+
+	typedef itk::ImageFileWriter< InputImageType >  Writer1Type;
+	Writer1Type::Pointer writer1 = Writer1Type::New();
+	writer1->SetInput( reader->GetOutput() );
+	writer1->SetFileName( save_path.c_str() );
+	writer1->UseInputMetaDataDictionaryOff(); //JK
+	writer1->SetImageIO( gdcmImageIO );
+	try{
+		writer1->Update();
+	}catch (itk::ExceptionObject & e){
+		std::cerr << "exception in file writer " << std::endl;
+		std::cerr << e.GetDescription() << std::endl;
+		std::cerr << e.GetLocation() << std::endl;
+	}
+
+	// Remember again, that modifying the header entries of a DICOM file involves
+	// very serious risks for patients and therefore must be done with extreme
+	// caution.
+}
+*/
+
+/*
+void dicomloader::anonymize_all_dcm_files_in_folder(string load_folder_path, string save_folder_path){
+	vector<string> all = get_dir_entries(load_folder_path);
+	vector<string> dcm_files = vector<string>();
+
+	itk::GDCMImageIO::Pointer tmp_dicomIO = itk::GDCMImageIO::New();
+
+	cout<<"anonymize_all_dcm_files_in_folder...."<<endl;
+	cout<<all.size()<<" items loaded"<<endl;
+
+	for(int i=0;i<all.size();i++){
+		cout<<i<<" "<<all[i]<<endl;
+
+		if( tmp_dicomIO->CanReadFile( (load_folder_path + all[i]).c_str()) ){
+			dcm_files.push_back(load_folder_path + all[i]);
+		}
+	}
+	cout<<dcm_files.size()<<" dcm-files found"<<endl;
+
+	for(int i=0;i<dcm_files.size();i++){
+		dicomloader::anonymize_single_dcm_file( dcm_files[i],save_folder_path + path_end(dcm_files[i]) );
+	}
+}
+
+void dicomloader::anonymize_all_dcm_files_in_folder2(string load_folder_path, string save_folder_path){
+//JK öööö - Use only data in the metadata class and save one dicom file using platinum
+//(alt. save dicom series... remember to change image pos in this case...)
+
+
+//#include "itkOrientedImage.h"
+//#include "itkGDCMImageIO.h"
+//#include "itkGDCMSeriesFileNames.h"
+//#include "itkImageSeriesReader.h"
+//#include "itkImageFileWriter.h"
+
+
+  typedef signed short    PixelType;
+  const unsigned int      Dimension = 3;
+  typedef itk::Image< PixelType, Dimension >         ImageType;
+//  typedef itk::OrientedImage< PixelType, Dimension >         ImageType;
+  typedef itk::ImageSeriesReader< ImageType >        ReaderType;
+  ReaderType::Pointer reader = ReaderType::New();
+
+  typedef itk::GDCMImageIO       ImageIOType;
+  ImageIOType::Pointer dicomIO = ImageIOType::New();
+  reader->SetImageIO( dicomIO );
+
+  typedef itk::GDCMSeriesFileNames NamesGeneratorType;
+  NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
+  nameGenerator->SetUseSeriesDetails( true );
+  nameGenerator->AddSeriesRestriction("0008|0021" );
+  nameGenerator->SetDirectory( load_folder_path.c_str() );
+ 
+
+  try
+    {
+    std::cout << std::endl << "The directory: " << std::endl;
+    std::cout << std::endl << load_folder_path << std::endl << std::endl;
+    std::cout << "Contains the following DICOM Series: ";
+    std::cout << std::endl << std::endl;
+
+    typedef std::vector< std::string >    SeriesIdContainer;
+    const SeriesIdContainer & seriesUID = nameGenerator->GetSeriesUIDs();
+    SeriesIdContainer::const_iterator seriesItr = seriesUID.begin();
+    SeriesIdContainer::const_iterator seriesEnd = seriesUID.end();
+    while( seriesItr != seriesEnd )
+      {
+      std::cout << seriesItr->c_str() << std::endl;
+      seriesItr++;
+      }
+  
+    std::string seriesIdentifier;
+    seriesIdentifier = seriesUID.begin()->c_str();
+
+    std::cout << std::endl << std::endl;
+    std::cout << "Now reading series: " << std::endl << std::endl;
+    std::cout << seriesIdentifier << std::endl;
+    std::cout << std::endl << std::endl;
+
+    typedef std::vector< std::string >   FileNamesContainer;
+    FileNamesContainer fileNames;
+    fileNames = nameGenerator->GetFileNames( seriesIdentifier );
+    reader->SetFileNames( fileNames );
+
+    try
+      {
+      reader->Update();
+      }
+    catch (itk::ExceptionObject &ex)
+      {
+      std::cout << ex << std::endl;
+      }
+
+
+// We proceed now to save the volumetric image in another file, as specified by
+// the user in the command line arguments of this program. Thanks to the
+// ImageIO factory mechanism, only the filename extension is needed to identify
+// the file format in this case.
+
+	typedef itk::ImageFileWriter< ImageType > WriterType;
+    WriterType::Pointer writer = WriterType::New();
+    
+	writer->SetFileName( "c:/Joel/TMP/joel.vtk" );
+//	writer->SetFileName( "c:/Joel/TMP/joel.dcm" );
+
+    writer->SetInput( reader->GetOutput() );
+
+    std::cout  << "Writing the image as " << std::endl << std::endl;
+    std::cout  << "c:/Joel/TMP/joel.vtk" << std::endl << std::endl;
+//    std::cout  << "c:/Joel/TMP/joel.dcm" << std::endl << std::endl;
+
+    try
+      {
+      writer->Update();
+      }
+    catch (itk::ExceptionObject &ex)
+      {
+      std::cout << ex << std::endl;
+      }
+    }
+  catch (itk::ExceptionObject &ex)
+    {
+    std::cout << ex << std::endl;
+    }
+}
+*/
 
 analyze_hdrloader::analyze_hdrloader(std::vector<std::string> * files): imageloader(files)
 	{
@@ -668,34 +884,3 @@ void image_base::load( std::vector<std::string> f)	//loads all files and adds th
         rawimporter::create(chosen_files);
         }
     }
-/*
-template <class LOADERTYPE>
-bool image_base::try_single_loader(std::string s) //! helper for image_base::load
-{
-    std::vector<std::string> v;
-	v.push_back(s);
-	LOADERTYPE loader = LOADERTYPE(&v);
-
-	image_base *new_image = loader.read();
-	if(new_image != NULL){
-		copy_data(new_image,this);
-		return true;
-	}
-	return false;
-}
-
-
-void image_base::load_file_to_this( std::string f)	//loads one file to this...
-{
-	if(file_exists(f)){
-		bool success = false;
-		success = try_single_loader<vtkloader>(f);
-		if(!success){success = try_single_loader<analyze_objloader>(f);}
-		if(!success){success = try_single_loader<analyze_hdrloader>(f);}
-		if(!success){success = try_single_loader<brukerloader>(f);}
-		if(!success){success = try_single_loader<dicomloader>(f);}
-		//do not pop up a raw_importer window...
-	    //rawimporter::create(chosen_files);
-	}
-}
-*/

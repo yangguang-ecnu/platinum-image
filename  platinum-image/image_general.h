@@ -214,6 +214,7 @@ class image_general : public image_storage <ELEMTYPE >
 		void load_dataset_from_all_DICOM_files_in_dir(std::string dir_path);
 
         void save_to_VTK_file(const std::string file_path);
+        void save_to_DCM_file(const std::string file_path);
         void save_to_TIF_file_series_3D(const std::string file_path_base);
 		void save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice);
 

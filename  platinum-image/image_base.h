@@ -36,6 +36,11 @@
 #include "itkVTKImageIO.h"
 //#include "bruker.h"
 
+#include "itkMetaDataDictionary.h"	//used in dicomloader::
+#include "itkMetaDataObject.h"		//used in dicomloader::
+#include "itkGDCMImageIO.h"			//used in dicomloader::
+#include "gdcmFileHelper.h"			//used in dicomloader::
+
 enum imageDataType
     {
     VOLDATA_UNDEFINED,
@@ -84,11 +89,6 @@ class image_base : public data_base
             static void try_loader (std::vector<std::string> * f); //! helper for image_base::load
         static void load(const std::vector<std::string> files);  //load files in supported formats
                                                     //as selected in "files" vector
-//ööö
-//        template <class LOADERTYPE>
-//			bool try_single_loader(std::string s); //! helper for image_base::load_file_to_this
-//		void load_file_to_this( std::string f);	//loads one file to this...
-
 
         virtual void transfer_function(std::string functionName) = 0; //! replace transfer function using string identifier
                     
@@ -124,6 +124,7 @@ class image_base : public data_base
         virtual void set_voxel_size(const Vector3D v) = 0;
         
         Matrix3D get_orientation () const;
+		string get_orientation_as_dcm_string(); //print first two columns (cosines for x and y direction)
 		void set_orientation(const Matrix3D m);
         Vector3D get_origin() const;
         void set_origin(const Vector3D v);
@@ -158,6 +159,14 @@ public:
     dicomloader(std::vector<std::string> *f);
     dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type);
     image_base * read();
+
+	// Remember that modifying the header entries of a DICOM file involves
+	// very serious risks for patients and therefore must be done with extreme caution.
+
+	//JK-Warning... for some strange reason... these functions changes the series id. 0020,000e...
+//	static void anonymize_single_dcm_file(string load_path, string save_path); //jk ööö
+//	static void anonymize_all_dcm_files_in_folder(string load_folder_path, string save_folder_path); //jk ööö
+//	static void anonymize_all_dcm_files_in_folder2(string load_folder_path, string save_folder_path); //jk ööö
 };
 
 

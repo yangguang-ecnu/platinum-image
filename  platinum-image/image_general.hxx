@@ -31,10 +31,12 @@
 #include <fstream>
 
 #include "itkImageRegionIterator.h"	//most basic, fastest pixel order...
+//#include "itkOrientedImage.h" //reads the geomatry information in a different way...
 #include "itkGDCMImageIO.h"
 #include "itkGDCMSeriesFileNames.h"
 
 #include "itkImageSeriesReader.h"
+#include "itkImageSeriesWriter.h"
 #include "itkDICOMImageIO2.h"
 #include "itkDICOMSeriesFileNames.h"
 #include "itkVTKImageIO.h"
@@ -254,7 +256,6 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(int w, int h, int d, ELEMTYPE *
 template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>::image_general(const string filepath)
 {
-	//ööö
 	this->load_file_to_this(filepath);
 	this->data_has_changed();
 }
@@ -291,7 +292,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
         }
         
     set_parameters();
-    }
+	}
 
 //öööö
 template <class ELEMTYPE, int IMAGEDIM>
@@ -1280,8 +1281,13 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     this->voxel_size.Fill(1);
 
     itk_vox_size=i->GetSpacing();
-    itk_origin=i->GetOrigin ();
+    itk_origin=i->GetOrigin();
     itk_orientation=i->GetDirection();
+
+//	JK-öööö
+	cout<<"image_general<ELEMTYPE, IMAGEDIM>::set_parameters - i->GetDirection()=";
+	cout<<endl;
+	cout<<i->GetDirection()<<endl;
 
     //float spacing_min_norm=static_cast<float>(itk_vox_size[0]);
     for (unsigned int d=0;d<IMAGEDIM;d++)

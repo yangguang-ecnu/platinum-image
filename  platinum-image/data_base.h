@@ -94,6 +94,7 @@ class data_base
         
         bool from_file();
         void from_file(bool f); //set "from file" status
+        virtual void save_to_DCM_file(const std::string) = 0;
         virtual void save_to_VTK_file(const std::string) = 0;
         virtual void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
     };

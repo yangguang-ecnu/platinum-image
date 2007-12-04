@@ -98,6 +98,29 @@ void datamanager::removedata_callback(Fl_Widget *callingwidget, void *thisdatama
     ((datamanager*)thisdatamanager)->delete_data( the_datawidget->get_data_id() );
     }
 
+void datamanager::save_dcm_callback(Fl_Widget *callingwidget, void * thisdatamanager)
+    {
+    datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
+    int image_index=((datamanager*)thisdatamanager)->find_data_index(the_datawidget->get_data_id());
+
+	string last_path = pt_config::read<string>("latest_path");
+	Fl_File_Chooser chooser(last_path.c_str(),"DICOM files (*.dcm)",Fl_File_Chooser::CREATE,"Save DICOM image");
+    chooser.ok_label("Save") ;
+    chooser.preview(false); 
+    chooser.show();
+    while(chooser.shown())
+        { Fl::wait(); }
+
+    if ( chooser.value() == NULL )
+    {
+        fprintf(stderr, "(User hit 'Cancel')\n");
+        return;
+    }
+
+    ((datamanager*)thisdatamanager)->dataItems[image_index]->save_to_DCM_file(chooser.value(1));
+	pt_config::write("latest_path",path_parent(chooser.value(1)));
+    }
+
 void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdatamanager)
     {
     datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
@@ -387,7 +410,7 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
 void datamanager::load_dcm_import_vector(std::vector<std::string> dcm_filenames, std::string import_vol_name)
 {
 	if(dcm_filenames.size()>0){
-		//ööö JK Warning... there is some error in the selected slices / the slice order...
+		//JK Warning... there is some error in the selected slices / the slice order...
 		cout<<"load_dcm_import_vector..."<<endl;
 		for(int i=0;i<dcm_filenames.size();i++){
 			cout<<"i="<<i<<" "<<dcm_filenames[i]<<endl;
