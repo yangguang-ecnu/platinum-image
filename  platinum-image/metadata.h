@@ -128,7 +128,7 @@ public:
 
 	void read_metadata_from_dcm_file(string dcm_file);
 
-	float get_dx();
+//	float get_dx(); //already stored in image_base (voxel_size)
 	float get_flip();
 	
 	void print_all();

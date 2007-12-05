@@ -80,7 +80,6 @@ void image_storage<ELEMTYPE >::set_parameters()
 	
     stats->min(std::numeric_limits<ELEMTYPE>::min());
     stats->max(std::numeric_limits<ELEMTYPE>::max());
-//	this->min_max_refresh();	//JK2 - The image data is not available yet!
     }
 
 template <class ELEMTYPE >
@@ -152,20 +151,6 @@ void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)
         }
     }
 
-/*
-template <> //JK2 image_complex testing
-float image_storage<std::complex<float> >::get_min_float()
-    {
-    return abs(minvalue);
-    }
-*/
-/*
-template <class ELEMTYPE >
-float image_storage<ELEMTYPE >::get_min_float() const
-    {
-    return minvalue;
-    }
-*/
 
 template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_min() const

@@ -61,13 +61,13 @@ enum imageDataType
 
 class image_base : public data_base
     {
+
     private:
         void set_parameters ();
 
     protected:
         image_base();
         image_base(image_base* const s);
-//        image_base(const string filepath);	//JK Loads image data from file
 
         void redraw();
 
@@ -160,13 +160,17 @@ public:
     dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type);
     image_base * read();
 
-	// Remember that modifying the header entries of a DICOM file involves
-	// very serious risks for patients and therefore must be done with extreme caution.
 
-	//JK-Warning... for some strange reason... these functions changes the series id. 0020,000e...
-//	static void anonymize_single_dcm_file(string load_path, string save_path); //jk ööö
-//	static void anonymize_all_dcm_files_in_folder(string load_folder_path, string save_folder_path); //jk ööö
-//	static void anonymize_all_dcm_files_in_folder2(string load_folder_path, string save_folder_path); //jk ööö
+
+// Remember that modifying the header entries of a DICOM file involves
+// very serious risks for patients and therefore must be done with extreme caution.
+
+//JK-Warning... These functions changes the series id. (0020,000e)...
+//It is also problematic to pass on the orientation (when saving a file) using the gdcm package...
+
+//	static void anonymize_single_dcm_file(string load_path, string save_path); 
+//	static void anonymize_all_dcm_files_in_folder(string load_folder_path, string save_folder_path);
+//	static void anonymize_all_dcm_files_in_folder2(string load_folder_path, string save_folder_path);
 };
 
 

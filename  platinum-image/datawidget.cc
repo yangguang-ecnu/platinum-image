@@ -45,7 +45,7 @@ void transferfactory::tf_menu_params::switch_tf()
     {
     pt_error::error_if_null(image,"Trying to make tfunction menu item with image = NULL");
     image->transfer_function(type);
-//	image->redraw(); //JK - to redraw the 
+	image->data_has_changed(); //JK - One might allow access to image->redraw()... (transfer function type/defaults might change...)
     }
 
 #pragma mark datawidget_base
@@ -211,9 +211,8 @@ bool datawidget_base::from_file() const
 void datawidget_base::show_hide_edit_geometry()
 {
 	if(geom_widget==NULL){
-		geom_widget = new FLTKgeom_image(data_id); //JK
+		geom_widget = new FLTKgeom_image(data_id);
 		extras->add(geom_widget);
-//		geom_widget->hide();	// unnecessary
 		geom_widget->show();
 	}else{
 		if(geom_widget->visible()){
@@ -243,9 +242,9 @@ datawidget<image_base>::datawidget(image_base* im, std::string n): datawidget_ba
     }
     extras->add(tfunction_);
 
-	//JK Cannot get geometry data yet since data has not been added to datamanagement 
-	geom_widget=NULL;			
-//    extras->add(geom_widget);
+
+	geom_widget=NULL;	//Cannot access geometry data yet since data has not been added to datamanagement 
+//  extras->add(geom_widget);
 
    
     int fMenuSize = fl_menu_size (menu_featuremenu_base);
@@ -408,9 +407,9 @@ void datawidget<image_base>::cb_show_hide_tfunction(Fl_Widget* callingwidget, vo
 datawidget<point_collection>::datawidget (point_collection* p, std::string n): datawidget_base (p,n)
 {
     featuremenu->menu(menu_featuremenu_base);
-    
-    //TODO: disable Save as VTK
-	//TODO: disable geometry edit
+   
+    //JK TODO: disable Save as VTK
+	//JK TODO: disable geometry edit
 }
 
 

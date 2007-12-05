@@ -120,13 +120,13 @@ public:
         {
 		pt_error::error("Calling undefined view_to_voxel(...)",pt_error::warning);
 		Vector3D tmp;
-		return tmp;	//JK corrects error in Visual C++ compilation... ("must return a value")
+		return tmp;	//Corrects error in Visual C++ compilation... ("must return a value")
 		}
     virtual Vector3D view_to_world(int vx, int vy,int sx,int sy) const 
         {
 		pt_error::error("Calling undefined view_to_world(...)",pt_error::warning);
 		Vector3D tmp;
-		return tmp;	//JK corrects error in Visual C++ compilation... ("must return a value")
+		return tmp;	//Corrects error in Visual C++ compilation... ("must return a value")
 		}
     
     //result is deterministic regardless of what's visible, no virtual:

@@ -83,7 +83,7 @@ protected:
     const static Fl_Menu_Item *duplicate_mi;
     Fl_Pack *extras;
 
-	FLTKgeom_base *geom_widget; //JK
+	FLTKgeom_base *geom_widget;
     
     datawidget_base(data_base * d, std::string n);
 public:
@@ -123,8 +123,8 @@ class datawidget<image_base>:public datawidget_base
 {   
     const static Fl_Menu_Item tfunctionmenu;			//the extra "transfer_funtion row"
     const static Fl_Menu_Item transferfunction_mi; 
-    static void cb_transferswitch(Fl_Widget* callingwidget, void* v);			//JK - does not update GUI correctly..
-    static void cb_show_hide_tfunction(Fl_Widget* callingwidget, void*);	//JK - updated GUI correctly..
+    static void cb_transferswitch(Fl_Widget* callingwidget, void* v);
+    static void cb_show_hide_tfunction(Fl_Widget* callingwidget, void*);
     
     Fl_Group *tfunction_;
     Fl_Menu_Item * menu_featuremenu_plustf;		//The "new" version of the "main menu"

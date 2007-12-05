@@ -204,10 +204,12 @@ string metadata::get_dcm_parameter_as_string(itk::GDCMImageIO::Pointer dcmIO, st
 	return dcmdata;
 }
 
+/*
 float metadata::get_dx()
 {
 	return 0;//JK warning...
 }
+*/
 
 float metadata::get_flip()
 {

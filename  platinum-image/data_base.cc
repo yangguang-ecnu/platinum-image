@@ -33,10 +33,9 @@ using namespace std;
 
 data_base::~data_base()
     {
-//jk	cout<<"~data_base()"<<endl;
+	//cout<<"~data_base()"<<endl;
 
-    //destructor may be called from a menu choice in widget,
-    //it would crash if deleted with delete(...)
+    //destructor may be called from a menu choice in widget, it would crash if deleted with delete(...)
     //Fl::delete_widget is designed to avoid this
 
     if (widget != NULL)
@@ -53,7 +52,7 @@ void data_base::name (const string n)
         { widget->name(n); }
     else
         {
-//jk-tmp    pt_error::pt_error ("Attempt to set name(const string) on a widget-less data object",pt_error::warning);
+		pt_error::pt_error ("Attempt to set name(const string) on a widget-less data object",pt_error::warning);
         }
     }
 
@@ -73,9 +72,6 @@ data_base::data_base()
     widget = NULL;
     from_file(false);
 
-	//dcmIO = itk::GDCMImageIO::New();		//JK1
-	//dcmIO->SetFileName("");				//JK1
-//	meta = new metadata();
 	meta = metadata();
     }
 
@@ -86,7 +82,6 @@ data_base::data_base (data_base * const source)
     ID = data_next_ID++;
     widget = NULL;
     from_file(source->from_file());
-//	dcmIO->SetFileName(source->dcmIO->GetFileName());//JK1 //Crash here 
 	meta = source->meta;
     }
 

@@ -46,9 +46,7 @@ histogram_base::histogram_base ()
 histogram_base::~histogram_base ()
     {
     if (buckets != NULL){
-		//JK - Avoid memory loss... 
-		//If you have written outside the allocated memory, you might crashh here at runtime
-		delete []buckets;  
+		delete []buckets;	//Avoids memory loss... You might crash here if you have written outside the allocated memory
 		}
     }
 

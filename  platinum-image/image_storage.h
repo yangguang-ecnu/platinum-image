@@ -85,8 +85,6 @@ class image_storage : public image_base
 
         unsigned long num_elements;        //image size in # pixels/voxels
 
-//        ELEMTYPE maxvalue;		//JK move these to histogram instead...
-//        ELEMTYPE minvalue;
 
     public:
         virtual ~image_storage();

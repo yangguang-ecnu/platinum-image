@@ -129,7 +129,8 @@ class datamanager
         void rebuild_objects_menu();
         void rebuild_image_menu();
         
-//        void loadvector_callback(); //JK this line can most likely be removed...
+		//JK geometry information will be difficult to import, as files can be chosen arbitraryly...
+		//Set the geometry info to "default" (i.e no rotation, origin (0,0,0), scaling (1,1,1) )
 		void load_dcm_import_vector(std::vector<std::string> dcm_filenames, std::string import_vol_name);
 
 

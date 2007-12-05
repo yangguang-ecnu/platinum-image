@@ -1017,7 +1017,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 
 	res->fill(0); //not very time efficient... the outer borders would be enough...
 
-	if(r[0]>0 && r[1]>0 && r[2]>0)
+	if(r[0]>=0 && r[1]>=0 && r[2]>=0)
 	{
 		float num_neighbours = (1+2*r[0])*(1+2*r[1])*(1+2*r[2]);
 		float sum = 0;
@@ -1026,8 +1026,9 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 		float limit = 100;
 		float num_counted = 0;
 
+		cout<<"k=";
 		for(int k=r[2]; k < this->datasize[2]-r[2]; k++){
-			cout<<"k="<<k<<endl;
+			cout<<k<<",";
 			for(int j=r[1]; j < this->datasize[1]-r[1]; j++){
 				for(int i=r[0]; i < this->datasize[0]-r[0]; i++){
 
@@ -1040,8 +1041,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 						}
 					}
 					mean1 = sum/num_neighbours;
-//					res->set_voxel(i,j,k,);
-
+					res->set_voxel(i,j,k,mean1);
+/*
 					sum = 0;
 					num_counted = 0;
 					for(int n=k-r[2]; n<=k+r[2]; n++){
@@ -1056,15 +1057,16 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 							}
 						}
 					}
+
 					res->set_voxel(i,j,k,sum/num_counted);	//mean2...
+*/
 				}
 			}
 		}
 	}
 
 	copy_data(res,this);
-	//JK shouldn't res be deleted...
-//	delete res
+	delete res;
 }
 
 	
