@@ -132,7 +132,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
         ~histogram_1D () {}
         
         void resize (unsigned long); //JK - Should maybe be protected...
-        void render(unsigned char * image, unsigned int width,unsigned int height);
+        void render(unsigned char * image, unsigned int width, unsigned int height);
 
 	    //void image (int vol);
 

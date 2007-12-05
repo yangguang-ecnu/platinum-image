@@ -126,22 +126,13 @@ template <class ELEMTYPE, int IMAGEDIM>
 template <class sourceType>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType, IMAGEDIM> * sourceImage)
     {
-    //this function only works when image dimensionality matches
-
-//    short size [IMAGEDIM];					//JK - I guess this is not used...
-//    for (int d=0; d < IMAGEDIM; d++)
-//        { size[d]=sourceImage->get_size_by_dim(d); }	//JK - I guess this is not used...
-
-    //initialize_dataset(size[0],size[1],size[2]);
-
     ITKimportfilter=NULL;
     ITKimportimage=NULL;
 
     this->stats->max(sourceImage->get_max());
     this->stats->min(sourceImage->get_min());
 
-
-	this->set_origin(sourceImage->get_origin());			//JK - Is this the best good solution?
+	this->set_origin(sourceImage->get_origin());
 	this->set_orientation(sourceImage->get_orientation());
     this->set_voxel_size(sourceImage->get_voxel_size());
 
@@ -282,6 +273,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
         this->num_elements *= datasize[i];
         }
 
+		if(this->imagepointer()!=NULL){
+//			cout<<"initialize_dataset--> pointer exists --> deallocate() to save memory"<<endl;
+			this->deallocate();
+		}else{
+//			cout<<"initialize_dataset--> pointer NULL --> no dealloc needed!"<<endl;
+		}
     this->imagepointer( new ELEMTYPE[this->num_elements] );
 
     if (ptr!=NULL) //memcpy is bad karma! Use copy_data(in, out) whenever you know your (input) datatype!
@@ -325,9 +322,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_file_to_this(std::string f)	//loads
 		if(!success){success = try_single_loader<analyze_objloader>(f);}
 		if(!success){success = try_single_loader<analyze_hdrloader>(f);}
 		if(!success){success = try_single_loader<brukerloader>(f);}
-
 		//do not pop up a raw_importer window...
 	    //rawimporter::create(chosen_files);
+
+		pt_error::error_if_false(success,"image_general-load_file_to_this - FAIL",pt_error::serious);
 	}
 }
 
@@ -975,7 +973,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos(Vector3D p
 	return (is_voxelpos_within_image_3D(v[0],v[1],v[2]))? get_voxel(v[0],v[1],v[2]):0;
     }
 
-template <class ELEMTYPE, int IMAGEDIM> //JK3 - No boundary checking...
+template <class ELEMTYPE, int IMAGEDIM> //JK - No boundary checking...
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos)
     {
 	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
@@ -1004,7 +1002,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_mean_3D_in
     }
 
 template <class ELEMTYPE, int IMAGEDIM> //JK
-ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1, float w2, float w3, float w4)
+ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1_center, float w2_side, float w3_edge, float w4_vertex)
     {
 	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
 	Vector3D cv;
@@ -1017,28 +1015,28 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weigh
 	if(is_voxelpos_within_image_3D(cv[0],cv[1],cv[2])){
 
 		//Center Pixel
-		sum += w1*get_voxel(cv[0],cv[1],cv[2]);
+		sum += w1_center*get_voxel(cv[0],cv[1],cv[2]);
 
 		//Side Neighbours
-		sum += w2*get_voxel(cv[0]-1,cv[1],cv[2]);	//left
-		sum += w2*get_voxel(cv[0]+1,cv[1],cv[2]);	//right
-		sum += w2*get_voxel(cv[0],cv[1]-1,cv[2]);	//top
-		sum += w2*get_voxel(cv[0],cv[1]+1,cv[2]);	//bottom
-		sum += w2*get_voxel(cv[0],cv[1],cv[2]-1);	//under
-		sum += w2*get_voxel(cv[0],cv[1],cv[2]+1);	//over
+		sum += w2_side*get_voxel(cv[0]-1,cv[1],cv[2]);	//left
+		sum += w2_side*get_voxel(cv[0]+1,cv[1],cv[2]);	//right
+		sum += w2_side*get_voxel(cv[0],cv[1]-1,cv[2]);	//top
+		sum += w2_side*get_voxel(cv[0],cv[1]+1,cv[2]);	//bottom
+		sum += w2_side*get_voxel(cv[0],cv[1],cv[2]-1);	//under
+		sum += w2_side*get_voxel(cv[0],cv[1],cv[2]+1);	//over
 
 		//Edge Neighbours
 		for(int k=-1;k<=1;k=k+2){	//"under" and "over" layers...
-			sum += w3*get_voxel(cv[0]-1,cv[1],cv[2]+k);
-			sum += w3*get_voxel(cv[0]+1,cv[1],cv[2]+k);
-			sum += w3*get_voxel(cv[0],cv[1]-1,cv[2]+k);
-			sum += w3*get_voxel(cv[0],cv[1]+1,cv[2]+k);
+			sum += w3_edge*get_voxel(cv[0]-1,cv[1],cv[2]+k);
+			sum += w3_edge*get_voxel(cv[0]+1,cv[1],cv[2]+k);
+			sum += w3_edge*get_voxel(cv[0],cv[1]-1,cv[2]+k);
+			sum += w3_edge*get_voxel(cv[0],cv[1]+1,cv[2]+k);
 		}
 		//"center" layer...
-		sum += w3*get_voxel(cv[0]-1,cv[1]-1,cv[2]);
-		sum += w3*get_voxel(cv[0]-1,cv[1]+1,cv[2]);
-		sum += w3*get_voxel(cv[0]+1,cv[1]-1,cv[2]);
-		sum += w3*get_voxel(cv[0]+1,cv[1]+1,cv[2]);
+		sum += w3_edge*get_voxel(cv[0]-1,cv[1]-1,cv[2]);
+		sum += w3_edge*get_voxel(cv[0]-1,cv[1]+1,cv[2]);
+		sum += w3_edge*get_voxel(cv[0]+1,cv[1]-1,cv[2]);
+		sum += w3_edge*get_voxel(cv[0]+1,cv[1]+1,cv[2]);
 
 
 		//Corner Neighbours
@@ -1047,7 +1045,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weigh
 				for(int k=-1;k<=1;k=k+2){
 					tmp[0]=cv[0]+i;	tmp[1]=cv[1]+j;	tmp[2]=cv[2]+k;
 					if(is_voxelpos_within_image_3D(tmp[0],tmp[1],tmp[2])){
-						sum += w4*get_voxel(tmp[0],tmp[1],tmp[2]);
+						sum += w4_vertex*get_voxel(tmp[0],tmp[1],tmp[2]);
 					}
 				}
 			}

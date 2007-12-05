@@ -454,7 +454,7 @@ void dicomloader::anonymize_single_dcm_file(string load_path, string save_path){
 	typedef itk::MetaDataDictionary   DictionaryType;
 	DictionaryType & dictionary = inputImage->GetMetaDataDictionary();
 
-	//JK -ööö Print seriesIDs and make sure it is copied right....
+	//Print seriesIDs and make sure it is copied right....
 	std::string id = "";
 	gdcmImageIO->GetValueFromTag(DCM_SERIES_ID,id);
 //	gdcmImageIO->setv
@@ -468,7 +468,7 @@ void dicomloader::anonymize_single_dcm_file(string load_path, string save_path){
 
 //	gdcm::FileHelper fh = gdcm::FileHelper();
 //	fh.SetKeepMediaStorageSOPClassUID(true);
-//	gdcm::FileHelper::SetKeepMediaStorageSOPClassUID(true); //JK-ööö: compile error--> try updating ITK...
+//	gdcm::FileHelper::SetKeepMediaStorageSOPClassUID(true); //Compile error--> try updating ITK...
 
 	//see: http://www.creatis.insa-lyon.fr/pipermail/dcmlib/2006-January/002730.html
 	//??? KeepOriginalUIDOn ???
@@ -482,7 +482,7 @@ void dicomloader::anonymize_single_dcm_file(string load_path, string save_path){
 	Writer1Type::Pointer writer1 = Writer1Type::New();
 	writer1->SetInput( reader->GetOutput() );
 	writer1->SetFileName( save_path.c_str() );
-	writer1->UseInputMetaDataDictionaryOff(); //JK
+	writer1->UseInputMetaDataDictionaryOff(); 
 	writer1->SetImageIO( gdcmImageIO );
 	try{
 		writer1->Update();
@@ -523,7 +523,7 @@ void dicomloader::anonymize_all_dcm_files_in_folder(string load_folder_path, str
 }
 
 void dicomloader::anonymize_all_dcm_files_in_folder2(string load_folder_path, string save_folder_path){
-//JK öööö - Use only data in the metadata class and save one dicom file using platinum
+//JK - Use only data in the metadata class and save one dicom file using platinum
 //(alt. save dicom series... remember to change image pos in this case...)
 
 

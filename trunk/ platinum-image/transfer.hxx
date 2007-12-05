@@ -46,7 +46,7 @@ template <class ELEMTYPE >
 void transfer_base<ELEMTYPE >::redraw_image_cb( Fl_Widget* o, void* p )
     {
     REDRAWCALLBACKPTYPE theImage = reinterpret_cast<REDRAWCALLBACKPTYPE > (p);
-    theImage->redraw();
+	theImage->redraw();
     }
 
 // *** transfer_brightnesscontrast ***

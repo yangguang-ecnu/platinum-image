@@ -63,20 +63,11 @@ template <class ELEMTYPE>
 histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> * i, int num_buckets):histogram_typed<ELEMTYPE>()
 {
     this->images[0] = i;
-//	cout<<"histogram_1D constructor...(num_buckets="<<num_buckets<<")"<<endl;
-    
-//    resize (std::max (static_cast<unsigned long>(256),static_cast<unsigned long>((std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())/4.0)));
-
-//	if(i->get_max()>i->get_min()){
-//		resize(static_cast<unsigned long>(i->get_max()-i->get_min()));//JK-hist Default number of buckets...
-//	}else{
 
 	if(num_buckets>0){
 		resize(num_buckets);
 	}else{
-		//JK-hist Default number of buckets...	
-		//i->max() cannot be called since it uses histogram_1D
-		resize(780);
+		resize(780);//Default # of buckets... i->max() cannot be called since it uses histogram_1D
 	}
 }
 
@@ -138,23 +129,13 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         float typeMax = std::numeric_limits<ELEMTYPE>::max();
         float typeMin = std::numeric_limits<ELEMTYPE>::min();
 
-//        float scalefactor=(this->num_buckets-1)/(typeMax-typeMin);
-//        float scalefactor=(this->num_buckets-1)/(imageMax-imageMin); //JK-hist
         float scalefactor = float(this->max()-this->min())/float(this->num_buckets-1); //JK-hist
-
-//		cout<<"calculate - this->num_buckets="<<this->num_buckets<<endl;
-//		cout<<"calculate - max()="<<max()<<endl;
-//		cout<<"calculate - min()="<<min()<<endl;
-//		cout<<"calculate - scalefactor="<<scalefactor<<endl;
 
         unsigned short bucketpos;
         ELEMTYPE * voxel;
 
 		for (voxel = this->i_start;voxel != this->i_end;++voxel)
 		{
-			//bucketpos=((*voxel)-std::numeric_limits<ELEMTYPE>::min())*scalefactor; 
-			//bucketpos=((*voxel)-typeMin)*scalefactor; //JK
-			//bucketpos=((*voxel)-imageMin)*scalefactor; //JK-hist
 			bucketpos=((*voxel)-this->min())/scalefactor; //JK-hist
 
 			//NOT VERY good to write outside allocated memory
@@ -202,43 +183,28 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 
 
 template <class ELEMTYPE>
-void histogram_1D<ELEMTYPE>::render (unsigned char * image, unsigned int width,unsigned int height)
+void histogram_1D<ELEMTYPE>::render (unsigned char * image, unsigned int width, unsigned int height)
 {
-    //about FLTK pixel types:
-    // http://www.fltk.org/articles.php?L466
-    
-typedef IMGELEMCOMPTYPE RGBpixel[RGBpixmap_bytesperpixel];
-
+    //about FLTK pixel types:  // http://www.fltk.org/articles.php?L466
+	typedef IMGELEMCOMPTYPE RGBpixel[RGBpixmap_bytesperpixel];
     RGBpixel * pixels = reinterpret_cast<RGBpixel *>(image);
- /*   
-	//JK2-tmp-fix....
-    if (this->buckets != NULL && this->bucket_max > 0)
-        {
-        for (unsigned int x = 0; x < width; x ++)
-            {
+    
+    if (this->buckets != NULL && this->bucket_max > 0){
+        for (unsigned int x = 0; x < width; x ++){
             unsigned int b = height-(this->buckets[(x*this->num_buckets)/width] * height)/this->bucket_max;
             unsigned int y;
-
-            for (y = 0; y < b; y ++)
-                {
-                //background
+            for (y = 0; y < b; y ++){                //background
                 pixels [x+y*width][RADDR] = pixels [x+y*width][GADDR] = pixels [x+y*width][BADDR] = 0;
                 }
-            for (y = b; y < height; y ++)
-                {
-                //white
+            for (y = b; y < height; y ++){            //white
                 pixels [x+y*width][RADDR] = pixels [x+y*width][GADDR] = pixels [x+y*width][BADDR] = 255;
                 }
-            }
-        }
-    else
-        { //empty histogram
-*/
-        for (unsigned short p = 0; p < width * height; p ++)
-            {
+		}
+	}else{ //empty histogram
+        for (unsigned short p = 0; p < width * height; p ++){
             pixels [p][RADDR] = pixels [p][GADDR] = pixels [p][BADDR] = 0;
-            }
-//        }
+		}
+	}
 }
 
 template <class ELEMTYPE>

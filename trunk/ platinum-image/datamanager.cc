@@ -46,7 +46,7 @@ extern userIOmanager userIOmanagement;
 
 using namespace std;
 
-#define TESTMODE	//JK4 test mode --> "dcm_import_button"
+//#define TESTMODE	//JK test mode --> "dcm_import_button"
 
 uchar *animage;
 
@@ -201,7 +201,7 @@ void datamanager::datawidgets_setup()
     load_button = new Fl_Button(xpos,data_widget_box->y()+data_widget_box->h()+margin,120,BUTTONHEIGHT, "Load image...");
     load_button->callback(loadimage_callback,this);
 
-//JK4 - dicom_import testing....
+//JK - dicom_import testing....
 #ifdef TESTMODE
 		Fl_Widget *dcm_import_button = new Fl_Button(xpos+120+margin,data_widget_box->y()+data_widget_box->h()+margin,120,BUTTONHEIGHT, "Dicom Importer...");
 		dcm_import_button->callback(dcm_import_callback,this);
