@@ -667,10 +667,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 					}
 				}
 			}
-			this->deallocate(); //Important... avoids huge memory leaks
+//			this->deallocate(); //deallocate is done in initialize_dataset, if needed...
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
-		    set_parameters(res);
+		    set_parameters(res); 
+			//res is deleted last in function....
 		}
 
 
@@ -693,7 +694,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 					}
 				}
 			}
-			this->deallocate(); //Important... avoids huge memory leaks
+//			this->deallocate(); //deallocate is done in initialize_dataset, if needed...
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
@@ -718,7 +719,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 					}
 				}
 			}
-			this->deallocate(); //Important... avoids huge memory leaks
+//			this->deallocate(); //deallocate is done in initialize_dataset, if needed...
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
@@ -728,7 +729,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 		pt_error::error("image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D -- add_dir error",pt_error::debug);
 	}
 
-	delete res;		// ->deallocate();		//÷÷÷ - JK WARNING MEMORY LEAK???
+	delete res;
 }
 
 
@@ -758,7 +759,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMA
 					res->set_voxel(x,y,datasize[2], src->get_voxel(x,y,f));
 				}
 			}
-			this->deallocate(); //Important... avoids huge memory leaks
+//			this->deallocate(); //deallocate is done in initialize_dataset, if needed...
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
@@ -782,7 +783,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMA
 				}
 			}
 
-			this->deallocate(); //Important... avoids huge memory leaks
+//			this->deallocate(); //deallocate is done in initialize_dataset, if needed...
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
@@ -806,7 +807,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMA
 				}
 			}
 
-			this->deallocate(); //Important... avoids huge memory leaks
+//			this->deallocate(); //deallocate is done in initialize_dataset, if needed...
 		    initialize_dataset(res->get_size_by_dim(0), res->get_size_by_dim(1), res->get_size_by_dim(2), NULL);
 			copy_data(res,this);
 		    set_parameters(res);
