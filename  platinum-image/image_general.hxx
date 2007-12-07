@@ -31,7 +31,10 @@
 #include <fstream>
 
 #include "itkImageRegionIterator.h"	//most basic, fastest pixel order...
+#include "itkImageRegionIteratorWithIndex.h"
+
 //#include "itkOrientedImage.h" //reads the geomatry information in a different way...
+
 #include "itkGDCMImageIO.h"
 #include "itkGDCMSeriesFileNames.h"
 
@@ -65,6 +68,9 @@ using namespace std;
 #define theStatsFilterType itk::StatisticsImageFilter<theImageType >
 #define theStatsFilterPointerType theStatsFilterType::Pointer
 #define theMeanFilterType itk::MeanImageFilter<theImageType,theImageType>
+#define theRegionType theImageType::RegionType
+#define theIndexType theImageType::IndexType
+#define theIteratorWithIndexType itk::ImageRegionIteratorWithIndex<theImageType>
 
 #include "image_general.h"
 #include "image_storage.hxx"
@@ -891,11 +897,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_size(const Vector3D v)
 template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z)
 	{
-	return (vp_x>=0 && vp_y>=0 && vp_z>=0 && vp_x<datasize[0] && vp_y<datasize[1] && vp_z<datasize[2]);
+	return ( vp_x>=0 && vp_y>=0 && vp_z>=0 && vp_x<datasize[0] && vp_y<datasize[1] && vp_z<datasize[2] );
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
-bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D(Vector3D vp)
+bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D( Vector3D vp )
 	{
 	return is_voxelpos_within_image_3D(vp[0],vp[1],vp[2]);
 	}
@@ -941,19 +947,10 @@ bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D
 	return ret;
 	}
 
-
-template <class ELEMTYPE, int IMAGEDIM>
-Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_from_physical_pos_3D(Vector3D phys_pos)
-	{
-	Matrix3D a = this->orientation*get_voxel_resize();
-	a = a.GetInverse();
-	return a*(phys_pos - this->origin);
-	}
-
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos)
 	{
-	Vector3D vox = get_voxelpos_from_physical_pos_3D(phys_pos);
+	Vector3D vox = this->world_to_voxel(phys_pos);
 	Vector3D vox2;
 	vox2[0] = round<float>(vox[0]);
 	vox2[1] = round<float>(vox[1]);
@@ -970,14 +967,14 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z) const
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos(Vector3D phys_pos)
     {
-	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
-	return (is_voxelpos_within_image_3D(v[0],v[1],v[2]))? get_voxel(v[0],v[1],v[2]):0;
+	Vector3D v = this->world_to_voxel(phys_pos);
+	return (is_voxelpos_within_image_3D(v[0],v[1],v[2])) ? get_voxel(v[0],v[1],v[2]) : 0;
     }
 
 template <class ELEMTYPE, int IMAGEDIM> //JK - No boundary checking...
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos)
     {
-	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
+	Vector3D v = this->world_to_voxel(phys_pos);
 	Vector3D cv;
 	cv[0]=int(v[0]); cv[1]=int(v[1]); cv[2]=int(v[2]);	//center voxel to interpolate around...
 
@@ -1005,7 +1002,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_mean_3D_in
 template <class ELEMTYPE, int IMAGEDIM> //JK
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1_center, float w2_side, float w3_edge, float w4_vertex)
     {
-	Vector3D v = get_voxelpos_from_physical_pos_3D(phys_pos);
+	Vector3D v = this->world_to_voxel(phys_pos);
 	Vector3D cv;
 	cv[0]=int(v[0]); cv[1]=int(v[1]); cv[2]=int(v[2]);	//center voxel to interpolate around...
 
@@ -1052,7 +1049,7 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weigh
 			}
 		}
 	}
-	res = sum/(w1 + 6.0*w2 + 12*w3 + 8*w4);
+	res = sum / (this->w1 + 6.0*this->w2 + 12*this->w3 + 8*this->w4);
 	//std::cout<<"v="<<v<<" cv="<<cv<<" res="<<res<<std::endl;
 
     return res;
@@ -1061,9 +1058,8 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weigh
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, int y, int z)
 {
-	Vector3D vox_pos; vox_pos[0]=x; vox_pos[1]=y; vox_pos[2]=z;
-	Vector3D phys_pos;
-	phys_pos = this->origin + this->orientation*this->get_voxel_resize()*vox_pos;
+	Vector3D vox_pos = create_Vector3D( x, y, z );
+	Vector3D phys_pos = this->voxel_to_world( vox_pos );
 	return phys_pos;
 }
 
