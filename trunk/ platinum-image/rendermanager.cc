@@ -421,7 +421,8 @@ void rendermanager::data_vector_has_changed()
         {
         //rendercombination * c = (*itr)->imagestorender;
         
-        (*itr)->imagestorender->data_vector_has_changed(); 
+        (*itr)->imagestorender->data_vector_has_changed();
+		
         /*if ((*itr)->imagestorender->empty())
             {
             //renderer has no images, we might want to kill it - BUT
@@ -436,7 +437,7 @@ void rendermanager::data_vector_has_changed()
             remove_renderer(renderers[v]->get_id());
             }*/
         }
-    }
+}
 
 void rendermanager::set_geometry(int renderer_index,Matrix3D * dir)
     {

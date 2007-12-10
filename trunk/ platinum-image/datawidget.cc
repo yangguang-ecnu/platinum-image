@@ -408,8 +408,8 @@ datawidget<point_collection>::datawidget (point_collection* p, std::string n): d
 {
     featuremenu->menu(menu_featuremenu_base);
    
-    //JK TODO: disable Save as VTK
-	//JK TODO: disable geometry edit
+    //TODO: disable Save as VTK
+	//TODO: disable geometry edit
 }
 
 

@@ -48,7 +48,7 @@ class point_collection : public data_base
         void remove (pointStorage::iterator); //the opposite of above
 		void add_pair (pointStorage::key_type, pointStorage::mapped_type);
 		
-        pointStorage::size_type num_points;
+//		pointStorage::size_type num_points;
 		
 		pointStorage::mapped_type get_point(int i);	//AF
         

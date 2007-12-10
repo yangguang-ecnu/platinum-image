@@ -42,7 +42,9 @@ data_base::~data_base()
         {
 		Fl::delete_widget (widget); 
 		}
+
     datamanagement.remove_data (this);
+	
     }
 
 

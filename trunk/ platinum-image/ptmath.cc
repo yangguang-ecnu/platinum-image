@@ -223,3 +223,13 @@ Vector3D create_Vector3D(float x, float y, float z)
 	return v;
 }
 
+Vector3Dint create_Vector3Dint( int x, int y, int z )
+{
+	Vector3Dint v;
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
+	return v;
+}
+
+

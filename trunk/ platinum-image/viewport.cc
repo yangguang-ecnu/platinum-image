@@ -624,9 +624,9 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
     switch (params->direction) {
         case Z_DIR:
         //case AXIAL:
-            dir[x][0]=1; //voxel direction of view x
-            dir[y][1]=1; //voxel direction of view y
-            dir[z][2]=1; //voxel direction of slicing
+            dir[x][0]=1;	// the x direction of the viewport ("0") lies in the positive ("+1") x direction ("x") of the world coordinate system
+            dir[y][1]=1;	// the y direction of the viewport ("1") lies in the positive ("+1") y direction ("y") of the world coordinete system
+            dir[z][2]=1;	// the z direction of the viewport ("2") lies in the positive ("+1") z direction ("z") of the world coordinate system
             break;
             
         case Y_DIR:
@@ -638,30 +638,30 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
             
         case X_DIR:
 //        case SAGITTAL:
-            dir[y][0]=1;
+            dir[y][0]=-1;
             dir[z][1]=-1;
             dir[x][2]=1;
             break;
             
         case Z_DIR_NEG:
 //        case AXIAL_NEG:
-            dir[x][0]=1;
-            dir[y][1]=-1;
+            dir[x][0]=-1;
+            dir[y][1]=1;
             dir[z][2]=-1;
             break;
             
         case Y_DIR_NEG:
 //        case CORONAL_NEG:
             dir[x][0]=-1;
-            dir[z][1]=1;
+            dir[z][1]=-1;
             dir[y][2]=-1;
             break;
             
         case X_DIR_NEG:
 //        case SAGITTAL_NEG:
-            dir[y][0]=-1;
+            dir[y][0]=1;
             dir[z][1]=-1;
-            dir[x][2]=1;
+            dir[x][2]=-1;
             break;
     }
     
@@ -697,32 +697,35 @@ void viewport::rebuild_renderer_menu ()
     //since available renderer types do not change at runtime,
     //the menu isn't really rebuilt - only the radio checkmark is reassigned
     
-    if (renderermenu_button != NULL)
+    if ( renderermenu_button != NULL )
         {
         Fl_Menu_Item * renderermenu=(Fl_Menu_Item *)renderermenu_button->menu();
-        int numItems = fl_menu_size (renderermenu);
-        
-        if (rendererIndex >= 0)
-            {
-            std::string this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
-            
-            for (int m = 0; m < numItems;m++)
-                {
-                listedfactory<renderer_base>::lf_menu_params * p = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params * > (renderermenu[m].user_data());
-                if (p->type == this_renderer_type)
-                    { renderermenu[m].setonly(); }
-                }
-            }   
-        if (numItems <= 1) //no real choice, disable
-            {
-            renderermenu[0].deactivate();
-            }
-        
-        if (numItems == 0) //no choice at all, disable even more!
-            {
-            renderermenu_button->deactivate();
-            }
-        }
+	
+		int numItems = fl_menu_size (renderermenu);
+		
+		if (rendererIndex >= 0)
+			{
+			std::string this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
+			
+			for (int m = 0; m < numItems;m++)
+				{
+				listedfactory<renderer_base>::lf_menu_params * p = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params * > (renderermenu[m].user_data());
+				if (p->type == this_renderer_type)
+					{ renderermenu[m].setonly(); }
+				}
+			}
+						
+		if (numItems <= 1) //no real choice, disable
+			{
+				renderermenu[0].deactivate();
+			}
+		
+		if (numItems == 0) //no choice at all, disable even more!
+			{
+			renderermenu_button->deactivate();
+			}
+		
+		}
 }
 
 void viewport::rebuild_blendmode_menu ()//update checkmark for current blend mode
@@ -730,28 +733,28 @@ void viewport::rebuild_blendmode_menu ()//update checkmark for current blend mod
     if (blendmenu_button != NULL)
         {
         Fl_Menu_Item * blendmodemenu=(Fl_Menu_Item *)blendmenu_button->menu();
-        
-        //blend modes are different - or not available - for other renderer types (than MPR...)
-        //basic check for this:
-        //int this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
-        
-        for (int m=0; m < NUM_BLEND_MODES ; m++)
-            {
-            ((menu_callback_params *)(blendmodemenu[m].argument()))->rend_index=rendererIndex;
-            
-            if (rendererIndex <0 || !rendermanagement.renderer_supports_mode(rendererIndex,m))
-                {blendmodemenu[m].deactivate();}
-            else
-                {blendmodemenu[m].activate();}
-            }
-        
-        if (rendererIndex >= 0)
-            {
-            int this_blend_mode=rendermanagement.get_blend_mode(rendererIndex);
-            
-            blendmodemenu[this_blend_mode].setonly();
-            
-            blendmenu_button->label(blend_mode_labels[this_blend_mode]);
-            }
+
+		//blend modes are different - or not available - for other renderer types (than MPR...)
+		//basic check for this:
+		//int this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
+		
+		for (int m=0; m < NUM_BLEND_MODES ; m++)
+			{
+			((menu_callback_params *)(blendmodemenu[m].argument()))->rend_index=rendererIndex;
+			
+			if (rendererIndex <0 || !rendermanagement.renderer_supports_mode(rendererIndex,m))
+				{blendmodemenu[m].deactivate();}
+			else
+				{blendmodemenu[m].activate();}
+			}
+		
+		if (rendererIndex >= 0)
+			{
+			int this_blend_mode=rendermanagement.get_blend_mode(rendererIndex);
+			
+			blendmodemenu[this_blend_mode].setonly();
+			
+			blendmenu_button->label(blend_mode_labels[this_blend_mode]);
+			}
         }
 }

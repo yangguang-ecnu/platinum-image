@@ -185,7 +185,6 @@ void FLTKuserIOpar_coord3Ddisplay::update()
 	control->redraw();
     }
 
-//AF
 #pragma mark *** FLTKuserIOpar_landmarks ***
 
 FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,int(STDPARWIDGETHEIGHT*6), name)
@@ -194,33 +193,37 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 	const int btnWidth = 30;
 	const int textWidth = 10;
 
-	descriptorText = new Fl_Output ( x(), y() + PARBOXBORDER, textWidth, STDPARWIDGETHEIGHT - PARBOXBORDER );
+	landmarkText = new Fl_Output ( x(), y() + PARBOXBORDER, textWidth, BUTTONHEIGHT - PARBOXBORDER );
+	landmarkText->box(FL_FLAT_BOX);
+	landmarkText->color(FL_BACKGROUND_COLOR);
+	landmarkText->value ( "Landmark set" );
+	
+	newSetBtn = new Fl_Button( w() - 3 * btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "New");
+	newSetBtn->callback( newSetCB, (void *) this );
+
+	saveSetBtn = new Fl_Button( w() - 2 * btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Save");
+	saveSetBtn->callback( saveSetCB, (void *) this );
+
+	loadSetBtn = new Fl_Button( w() - btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load");
+	loadSetBtn->callback( loadSetCB, (void *) this );
+//	loadSetBtn->callback( loadSetCBnew, (void *) this );
+
+
+
+	descriptorText = new Fl_Output ( x(), y() + STDPARWIDGETHEIGHT + PARBOXBORDER, textWidth, STDPARWIDGETHEIGHT - PARBOXBORDER );
 	descriptorText->box(FL_FLAT_BOX);
 	descriptorText->color(FL_BACKGROUND_COLOR);
 	descriptorText->value ( "Descriptor file" );
 
 //	emptyBox = new Fl_Box( w() - 3 * btnWidth, y() + PARBOXBORDER, 2 * btnWidth, STDPARWIDGETHEIGHT - PARBOXBORDER);
 
-	loadDescriptorBtn = new Fl_Button ( w() - btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load" );
-    loadDescriptorBtn->callback( loadDescriptorCB, (void*) this );
-		
-	landmarkText = new Fl_Output ( x(), y() + STDPARWIDGETHEIGHT + PARBOXBORDER, textWidth, BUTTONHEIGHT - PARBOXBORDER );
-	landmarkText->box(FL_FLAT_BOX);
-	landmarkText->color(FL_BACKGROUND_COLOR);
-	landmarkText->value ( "Landmark set" );
-	
-	newSetBtn = new Fl_Button( w() - 3 * btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "New");
-	newSetBtn->callback( newSetCB, (void *) this );
+	loadDescriptorBtn = new Fl_Button ( w() - btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load" );
+	loadDescriptorBtn->callback( loadDescriptorCB, (void*) this );
 
-	saveSetBtn = new Fl_Button( w() - 2 * btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Save");
-	saveSetBtn->callback( saveSetCB, (void *) this );
-
-	loadSetBtn = new Fl_Button( w() - btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load");
-	loadSetBtn->callback(loadSetCB);
 
 
 	browser = new Fl_Hold_Browser( x(), y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), 4 * STDPARWIDGETHEIGHT - PARTITLEMARGIN );
-	browser->callback( browserCB,  (void *) this );
+	browser->callback( browserCB, (void *) this );
 	browser->textsize(12);
 	//browser->when(...)		
 
@@ -252,7 +255,8 @@ void FLTKuserIOpar_landmarks::loadDescriptorCB( Fl_Widget * callingwidget, void 
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
 	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_descriptor_path	
-	Fl_File_Chooser chooser( ".", "Descriptor file (*.txt)\tAny file (*)", Fl_File_Chooser::SINGLE, "Load descriptor file" );	
+	Fl_File_Chooser chooser( ".", "Descriptor files (*.txt)\tAny file (*)", Fl_File_Chooser::SINGLE, "Load descriptor file" );	
+    chooser.ok_label( "Load" );	
 	chooser.show();
 		
 	while( chooser.shown() )
@@ -322,6 +326,7 @@ void FLTKuserIOpar_landmarks::newSetCB( Fl_Widget * callingwidget, void * thisLa
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
 	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( l->get_landmarksID() ) );
+	
 	points->clear();
 
 	l->browser->clear();
@@ -349,7 +354,8 @@ void FLTKuserIOpar_landmarks::saveSetCB(Fl_Widget *callingwidget, void * thisLan
 
 
 	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_landmarks_path
-	Fl_File_Chooser chooser( ".", "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::CREATE, "Save landmarks" );	
+	Fl_File_Chooser chooser( ".", "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::CREATE, "Save landmarks" );
+    chooser.ok_label( "Save" );	
 	chooser.show();
 		
 	while( chooser.shown() )
@@ -379,9 +385,229 @@ void FLTKuserIOpar_landmarks::saveSetCB(Fl_Widget *callingwidget, void * thisLan
 	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1))); but change to latest_landmarks_path
 }
 
-void FLTKuserIOpar_landmarks::loadSetCB(Fl_Widget *callingwidget, void * foo)
+void FLTKuserIOpar_landmarks::loadSetCB( Fl_Widget *callingwidget, void * thisLandmarks )
 {
-	std::cout << "Load landmark set" << std::endl;
+	std::cout << "This function is under construction" << std::endl;
+	return;
+	
+	
+
+	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_landmarks_path
+	Fl_File_Chooser chooser( ".", "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::SINGLE, "Load landmark file" );	
+    chooser.ok_label( "Load" );	
+	chooser.show();
+		
+	while( chooser.shown() )
+		{ Fl::wait(); }
+		
+	if ( chooser.value() == NULL )
+	{
+        pt_error::error ( "Landmark load dialog cancel", pt_error::notice );
+		return;
+	}
+	
+	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
+
+	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( l->get_landmarksID() ) );
+	
+	
+//	points->clear();
+	
+	ifstream ifs ( chooser.value() );
+	
+	if ( !ifs )
+	{
+		// TODO: use the pt_error class to generate an error message
+		return;
+	}
+
+	const int line_length = 50;
+	char buffer[line_length];
+
+	while ( !ifs.eof() )
+	{
+		ifs.getline( buffer, line_length );
+		
+		std::string s = std::string( buffer );
+
+		if (!s.empty())			// ignore blank lines
+		{
+		
+			int index = atoi( s.substr(0, s.find(';', 0)).c_str() );
+
+			Vector3D coord;
+				
+			std::string pointStr = s.substr( s.find('[', 0) + 1, s.find(']', 0) - ( s.find('[', 0) + 1) );	// keep the string inside '[' and ']'
+			
+
+			int i = 0;
+			int j = pointStr.find(',');
+			
+			for ( unsigned int index = 0; index <= 2; index++ )
+			{
+				std::string tmp = pointStr.substr(i, j -i);
+				
+				coord[index] = atof( tmp.c_str() );
+
+				i = ++j;
+				j = pointStr.find(',', j);
+			}
+			
+			// std::cout << index << ";" << coord << std::endl;
+
+
+			// fixa klassen så att när descriptorn läses in så görs förrst clean() på browser, landmark_names, option_names
+			// sedan fylls landmarks_names
+			
+			// tag bort kommentaren från points->clear() ovan och tag även bort kommentaren nedan.
+			
+			//points->add_pair( index,  )
+			
+		}		
+	}
+	
+	ifs.close();
+	
+	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1))); but change to latest_landmarks_path
+}
+
+void FLTKuserIOpar_landmarks::split( const std::string & s, char c, std::vector<std::string> & v )
+{
+	string::size_type i = 0;
+	string::size_type j = s.find(c);
+	
+	while ( j != string::npos )
+	{
+		v.push_back( s.substr(i, j - i) );
+		i = ++j;
+		j = s.find(c, j);
+		
+		if ( j == string::npos )
+		{	// there are no more delimiters. get the last part of s
+			v.push_back( s.substr(i) );
+		}
+	}
+
+
+//	string::size_type loc = s.find( ';', 0 );
+//	
+//	if ( loc == string::npos )
+//	{	// ';' is not found
+//		return "";
+//	}
+//	
+//	std::string part = s.substr( 0, loc );
+//	s.erase( 0, loc + 1 );
+//
+//	// TODO: remove eventually white spaces from the start and end of part
+//	
+//	return part;
+}
+
+
+void FLTKuserIOpar_landmarks::loadSetCBnew( Fl_Widget *callingwidget, void * thisLandmarks )
+{
+	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_landmarks_path
+	Fl_File_Chooser chooser( ".", "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::SINGLE, "Load landmark file" );	
+    chooser.ok_label( "Load" );	
+	chooser.show();
+		
+	while ( chooser.shown() )
+		{ Fl::wait(); }
+		
+	if ( chooser.value() == NULL )
+	{
+        pt_error::error( "Landmark load dialog cancel", pt_error::notice );
+		return;
+	}
+	
+	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
+
+	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( l->get_landmarksID() ) );
+	
+	points->clear();
+	
+	ifstream ifs( chooser.value() );
+	
+	if ( !ifs )
+	{
+		// TODO: use the pt_error class to generate an error message
+		return;
+	}
+
+	l->landmark_names.clear();
+	l->option_names.clear();
+	l->browser->clear();
+
+	const int line_length = 50;
+	char buffer[line_length];
+
+
+
+	while ( !ifs.eof() )
+	{
+		ifs.getline( buffer, line_length );
+		
+		std::string s = std::string( buffer );
+
+		if ( !s.empty() )
+		{	// not a blank line
+
+			if ( s.at(0) != '#' )
+			{	// not a comment line (ie a row beginning with '#')
+
+				std::vector<std::string> v;
+				l->split(s, ';', v);
+
+				int index = 0;	
+				std::string description = "";
+				std::string option = "";
+
+				index = atoi( v[0].c_str() );
+
+				if ( v.size() > 1 )
+					{ description = v[1]; }
+				if ( v.size() > 2 )
+					{ option = v[2]; }
+					
+				l->landmark_names.push_back(index + ". " +  description);
+				l->option_names.push_back(option);
+					
+				if ( v.size() > 3 )
+				{ 
+					std::string coordinate = coordinate.substr( v[3].find('[', 0) + 1, v[3].find(']', 0) - ( v[3].find('[', 0) + 1) );	// get the string inside '[' and ']'
+					std::vector<std::string> vv;
+					l->split(coordinate, ',', vv);
+					Vector3D point = create_Vector3D( atof(vv[0].c_str()), atof(vv[1].c_str()), atof(vv[2].c_str()) );
+					
+					points->add_pair(index, point);
+					
+					l->set(index + 1, point);	// the first index of the Fl_Hold_Browser is 1 but is 0 for the string vector
+				}
+				else
+				{
+					l->browser->add( l->resolve_string(index).c_str() );
+				}
+
+				
+				// std::cout << index << ";" << coord << std::endl;
+
+
+				// fixa klassen så att när descriptorn läses in så görs förrst clean() på browser, landmark_names, option_names
+				// sedan fylls landmarks_names
+				
+				// tag bort kommentaren från points->clear() ovan och tag även bort kommentaren nedan.
+				
+				//points->add_pair( index,  )
+			}
+		}		
+	}
+	
+	ifs.close();
+	
+	l->browser->value(1);	// set the first landmark as active
+	
+	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1))); but change to latest_landmarks_path
 }
 
 void FLTKuserIOpar_landmarks::browserCB(Fl_Widget *callingwidget, void * thisLandmarks )
@@ -467,7 +693,7 @@ void FLTKuserIOpar_landmarks::set(int index, Vector3D v)
 {
 	std::ostringstream oss;
 	oss.setf ( ios::fixed );
-	oss << resolve_string(index-1) << " " << setprecision(1) << v;			// the first index of the Fl_Hold_Browser is 1 but is 0 for thes string vector 
+	oss << resolve_string(index-1) << " " << setprecision(1) << v;			// the first index of the Fl_Hold_Browser is 1 but is 0 for the string vector 
 
 	
 	browser->text(index, oss.str().c_str());
@@ -789,9 +1015,9 @@ void FLTKdataitem_choice::data_change (const Fl_Menu_Item * base_menu)
     int selected_item=value();
     long selected_vol=NOT_FOUND_ID;
     
-    const Fl_Menu_Item *cur_menu=menu();   
+    const Fl_Menu_Item * cur_menu = menu();   
     
-    if (cur_menu !=NULL)
+    if (cur_menu != NULL)
         {selected_vol=cur_menu[selected_item].argument();}
     
     selected_item=0; //set to no selection if previous selection isn't found below

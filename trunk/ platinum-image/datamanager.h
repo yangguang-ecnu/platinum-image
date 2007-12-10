@@ -112,7 +112,8 @@ class datamanager
 
         void add(image_base * v);           //add image to vector, notify other managers
         void add(point_collection * v); 
-        
+
+		// Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allcoated data is removed)
         void remove_data (int id);          //remove image/point from vector, 
         void remove_data (data_base * d);   //notify other managers
         

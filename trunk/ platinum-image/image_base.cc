@@ -170,9 +170,11 @@ void image_base::save_histogram_to_txt_file(const std::string filename, const st
         pt_error::pt_error ("Attempt to save_histogram_to_txt_file on a image_base object",pt_error::warning);
     }
 	
-Vector3D image_base::world_to_voxel(const Vector3D wpos) const
+Vector3D image_base::world_to_voxel( const Vector3D & wpos ) const
 {
-	Vector3D vPos = wpos - origin;
+	// (AB)^-1 = B^-1 * A^-1
+
+	Vector3D vpos = wpos - origin;
 
 	Matrix3D inv_orientation;
 	inv_orientation = get_orientation().GetInverse();
@@ -180,10 +182,20 @@ Vector3D image_base::world_to_voxel(const Vector3D wpos) const
 	Matrix3D inv_voxel_resize;
 	inv_voxel_resize = get_voxel_resize().GetInverse();
 
-	vPos = inv_voxel_resize * inv_orientation * vPos;	// the operations are done from right to left
+	vpos = inv_voxel_resize * inv_orientation * vpos;	// the operations are done from right to left
 	
-	return vPos;
+	return vpos;
 }
+
+Vector3D image_base::voxel_to_world( const Vector3D & vpos ) const
+{
+	Vector3D wpos;
+	
+	wpos = origin + get_orientation() * get_voxel_resize() * vpos;
+	
+	return wpos;
+}
+
 /*
 class vtkloader: public imageloader
 {
@@ -321,8 +333,8 @@ image_base * dicomloader::read()
 			if( itk::GDCMImageIO::GetLabelFromTag( tagkey, labelId ) ){
 				//std::cout << labelId << " (" << tagkey << "): ";
 				if( dicomIO->GetValueFromTag(tagkey, seriesIdentifier) ){
-
-					seriesIdentifier = seriesIdentifier.c_str();//remove one garbage char at end
+					seriesIdentifier = seriesIdentifier.c_str();	// remove one garbage char at end (this is probably not a very good solution)
+					// TODO: find out why this "garbage character" exist. 
 
 					//check if another file in the same series was part of the selection (and loaded)
 					std::vector<string>::const_iterator series_itr=loaded_series.begin();

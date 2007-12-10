@@ -67,4 +67,59 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1
 	return t1map;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::grad_mag_voxel( int x, int y, int z, GRAD_MAG_TYPE type )
+{
+	if ( ! this->is_voxelpos_within_image_3D( x, y, z) )
+	{	// the point is not within the image
+		return -1;
+	}
+
+	float mag_x = this->get_voxel( x + 1, y, z ) - this->get_voxel( x - 1, y, z );
+	float mag_y = this->get_voxel( x, y + 1, z ) - this->get_voxel( x, y - 1, z );
+	float mag_z = this->get_voxel( x, y, z + 1 ) - this->get_voxel( x, y, z - 1 );
+
+	switch ( type )
+	{
+		case X:
+			return sqrt( mag_x * mag_x );	
+		case Y:
+			return sqrt( mag_y * mag_y );
+		case Z:
+			return sqrt( mag_z * mag_z );
+		case XY:
+			return sqrt( mag_x * mag_x + mag_y * mag_y );
+		case XZ:
+			return sqrt( mag_x * mag_x + mag_z * mag_z );
+		case YZ:
+			return sqrt( mag_y * mag_y + mag_z * mag_z );
+		case XYZ:
+			return sqrt( mag_x * mag_x + mag_y * mag_y + mag_z * mag_z );
+		default:
+			return -1;
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::grad_mag_voxel( Vector3D point, GRAD_MAG_TYPE type )
+{
+	return grad_mag_voxel( point[0], point[1], point[2], type );
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::weight_of_type( Vector3D center, Vector3D current, WEIGHT_TYPE type )
+{
+	switch ( type )
+	{
+		case CHESSBOARD:
+			int dist_x = abs( current[0] - center[0] );
+			int dist_y = abs( current[1] - center[1] );
+			int dist_z = abs( current[2] - center[2] );
+			return max( max( dist_x, dist_y ), dist_z );
+			
+		default:
+			return 0;
+	}
+}
+
 

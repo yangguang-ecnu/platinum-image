@@ -101,7 +101,7 @@ public:
 	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
 
 	void smooth_ITK(Vector3D radius); 
-	void smooth_3D(Vector3D radius); 
+	void smooth_3D(Vector3D g); 
 	image_binary<IMAGEDIM>* region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<IMAGEDIM>* region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
 //	void medianFilter2D();
@@ -122,7 +122,10 @@ public:
 	//Calculates TruePositive, FalsePositive values and "Udupa-index" for voxels larger than zero...
 	void calculate_TP_FP_Udupa_3D(float &tp, float &fp, float &udupa, image_scalar<ELEMTYPE, IMAGEDIM>* ground_truth, ELEMTYPE gt_obj_val=1, ELEMTYPE this_obj_val=1 ); 
 
-
+	// return the voxel position of POINT_TYPE (i.e. max gradient magnitude, max value, ...) using voxel position and voxel radius
+	Vector3D get_pos_of_type_in_region_voxel ( Vector3D center, Vector3D radius, POINT_TYPE point_type );
+	
+	Vector3D get_pos_of_max_grad_mag_in_region_voxel ( Vector3D center, Vector3D radius, GRAD_MAG_TYPE type );
 
 
 
@@ -135,6 +138,12 @@ public:
 	// Note that function can be moved to image_storage...
     image_scalar<ELEMTYPE, IMAGEDIM>* calculate_T1Map_from_two_flip_angle_MRvolumes_3D(image_scalar<ELEMTYPE, IMAGEDIM > *small_flip, float body_thres=0, float t1_min=0, float t1_max=2000); 
     image_scalar<ELEMTYPE, IMAGEDIM>* calculate_T1Map_3D(vector<image_scalar<ELEMTYPE, IMAGEDIM > *> v, float body_thres=0, float t1_min=0, float t1_max=2000); 
+
+	// return the gradient magnitude using voxel position
+	float grad_mag_voxel ( Vector3D point, GRAD_MAG_TYPE type );
+	float grad_mag_voxel ( int x, int y, int z, GRAD_MAG_TYPE type );
+	
+	float weight_of_type( Vector3D center, Vector3D current, WEIGHT_TYPE type );
 
 };
 

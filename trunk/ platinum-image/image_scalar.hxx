@@ -22,8 +22,11 @@
 #include "image_general.hxx"
 
 #include "userIOmanager.h"
+#include "datamanager.h"
 
 extern userIOmanager userIOmanagement;
+extern datamanager datamanagement;
+
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -288,7 +291,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_tricubic_3D(image_scalar<ELE
 				rvoxpos[0]=i;	rvoxpos[1]=j;	rvoxpos[2]=k;
 				svox = a + b*rvoxpos;
 				val = 0;
-				if(src_im->is_voxelpos_inside_image_border_3D(svox,1))
+				if(src_im->is_voxelpos_inside_image_border_3D(svox[0],svox[1],svox[2],1))
 				{
 					for (id=0;id<8;id++) {
 						switch(id){
@@ -1467,6 +1470,184 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::calculate_TP_FP_Udupa_3D(float &tp, float
 	udupa = hit/any_object;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_max_grad_mag_in_region_voxel( Vector3D center, Vector3D radius, GRAD_MAG_TYPE type )
+{
+	if ( ! this->is_voxelpos_within_image_3D( center ) )
+	{	// the point is not within the image
+		// TODO: use pt_error !!!
+		return center;
+	}
+
+	image_scalar<ELEMTYPE, IMAGEDIM> * res = new image_scalar<ELEMTYPE, IMAGEDIM>( this, 0 );
+	res->fill( 0 );
+
+	float center_grad_mag = grad_mag_voxel( center, type );
+	
+	
+	Vector3Dint start = center - radius;
+	Vector3Dint end = center + radius;
+	
+	for ( int i = 0; i < 3; i++ )
+	{	// set start and end to be within the image
+		start[i] = start[i] < 0 ? 0 : start[i];
+		end[i] = end[i] >= this->datasize[i] ? ( this->datasize[i] -  1 ) : end[i];
+	}
+
+	Vector3D pos = center;	// return center position if no other is found
+
+	for ( int z = start[2]; z <= end[2]; z++ )
+	{
+		for ( int y = start[1]; y <= end[1]; y++ )
+		{
+			for ( int x = start[0]; x <= end[0]; x++ )
+			{
+				Vector3Dint current = create_Vector3Dint( x, y, z );
+				Vector3Dint center_as_int = center;
+
+				float weight = weight_of_type( center_as_int, current, CHESSBOARD );
+
+				float current_grad_mag = grad_mag_voxel( x, y, z, type );
+				
+				float current_grad_mag_weighted = 0;
+				
+				if ( weight != 0 )
+					{ current_grad_mag_weighted = current_grad_mag / weight; }
+				else
+					{ current_grad_mag_weighted = current_grad_mag; }	// weight == 0 means the center of the region
+				
+				if ( current_grad_mag_weighted > center_grad_mag )
+				{ 
+					pos = create_Vector3Dint( x, y, z );
+				}
+				
+				res->set_voxel( x, y, z, floor( current_grad_mag_weighted ) );
+			
+			}
+		}
+	}
+	
+	//res->set_voxel( pos[0], pos[1], pos[2], 511 );
+	datamanagement.add( res );
+
+	// tag bort !!
+	//pos[2] = center[2];
+
+	return pos;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_type_in_region_voxel( Vector3D center, Vector3D radius, POINT_TYPE type )
+{	
+	if ( ! this->is_voxelpos_within_image_3D( center ) )
+	{	// the point is not within the image
+		// TODO: use pt_error !!!
+		return center;
+	}
+
+	switch ( type )
+	{
+		case MAX_GRAD_MAG_X:
+			return get_pos_of_max_grad_mag_in_region_voxel( center, radius, X );
+		case MAX_GRAD_MAG_Y:
+			return get_pos_of_max_grad_mag_in_region_voxel( center, radius, Y );
+		case MAX_GRAD_MAG_Z:
+			return get_pos_of_max_grad_mag_in_region_voxel( center, radius, Z );
+		case MAX_GRAD_MAG_XY:
+			return get_pos_of_max_grad_mag_in_region_voxel( center, radius, XY );
+		case MAX_GRAD_MAG_XZ:
+			return get_pos_of_max_grad_mag_in_region_voxel( center, radius, XZ );
+		case MAX_GRAD_MAG_YZ:
+			return get_pos_of_max_grad_mag_in_region_voxel( center, radius, YZ );
+		case MAX_GRAD_MAG_XYZ:
+			return get_pos_of_max_grad_mag_in_region_voxel( center, radius, XYZ );
+		default:
+			return center;
+	}
+}
+
+// old
+//template <class ELEMTYPE, int IMAGEDIM>
+//Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_type_in_region_voxel ( Vector3D center, Vector3D radius, POINT_TYPE point_type )
+//{
+//	image_scalar<ELEMTYPE, IMAGEDIM> * res = new image_scalar<ELEMTYPE, IMAGEDIM>( this, 0 );
+//	res->fill( 0 );
+//
+//	Vector3D pos;
+//	
+//	if ( ! is_voxelpos_within_image_3D( center ) )
+//	{	// the point is not within the image
+//		// TODO: use pt_error
+//		return pos;
+//		// return center;
+//	}
+//
+//	center[0] = floor( center[0] );
+//	center[1] = floor( center[1] );
+//	center[2] = floor( center[2] );
+//
+//
+//	Vector3D start = center - radius;
+//	Vector3D end = center + radius;
+//
+//	pos = center;	// the center position is returned if no other is found
+//
+//	for ( int z = start[2]; z <= end[2]; z++ )
+//	{
+//		for ( int y = start[1]; y <= end[1]; y++ )
+//		{
+//			for ( int x = start[0]; x <= end[0]; x++ )
+//			{
+//			
+//				switch ( point_type )
+//				{
+//					case MAX_GRAD_MAG_X:
+//					case MAX_GRAD_MAG_Y:
+//					case MAX_GRAD_MAG_Z:
+//					case MAX_GRAD_MAG:
+//						// use chessboard distance as weight
+//						int dist_x = abs ( x - center[0] );
+//						int dist_y = abs ( y - center[1] );
+//						int dist_z = abs ( z - center[2] );
+//						float weight = max( max( dist_x, dist_y ), dist_z );
+//						if ( weight != 0 )
+//						{ // not the center voxel (i.e. weight > 0)
+//							GRAD_MAG_TYPE grad_mag_type;
+//							switch ( grad_mag_type )
+//							{
+//								case MAX_GRAD_MAG_X: grad_mag_type = X; break;
+//								case MAX_GRAD_MAG_Y: grad_mag_type = Y; break;
+//								case MAX_GRAD_MAG_Z: grad_mag_type = Z; break;
+//								case MAX_GRAD_MAG: grad_mag_type = XYZ; break;
+//							}
+//							float current_grad_mag = grad_mag_voxel( x, y, z, grad_mag_type );
+//
+//							// This line should be outside the loop because the value does not change
+//							// but it is more intuitive to have it here
+//							float center_grad_mag = grad_mag_voxel( center, point_type );
+//							
+//							if ( ( current_grad_mag / weight ) > center_grad_mag )
+//								{ pos = create_Vector3D( x, y, z ); }
+//							
+////							std::cout << "test " << current_grad_mag << std::endl;
+////							std::cout << "test floor " << floor( current_grad_mag ) << std::endl;
+//							res->set_voxel( x, y, z, floor( current_grad_mag / weight ) );
+//								
+//						}
+//						break;
+//						
+//
+//				}
+//			}
+//		}
+//	}
+//
+//	res->set_voxel( pos[0], pos[1], pos[2], 511 );
+//	datamanagement.add( res );
+//
+//	return pos;
+//}
 
 #include "image_scalarprocess.hxx"
 

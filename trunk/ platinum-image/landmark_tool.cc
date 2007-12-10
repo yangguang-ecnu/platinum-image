@@ -7,6 +7,8 @@
 #include "userIOmanager.h"
 
 #include "rendermanager.h"
+#include "image_scalar.h"
+#include "image_scalar.hxx"
 
 extern datamanager datamanagement;
 
@@ -106,15 +108,42 @@ void landmark_tool::handle(viewport_event &event)
 					std::cout << "No landmark is active" << std::endl;		
 					return;
 				}
-								
-				points->add_pair(index_of_active, mouse3d);
-				
-				userIOmanagement.set_landmark(userIO_ID, index_of_active, mouse3d);
-				
 
+
+
+//				image_scalar<unsigned short, 3> * img = dynamic_cast< image_scalar<unsigned short, 3> * > ( top );
+//
+//				Vector3D radius;
+////				radius.Fill(50);
+//				radius[0] = 50;
+//				radius[1] = 0;
+//				radius[2] = 0;
+//				
+//				// TODO: använd myGeometry->dir för att rotera radius korrekt och bestäm sedan även vilken typ som ska
+//				// användas. tex MAX_GRAD_MAG_X och MAX_GRAD_MAG_Y eller MAX_GRAD_MAG_Y och MAX_GRAD_MAG_Z osv
+//				rendergeometry * myGeometry = myRenderer->wheretorender;
+//				std::cout << "radius " << radius << std::endl;				
+//				radius[0] = abs( radius[0] );
+//				radius[1] = abs( radius[1] );
+//				radius[2] = abs( radius[2] );
+//				std::cout << "radius after " << radius << std::endl << std::endl;
+//
+//				// TODO: change this later to use get_pos_of_type_in_region_world() with world coord (mouse3d) and radius in millimeters
+//				// and remove the voxel_to_world()
+//
+//				Vector3D voxel_pos = img->get_pos_of_type_in_region_voxel( img->world_to_voxel( mouse3d ), radius, MAX_GRAD_MAG_X );
+//				Vector3D world_pos = img->voxel_to_world( voxel_pos );
+//		
+//				// REMOVE THIS ROW!!! ONLY TEMPORARY!!
+//				mouse3d = world_pos;
+
+
+
+
+				points->add_pair( index_of_active, mouse3d );
+				userIOmanagement.set_landmark(userIO_ID, index_of_active, mouse3d);
 				viewmanagement.show_point_by_data ( mouse3d, point_collection_ID );
 
-				
 			}
 		break;	
 		
@@ -132,6 +161,8 @@ void landmark_tool::handle(viewport_event &event)
 				myRenderer->move_view(viewSize,0,0,event.scroll_delta()*wheel_factor);
 				
 				fvp->needs_rerendering();
+				
+				refresh_by_image_and_direction();
 			}
 			//NOTE: no break, update hovering also
 
