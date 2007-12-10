@@ -255,7 +255,7 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		Fl_Output * descriptorText;
 		Fl_Box * emptyBox;
 		Fl_Output * landmarkText;
-        Fl_Button * loadDescriptorBtn;
+		Fl_Button * loadDescriptorBtn;
 		Fl_Button * newSetBtn;		
 		Fl_Button * saveSetBtn;		
 		Fl_Button * loadSetBtn;		
@@ -264,7 +264,11 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		std::vector<std::string> landmark_names;
 		std::vector<std::string> option_names;
 		std::string resolve_string(int index);
-				
+		
+		// split a delimited string into multiple strings
+		// example: "aaa;bbb;ccc" -> "aaa", "bbb", "ccc"
+		void split( const std::string & s, char c, std::vector<std::string> & v );
+		
 		int landmarksID;
 		
 	public:
@@ -274,9 +278,9 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		static void loadDescriptorCB(Fl_Widget *callingwidget, void * thisLandmarks);
 		static void newSetCB( Fl_Widget * callingwidget, void * thisLandmarks );
 		static void saveSetCB( Fl_Widget * callingwidget, void * thisLandmarks );
-		static void loadSetCB( Fl_Widget * callingwidget, void * );
+		static void loadSetCB( Fl_Widget * callingwidget, void * thisLandmarks );
+		static void loadSetCBnew( Fl_Widget * callingwidget, void * thisLandmarks );
 		static void browserCB( Fl_Widget * callingwidget, void * thisLandmarks );
-
 
 		const std::string type_name();
         void par_value(landmarksIDtype &v);

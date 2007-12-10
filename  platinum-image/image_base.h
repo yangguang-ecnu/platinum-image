@@ -113,7 +113,8 @@ class image_base : public data_base
 		bool read_orientation_from_dicom_file(std::string dcm_file);
 		void rotate(float,float,float);        
 
-        Vector3D world_to_voxel(const Vector3D) const;
+        Vector3D world_to_voxel( const Vector3D & wpos ) const;
+		Vector3D voxel_to_world( const Vector3D & vpos ) const;
 
         
         virtual void data_has_changed(bool stats_refresh = true) = 0;

@@ -88,7 +88,7 @@ datamanager::~datamanager()
 
     for (unsigned int i=0; i < dataItems.size(); i++)
         { delete dataItems[i]; }
-    dataItems.clear();
+	dataItems.clear();
     }
 
 void datamanager::removedata_callback(Fl_Widget *callingwidget, void *thisdatamanager)
@@ -284,7 +284,7 @@ void datamanager::delete_data (data_base * d)
         {
         if (*itr == d)
             {
-            delete *itr; //the data_base destructor calls XXX to
+            delete *itr; //the data_base destructor calls remove_data() to
                          //remove it from dataItems 
             break;
             }
@@ -305,6 +305,7 @@ void datamanager::delete_data (int id)
         }
 }
 
+// Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allocated memory is removed)
 void datamanager::remove_data (int id)
 {
     for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
@@ -319,15 +320,18 @@ void datamanager::remove_data (int id)
         }
 }
 
+// Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allocated memory is removed)
 void datamanager::remove_data (data_base * d)
 {
     for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
         {
         if (*itr == d)
             {
-            dataItems.erase( itr); 
+
+			dataItems.erase( itr); 
             
             data_vector_has_changed();
+
             break;
             }
         }
@@ -556,13 +560,17 @@ void datamanager::data_has_changed (int dataID, bool recalibrate)
     }
 
 void datamanager::data_vector_has_changed()
-    {
-    rebuild_objects_menu();
+{
+	
+	if ( closing != true )
+	{	// the application is not closing
+		rebuild_objects_menu();
 
-    rendermanagement.data_vector_has_changed();
+		rendermanagement.data_vector_has_changed();
 
-    userIOmanagement.data_vector_has_changed();
-    }
+		userIOmanagement.data_vector_has_changed();
+	}
+}
 
 template <class OCLASS>
 Fl_Menu_Item * datamanager::object_menu ()

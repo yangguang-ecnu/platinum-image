@@ -37,6 +37,7 @@
 
 ///...and types
 typedef itk::Vector<float,3> Vector3D;
+typedef itk::Vector<int, 3> Vector3Dint;
 typedef itk::Point<float,3> Point3D;
 typedef std::pair<long, long> HistoPair;
 typedef itk::Matrix<float> Matrix3D;
@@ -223,5 +224,6 @@ double get_random_number_in_span(double min, double max);
 
 Vector3D create_Vector3D(float x, float y, float z);
 
+Vector3Dint create_Vector3Dint( int x, int y, int z );
 
 #endif	//__ptmath.h__

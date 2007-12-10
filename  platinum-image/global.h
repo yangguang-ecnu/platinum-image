@@ -61,6 +61,9 @@ enum ROImode {ROI_RECT, ROI_CIRCLE};
 enum COMBINE_MODE {COMB_ADD, COMB_SUB, COMB_MULT, COMB_DIV, COMB_MAX, COMB_MIN}; //and, xor, mask...
 enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
 enum DICOM_LOADER_TYPE {DCM_LOAD_ALL, DCM_LOAD_SERIES_ID_ONLY}; 	//LOAD_ALL is used by dicom_importer to load all selected files (ignoring series_ID)....
+enum POINT_TYPE { MAX_GRAD_MAG_X, MAX_GRAD_MAG_Y, MAX_GRAD_MAG_Z, MAX_GRAD_MAG_XY, MAX_GRAD_MAG_XZ, MAX_GRAD_MAG_YZ, MAX_GRAD_MAG_XYZ };
+enum GRAD_MAG_TYPE { X, Y, Z, XYZ, XY, XZ, YZ };
+enum WEIGHT_TYPE { CHESSBOARD };
 
 //Dicom Tag definitions
 //More DICOM tag definitions can be found at:  http://medical.nema.org/dicom/2007/07_06pu.pdf

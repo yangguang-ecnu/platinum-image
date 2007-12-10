@@ -78,5 +78,5 @@ Vector3D rendergeometry::get_N()
 Vector3D rendergeometry::get_n()
 {
 	Vector3D N = get_N();
-	return get_N() / N.GetNorm();
+	return N / N.GetNorm();
 }

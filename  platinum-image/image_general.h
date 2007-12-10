@@ -134,7 +134,6 @@ class image_general : public image_storage <ELEMTYPE >
 		bool is_voxelpos_inside_image_border_3D(int vp_x, int vp_y, int vp_z, int dist=1);
 		bool is_voxelpos_inside_image_border_3D(Vector3D vp, int dist=1);  
 		bool is_physical_pos_within_image_3D(Vector3D phys_pos);
-		Vector3D get_voxelpos_from_physical_pos_3D(Vector3D phys_pos);	//no truncation is performed in this function.
 		Vector3D get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos);	//truncation is performed in this function.
 
         // *** element access methods ***

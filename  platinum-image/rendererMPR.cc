@@ -25,9 +25,9 @@
 
 #define _rendererMPR_cc_
 #include "rendererMPR.h"
-#include "viewmanager.h"	//AF
-#include "rendermanager.h"	//AF
-//#include "image_scalar.h" //AF
+#include "viewmanager.h"
+#include "rendermanager.h"
+//#include "image_scalar.h"
 
 #define MAXRENDERVOLUMES 50
 
@@ -35,8 +35,8 @@
 #define USE_ARBITRARY
 
 extern datamanager datamanagement;
-extern viewmanager viewmanagement;	//AF
-extern rendermanager rendermanagement; //AF
+extern viewmanager viewmanagement;
+extern rendermanager rendermanagement;
 
 using namespace std;
 
