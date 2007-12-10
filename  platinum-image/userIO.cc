@@ -112,7 +112,7 @@ void userIO::FLTK_callback (Fl_Widget *callingwidget, void * foo)
     }
 
 void userIO::data_vector_has_changed()
-    {
+    {	
     std::vector<FLTKuserIOparameter_base *>::iterator itr=parameters.begin();
 
     while (itr != parameters.end())
