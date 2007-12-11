@@ -87,6 +87,14 @@ data_base::data_base (data_base * const source)
 	meta = source->meta;
     }
 
+void data_base::data_has_changed (bool) 
+{}
+        
+int data_base::get_id()
+{ 
+	return ID; 
+}
+
 void data_base::activate()
 {
     //widget->show();

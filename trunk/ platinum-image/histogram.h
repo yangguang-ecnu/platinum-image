@@ -32,6 +32,9 @@
 template <class ELEMTYPE>
     class image_storage;
 
+//template <class IMAGEDIM>
+//    class image_binary;
+
 #include "global.h"
 
 struct regionofinterest
@@ -95,11 +98,11 @@ class histogram_typed : public histogram_base //!features common to histograms o
     public:
         histogram_typed();
 
-        ELEMTYPE min()							//returns histogram and also image "intensity min"
+        ELEMTYPE min()							//returns histogram (and also image) "intensity min"
             {return min_value;}
         void min (ELEMTYPE new_min)			
             {min_value=new_min;}
-        ELEMTYPE max ()							//returns histogram and also image "intensity max"
+        ELEMTYPE max ()							//returns histogram (and also image) "intensity max"
             {return max_value;}
         void max (ELEMTYPE new_max)			
             {max_value=new_max;}
@@ -128,10 +131,12 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
     public:
         histogram_1D (image_storage<ELEMTYPE> * i, int num_buckets=-1);
         histogram_1D (ELEMTYPE * start,ELEMTYPE * end );
+        histogram_1D (image_storage<ELEMTYPE> *image_data, image_storage<unsigned char> *image_bin_mask, int num_buckets);
 
-        ~histogram_1D () {}
+        ~histogram_1D ();
         
         void resize (unsigned long); //JK - Should maybe be protected...
+		virtual void resize_to_fit_data(); //Make sure alla integer values have a bucket, JK - Should maybe be protected...
         void render(unsigned char * image, unsigned int width, unsigned int height);
 
 	    //void image (int vol);
@@ -163,6 +168,18 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		float get_variance_in_bucket_range(int from, int to);
     };
 
+
+// This class extends histogram_1D<class ELEMTYPE> just to implement one function
+// if this function should be specialized in the "_1D" class the whole class would need 
+// to be specialized for float...
+/*
+template <class ELEMTYPE>
+class histogram_1Dfloat : public histogram_1D<float>
+{
+	void resize_to_fit_data(); //Make sure alla integer values have a bucket, JK - Should maybe be protected...
+
+};
+*/
 
 class histogram_2D_plot : public histogram_base  //TEST: histographic plot
     {

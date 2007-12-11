@@ -311,6 +311,8 @@ bool image_general<ELEMTYPE, IMAGEDIM>::try_single_loader(std::string s) //! hel
 		this->initialize_dataset(new_image->datasize[0],new_image->datasize[1], new_image->datasize[2]);
 		copy_data(new_image,this);
 		this->set_parameters(new_image);
+		this->from_file(true);
+
 		delete new_image;
 		return true;
 	}
@@ -332,6 +334,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_file_to_this(std::string f)	//loads
 	    //rawimporter::create(chosen_files);
 
 		pt_error::error_if_false(success,"image_general-load_file_to_this - FAIL",pt_error::serious);
+	}else{
+		pt_error::error("image_general-load_file_to_this - file does not exist... \n("+f+")",pt_error::debug);
 	}
 }
 
@@ -1088,6 +1092,19 @@ float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) c
     return static_cast<float>(get_voxel (x, y, z));
     }
 
+template <class ELEMTYPE, int IMAGEDIM>
+histogram_1D<ELEMTYPE>* image_general<ELEMTYPE, IMAGEDIM>::get_histogram_from_masked_region_3D(image_binary<3>* mask)
+{
+	cout<<"get_histogram_from_masked_region_3D..."<<endl;
+	image_storage<unsigned char>* tmp;
+	tmp = dynamic_cast<image_storage<unsigned char>*>(mask);
+	unsigned char *v_bin = tmp->begin().pointer();
+//	ELEMTYPE *v_bin = tmp->begin().p->begin().pointer();
+
+	histogram_1D<ELEMTYPE> *stats_masked = new histogram_1D<ELEMTYPE>(this, tmp, 100);
+	return stats_masked;
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_by_dir(int u, int v, int w, int direction)
@@ -1280,9 +1297,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::I
     itk_orientation=i->GetDirection();
 
 //	JK-öööö
-	cout<<"image_general<ELEMTYPE, IMAGEDIM>::set_parameters - i->GetDirection()=";
-	cout<<endl;
-	cout<<i->GetDirection()<<endl;
+//	cout<<"image_general<ELEMTYPE, IMAGEDIM>::set_parameters - i->GetDirection()=";
+//	cout<<endl;
+//	cout<<i->GetDirection()<<endl;
 
     //float spacing_min_norm=static_cast<float>(itk_vox_size[0]);
     for (unsigned int d=0;d<IMAGEDIM;d++)

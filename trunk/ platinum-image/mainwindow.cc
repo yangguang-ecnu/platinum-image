@@ -59,6 +59,13 @@ window.show(argc, argv);
 return Fl::run();
 }*/
 
+void close_program_callback(Fl_Widget *callingwidget, void *data){
+	std::cout<<"close_program_callback..."<<std::endl;
+	datamanagement.FLTK_running(false);
+	exit(1);
+}
+
+
 void platinum_init ()
 
     {
@@ -123,6 +130,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     //set up the window;
     window.size (win_w,win_h);
     window.resizable(&window);
+	window.callback(close_program_callback);
     
     Fl_Pack * viewsNstatusStack = new Fl_Pack(0,0,win_w,win_h);
     viewsNstatusStack->type(FL_VERTICAL);
@@ -190,6 +198,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     
     window.resizable(viewsNlists);
     window.end();
+
 
 	//Initialize config file (.inp)... Try reading / create a new default if non-existing!
 	pt_config::initialize();

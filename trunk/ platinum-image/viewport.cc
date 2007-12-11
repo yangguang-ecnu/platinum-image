@@ -125,10 +125,18 @@ viewport::~viewport()
     
     if (rgbpixmap != NULL)
         {delete[] rgbpixmap; }
-    
-    if (imagemenu_button != NULL) //objects menu has user data which was allocated in line 542
-        { fl_menu_userdata_delete (renderermenu_button->menu()); }
+
+// Following two lines give an error when exiting the program... 
+// A likely cause is that the FLTK object has already been deleted when we try to 
+	if(datamanagement.FLTK_running())
+	{
+		if (imagemenu_button != NULL) //objects menu has user data which was allocated in line 542
+		{
+			fl_menu_userdata_delete (renderermenu_button->menu()); 
+		}
+	}
 }
+
 
 void viewport::connect_renderer(int rID)
 {

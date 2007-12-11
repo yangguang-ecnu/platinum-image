@@ -33,7 +33,6 @@
 class image_base;
 
 #include "image_base.h"
-
 #include "histogram.h"
 #include "transfer.h"
 
@@ -59,31 +58,15 @@ class image_storage : public image_base
         //to reject unsuitable choices
 
         virtual void transfer_function(std::string functionName); //! replace transfer function using string identifier
-
         void set_stats_histogram(histogram_1D<ELEMTYPE > * h);
 
         // *** Image data pointer ***
+        ELEMTYPE *dataptr;
+        ELEMTYPE *imagepointer();
+		void imagepointer(ELEMTYPE * new_value);
+        void deallocate ();
 
-        ELEMTYPE * dataptr;
-
-        ELEMTYPE * imagepointer()
-            {
-            //pt_error::error_if_null (dataptr,"Attempting to access datapointer while it is NULL", pt_error::fatal );
-            
-            return (dataptr); 
-            }
-
-        void imagepointer(ELEMTYPE * new_value)
-            {
-            dataptr = new_value;
-            }
-        
-        void deallocate ()
-            {
-            delete dataptr;
-            }
-
-        unsigned long num_elements;        //image size in # pixels/voxels
+		unsigned long num_elements;        //image size in # pixels/voxels
 
 
     public:
@@ -94,22 +77,16 @@ class image_storage : public image_base
         ELEMTYPE get_max() const;
         ELEMTYPE get_min() const;
 
-		//JK - A ".cc" file needs to be created... and following three bodies should be moved...
-        ELEMTYPE get_num_values()
-            { return stats->num_values(); }
-        histogram_1D<ELEMTYPE> * get_histogram()
-            {
-            pt_error::error_if_null(stats,"Trying to get_histogram() which is NULL");
-            return stats;
-            }
-
-		histogram_1D<ELEMTYPE> * get_new_histogram()
+        ELEMTYPE get_num_values();
+        histogram_1D<ELEMTYPE> * get_histogram();
+/*		histogram_1D<ELEMTYPE> * get_new_histogram()
             {
 				ELEMTYPE minimum=1000, maximum=-1000;
 				get_min_max_values(minimum, maximum);
 				return new histogram_1D<ELEMTYPE>(this,int(maximum-minimum));
             }
-        virtual void data_has_changed(bool stats_refresh = true) = 0;   
+  */
+		virtual void data_has_changed(bool stats_refresh = true) = 0;   
         void stats_refresh(bool min_max_refresh = false);
         void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
                                     //! for use inside processing functions

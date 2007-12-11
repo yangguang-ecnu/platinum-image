@@ -44,7 +44,7 @@ void histogram_1D<ELEMTYPE >::image (int vol)
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
 {
-//	cout<<"void histogram_1D<ELEMTYPE>::resize("<<newNum<<")"<<endl;
+	cout<<"void histogram_1D<ELEMTYPE>::resize("<<newNum<<")"<<endl;
 
     this->num_buckets = newNum;
 
@@ -58,6 +58,22 @@ void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
 	//resize() is called from the constructor
     calculate();	
 }
+
+
+template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::resize_to_fit_data()
+{
+	cout<<"histogram_1D<ELEMTYPE>::resize_to_fit_data()"<<endl;
+
+}
+
+/*
+template <>
+void histogram_1Dfloat<float>::resize_to_fit_data()
+{
+	cout<<"histogram_1Dfloat<float>::resize_to_fit_data()"<<endl;
+}
+*/
 
 template <class ELEMTYPE>
 histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> * i, int num_buckets):histogram_typed<ELEMTYPE>()
@@ -80,6 +96,137 @@ histogram_1D<ELEMTYPE>::histogram_1D (ELEMTYPE * start,ELEMTYPE * end ):histogra
     //these histograms are typically used for stats
     resize (256);
 }
+
+//TODO - JK2 make this work...
+template <class ELEMTYPE>
+histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image_storage<unsigned char> *image_bin_mask, int num_buckets):histogram_typed<ELEMTYPE>()
+{
+	cout<<"histogram_1D...masked..."<<endl;
+
+	if(num_buckets >=0){
+		this->num_buckets = num_buckets;
+		if(this->buckets!=NULL){
+			delete this->buckets;
+		}
+		this->buckets=new unsigned long [this->num_buckets];
+	}else{
+		pt_error::error("histogram_1D - constructor(masked) - num_buckets=strange...",pt_error::debug);
+	}
+	this->num_distinct_values = 0;
+	this->bucket_max=0;
+
+	//get pointer to source data
+	if (this->i_start == NULL)
+	{
+		this->i_start = image_data->begin().pointer();
+		this->i_end = image_data->end().pointer();
+	}
+
+	this->readytorender=(this->i_start != NULL);
+
+	if (this->readytorender)
+	{
+		//reset buckets
+
+		for (unsigned short i = 0; i < this->num_buckets; i++)
+		{
+			this->buckets[i]=0;
+		}
+
+
+		ELEMTYPE *v; //voxel
+		ELEMTYPE v_min = std::numeric_limits<ELEMTYPE>::max();
+		ELEMTYPE v_max = std::numeric_limits<ELEMTYPE>::min();
+		unsigned char *v_bin;
+
+		for( v = this->i_start, v_bin = image_bin_mask->begin().pointer(); (v != this->i_end) && (v_bin != image_bin_mask->end().pointer()); ++v, ++v_bin){
+			if(*v_bin>0){
+				if(*v > v_max){
+					v_max = *v;
+				}
+				if(*v < v_min){
+					v_min = *v;
+				}
+			}
+		}
+		cout<<"v_min="<<v_min<<endl;
+		cout<<"v_max="<<v_max<<endl;
+
+		float scalefactor = float(v_max-v_min)/float(this->num_buckets-1); //JK-hist
+		cout<<"scalefactor="<<scalefactor<<endl;
+
+		unsigned short bucketpos;
+
+//		for (v = this->i_start;v != this->i_end;++v)
+		int nr=0;
+		for( v = this->i_start, v_bin = image_bin_mask->begin().pointer(); (v != this->i_end) && (v_bin != image_bin_mask->end().pointer()); ++v, ++v_bin){
+			if(*v_bin>0){
+				nr++;
+				bucketpos=(*v - v_min)/scalefactor;
+
+				//NOT VERY good to write outside allocated memory
+				if(bucketpos>=0 && bucketpos<this->num_buckets){	
+
+
+					//---------------------------------------
+					//------------ PRINT --------------------
+					//---------------------------------------
+					cout<<endl;
+					for (unsigned short i = 0; i < this->num_buckets; i++){
+						cout<<this->buckets[i]<<" ";
+					}
+					cout<<endl;
+					//---------------------------------------
+					//------------ PRINT --------------------
+					//---------------------------------------
+
+
+					//calculate distinct value count
+					if (this->buckets[bucketpos] == 0)
+					{this->num_distinct_values++;}
+
+					//increment bucket 
+					this->buckets[bucketpos]++;
+
+					//update bucket_max
+					if (*v != 0 &&  *v != 1) //! feature: ignore 0 and true to get more sensible display scaling
+					{ this->bucket_max=std::max(this->buckets[bucketpos],this->bucket_max); }
+
+					//calculate min/max
+					this->min_value = std::min (this->min_value,*v);
+					this->max_value = std::max (this->max_value,*v);
+				}else{
+					pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
+					cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
+				}
+			}
+		}
+
+		cout<<"nr="<<nr<<endl;
+
+
+		this->bucket_mean=0;
+		for (unsigned short i = 0; i < this->num_buckets; i++)
+		{
+			this->bucket_mean+=this->buckets[i]/(this->num_buckets);
+		}
+
+		//if # buckets are less than # values, distinct value count will be incorrect
+		if (this->num_buckets < std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())
+		{this->num_distinct_values = 0;}
+	}
+	
+	else
+	{
+		//no calculation was done, set sensible values
+		this->max_value = std::numeric_limits<ELEMTYPE>::max(); 
+		this->min_value = std::numeric_limits<ELEMTYPE>::min();
+	}
+}
+
+template <class ELEMTYPE>
+histogram_1D<ELEMTYPE >::~histogram_1D ()
+{}
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
@@ -126,8 +273,8 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 
         //ready to calculate, actually
 
-        float typeMax = std::numeric_limits<ELEMTYPE>::max();
-        float typeMin = std::numeric_limits<ELEMTYPE>::min();
+//        float typeMax = std::numeric_limits<ELEMTYPE>::max();
+  //      float typeMin = std::numeric_limits<ELEMTYPE>::min();
 
         float scalefactor = float(this->max()-this->min())/float(this->num_buckets-1); //JK-hist
 
@@ -156,8 +303,8 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 				this->min_value = std::min (this->min_value,*voxel);
 				this->max_value = std::max (this->max_value,*voxel);
 			}else{
-//				pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
-//				cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
+				pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
+				cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
 			}
 		}
 
