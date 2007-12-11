@@ -56,10 +56,9 @@ class datamanager
         std::vector<data_base* > dataItems;
         //std::vector<point_base*> vectors;
 
-        bool closing;                           //whether destructor has been called, meaning
-                                                //among other things that all FLTK widgets are
-                                                //already dead
         friend class rendercombination;
+
+		bool closing_program;	//Destructor has been called, --> all FLTK widgets are already dead
 
         horizresizeablescroll *data_widget_box;  //widget that lists the datawidgets.
                                                  //Has to be available for adding and removing entries
@@ -81,6 +80,7 @@ class datamanager
                                                     //list information has been updated
         void loadimage_setup();
         void listimages();
+        void FLTK_running(bool running);
         bool FLTK_running();        //when datamanager destructor is called,
                                     //the window is closed and all FLTK widgets (including
                                     //the data_widget_box) have been deleted.

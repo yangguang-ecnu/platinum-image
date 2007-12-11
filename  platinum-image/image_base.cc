@@ -187,6 +187,16 @@ Vector3D image_base::world_to_voxel( const Vector3D & wpos ) const
 	return vpos;
 }
 
+
+imageloader::imageloader(std::vector<std::string> * f)
+{
+	files = f;
+}
+
+imageloader::~imageloader()
+{ }
+
+
 Vector3D image_base::voxel_to_world( const Vector3D & vpos ) const
 {
 	Vector3D wpos;

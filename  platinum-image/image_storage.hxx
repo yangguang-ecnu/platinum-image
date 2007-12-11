@@ -99,6 +99,26 @@ void image_storage<ELEMTYPE >::set_stats_histogram(histogram_1D<ELEMTYPE > * h)
     stats = h;
     }
 
+
+template <class ELEMTYPE >
+ELEMTYPE * image_storage<ELEMTYPE >::imagepointer()
+{
+//pt_error::error_if_null (dataptr,"Attempting to access datapointer while it is NULL", pt_error::fatal );
+return (dataptr); 
+}
+
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::imagepointer(ELEMTYPE * new_value)
+{
+	dataptr = new_value;
+}
+
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::deallocate ()
+{
+	delete dataptr;
+}
+
 template <class ELEMTYPE >
 image_storage<ELEMTYPE >::image_storage() : image_base ()
     {
@@ -176,6 +196,19 @@ ELEMTYPE image_storage<ELEMTYPE >::get_max() const
     {
     return stats->max();
     }
+
+template <class ELEMTYPE >
+ELEMTYPE image_storage<ELEMTYPE >::get_num_values()
+{ 
+	return stats->num_values(); 
+}
+
+template <class ELEMTYPE >
+histogram_1D<ELEMTYPE> * image_storage<ELEMTYPE >::get_histogram()
+{
+	pt_error::error_if_null(stats,"Trying to get_histogram() which is NULL");
+	return stats;
+}
 
 
 template <class ELEMTYPE >

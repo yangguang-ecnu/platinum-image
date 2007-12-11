@@ -108,8 +108,14 @@ std::string path_end (std::string file_path)
 std::string path_parent (std::string file_path)
     {
     unsigned int pos;
-    
+
+	//try "/"
     pos=file_path.rfind("/",file_path.length()-1);
+
+	//try "\" (Windows paths might use these)
+	if(pos ==std::string::npos){
+	   pos=file_path.rfind("\\",file_path.length()-1);
+	}
     
     if (pos !=std::string::npos)
         {

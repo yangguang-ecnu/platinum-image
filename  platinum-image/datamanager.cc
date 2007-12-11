@@ -79,12 +79,12 @@ datamanager::datamanager()
     point_menu = NULL;
     rebuild_point_menu();
     
-    closing = false;
+    closing_program = false;
 }
 
 datamanager::~datamanager()
     {
-    closing = true;
+    closing_program = true;
 
     for (unsigned int i=0; i < dataItems.size(); i++)
         { delete dataItems[i]; }
@@ -513,9 +513,14 @@ int datamanager::last_image()
     return dataItems.back()->get_id();
     }
 
+void datamanager::FLTK_running(bool running)
+	{
+	closing_program = !running;
+	}
+
 bool datamanager::FLTK_running ()
     {
-    return !closing;
+    return !closing_program;
     }
 
 void datamanager::add_datawidget(datawidget_base * data_widget)
@@ -561,13 +566,10 @@ void datamanager::data_has_changed (int dataID, bool recalibrate)
 
 void datamanager::data_vector_has_changed()
 {
-	
-	if ( closing != true )
-	{	// the application is not closing
+	if ( FLTK_running() ) // i.e. the application is not closing
+	{	
 		rebuild_objects_menu();
-
 		rendermanagement.data_vector_has_changed();
-
 		userIOmanagement.data_vector_has_changed();
 	}
 }

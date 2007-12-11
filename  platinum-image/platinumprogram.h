@@ -32,5 +32,7 @@ extern rendermanager rendermanagement;
 extern viewmanager viewmanagement;
 extern userIOmanager userIOmanagement;
 
+
+static void close_program_callback(Fl_Widget *callingwidget, void *data);
 void platinum_init ();
 void platinum_setup (Fl_Window & window, int num_viewports_h = 2, int num_viewports_v = 2,int tool_area_w = 250);

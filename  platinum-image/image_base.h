@@ -140,12 +140,8 @@ class imageloader
 protected:
     std::vector<std::string> * files;
 public:
-    imageloader(std::vector<std::string> * f)
-        {
-        files = f;
-        }
-    ~imageloader()
-        { }
+    imageloader(std::vector<std::string> * f);
+    ~imageloader();
 };
 
 

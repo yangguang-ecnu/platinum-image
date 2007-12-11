@@ -79,11 +79,8 @@ class data_base
             }
 
         virtual void redraw () = 0;
-        virtual void data_has_changed (bool) {}
-        
-        int get_id()
-            { return ID; }
-        
+        virtual void data_has_changed (bool);
+        int get_id();
         void activate();
 
 		// *** Metadata ***
@@ -91,7 +88,6 @@ class data_base
 
         virtual void name (const std::string n);          //set name
         virtual const std::string name () const;          //get name
-        
         bool from_file();
         void from_file(bool f); //set "from file" status
         virtual void save_to_DCM_file(const std::string) = 0;

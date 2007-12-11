@@ -39,6 +39,7 @@
 
 class threshold_overlay;
 class thresholdparvalue;
+//extern datamanager datamanagement;
 
 #define NO_RENDERER_ID 0
 
