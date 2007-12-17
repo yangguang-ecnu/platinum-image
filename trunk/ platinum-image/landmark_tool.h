@@ -1,4 +1,3 @@
-//AF
 
 #include "viewporttool.h"
 #include "userIO.h"

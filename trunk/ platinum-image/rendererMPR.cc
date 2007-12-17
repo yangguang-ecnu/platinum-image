@@ -447,7 +447,6 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         point *pointPointer = dynamic_cast<point *> (pairItr->pointer);
 				
 				
-		//AF		
 		if ( !dynamic_cast<point *> (pairItr->pointer) )
 		{	// Not a point
 			if ( point_collection * points = dynamic_cast<point_collection *> (pairItr->pointer) )
@@ -509,7 +508,6 @@ void rendererMPR::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int
 
 }
 
-//AF
 void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D point, std::vector<int> on_spot_rgb)
 {
 

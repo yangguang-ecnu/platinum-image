@@ -325,26 +325,26 @@ dicomloader::dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type): i
 
 
 image_base * dicomloader::read()
-{    
+{
 	image_base * result = NULL;
 
 	for (std::vector<std::string>::const_iterator file = files->begin();file != files->end() && result == NULL;file++){ // Repeat until one image has been read
-		if (dicomIO->CanReadFile (file->c_str())){
-
+		if ( dicomIO->CanReadFile (file->c_str()) )
+		{
 			dicomIO->SetFileName(file->c_str());
 			dicomIO->ReadImageInformation();	//get basic DICOM header
 			std::string seriesIdentifier;		//get series UID
-
 			//"0020|000e" - Series Instance UID (series defined by the scanner) series 
 			//ID identifies the series (out of possibly multiple series in one directory)
 			std::string tagkey = "0020|000e";
-
+			
 			std::string labelId;
+			
 			if( itk::GDCMImageIO::GetLabelFromTag( tagkey, labelId ) ){
 				//std::cout << labelId << " (" << tagkey << "): ";
 				if( dicomIO->GetValueFromTag(tagkey, seriesIdentifier) ){
 					seriesIdentifier = seriesIdentifier.c_str();	// remove one garbage char at end (this is probably not a very good solution)
-					// TODO: find out why this "garbage character" exist. 
+					//TODO: find out why this "garbage character" exist. 
 
 					//check if another file in the same series was part of the selection (and loaded)
 					std::vector<string>::const_iterator series_itr=loaded_series.begin();
@@ -435,6 +435,7 @@ image_base * dicomloader::read()
 
 		files->clear(); //! if at least one file can be read, the rest are assumed to be part of the same series (or otherwise superfluos)
 	}
+
 }
 
 return result;
@@ -882,6 +883,9 @@ void image_base::try_loader (std::vector<std::string> * f) //! helper for image_
 
 void image_base::load( std::vector<std::string> f)	//loads all files and adds them to datamanagement...
     {
+	
+	userIOmanagement.progress_update( 1, "Loading image(s)...", 1 );
+	
     std::vector<std::string> chosen_files(f);
     
     //try Analyze obj   //loads all images it can and removes "them" from the vector
@@ -905,4 +909,7 @@ void image_base::load( std::vector<std::string> f)	//loads all files and adds th
 
         rawimporter::create(chosen_files);
         }
+
+	userIOmanagement.progress_update();
+	
     }

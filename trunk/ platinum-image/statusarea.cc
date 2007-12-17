@@ -59,10 +59,10 @@ statusarea::statusarea(int X, int Y, int W, int H, const char *L)
         o->maximum(0);
     }
 
-position(X, Y);
-end();
+	position(X, Y);
+	end();
 
-message("Platinum $Revision: 305 $");
+	message("Platinum $Revision: 305 $");	//TODO: the revision should be updated automatically
 }
 
 void statusarea::message (const std::string m)

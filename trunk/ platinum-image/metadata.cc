@@ -217,7 +217,6 @@ float metadata::get_flip()
 	return get_data_float(DCM_FLIP);
 }
 
-//AF
 std::string metadata::get_name()
 {
 	std::vector<std::string> name;
@@ -353,7 +352,6 @@ void metadata::print_string(string key)
 	cout<<key<<" --> "<<get_data_string(key)<<endl;
 }
 
-//AF
 std::string base_int::get_data_as_string ( std::string key )
 {
 	stringstream ss;
@@ -361,7 +359,6 @@ std::string base_int::get_data_as_string ( std::string key )
 	return ss.str();
 }
 
-//AF
 std::string base_float::get_data_as_string ( std::string key )
 {
 	stringstream ss;
@@ -369,7 +366,6 @@ std::string base_float::get_data_as_string ( std::string key )
 	return ss.str();
 }
 
-//AF
 std::string base_string::get_data_as_string ( std::string key )
 {
 	return value;

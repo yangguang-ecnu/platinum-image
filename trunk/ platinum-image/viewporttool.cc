@@ -23,7 +23,7 @@
 #include "datamanager.h"
 #include "rendermanager.h"
 #include "userIOmanager.h"
-#include "landmark_tool.h"			//AF
+#include "landmark_tool.h"
 
 
 extern viewmanager viewmanagement;
@@ -67,7 +67,7 @@ void viewporttool::init (int posX, int posY,statusarea * s)
     //viewporttool::Register<dummy_tool>();
     viewporttool::Register<cursor_tool>();
     viewporttool::Register<histo2D_tool>();
-	viewporttool::Register<landmark_tool>();	//AF
+	viewporttool::Register<landmark_tool>();
     
     selected = "Navigation";
     
@@ -153,6 +153,26 @@ void viewporttool::select (const std::string key)
         }  
 }
 
+void viewporttool::select_and_disable_remaining( const std::string key )
+{
+    selected = key;
+
+	int nc = toolbox->children();
+	for ( int c = 0; c < nc; c++ )
+	{
+        Fl_Button * b = dynamic_cast< Fl_Button * >(toolbox->child(c));
+
+		if ( *(reinterpret_cast<const std::string *>(b->user_data())) == key )
+		{
+            b->setonly();
+		}
+		else
+		{
+			b->deactivate();
+		}
+	}  
+}
+
 viewporttool * viewporttool::taste(viewport_event & event,viewport * vp,renderer_base * r)
 {
     viewporttool * result = tools[selected](event);
@@ -191,7 +211,7 @@ nav_tool::nav_tool (viewport_event & event):viewporttool(event)
     {    
     //a tool constructor has to respond to the type of events it accepts by grabbing them,
     //or it won't be created
-    if (event.type() == pt_event::hover || event.type() == pt_event::browse || event.type() == pt_event::adjust || event.type() == pt_event::scroll || event.type() == pt_event::key )
+    if (event.type() == pt_event::hover || event.type() == pt_event::browse || event.type() == pt_event::adjust || event.type() == pt_event::scroll || event.type() == pt_event::key || event.type() == pt_event::focus_viewports)
         {event.grab();}
     }
 
@@ -208,62 +228,61 @@ void nav_tool::handle(viewport_event &event)
 
 	FLTKviewport * fvp = event.get_FLTK_viewport();
 
-    if ( event.state() == pt_event::begin)
+    if ( event.state() == pt_event::begin )
 	{
         event.grab();
         		
         dragLast[0] = event.mouse_pos_global()[0];
         dragLast[1] = event.mouse_pos_global()[1];
-		
-		if ( event.type() == pt_event::focus )
-		{
-			if ( rendermanagement.get_combination(myRenderer->combination_id())->top_image() != NULL )
-			{	// there is an image in current viewport
-			
-				// The coordinate of the mouse pointer in the current viewport is shown in the other viewports
-				// (if there is at least one image in the viewport)
-				// TODO: implement a drop-down menu for each viewport where the user can set which viewports it should connect with.
-	
-				std::vector<int> mouse2d = event.mouse_pos_local();
-				Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
-				viewmanagement.show_point_by_combination ( mouse3d, myRenderer->combination_id() );
-			}
-		}
-
     }
+
+	if ( event.type() == pt_event::focus_viewports )
+	{	// double click
+		if ( rendermanagement.get_combination(myRenderer->combination_id())->top_image() != NULL )
+		{	// there is an image in current viewport
+		
+			// The coordinate of the mouse pointer in the current viewport is shown in the other viewports
+			// (if there is at least one image in the viewport)
+			// TODO: implement a drop-down menu for each viewport where the user can set which viewports it should connect with.
+
+			std::vector<int> mouse2d = event.mouse_pos_local();
+			Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
+			viewmanagement.show_point_by_combination ( mouse3d, myRenderer->combination_id() );
+		}
+	}
     
     if (!event.handled())
-        {
-
+	{
+		
         const int * pms = myPort->pixmap_size();
         int viewSize = std::min(pms[0],pms[1]);
         //const float pan_factor=renderer_base::display_scale/(std::min(pms[0],pms[1]));
         const int * mouse = event.mouse_pos_global();
                 
         switch (event.type())
-            {
+		{
 			
             case pt_event::browse:	// pan
                 if ( event.state() == pt_event::iterate)
-                    {
+				{
                     event.grab();
                     
                     myRenderer->move_view(viewSize,-(mouse[0]-dragLast[0]),-(mouse[1]-dragLast[1]));
                     
                     fvp->needs_rerendering();
-                    }
-                break;
+				}
+			break;
                 
             case pt_event::adjust:	// zoom
                 if ( event.state() == pt_event::iterate)
-                    {
+				{
                     event.grab();
                     
                     myRenderer->move_view(viewSize,0,0,0,1+(mouse[1]-dragLast[1])*zoom_factor);
                     
                     fvp->needs_rerendering();
-                    }					
-                break;
+				}					
+			break;
                 
 			case pt_event::rotate:
 				if ( event.state() == pt_event::iterate )
@@ -299,11 +318,11 @@ void nav_tool::handle(viewport_event &event)
 						// och en metod som roterar bild kring dess origin (ändrar endast orientation)
 					
 												
-						//rendermanagement.center_and_fit ( myRenderer->get_id(), top );
+						// rendermanagement.center_and_fit ( top );
 						
 					}
 				}
-				break;
+			break;	// end of pt_event::rotate
 				
             case pt_event::scroll:	// pan in z-direction
                 if ( event.state() == pt_event::iterate)
@@ -316,102 +335,86 @@ void nav_tool::handle(viewport_event &event)
 
 					refresh_by_image_and_direction();
 				}
-                //NOTE: no break, update hovering also
+			//NOTE: no break, update hovering also
+				
             case pt_event::hover:
                 //display values
                 switch (event.state() )
-                    {
+				{
                     case pt_event::begin:
                     case pt_event::iterate:
-                        {
-                            event.grab();
-                            
-                            std::vector<int> lmouse = event.mouse_pos_local();
-                            
-                            numbers.str("");
-                            
-                            //get values and update statusfield
-                            
-                            const std::map<std::string, float>values=myRenderer->get_values_view(lmouse[0],lmouse[1],fvp->w(),fvp->h());
+					{
+						event.grab();
+						
+						std::vector<int> lmouse = event.mouse_pos_local();
+						
+						numbers.str("");
+						
+						//get values and update statusfield
+						
+						const std::map<std::string, float> values = myRenderer->get_values_view( lmouse[0], lmouse[1], fvp->w(), fvp->h() );
 
-                            if (values.empty())
-                                {
-                                userIOmanagement.interactive_message();
-                                }
-                            else
-                                {
-                                for (std::map<std::string,float>::const_iterator itr = values.begin(); itr != values.end();itr++)
-                                    {
-                                    if (itr != values.begin())
-                                        { numbers << "; ";}
-                                    else
-                                        {numbers << "Value(s) ";}
-                                    numbers << itr->first << ": " << itr->second;
-                                    }
-                                
-                                userIOmanagement.interactive_message(numbers.str());
-                                }
-                        }
-                        break;
+						if (values.empty())
+						{
+							userIOmanagement.interactive_message();
+						}
+						else
+						{
+							for (std::map<std::string,float>::const_iterator itr = values.begin(); itr != values.end();itr++)
+							{
+								if (itr != values.begin())
+									{ numbers << "; "; }
+								else
+									{ numbers << "Value(s) "; }
+								numbers << itr->first << ": " << itr->second;
+							}
+							userIOmanagement.interactive_message(numbers.str());
+						}
+					}
+					break;
+					
                     case pt_event::end:	// leaving a viewport
                         event.grab();
                         userIOmanagement.interactive_message();
-                        break;
+					break;
                         
-                    }
-                break;
-
-            case pt_event::key:
-                
-				if ( event.key_combo( pt_event::space_key ) )
-				{
-					event.grab();
-	
-					image_base * top;
-					if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
-					{	// there is an image in current viewport			
-						rendermanagement.center_and_fit ( myRenderer->get_id(), top );
-						refresh_by_image_and_direction();
-					}
 				}
-				
+			break;
+
+            case pt_event::key:				
                 if (event.key_combo(pt_event::pageup_key))
 				{
                     event.grab();
-                    
-					if ( rendermanagement.renderer_empty(myRenderer->get_id()) == RENDERER_NOT_EMPTY )
-					{ 
-						myRenderer->move_voxels (0,0,-1);
-						refresh_by_image_and_direction();
-					}
+					move_voxels( 0, 0, -1 );
 				}
 				
                 if (event.key_combo(pt_event::pagedown_key))
 				{
                     event.grab();
-                    
-					if ( rendermanagement.renderer_empty(myRenderer->get_id()) == RENDERER_NOT_EMPTY )
-					{ 
-						myRenderer->move_voxels (0,0,1);
-						refresh_by_image_and_direction();
-					}
+					move_voxels( 0, 0, 1 );
 				}
                 
                 if (event.handled())
-                    {
+				{
                     fvp->needs_rerendering();
-                    }
-                break;
-            }
+				}
+				
+				if ( event.key_combo( pt_event::space_key ) )
+				{
+					event.grab();
+					center_and_fit();
+				}			
+			break;
+		}
         
         if (event.state() == pt_event::end)
-            {
+		{
 
-            }
+		}
         
         dragLast[0] = mouse[0];
         dragLast[1] = mouse[1];
-        }
+	}
 }
 
 void nav_tool::refresh_by_image_and_direction()
@@ -423,6 +426,25 @@ void nav_tool::refresh_by_image_and_direction()
 	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
 	{
 		viewmanagement.refresh_viewports_from_geometry( *itr ) ;
+	}
+}
+
+void nav_tool::move_voxels( int x, int y, int z )
+{
+	if ( rendermanagement.renderer_empty(myRenderer->get_id()) == RENDERER_NOT_EMPTY )
+	{ 
+		myRenderer->move_voxels( x, y, z);
+		refresh_by_image_and_direction();
+	}
+}
+
+void nav_tool::center_and_fit()
+{
+	image_base * top;
+	if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
+	{	// there is an image in current viewport			
+		rendermanagement.center_and_fit ( myRenderer->get_id(), top );
+		refresh_by_image_and_direction();
 	}
 }
 

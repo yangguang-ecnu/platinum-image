@@ -48,7 +48,7 @@ class viewmanager
         
         int viewportmapping[MAXVERTICALGRID][MAXHORIZONTALGRID][MAXVIRTUALVIEWS];
         int noofvirtualviews;
-        int noofhorizontaltiles[MAXVIRTUALVIEWS]; // x- & y-storlek fˆr grid
+        int noofhorizontaltiles[MAXVIRTUALVIEWS]; // x- & y-storlek för grid
         int noofverticaltiles[MAXHORIZONTALGRID][MAXVIRTUALVIEWS];
         float tilewidthpercent[MAXVIRTUALVIEWS][MAXHORIZONTALGRID];
         float tileheightpercent[MAXVIRTUALVIEWS][MAXHORIZONTALGRID][MAXVERTICALGRID];

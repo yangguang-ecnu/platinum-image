@@ -197,6 +197,12 @@ int userIOmanager::add_par_image(int userIO_ID, std::string new_param_name)
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_image (new_param_name);
     return block_from_ID(userIO_ID)->add_par(par);
     }
+	
+int userIOmanager::add_par_image_button( int userIO_ID, std::string new_param_name )
+{
+    FLTKuserIOparameter_base * par = new FLTKuserIOpar_image_button( new_param_name );
+    return block_from_ID( userIO_ID )->add_par( par );
+}
 
 int userIOmanager::add_par_points(int userIO_ID, std::string new_param_name)
 {
@@ -233,12 +239,17 @@ void userIOmanager::data_vector_has_changed()
         }
     }
 
-void userIOmanager::select_tool (std::string key)
+void userIOmanager::select_tool ( const std::string key )
 {
     viewporttool::select(key);
     userIOmanagement.status_area->switch_pane(key);
     
     viewmanagement.refresh_viewports_after_toolswitch();  
+}
+
+void userIOmanager::select_tool_and_disable_remaining( const std::string key )
+{
+	viewporttool::select_and_disable_remaining( key );
 }
 
 std::vector<FLTKuserIOpar_histogram2D *> userIOmanager::get_histogram_for_image (int imageID)
@@ -267,7 +278,7 @@ std::vector<FLTKuserIOpar_histogram2D *> userIOmanager::get_histogram_for_image 
     }
 	
 
-//AF --- private ---
+// --- private ---
 FLTKuserIOpar_landmarks * userIOmanager::get_landmarks(int userIO_ID)
 {
 	FLTKuserIOpar_landmarks * landmarks;

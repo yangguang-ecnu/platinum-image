@@ -1,4 +1,4 @@
-//AF
+
 #include <iomanip>
 
 #include "landmark_tool.h"
@@ -19,9 +19,9 @@ extern userIOmanager userIOmanagement;
 int landmark_tool::userIO_ID = -1;
 //int landmark_tool::point_collection_ID = -1;
 
-landmark_tool::landmark_tool(viewport_event & event) : nav_tool(event) //viewporttool(event)
+landmark_tool::landmark_tool(viewport_event & event) : nav_tool(event)
 {
-	if (event.type() == pt_event::create || event.type() == pt_event::hover)
+	if (event.type() == pt_event::create || event.type() == pt_event::hover || event.type() == pt_event::hover || event.type() == pt_event::key )
 	{
         event.grab();
 	}
@@ -145,18 +145,40 @@ void landmark_tool::handle(viewport_event &event)
 				viewmanagement.show_point_by_data ( mouse3d, point_collection_ID );
 
 			}
-		break;	
+		break;	// end of pt_event::create
 		
-		// This event is handled exactly the same as in nav_tool but the code has to be duplicated here because there is no
-		// break after the pt_event::scroll in nav_tool and therefore the pt_event::hover is handled there if this event is
-		// not taken care of here.
+		case pt_event::key:
+			if ( event.key_combo(pt_event::pageup_key) )
+			{
+				event.grab();
+				move_voxels( 0, 0, -1 );				
+			}
+
+			if ( event.key_combo(pt_event::pagedown_key) )
+			{
+				event.grab();
+				move_voxels( 0, 0, 1 );
+			}
+			
+			if ( event.handled() )
+			{
+				fvp->needs_rerendering();
+			}
+
+			if ( event.key_combo( pt_event::space_key ) )
+			{
+				event.grab();
+				center_and_fit();
+			}
+		// NOTE: no break, update hovering also (scroll is ignored because there is no iterate event)
+		
 		case pt_event::scroll:
 			if ( event.state() == pt_event::iterate)
 			{
+				event.grab();
+
 				const int * pms = myPort->pixmap_size();
 				int viewSize = std::min(pms[0],pms[1]);
-
-				event.grab();
 				
 				myRenderer->move_view(viewSize,0,0,event.scroll_delta()*wheel_factor);
 				
@@ -164,21 +186,31 @@ void landmark_tool::handle(viewport_event &event)
 				
 				refresh_by_image_and_direction();
 			}
-			//NOTE: no break, update hovering also
+		//NOTE: no break, update hovering also
 
 		case pt_event::hover:
 			event.grab();	
 
-			Vector3D pos = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());			
+			Vector3D vpos = myRenderer->view_to_voxel(mouse2d[0], mouse2d[1],fvp->w(),fvp->h());
 
-			std::ostringstream oss;
-			oss.setf ( ios::fixed );
+			if ( vpos[0] < 0 ) // negative coordinates signify outside of (positive and negative) bounds
+			{
+				userIOmanagement.interactive_message();
+			}
+			else
+			{	// inside a non-empty viewport
+				Vector3D wpos = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
+				
+				std::ostringstream oss;
+				oss.setf ( ios::fixed );
 
-			oss << "World " << setprecision(1) << pos;
+				oss << "World " << setprecision(1) << wpos;
 
-			userIOmanagement.interactive_message( oss.str() );
-			
+				userIOmanagement.interactive_message( oss.str() );
+			}
 		break;
+		
+			
 	}
 
 

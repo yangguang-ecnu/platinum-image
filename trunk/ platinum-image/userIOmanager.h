@@ -46,7 +46,7 @@ class userIOmanager
         std::list<userIO *> IOblocks;
         userIO * block_from_ID(int IOblockID);
 
-		FLTKuserIOpar_landmarks * userIOmanager::get_landmarks(int userIO_ID);	//AF
+		FLTKuserIOpar_landmarks * userIOmanager::get_landmarks(int userIO_ID);
 		
         //void maintenance ();    //called on idle or other time, to cleanup deleted objects and such
 
@@ -79,8 +79,8 @@ class userIOmanager
         //add parameter to userIO block, return parameter number
 		int add_par_filepath(int userIO_ID, const std::string name, const std::string default_path="");
 		int add_par_coordinate3Ddisplay(int userIO_ID, std::string coord_name, std::string coord_type_name, Vector3D v);
-		int add_par_landmarks ( int userIO_ID, const std::string name ); //AF
-//		int add_par_landmarks(int userIO_ID, const std::string name,  const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, int landmarks_id); //AF
+		int add_par_landmarks ( int userIO_ID, const std::string name );
+//		int add_par_landmarks(int userIO_ID, const std::string name,  const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, int landmarks_id);
         int add_par_float(int userIO_ID, std::string new_param_name,float max=1,float min=0);
         int add_par_float_box(int userIO_ID, std::string new_param_name,float max=1,float min=0);
         int add_par_longint(int userIO_ID, std::string new_param_name,long max=255,long min=0);
@@ -89,6 +89,7 @@ class userIOmanager
 		int add_par_string(int userIO_ID, std::string new_param_name,std::string init_status = "");
 
         int add_par_image(int userIO_ID, std::string new_param_name);
+		int add_par_image_button( int userIO_ID, std::string new_param_name );
         int add_par_points(int userIO_ID, std::string new_param_name);
         int add_par_voxelseed(int userIO_ID, std::string new_param_name);
 
@@ -97,7 +98,8 @@ class userIOmanager
 
         template <class ptype>
             ptype get_parameter(int IOblockID, int num);
-        void select_tool (std::string);
+        void select_tool (const std::string);
+		void select_tool_and_disable_remaining( const std::string key );
 
         std::vector<FLTKuserIOpar_histogram2D *> get_histogram_for_image (int imageID);
 		

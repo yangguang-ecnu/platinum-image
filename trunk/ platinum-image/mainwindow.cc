@@ -59,12 +59,15 @@ window.show(argc, argv);
 return Fl::run();
 }*/
 
-void close_program_callback(Fl_Widget *callingwidget, void *data){
+void close_program_callback(Fl_Widget *callingwidget, void *data)
+{
+	if ( Fl::event() == FL_SHORTCUT && Fl::event_key() == pt_event::escape_key )
+		{ return; }	// ignore [esc]
+
 	std::cout<<"close_program_callback..."<<std::endl;
 	datamanagement.FLTK_running(false);
-	exit(1);
+	exit( EXIT_SUCCESS );	// terminates the program normally
 }
-
 
 void platinum_init ()
 
@@ -130,6 +133,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     //set up the window;
     window.size (win_w,win_h);
     window.resizable(&window);
+
 	window.callback(close_program_callback);
     
     Fl_Pack * viewsNstatusStack = new Fl_Pack(0,0,win_w,win_h);

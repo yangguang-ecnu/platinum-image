@@ -117,7 +117,7 @@ void userIO::data_vector_has_changed()
 
     while (itr != parameters.end())
         {
-//        (**itr).data_vector_has_changed();
+        (**itr).data_vector_has_changed();
         itr++;
         }
     }
