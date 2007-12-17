@@ -1093,15 +1093,12 @@ float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) c
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-histogram_1D<ELEMTYPE>* image_general<ELEMTYPE, IMAGEDIM>::get_histogram_from_masked_region_3D(image_binary<3>* mask)
+histogram_1D<ELEMTYPE>* image_general<ELEMTYPE, IMAGEDIM>::get_histogram_from_masked_region_3D(image_binary<3>* mask, int num_buckets)
 {
 	cout<<"get_histogram_from_masked_region_3D..."<<endl;
-	image_storage<unsigned char>* tmp;
-	tmp = dynamic_cast<image_storage<unsigned char>*>(mask);
-	unsigned char *v_bin = tmp->begin().pointer();
-//	ELEMTYPE *v_bin = tmp->begin().p->begin().pointer();
+	image_storage<unsigned char>* tmp = dynamic_cast<image_storage<unsigned char>*>(mask);
 
-	histogram_1D<ELEMTYPE> *stats_masked = new histogram_1D<ELEMTYPE>(this, tmp, 100);
+	histogram_1D<ELEMTYPE> *stats_masked = new histogram_1D<ELEMTYPE>(this, tmp, num_buckets);
 	return stats_masked;
 }
 

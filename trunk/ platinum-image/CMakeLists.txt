@@ -82,6 +82,7 @@ datawidget.h
 dicom_importer.h 
 error.h 
 event.h 
+fcm.h 
 fileutils.h 
 FLTKuserIOparameters.h 
 FLTKutilities.h 
@@ -139,6 +140,7 @@ datawidget.cc
 dicom_importer.cc 
 error.cc 
 event.cc 
+fcm.cc
 fileutils.cc 
 FLTKuserIOparameters.cc 
 FLTKutilities.cc 
@@ -249,12 +251,15 @@ TARGET_LINK_LIBRARIES(platinumlib ITKCommon ITKIO ${FLTK_LIBRARIES})
 ADD_EXECUTABLE(PlatinumTest MACOSX_BUNDLE test_app.cc)
 #ADD_EXECUTABLE(my_application MACOSX_BUNDLE Apps/my_application/my_application.cc)		#Modify this line to include application in this project
 
+
 IF(APPLE)
    FIND_PROGRAM(ITK_APPLE_RESOURCE Rez /Developer/Tools)
    IF(ITK_APPLE_RESOURCE)
       ADD_CUSTOM_COMMAND(
         TARGET PlatinumTest.app/Contents/Resources/PlatinumTest.rsrc POST_BUILD
         #TARGET my_application.app/Contents/Resources/my_application.rsrc POST_BUILD		#Modify this line to include application in this project
+  
+    
         COMMAND ${ITK_APPLE_RESOURCE} ARGS -useDF ${FLTK_INCLUDE_DIR}/mac.r
         WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
          )
@@ -262,10 +267,10 @@ IF(APPLE)
 ENDIF(APPLE)
 
 TARGET_LINK_LIBRARIES(PlatinumTest platinumlib)
-#TARGET_LINK_LIBRARIES(my_application platinumlib)							#Modify this line to include application in this project
+#TARGET_LINK_LIBRARIES(my_application platinumlib)					#Modify this line to include application in this project
 
 ADD_DEPENDENCIES(PlatinumTest platinumlib)
-#ADD_DEPENDENCIES(my_application platinumlib)								#Modify this line to include application in this project
+#ADD_DEPENDENCIES(my_application platinumlib)						#Modify this line to include application in this project
 
 #SOURCE_GROUP(Headers REGULAR_EXPRESSION ".*[.]h$")
 #SOURCE_GROUP(Headers FILES global.h platinumprogram.h ptmath.h)
@@ -362,8 +367,8 @@ statusarea.h
 transferfactory.cc 
 userIOmanager.cc 
 viewporttool.cc 
-statusarea.cc 
-test_app.cc)
+statusarea.cc) 
+#test_app.cc)
 
 SOURCE_GROUP(Helpers FILES 
 bruker.h 
@@ -371,6 +376,7 @@ color.h
 colormap.h 
 cursor3D.h 
 error.h 
+fcm.h
 fileutils.h 
 FLTKutilities.h 
 histogram.h 
@@ -383,6 +389,7 @@ colormap.cc
 cursor3D.cc 
 ${WIN32_DIRENT_SRC} 
 error.cc 
+fcm.cc
 fileutils.cc 
 FLTKutilities.cc 
 histogram.cc 

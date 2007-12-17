@@ -153,13 +153,7 @@ class image_general : public image_storage <ELEMTYPE >
         //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
         float get_number_voxel(int x, int y, int z) const;
 
-		//TODO JK-create and return new histogram...
-        histogram_1D<ELEMTYPE>* get_histogram_from_masked_region_3D(image_binary<3>* mask);
-//            {
-//            pt_error::error_if_null(stats,"Trying to get_histogram() which is NULL");
- //           return stats;
-   //         }
-
+        histogram_1D<ELEMTYPE>* get_histogram_from_masked_region_3D(image_binary<3>* mask, int num_buckets=500);
 
         void set_voxel(int x, int y, int z, ELEMTYPE voxelvalue);
 		void set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction=2);

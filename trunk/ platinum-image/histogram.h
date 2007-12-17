@@ -111,12 +111,12 @@ class histogram_typed : public histogram_base //!features common to histograms o
 
 class gaussian{
 public:
-	gaussian(float amp, float cent, float sig);
+	gaussian(float amp=0, float cent=0, float sig=0);
 	~gaussian(void);
 	float amplitude;	
 	float center;
 	float sigma;		//standard deviation
-	float evaluate_at(int x);
+	float evaluate_at(float x);
 };
 
 
@@ -150,6 +150,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 
 		void save_histogram_to_txt_file(std::string filepath, bool reload_hist_from_image=true, gaussian *g=NULL, std::string separator="\t");
 		
+		float get_scalefactor();
 		ELEMTYPE bucketpos_to_intensity(int bucketpos);
 		int intensity_to_bucketpos(ELEMTYPE intensity);
 
@@ -157,7 +158,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		void smooth_mean(int nr_of_neighbours, int nr_of_times, int from, int to);
 
 		//------ Fitting of gaussian functions ------
-		void fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to);
+		void fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info=false);
 		float find_better_amplitude(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		float find_better_center(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		float find_better_sigma(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
