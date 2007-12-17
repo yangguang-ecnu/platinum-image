@@ -44,7 +44,7 @@ void histogram_1D<ELEMTYPE >::image (int vol)
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
 {
-	cout<<"void histogram_1D<ELEMTYPE>::resize("<<newNum<<")"<<endl;
+//	cout<<"void histogram_1D<ELEMTYPE>::resize("<<newNum<<")"<<endl;
 
     this->num_buckets = newNum;
 
@@ -151,35 +151,17 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 		}
 		cout<<"v_min="<<v_min<<endl;
 		cout<<"v_max="<<v_max<<endl;
-
-		float scalefactor = float(v_max-v_min)/float(this->num_buckets-1); //JK-hist
-		cout<<"scalefactor="<<scalefactor<<endl;
+		this->min(v_min);
+		this->max(v_max);
 
 		unsigned short bucketpos;
 
-//		for (v = this->i_start;v != this->i_end;++v)
-		int nr=0;
 		for( v = this->i_start, v_bin = image_bin_mask->begin().pointer(); (v != this->i_end) && (v_bin != image_bin_mask->end().pointer()); ++v, ++v_bin){
 			if(*v_bin>0){
-				nr++;
-				bucketpos=(*v - v_min)/scalefactor;
+				bucketpos = intensity_to_bucketpos(*v);
 
 				//NOT VERY good to write outside allocated memory
 				if(bucketpos>=0 && bucketpos<this->num_buckets){	
-
-
-					//---------------------------------------
-					//------------ PRINT --------------------
-					//---------------------------------------
-					cout<<endl;
-					for (unsigned short i = 0; i < this->num_buckets; i++){
-						cout<<this->buckets[i]<<" ";
-					}
-					cout<<endl;
-					//---------------------------------------
-					//------------ PRINT --------------------
-					//---------------------------------------
-
 
 					//calculate distinct value count
 					if (this->buckets[bucketpos] == 0)
@@ -192,17 +174,12 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 					if (*v != 0 &&  *v != 1) //! feature: ignore 0 and true to get more sensible display scaling
 					{ this->bucket_max=std::max(this->buckets[bucketpos],this->bucket_max); }
 
-					//calculate min/max
-					this->min_value = std::min (this->min_value,*v);
-					this->max_value = std::max (this->max_value,*v);
 				}else{
 					pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
 					cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
 				}
 			}
 		}
-
-		cout<<"nr="<<nr<<endl;
 
 
 		this->bucket_mean=0;
@@ -276,14 +253,13 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 //        float typeMax = std::numeric_limits<ELEMTYPE>::max();
   //      float typeMin = std::numeric_limits<ELEMTYPE>::min();
 
-        float scalefactor = float(this->max()-this->min())/float(this->num_buckets-1); //JK-hist
 
         unsigned short bucketpos;
         ELEMTYPE * voxel;
 
 		for (voxel = this->i_start;voxel != this->i_end;++voxel)
 		{
-			bucketpos=((*voxel)-this->min())/scalefactor; //JK-hist
+			bucketpos = intensity_to_bucketpos(*voxel);
 
 			//NOT VERY good to write outside allocated memory
 			if(bucketpos>=0 && bucketpos<this->num_buckets){	
@@ -363,7 +339,7 @@ image_storage<ELEMTYPE> * histogram_1D<ELEMTYPE>::image ()
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bool reload_hist_from_image, gaussian *g, std::string separator)	{
-		cout<<"save_histogram_to_txt_file2(std::string file)..."<<endl;
+		cout<<"save_histogram_to_txt_file(std::string file)..."<<endl;
 
 		if(reload_hist_from_image){
 			this->images[0]->min_max_refresh(); //make sure to update image min and max before calling calculate() 
@@ -387,10 +363,11 @@ void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bo
 		myfile<<"\n";
 
 		if(g!=NULL){
-			myfile<<"typeMax"<<separator<<typeMax<<"\n";
 			myfile<<"g->amplitude="<<separator<<g->amplitude<<"\n";
 			myfile<<"g->center="<<separator<<g->center<<"\n";
 			myfile<<"g->sigma="<<separator<<g->sigma<<"\n";
+			cout<<"g->evaluate_at(0)="<<g->evaluate_at(0)<<endl;
+			cout<<"g->evaluate_at(0.1)="<<g->evaluate_at(0.1)<<endl;
 		}
 
 		myfile<<"bucket"<<separator<<"intensity"<<separator<<"bucketvalue\n";
@@ -407,16 +384,18 @@ void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bo
 
 
 template <class ELEMTYPE>
+float histogram_1D<ELEMTYPE>::get_scalefactor(){
+	return float((this->max()-this->min()))/float(this->num_buckets-1);
+}
+
+template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::bucketpos_to_intensity(int bucketpos){
-	float scalefactor=float((this->max()-this->min()))/float(this->num_buckets);
-	return this->min() + float(bucketpos)*scalefactor;
+	return this->min() + float(bucketpos)*get_scalefactor();
 }
 
 template <class ELEMTYPE>
 int histogram_1D<ELEMTYPE>::intensity_to_bucketpos(ELEMTYPE intensity){
-	float scalefactor=float((this->max()-this->min()))/float(this->num_buckets);
-	//bucketpos = (intensity - this->min())/scalefactor;
-	return (intensity - this->min())/scalefactor;
+	return (intensity - this->min())/get_scalefactor();
 }
 
 /*
@@ -483,7 +462,7 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 
 
 template <class ELEMTYPE>
-void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to)
+void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info)
 {
     cout<<"fit_gaussian_to_intensity_range..."<<endl;
 	int from_bucket = intensity_to_bucketpos(from);
@@ -496,6 +475,8 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 	int dyn_from_bucket = std::max(from_bucket, intensity_to_bucketpos(g.center-1.5*g.sigma));
 	int dyn_to_bucket = std::min(to_bucket, intensity_to_bucketpos(g.center+1.5*g.sigma));
 
+	if(print_info)
+	{
 	cout<<"**************"<<endl;
 	cout<<"**************"<<endl;
 	cout<<"from_bucket="<<from_bucket<<endl;
@@ -505,7 +486,8 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 	cout<<"sigma="<<g.sigma<<endl;
 	cout<<"dyn_from_bucket="<<dyn_from_bucket<<endl;
 	cout<<"dyn_to_bucket="<<dyn_to_bucket<<endl;
-	
+	}
+
 	float tmp;
 	int nr_iterations=5;
 	for(int i=0;i<nr_iterations;i++){
@@ -518,6 +500,8 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 		dyn_from_bucket = std::max(from_bucket, intensity_to_bucketpos(tmp)); //limits bucket range...
 		dyn_to_bucket = std::min(to_bucket, intensity_to_bucketpos(g.center+1.5*g.sigma));
 
+	if(print_info)
+	{
 		cout<<"**************"<<endl;
 		cout<<"iter="<<i<<"/"<<nr_iterations<<endl;
 		cout<<"g.amplitude="<<g.amplitude<<endl;
@@ -525,6 +509,7 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 		cout<<"g.sigma="<<g.sigma<<endl;
 		cout<<"dyn_from_bucket="<<dyn_from_bucket<<endl;
 		cout<<"dyn_to_bucket="<<dyn_to_bucket<<endl;
+	}
 	}
 
 	//set the reference variables again...

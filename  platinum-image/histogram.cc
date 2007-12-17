@@ -386,7 +386,7 @@ gaussian::gaussian(float amp, float cent, float sig){
 
 gaussian::~gaussian(){}
 
-float gaussian::evaluate_at(int x){
-	return amplitude * exp( -pow((float(x)-center),2)/pow(sigma,2) );	
+float gaussian::evaluate_at(float x){
+	return amplitude * exp( -pow((x-center),2)/pow(sigma,2) );	
 }
 
