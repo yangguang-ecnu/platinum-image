@@ -380,7 +380,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::stri
 	
 	this->name( this->meta.get_name() );
 	
-	//AF
 	this->read_geometry_from_dicom_file( fileNames[0].c_str() );
 
 }
@@ -388,8 +387,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::stri
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::string dir_path,std::string seriesIdentifier)
-{  
-	std::cout<< "--- load_dataset_from_DICOM_filesAF" << std::endl;
+{ 
+ 
+//	std::cout<< "--- load_dataset_from_DICOM_filesAF" << std::endl;
 	std::cout<<"dir_path="<<dir_path<<std::endl;
 	std::cout<<"seriesIdentifier="<<seriesIdentifier<<std::endl;
 	dir_path = path_parent(dir_path);
@@ -576,7 +576,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_
     writer->SetFileName( file_path.c_str() );
     writer->SetInput(output_image);
 
-	//--- ööö ---
+	//--- Ë†Ë†Ë† ---
 	//-----------------------------
 	//-----------------------------
 	typedef itk::GDCMImageIO		ImageIOType;

@@ -187,7 +187,7 @@ void FLTKuserIOpar_coord3Ddisplay::update()
 
 #pragma mark *** FLTKuserIOpar_landmarks ***
 
-FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,int(STDPARWIDGETHEIGHT*6), name)
+FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH, int(STDPARWIDGETHEIGHT*10), name)
 //FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & l_names, const std::vector<std::string> & o_names, const int landmarks_id) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,int(STDPARWIDGETHEIGHT*6), name)
 {
 	const int btnWidth = 30;
@@ -199,14 +199,14 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 	landmarkText->value ( "Landmark set" );
 	
 	newSetBtn = new Fl_Button( w() - 3 * btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "New");
-	newSetBtn->callback( newSetCB, (void *) this );
+	newSetBtn->callback( newSetCallback, (void *) this );
 
 	saveSetBtn = new Fl_Button( w() - 2 * btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Save");
-	saveSetBtn->callback( saveSetCB, (void *) this );
+	saveSetBtn->callback( saveSetCallback, (void *) this );
 
 	loadSetBtn = new Fl_Button( w() - btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load");
-	loadSetBtn->callback( loadSetCB, (void *) this );
-//	loadSetBtn->callback( loadSetCBnew, (void *) this );
+	loadSetBtn->callback( loadSetCallback, (void *) this );
+//	loadSetBtn->callback( loadSetCallbackNew, (void *) this );
 
 
 
@@ -218,12 +218,12 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 //	emptyBox = new Fl_Box( w() - 3 * btnWidth, y() + PARBOXBORDER, 2 * btnWidth, STDPARWIDGETHEIGHT - PARBOXBORDER);
 
 	loadDescriptorBtn = new Fl_Button ( w() - btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load" );
-	loadDescriptorBtn->callback( loadDescriptorCB, (void*) this );
+	loadDescriptorBtn->callback( loadDescriptorCallback, (void*) this );
 
 
 
-	browser = new Fl_Hold_Browser( x(), y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), 4 * STDPARWIDGETHEIGHT - PARTITLEMARGIN );
-	browser->callback( browserCB, (void *) this );
+	browser = new Fl_Hold_Browser( x(), y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), 8 * STDPARWIDGETHEIGHT - PARTITLEMARGIN );
+	browser->callback( browserCallback, (void *) this );
 	browser->textsize(12);
 	//browser->when(...)		
 
@@ -250,7 +250,7 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 	
 }
 
-void FLTKuserIOpar_landmarks::loadDescriptorCB( Fl_Widget * callingwidget, void * thisLandmarks )
+void FLTKuserIOpar_landmarks::loadDescriptorCallback( Fl_Widget * callingwidget, void * thisLandmarks )
 {
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
@@ -321,7 +321,7 @@ void FLTKuserIOpar_landmarks::loadDescriptorCB( Fl_Widget * callingwidget, void 
 	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1)));  but change to latest_descriptor_path
 }
 
-void FLTKuserIOpar_landmarks::newSetCB( Fl_Widget * callingwidget, void * thisLandmarks )
+void FLTKuserIOpar_landmarks::newSetCallback( Fl_Widget * callingwidget, void * thisLandmarks )
 {
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
@@ -346,7 +346,7 @@ void FLTKuserIOpar_landmarks::newSetCB( Fl_Widget * callingwidget, void * thisLa
 	}
 }
 
-void FLTKuserIOpar_landmarks::saveSetCB(Fl_Widget *callingwidget, void * thisLandmarks)
+void FLTKuserIOpar_landmarks::saveSetCallback(Fl_Widget *callingwidget, void * thisLandmarks)
 {
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
@@ -367,7 +367,13 @@ void FLTKuserIOpar_landmarks::saveSetCB(Fl_Widget *callingwidget, void * thisLan
 		return;
 	}
 	
-	ofstream ofs ( chooser.value() );
+	// add the prefix ".txt" if not present
+	string temp( chooser.value() );
+	string prefix = temp.substr( temp.size() - 4, 4 );
+	if ( prefix != ".txt" )
+		{ temp.append( ".txt" ); }
+
+	ofstream ofs ( temp.c_str() );
 	
 	if ( !ofs )
 	{
@@ -385,7 +391,7 @@ void FLTKuserIOpar_landmarks::saveSetCB(Fl_Widget *callingwidget, void * thisLan
 	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1))); but change to latest_landmarks_path
 }
 
-void FLTKuserIOpar_landmarks::loadSetCB( Fl_Widget *callingwidget, void * thisLandmarks )
+void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * thisLandmarks )
 {
 	std::cout << "This function is under construction" << std::endl;
 	return;
@@ -505,7 +511,7 @@ void FLTKuserIOpar_landmarks::split( const std::string & s, char c, std::vector<
 }
 
 
-void FLTKuserIOpar_landmarks::loadSetCBnew( Fl_Widget *callingwidget, void * thisLandmarks )
+void FLTKuserIOpar_landmarks::loadSetCallbackNew( Fl_Widget *callingwidget, void * thisLandmarks )
 {
 	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_landmarks_path
 	Fl_File_Chooser chooser( ".", "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::SINGLE, "Load landmark file" );	
@@ -610,7 +616,7 @@ void FLTKuserIOpar_landmarks::loadSetCBnew( Fl_Widget *callingwidget, void * thi
 	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1))); but change to latest_landmarks_path
 }
 
-void FLTKuserIOpar_landmarks::browserCB(Fl_Widget *callingwidget, void * thisLandmarks )
+void FLTKuserIOpar_landmarks::browserCallback(Fl_Widget *callingwidget, void * thisLandmarks )
 {
 	FLTKuserIOpar_landmarks * l = (FLTKuserIOpar_landmarks *) ( thisLandmarks );
 
@@ -897,7 +903,7 @@ const std::string FLTKuserIOpar_string::type_name ()
 
 #pragma mark *** FLTKuserIOpar_image ***
 
-FLTKuserIOpar_image::FLTKuserIOpar_image (const std::string name) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
+FLTKuserIOpar_image::FLTKuserIOpar_image (const std::string name) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH, STDPARWIDGETHEIGHT, name)
     {
     control = new FLTKimage_choice(x(),y()+PARTITLEMARGIN);
     control->callback(par_update_callback);
@@ -924,6 +930,25 @@ const std::string FLTKuserIOpar_image::type_name ()
     {
     return "image ID";
     }
+
+#pragma mark *** FLTKuserIOpar_image_button ***
+
+FLTKuserIOpar_image_button::FLTKuserIOpar_image_button( const std::string name) : FLTKuserIOpar_image( name )
+{
+
+	
+
+	const int btnWidth = 30;
+	show_button = new Fl_Button( FLTKuserIOpar_image::x(), FLTKuserIOpar_image::y() + PARTITLEMARGIN, btnWidth, BUTTONHEIGHT, "Load");
+	end();
+
+	//show_button->callback(show_callback);
+}
+
+//FLTKuserIOpar_image_button::show_callback( Fl_Widget *callingwidget, void * foo)
+//{
+//
+//}
 
 
 #pragma mark *** FLTKuserIOpar_points ***

@@ -50,7 +50,7 @@ class point_collection : public data_base
 		
 //		pointStorage::size_type num_points;
 		
-		pointStorage::mapped_type get_point(int i);	//AF
+		pointStorage::mapped_type get_point(int i);
         
         virtual void redraw ()
             {

@@ -413,7 +413,6 @@ std::vector<threshold_overlay *> viewmanager::get_overlays (thresholdparvalue * 
     return result;
     }
 	
-//AF
 std::vector<int> viewmanager::viewports_from_renderers(const std::vector<int> & renderers)
 {
 	// Two viewports can not have the same renderer

@@ -98,7 +98,6 @@ public:
     int combination_id();    
 	void connect_combination (rendercombination *);
 	
-	//AF
 	int geometry_id() const;
 	
 #pragma mark *** rendering & data interaction ***

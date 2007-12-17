@@ -275,12 +275,12 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		FLTKuserIOpar_landmarks ( const std::string name );
 //		FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, const int landmarks_id);
 
-		static void loadDescriptorCB(Fl_Widget *callingwidget, void * thisLandmarks);
-		static void newSetCB( Fl_Widget * callingwidget, void * thisLandmarks );
-		static void saveSetCB( Fl_Widget * callingwidget, void * thisLandmarks );
-		static void loadSetCB( Fl_Widget * callingwidget, void * thisLandmarks );
-		static void loadSetCBnew( Fl_Widget * callingwidget, void * thisLandmarks );
-		static void browserCB( Fl_Widget * callingwidget, void * thisLandmarks );
+		static void loadDescriptorCallback(Fl_Widget *callingwidget, void * thisLandmarks);
+		static void newSetCallback( Fl_Widget * callingwidget, void * thisLandmarks );
+		static void saveSetCallback( Fl_Widget * callingwidget, void * thisLandmarks );
+		static void loadSetCallback( Fl_Widget * callingwidget, void * thisLandmarks );
+		static void loadSetCallbackNew( Fl_Widget * callingwidget, void * thisLandmarks );
+		static void browserCallback( Fl_Widget * callingwidget, void * thisLandmarks );
 
 		const std::string type_name();
         void par_value(landmarksIDtype &v);
@@ -380,6 +380,14 @@ class FLTKuserIOpar_image : public FLTKuserIOparameter_base   //image selection 
 
         const std::string type_name ();
     };
+	
+class FLTKuserIOpar_image_button : public FLTKuserIOpar_image
+{
+	protected:
+		Fl_Button * show_button;
+	public:
+		FLTKuserIOpar_image_button( std::string name );
+};
 
 class FLTKuserIOpar_points : public FLTKuserIOparameter_base   //point selection (using popup menu)
 {

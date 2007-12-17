@@ -61,7 +61,6 @@ public:
 	
 	string type_name(){return "INT";}
 	
-	//AF
 	std::string get_data_as_string ( std::string key );
 };
 
@@ -74,7 +73,6 @@ public:
 	
 	string type_name(){return "FLOAT";}
 
-	//AF
 	std::string get_data_as_string ( std::string key );
 };
 
@@ -87,7 +85,6 @@ public:
 	
 	string type_name(){return "STRING";}
 
-	//AF
 	std::string get_data_as_string ( std::string key );
 };
 
