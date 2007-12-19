@@ -111,6 +111,78 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_2nd
 
 
 template <class ELEMTYPE, int IMAGEDIM >
+void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im)
+{
+	this->make_image_an_itk_reader();
+	ITKimportfilter->Update();
+
+	typedef itk::ResampleImageFilter<theImageType, theImageType>  FilterType;
+	FilterType::Pointer filter = FilterType::New();
+
+//	typedef itk::AffineTransform< double, IMAGEDIM >  TransformType;
+//	typedef itk::Rigid3DTransform< double > TransformType;
+	typedef itk::MatrixOffsetTransformBase<double,3,3> TransformType;
+	TransformType::Pointer transform = TransformType::New();
+
+	TransformType::MatrixType m;
+
+	itk::OrientedImage<ELEMTYPE, IMAGEDIM >::DirectionType d = ref_im->get_orientation_itk();
+	cout<<"m="<<endl;
+	for(int i=0;i<3;i++){
+		for(int j=0;j<3;j++){
+			m[i][j] = d[i][j];
+			cout<<m[i][j]<<" ";
+		}
+		cout<<endl;
+	}
+//	transform->SetRotationMatrix(m);
+	transform->SetMatrix(m);
+
+
+	typedef itk::BSplineInterpolateImageFunction<theOrientedImageType, double >  InterpolatorType;
+	InterpolatorType::Pointer interpolator = InterpolatorType::New(); //3-rd order is default.....
+
+//	ref_im->fill(10);				//JK-Warning öööö
+	ref_im->print_geometry();
+
+	filter->SetInput(itk_image());
+	filter->SetTransform( transform );
+	filter->SetInterpolator( interpolator );//3-rd order is default.....
+	filter->SetDefaultPixelValue( 1 );
+	filter->SetOutputOrigin( ref_im->get_origin_itk() );
+	filter->SetOutputSpacing( ref_im->get_voxel_size_itk() );
+	filter->SetSize( ref_im->get_size_itk() );
+
+	try{
+		cout<<"filter update..."<<endl;
+		filter->Update();
+	}catch( itk::ExceptionObject & excep ){
+		std::cerr << "Exception catched !" << std::endl;
+		std::cerr << excep << std::endl;
+	}
+
+	//-------- Save to VTK ----------------
+	cout<<"save..."<<endl;
+	typename theOrientedWriterType::Pointer writer = theOrientedWriterType::New();   //default file type is VTK
+	writer->SetFileName( "C:\\Joel\\TMP\\Pivus75\\FCM\\__spline_test.vtk" );
+    writer->SetInput(filter->GetOutput());
+    try{
+        writer->Update();
+        }
+    catch (itk::ExceptionObject &ex){
+        pt_error::error("Exception thrown saving file (C:\\Joel\\TMP\\_spline_test.vtk)", pt_error::warning);
+		std::cout<<ex<<std::endl;
+        }
+	//-------- Save to VTK ----------------
+
+//	cout<<"port back to pt-format..."<<endl;
+//	this->ITKimportimage = filter->GetOutput();
+//	image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image();
+}
+
+
+
+template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im)
 {	
 	//cout<<"image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl_speed..."<<endl;
@@ -1475,8 +1547,8 @@ Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_max_grad_mag_in_region_vox
 {
 	if ( ! this->is_voxelpos_within_image_3D( center ) )
 	{	// the point is not within the image
-		// TODO: use pt_error !!!
-		return center;
+		pt_error::error("get_pos_of_type_in_region_voxel--> point is not within image",pt_error::debug);		
+		return center; //is this useful?
 	}
 
 	image_scalar<ELEMTYPE, IMAGEDIM> * res = new image_scalar<ELEMTYPE, IMAGEDIM>( this, 0 );
@@ -1542,7 +1614,7 @@ Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_type_in_region_voxel( Vect
 {	
 	if ( ! this->is_voxelpos_within_image_3D( center ) )
 	{	// the point is not within the image
-		// TODO: use pt_error !!!
+		pt_error::error("get_pos_of_type_in_region_voxel--> point is not within image",pt_error::debug);
 		return center;
 	}
 

@@ -45,7 +45,7 @@ public:
     image_scalar (): image_general<ELEMTYPE, IMAGEDIM>()
         {};
     image_scalar(int w, int h, int d, ELEMTYPE *ptr = NULL):image_general<ELEMTYPE, IMAGEDIM>(w, h, d, ptr) {};
-    image_scalar (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i):image_general<ELEMTYPE, IMAGEDIM>(i) {}
+    image_scalar (itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i):image_general<ELEMTYPE, IMAGEDIM>(i) {}
     //copy constructor
     template<class SOURCETYPE>
         image_scalar(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_image, copyData)
@@ -58,6 +58,9 @@ public:
 
 
 	//------------------------- Interpolations -------------------------
+	//Implementation "inspired" by "ResampleImageFilter7" example in the ITK documentation
+	void interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im); 
+
 
 //	void interpolate_bilinear_2D(float phys_x, float phys_y, int vox_z);
 //	void interpolate_trilinear_3D_ITK(float phys_x, float phys_y, float phys_z); //no boundary checks in "itkLinearInterpolateImageFunction.h" 
@@ -127,6 +130,7 @@ public:
 	Vector3D get_pos_of_type_in_region_voxel ( Vector3D center, Vector3D radius, POINT_TYPE point_type );
 	
 	Vector3D get_pos_of_max_grad_mag_in_region_voxel ( Vector3D center, Vector3D radius, GRAD_MAG_TYPE type );
+
 
 
 

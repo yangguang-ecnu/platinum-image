@@ -116,15 +116,10 @@ bool image_base::read_orientation_from_dicom_file(std::string dcm_file)
 		std::vector<double> a = dicomIO->GetDirection(0);
 		std::vector<double> b = dicomIO->GetDirection(1);
 		std::vector<double> c = dicomIO->GetDirection(2);
-		this->orientation[0][0] = a[0];
-		this->orientation[0][1] = b[0];
-		this->orientation[0][2] = c[0];
-		this->orientation[1][0] = a[1];
-		this->orientation[1][1] = b[1];
-		this->orientation[1][2] = c[1];
-		this->orientation[2][0] = a[2];
-		this->orientation[2][1] = b[2];
-		this->orientation[2][2] = c[2];
+		this->orientation[0][0] = a[0];this->orientation[1][0] = a[1];this->orientation[2][0] = a[2];
+		this->orientation[0][1] = b[0];this->orientation[1][1] = b[1];this->orientation[2][1] = b[2];
+		this->orientation[0][2] = c[0];this->orientation[1][2] = c[1];this->orientation[2][2] = c[2];
+		
 		succeded = true;
         }
 	return succeded;
@@ -139,12 +134,13 @@ Matrix3D image_base::get_orientation () const
 {
     return orientation;
 }
+
 string image_base::get_orientation_as_dcm_string()
 {
 	string s="";
-	for(unsigned int d=0;d<2;d++){
-		for(unsigned int c=0;c<3;c++){
-            s += float2str(this->orientation[c][d]) + "/";
+	for(unsigned int c=0;c<2;c++){
+		for(unsigned int d=0;d<3;d++){
+            s += float2str(this->orientation[d][c]) + "\\";
 		}
 	}
 	return s;

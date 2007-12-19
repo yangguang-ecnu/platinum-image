@@ -520,23 +520,22 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
     {
     //replicate image to ITK image and save it as VTK file
 
-    typename theImageType::DirectionType itk_orientation;
+//    make_image_an_itk_reader(); //JK warning... ööö remove this everywhere...
 
-    for (unsigned int d=0;d<3;d++)
-        {
-        for (unsigned int c=0;c<3;c++)
-            {itk_orientation[d][c]=this->orientation[d][c];}
-        }
+//typename theImagePointer output_image=ITKimportfilter->GetOutput();
+//typename theImagePointer output_image=ITKimportfilter->GetOutput();
 
-    make_image_an_itk_reader();
-    typename theImagePointer output_image=ITKimportfilter->GetOutput();
 
-    output_image->SetDirection(itk_orientation);
+	cout<<"save_to_VTK_file - GetDirection()="<<itk_image()->GetDirection()<<endl;
+	cout<<"save_to_VTK_file - GetSize()[0]="<<itk_image()->GetBufferedRegion().GetSize()[0]<<endl;
+	cout<<"save_to_VTK_file - GetSize()[1]="<<itk_image()->GetBufferedRegion().GetSize()[1]<<endl;
+	cout<<"save_to_VTK_file - GetSize()[2]="<<itk_image()->GetBufferedRegion().GetSize()[2]<<endl;
+//	output_image->SetDirection(this->get_orientation_itk());
 //	cout<<"save_to_VTK_file - itk_orientation="<<itk_orientation<<endl;
 
     typename theWriterType::Pointer writer = theWriterType::New();   //default file type is VTK
     writer->SetFileName( file_path.c_str() );
-    writer->SetInput(output_image);
+    writer->SetInput(itk_image());
 
     try{
         writer->Update();
@@ -551,51 +550,43 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_path)
     {
-		cout<<"save_to_DCM_file..."<<endl;
-    //replicate image to ITK image and save it as DCM file
+	cout<<"save_to_DCM_file..."<<endl;    //replicate image to ITK image and save it as DCM file
 
-    typename theImageType::DirectionType itk_orientation;
+	//--------------------------------------------------------
+	//--- If dicom image has tag "DCM_IMAGE_ORIENTATION_PATIENT" a/b/c/d/e/f
+	//--- This is read as 
+	//		a d j
+	//		b e	k
+	//		c f l
+	//--- GDCMImageIO saves the direcional conines transposed compared to the ITK use....
+	//--- Idea - Transpose rotation matrix before saving... and again after...
+	//--------------------------------------------------------
+	this->orientation = this->orientation.GetTranspose();
+	//--------------------------------------------------------
 
-    for (unsigned int d=0;d<3;d++)
-        {
-        for (unsigned int c=0;c<3;c++)
-            {itk_orientation[d][c]=this->orientation[d][c];}
-        }
 
-    make_image_an_itk_reader();
-    typename theImagePointer output_image=ITKimportfilter->GetOutput();
-
-    output_image->SetDirection(itk_orientation);
-
-	cout<<"save_to_DCM_file - itk_orientation=";
-	cout<<endl;
-	cout<<itk_orientation<<endl;
-	cout<<output_image->GetDirection()<<endl;
-
-    typename theWriterType::Pointer writer = theWriterType::New();   //default file type is DCM
+    typename theWriterType::Pointer writer = theWriterType::New();
     writer->SetFileName( file_path.c_str() );
-    writer->SetInput(output_image);
+    writer->SetInput(this->itk_image());
 
-	//--- ˆˆˆ ---
 	//-----------------------------
 	//-----------------------------
-	typedef itk::GDCMImageIO		ImageIOType;
+	typedef itk::GDCMImageIO ImageIOType;
 	ImageIOType::Pointer gdcmImageIO = ImageIOType::New();
 	writer->SetImageIO( gdcmImageIO );
 
 	typedef itk::MetaDataDictionary   DictionaryType;
-	DictionaryType & dictionary = output_image->GetMetaDataDictionary();
+	DictionaryType & dictionary = this->itk_image()->GetMetaDataDictionary();
 
-	std::string id = "";
-	gdcmImageIO->GetValueFromTag(DCM_SERIES_ID,id);
-	cout<<"id="<<id<<endl;
-	//-----------------------------
+	//TODO - make sure all interesting data in "metadata-object" is saves....
 	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_NAME, "Anonymized" );
 	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_ID, "Anonymized" );
 	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_BIRTH_DATE, "Anonymized" );
-//	itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_POSITION_PATIENT, "1,2,3" );
-	itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_ORIENTATION_PATIENT, this->get_orientation_as_dcm_string() );
-	cout<<"orientation-->dcm="<<this->get_orientation_as_dcm_string()<<endl;
+	// The two lines below don't work... 
+	// The brutal rotation of the orientation matrix was used before and after saving instead...
+	//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_POSITION_PATIENT, "1\\2\\3" );
+	//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_ORIENTATION_PATIENT, this->get_orientation_as_dcm_string() );
+
 	//-----------------------------
 	//-----------------------------
 
@@ -605,6 +596,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_
         pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
 		std::cout<<ex<<std::endl;
     }
+
+	//--------------------------------------------------------
+	this->orientation = this->orientation.GetTranspose(); //transpose again  "=back"
+	//--------------------------------------------------------
 }
 
 
@@ -631,7 +626,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_TIF_file_series_3D(const std::st
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice)
 {
-	typedef itk::ImageFileWriter<itk::Image<unsigned char,3> >	theTifWriterType;
+	typedef itk::ImageFileWriter<itk::OrientedImage<unsigned char,3> >	theTifWriterType;
     make_image_an_itk_reader();
 
 	string s = file_path_base+"_"+slice+".tif";
