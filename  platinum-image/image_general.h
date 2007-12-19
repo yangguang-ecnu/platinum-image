@@ -81,7 +81,7 @@ class image_general : public image_storage <ELEMTYPE >
         
 //        typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM>::Pointer	ITKimportfilter; //previously buffered...
 //        typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer             ITKimportimage;
-        typename itk::OrientedImage<ELEMTYPE, IMAGEDIM>::Pointer		ITKimportimage;
+//        typename itk::OrientedImage<ELEMTYPE, IMAGEDIM>::Pointer		ITKimportimage;
         
         //typename itk::ImageFileWriter<theImageType>::Pointer       ITKwriterfilter; //get the writer to write in this here array
         
@@ -125,8 +125,10 @@ class image_general : public image_storage <ELEMTYPE >
 
 
         //initialize image from ITK image
-        void replicate_itk_to_image();     //use the image_general-object's own ITK image pointer
-        void replicate_itk_to_image(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);
+//        void replicate_itk_to_image();     //use the image_general-object's own ITK image pointer
+//        void replicate_itk_to_image(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);
+		void replicate_itk_to_image(typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer i);
+
 
         virtual void data_has_changed(bool stats_refresh = true);          //called when image data has been changed
 
@@ -202,20 +204,22 @@ class image_general : public image_storage <ELEMTYPE >
 
 
 
-        void port_to_itk_format();	//initialize ITKimportimage, call before use of ITK functionality
+//        void port_to_itk_format();	//initialize ITKimportimage, call before use of ITK functionality
 									//call "replicate_itk_to_image()" if you want to import your ITK-processed data...
-		void clear_itk_porting();	//call after use of ITK functionality, clears pointers...			
+//		void clear_itk_porting();	//call after use of ITK functionality, clears pointers...			
 
         //return ITKimportfilter
 //        typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM >::Pointer		itk_import_filter();
 
         //return ITK image from image     
-        typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer		itk_image();	//calls "port_to_itk_format" if NULL...
+//        typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer		itk_image();	//calls "port_to_itk_format" if NULL...
 		typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::PointType		get_origin_itk();
 		typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::SizeType		get_size_itk();
 		typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::SpacingType	get_voxel_size_itk();
 		typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::DirectionType	get_orientation_itk();
 		typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::RegionType	get_region_itk();
+
+        typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer		get_image_as_itk_output();
 
         void load_dataset_from_VTK_file(std::string file_path);
 //        void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier); //gdcm

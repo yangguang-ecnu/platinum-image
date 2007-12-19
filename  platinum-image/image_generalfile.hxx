@@ -518,11 +518,13 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_path)
     {
-	cout<<"save_to_VTK_file - GetDirection()="<<itk_image()->GetDirection()<<endl;
-
+	cout<<"save_to_VTK_file..."<<endl;
     typename theWriterType::Pointer writer = theWriterType::New();   //default file type is VTK
     writer->SetFileName( file_path.c_str() );
-    writer->SetInput(itk_image());
+//    writer->SetInput(this->itk_image());
+    writer->SetInput(get_image_as_itk_output());
+
+//	cout<<"this->itk_image()->GetDirection()=\n"<<this->itk_image()->GetDirection()<<endl;
 
     try{
         writer->Update();
@@ -532,7 +534,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
 		std::cout<<ex<<std::endl;
         }
 
-	this->clear_itk_porting();
+//	this->clear_itk_porting();
     }
 
 
@@ -556,7 +558,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_
 
     typename theWriterType::Pointer writer = theWriterType::New();
     writer->SetFileName( file_path.c_str() );
-    writer->SetInput(this->itk_image());
+//    writer->SetInput(this->itk_image());
+	typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer image = get_image_as_itk_output();
+    writer->SetInput(image);
+
 
 	//-----------------------------
 	//-----------------------------
@@ -565,7 +570,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_
 	writer->SetImageIO( gdcmImageIO );
 
 	typedef itk::MetaDataDictionary   DictionaryType;
-	DictionaryType & dictionary = this->itk_image()->GetMetaDataDictionary();
+//	DictionaryType & dictionary = this->itk_image()->GetMetaDataDictionary();
+	DictionaryType & dictionary = image->GetMetaDataDictionary();
+	
 
 	//TODO - make sure all interesting data in "metadata-object" is saves....
 	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_NAME, "Anonymized" );
@@ -590,7 +597,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_
 	this->orientation = this->orientation.GetTranspose(); //transpose again  "=back"
 	//--------------------------------------------------------
 
-	this->clear_itk_porting();
+//	this->clear_itk_porting();
 
 }
 
@@ -623,14 +630,14 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_uchar2D_to_TIF_file(const std::stri
 	string s = file_path_base+"_"+slice+".tif";
 	theTifWriterType::Pointer writer = theTifWriterType::New();
 	writer->SetFileName(s.c_str());
-	writer->SetInput(itk_image());
+	writer->SetInput(get_image_as_itk_output());
 	try{
 		writer->Update();
 	}catch (itk::ExceptionObject &ex){
 		cout<<"Exception thrown saving file.....("<<s<<")"<<ex;
 	}
 
-	this->clear_itk_porting();
+//	this->clear_itk_porting();
 }
 
 

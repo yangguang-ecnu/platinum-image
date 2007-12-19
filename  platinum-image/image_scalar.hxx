@@ -142,7 +142,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 //	ref_im->fill(10);				//JK-Warning öööö
 	ref_im->print_geometry();
 		
-	filter->SetInput(this->itk_image());
+//	filter->SetInput(this->itk_image());
+	filter->SetInput(this->get_image_as_itk_output());
 	filter->SetTransform( transform );
 	filter->SetInterpolator( interpolator );//3-rd order is default.....
 	filter->SetDefaultPixelValue( 1 );
@@ -173,10 +174,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 	//-------- Save to VTK ----------------
 
 //	cout<<"port back to pt-format..."<<endl;
-//	this->ITKimportimage = filter->GetOutput();
-//	image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image();
-
-	this->clear_itk_porting();
+//	image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image( *** );
 }
 
 
@@ -1072,14 +1070,11 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_ITK(Vector3D radius)
 	r[2] = radius[2];
 
 	filter->SetRadius(r);
-	filter->SetInput(this->itk_image());
+	filter->SetInput(this->get_image_as_itk_output());
 	filter->Update();
 
-	this->ITKimportimage = filter->GetOutput();
-//	image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image();
-
-	this->replicate_itk_to_image();
-	this->clear_itk_porting();
+	this->replicate_itk_to_image(filter->GetOutput());
+	//JK - verify... ööö
 }
 
 
