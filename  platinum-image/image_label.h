@@ -43,7 +43,7 @@ class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
             transfer_function();
             }
 
-        image_label (itk::SmartPointer< itk::Image<IMGLABELTYPE, IMAGEDIM > > &i):image_integer<IMGLABELTYPE, IMAGEDIM>(i) {
+        image_label (itk::SmartPointer< itk::OrientedImage<IMGLABELTYPE, IMAGEDIM > > &i):image_integer<IMGLABELTYPE, IMAGEDIM>(i) {
             transfer_function();
             }
 

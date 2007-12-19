@@ -43,7 +43,7 @@ class image_binary : public image_label <IMAGEDIM>
     image_binary (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_label<IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
         {} //!raw file constructor
 
-    image_binary<IMAGEDIM>(itk::SmartPointer< itk::Image<IMGBINARYTYPE, IMAGEDIM > > &i):
+    image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i):
         image_label<IMAGEDIM>(i)
             {} //!ITK image constructor
 

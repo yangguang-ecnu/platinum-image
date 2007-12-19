@@ -80,6 +80,8 @@ class image_base : public data_base
         Matrix3D orientation;
 		//Note: Vector3D voxel_size is defined in image_general...
 
+
+
     public:
         virtual image_base * alike (imageDataType unit) = 0;
        

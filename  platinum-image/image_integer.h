@@ -38,7 +38,7 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
             {}
         image_integer(int w, int h, int d, ELEMTYPE *ptr = NULL):image_scalar<ELEMTYPE, IMAGEDIM>(w, h, d, ptr) {};
 
-        image_integer (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i):image_scalar<ELEMTYPE, IMAGEDIM>(i) {}
+        image_integer (itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i):image_scalar<ELEMTYPE, IMAGEDIM>(i) {}
 
     template<class SOURCETYPE>
         image_integer(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_scalar<ELEMTYPE, IMAGEDIM>(old_image, copyData)

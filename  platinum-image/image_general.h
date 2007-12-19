@@ -50,6 +50,7 @@ template<class ELEMTYPE, int IMAGEDIM>
 #include <iterator>
 
 #include "itkImage.h"
+#include "itkOrientedImage.h"					//includes directional cosines...
 #include "itkImportImageFilter.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -57,6 +58,12 @@ template<class ELEMTYPE, int IMAGEDIM>
 
 #include "itkMeanImageFilter.h"
 #include "itkMedianImageFilter.h"
+
+#include "itkResampleImageFilter.h"				//used in image_scalar --> spline interpolation
+#include "itkBSplineInterpolateImageFunction.h" //used in image_scalar --> spline interpolation
+#include "itkAffineTransform.h"					//used in image_scalar --> spline interpolation
+//#include "itkRigid3DTransform.h"				//used in image_scalar --> spline interpolation
+#include "itkMatrixOffsetTransformBase.h"		//used in image_scalar --> spline interpolation
 
 #include "global.h"
 #include "color.h"
@@ -68,30 +75,30 @@ class image_general : public image_storage <ELEMTYPE >
     protected:
         image_general<ELEMTYPE, IMAGEDIM>(int w, int h, int d, ELEMTYPE *ptr = NULL);
 
-        unsigned short datasize[IMAGEDIM]; //image size
+        unsigned short datasize[IMAGEDIM]; //image size (ITK denotes this "size")
         
         Vector3D voxel_size;	//3D voxel size in mm (hot tip: use z = 0 for 2D)
         
-        typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM>::Pointer   ITKimportfilter;
-        typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer                ITKimportimage;
+        typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM>::Pointer	ITKimportfilter;
+//        typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer             ITKimportimage;
+        typename itk::OrientedImage<ELEMTYPE, IMAGEDIM>::Pointer		ITKimportimage;
         
         //typename itk::ImageFileWriter<theImageType>::Pointer       ITKwriterfilter; //get the writer to write in this here array
         
         // *** Constructors & factories ***
         image_general<ELEMTYPE, IMAGEDIM>();
-        image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
+        image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);
         template<class SOURCETYPE> 
             image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true);
 		image_general(const string filepath);
 
 
         void set_parameters ();                                                     //reset & calculate parameters
-        void set_parameters (itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
+        void set_parameters (itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
         template <class sourceType>
             void set_parameters (image_general<sourceType, IMAGEDIM> * from_image);         //clone parameters from another image
         
-        void calc_transforms (); //used by set_parameters(...) functions
-                                 //to recalculate cached transform(s)
+        void calc_transforms (); //used by set_parameters(...), cached transform(s) recalculations
 
     public:                                                    
         image_base * alike (imageDataType);
@@ -118,13 +125,10 @@ class image_general : public image_storage <ELEMTYPE >
 
 
         //initialize image from ITK image
-        void replicate_itk_to_image();     //use object's own ITK image pointer
-        void replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i);
+        void replicate_itk_to_image();     //use the image_general-object's own ITK image pointer
+        void replicate_itk_to_image(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);
 
         virtual void data_has_changed(bool stats_refresh = true);          //called when image data has been changed
-
-        /*static image_base * type_from_DICOM_file (std::string file_path);
-        static image_base * type_from_VTK_file (std::string file_path);*/
 
 		void set_voxel_size(float dx, float dy, float dz=0);			//physical voxel size
 		bool read_voxel_size_from_dicom_file(std::string dcm_file);	//physical voxel size	
@@ -202,10 +206,14 @@ class image_general : public image_storage <ELEMTYPE >
         void make_image_an_itk_reader();               //initialize ITKimportfilter
 
         //return ITKimportfilter
-        typename itk::ImportImageFilter< ELEMTYPE, IMAGEDIM >::Pointer   itk_import_filter();
+        typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM >::Pointer		itk_import_filter();
 
         //return ITK image from image     
-        typename itk::Image<ELEMTYPE, IMAGEDIM >::Pointer                itk_image();
+        typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer					itk_image();
+		typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::PointType					get_origin_itk();
+		typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::SizeType					get_size_itk();
+		typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::SpacingType				get_voxel_size_itk();
+		typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::DirectionType				get_orientation_itk();
 
         void load_dataset_from_VTK_file(std::string file_path);
 //        void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier); //gdcm
