@@ -136,7 +136,7 @@ template <class sourceType>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType, IMAGEDIM> * sourceImage)
     {
 //    ITKimportfilter=NULL;
-    ITKimportimage=NULL;
+//    ITKimportimage=NULL;
 
     this->stats->max(sourceImage->get_max());
     this->stats->min(sourceImage->get_min());
@@ -362,8 +362,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::data_has_changed(bool stat_refresh)
         this->tfunction->update();
         }
 
-    
-	clear_itk_porting();	//clear ITK connection
+//    cout<<"data_has_changed...clear_itk_porting()"<<endl;
+//	clear_itk_porting();	//clear ITK connection
 	//previously....
 //    ITKimportfilter = NULL;
  //   if (ITKimportimage.IsNotNull())
@@ -386,15 +386,18 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters()
     calc_transforms();
     }
 
+/*
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image()
     {
     replicate_itk_to_image(ITKimportimage);
     }
+*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 //void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i)
-void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i)
+//void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i)
+void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer i)
     {
     pt_error::error_if_false (i.IsNotNull (), "Attempting to create ITK image from unitialized image object", pt_error::fatal ); 
 
@@ -406,11 +409,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer
 
     set_parameters (i);
     }
-
+/*
 template <class ELEMTYPE, int IMAGEDIM>
 typename theImagePointer image_general<ELEMTYPE, IMAGEDIM>::itk_image()
     {
-		cout<<"itk_image()... ("<<this->name()<<")";
+	cout<<"itk_image()... ("<<this->name()<<")";
     if (ITKimportimage.IsNull()){
 		cout<<" was NULL...";
 //        if (ITKimportfilter.IsNull()){
@@ -422,10 +425,12 @@ typename theImagePointer image_general<ELEMTYPE, IMAGEDIM>::itk_image()
 	else{
 		cout<<" already exists...";
 	}
+	cout<<endl;
 
     return ITKimportimage;
     }
-
+	*/
+/*
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::clear_itk_porting()
 {
@@ -436,6 +441,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::clear_itk_porting()
 	if(ITKimportimage.IsNotNull()){
 		cout<<"not null...";
 		ITKimportimage->Delete();
+		ITKimportimage = NULL;
 		if(ITKimportimage.IsNull()){
 			cout<<"but NOW...";
 		}
@@ -445,29 +451,36 @@ void image_general<ELEMTYPE, IMAGEDIM>::clear_itk_porting()
 	}
 	cout<<endl;
 }
-
+*/
+/*
 template <class ELEMTYPE, int IMAGEDIM>
 void  image_general<ELEMTYPE, IMAGEDIM>::port_to_itk_format()
     {
-//	cout<<"port_to_itk_format..."<<endl;
+	cout<<"port_to_itk_format..."<<endl;
 
     //ITKimportfilter = itk::ImportImageFilter< ELEMTYPE, IMAGEDIM >::New();
-	typename itk::ImportImageFilter<ELEMTYPE, IMAGEDIM>::Pointer ITKimportfilter = itk::ImportImageFilter< ELEMTYPE, IMAGEDIM >::New();
+	typedef itk::ImportImageFilter<ELEMTYPE, IMAGEDIM> filterType;
+	filterType::Pointer ITKimportfilter = filterType::New();
 
 	ITKimportfilter->SetRegion( get_region_itk() );
 	ITKimportfilter->SetOrigin(this->get_origin_itk());
 	ITKimportfilter->SetSpacing(this->get_voxel_size_itk());
-	ITKimportfilter->SetDirection(this->get_orientation_itk()); //JK - Very important to not leave out... ;-)
+	ITKimportfilter->SetDirection(this->get_orientation_itk()); //JK - Very important to remember ;-)
 
     ITKimportfilter->SetImportPointer( this->imagepointer(), this->num_elements, false);
-	ITKimportfilter->Update();
+//	ITKimportfilter->Update();
 
 	typedef itk::CastImageFilter<theImageType2, theImageType> castType;
 	castType::Pointer caster = castType::New();
 	caster->SetInput(ITKimportfilter->GetOutput());
 	caster->Update();
+
+	cout<<"new Image..."<<endl;
+	ITKimportimage = itk::OrientedImage<ELEMTYPE, IMAGEDIM>::New();
 	ITKimportimage = caster->GetOutput();
     }
+*/
+
 /*
 template <class ELEMTYPE, int IMAGEDIM>
 typename itk::ImportImageFilter< ELEMTYPE, IMAGEDIM >::Pointer image_general<ELEMTYPE, IMAGEDIM>::itk_import_filter()
@@ -533,6 +546,29 @@ typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::RegionType image_general<ELEMT
     itk_region.SetIndex( itk_start );
 	itk_region.SetSize( this->get_size_itk() );
 	return itk_region;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer image_general<ELEMTYPE, IMAGEDIM>::get_image_as_itk_output()
+{
+	cout<<"get_image_as_itk_output..."<<endl;
+
+	typedef itk::ImportImageFilter<ELEMTYPE, IMAGEDIM> filterType;
+	filterType::Pointer ITKimportfilter = filterType::New();
+	ITKimportfilter->SetRegion(this->get_region_itk());
+	ITKimportfilter->SetOrigin(this->get_origin_itk());
+	ITKimportfilter->SetSpacing(this->get_voxel_size_itk());
+	ITKimportfilter->SetDirection(this->get_orientation_itk()); //JK - Very important to remember ;-)
+
+    ITKimportfilter->SetImportPointer(this->imagepointer(), this->num_elements, false);
+
+    typedef itk::CastImageFilter<theImageType2, theImageType> castType;
+	castType::Pointer caster = castType::New();
+	caster->SetInput(ITKimportfilter->GetOutput());
+
+	caster->Update();
+
+	return caster->GetOutput();
 }
 
 
