@@ -113,9 +113,6 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_2nd
 template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im)
 {
-	this->make_image_an_itk_reader();
-	ITKimportfilter->Update();
-
 	typedef itk::ResampleImageFilter<theImageType, theImageType>  FilterType;
 	FilterType::Pointer filter = FilterType::New();
 
@@ -144,8 +141,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 
 //	ref_im->fill(10);				//JK-Warning öööö
 	ref_im->print_geometry();
-
-	filter->SetInput(itk_image());
+		
+	filter->SetInput(this->itk_image());
 	filter->SetTransform( transform );
 	filter->SetInterpolator( interpolator );//3-rd order is default.....
 	filter->SetDefaultPixelValue( 1 );
@@ -178,6 +175,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 //	cout<<"port back to pt-format..."<<endl;
 //	this->ITKimportimage = filter->GetOutput();
 //	image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image();
+
+	this->clear_itk_porting();
 }
 
 
@@ -1062,8 +1061,6 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_ITK(Vector3D radius)
 {
-	image_general<ELEMTYPE, IMAGEDIM>::make_image_an_itk_reader();		// without 'image_general<ELEMTYPE, IMAGEDIM>::' generates compiler error
-
 	typename itk::MeanImageFilter<theImageType,theImageType>::Pointer filter = itk::MeanImageFilter<theImageType,theImageType>::New();
 
 	typename theSizeType r;
@@ -1075,11 +1072,14 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_ITK(Vector3D radius)
 	r[2] = radius[2];
 
 	filter->SetRadius(r);
-	filter->SetInput(this->ITKimportfilter->GetOutput());
+	filter->SetInput(this->itk_image());
 	filter->Update();
 
 	this->ITKimportimage = filter->GetOutput();
-	image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image();
+//	image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image();
+
+	this->replicate_itk_to_image();
+	this->clear_itk_porting();
 }
 
 

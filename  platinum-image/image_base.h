@@ -105,7 +105,7 @@ class image_base : public data_base
             
         virtual void testpattern() = 0 ;
 
-        virtual void make_image_an_itk_reader() = 0;
+        virtual void port_to_itk_format() = 0; // previously "make_image_an_itk_reader"
 
         virtual unsigned short get_size_by_dim(int dim) const = 0;  //return voxel dimensions
         virtual Vector3D get_physical_size () const = 0; //return size in world coordinates

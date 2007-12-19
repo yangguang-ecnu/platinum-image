@@ -518,20 +518,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_path)
     {
-    //replicate image to ITK image and save it as VTK file
-
-//    make_image_an_itk_reader(); //JK warning... ööö remove this everywhere...
-
-//typename theImagePointer output_image=ITKimportfilter->GetOutput();
-//typename theImagePointer output_image=ITKimportfilter->GetOutput();
-
-
 	cout<<"save_to_VTK_file - GetDirection()="<<itk_image()->GetDirection()<<endl;
-	cout<<"save_to_VTK_file - GetSize()[0]="<<itk_image()->GetBufferedRegion().GetSize()[0]<<endl;
-	cout<<"save_to_VTK_file - GetSize()[1]="<<itk_image()->GetBufferedRegion().GetSize()[1]<<endl;
-	cout<<"save_to_VTK_file - GetSize()[2]="<<itk_image()->GetBufferedRegion().GetSize()[2]<<endl;
-//	output_image->SetDirection(this->get_orientation_itk());
-//	cout<<"save_to_VTK_file - itk_orientation="<<itk_orientation<<endl;
 
     typename theWriterType::Pointer writer = theWriterType::New();   //default file type is VTK
     writer->SetFileName( file_path.c_str() );
@@ -544,13 +531,15 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
         pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
 		std::cout<<ex<<std::endl;
         }
+
+	this->clear_itk_porting();
     }
 
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_path)
     {
-	cout<<"save_to_DCM_file..."<<endl;    //replicate image to ITK image and save it as DCM file
+	cout<<"save_to_DCM_file..."<<endl;    //port image to ITK image and save it as DCM file
 
 	//--------------------------------------------------------
 	//--- If dicom image has tag "DCM_IMAGE_ORIENTATION_PATIENT" a/b/c/d/e/f
@@ -600,6 +589,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_
 	//--------------------------------------------------------
 	this->orientation = this->orientation.GetTranspose(); //transpose again  "=back"
 	//--------------------------------------------------------
+
+	this->clear_itk_porting();
+
 }
 
 
@@ -627,17 +619,18 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice)
 {
 	typedef itk::ImageFileWriter<itk::OrientedImage<unsigned char,3> >	theTifWriterType;
-    make_image_an_itk_reader();
 
 	string s = file_path_base+"_"+slice+".tif";
 	theTifWriterType::Pointer writer = theTifWriterType::New();
 	writer->SetFileName(s.c_str());
-	writer->SetInput(ITKimportfilter->GetOutput());
+	writer->SetInput(itk_image());
 	try{
 		writer->Update();
 	}catch (itk::ExceptionObject &ex){
 		cout<<"Exception thrown saving file.....("<<s<<")"<<ex;
 	}
+
+	this->clear_itk_porting();
 }
 
 
