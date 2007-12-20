@@ -114,7 +114,7 @@ template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im)
 {
 	typedef itk::ResampleImageFilter<theImageType, theImageType>  FilterType;
-	typename FilterType::Pointer filter = FilterType::New();
+	FilterType::Pointer filter = FilterType::New();
 
 //	typedef itk::AffineTransform< double, IMAGEDIM >  TransformType;
 //	typedef itk::Rigid3DTransform< double > TransformType;
@@ -123,7 +123,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 
 	TransformType::MatrixType m;
 
-	typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::DirectionType d = ref_im->get_orientation_itk();
+	itk::OrientedImage<ELEMTYPE, IMAGEDIM >::DirectionType d = ref_im->get_orientation_itk();
 	cout<<"m="<<endl;
 	for(int i=0;i<3;i++){
 		for(int j=0;j<3;j++){
@@ -133,11 +133,11 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 		cout<<endl;
 	}
 //	transform->SetRotationMatrix(m);
-	transform->SetMatrix(m);
+//	transform->SetMatrix(m);
 
 
 	typedef itk::BSplineInterpolateImageFunction<theOrientedImageType, double >  InterpolatorType;
-	typename InterpolatorType::Pointer interpolator = InterpolatorType::New(); //3-rd order is default.....
+	InterpolatorType::Pointer interpolator = InterpolatorType::New(); //3-rd order is default.....
 
 //	ref_im->fill(10);				//JK-Warning öööö
 	ref_im->print_geometry();
@@ -150,6 +150,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 	filter->SetOutputOrigin( ref_im->get_origin_itk() );
 	filter->SetOutputSpacing( ref_im->get_voxel_size_itk() );
 	filter->SetSize( ref_im->get_size_itk() );
+	filter->SetOutputDirection(m);
+
 
 	try{
 		cout<<"filter update..."<<endl;
@@ -158,24 +160,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 		std::cerr << "Exception catched !" << std::endl;
 		std::cerr << excep << std::endl;
 	}
-
-	//-------- Save to VTK ----------------
-	cout<<"save..."<<endl;
-	typename theOrientedWriterType::Pointer writer = theOrientedWriterType::New();   //default file type is VTK
-	writer->SetFileName( "C:\\Joel\\TMP\\Pivus75\\FCM\\__spline_test.vtk" );
-    writer->SetInput(filter->GetOutput());
-    try{
-        writer->Update();
-        }
-    catch (itk::ExceptionObject &ex){
-        pt_error::error("Exception thrown saving file (C:\\Joel\\TMP\\_spline_test.vtk)", pt_error::warning);
-		std::cout<<ex<<std::endl;
-        }
-	//-------- Save to VTK ----------------
-
-//	cout<<"port back to pt-format..."<<endl;
-//	image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image( *** );
-
+	this->replicate_itk_to_image(filter->GetOutput());
 }
 
 
@@ -767,32 +752,6 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out(int low_x, int high_x, int low_y
 		}
 
 		return res;
-	}
-
-template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::copy(image_integer<ELEMTYPE, IMAGEDIM> *source, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, int direction)
-	{
-		int x,y,z;
-		int max_x, max_y, max_z;
-		max_x=this->get_size_by_dim_and_dir(0,direction);
-		max_y=this->get_size_by_dim_and_dir(1,direction);
-		max_z=this->get_size_by_dim_and_dir(2,direction);
-		if(low_x<0)
-			low_x=0;
-		if(low_y<0)
-			low_y=0;
-		if(low_z<0)
-			low_z=0;
-		if(high_x<0 || high_x>max_x)
-			high_x=max_x;
-		if(high_y<0 || high_y>max_y)
-			high_y=max_y;
-		if(high_z<0 || high_z>max_z)
-			high_z=max_z;
-		for(z=low_z; z<high_z; z++)
-			for(y=low_y; y<high_y; y++)
-				for(x=low_x; x<high_x; x++)
-					this->set_voxel_by_dir(x,y,z,source->get_voxel_by_dir(x,y,z,direction),direction);
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>

@@ -90,8 +90,8 @@ class data_base
         virtual const std::string name () const;          //get name
         bool from_file();
         void from_file(bool f); //set "from file" status
-        virtual void save_to_DCM_file(const std::string) = 0;
-        virtual void save_to_VTK_file(const std::string) = 0;
+        virtual void save_to_DCM_file(const std::string, const bool useCompression = true, const bool anonymize = true) = 0;
+        virtual void save_to_VTK_file(const std::string, const bool useCompression = true) = 0;
         virtual void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
     };
 
