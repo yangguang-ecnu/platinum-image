@@ -117,7 +117,45 @@ void rendercombination::toggle_data(int dataID)
         
         if ( image != NULL )
 		{	// it is an image
-			rendermanagement.center_and_fit( rendermanagement.renderer_from_combination(get_id()), image );
+			rendermanagement.center_and_fit( rendermanagement.renderer_from_combination(get_id()), image->get_id() );
+		}
+	}
+}
+
+void rendercombination::enable_data( int dataID )
+{
+    bool enabled = false;
+
+    for ( std::list<renderpair>::iterator itr = renderdata.begin(); itr != renderdata.end() && enabled == false; itr++ )
+	{
+		if ( itr->ID == dataID )
+		{
+			enabled = true;
+			break;
+		}
+	}
+    
+    if ( !enabled )
+	{
+		add_data(dataID);
+	
+        image_base * image = dynamic_cast<image_base *>( datamanagement.get_data(dataID) );
+        
+        if ( image != NULL )
+		{	// it is an image
+			rendermanagement.center_and_fit( rendermanagement.renderer_from_combination(get_id()), image->get_id() );
+		}
+	}
+}
+
+void rendercombination::disable_data( int dataID )
+{
+	for ( std::list<renderpair>::iterator itr = renderdata.begin(); itr != renderdata.end(); itr++ )
+	{
+		if ( itr->ID == dataID )
+		{
+			remove_image( dataID );
+			break;
 		}
 	}
 }

@@ -266,7 +266,7 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		std::string resolve_string(int index);
 		
 		// split a delimited string into multiple strings
-		// example: "aaa;bbb;ccc" -> "aaa", "bbb", "ccc"
+		// example: "aaa;bbb;ccc" -> "aaa" "bbb" "ccc"
 		void split( const std::string & s, char c, std::vector<std::string> & v );
 		
 		int landmarksID;
@@ -381,12 +381,15 @@ class FLTKuserIOpar_image : public FLTKuserIOparameter_base   //image selection 
         const std::string type_name ();
     };
 	
-class FLTKuserIOpar_image_button : public FLTKuserIOpar_image
+class FLTKuserIOpar_imageshow : public FLTKuserIOpar_image
 {
 	protected:
-		Fl_Button * show_button;
+		std::vector<Fl_Check_Button *> checkbuttons;
+//		Fl_Button * show_button;
+		
 	public:
-		FLTKuserIOpar_image_button( std::string name );
+		FLTKuserIOpar_imageshow( std::string name );
+		static void show_callback( Fl_Widget * callingwidget, void * this_image_show );
 };
 
 class FLTKuserIOpar_points : public FLTKuserIOparameter_base   //point selection (using popup menu)

@@ -79,7 +79,7 @@ public:
     static void init (int x, int y,statusarea *);
     
     static void select (const std::string);
-	static void select_and_disable_remaining( const std::string key );
+	static void select_only( const std::string key );
     static viewporttool * taste(viewport_event &,viewport *,renderer_base *);  //if the current tool responds to the event, return instance (which will be getting the events from now on until another tool is selected)
     virtual void handle(viewport_event &) = 0;
     //bool handle(int event,enum {create, adjust} );

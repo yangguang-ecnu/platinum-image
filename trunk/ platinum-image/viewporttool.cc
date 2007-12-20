@@ -153,7 +153,7 @@ void viewporttool::select (const std::string key)
         }  
 }
 
-void viewporttool::select_and_disable_remaining( const std::string key )
+void viewporttool::select_only( const std::string key )
 {
     selected = key;
 
@@ -318,7 +318,7 @@ void nav_tool::handle(viewport_event &event)
 						// och en metod som roterar bild kring dess origin (ändrar endast orientation)
 					
 												
-						// rendermanagement.center_and_fit ( top );
+						// rendermanagement.center_and_fit ( top->get_id() );
 						
 					}
 				}
@@ -443,7 +443,7 @@ void nav_tool::center_and_fit()
 	image_base * top;
 	if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
 	{	// there is an image in current viewport			
-		rendermanagement.center_and_fit ( myRenderer->get_id(), top );
+		rendermanagement.center_and_fit ( myRenderer->get_id(), top->get_id() );
 		refresh_by_image_and_direction();
 	}
 }

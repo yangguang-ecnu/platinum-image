@@ -42,7 +42,8 @@ bool viewport::renderermenu_built=false;
 
 //static Fl_Menu_Item renderermenu_global[NUM_RENDERER_TYPES_PLUS_END];   //this one should be protected too
 
-enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG};
+// declared in global.h now:
+//enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG};
 //enum preset_direction {AXIAL, CORONAL, SAGITTAL,AXIAL_NEG, CORONAL_NEG, SAGITTAL_NEG};
 
 const char * preset_direction_labels[] =
@@ -608,11 +609,28 @@ void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
 
 }
 
-void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
+void viewport::set_direction( const Matrix3D & dir )
 {
+    Matrix3D * dir_p = new Matrix3D(dir);
+	
+    rendermanagement.set_geometry( rendererIndex, dir_p );
+    
+    delete dir_p;
+	
+	// update all viewports that shows at least one of the images in the current viewport (slice locators)
+		
+	int combinationID = rendermanagement.get_combination_id( rendererIndex );
+	std::vector<int> geometryIDs = rendermanagement.geometries_by_image ( combinationID );		// return geometries that holds at least one of the images in the input combination
 
-    enum {x=0,y,z};
-    menu_callback_params * params = (menu_callback_params *) p;
+	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
+	{
+		viewmanagement.refresh_viewports_from_geometry( *itr );
+	}
+}
+
+void viewport::set_direction( preset_direction direction ) 
+{
+    enum { x, y, z };
     
     Matrix3D dir;
     dir.Fill(0);
@@ -629,7 +647,8 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
     
 	//enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG};
 
-    switch (params->direction) {
+    switch ( direction )
+	{
         case Z_DIR:
         //case AXIAL:
             dir[x][0]=1;	// the x direction of the viewport ("0") lies in the positive ("+1") x direction ("x") of the world coordinate system
@@ -672,25 +691,27 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
             dir[x][2]=-1;
             break;
     }
-    
-    Matrix3D * dir_p=new Matrix3D(dir);
-    rendermanagement.set_geometry(params->vport->rendererIndex,dir_p);
-    
-    //callingwidget=directionmenu_button
-    callingwidget->label(preset_direction_labels[params->direction]);
-
-    delete dir_p;
 	
-			
-	// update all viewports that shows at least one of the images in the current viewport:
-		
-	int combinationID = rendermanagement.get_combination_id( params->vport->rendererIndex );
-	std::vector<int> geometryIDs = rendermanagement.geometries_by_image ( combinationID );		// return geometries that holds at least one of the images in the input combination
+	set_direction( dir );
 
-	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
+	directionmenu_button->label( preset_direction_labels[direction] );
+	
+}
+
+void viewport::enable_and_set_direction( preset_direction direction )
+{
+    if ( directionmenu_button != NULL )
 	{
-		viewmanagement.refresh_viewports_from_geometry( *itr );
+        Fl_Menu_Item * directionmenu = (Fl_Menu_Item *) directionmenu_button->menu();
+		directionmenu[direction].setonly();
+		set_direction( direction );
 	}
+}
+
+void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
+{
+    menu_callback_params * params = (menu_callback_params *) p;
+	params->vport->set_direction( params->direction );
 }
 
 void viewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )

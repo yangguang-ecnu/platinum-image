@@ -880,7 +880,7 @@ void image_base::try_loader (std::vector<std::string> * f) //! helper for image_
 void image_base::load( std::vector<std::string> f)	//loads all files and adds them to datamanagement...
     {
 	
-	userIOmanagement.progress_update( 1, "Loading image(s)...", 1 );
+	userIOmanagement.progress_update( 1, "Loading image(s)...", 2 );
 	
     std::vector<std::string> chosen_files(f);
     
@@ -906,6 +906,7 @@ void image_base::load( std::vector<std::string> f)	//loads all files and adds th
         rawimporter::create(chosen_files);
         }
 
+	userIOmanagement.progress_update( 2, "Loading image(s)...", 2 );
 	userIOmanagement.progress_update();
 	
     }

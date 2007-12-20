@@ -205,8 +205,8 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 	saveSetBtn->callback( saveSetCallback, (void *) this );
 
 	loadSetBtn = new Fl_Button( w() - btnWidth, y() + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load");
-	loadSetBtn->callback( loadSetCallback, (void *) this );
-//	loadSetBtn->callback( loadSetCallbackNew, (void *) this );
+//	loadSetBtn->callback( loadSetCallback, (void *) this );
+	loadSetBtn->callback( loadSetCallbackNew, (void *) this );
 
 
 
@@ -215,7 +215,7 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 	descriptorText->color(FL_BACKGROUND_COLOR);
 	descriptorText->value ( "Descriptor file" );
 
-//	emptyBox = new Fl_Box( w() - 3 * btnWidth, y() + PARBOXBORDER, 2 * btnWidth, STDPARWIDGETHEIGHT - PARBOXBORDER);
+	emptyBox = new Fl_Box( w() - 3 * btnWidth, y() + PARBOXBORDER, 2 * btnWidth, STDPARWIDGETHEIGHT - PARBOXBORDER);
 
 	loadDescriptorBtn = new Fl_Button ( w() - btnWidth, y() + STDPARWIDGETHEIGHT + PARBOXBORDER, btnWidth, BUTTONHEIGHT - PARBOXBORDER, "Load" );
 	loadDescriptorBtn->callback( loadDescriptorCallback, (void*) this );
@@ -227,16 +227,17 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks ( const std::string name ) : FL
 	browser->textsize(12);
 	//browser->when(...)		
 
-	
-	//int widths[] = { 50, 50, 0 };
-	//browser->column_widths(widths);
-	//browser->column_char('\t');
-	//browser->type(FL_HOLD_BROWSER);
-
-	
+	// [index][space][description][space][option][space][coordinate]
+	int widths[] = { 5, 40, 20, 0 };
+	browser->column_widths( widths );
+	browser->column_char( '\t' );
+	browser->add( "8712812873123871\tPasaskj sadkjaskdjlaskdlkajsldkjasdfjkjwkdncnzmIADSD\tCPU" );
+	browser->add( "871123871\tPasaskj sadkjaskdjlaskdlkajsldkjasdfjkjwkdncnzmIADSD\tCPU" );
+	browser->add( "871281287asdasdas23871\tPasaskj sadkjaskdj dkjasdfj wk IADSD\tCPU" );
 	
 	resizable(landmarkText);	
 //	resizable(browser);
+//	resizable( emptyBox);
 	end();
 
 
@@ -545,10 +546,8 @@ void FLTKuserIOpar_landmarks::loadSetCallbackNew( Fl_Widget *callingwidget, void
 	l->option_names.clear();
 	l->browser->clear();
 
-	const int line_length = 50;
+	const int line_length = 200;
 	char buffer[line_length];
-
-
 
 	while ( !ifs.eof() )
 	{
@@ -599,7 +598,7 @@ void FLTKuserIOpar_landmarks::loadSetCallbackNew( Fl_Widget *callingwidget, void
 				// std::cout << index << ";" << coord << std::endl;
 
 
-				// fixa klassen så att när descriptorn läses in så görs förrst clean() på browser, landmark_names, option_names
+				// fixa klassen så att när descriptorn läses in så görs först clean() på browser, landmark_names, option_names
 				// sedan fylls landmarks_names
 				
 				// tag bort kommentaren från points->clear() ovan och tag även bort kommentaren nedan.
@@ -931,24 +930,67 @@ const std::string FLTKuserIOpar_image::type_name ()
     return "image ID";
     }
 
-#pragma mark *** FLTKuserIOpar_image_button ***
+#pragma mark *** FLTKuserIOpar_imageshow ***
 
-FLTKuserIOpar_image_button::FLTKuserIOpar_image_button( const std::string name) : FLTKuserIOpar_image( name )
+FLTKuserIOpar_imageshow::FLTKuserIOpar_imageshow( const std::string name) : FLTKuserIOpar_image( name )
 {
-
+	current( this );
 	
+	const int width = 30;	
 
-	const int btnWidth = 30;
-	show_button = new Fl_Button( FLTKuserIOpar_image::x(), FLTKuserIOpar_image::y() + PARTITLEMARGIN, btnWidth, BUTTONHEIGHT, "Load");
-	end();
-
-	//show_button->callback(show_callback);
+	std::vector<int> rendererIDs = rendermanagement.get_renderers();
+	
+	for ( std::vector<int>::const_iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
+	{
+		std::string index = int2str( *itr );
+		
+		Fl_Check_Button * temp = new Fl_Check_Button( x() + PARMENUWIDTH + (*itr - 1) * width , y() + PARTITLEMARGIN, width, h() - PARTITLEMARGIN );
+		temp->copy_label( index.c_str() );
+		if ( *itr < 4 )
+			{ temp->set(); }		// check viewport 1,2,3 by default
+		
+		checkbuttons.push_back( temp );
+	}
+	
+	control->callback( show_callback, (void*) this );
+		
+    end();
 }
 
-//FLTKuserIOpar_image_button::show_callback( Fl_Widget *callingwidget, void * foo)
-//{
-//
-//}
+void FLTKuserIOpar_imageshow::show_callback( Fl_Widget * callingwidget, void * this_image_show )
+{
+	par_update_callback( callingwidget, NULL );
+
+	FLTKuserIOpar_imageshow * image_show = reinterpret_cast<FLTKuserIOpar_imageshow *> ( this_image_show );
+	
+	int imageID = image_show->control->id_value();
+	
+	if ( imageID == NOT_FOUND_ID )
+		{ return; }
+
+	
+	int id = 1;
+	for ( std::vector<Fl_Check_Button *>::const_iterator itr = image_show->checkbuttons.begin(); itr != image_show->checkbuttons.end(); itr++ )
+	{
+		if ( (*itr)->value() )
+		{	// is checked
+			rendermanagement.enable_image( id, imageID );
+			rendermanagement.center_and_fit( id, imageID );			
+		}
+		else
+		{
+			rendermanagement.disable_image( id, imageID );			
+		}	
+		id++;
+	}
+	
+	
+//	for ( int i = 1; i < 4; i++ )
+//	{	// show the image in viewport 1,2,3
+//		rendermanagement.enable_image( i, imageID );
+//		rendermanagement.center_and_fit( i, imageID );		
+//	}
+}
 
 
 #pragma mark *** FLTKuserIOpar_points ***

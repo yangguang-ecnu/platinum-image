@@ -25,8 +25,11 @@
 #include "rendererMPR.h"
 #include "rendererMIP.h"
 #include "viewmanager.h"
+#include "datamanager.h"
 
 rendermanager rendermanagement;
+
+extern datamanager datamanagement;
 extern viewmanager viewmanagement;
 
 using namespace std;
@@ -350,6 +353,18 @@ void rendermanager::toggle_image (int rendererIndex, int imageID)
     {
     renderers[rendererIndex]->imagestorender->toggle_data( imageID);
     }
+	
+void rendermanager::enable_image( int rendererID, int imageID )
+{
+	int rendererIndex = find_renderer_index( rendererID );
+	renderers[rendererIndex]->imagestorender->enable_data( imageID );
+}
+
+void rendermanager::disable_image( int rendererID, int imageID )
+{
+	int rendererIndex = find_renderer_index( rendererID );
+	renderers[rendererIndex]->imagestorender->disable_data( imageID );
+}
 
 int rendermanager::image_rendered(int rendererIndex, int volID)
     {
@@ -472,8 +487,10 @@ void rendermanager::set_blendmode(int renderer_index,blendmode mode)
     renderers[renderer_index]->imagestorender->blend_mode(mode);
     }
 	
-void rendermanager::center_and_fit( const int rendererID, image_base * image )
+void rendermanager::center_and_fit( const int rendererID, const int imageID )
 {
+	image_base * image = datamanagement.get_image( imageID );
+	
 	Vector3D size = image->get_physical_size();
 
 	Vector3D half_size;
@@ -542,13 +559,13 @@ void rendermanager::center_and_fit( const int rendererID, image_base * image )
 */
 }
 
-void rendermanager::center_and_fit( image_base * image )
+void rendermanager::center_and_fit( const int imageID )
 {
-	std::vector<int> rendererIDs = rendermanagement.renderers_from_data( image->get_id() );
+	std::vector<int> rendererIDs = rendermanagement.renderers_from_data( imageID );
 	
 	for ( std::vector<int>::iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
 	{
-		center_and_fit( *itr, image );
+		center_and_fit( *itr, imageID );
 	}
 }
 
@@ -583,5 +600,14 @@ std::vector<int> rendermanager::data_from_combination ( const int combinationID 
 	return dataIDs;
 }
 
+std::vector<int> rendermanager::get_renderers()
+{
+	std::vector<int> rendererIDs;
 
-
+    for ( std::vector<renderer_base *>::iterator itr = renderers.begin(); itr != renderers.end(); itr++ )
+	{
+		rendererIDs.push_back( (*itr)->get_id() );
+	}
+	
+	return rendererIDs;
+}
