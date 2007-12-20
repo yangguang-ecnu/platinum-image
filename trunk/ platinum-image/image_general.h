@@ -61,7 +61,7 @@ template<class ELEMTYPE, int IMAGEDIM>
 
 #include "itkResampleImageFilter.h"				//used in image_scalar --> spline interpolation
 #include "itkBSplineInterpolateImageFunction.h" //used in image_scalar --> spline interpolation
-#include "itkAffineTransform.h"					//used in image_scalar --> spline interpolation
+//#include "itkAffineTransform.h"					//used in image_scalar --> spline interpolation
 //#include "itkRigid3DTransform.h"				//used in image_scalar --> spline interpolation
 #include "itkMatrixOffsetTransformBase.h"		//used in image_scalar --> spline interpolation
 
@@ -186,6 +186,8 @@ class image_general : public image_storage <ELEMTYPE >
 
 		//****** Sub volume operations - regions ********
 		image_general<ELEMTYPE, IMAGEDIM>* get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2);	
+		void get_span_of_values_larger_than(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2);
+		image_general<ELEMTYPE, IMAGEDIM>* crop_3D(image_binary<3> *mask);	
 		//... get_sub_region(...)
 
 		//****** Sub volume operations - slices********
@@ -228,8 +230,8 @@ class image_general : public image_storage <ELEMTYPE >
         void load_dataset_from_these_DICOM_files(vector<string> filenames);
 		void load_dataset_from_all_DICOM_files_in_dir(std::string dir_path);
 
-        void save_to_VTK_file(const std::string file_path);
-        void save_to_DCM_file(const std::string file_path);
+        void save_to_VTK_file(const std::string file_path, const bool useCompression = true);
+        void save_to_DCM_file(const std::string file_path, const bool useCompression = true, const bool anonymize = true);
         void save_to_TIF_file_series_3D(const std::string file_path_base);
 		void save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice);
 

@@ -384,7 +384,8 @@ void image_storage<ELEMTYPE >::stats_refresh(bool min_max_refresh)
 	if(min_max_refresh){
 		this->min_max_refresh();
 	}
-    stats->calculate(); 
+    stats->calculate(); //when called without argument (=0) the histogram "resolution" is kept..
+
 
     //TODO:
     //store #distinct values locally 

@@ -516,15 +516,15 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_path)
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_path, const bool useCompression)
     {
 	cout<<"save_to_VTK_file..."<<endl;
     typename theWriterType::Pointer writer = theWriterType::New();   //default file type is VTK
     writer->SetFileName( file_path.c_str() );
-//    writer->SetInput(this->itk_image());
     writer->SetInput(get_image_as_itk_output());
-
-//	cout<<"this->itk_image()->GetDirection()=\n"<<this->itk_image()->GetDirection()<<endl;
+	if(useCompression){
+		writer->UseCompressionOn();
+	}
 
     try{
         writer->Update();
@@ -533,13 +533,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
         pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
 		std::cout<<ex<<std::endl;
         }
-
-//	this->clear_itk_porting();
     }
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_path)
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_path, const bool useCompression, const bool anonymize)
     {
 	cout<<"save_to_DCM_file..."<<endl;    //port image to ITK image and save it as DCM file
 
@@ -551,40 +549,35 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_
 	//		c f l
 	//--- GDCMImageIO saves the direcional conines transposed compared to the ITK use....
 	//--- Idea - Transpose rotation matrix before saving... and again after...
+
 	//--------------------------------------------------------
 	this->orientation = this->orientation.GetTranspose();
 	//--------------------------------------------------------
 
-
     typename theWriterType::Pointer writer = theWriterType::New();
-    writer->SetFileName( file_path.c_str() );
-//    writer->SetInput(this->itk_image());
 	typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer image = get_image_as_itk_output();
+    writer->SetFileName( file_path.c_str() );
     writer->SetInput(image);
+	if(useCompression){
+		writer->UseCompressionOn();
+	}
 
+	if(anonymize){
+		typedef itk::GDCMImageIO ImageIOType;
+		ImageIOType::Pointer gdcmImageIO = ImageIOType::New();
+		writer->SetImageIO( gdcmImageIO );
+		typedef itk::MetaDataDictionary   DictionaryType;
+		DictionaryType & dictionary = image->GetMetaDataDictionary();
 
-	//-----------------------------
-	//-----------------------------
-	typedef itk::GDCMImageIO ImageIOType;
-	ImageIOType::Pointer gdcmImageIO = ImageIOType::New();
-	writer->SetImageIO( gdcmImageIO );
-
-	typedef itk::MetaDataDictionary   DictionaryType;
-//	DictionaryType & dictionary = this->itk_image()->GetMetaDataDictionary();
-	DictionaryType & dictionary = image->GetMetaDataDictionary();
-	
-
-	//TODO - make sure all interesting data in "metadata-object" is saves....
-	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_NAME, "Anonymized" );
-	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_ID, "Anonymized" );
-	itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_BIRTH_DATE, "Anonymized" );
-	// The two lines below don't work... 
-	// The brutal rotation of the orientation matrix was used before and after saving instead...
-	//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_POSITION_PATIENT, "1\\2\\3" );
-	//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_ORIENTATION_PATIENT, this->get_orientation_as_dcm_string() );
-
-	//-----------------------------
-	//-----------------------------
+		//TODO - make sure all interesting data in "metadata-object" is saves....
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_NAME, "Anonymized" );
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_ID, "Anonymized" );
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_BIRTH_DATE, "Anonymized" );
+		// The two lines below don't work... 
+		// The brutal rotation of the orientation matrix was used before and after saving instead...
+		//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_POSITION_PATIENT, "1\\2\\3" );
+		//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_ORIENTATION_PATIENT, this->get_orientation_as_dcm_string() );
+	}
 
     try{
         writer->Update();
@@ -596,10 +589,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_
 	//--------------------------------------------------------
 	this->orientation = this->orientation.GetTranspose(); //transpose again  "=back"
 	//--------------------------------------------------------
-
-//	this->clear_itk_porting();
-
 }
+
+
 
 
 template <class ELEMTYPE, int IMAGEDIM>

@@ -208,7 +208,9 @@ histogram_1D<ELEMTYPE >::~histogram_1D ()
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
     {
-//	cout<<"---histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)---"<<endl;
+	//if new_num_buckets == 0 --> keep the current resolution...
+
+	cout<<"---histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)---"<<endl;
 
 	if (new_num_buckets !=0 || this->buckets==NULL){
         //resize(...) isn't used here because this function is called from resize,
@@ -228,14 +230,14 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 
     //get pointer to source data
 
-    if (this->i_start == NULL)
-        {
+//    if (this->i_start == NULL) //Always re-read the pointers... they might be lost after some ITK-process for example
+  //      {
         // retrieve pointers to image data, iterating pointers are generally a bad idea
         //but this way histograms can be made straight from data pointers when
         //there is not yet an image, such as during load of raw files
         this->i_start = this->images[0]->begin().pointer();
         this->i_end = this->images[0]->end().pointer();
-        }
+    //    }
 
     this->readytorender=(this->i_start != NULL);
 

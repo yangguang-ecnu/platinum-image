@@ -135,15 +135,12 @@ template <class ELEMTYPE, int IMAGEDIM>
 template <class sourceType>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType, IMAGEDIM> * sourceImage)
     {
-//    ITKimportfilter=NULL;
-//    ITKimportimage=NULL;
+	this->set_origin(sourceImage->get_origin());
+    this->set_voxel_size(sourceImage->get_voxel_size());
+	this->set_orientation(sourceImage->get_orientation());
 
     this->stats->max(sourceImage->get_max());
     this->stats->min(sourceImage->get_min());
-
-	this->set_origin(sourceImage->get_origin());
-	this->set_orientation(sourceImage->get_orientation());
-    this->set_voxel_size(sourceImage->get_voxel_size());
 
     // *ID, from_file, imagename and widget are assigned in image_base constructor
     }
@@ -399,15 +396,12 @@ template <class ELEMTYPE, int IMAGEDIM>
 //void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i)
 void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer i)
     {
-    pt_error::error_if_false (i.IsNotNull (), "Attempting to create ITK image from unitialized image object", pt_error::fatal ); 
+	pt_error::error_if_true(i.IsNull(),"replicate_itk_to_image -- ITK image is NULL", pt_error::fatal ); 
 
-    typename theSizeType ITKsize = (i->GetLargestPossibleRegion()).GetSize();
-
+    typename theSizeType ITKsize = i->GetLargestPossibleRegion().GetSize();
     i->SetBufferedRegion(i->GetLargestPossibleRegion());
-
     initialize_dataset(ITKsize[0], ITKsize[1], ITKsize[2],i->GetBufferPointer());
-
-    set_parameters (i);
+    set_parameters(i);
     }
 /*
 template <class ELEMTYPE, int IMAGEDIM>
@@ -671,15 +665,18 @@ template <class ELEMTYPE, int IMAGEDIM>
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2){
-	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>();
-	res->initialize_dataset(x2-x1+1,y2-y1+1,z2-z1+1);
-
+image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2)
+{
 	cout<<"get_subvolume_from_region_3D..."<<endl;
-//	this->print_geometry();
-//	res->print_geometry();
-//	char c;
-//	cin>>c;
+	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(x2-x1+1, y2-y1+1, z2-z1+1);
+	res->set_parameters(this);
+
+	int max_x=this->get_size_by_dim(0);
+	int max_y=this->get_size_by_dim(1);
+	int max_z=this->get_size_by_dim(2);
+	x1 = max(x1,0);	x2 = min(x2,max_x);
+	y1 = max(y1,0);	y2 = min(y2,max_y);
+	z1 = max(z1,0);	z2 = min(z2,max_z);
 
 	for (int z=z1, res_z=0; z<=z2; z++, res_z++){
 		for (int y=y1, res_y=0; y<=y2; y++,res_y++){
@@ -688,9 +685,41 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvol
 			}
 		}
 	}
+	res->set_origin(this->get_physical_pos_for_voxel(x1,y1,z1));
 	return res;
 }
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_values_larger_than(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2)
+{
+	x1 = datasize[0];	x2 = 0;
+	y1 = datasize[1];	y2 = 0;
+    z1 = datasize[2];	z2 = 0;
 
+	for (int z=0; z < datasize[2]; z++){
+		for (int y=0; y < datasize[1]; y++){
+			for (int x=0; x < datasize[0]; x++){
+				if(get_voxel(x,y,z)>val_limit){
+					x1 = min(x,x1);
+					y1 = min(y,y1);
+					z1 = min(z,z1);
+					x2 = max(x,x2);
+					y2 = max(y,y2);
+					z2 = max(z,z2);
+				}
+			}
+		}
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::crop_3D(image_binary<3> *mask)
+{
+	if(this->same_size(mask)){
+
+	}else{
+		pt_error::error("crop_3D(image_binary<3> *mask)--> NOT same size...",pt_error::debug);
+	}
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slices_3D(int start_slice, int every_no_slice, int slice_dir)
@@ -1410,14 +1439,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::O
             {this->orientation[d][c]=itk_orientation[d][c];}
         }
     
-
     if (voxel_size[0] * voxel_size[1] * voxel_size[2] == 0)
         { voxel_size.Fill(1); }
 
+	this->print_geometry(); //JK
 
-
-    calc_transforms ();
-
+    calc_transforms();
 
 	typename theStatsFilterPointerType statsFilter = theStatsFilterType::New();
     statsFilter->SetInput(i);

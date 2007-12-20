@@ -39,6 +39,8 @@
 #include "itkMetaDataDictionary.h"	//used in dicomloader::
 #include "itkMetaDataObject.h"		//used in dicomloader::
 #include "itkGDCMImageIO.h"			//used in dicomloader::
+#include "itkDICOMImageIO2.h"		//JK compresstion test...
+
 #include "gdcmFileHelper.h"			//used in dicomloader::
 
 enum imageDataType
