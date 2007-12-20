@@ -198,9 +198,9 @@ int userIOmanager::add_par_image(int userIO_ID, std::string new_param_name)
     return block_from_ID(userIO_ID)->add_par(par);
     }
 	
-int userIOmanager::add_par_image_button( int userIO_ID, std::string new_param_name )
+int userIOmanager::add_par_imageshow( int userIO_ID, std::string new_param_name )
 {
-    FLTKuserIOparameter_base * par = new FLTKuserIOpar_image_button( new_param_name );
+    FLTKuserIOparameter_base * par = new FLTKuserIOpar_imageshow( new_param_name );
     return block_from_ID( userIO_ID )->add_par( par );
 }
 
@@ -247,9 +247,9 @@ void userIOmanager::select_tool ( const std::string key )
     viewmanagement.refresh_viewports_after_toolswitch();  
 }
 
-void userIOmanager::select_tool_and_disable_remaining( const std::string key )
+void userIOmanager::select_tool_only( const std::string key )
 {
-	viewporttool::select_and_disable_remaining( key );
+	viewporttool::select_only( key );
 }
 
 std::vector<FLTKuserIOpar_histogram2D *> userIOmanager::get_histogram_for_image (int imageID)

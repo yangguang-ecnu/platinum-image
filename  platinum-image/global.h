@@ -64,6 +64,7 @@ enum DICOM_LOADER_TYPE {DCM_LOAD_ALL, DCM_LOAD_SERIES_ID_ONLY}; 	//LOAD_ALL is u
 enum POINT_TYPE { MAX_GRAD_MAG_X, MAX_GRAD_MAG_Y, MAX_GRAD_MAG_Z, MAX_GRAD_MAG_XY, MAX_GRAD_MAG_XZ, MAX_GRAD_MAG_YZ, MAX_GRAD_MAG_XYZ };
 enum GRAD_MAG_TYPE { X, Y, Z, XYZ, XY, XZ, YZ };
 enum WEIGHT_TYPE { CHESSBOARD };
+enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG};
 
 //Dicom Tag definitions
 //More DICOM tag definitions can be found at:  http://medical.nema.org/dicom/2007/07_06pu.pdf

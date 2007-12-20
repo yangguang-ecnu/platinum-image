@@ -100,6 +100,11 @@ private:
     void rebuild_renderer_menu ();//update checkmark for current renderer type
     static void cb_renderer_select (Fl_Widget * o, void * v);
     void rebuild_blendmode_menu ();//update checkmark for current blend mode
+	
+	void set_direction( const Matrix3D & dir );
+	void set_direction( preset_direction direction ); 
+	
+	
 public:
     viewport();
     virtual ~viewport();
@@ -111,7 +116,7 @@ public:
     static void toggle_image_callback(Fl_Widget *callingwidget, void * params );
     static void set_direction_callback(Fl_Widget *callingwidget, void * params );
     static void set_blendmode_callback(Fl_Widget *callingwidget, void * params );
-    
+	
     bool render_if_needed (FLTKviewport * f);
         
     // *** refresh methods ***
@@ -154,6 +159,9 @@ public:
 	void connect_renderer(int rID);
 
 	void  set_timer_delay(int delay = 0); // if zero, remove timer and always render directly
+	
+	void enable_and_set_direction( preset_direction direction );
+
 };
 
 #endif

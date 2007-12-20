@@ -86,11 +86,11 @@ class viewmanager
         int get_renderer_id(int viewportid);
 		
 		
-		std::vector<int> viewports_from_renderers(const std::vector<int> & viewport_ids);	// return a set of viewport ids
+		std::vector<int> viewports_from_renderers(const std::vector<int> & rendererIDs);	// return a set of viewport ids
 
 		int viewport_from_renderer(int); // return a viewport id
 		
-		const viewport * const get_viewport(int viewport_id);	// return a viewport
+		viewport * get_viewport( int viewportID );	// return a viewport
 		
 		void viewmanager::show_point_by_combination ( const Vector3D & point, const int combinationID,  const unsigned int margin = 5 );	// show this point in all viewports that has at least on of ids in combinationIDs active
 	

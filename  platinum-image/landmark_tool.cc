@@ -85,9 +85,7 @@ void landmark_tool::handle(viewport_event &event)
 			event.grab();
 			
 			point_collection_ID = userIOmanagement.get_landmarksID(userIO_ID);
-			
-			rendermanagement.connect_data_renderer(myPort->get_renderer_id(), point_collection_ID);			
-			
+						
 			if (event.state() == pt_event::begin)
 			{				
 				if ( datamanagement.find_data_index(point_collection_ID) == -1 )

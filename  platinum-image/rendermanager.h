@@ -72,6 +72,11 @@ class rendermanager
        
         void toggle_image (int rendererIndex, int imageID);   //turn image on or off in a combination,
                                                                 //triggered by menu selection
+		void enable_image( int rendererID, int imageID );	// turn image on or leave it on
+
+		void disable_image( int rendererID, int imageID );	// turn image off or leave it off
+		
+
 
         //int get_renderer_type(int rendererIndex);
         int get_blend_mode (int rendererIndex);
@@ -139,12 +144,14 @@ class rendermanager
         void set_blendmode(int rend_index,blendmode mode);   //sets combination-wide blend mode, if blendmode is later defined
                                                              //for each image in a combination, this should set all of them
 															 
-		void center_and_fit ( const int rendererID, image_base * image );
-		void center_and_fit ( image_base * image );
+		void center_and_fit ( const int rendererID, const int imageID );
+		void center_and_fit ( const int imageID );
 		
 		std::vector<int> images_from_combination ( const int combinationID );	// return all image ids in a combination
 		
 		std::vector<int> data_from_combination ( const int combinationID );		// return all data ids in a combination
+		
+		std::vector<int> get_renderers();
 
     };
 

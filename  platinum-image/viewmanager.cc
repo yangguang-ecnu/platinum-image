@@ -413,13 +413,13 @@ std::vector<threshold_overlay *> viewmanager::get_overlays (thresholdparvalue * 
     return result;
     }
 	
-std::vector<int> viewmanager::viewports_from_renderers(const std::vector<int> & renderers)
+std::vector<int> viewmanager::viewports_from_renderers(const std::vector<int> & rendererIDs)
 {
 	// Two viewports can not have the same renderer
 	
 	std::vector<int> viewport_ids;
 
-	for ( std::vector<int>::const_iterator ritr = renderers.begin(); ritr != renderers.end(); ritr++ )
+	for ( std::vector<int>::const_iterator ritr = rendererIDs.begin(); ritr != rendererIDs.end(); ritr++ )
 	{	
 		int vp = viewport_from_renderer(*ritr);
 		
@@ -442,9 +442,9 @@ int viewmanager::viewport_from_renderer(int renderer_id)
 }
 
 
-const viewport * const viewmanager::get_viewport(int viewport_id)
+viewport * viewmanager::get_viewport( int viewportID )
 {
-	int viewport_index = find_viewport_index(viewport_id);
+	int viewport_index = find_viewport_index(viewportID);
 	
 	if ( viewport_index != NOT_FOUND_ID )
 	{ 
@@ -464,7 +464,7 @@ void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::v
 		rendergeometry * geometry = rendermanagement.get_geometry ( *itr );
 
 		const int viewport_id = viewmanagement.viewport_from_renderer(*itr);
-		const viewport * const vp = viewmanagement.get_viewport(viewport_id);
+		viewport * vp = viewmanagement.get_viewport(viewport_id);
 		
 		const int sx = vp->pixmap_size()[0];
 		const int sy = vp->pixmap_size()[1];

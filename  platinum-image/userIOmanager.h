@@ -89,7 +89,7 @@ class userIOmanager
 		int add_par_string(int userIO_ID, std::string new_param_name,std::string init_status = "");
 
         int add_par_image(int userIO_ID, std::string new_param_name);
-		int add_par_image_button( int userIO_ID, std::string new_param_name );
+		int add_par_imageshow( int userIO_ID, std::string new_param_name );
         int add_par_points(int userIO_ID, std::string new_param_name);
         int add_par_voxelseed(int userIO_ID, std::string new_param_name);
 
@@ -99,7 +99,7 @@ class userIOmanager
         template <class ptype>
             ptype get_parameter(int IOblockID, int num);
         void select_tool (const std::string);
-		void select_tool_and_disable_remaining( const std::string key );
+		void select_tool_only( const std::string key );
 
         std::vector<FLTKuserIOpar_histogram2D *> get_histogram_for_image (int imageID);
 		

@@ -471,7 +471,7 @@ void  image_general<ELEMTYPE, IMAGEDIM>::port_to_itk_format()
 //	ITKimportfilter->Update();
 
 	typedef itk::CastImageFilter<theImageType2, theImageType> castType;
-	castType::Pointer caster = castType::New();
+	typename castType::Pointer caster = castType::New();
 	caster->SetInput(ITKimportfilter->GetOutput());
 	caster->Update();
 
@@ -540,7 +540,7 @@ typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::DirectionType image_general<EL
 template <class ELEMTYPE, int IMAGEDIM>
 typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::RegionType image_general<ELEMTYPE, IMAGEDIM>::get_region_itk()
 {
-	itk::OrientedImage<ELEMTYPE, IMAGEDIM >::RegionType itk_region;
+	typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::RegionType itk_region;
     typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::IndexType  itk_start;
     itk_start.Fill( 0 );
     itk_region.SetIndex( itk_start );
@@ -554,7 +554,7 @@ typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer image_general<ELEMTYPE
 	cout<<"get_image_as_itk_output..."<<endl;
 
 	typedef itk::ImportImageFilter<ELEMTYPE, IMAGEDIM> filterType;
-	filterType::Pointer ITKimportfilter = filterType::New();
+	typename filterType::Pointer ITKimportfilter = filterType::New();
 	ITKimportfilter->SetRegion(this->get_region_itk());
 	ITKimportfilter->SetOrigin(this->get_origin_itk());
 	ITKimportfilter->SetSpacing(this->get_voxel_size_itk());
@@ -563,7 +563,7 @@ typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer image_general<ELEMTYPE
     ITKimportfilter->SetImportPointer(this->imagepointer(), this->num_elements, false);
 
     typedef itk::CastImageFilter<theImageType2, theImageType> castType;
-	castType::Pointer caster = castType::New();
+	typename castType::Pointer caster = castType::New();
 	caster->SetInput(ITKimportfilter->GetOutput());
 
 	caster->Update();
