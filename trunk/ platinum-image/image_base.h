@@ -40,6 +40,7 @@
 #include "itkMetaDataObject.h"		//used in dicomloader::
 #include "itkGDCMImageIO.h"			//used in dicomloader::
 #include "itkDICOMImageIO2.h"		//JK compresstion test...
+#include "itkNiftiImageIO.h"
 
 #include "gdcmFileHelper.h"			//used in dicomloader::
 
@@ -199,6 +200,15 @@ private:
 	short buf2short(unsigned char* buf);
 public:
     analyze_hdrloader (std::vector<std::string> *);
+    image_base * read ();
+};
+
+class niftiloader: public imageloader
+{
+private:
+    itk::NiftiImageIO::Pointer niftiIO;
+public:
+    niftiloader (std::vector<std::string> *);
     image_base * read ();
 };
 

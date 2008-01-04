@@ -34,7 +34,6 @@
 
 #include "global.h"
 #include "error.h"
-//#include "itkGDCMImageIO.h"
 #include "metadata.h"
 
 class datawidget_base;

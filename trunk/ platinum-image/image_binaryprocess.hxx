@@ -1359,6 +1359,12 @@ void image_binary<IMAGEDIM>::outline_3D(int thickness, IMGBINARYTYPE object_valu
 	delete threshold_image;
 	}
 
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::erode_3D_26Nbh(IMGBINARYTYPE object_value)
+{
+	dilate_3D_26Nbh(!object_value);
+}
+
 
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::dilate_3D_26Nbh(IMGBINARYTYPE object_value)
@@ -1373,6 +1379,8 @@ void image_binary<IMAGEDIM>::dilate_3D_26Nbh(IMGBINARYTYPE object_value)
 	int max_y=this->get_size_by_dim(1);
 	int max_z=this->get_size_by_dim(2);
 		
+	int radius = 1;
+
 	//x,y,z
 	for(z=0; z<max_z; z++){
 		for(y=0; y<max_y; y++){
@@ -1382,9 +1390,9 @@ void image_binary<IMAGEDIM>::dilate_3D_26Nbh(IMGBINARYTYPE object_value)
 				
 				if(this->get_voxel(x,y,z)==object_value){
 					//r,s,t
-					for(t=std::max(0,z-1); t<std::min(max_z,z+1); t++){
-						for(s=std::max(0,y-1); s<std::min(max_y,y+1); s++){
-							for(r=std::max(0,x-1); r<std::min(max_x,x+1); r++){
+					for(t=std::max(0,z-radius); t<=std::min(max_z-1,z+radius); t++){
+						for(s=std::max(0,y-radius); s<=std::min(max_y-1,y+radius); s++){
+							for(r=std::max(0,x-radius); r<=std::min(max_x-1,x+radius); r++){
 								res->set_voxel(r,s,t,object_value);
 							}
 						}

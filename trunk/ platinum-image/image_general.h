@@ -90,7 +90,7 @@ class image_general : public image_storage <ELEMTYPE >
         image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);
         template<class SOURCETYPE> 
             image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true);
-		image_general(const string filepath);
+		image_general(const string filepath, const string name="");
 
 
         void set_parameters ();                                                     //reset & calculate parameters
@@ -224,14 +224,17 @@ class image_general : public image_storage <ELEMTYPE >
         typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer		get_image_as_itk_output();
 
         void load_dataset_from_VTK_file(std::string file_path);
+        void load_dataset_from_NIFTI_file(std::string file_path);
 //        void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier); //gdcm
   //      void load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier);//"itk-dcm"
         void load_dataset_from_DICOM_filesAF(std::string dir_path,std::string seriesIdentifier);//"itk-dcm"
         void load_dataset_from_these_DICOM_files(vector<string> filenames);
 		void load_dataset_from_all_DICOM_files_in_dir(std::string dir_path);
 
+        void save_to_file(const std::string file_path, const bool useCompression = true, const bool anonymize = true); //enterprits file name ending...
         void save_to_VTK_file(const std::string file_path, const bool useCompression = true);
         void save_to_DCM_file(const std::string file_path, const bool useCompression = true, const bool anonymize = true);
+        void save_to_NIFTI_file(const std::string file_path); //JK test
         void save_to_TIF_file_series_3D(const std::string file_path_base);
 		void save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice);
 

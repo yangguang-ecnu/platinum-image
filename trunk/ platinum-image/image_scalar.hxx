@@ -139,10 +139,6 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 	typedef itk::BSplineInterpolateImageFunction<theOrientedImageType, double >  InterpolatorType;
 	InterpolatorType::Pointer interpolator = InterpolatorType::New(); //3-rd order is default.....
 
-//	ref_im->fill(10);				//JK-Warning öööö
-	ref_im->print_geometry();
-		
-//	filter->SetInput(this->itk_image());
 	filter->SetInput(this->get_image_as_itk_output());
 	filter->SetTransform( transform );
 	filter->SetInterpolator( interpolator );//3-rd order is default.....
@@ -1112,68 +1108,14 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(Vector3
 	int sx = this->datasize[0];
 	int sy = this->datasize[1];
 	int sz = this->datasize[2];
-	cout<<sx<<" "<<sy<<" "<<sz<<endl;
+//	cout<<sx<<" "<<sy<<" "<<sz<<endl;
 
-/*
-	int* seed2 = new int[3];
-	seed2[0] = int(seed[0]);
-	seed2[1] = int(seed[1]);
-	seed2[2] = int(seed[2]);
-	stack<int*> s;
-	s.push(seed2);
-	int* pos = new int[3];
-	int* pos2 = new int[3];
-
-
-	stack<Vector3D> s;
-	s.push(seed);
-	Vector3D pos;
-	Vector3D pos2;
-*/
-/*
-	stack<int> stack_x;
-	stack<int> stack_y;
-	stack<int> stack_z;
-	stack_x.push(seed[0]);
-	stack_y.push(seed[1]);
-	stack_z.push(seed[2]);
-	int pos_x;
-	int pos_y;
-	int pos_z;
-*/
 	queue<Vector3D> s;
 	s.push(seed);
 	Vector3D pos;
 	Vector3D pos2;
 
 	ELEMTYPE val;
-/*
-	while(stack_x.size()>0){
-		pos_x = stack_x.top();
-		pos_y = stack_y.top();
-		pos_z = stack_z.top();
-		stack_x.pop();
-		stack_y.pop();
-		stack_z.pop();
-
-
-		for(int x=std::max(0,int(pos_x-1)); x<=std::min(int(pos_x+1),sx-1); x++){
-			for(int y=std::max(0,int(pos_y-1)); y<=std::min(int(pos_y+1),sy-1); y++){
-				for(int z=std::max(0,int(pos_z-1)); z<=std::min(int(pos_z+1),sz-1); z++){
-					val = this->get_voxel(x,y,z);
-
-					if(val>=min_intensity && val<=max_intensity && res->get_voxel(x,y,z)==false){
-						stack_x.push(x);
-						stack_y.push(y);
-						stack_z.push(z);
-						res->set_voxel(x,y,z,true);
-					}
-				}
-			}
-		}
-	}
-*/
-
 
 	while(s.size()>0){
 		pos = s.front();
@@ -1201,17 +1143,10 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(Vector3
 		}
 	}
 	cout<<"region_grow_3D --> Done...(s.size()="<<s.size()<<")"<<endl;
-	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
-	cout<<"before..."<<endl;
+//	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
+//	cout<<"before..."<<endl;
 //	copy_data(res,this);
 	return res;
-/*
-	cout<<"region_grow_3D --> Done...(stack_x.size()="<<stack_x.size()<<")"<<endl;
-	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
-	cout<<"before..."<<endl;
-//	copy_data(res,this);
-	return res;
-*/
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
