@@ -81,6 +81,7 @@ class image_binary : public image_label <IMAGEDIM>
 	void outline_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE); ///Morphological outline up to distance value=thickness.
     image_integer<short, IMAGEDIM> * distance_345_3D(bool edge_is_object=false, IMGBINARYTYPE object_value=TRUE); ///Compute 345 chamfer distance map. If edge_is_object=true then everything outside the image is regarded to be object voxels.
 
+	void erode_3D_26Nbh(IMGBINARYTYPE object_value=TRUE); ///Morphological erode (26 Neighbourhood)
 	void dilate_3D_26Nbh(IMGBINARYTYPE object_value=TRUE); ///Morphological dilate (26 Neighbourhood)
 	int find_voxel_index_percent_object_content(int dir, int object_content_percent, IMGBINARYTYPE object_value=TRUE); 
 	void convex_hull_line_filling_3D(int dir, IMGBINARYTYPE object_value=TRUE); 

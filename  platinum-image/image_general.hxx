@@ -251,10 +251,13 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(int w, int h, int d, ELEMTYPE *
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_general<ELEMTYPE, IMAGEDIM>::image_general(const string filepath)
+image_general<ELEMTYPE, IMAGEDIM>::image_general(const string filepath, const string name)
 {
 	this->load_file_to_this(filepath);
 	this->data_has_changed();
+	if(name!=""){
+		this->name(name);
+	}
 }
 
 
@@ -330,6 +333,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_file_to_this(std::string f)	//loads
 		if(!success){success = try_single_loader<analyze_objloader>(f);}
 		if(!success){success = try_single_loader<analyze_hdrloader>(f);}
 		if(!success){success = try_single_loader<brukerloader>(f);}
+		if(!success){success = try_single_loader<niftiloader>(f);}
 		//do not pop up a raw_importer window...
 	    //rawimporter::create(chosen_files);
 
@@ -1396,8 +1400,8 @@ template<class TARGETTYPE>
 void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image)
 {
 	//std::cout<<"image_general::resample_into_this_image_NN"<<std::endl;
-	this->print_geometry();
-	new_image->print_geometry();
+//	this->print_geometry();
+//	new_image->print_geometry();
 
 	Vector3D vox_pos;
 	Vector3D phys_pos;
@@ -1442,7 +1446,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::O
     if (voxel_size[0] * voxel_size[1] * voxel_size[2] == 0)
         { voxel_size.Fill(1); }
 
-	this->print_geometry(); //JK
+//	this->print_geometry(); //JK
 
     calc_transforms();
 
@@ -1503,11 +1507,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::print_geometry()
 {
 	std::cout<<"*************************************"<<std::endl;
-	std::cout<< this->name()<<"->print_geometry()"<<std::endl;
-	std::cout<<"datasize: (";
-	for(int i=0;i<IMAGEDIM;i++)
-		std::cout<<datasize[i]<<",";
-	std::cout<<")"<<std::endl;
+	std::cout<< this->name()<<"->print_geometry() datasize: ("<<datasize[0]<<","<<datasize[1]<<","<<datasize[2]<<")"<<endl;
 	std::cout<<"origin:"<<this->origin<<std::endl;
 	std::cout<<"voxel_resize:"<<std::endl<<get_voxel_resize()<<std::endl;
 	std::cout<<"orientation:"<<std::endl;

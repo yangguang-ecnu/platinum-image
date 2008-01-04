@@ -514,6 +514,21 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir
 	}
 
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_file(const std::string file_path, const bool useCompression = true, const bool anonymize = true)
+{
+	if( file_path.find_last_of(".vtk") == file_path.size()-1 ){
+		this->save_to_VTK_file(file_path, useCompression );
+	}else if( file_path.find_last_of(".dcm")==file_path.size()-1 ){
+		this->save_to_DCM_file(file_path, useCompression, anonymize );
+	}else if( file_path.find_last_of(".nii")==file_path.size()-1 ){
+		cout<<"Save NIFTI file using (itk::NiftiImageIO)..."<<endl;
+		this->save_to_NIFTI_file(file_path);
+	}else{
+		pt_error::error("save_to_file - did not recognize the file format (not vtk/dcm)",pt_error::debug);
+	}
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_path, const bool useCompression)
@@ -591,7 +606,26 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_
 	//--------------------------------------------------------
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_NIFTI_file(const std::string file_path)
+{
+	cout<<"save_to_NIFTI_file..."<<endl;    //port image to ITK image and save it as NIFTI (.nii) file
 
+	typename theWriterType::Pointer writer = theWriterType::New();
+	typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer image = get_image_as_itk_output();
+    writer->SetFileName( file_path.c_str() );
+    writer->SetInput(image);
+
+  	itk::NiftiImageIO::Pointer io = itk::NiftiImageIO::New();
+	writer->SetImageIO( io );
+
+	try{
+        writer->Update();
+    }catch (itk::ExceptionObject &ex){
+        pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
+		std::cout<<ex<<std::endl;
+    }
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -656,3 +690,27 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_p
 		pt_error::error("image_general::load_dataset_from_VTK_file()--> file does not exist...",pt_error::debug);
 	}
     }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_NIFTI_file(string file_path)
+{
+	if(file_exists(file_path)){
+		typename theReaderType::Pointer r = theReaderType::New();
+	//	itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
+	    itk::NiftiImageIO::Pointer niftiIO = itk::NiftiImageIO::New();
+		r->SetFileName(file_path.c_str());
+		r->SetImageIO( niftiIO );
+
+		typename theImagePointer image = theImageType::New();
+		image = r->GetOutput();
+		r->Update();
+		typename theSizeType s = image->GetBufferedRegion().GetSize();
+
+		replicate_itk_to_image(image);
+
+		this->name_from_path (file_path);
+	}else{
+		pt_error::error("image_general::load_dataset_from_NIFTI_file()--> file does not exist...",pt_error::debug);
+	}
+
+}
