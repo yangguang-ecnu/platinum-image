@@ -58,7 +58,7 @@ _VTK will be used in Platinum, however it is not necessary at the moment_
     * Disable BUILD_TESTING (You might have to check the "Show Advanced Values" box)
   # Press `Configure…` again (may take some time)
   # Press `OK` (build files will be written to ”C:\Lib\Bin\VTK”) 
-  # Open `ITK.sln`
+  # Open `VTK.sln`
   # Select ”Build !All_Build” in VS.net. Wait…
 
 
