@@ -7,7 +7,7 @@
   # Download the following additional source code:
     * [http://www.cmake.org/HTML/Download.html CMake 2.4.7]
     * [http://www.fltk.org/software.php FLTK 1.1.7]
-    * [http://www.itk.org/HTML/Download.php ITK 3.0.1] - you'll have to fill in the questionnaire
+    * [http://www.itk.org/HTML/Download.php ITK 3.4.0] - you'll have to fill in the questionnaire
     * [http://www.vtk.org/get-software.php#latest VTK 5.0.3]
   # Get yourself an [http://subversion.tigris.org/links.html#clients SVN client] like for example [http://tortoisesvn.tigris.org/ TortoiseSVN]. *Mac:* the [http://www.codingmonkeys.de/mbo/articles/tag/subversion base command-line package] together with Xcode's built in SVN-support (see below) and [http://www.lachoseinteractive.net/en/community/subversion/svnx/features/ svnX] is recommended. (optionally, there is also a plugin for Finder similar to TortoiseSVN called [http://scplugin.tigris.org/ SCPlugin])
 =2. Install=
@@ -18,9 +18,9 @@
 =3. Build (Windows)=
 _Note: Windows instructions only, see below for Unix/Linux/Mac_
 ==ITK==
-  # Decompress ”!InsightToolkit-3.0.1.zip” _(suggested location:   C:\Lib\InsightToolkit-3.0.1)_ 
+  # Decompress ”!InsightToolkit-3.4.0.zip” _(suggested location:   C:\Lib\InsightToolkit-3.4.0)_ 
   # Run CMake
-  # Set source: ”C:\Lib\!InsightToolkit-3.0.1”
+  # Set source: ”C:\Lib\!InsightToolkit-3.4.0”
   # Set build: ”C:\Lib\Bin\ITK”
     # Press `Configure…` (may take some time)
   # Set the following options:
