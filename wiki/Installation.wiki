@@ -5,7 +5,7 @@
 
   # Install a development environment, such as VS.net
   # Download the following additional source code:
-    * [http://www.cmake.org/HTML/Download.html CMake 2.4.6]
+    * [http://www.cmake.org/HTML/Download.html CMake 2.4.7]
     * [http://www.fltk.org/software.php FLTK 1.1.7]
     * [http://www.itk.org/HTML/Download.php ITK 3.0.1] - you'll have to fill in the questionnaire
     * [http://www.vtk.org/get-software.php#latest VTK 5.0.3]
@@ -134,4 +134,3 @@ If you are on Mac OS X you may use the `-G Xcode` flag with CMake (all other ins
 You may also use Xcode for updating/commiting SVN: select "Configure SCM" from the SCM menu, choose Subversion as SCM system and click "Enable SCM". When CMakeLists is changed, the project file will be rewritten on the next Build. Xcode will notice this shortly afterwards and ask You to reload. When this happens, SVN must be re-enabled as described above.
 
 *Note:* for Xcode SVN to work, you have to have SVN previously set up. This can be done by command-line or, preferrably, with a tool like [http://www.lachoseinteractive.net/en/community/subversion/svnx/features/ svnX].
-
