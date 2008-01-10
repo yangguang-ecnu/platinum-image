@@ -175,8 +175,11 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     tool_area->box(FL_BORDER_BOX);
     tool_area->resizable(tool_area);
     tool_area->end();
-    
-    viewsNlists->resizable(viewsNlists);
+
+	Fl_Box * emptyBox = new Fl_Box(0, 0, win_w - list_area_w, win_h - status_area_h);
+	emptyBox->hide();
+	viewsNlists->resizable(emptyBox);
+    //viewsNlists->resizable(viewsNlists);
     viewsNlists->end();
 
 #pragma mark *** Create status area ***
@@ -199,7 +202,8 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
             
     viewsNstatusStack->resizable(viewsNlists);
     viewsNstatusStack->end();
-    
+	
+	window.size_range(win_w, win_h);	// the initial size of the window is also the minimum size ie the window size can only be increased
     window.resizable(viewsNlists);
     window.end();
 
@@ -207,3 +211,5 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
 	//Initialize config file (.inp)... Try reading / create a new default if non-existing!
 	pt_config::initialize();
     }
+	
+

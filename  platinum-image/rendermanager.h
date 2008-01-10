@@ -72,9 +72,9 @@ class rendermanager
        
         void toggle_image (int rendererIndex, int imageID);   //turn image on or off in a combination,
                                                                 //triggered by menu selection
-		void enable_image( int rendererID, int imageID );	// turn image on or leave it on
+		void enable_image( int rendererID, int imageID );	// turn image (data) on or leave it on
 
-		void disable_image( int rendererID, int imageID );	// turn image off or leave it off
+		void disable_image( int rendererID, int imageID );	// turn image (data) off or leave it off
 		
 
 

@@ -298,11 +298,6 @@ FLTKuserIOpar_landmarks * userIOmanager::get_landmarks(int userIO_ID)
 	return landmarks;
 }
 
-void userIOmanager::set_landmark(int userIO_ID, int index, Vector3D v)
-{
-	 get_landmarks(userIO_ID)->set(index, v);
-}
-
 int userIOmanager::get_landmarksID(int userIO_ID)
 {
 	 return get_landmarks(userIO_ID)->get_landmarksID();

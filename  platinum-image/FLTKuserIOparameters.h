@@ -72,7 +72,7 @@ struct regionofinterest;
 
 typedef int imageIDtype;
 typedef int pointIDtype;
-typedef int landmarksIDtype;
+typedef int landmarksIndexType;
 
 const int par_control_height=20;   //height for each parameter control
 
@@ -252,17 +252,31 @@ class FLTKuserIOpar_coord3Ddisplay : public FLTKuserIOparameter_base
 class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 {
 	protected:
-		Fl_Output * descriptorText;
+		class landmark
+		{
+			public:
+				int index;	
+				std::string description;
+				std::string option;
+				
+				landmark();
+				landmark( const int l_index, const std::string l_description, const std::string l_option );
+		};
+
+
 		Fl_Box * emptyBox;
-		Fl_Output * landmarkText;
-		Fl_Button * loadDescriptorBtn;
-		Fl_Button * newSetBtn;		
-		Fl_Button * saveSetBtn;		
+
+		Fl_Group * buttonGroup;
 		Fl_Button * loadSetBtn;		
-		Fl_Hold_Browser * browser;
-        FLTKimage_choice * image;
-		std::vector<std::string> landmark_names;
-		std::vector<std::string> option_names;
+		Fl_Button * saveSetBtn;		
+		Fl_Button * resetSetBtn;		
+
+		Fl_Hold_Browser * browser;		
+		
+		int column_widths[4];	// n columns requires n - 1 column widths + and an ending zero element to terminate the array
+			
+		std::vector<landmark> landmarks;
+
 		std::string resolve_string(int index);
 		
 		// split a delimited string into multiple strings
@@ -273,19 +287,19 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		
 	public:
 		FLTKuserIOpar_landmarks ( const std::string name );
-//		FLTKuserIOpar_landmarks(const std::string name, const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, const int landmarks_id);
 
-		static void loadDescriptorCallback(Fl_Widget *callingwidget, void * thisLandmarks);
-		static void newSetCallback( Fl_Widget * callingwidget, void * thisLandmarks );
+        void data_vector_has_changed ();	//update browser from datamanager
+
+		static void resetSetCallback( Fl_Widget * callingwidget, void * thisLandmarks );
 		static void saveSetCallback( Fl_Widget * callingwidget, void * thisLandmarks );
 		static void loadSetCallback( Fl_Widget * callingwidget, void * thisLandmarks );
-		static void loadSetCallbackNew( Fl_Widget * callingwidget, void * thisLandmarks );
 		static void browserCallback( Fl_Widget * callingwidget, void * thisLandmarks );
 
 		const std::string type_name();
-        void par_value(landmarksIDtype &v);
-						
-		void set(int index, Vector3D v);
+        void par_value(landmarksIndexType &v);
+
+		void update_browser();
+
 		void next();
 		
 		int get_landmarksID();

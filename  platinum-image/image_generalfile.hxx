@@ -515,7 +515,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::save_to_file(const std::string file_path, const bool useCompression = true, const bool anonymize = true)
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_file(const std::string file_path, const bool useCompression, const bool anonymize)
 {
 	if( file_path.find_last_of(".vtk") == file_path.size()-1 ){
 		this->save_to_VTK_file(file_path, useCompression );

@@ -114,7 +114,7 @@ template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im)
 {
 	typedef itk::ResampleImageFilter<theImageType, theImageType>  FilterType;
-	FilterType::Pointer filter = FilterType::New();
+	typename FilterType::Pointer filter = FilterType::New();
 
 //	typedef itk::AffineTransform< double, IMAGEDIM >  TransformType;
 //	typedef itk::Rigid3DTransform< double > TransformType;
@@ -123,11 +123,11 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 
 	TransformType::MatrixType m;
 
-	itk::OrientedImage<ELEMTYPE, IMAGEDIM >::DirectionType d = ref_im->get_orientation_itk();
+	typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::DirectionType d = ref_im->get_orientation_itk();
 	cout<<"m="<<endl;
 	for(int i=0;i<3;i++){
 		for(int j=0;j<3;j++){
-			m[i][j] = d[i][j];
+			m[i][j] = this->d[i][j];
 			cout<<m[i][j]<<" ";
 		}
 		cout<<endl;
@@ -137,7 +137,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 
 
 	typedef itk::BSplineInterpolateImageFunction<theOrientedImageType, double >  InterpolatorType;
-	InterpolatorType::Pointer interpolator = InterpolatorType::New(); //3-rd order is default.....
+	typename InterpolatorType::Pointer interpolator = InterpolatorType::New(); //3-rd order is default.....
 
 	filter->SetInput(this->get_image_as_itk_output());
 	filter->SetTransform( transform );
