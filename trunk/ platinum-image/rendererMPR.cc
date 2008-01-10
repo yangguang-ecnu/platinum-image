@@ -459,9 +459,9 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 					on_spot_rgb[1] = 0;
 					on_spot_rgb[2] = 255;
 
-					if ( points->get_active() >= 1 && points->get_active() ==  iter->first )	// -1 means active is not set
-					{	// this point is active													//  0 means no line in the Fl_Hold_Browser i chosen
-						on_spot_rgb[0] = 255;													// (the index of the first row in Fl_Hold_Browser is 1)
+					if ( points->get_active() == iter->first )
+					{	// this point is active
+						on_spot_rgb[0] = 255;
 						on_spot_rgb[1] = 0;
 						on_spot_rgb[2] = 0;
 					}

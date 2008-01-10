@@ -97,11 +97,10 @@ void landmark_tool::handle(viewport_event &event)
 				
 				point_collection * points = dynamic_cast<point_collection *>(datamanagement.get_data(point_collection_ID));
 						
-				int index_of_active = userIOmanagement.get_parameter<landmarksIDtype>(userIO_ID, 1);				
-				points->set_active(index_of_active);
-				
-				if (index_of_active <= 0)	// -1 means active is not set
-				{							//  0 means no line in the Fl_Hold_Browser i chosen (the index of the first row in Fl_Hold_Browser is 1)
+				int index_of_active = points->get_active();
+												
+				if (index_of_active < 1)
+				{
 					// TODO: use pt_error
 					std::cout << "No landmark is active" << std::endl;		
 					return;
@@ -139,7 +138,11 @@ void landmark_tool::handle(viewport_event &event)
 
 
 				points->add_pair( index_of_active, mouse3d );
-				userIOmanagement.set_landmark(userIO_ID, index_of_active, mouse3d);
+				
+				
+				userIOmanagement.data_vector_has_changed();
+				
+				
 				viewmanagement.show_point_by_data ( mouse3d, point_collection_ID );
 
 			}

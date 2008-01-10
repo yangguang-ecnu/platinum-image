@@ -33,7 +33,6 @@ point_collection::pointStorage::iterator point_collection::begin()
 	return pointStorage::iterator(thePoints.begin());
 }
 
-
 point_collection::pointStorage::iterator point_collection::end()
 {
 	return pointStorage::iterator(thePoints.end());
@@ -84,6 +83,21 @@ int point_collection::get_active()
 void point_collection::clear()
 {
 	thePoints.clear();
+}
+
+bool point_collection::contains( pointStorage::key_type index )
+{
+	if ( thePoints.count(index) != 0 )
+		{ return true; }
+
+	return false;
+}
+
+bool point_collection::empty()
+{
+	if ( thePoints.empty() )
+		{ return true; }
+	return false;
 }
 
 void point_collection::save_histogram_to_txt_file(const std::string filename, const std::string separator)
