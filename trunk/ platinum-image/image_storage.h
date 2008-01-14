@@ -78,6 +78,7 @@ class image_storage : public image_base
         ELEMTYPE get_min() const;
 
         ELEMTYPE get_num_values();
+//		unsigned long get_num_elements();
         histogram_1D<ELEMTYPE> * get_histogram();
 /*		histogram_1D<ELEMTYPE> * get_new_histogram()
             {

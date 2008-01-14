@@ -68,6 +68,7 @@ enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG};
 
 //Dicom Tag definitions
 //More DICOM tag definitions can be found at:  http://medical.nema.org/dicom/2007/07_06pu.pdf
+//Note that it is important to use "lower case letters" for the gdcm package...
 
 #define DCM_CREATION_DATE "0008|0012" //20050114	//string
 #define DCM_CREATION_TIME "0008|0013" //082633.000	//string
@@ -77,7 +78,7 @@ enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG};
 #define DCM_MODALITY "0008|0060"					//string
 #define DCM_IMAGE_TYPE "0008|0008"					//string
 #define DCM_STUDY_DESCRIPTION "0008|1030"			//string
-#define DCM_SERIES_DESCRIPTION "0008|103E"			//string
+#define DCM_SERIES_DESCRIPTION "0008|103e"			//string
 
 #define DCM_PATIENT_NAME "0010|0010"				//string
 #define DCM_PATIENT_ID "0010|0020"					//string

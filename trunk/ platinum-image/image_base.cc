@@ -196,9 +196,7 @@ imageloader::~imageloader()
 Vector3D image_base::voxel_to_world( const Vector3D & vpos ) const
 {
 	Vector3D wpos;
-	
 	wpos = origin + get_orientation() * get_voxel_resize() * vpos;
-	
 	return wpos;
 }
 
@@ -220,53 +218,45 @@ vtkloader::vtkloader(std::vector<std::string> * f): imageloader(f)
 }
 
 image_base *vtkloader::read()
-    {    
-    image_base * result = NULL;
-            
-    if (vtkIO->CanReadFile (files->front().c_str()))
-        {
+{    
+    image_base *result = NULL;
 
-        //assumption:
-        //File contains image data
+	for(vector<string>::iterator it = files->begin(); it != files->end() && result == NULL; it++){ // Repeat until one image has been read
+	string file_path = *it;
 
-        vtkIO->SetFileName(files->front().c_str());
-
+	if(vtkIO->CanReadFile(file_path.c_str())){   //Assumption: File contains image data
+        vtkIO->SetFileName(file_path);
         vtkIO->ReadImageInformation(); 
-
-        itk::ImageIOBase::IOComponentType componentType = vtkIO->GetComponentType();
-
-        //get voxel type
         itk::ImageIOBase::IOPixelType pixelType=vtkIO->GetPixelType();
+        itk::ImageIOBase::IOComponentType componentType = vtkIO->GetComponentType();
         
-        switch ( pixelType)
-            {
+        switch(pixelType){
             case itk::ImageIOBase::SCALAR:
                 //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
 
-                switch (componentType)
-                    {
+                switch(componentType){
                     case itk::ImageIOBase::UCHAR:
                         result =  new image_integer<unsigned char>();
-                        ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
+                        ((image_integer<unsigned char>*)result)->load_dataset_from_VTK_file(file_path);
                         break;
                     case itk::ImageIOBase::USHORT:
                         result = new image_integer<unsigned short>();
-                        ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
+                        ((image_integer<unsigned short>*)result)->load_dataset_from_VTK_file(file_path);
                         break;
                     case itk::ImageIOBase::SHORT:
                         result = new image_integer<short>();
-                        ((image_integer<short>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
+                        ((image_integer<short>*)result)->load_dataset_from_VTK_file(file_path);
                         break;
-                    case itk::ImageIOBase::FLOAT: //used for example in complex dixon data imported from deadface format (.df)
+                    case itk::ImageIOBase::FLOAT:
                         result = new image_integer<float>();
-                        ((image_integer<float>*)result)->load_dataset_from_VTK_file(std::string(files->front()));
+                        ((image_integer<float>*)result)->load_dataset_from_VTK_file(file_path);
                         break;
                     default:
                         pt_error::error("Load scalar VTK: unsupported component type: " + vtkIO->GetComponentTypeAsString (componentType), pt_error::warning);
                     }
                 break;
 
-                /*case itk::ImageIOBase::COMPLEX:
+		/*case itk::ImageIOBase::COMPLEX:
                 switch (componentType)
                 {
                 case itk::ImageIOBase::UCHAR:
@@ -290,16 +280,14 @@ image_base *vtkloader::read()
                 break;
             default:
                 pt_error::error("image_base::load(...): unsupported pixel type: " + vtkIO->GetPixelTypeAsString(pixelType), pt_error::warning);
-
             }
-        //file was read - remove from list
-        files->erase (files->begin());
-        }
-    
-    /*delete file;*/
 
+		    //file was read - remove from list
+	        files->erase(it);
+        }//can read
+	}//for
     return result;
-    }
+}
 
 
 
@@ -309,7 +297,7 @@ image_base *vtkloader::read()
 dicomloader::dicomloader(std::vector<std::string> *f): imageloader(f)
 {
 	dicomIO = itk::GDCMImageIO::New();
-	this->this_load_type = DCM_LOAD_SERIES_ID_ONLY;
+	this->this_load_type = DCM_LOAD_SERIES_ID_ONLY; //alt. DCM_LOAD_ALL
 }
 
 dicomloader::dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type): imageloader(f)
@@ -319,25 +307,23 @@ dicomloader::dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type): i
 }
 
 
-image_base * dicomloader::read()
+image_base *dicomloader::read()
 {
-	image_base * result = NULL;
-
-	for (std::vector<std::string>::const_iterator file = files->begin();file != files->end() && result == NULL;file++){ // Repeat until one image has been read
-		if ( dicomIO->CanReadFile (file->c_str()) )
-		{
+	image_base *result = NULL;
+	int i=-1;
+	for(std::vector<std::string>::const_iterator file = files->begin();file != files->end() && result == NULL;file++){ // Repeat until one image has been read
+//	for(std::vector<std::string>::iterator file = files->begin();file != files->end() && result == NULL;file++){ // Repeat until one image has been read
+		i++;
+//	for(int i=0; i<files->size() && result == NULL; i++){ // Repeat until one image has been read
+		if(dicomIO->CanReadFile(file->c_str())){
 			dicomIO->SetFileName(file->c_str());
 			dicomIO->ReadImageInformation();	//get basic DICOM header
-			std::string seriesIdentifier;		//get series UID
-			//"0020|000e" - Series Instance UID (series defined by the scanner) series 
-			//ID identifies the series (out of possibly multiple series in one directory)
-			std::string tagkey = "0020|000e";
-			
-			std::string labelId;
-			
-			if( itk::GDCMImageIO::GetLabelFromTag( tagkey, labelId ) ){
-				//std::cout << labelId << " (" << tagkey << "): ";
-				if( dicomIO->GetValueFromTag(tagkey, seriesIdentifier) ){
+			std::string seriesIdentifier;		//get series UID, "0020|000e", defined by scanner, multiple series in one directory is possible.
+												//note that in a, for example, "dual" MR sequence, both/all echoes are given the same series ID...
+			std::string labelId;				//if files with other echo times are found for the same series... add them to the "files"
+
+			if(itk::GDCMImageIO::GetLabelFromTag(DCM_SERIES_ID, labelId) ){
+				if(dicomIO->GetValueFromTag(DCM_SERIES_ID, seriesIdentifier) ){
 					seriesIdentifier = seriesIdentifier.c_str();	// remove one garbage char at end (this is probably not a very good solution)
 					//TODO: find out why this "garbage character" exist. 
 
@@ -345,37 +331,36 @@ image_base * dicomloader::read()
 					std::vector<string>::const_iterator series_itr=loaded_series.begin();
 					bool already_loaded=false;
 
-					if (find(loaded_series.begin(),loaded_series.end(),seriesIdentifier) == loaded_series.end())
-					{loaded_series.push_back(seriesIdentifier);}
-					else
-					{already_loaded = true; }
-					//std::cout << seriesIdentifier << endl;
+					//if this series ID and TE already has been loaded ---> don't load... 
+//					cout<<"*********** check already loaded... *********************"<<endl;
+					already_loaded = is_file_already_loaded(*file);
 
-					//get voxel type
-					itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
+					if(!already_loaded){
+						loaded_series.push_back(seriesIdentifier);
+						loaded_TEs.push_back(get_dicom_tag_value(*file,DCM_TE));
 
-					if (!already_loaded){
+						itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
 						itk::ImageIOBase::IOComponentType componentType = dicomIO->GetComponentType();
 
-						switch (pixelType){ 							//Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
+						switch(pixelType){ 							//Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
 						case itk::ImageIOBase::SCALAR:
 							if(this_load_type==DCM_LOAD_SERIES_ID_ONLY){
 								switch(componentType){
 								case itk::ImageIOBase::UCHAR:
 									result = new image_integer<unsigned char>();
-									((image_integer<unsigned char>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
+									((image_integer<unsigned char>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
 									break;
 								case itk::ImageIOBase::USHORT:
 									result = new image_integer<unsigned short>();
-									((image_integer<unsigned short>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
+									((image_integer<unsigned short>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
 									break;
 								case itk::ImageIOBase::SHORT:
 									result = new image_integer<short>();
-									((image_integer<short>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
+									((image_integer<short>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
 									break;
 								case itk::ImageIOBase::FLOAT:
 									result = new image_integer<float>();
-									((image_integer<float>*)result)->load_dataset_from_DICOM_filesAF(path_parent(*file),seriesIdentifier);
+									((image_integer<float>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
 									break;
 								default:
 									pt_error::error("dicomloader::read() --> Unsupported component type: " + dicomIO->GetComponentTypeAsString (componentType), pt_error::warning);
@@ -383,7 +368,7 @@ image_base * dicomloader::read()
 
 							}else if(this_load_type==DCM_LOAD_ALL){
 
-								switch (componentType){
+							switch (componentType){
 								case itk::ImageIOBase::UCHAR:
 									result = new image_integer<unsigned char>();
 									((image_integer<unsigned char>*)result)->load_dataset_from_these_DICOM_files(*files);
@@ -415,26 +400,73 @@ image_base * dicomloader::read()
 							default:
 								pt_error::error("image_base::load(...): unsupported pixel type: " + dicomIO->GetPixelTypeAsString(pixelType),pt_error::warning);
 					}//switch -scalar-complex
+					
+					//***JK shouldn't the file be removed from the vector here?
 
 				}//not already loaded
-
 			} //found series tag
-
 		}//series tag exists
-		else
-		{
+
+		}//can read file
+		else{
 			//no series identifier, OK if the intention is to just load 1 frame
 			//(DICOM files can only contain 1 frame each)
 			pt_error::error("(No Value Found in File)",pt_error::notice);
 		}
 
-		files->clear(); //! if at least one file can be read, the rest are assumed to be part of the same series (or otherwise superfluos)
+//		files->clear(); //! if at least one file can be read, the rest are assumed to be part of the same series (or otherwise superfluos)
+		//ööö do not "clear"...
+
+	}//for(file...)
+	
+	clear_files_vector_from_already_loaded();
+
+	return result;
+}
+
+bool dicomloader::is_file_already_loaded(string file_path)
+{
+	string id = get_dicom_tag_value(file_path, DCM_SERIES_ID).c_str(); //removes garbage char...
+	string te = get_dicom_tag_value(file_path, DCM_TE);
+	for(int i=0;i<loaded_series.size(); i++){
+		if(id==loaded_series[i] && te ==loaded_TEs[i]){
+			return true;
+		}
+	}
+	return false;
+}
+
+void dicomloader::clear_files_vector_from_already_loaded()
+{
+//	cout<<"clear_files_vector_from_already_loaded..."<<endl;
+	//remove files from vector with the right (loaded) combinations of series - id....
+/*
+	for(int i=0; i<files->size(); i++){
+		cout<<"files[i]="<<files->at(i)<<endl;
+	}
+	for(int i=0; i<loaded_series.size(); i++){
+		cout<<"loaded_series[i]=("<<loaded_series[i]<<")"<<endl;
+		cout<<"loaded_TEs[i]="<<loaded_TEs[i]<<endl;
+	}
+*/
+	bool file_found=false;
+	for(vector<string>::iterator it = files->begin(); it!=files->end()&&!file_found; it++){
+		if(is_file_already_loaded(*it)){
+			file_found=true;
+			files->erase(it);
+		}
 	}
 
+	if(file_found){
+		clear_files_vector_from_already_loaded();
+	}else{
+//		cout<<"result_files..."<<endl;
+//		for(int i=0; i<files->size(); i++){
+//			cout<<"result_files[i]="<<files->at(i)<<endl;
+//		}
+	}
 }
 
-return result;
-}
 /*
 void dicomloader::anonymize_single_dcm_file(string load_path, string save_path){
 	// #if defined(_MSC_VER)
@@ -662,337 +694,326 @@ short analyze_hdrloader::buf2short(unsigned char* buf)
 image_base * analyze_hdrloader::read()
     {
     image_base * newImage = NULL;
-	std::string hdr_file = files->front();
-	std::string img_file = hdr_file;
-	std::string img_name;
-    
-    unsigned int pos;
-    
-    pos=img_file.rfind(".hdr",img_file.length()-1);
-    
-    if (pos !=std::string::npos)
-        {
-        img_file.erase(pos,img_file.length());
-        pos=img_file.rfind("/",img_file.length()-1);
-        img_name = img_file.substr(pos+1);
-        img_file += ".img";
+	for(vector<string>::iterator it = files->begin(); it != files->end() && newImage == NULL; it++){ // Repeat until one image has been read
+		string file_path = *it;
 
-        if (file_exists (img_file) && file_exists (hdr_file))
-            {
-            short size[3];
-            Vector3D voxelsize;
-            bool bigEndian;
-            bool isSigned;
-            bool isFloat;
-            int bitDepth;
+	//	std::string hdr_file = files->front();
+		std::string hdr_file = file_path;
+		std::string img_file = hdr_file;
+		std::string img_name;
+	    
+		unsigned int pos;
+	    
+		pos=img_file.rfind(".hdr",img_file.length()-1);
+	    
+		if (pos !=std::string::npos)
+			{
+			img_file.erase(pos,img_file.length());
+			pos=img_file.rfind("/",img_file.length()-1);
+			img_name = img_file.substr(pos+1);
+			img_file += ".img";
 
-            std::ifstream hdr (std::string(hdr_file).c_str(),ios::in);
-            int count=0;
-            unsigned char readbuf[100];
-            hdr.read((char*)readbuf,4);
-            int sizeof_hdr=buf2int(readbuf);
-            count+=4;
-			hdr.ignore(36); //Skip
-            hdr.read((char*)readbuf,2);
-            short endian=buf2short(readbuf);
-            bigEndian = ((endian >= 0) && (endian <= 15));
-            hdr.read((char*)readbuf,2);
-            size[0]=buf2short(readbuf);
-            hdr.read((char*)readbuf,2);
-            size[1]=buf2short(readbuf);
-            hdr.read((char*)readbuf,2);
-            size[2]=buf2short(readbuf);
-			hdr.ignore(22); //Skip
-            hdr.read((char*)readbuf,2);
-            short datatype=buf2short(readbuf);
-            switch (datatype) {	      
-                case 2:
-                    isSigned=false;
-                    isFloat=false;
-                    bitDepth=8;
-                    break;
-                case 4:
-                    isSigned=true;
-                    isFloat=false;
-                    bitDepth=16;
-                    break;
-                case 8:
-                    isSigned=true;
-                    isFloat=false;
-                    bitDepth=32;
-                    break; 
-                case 16:
-                    isSigned=true;
-                    isFloat=true;
-                    bitDepth=32;
-                    break; 
-                case 128:
-                    isSigned=false;
-                    isFloat=false;
-                    bitDepth=24;
-                    break; 
-                default:
-                    isSigned=false;
-                    isFloat=false;
-                    bitDepth=8;					// DT_UNKNOWN
-                }
+			if (file_exists (img_file) && file_exists (hdr_file))
+				{
+				short size[3];
+				Vector3D voxelsize;
+				bool bigEndian;
+				bool isSigned;
+				bool isFloat;
+				int bitDepth;
 
-            voxelsize.Fill (1);
+				std::ifstream hdr (std::string(hdr_file).c_str(),ios::in);
+				int count=0;
+				unsigned char readbuf[100];
+				hdr.read((char*)readbuf,4);
+				int sizeof_hdr=buf2int(readbuf);
+				count+=4;
+				hdr.ignore(36); //Skip
+				hdr.read((char*)readbuf,2);
+				short endian=buf2short(readbuf);
+				bigEndian = ((endian >= 0) && (endian <= 15));
+				hdr.read((char*)readbuf,2);
+				size[0]=buf2short(readbuf);
+				hdr.read((char*)readbuf,2);
+				size[1]=buf2short(readbuf);
+				hdr.read((char*)readbuf,2);
+				size[2]=buf2short(readbuf);
+				hdr.ignore(22); //Skip
+				hdr.read((char*)readbuf,2);
+				short datatype=buf2short(readbuf);
+				switch (datatype) {	      
+					case 2:
+						isSigned=false;
+						isFloat=false;
+						bitDepth=8;
+						break;
+					case 4:
+						isSigned=true;
+						isFloat=false;
+						bitDepth=16;
+						break;
+					case 8:
+						isSigned=true;
+						isFloat=false;
+						bitDepth=32;
+						break; 
+					case 16:
+						isSigned=true;
+						isFloat=true;
+						bitDepth=32;
+						break; 
+					case 128:
+						isSigned=false;
+						isFloat=false;
+						bitDepth=24;
+						break; 
+					default:
+						isSigned=false;
+						isFloat=false;
+						bitDepth=8;					// DT_UNKNOWN
+					}
 
-            if(isFloat)
-                {
-                newImage = allocate_image<image_scalar> (
-                    isFloat,
-                    isSigned,
-                    bitDepth,
-                    std::vector<std::string > (1,img_file), 
-                    size[0], size[1],
-                    bigEndian,
-                    0, 
-                    voxelsize);
-                }
-            else
-                {
-                newImage = allocate_image<image_integer> (
-                    isFloat,
-                    isSigned,
-                    bitDepth,
-                    std::vector<std::string > (1,img_file), 
-                    size[0], size[1],
-                    bigEndian,
-                    0, 
-                    voxelsize);
-                }
-            hdr.close();
-            newImage->name(img_name);
+				voxelsize.Fill (1);
 
-            //file was read - remove from list
-            files->erase (files->begin());
-            }
-        }
+				if(isFloat)
+					{
+					newImage = allocate_image<image_scalar> (
+						isFloat,
+						isSigned,
+						bitDepth,
+						std::vector<std::string > (1,img_file), 
+						size[0], size[1],
+						bigEndian,
+						0, 
+						voxelsize);
+					}
+				else
+					{
+					newImage = allocate_image<image_integer> (
+						isFloat,
+						isSigned,
+						bitDepth,
+						std::vector<std::string > (1,img_file), 
+						size[0], size[1],
+						bigEndian,
+						0, 
+						voxelsize);
+					}
+				hdr.close();
+				newImage->name(img_name);
 
+				//file was read - remove from list
+	//            files->erase (files->begin());
+				files->erase(it);
+				}//exists
+			}//pos
+		}//for
     return newImage;
-    }
+}
 
 
 analyze_objloader::analyze_objloader(std::vector<std::string> * files): imageloader(files)
 	{
 	}
 
-image_base * analyze_objloader::read()
+image_base *analyze_objloader::read()
     {
-    image_base * newImage = NULL;
-	std::string obj_file = files->front();
-	std::string img_name = obj_file;
-    
-    unsigned int pos;
-    
-    pos=img_name.rfind(".obj",img_name.length()-1);
-    
-    if (pos !=std::string::npos)
-        {
-        img_name.erase(pos,img_name.length());
-		pos=img_name.rfind("/",img_name.length()-1);
-		img_name = img_name.substr(pos+1);
-    
-		if (file_exists (obj_file))
+    image_base *newImage = NULL;
+	for(vector<string>::iterator it = files->begin(); it != files->end() && newImage == NULL; it++){ // Repeat until one image has been read
+		string file_path = *it;
+
+	//	std::string obj_file = files->front();
+		std::string obj_file = file_path;
+		std::string img_name = obj_file;
+	    
+		unsigned int pos;
+	    
+		pos=img_name.rfind(".obj",img_name.length()-1);
+	    
+		if (pos !=std::string::npos)
 			{
-			short size[3];
-			
-			int nObjects=0;
-			int skip=0;
-
-			int corr=4;//3;//-1; ???????????????????????
-			std::ifstream fobj (std::string(obj_file).c_str());
-			unsigned char  header[20];
-			fobj.read((char*)header,20);
-
-			int data[5];
-			int i;
-			for(i=0; i<5; i++)
+			img_name.erase(pos,img_name.length());
+			pos=img_name.rfind("/",img_name.length()-1);
+			img_name = img_name.substr(pos+1);
+	    
+			if (file_exists (obj_file))
 				{
-				data[i]=header[i*4+0]<<24 | header[i*4+1]<<16 | header[i*4+2]<<8 | header[i*4+3];
-				}
-			size[0]=data[1];
-			//size[1]=data[3];//Analyze6
-			//size[2]=data[2];//Analyze6
-			size[1]=data[2];//Analyze7
-			size[2]=data[3];//Analyze7
-			nObjects=data[4];
-			skip=nObjects*152+corr;//TODO: This is not correct		
-			int n_vox=size[0]*size[1]*size[2];
+				short size[3];
+				
+				int nObjects=0;
+				int skip=0;
 
-			unsigned char* buf=new unsigned char[n_vox];
-			memset(buf,0,n_vox);
+				int corr=4;//3;//-1; ???????????????????????
+				std::ifstream fobj (std::string(obj_file).c_str());
+				unsigned char  header[20];
+				fobj.read((char*)header,20);
 
-			// Start reading run-lenght encoded data
-			fobj.ignore(skip);
-			int l,b;
-			int j;
-			i=0;
-			while(fobj.good())     // loop while extraction from file is possible
-				{				
-				l=fobj.get();	
-				if(fobj.good())
+				int data[5];
+				int i;
+				for(i=0; i<5; i++)
 					{
-					b=fobj.get();
-					for(j=0; j<l; j++)
+					data[i]=header[i*4+0]<<24 | header[i*4+1]<<16 | header[i*4+2]<<8 | header[i*4+3];
+					}
+				size[0]=data[1];
+				//size[1]=data[3];//Analyze6
+				//size[2]=data[2];//Analyze6
+				size[1]=data[2];//Analyze7
+				size[2]=data[3];//Analyze7
+				nObjects=data[4];
+				skip=nObjects*152+corr;//TODO: This is not correct		
+				int n_vox=size[0]*size[1]*size[2];
+
+				unsigned char* buf=new unsigned char[n_vox];
+				memset(buf,0,n_vox);
+
+				// Start reading run-lenght encoded data
+				fobj.ignore(skip);
+				int l,b;
+				int j;
+				i=0;
+				while(fobj.good())     // loop while extraction from file is possible
+					{				
+					l=fobj.get();	
+					if(fobj.good())
 						{
-						buf[i]=b;
-						i++;
+						b=fobj.get();
+						for(j=0; j<l; j++)
+							{
+							buf[i]=b;
+							i++;
+							}
 						}
 					}
-				}
 
-			Vector3D voxelsize;
-			voxelsize.Fill(1);
-			newImage = new image_label<>(buf, n_vox, size[0], size[1], voxelsize);
+				Vector3D voxelsize;
+				voxelsize.Fill(1);
+				newImage = new image_label<>(buf, n_vox, size[0], size[1], voxelsize);
 
-			fobj.close();
-			newImage->name(img_name);
+				fobj.close();
+				newImage->name(img_name);
 
-			files->erase (files->begin());
-			}
-		}
+	//			files->erase (files->begin());
+				files->erase(it);
+				}//obj file exists
+			}//pos
+		}//for
 
     return newImage;
-    }
+}
 
 template <class LOADERTYPE>
-void image_base::try_loader (std::vector<std::string> * f) //! helper for image_base::load
+void image_base::try_loader(std::vector<std::string> *f) //! helper for image_base::load
 {
-	if (!f->empty())
-	{
+	if(!f->empty()){
 		LOADERTYPE loader = LOADERTYPE(f);
 		image_base *new_image = NULL; //the eventually loaded image
-
-		do {
+		do{
 			new_image = loader.read();
-			if (new_image != NULL)
-			{ datamanagement.add(new_image); }
+			if(new_image != NULL){ 
+				datamanagement.add(new_image); 
+			}
 		} 
-		while (new_image !=NULL && !f->empty());
+		while(new_image !=NULL && !f->empty());
 	}
 }
 
 
 
 
-niftiloader::niftiloader(std::vector<std::string> * f): imageloader(f)
+niftiloader::niftiloader(std::vector<std::string> *f): imageloader(f)
 {
     niftiIO = itk::NiftiImageIO::New();
 }
 
 image_base *niftiloader::read()
-    {    
-    image_base * result = NULL;
-            
-    if (niftiIO->CanReadFile (files->front().c_str()))
-        {
+{    
+	image_base *result = NULL;
 
-        //assumption:
-        //File contains image data
+	for(vector<string>::iterator it = files->begin(); it != files->end() && result == NULL; it++){ // Repeat until one image has been read
+		string file_path = *it;
 
-        niftiIO->SetFileName(files->front().c_str());
+		if(niftiIO->CanReadFile(file_path.c_str())){	//Assumption: File contains image data
+			niftiIO->SetFileName(file_path.c_str());
+			niftiIO->ReadImageInformation(); 
+			itk::ImageIOBase::IOComponentType componentType = niftiIO->GetComponentType();
+			itk::ImageIOBase::IOPixelType pixelType=niftiIO->GetPixelType();
+			switch ( pixelType)
+			{
+			case itk::ImageIOBase::SCALAR:
+				//Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
 
-        niftiIO->ReadImageInformation(); 
+				switch (componentType)
+				{
+				case itk::ImageIOBase::UCHAR:
+					result =  new image_integer<unsigned char>();
+					((image_integer<unsigned char>*)result)->load_dataset_from_NIFTI_file(file_path);
+					break;
+				case itk::ImageIOBase::CHAR:
+					result =  new image_integer<char>();
+					((image_integer<char>*)result)->load_dataset_from_NIFTI_file(file_path);
+					break;
+				case itk::ImageIOBase::USHORT:
+					result = new image_integer<unsigned short>();
+					((image_integer<unsigned short>*)result)->load_dataset_from_NIFTI_file(file_path);
+					break;
+				case itk::ImageIOBase::SHORT:
+					result = new image_integer<short>();
+					((image_integer<short>*)result)->load_dataset_from_NIFTI_file(file_path);
+					break;
+				case itk::ImageIOBase::FLOAT: //used for example in complex dixon data imported from deadface format (.df)
+					result = new image_integer<float>();
+					((image_integer<float>*)result)->load_dataset_from_NIFTI_file(file_path);
+					break;
+				default:
+					pt_error::error("Load scalar NIFTI: unsupported component type: " + niftiIO->GetComponentTypeAsString (componentType), pt_error::warning);
+				}
+				break;
 
-        itk::ImageIOBase::IOComponentType componentType = niftiIO->GetComponentType();
-
-        //get voxel type
-        itk::ImageIOBase::IOPixelType pixelType=niftiIO->GetPixelType();
-        
-        switch ( pixelType)
-            {
-            case itk::ImageIOBase::SCALAR:
-                //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
-
-                switch (componentType)
-                    {
-                    case itk::ImageIOBase::UCHAR:
-                        result =  new image_integer<unsigned char>();
-                        ((image_integer<unsigned char>*)result)->load_dataset_from_NIFTI_file(std::string(files->front()));
-                        break;
-                    case itk::ImageIOBase::CHAR:
-                        result =  new image_integer<char>();
-                        ((image_integer<char>*)result)->load_dataset_from_NIFTI_file(std::string(files->front()));
-                        break;
-                    case itk::ImageIOBase::USHORT:
-                        result = new image_integer<unsigned short>();
-                        ((image_integer<unsigned short>*)result)->load_dataset_from_NIFTI_file(std::string(files->front()));
-                        break;
-                    case itk::ImageIOBase::SHORT:
-                        result = new image_integer<short>();
-                        ((image_integer<short>*)result)->load_dataset_from_NIFTI_file(std::string(files->front()));
-                        break;
-                    case itk::ImageIOBase::FLOAT: //used for example in complex dixon data imported from deadface format (.df)
-                        result = new image_integer<float>();
-                        ((image_integer<float>*)result)->load_dataset_from_NIFTI_file(std::string(files->front()));
-                        break;
-                  default:
-                        pt_error::error("Load scalar NIFTI: unsupported component type: " + niftiIO->GetComponentTypeAsString (componentType), pt_error::warning);
-                    }
-                break;
-
-                /*case itk::ImageIOBase::COMPLEX:
-                switch (componentType)
-                {
-                case itk::ImageIOBase::USHORT:
-                result = new image_complex<unsigned short>();
-                ((image_scalar<unsigned short>*)result)->load_dataset_from_VTK_file(path_parent(*file));
-                break;
+				/*case itk::ImageIOBase::COMPLEX:
+				switch (componentType)
+				{
+				case itk::ImageIOBase::USHORT:
+				result = new image_complex<unsigned short>();
+				((image_scalar<unsigned short>*)result)->load_dataset_from_VTK_file(path_parent(*file));
+				break;
 
 				default:
-                #ifdef _DEBUG
-                cout << "Load complex VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
-                #endif
-                }*/
-                break;
-            default:
-                pt_error::error("image_base::load(...): unsupported pixel type: " + niftiIO->GetPixelTypeAsString(pixelType), pt_error::warning);
+				#ifdef _DEBUG
+				cout << "Load complex VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
+				#endif
+				}*/
+				break;
+			default:
+				pt_error::error("image_base::load(...): unsupported pixel type: " + niftiIO->GetPixelTypeAsString(pixelType), pt_error::warning);
 
-            }
-        //file was read - remove from list
-        files->erase (files->begin());
-        }
-    
-    return result;
-    }
+			}
+			//file was read - remove from list
+			//files->erase(files->begin());
+			files->erase(it);
+		}//can read
+	}//for
+
+	return result;
+}
 
 
-void image_base::load( std::vector<std::string> f)	//loads all files and adds them to datamanagement...
-    {
-	
+void image_base::load( std::vector<std::string> chosen_files)	//loads all files and adds them to datamanagement...
+{
 	userIOmanagement.progress_update( 1, "Loading image(s)...", 2 );
 	
-    std::vector<std::string> chosen_files(f);
-    
-    //try Analyze obj   //loads all images it can and removes "them" from the vector
-    try_loader<analyze_objloader>(&chosen_files);	
+	//Each read function reads the first image it can and removes it...
+    //The try_loader calls the read function until NULL is returned...
+    try_loader<analyze_objloader>(&chosen_files);	//try Analyze obj
+    try_loader<analyze_hdrloader>(&chosen_files);	//try Analyze hdr
+    try_loader<brukerloader>(&chosen_files);		//try Bruker
+    try_loader<vtkloader>(&chosen_files);			//try VTK
+    try_loader<niftiloader>(&chosen_files);			//try NIFTI
+    try_loader<dicomloader>(&chosen_files);			//try DICOM
 
-    //try Analyze hdr
-    try_loader<analyze_hdrloader>(&chosen_files);
-
-    //try Bruker
-    try_loader<brukerloader>(&chosen_files);
-
-    //try VTK
-    try_loader<vtkloader>(&chosen_files);
-
-	//try NIFTI
-    try_loader<niftiloader>(&chosen_files);
-
-    //try DICOM
-    try_loader<dicomloader>(&chosen_files);
-
-    if ( !chosen_files.empty() )
-        {
-        //if any files were left, try raw as last resort
-
+    if(!chosen_files.empty()){ //if any files were left, try raw as last resort
         rawimporter::create(chosen_files);
-        }
+	}
 
 	userIOmanagement.progress_update( 2, "Loading image(s)...", 2 );
 	userIOmanagement.progress_update();
-	
-    }
+}

@@ -143,9 +143,9 @@ class image_base : public data_base
 class imageloader
 {
 protected:
-    std::vector<std::string> * files;
+    std::vector<std::string> *files;
 public:
-    imageloader(std::vector<std::string> * f);
+    imageloader(std::vector<std::string> *f);
     ~imageloader();
 };
 
@@ -153,10 +153,14 @@ public:
 class dicomloader: public imageloader
 {
 private:
-	DICOM_LOADER_TYPE this_load_type;
+	DICOM_LOADER_TYPE this_load_type; //DCM_LOAD_ALL / DCM_LOAD_SERIES_ID_ONLY
     itk::GDCMImageIO::Pointer dicomIO;
+	std::vector<std::string> loaded_TEs; 
 	std::vector<std::string> loaded_series; //! UIDs of the DICOM series loaded during this call
                          //! to prevent multiple selected frames from loading the same series multiple times
+	bool is_file_already_loaded(string file_path);
+	void clear_files_vector_from_already_loaded();
+
 public:
     dicomloader(std::vector<std::string> *f);
     dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type);
@@ -182,15 +186,15 @@ private:
     itk::VTKImageIO::Pointer vtkIO;
     
 public:
-    vtkloader (std::vector<std::string> *);
-    image_base * read ();
+    vtkloader(std::vector<std::string> *f);
+    image_base* read();
 };
 
 class analyze_objloader: public imageloader 
 {
 public:
-    analyze_objloader (std::vector<std::string> *);
-    image_base * read ();
+    analyze_objloader(std::vector<std::string> *f);
+    image_base* read();
 };
 
 class analyze_hdrloader: public imageloader 
@@ -199,8 +203,8 @@ private:
 	int buf2int(unsigned char* buf);
 	short buf2short(unsigned char* buf);
 public:
-    analyze_hdrloader (std::vector<std::string> *);
-    image_base * read ();
+    analyze_hdrloader(std::vector<std::string> *f);
+    image_base* read();
 };
 
 class niftiloader: public imageloader
@@ -208,8 +212,8 @@ class niftiloader: public imageloader
 private:
     itk::NiftiImageIO::Pointer niftiIO;
 public:
-    niftiloader (std::vector<std::string> *);
-    image_base * read ();
+    niftiloader(std::vector<std::string> *f);
+    image_base *read();
 };
 
 

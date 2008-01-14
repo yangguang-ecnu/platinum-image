@@ -135,12 +135,15 @@ template <class ELEMTYPE, int IMAGEDIM>
 template <class sourceType>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType, IMAGEDIM> * sourceImage)
     {
+//	cout<<this->get_id()<<"->set_parameters("<<sourceImage->get_id()<<")"<<endl;
 	this->set_origin(sourceImage->get_origin());
     this->set_voxel_size(sourceImage->get_voxel_size());
 	this->set_orientation(sourceImage->get_orientation());
 
     this->stats->max(sourceImage->get_max());
     this->stats->min(sourceImage->get_min());
+
+//	cout<<"this->get_voxel_size()="<<this->get_voxel_size()<<endl;
 
     // *ID, from_file, imagename and widget are assigned in image_base constructor
     }
@@ -300,7 +303,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
     set_parameters();
 	}
 
-//öööö
+//ööö
 template <class ELEMTYPE, int IMAGEDIM>
 template <class LOADERTYPE>
 bool image_general<ELEMTYPE, IMAGEDIM>::try_single_loader(std::string s) //! helper for image_base::load
@@ -563,7 +566,6 @@ typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer image_general<ELEMTYPE
     typedef itk::CastImageFilter<theImageType2, theImageType> castType;
 	typename castType::Pointer caster = castType::New();
 	caster->SetInput(ITKimportfilter->GetOutput());
-
 	caster->Update();
 
 	return caster->GetOutput();
@@ -804,6 +806,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 //	cout<<"image_scalar-add_volume_3D..("<<add_dir<<")"<<endl;
 
 	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
+	res->set_parameters(this); //copy rotation and size infor to tmp image first...
 
 	if(add_dir==2){
 		res->name(this->name() + "_add_dir2_" + src->name());
@@ -1380,6 +1383,14 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_of_mask_3D(image_general<ELE
 	}
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::fill_image_border_3D(ELEMTYPE value, int border_thickness=1)
+{
+	for(int dim=0;dim<=2;dim++){
+		this->fill_region_3D(dim,0,border_thickness-1, value);								//low x/y/z-values
+		this->fill_region_3D(dim,datasize[dim]-2-border_thickness,datasize[dim]-1, value);	//high x/y/z-values
+	}
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::testpattern()

@@ -149,16 +149,20 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 				}
 			}
 		}
-		cout<<"v_min="<<v_min<<endl;
-		cout<<"v_max="<<v_max<<endl;
+		cout<<"masked hist v_min="<<v_min<<endl;
+		cout<<"masked hist v_max="<<v_max<<endl;
 		this->min(v_min);
 		this->max(v_max);
 
 		unsigned short bucketpos;
 
+		num_elements_in_hist=0;
+
 		for( v = this->i_start, v_bin = image_bin_mask->begin().pointer(); (v != this->i_end) && (v_bin != image_bin_mask->end().pointer()); ++v, ++v_bin){
 			if(*v_bin>0){
 				bucketpos = intensity_to_bucketpos(*v);
+				num_elements_in_hist++;
+				
 
 				//NOT VERY good to write outside allocated memory
 				if(bucketpos>=0 && bucketpos<this->num_buckets){	
@@ -210,7 +214,7 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
     {
 	//if new_num_buckets == 0 --> keep the current resolution...
 
-	cout<<"---histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)---"<<endl;
+	//cout<<"---histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)---"<<endl;
 
 	if (new_num_buckets !=0 || this->buckets==NULL){
         //resize(...) isn't used here because this function is called from resize,
@@ -258,10 +262,12 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 
         unsigned short bucketpos;
         ELEMTYPE * voxel;
+		num_elements_in_hist=0;
 
 		for (voxel = this->i_start;voxel != this->i_end;++voxel)
 		{
 			bucketpos = intensity_to_bucketpos(*voxel);
+			num_elements_in_hist++;
 
 			//NOT VERY good to write outside allocated memory
 			if(bucketpos>=0 && bucketpos<this->num_buckets){	
@@ -462,6 +468,27 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 	delete res;
 }
 
+template <class ELEMTYPE>
+ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(float percentile)
+{
+    cout<<"get_intensity_at_histogram_lower_percentile("<<percentile<<")"<<endl;
+
+	//if histogram comes from masked region... following line wont work....
+//	float num_elem_limit = float(this->images[0]->get_num_elements())*percentile;
+	float num_elem_limit = float(num_elements_in_hist)*percentile;
+
+	float sum_elements=0;
+
+	for (unsigned short i = 0; i < this->num_buckets; i++)
+	{
+		sum_elements += this->buckets[i];
+		if(sum_elements>=num_elem_limit){
+			return bucketpos_to_intensity(i);
+		}
+	}
+
+	return bucketpos_to_intensity(this->num_buckets-1);
+}
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info)

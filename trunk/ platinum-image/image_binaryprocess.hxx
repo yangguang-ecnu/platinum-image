@@ -1371,6 +1371,8 @@ void image_binary<IMAGEDIM>::dilate_3D_26Nbh(IMGBINARYTYPE object_value)
 {
 	int x,y,z,r,s,t;
     image_binary<IMAGEDIM> * res = new image_binary<IMAGEDIM>(this,0); //resulting image...
+	res->set_parameters(this); //copy rotation and size infor to tmp image first...
+
 	cout<<"object_value="<<object_value<<endl;
 	cout<<"!object_value="<<!object_value<<endl;
 	res->fill(!object_value);

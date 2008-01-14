@@ -41,6 +41,7 @@ histogram_base::histogram_base ()
     buckets = NULL;
 
     num_distinct_values =0;
+	num_elements_in_hist = 0;
     }
 
 histogram_base::~histogram_base ()
@@ -243,6 +244,7 @@ void histogram_2D::calculate(int new_num_buckets)
 
         bucket_max=0;
         voxpos[2]=0;
+		num_elements_in_hist=0;
         do {
             voxpos[1]=0;
             //in_region_z= voxpos[2] >= region_min[2] && voxpos[2] <= region_max[2];
@@ -252,12 +254,13 @@ void histogram_2D::calculate(int new_num_buckets)
                 do {
                     value_h=vol_h->get_number_voxel(voxpos[0],voxpos[1],voxpos[2]);
                     value_v=vol_v->get_number_voxel(voxpos[0],voxpos[1],voxpos[2]);
+					num_elements_in_hist++;
 
                     bucketpos_x=value_h*scalefactor_h;
                     bucketpos_y=value_v*scalefactor_v;
 
                     bucket_max=std::max(buckets[bucketpos_x+bucketpos_y*num_buckets]++,bucket_max);
-
+			
                     } while (++voxpos[0] < vol_size[0]);
                 } while (++voxpos[1] < vol_size[1]);
             } while (++voxpos[2] < vol_size[2]);

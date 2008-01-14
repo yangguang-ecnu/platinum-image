@@ -46,7 +46,7 @@ extern userIOmanager userIOmanagement;
 
 using namespace std;
 
-//#define TESTMODE	//JK test mode --> "dcm_import_button"
+#define TESTMODE	//JK test mode --> "dcm_import_button"
 
 uchar *animage;
 
@@ -263,6 +263,13 @@ void datamanager::add(image_base * v)
             }
         }
 }
+
+/*
+void datamanager::add(image_base &v)
+{
+	cout<<"datamanager::add(image_base &v)"<<endl;
+}
+*/
 
 void datamanager::add(point_collection * p)
 {

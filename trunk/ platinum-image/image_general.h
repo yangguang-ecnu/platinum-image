@@ -166,6 +166,7 @@ class image_general : public image_storage <ELEMTYPE >
 		void fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
 		void fill_region_3D(int dir, int start_index, int end_index, ELEMTYPE value);
 		void fill_region_of_mask_3D(image_general<ELEMTYPE, IMAGEDIM> *mask, ELEMTYPE value);
+		void fill_image_border_3D(ELEMTYPE value, int border_thickness=1);
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();
@@ -227,7 +228,7 @@ class image_general : public image_storage <ELEMTYPE >
         void load_dataset_from_NIFTI_file(std::string file_path);
 //        void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier); //gdcm
   //      void load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier);//"itk-dcm"
-        void load_dataset_from_DICOM_filesAF(std::string dir_path,std::string seriesIdentifier);//"itk-dcm"
+        void load_dataset_from_DICOM_fileAF(std::string file_path,std::string seriesIdentifier);//"itk-dcm"
         void load_dataset_from_these_DICOM_files(vector<string> filenames);
 		void load_dataset_from_all_DICOM_files_in_dir(std::string dir_path);
 

@@ -113,6 +113,7 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_2nd
 template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im)
 {
+	cout<<"interpolate_spline_ITK_3D..."<<endl;
 	typedef itk::ResampleImageFilter<theImageType, theImageType>  FilterType;
 	typename FilterType::Pointer filter = FilterType::New();
 
@@ -127,7 +128,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 	cout<<"m="<<endl;
 	for(int i=0;i<3;i++){
 		for(int j=0;j<3;j++){
-			m[i][j] = this->d[i][j];
+			m[i][j] = d[i][j];
 			cout<<m[i][j]<<" ";
 		}
 		cout<<endl;
@@ -804,7 +805,11 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 		}
 	}
 
-
+template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_intensity_at_lower_percentile(float percentile)
+{
+	return stats->get_intensity_at_histogram_lower_percentile(percentile);
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, bool reload_hist_from_image, gaussian *g, const std::string separator)
@@ -1243,6 +1248,8 @@ image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3
 { //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
 
 	image_scalar<ELEMTYPE, 3>* res = new image_scalar<ELEMTYPE, 3>(); 
+	res->set_parameters(this); //copy rotation and size infor to tmp image first...
+
 	//JK change this to 2D later, when there is time for 3D-->2D verification...
 
 	int dx = this->get_size_by_dim(0);
@@ -1313,6 +1320,8 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::rotate_voxel
 	cout<<"rotate_voxeldata_3D("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")"<<endl;
 
 	image_scalar<ELEMTYPE, 3>* res = new image_scalar<ELEMTYPE, 3>(); 
+	res->set_parameters(this); //copy rotation and size infor to tmp image first... //TODO: JK-perform appropriate geometry changes...
+
 	int sx = this->get_size_by_dim(0);
 	int sy = this->get_size_by_dim(1);
 	int sz = this->get_size_by_dim(2);
@@ -1442,7 +1451,7 @@ Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_max_grad_mag_in_region_vox
 	}
 
 	image_scalar<ELEMTYPE, IMAGEDIM> * res = new image_scalar<ELEMTYPE, IMAGEDIM>( this, 0 );
-	res->fill( 0 );
+	res->fill( 0 ); //full image size... for simplicity...
 
 	float center_grad_mag = grad_mag_voxel( center, type );
 	
