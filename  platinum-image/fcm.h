@@ -51,22 +51,17 @@ protected:
 	float u_maxdiff_limit;			// Stop criterion for iterating solution (when u show less variation...)
 	image_binary<3> *image_mask;	// A binary mask for limiting inclusion of multispectral data
 
-	// data structures for vector-based FCM
-	vnl_matrix<float> u;			//degree of membership	u(n_clust,n_pix)
 	vnl_matrix<float> V;			//cluster center		V(n_clust, n_bands)
-	vnl_matrix<float> X;			//pixel intensities		X(n_bands,n_pix)
-	vnl_matrix<float> int_dist;		//distance in feature space... / int_dist(n_clust, n_pix)... for calc speedup
 
 	// data structures for image-based FCM (simplifies inclusion of spatial info)
 	fcm_image_vector_type u_images;	//degree of membership	(n_clust)
-	//vnl_matrix<float> V;			//the same V matrix is used...
-	//vnl_matrix<float> X;			//not needed...
 	fcm_image_vector_type int_dist_images;	//distance in feature space... / int_dist(n_clust)... for calc speedup
+											
 
 
-	int nx();			//image size in x-directiuon
-	int ny();			//image size in y-directiuon
-	int nz();			//image size in z-directiuon
+	int nx();			//image size in x-direction
+	int ny();			//image size in y-direction
+	int nz();			//image size in z-direction
 	int n_pix_masked;
 	int n_pix();		//total number of pixels (=nx*ny*nz) alt. n_pix_masked...
 	int n_bands();		//number bands (image contrasts) (e.g. T1w, T2w)
@@ -78,29 +73,67 @@ protected:
 	// Following functions implement subrutines of the fcm iteration...
 	// they are called with arguments (though not needed) to clarify involved data structures.
 //	int get_num_pixels_in_mask(image_binary<3> *image_mask);
-	void fill_X(vnl_matrix<float> &X, image_binary<3> *image_mask=NULL);
-	void calc_int_dist_matrix_euclidean(vnl_matrix<float> &int_dist, const vnl_matrix<float> &X, const vnl_matrix<float> &V);
-	void calc_memberships(vnl_matrix<float> &u, const vnl_matrix<float> &int_dist, const float m);
-	void calc_cluster_centers(vnl_matrix<float> &V, const vnl_matrix<float> &u, const vnl_matrix<float> &X, float m);
+//	void fill_X(vnl_matrix<float> &X, image_binary<3> *image_mask=NULL);
+//	void calc_int_dist_matrix_euclidean(vnl_matrix<float> &int_dist, const vnl_matrix<float> &X, const vnl_matrix<float> &V);
+//	void calc_memberships(vnl_matrix<float> &u, const vnl_matrix<float> &int_dist, const float m);
+//	void calc_cluster_centers(vnl_matrix<float> &V, const vnl_matrix<float> &u, const vnl_matrix<float> &X, float m);
 
 	// ------ Image-based version of help functions... --------
 	void calc_int_dist_images_euclidean(const vnl_matrix<float> &V);
 	void calc_memberships(fcm_image_vector_type u_images, const fcm_image_vector_type &int_dist_images, const float m);
+	void copy_memberships_from(fcm_image_vector_type u_images2);
 	void calc_cluster_centers(vnl_matrix<float> &V, const fcm_image_vector_type u_images, float m);
 
 public:
+//	fcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness=2, float u_maxdiff_limit=0.05, image_binary<3> *mask=NULL);
 	fcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness=2, float u_maxdiff_limit=0.05, image_binary<3> *mask=NULL);
-	fcm(fcm_image_vector_type vec, float m_fuzzyness, vnl_matrix<float> V_init_clusters, float u_maxdiff_limit=0.05, image_binary<3> *mask=NULL);
 	~fcm();
 
-	void Update_vectorfcm(); //executes fcm algorithm ( in sweet ITK style... ;-)  )...
+//	void Update_vectorfcm(); //executes fcm algorithm ( in sweet ITK style... ;-)  )...
 	void Update_imagefcm(); //executes fcm algorithm ( in sweet ITK style... ;-)  )...
 	void save_membership_images_to_dcm(string file_path_base, float scale_factor=1000); 
 	void save_membership_images_to_vtk(string file_path_base); 
 	fcm_image_vector_type get_membership_images();
 
-	fcm_image_vector_type get_image_vector_from_u_vector(); //note that geometrical info is not reconstructed...
+//	fcm_image_vector_type get_image_vector_from_u_vector(); //note that geometrical info is not reconstructed...
 };
+
+
+
+
+// Class for inclusion of spatial naighbourhood information into the fcm algorith. Adapted from
+// Liew2003 - Liew AW, Yan H. An adaptive spatial fuzzy clustering algorithm for 3-D MR image segmentation.
+// IEEE Trans Med Imaging. 2003 Sep;22(9):1063-75.
+
+class sfcm : public fcm
+{
+protected:
+	fcm_image_vector_type	dissim_images;			//dissimilarity	(n_clust)
+	image_scalar<float,3>*	mean_nbh_dist_image;	//denoted delta_av(x) in Liew2003
+	float					average_nbh_dist_mean;	//;-) denoted my in Liew2003
+	float					sigma;					//;-) denoted sigma in Liew2003, regulates the dregee of influence of the  
+
+	float get_squared_pixel_int_dist(int i, int j, int k, int i2, int j2, int k2);
+	float get_pixel_int_dist(int i, int j, int k, int i2, int j2, int k2); //denoted delta in Liew2003
+
+	void calc_dissimilarity_images(const vnl_matrix<float> &V);
+
+public:
+	sfcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness=2, float u_maxdiff_limit=0.05, image_binary<3> *mask=NULL);
+	~sfcm();
+
+	float calc_lamda(float nbh_dist); //denoted lamda(delta) in Liew2003
+	void calc_sigma();
+	void calc_mean_nbh_dist_image();
+	float calc_dissimilarity(int c, int i, int j, int k); //denoted dissimilarity index (D_kx) in Liew2003
+
+	void Update_imagesfcm(); //executes sfcm algorithm ( in sweet ITK style... ;-)  )...
+
+	void save_mean_nbh_dist_image(string file_path);
+	void save_dissimilarity_images(string file_path_base);
+
+};
+
 
 
 

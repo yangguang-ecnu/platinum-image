@@ -31,6 +31,10 @@
 #include <sys/stat.h>
 #include <sstream>
 
+#include "itkGDCMImageIO.h"
+
+using namespace std;
+
 #define MAXPATHLENGTH 512
 
 //S_ISDIR is not defined in MSVC
@@ -38,34 +42,54 @@
 #define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
 #endif
 
-void trailing_slash (std::string &s);                           //! ensures an accurate directory path,
+
+void trailing_slash (string &s);                           //! ensures an accurate directory path,
                                                                 //! adds a trailing slash ( / ) if
                                                                 //! there wasn't one already
 
-std::vector<std::string> get_dir_entries (std::string path);    //return string vector listing directory contents
-std::vector<std::string> get_dir_entries_ending_with(std::string path, std::string ending);    //return string vector listing directory contents that end with (ending)
+vector<string> get_dir_entries(string path, bool full_path=false);    //return string vector listing directory contents
+vector<string> get_dir_entries_ending_with(string path, string ending);    //return string vector listing directory contents that end with (ending)
 
-std::string path_parent (std::string);                          //!get parent (full path except file/indicated dir)
-std::string path_end (std::string);                             //!get file/dir name pointed to without path
-std::vector<std::string> subdirs (std::string dir_path);       //!get immediate subdirectories (full paths)
+string path_parent(string);                         //!get parent (full path except file/indicated dir)
+string path_end(string);                            //!get file/dir name pointed to without path
+vector<string> subdirs(string dir_path);			//!get immediate subdirectories (full paths)
+vector<string> subdirs_where_name_contains(string dir_path, string name_substring);			//!get immediate subdirectories (full paths)
 
-bool file_exists (std::string file_path);   //! return whether file exists. //! NOTE: returns false for existing directory
-bool dir_exists (std::string file_path);                              
+bool file_exists(string file_path);   //! return whether file exists. //! NOTE: returns false for existing directory
+bool dir_exists(string file_path);                              
+
+//------------- String vector specific handling ----------------------
+
+void add_to_string_vector_if_not_present(vector<string> &v, string s);
+
+//------------- Dicom specific file handling ----------------------
+
+vector<string>	get_dicom_files_in_dir(string dir_path, bool full_path=false);
+vector<string>	get_dicom_files_with_dcm_tag_value(vector<string> files, string dcm_tag, string tag_val);
+int				get_number_of_dicom_files_in_dir(string dir_path);
+string			get_dicom_tag_value(string file_path, string dcm_tag, bool remove_garbage_tag=true);
+bool			does_dir_contain_dcmfile_with_tag_value(string dir_path, string dcm_tag, string tag_val, bool recursive_search=false);
+string			find_first_sub_dir_containing_dcm_file_with_tag_value(string dir_path, string dcm_tag, string tag_val, bool recursive_search=false);
+vector<string>	list_dicom_tag_values_for_this_ref_tag_value(vector<string> files, string dcm_tag, string dcm_tag_val, string dcm_ref_tag);
+vector<string>	list_dicom_tag_values_in_subdirs(string dir_path, string dcm_tag, bool recursive_search=false);
+
+//not implemented yet...
 
 
 //------------- String handling functions ----------------------
 
-bool does_string_end_with(std::string s, std::string ending);
-bool remove_file_lastname(std::string &s, int max_no_lastname_chars=3);
+bool does_string_end_with(string s, string ending);
+bool remove_file_lastname(string &s, int max_no_lastname_chars=3);
+bool remove_string_ending(string &s, string ending=" ");
 
-std::string int2str(int i);
-std::string float2str(float f);
+string int2str(int i);
+string float2str(float f);
 
 template <class ELEMTYPE >
-std::string templ_to_string (ELEMTYPE t)
+string templ_to_string (ELEMTYPE t)
     {
-    std::ostringstream output;
-    output.flags( std::ios::boolalpha | std::ios::dec );
+    ostringstream output;
+    output.flags( ios::boolalpha | ios::dec );
     output.fill(' ');
 
     //a true templated function would *not* cast to float,
@@ -80,10 +104,10 @@ std::string templ_to_string (ELEMTYPE t)
 //and creates a link error for being multiply defined here
 
 /*template <>
-std::string templ_to_string (unsigned char t)
+string templ_to_string (unsigned char t)
     {
-    std::ostringstream output;
-    output.flags( std::ios::boolalpha | std::ios::dec );
+    ostringstream output;
+    output.flags( ios::boolalpha | ios::dec );
     output.fill(' ');
 
     output << static_cast<unsigned char>(t);

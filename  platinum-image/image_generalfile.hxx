@@ -386,76 +386,69 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::stri
 */
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_filesAF(std::string dir_path,std::string seriesIdentifier)
+void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_fileAF(std::string file_path, std::string seriesIdentifier)
 { 
- 
 //	std::cout<< "--- load_dataset_from_DICOM_filesAF" << std::endl;
-	std::cout<<"dir_path="<<dir_path<<std::endl;
+	std::cout<<"file_path="<<file_path<<std::endl;
 	std::cout<<"seriesIdentifier="<<seriesIdentifier<<std::endl;
-	dir_path = path_parent(dir_path);
-	std::cout<<"path_parent(dir_path)="<<dir_path<<std::endl;
+	string dir_path = path_parent(file_path);
+	std::cout<<"dir_path="<<dir_path<<std::endl;
 	
     typedef itk::GDCMSeriesFileNames NamesGeneratorType;
     NamesGeneratorType::Pointer nameGenerator = NamesGeneratorType::New();
-    nameGenerator->SetUseSeriesDetails ( false );			// no details - crucial because existing
-    nameGenerator->SetLoadPrivateTags ( true ); 
-    nameGenerator->SetDirectory ( dir_path.c_str() );
+    nameGenerator->SetUseSeriesDetails(false);		//no details - crucial because existing
+    nameGenerator->SetLoadPrivateTags(true);
+    nameGenerator->SetDirectory(dir_path.c_str());
 
-    typedef std::vector< std::string > FileNamesContainer; 
-	FileNamesContainer fileNames = nameGenerator->GetFileNames ( seriesIdentifier ); 
-//    fileNames = nameGenerator->GetFileNames ( seriesIdentifier );     
-
+    typedef std::vector<std::string> FileNamesContainer;
+	FileNamesContainer fileNames = nameGenerator->GetFileNames(seriesIdentifier);
 	std::cout<<"Number of files in series..."<<fileNames.size()<<std::endl;
+
+	//********** remove multiple echoes *************
+	vector<string> echotimes = list_dicom_tag_values_for_this_ref_tag_value(fileNames, DCM_SERIES_ID, seriesIdentifier, DCM_TE);
+	std::cout<<"Number of TE:s..."<<echotimes.size()<<std::endl;
+	if(echotimes.size()>1){//delelect all other echo times but the one int the file clicked...
+		fileNames = get_dicom_files_with_dcm_tag_value(fileNames, DCM_TE, get_dicom_tag_value(file_path,DCM_TE));
+	}
 
 	load_dataset_from_these_DICOM_files(fileNames);
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_these_DICOM_files(vector<string> fileNames){
+
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+	typename theImagePointer image = theImageType::New();
+
 	if(fileNames.size()==1){
 		typename theReaderType::Pointer reader = theReaderType::New();
-
-		itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
-		reader->SetImageIO ( dicomIO );
-		reader->SetFileName ( fileNames[0].c_str() );
+		reader->SetImageIO(dicomIO);
+		reader->SetFileName(fileNames[0].c_str());
 		try { reader->Update(); }
 		catch (itk::ExceptionObject &ex)
 			{ std::cout << ex << std::endl; }
-
-		typename theImagePointer image = theImageType::New();
 		image = reader->GetOutput();
-
-		// *** transfer image data to our platform's data structure ***
-		replicate_itk_to_image(image);
 
 	}else if(fileNames.size()>1){
 		typename theSeriesReaderType::Pointer reader = theSeriesReaderType::New();
-
-		itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
 		reader->SetImageIO ( dicomIO );
 		reader->SetFileNames ( fileNames );
 
 		try { reader->Update(); }
 		catch (itk::ExceptionObject &ex)
 			{ std::cout << ex << std::endl; }
-
-		typename theImagePointer image = theImageType::New();
 		image = reader->GetOutput();
-
-		// *** transfer image data to our platform's data structure ***
-		replicate_itk_to_image(image);
 
 	}else{
 		pt_error::error("load_dataset_from_DICOM_filesAF--> fileNames.size()==0",pt_error::debug);
 	}
 
+	replicate_itk_to_image(image);	// *** transfer image data to our platform's data structure ***
 
     this->from_file(true);
 	this->meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
 	this->name( this->meta.get_name() );
 	this->read_geometry_from_dicom_file ( fileNames[0].c_str() );			// use the first file name in the vector
-	//this->read_geometry_from_dicom_file ( fileNames.back().c_str() );		// use the last file name in the vector
-
 }
 
 
@@ -554,7 +547,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_path, const bool useCompression, const bool anonymize)
     {
-	cout<<"save_to_DCM_file..."<<endl;    //port image to ITK image and save it as DCM file
+//	cout<<"save_to_DCM_file..."<<endl;    //port image to ITK image and save it as DCM file
 
 	//--------------------------------------------------------
 	//--- If dicom image has tag "DCM_IMAGE_ORIENTATION_PATIENT" a/b/c/d/e/f

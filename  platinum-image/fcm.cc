@@ -18,7 +18,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "fcm.h"
-
+/*
 fcm::fcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness, float u_diff_limit, image_binary<3> *mask)
 {
 	this->images = vec;
@@ -39,8 +39,9 @@ fcm::fcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_f
 	this->X = vnl_matrix<float>(n_bands(), n_pix());
 	this->int_dist = vnl_matrix<float>(n_clust(), n_pix());
 }
+*/
 
-fcm::fcm(fcm_image_vector_type vec, float m_fuzzyness, vnl_matrix<float> V_init_clusters, float u_diff_limit, image_binary<3> *mask)
+fcm::fcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness, float u_diff_limit, image_binary<3> *mask)
 {
 	this->images = vec;
 	this->V = V_init_clusters;
@@ -135,7 +136,7 @@ int fcm::get_num_pixels_in_mask(image_binary<3> *image_mask)
 	return tmp;
 }
 */
-
+/*
 void fcm::fill_X(vnl_matrix<float> &X, image_binary<3> *image_mask_local)
 {
 	cout<<"fill_X..."<<endl;
@@ -172,9 +173,9 @@ void fcm::fill_X(vnl_matrix<float> &X, image_binary<3> *image_mask_local)
 		}
 	}
 }
+*/
 
-
-
+/*
 void fcm::calc_int_dist_matrix_euclidean(vnl_matrix<float> &int_dist, const vnl_matrix<float> &X, const vnl_matrix<float> &V)
 {
 	cout<<"calc_int_dist_matrix_euclidean..."<<endl;
@@ -193,8 +194,8 @@ void fcm::calc_int_dist_matrix_euclidean(vnl_matrix<float> &int_dist, const vnl_
 		}
 	}
 }
-
-
+*/
+/*
 void fcm::calc_memberships(vnl_matrix<float> &u, const vnl_matrix<float> &int_dist, const float m)
 {
 	cout<<"calc_memberships..."<<endl;
@@ -228,8 +229,8 @@ void fcm::calc_memberships(vnl_matrix<float> &u, const vnl_matrix<float> &int_di
 		}
 	}
 }
-
-
+*/
+/*
 void fcm::calc_cluster_centers(vnl_matrix<float> &V, const vnl_matrix<float> &u, const vnl_matrix<float> &X, float m)
 {
 	cout<<"calc_cluster_centers..."<<endl;
@@ -256,11 +257,11 @@ void fcm::calc_cluster_centers(vnl_matrix<float> &V, const vnl_matrix<float> &u,
 		}
 	}
 }
-
+*/
 
 void fcm::calc_int_dist_images_euclidean(const vnl_matrix<float> &V)
 {
-	cout<<"calc_int_dist_images_euclidean... c="<<endl;
+	cout<<"calc_int_dist_images_euclidean... c=";
 	float tmp=0;
 
 	for(int c=0;c<n_clust();c++){
@@ -288,7 +289,7 @@ void fcm::calc_int_dist_images_euclidean(const vnl_matrix<float> &V)
 
 void fcm::calc_memberships(fcm_image_vector_type u_images2, const fcm_image_vector_type &int_dist_images2, const float m)
 {
-	cout<<"calc_memberships... c="<<endl;
+	cout<<"calc_memberships... c=";
 
 	float denom=0;
 	float factor = 2.0/(m-1);
@@ -326,9 +327,24 @@ void fcm::calc_memberships(fcm_image_vector_type u_images2, const fcm_image_vect
 		cout<<endl;
 }
 
+
+void fcm::copy_memberships_from(fcm_image_vector_type u_images2)
+{
+	for(int c=0;c<n_clust();c++){
+		for(int k=0;k<nz();k++){
+			for(int j=0;j<ny();j++){
+				for(int i=0;i<nx();i++){
+					u_images[c]->set_voxel(i,j,k, u_images2[c]->get_voxel(i,j,k) );
+				}
+			}
+		}
+	}
+
+}
+
 void fcm::calc_cluster_centers(vnl_matrix<float> &V, const fcm_image_vector_type u_images2, float m)
 {
-	cout<<"calc_cluster_centers... c="<<endl;
+	cout<<"calc_cluster_centers... c=";
 	//matrix(rows, columns)
 	//	vnl_matrix<float> u(n_clust, n_pix);		//degree of membership	u(clust,pixel)
 	//	vnl_matrix<float> X(n_bands, n_pix);		//pixel intensities		X(band,pixel)
@@ -361,7 +377,7 @@ void fcm::calc_cluster_centers(vnl_matrix<float> &V, const fcm_image_vector_type
 	cout<<endl;
 }
 
-
+/*
 fcm_image_vector_type fcm::get_image_vector_from_u_vector()
 {
 	// vnl_matrix<float> u(n_clust, n_pix);		//degree of membership	u(clust,pixel)
@@ -405,9 +421,9 @@ fcm_image_vector_type fcm::get_image_vector_from_u_vector()
 	return vec;
 }
 
+*/
 
-
-
+/*
 
 void fcm::Update_vectorfcm()
 {
@@ -483,16 +499,15 @@ void fcm::Update_vectorfcm()
 	cout<<"FCM limit reached..."<<endl;
 }
 
-
+*/
 
 void fcm::Update_imagefcm()
 {
 	cout<<"fcm::Update_imagefcm()..."<<endl;
 
 	//-----------------------
-	// Normalize X-matrix intensities... (row-wise...) (and scale image intensities from 0...max --> 0...1 
+	// Normalize image intensities... (row-wise...) (and scale image intensities from 0...max --> 0...1 
 	// (one might do more intelligent trimming of the image top intensity values)
-	//	vnl_matrix<float> X; //pixel intensities		X(band,pixel)
 	//-----------------------
 	cout<<"scale..."<<endl;
 	for(int b=0;b<n_bands();b++){
@@ -520,16 +535,7 @@ void fcm::Update_imagefcm()
 	calc_cluster_centers(V,u_images2,m);
 
 //	u = u2;
-
-	for(int c=0;c<n_clust();c++){
-		for(int k=0;k<nz();k++){
-			for(int j=0;j<ny();j++){
-				for(int i=0;i<nx();i++){
-					u_images[c]->set_voxel(i,j,k, u_images2[c]->get_voxel(i,j,k) );
-				}
-			}
-		}
-	}
+	copy_memberships_from(u_images2);
 
 	cout<<"loop..."<<endl;
 
@@ -542,20 +548,17 @@ void fcm::Update_imagefcm()
 		// Calc dist_functions... int_dist(n_clust, n_pix) 
 		// i.e. distance from each pixel_intensity to each cluster... (for example euclidean...)
 		//-----------------------
-//		calc_int_dist_matrix_euclidean(int_dist, X, V);
 		calc_int_dist_images_euclidean(V);
 		//	cout<<endl<<"int_dist="<<int_dist<<endl;
 
 		//-----------------------
 		// Update membership values...
 		//-----------------------
-//		calc_memberships(u2, int_dist, m);
 		calc_memberships(u_images2, int_dist_images, m);
 
 		//-----------------------
 		// Update cluster centers values...
 		//-----------------------
-//		calc_cluster_centers(V,u2,X,m);
 		calc_cluster_centers(V,u_images2,m);
 		cout<<"V="<<endl<<V<<endl;
 
@@ -575,19 +578,15 @@ void fcm::Update_imagefcm()
 		cout<<"u_change_max="<<u_change_max<<endl;
 
 //		u = u2;
-		for(int c=0;c<n_clust();c++){
-			for(int k=0;k<nz();k++){
-				for(int j=0;j<ny();j++){
-					for(int i=0;i<nx();i++){
-						u_images[c]->set_voxel(i,j,k, u_images2[c]->get_voxel(i,j,k) );
-					}
-				}
-			}
-		}
+		copy_memberships_from(u_images2);
 
 	}
 	cout<<"FCM limit reached..."<<endl;
 }
+
+
+
+
 
 void fcm::save_membership_images_to_dcm(string file_path_base, float scale_factor)
 {
@@ -612,4 +611,268 @@ void fcm::save_membership_images_to_vtk(string file_path_base)
 fcm_image_vector_type fcm::get_membership_images()
 {
 	return u_images;
+}
+
+
+
+
+// ----------------------- SFCM --------------------------------
+
+sfcm::sfcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness, float u_diff_limit, image_binary<3> *mask) : fcm(vec, V_init_clusters, m_fuzzyness, u_diff_limit, mask)
+{
+
+	mean_nbh_dist_image = new image_scalar<float,3>(this->images[0],false);
+	mean_nbh_dist_image->fill(0);
+
+	average_nbh_dist_mean = 0;
+
+	for(int c=0;c<n_clust();c++){
+		this->dissim_images.push_back(new image_scalar<float>(this->images[0],false));
+	}
+}
+
+sfcm::~sfcm()
+{
+	delete mean_nbh_dist_image;
+
+	for(int c=0;c<n_clust();c++){
+		delete this->dissim_images[c];
+	}
+}
+
+float sfcm::get_squared_pixel_int_dist(int i, int j, int k, int i2, int j2, int k2)
+{
+	float dist=0;
+	for(int b=0;b<n_bands();b++){
+		dist += pow(images[b]->get_voxel(i,j,k) - images[b]->get_voxel(i2,j2,k2),2);
+	}
+	return dist;
+}
+
+float sfcm::get_pixel_int_dist(int i, int j, int k, int i2, int j2, int k2)
+{
+	return sqrt(get_squared_pixel_int_dist(i,j,k,i2,j2,k2));
+}
+
+float sfcm::calc_lamda(float nbh_dist)
+{
+	return 1.0/(1.0+exp(-(nbh_dist-average_nbh_dist_mean)/sigma));
+}
+
+void sfcm::calc_sigma()
+{
+	cout<<"calc_sigma()..."<<endl;
+	//first determine 95 percentile of delta_av(x)...
+	//then clac sigma by solving eq(8) in Liew2003 for lamda(delta_t)=0.8...
+	float delta_t=0;
+	if(image_mask==NULL){
+		delta_t = mean_nbh_dist_image->get_intensity_at_lower_percentile(0.95);
+	}else{
+		delta_t = mean_nbh_dist_image->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(0.95);
+	}
+	
+	cout<<"delta_t="<<delta_t<<endl;
+
+	this->sigma = -(delta_t - average_nbh_dist_mean) / log(1/0.8-1);
+	cout<<"sigma="<<sigma<<endl;
+
+}
+
+void sfcm::calc_mean_nbh_dist_image()
+{
+	float d[6];
+	float mean;
+
+	for(int k=1;k<nz()-1;k++){
+		for(int j=1;j<ny()-1;j++){
+			for(int i=1;i<nx()-1;i++){
+				if(this->is_pixel_included(i,j,k)){			//check mask...
+					d[0] = get_pixel_int_dist(i,j,k,i,j,k-1);
+					d[1] = get_pixel_int_dist(i,j,k,i,j,k+1);
+					d[2] = get_pixel_int_dist(i,j,k,i,j-1,k);
+					d[3] = get_pixel_int_dist(i,j,k,i,j+1,k);
+					d[4] = get_pixel_int_dist(i,j,k,i-1,j,k);
+					d[5] = get_pixel_int_dist(i,j,k,i+1,j,k);
+					mean = 0;
+					for(int n=0;n<6;n++){
+						mean += d[0];
+					}
+					mean /= 6.0;
+					this->average_nbh_dist_mean += mean;
+					this->mean_nbh_dist_image->set_voxel(i,j,k,mean);
+				}
+			}//x
+		}//y
+	}//z
+	this->average_nbh_dist_mean /= n_pix();
+
+	cout<<"average_nbh_dist_mean="<<this->average_nbh_dist_mean<<endl;
+}
+
+float sfcm::calc_dissimilarity(int c, int i, int j, int k)
+{
+	float dkx2 = pow(int_dist_images[c]->get_voxel(i,j,k),2);
+
+	float dky2[6];
+	dky2[0] = pow(int_dist_images[c]->get_voxel(i,j,k-1),2);
+	dky2[1] = pow(int_dist_images[c]->get_voxel(i,j,k+1),2);
+	dky2[2] = pow(int_dist_images[c]->get_voxel(i,j-1,k),2);
+	dky2[3] = pow(int_dist_images[c]->get_voxel(i,j+1,k),2);
+	dky2[4] = pow(int_dist_images[c]->get_voxel(i-1,j,k),2);
+	dky2[5] = pow(int_dist_images[c]->get_voxel(i+1,j,k),2);
+
+	float dxy[6];
+	dxy[0] = get_pixel_int_dist(i,j,k,i,j,k-1);
+	dxy[1] = get_pixel_int_dist(i,j,k,i,j,k+1);
+	dxy[2] = get_pixel_int_dist(i,j,k,i,j-1,k);
+	dxy[3] = get_pixel_int_dist(i,j,k,i,j+1,k);
+	dxy[4] = get_pixel_int_dist(i,j,k,i-1,j,k);
+	dxy[5] = get_pixel_int_dist(i,j,k,i+1,j,k);
+
+	float lxy[6];
+	for(int i=0;i<6;i++){
+		lxy[i] = this->calc_lamda(dxy[i]);
+	}
+
+	float dissim=0;
+	for(int i=0;i<6;i++){
+		dissim += dkx2*lxy[i] + dky2[i]*(1.0-lxy[i]);
+	}
+	dissim = dissim/6.0;
+
+	return dissim;
+}
+
+void sfcm::calc_dissimilarity_images(const vnl_matrix<float> &V)
+{
+	cout<<"calc_dissimilarity_images... c= ";
+	float tmp=0;
+
+	for(int c=0;c<n_clust();c++){
+		cout<<" "<<c;
+//		this->dissim_images[c]->fill(0);	//JK-time consuming
+		this->dissim_images[c]->fill_image_border_3D(0);
+
+		for(int k=1;k<nz()-1;k++){
+			for(int j=1;j<ny()-1;j++){
+				for(int i=1;i<nx()-1;i++){
+					if(this->is_pixel_included(i,j,k)){
+						this->dissim_images[c]->set_voxel(i,j,k,this->calc_dissimilarity(c,i,j,k));
+					}
+				}
+			}
+		}
+	}
+	cout<<endl;
+
+}
+
+void sfcm::Update_imagesfcm()
+{
+	cout<<"fcm::Update_imagesfcm()..."<<endl;
+
+	//-----------------------
+	// Normalize image intensities... (row-wise...) (and scale image intensities from 0...max --> 0...1 
+	// (one might do more intelligent trimming of the image top intensity values)
+	//-----------------------
+	cout<<"scale..."<<endl;
+	for(int b=0;b<n_bands();b++){
+		cout<<"band="<<b<<" max="<<images[b]->get_max()<<endl;
+		images[b]->scale(0,1);
+		images[b]->data_has_changed();
+		cout<<"band="<<b<<" max="<<images[b]->get_max()<<endl;
+	}
+	//-----------------------
+	// FCM-algorithm Loop...
+	//-----------------------
+	float u_change_max=1;
+	int iter=0;
+	float u_diff;
+
+	fcm_image_vector_type u_images2;	//TEMP. degree of membership2	(n_bands)
+	for(int c=0;c<n_clust();c++){
+		u_images2.push_back(new image_scalar<float>(this->images[0],false));	//degree of membership	(n_bands)
+	}
+
+	//calc sfcm objects....
+	calc_mean_nbh_dist_image();	//only needed once...
+	save_mean_nbh_dist_image("c:\\Joel\\TMP\\Pivus75\\_sfcm_mean_dist.vtk");
+	calc_sigma();				//only needed once...
+
+
+	//do a first roud outside to allow calculation of "u_change_max"...
+	calc_int_dist_images_euclidean(V);
+	calc_dissimilarity_images(V);	//sfcm
+	save_dissimilarity_images("c:\\Joel\\TMP\\Pivus75\\_sfcm_dissim_images");
+
+//	calc_memberships(u_images2, int_dist_images, m);
+	calc_memberships(u_images2, dissim_images, m);
+	this->save_membership_images_to_vtk("c:\\Joel\\TMP\\Pivus75\\_sfcm_membership_images");
+	calc_cluster_centers(V,u_images2,m);
+
+	cout<<"V="<<V<<endl;
+
+//	u = u2;
+	copy_memberships_from(u_images2);
+
+	cout<<"loop..."<<endl;
+
+	while(u_change_max > u_maxdiff_limit)
+	{ 
+		iter++;
+		cout<<"fcm iteration = "<<iter<<endl;
+
+		//-----------------------
+		// Calc dist_functions... int_dist(n_clust, n_pix) 
+		// i.e. distance from each pixel_intensity to each cluster... (for example euclidean...)
+		//-----------------------
+		calc_int_dist_images_euclidean(V);
+		calc_dissimilarity_images(V);
+		save_dissimilarity_images("c:\\Joel\\TMP\\Pivus75\\_sfcm_dissim_images_iter_"+int2str(iter));
+		//	cout<<endl<<"int_dist="<<int_dist<<endl;
+
+		//-----------------------
+		// Update membership values...
+		//-----------------------
+//		calc_memberships(u_images2, int_dist_images, m);
+		calc_memberships(u_images2, dissim_images, m);
+
+		//-----------------------
+		// Update cluster centers values...
+		//-----------------------
+		calc_cluster_centers(V,u_images2,m);
+		cout<<"V="<<endl<<V<<endl;
+
+		u_change_max=0;
+		for(int c=0;c<n_clust();c++){
+			for(int k=0;k<nz();k++){
+				for(int j=0;j<ny();j++){
+					for(int i=0;i<nx();i++){
+						u_diff = abs(u_images2[c]->get_voxel(i,j,k) - u_images[c]->get_voxel(i,j,k));
+						if(u_diff > u_change_max){
+							u_change_max = u_diff;
+						}
+					}
+				}
+			}
+		}
+		cout<<"u_change_max="<<u_change_max<<endl;
+
+		copy_memberships_from(u_images2);
+
+	}
+	cout<<"sFCM limit reached..."<<endl;
+}
+
+
+void sfcm::save_mean_nbh_dist_image(string file_path)
+{
+	mean_nbh_dist_image->save_to_file(file_path);
+}
+
+void sfcm::save_dissimilarity_images(string file_path_base)
+{
+	for(int c=0;c<n_clust();c++){
+		dissim_images[c]->save_to_file(file_path_base+"_"+int2str(c)+".vtk");
+	}
 }

@@ -31,7 +31,7 @@
 #include <dirent.h>
 #endif
 
-void trailing_slash (std::string &s)
+void trailing_slash (string &s)
     {
     if (*s.rbegin() != '/')
         {
@@ -39,30 +39,35 @@ void trailing_slash (std::string &s)
         }
     }
 
-std::vector<std::string> get_dir_entries (std::string path)
+vector<string> get_dir_entries(string path, bool full_path)
     {
     // *** POSIX ***
 
-    std::vector<std::string> f;
+    vector<string> f;
     dirent *ep;
     char cpath[MAXPATHLENGTH];
     strcpy (cpath,path.c_str());
 
     DIR * dp = opendir (cpath);
 
-    while (ep = readdir (dp))
-        f.push_back (ep->d_name);
+	if(full_path){
+		while (ep = readdir (dp))
+			f.push_back (path + ep->d_name);
+	}else{
+		while (ep = readdir (dp))
+			f.push_back (ep->d_name);
+	}
 
     (void) closedir (dp);
 
     return f;
     }
 
-std::vector<std::string> get_dir_entries_ending_with(std::string path, std::string ending)
+vector<string> get_dir_entries_ending_with(string path, string ending)
     {
     // *** POSIX ***
 
-    std::vector<std::string> f;
+    vector<string> f;
     dirent *ep;
     char cpath[MAXPATHLENGTH];
     strcpy (cpath,path.c_str());
@@ -70,14 +75,14 @@ std::vector<std::string> get_dir_entries_ending_with(std::string path, std::stri
     DIR * dp = opendir (cpath);
 
 	while (ep = readdir (dp)){
-		std::string res = std::string(ep->d_name);
+		string res = string(ep->d_name);
 		int s = ending.size();
 		int from = res.size()-s;
 		if(from<0){from=0;}
 
-		std::string this_ending = res.substr(from,s);
-//		std::cout<<"res="<<res<<std::endl;
-//		std::cout<<"this_ending="<<this_ending<<std::endl;
+		string this_ending = res.substr(from,s);
+//		cout<<"res="<<res<<endl;
+//		cout<<"this_ending="<<this_ending<<endl;
 		
 		if(this_ending == ending)
 		{
@@ -90,13 +95,13 @@ std::vector<std::string> get_dir_entries_ending_with(std::string path, std::stri
     }
 
 
-std::string path_end (std::string file_path)
+string path_end (string file_path)
     {
     unsigned int pos;
 
     pos=file_path.rfind("/",file_path.length()-2);
     
-    if (pos !=std::string::npos)
+    if (pos !=string::npos)
         {
         file_path.erase(0,pos+1);
         }
@@ -105,7 +110,7 @@ std::string path_end (std::string file_path)
   
     }
 
-std::string path_parent (std::string file_path)
+string path_parent (string file_path)
     {
     unsigned int pos;
 
@@ -113,11 +118,11 @@ std::string path_parent (std::string file_path)
     pos=file_path.rfind("/",file_path.length()-1);
 
 	//try "\" (Windows paths might use these)
-	if(pos ==std::string::npos){
+	if(pos ==string::npos){
 	   pos=file_path.rfind("\\",file_path.length()-1);
 	}
     
-    if (pos !=std::string::npos)
+    if (pos !=string::npos)
         {
         file_path.erase(pos+1,file_path.length());
         }
@@ -125,7 +130,7 @@ std::string path_parent (std::string file_path)
     return file_path;
     }
 
-bool file_exists (std::string file_path)
+bool file_exists (string file_path)
 {
     struct stat fileStats;
     
@@ -142,7 +147,7 @@ bool file_exists (std::string file_path)
     //return (access(file_path.c_str(), F_OK) == 1);
 }
 
-bool dir_exists (std::string file_path)
+bool dir_exists (string file_path)
 {
     struct stat fileStats;
     
@@ -157,7 +162,201 @@ bool dir_exists (std::string file_path)
     return false;
 }
 
-bool does_string_end_with(std::string s, std::string ending)
+void add_to_string_vector_if_not_present(vector<string> &v, string s)
+{
+	if(s!=""){
+		bool present=false;
+		for(int i=0; i<v.size() && !present; i++){
+			if(v[i] == s){
+				present=true;
+			}
+		}
+		if(!present){
+//			cout<<"******"<<endl;
+			v.push_back(s);
+		}
+	}
+}
+
+//------------- Dicom specific file handling ----------------------
+
+
+vector<string> get_dicom_files_in_dir(string dir_path, bool full_path)
+{
+//	cout<<"get_dicom_files_in_dir..."<<endl;
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+
+	vector<string> dcm_files;
+	vector<string> all_files = get_dir_entries(dir_path,full_path);
+
+	for(int i=0;i<all_files.size();i++)
+	{
+//		cout<<"*i="<<i<<" "<<all_files[i]<<endl;
+		if(dicomIO->CanReadFile(all_files[i].c_str()))
+		{
+//			cout<<"****dcm***"<<endl;
+			dcm_files.push_back(all_files[i]);
+		}
+	}
+	return dcm_files;
+}
+
+vector<string> get_dicom_files_with_dcm_tag_value(vector<string> files, string dcm_tag, string tag_val)
+{
+	vector<string> v;
+	for(int i=0;i<files.size();i++){
+		if( get_dicom_tag_value(files[i], dcm_tag)==tag_val ){
+			v.push_back(files[i]);
+		}
+	}
+	return v;
+}
+
+int get_number_of_dicom_files_in_dir(string dir_path)
+{
+return get_dicom_files_in_dir(dir_path).size();
+}
+
+string get_dicom_tag_value(string file_path, string dcm_tag, bool remove_garbage_tag)
+{
+//	cout<<"get_dicom_tag_value...("<<file_path<<","<<dcm_tag<<")"<<endl;
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+	string dcmdata = "";
+
+	if(dicomIO->CanReadFile(file_path.c_str()))
+	{
+		dicomIO->SetFileName(file_path.c_str());
+		dicomIO->ReadImageInformation();		//get basic DICOM header
+		dicomIO->GetValueFromTag(dcm_tag,dcmdata);
+		if(remove_garbage_tag){
+			remove_string_ending(dcmdata, " ");
+		}
+//		cout<<"CanReadFile... (dcmdata="<<dcmdata<<")"<<endl;	
+	}
+	return dcmdata;
+}
+
+
+
+bool does_dir_contain_dcmfile_with_tag_value(string dir_path, string dcm_tag, string tag_val, bool recursive_search)
+{
+//	cout<<"does_dir_contain_dcmfile_with_tag_value..."<<endl;
+
+	vector<string> dcm_files = get_dicom_files_in_dir(dir_path, true);
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+	string dcmdata = "";
+	if(recursive_search){
+		vector<string> dirs = subdirs(dir_path);
+		bool result;
+		for(int i=0;i<dirs.size();i++){
+			result = does_dir_contain_dcmfile_with_tag_value(dirs[i], dcm_tag, tag_val, recursive_search);
+			if(result){
+				return true;
+			}
+		}
+
+	}
+
+	for(int i=0;i<dcm_files.size();i++){
+		dicomIO->SetFileName(dcm_files[i].c_str());
+		dicomIO->ReadImageInformation();		//get basic DICOM header
+		dicomIO->GetValueFromTag(dcm_tag,dcmdata);
+		remove_string_ending(dcmdata," "); //removes eventual last garbage char
+		cout<<"tag_val=("<<tag_val<<") dcmdata=("<<dcmdata<<")"<<endl;
+		if(dcmdata == tag_val){
+			return true;
+		}
+	}
+	return false;
+}
+
+
+string find_first_sub_dir_containing_dcm_file_with_tag_value(string dir_path, string dcm_tag, string tag_val, bool recursive_search)
+{
+//	cout<<"find_first_sub_dir_containing_dcm_file_with_tag_value...("<<dir_path<<")"<<endl;
+	vector<string> dirs = subdirs(dir_path);
+	string result="";
+
+	for(int i=0;i<dirs.size();i++){
+//		cout<<"dirs[i]="<<dirs[i]<<endl;
+		if(recursive_search){
+			result = find_first_sub_dir_containing_dcm_file_with_tag_value(dirs[i], dcm_tag, tag_val, recursive_search);
+			if(result != ""){
+				return result;
+			}
+		}
+		if(does_dir_contain_dcmfile_with_tag_value(dirs[i],dcm_tag,tag_val,false)){
+//			cout<<"****************"<<endl;
+			return dirs[i];
+		}
+	}
+	return "";
+}
+
+
+
+vector<string> list_dicom_tag_values_for_this_ref_tag_value(vector<string> files, string dcm_tag, string dcm_tag_val, string dcm_ref_tag)
+{
+//	cout<<"list_dicom_tag_values_for_this_ref_tag_value..."<<endl;
+//	cout<<"dcm_tag="<<dcm_tag<<endl;
+//	cout<<"dcm_tag_val=("<<dcm_tag_val<<")"<<endl;
+//	cout<<"dcm_ref_tag="<<dcm_ref_tag<<endl;
+
+	//for example dcm_tag = "series ID"
+	//for example dcm_tag_val = 1.231434.3432545
+	//for example ref_tag_val = "echo time"..
+
+	vector<string> vec;
+	vector<string> values_present;
+	string tmp;
+	string tmp2;
+
+	for(int i=0;i<files.size();i++){
+		tmp2 = get_dicom_tag_value(files[i], dcm_tag);
+//		cout<<"tmp2=("<<tmp2<<")"<<endl;
+		tmp2 = tmp2.c_str();	//remove last garbage char...
+//		cout<<"tmp3=("<<tmp2<<")"<<endl;
+		if(dcm_tag_val == tmp2)
+		{
+			tmp = get_dicom_tag_value(files[i], dcm_ref_tag);
+//			cout<<"tmp="<<tmp<<endl;
+			add_to_string_vector_if_not_present(values_present, tmp);
+		}
+	}
+	return values_present;
+}
+
+vector<string> list_dicom_tag_values_in_subdirs(string dir_path, string dcm_tag, bool recursive_search)
+{
+	cout<<"list_dicom_tag_values_in_subdirs("<<dir_path<<") "<<endl;
+	vector<string> tags;
+	vector<string> tags2;
+	if(recursive_search){
+		vector<string> dirs = subdirs(dir_path);
+		for(int i=0;i<dirs.size();i++){
+			tags2 = list_dicom_tag_values_in_subdirs(dirs[i], dcm_tag, true);
+			for(int j=0;j<tags2.size();j++){
+				add_to_string_vector_if_not_present(tags,tags2[j]);
+//				cout<<"tags.size()="<<tags.size()<<endl; 
+			}
+		}
+	}
+
+	vector<string> files = get_dicom_files_in_dir(dir_path, true);
+	string tmp;
+	for(int i=0;i<files.size();i++){
+		tmp = get_dicom_tag_value(files[i], dcm_tag);
+//		cout<<"tmp="<<tmp<<endl;
+		add_to_string_vector_if_not_present(tags,tmp);
+	}
+	return tags;
+}
+
+
+
+//------------- String handling functions ----------------------
+
+bool does_string_end_with(string s, string ending)
 {
 	if(s.find_last_of(ending) == s.size()-1)
 	{
@@ -166,11 +365,11 @@ bool does_string_end_with(std::string s, std::string ending)
 	return false;
 }
 
-bool remove_file_lastname(std::string &s, int max_no_lastname_chars)
+bool remove_file_lastname(string &s, int max_no_lastname_chars)
 {
 	unsigned int last = s.find_last_of(".");
-	std::cout<<"last="<<s.find_last_of(".")<<std::endl;
-	std::cout<<"size="<<s.size()<<std::endl;
+//	cout<<"last="<<s.find_last_of(".")<<endl;
+//	cout<<"size="<<s.size()<<endl;
 	if( last >= (s.size() -max_no_lastname_chars -1) )
 	{
 		s = s.substr(0,last);
@@ -179,13 +378,27 @@ bool remove_file_lastname(std::string &s, int max_no_lastname_chars)
 	return false;
 }
 
-std::vector<std::string> subdirs (std::string dir_path)
+bool remove_string_ending(string &s, string ending)
+{
+//	cout<<"remove_string_ending"<<endl;
+	if(does_string_end_with(s,ending)){
+//		cout<<"s.size()="<<s.size()<<endl;
+//		cout<<"ending.size()="<<ending.size()<<endl;
+//		cout<<"s="<<s<<endl;
+		s = s.substr(0,s.size()-ending.size());
+//		cout<<"s="<<s<<endl;
+		return true;
+	}
+	return false;
+}
+
+vector<string> subdirs (string dir_path)
     {
     trailing_slash(dir_path);
 
-    std::vector<std::string> result = get_dir_entries (dir_path);
+    vector<string> result = get_dir_entries (dir_path);
 
-    std::vector<std::string>::iterator dirs = result.begin();
+    vector<string>::iterator dirs = result.begin();
 
     while (result.size() > 0 && dirs != result.end())
         {
@@ -208,11 +421,25 @@ std::vector<std::string> subdirs (std::string dir_path)
     }
 
 
-std::string int2str(int i){
+vector<string> subdirs_where_name_contains(string dir_path, string name_substring)
+{
+	vector<string> sub = subdirs(dir_path);
+	vector<string> sub2;
+
+	for(int i=0;i<sub.size();i++){
+//		cout<<"sub[i].find(name_substring)="<<sub[i].find(name_substring)<<endl;
+		if( sub[i].find(name_substring) < sub[i].size() ){
+			sub2.push_back(sub[i]);
+		}
+	}
+	return sub2;
+}
+
+string int2str(int i){
 return templ_to_string(i);
 }
 
-std::string float2str(float f){
+string float2str(float f){
 return templ_to_string(f);
 }
 

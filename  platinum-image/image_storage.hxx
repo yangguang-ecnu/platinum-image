@@ -202,7 +202,13 @@ ELEMTYPE image_storage<ELEMTYPE >::get_num_values()
 { 
 	return stats->num_values(); 
 }
-
+/*
+template <class ELEMTYPE >
+unsigned long image_storage<ELEMTYPE >::get_num_elements()
+{
+	return num_elements;
+}
+*/
 template <class ELEMTYPE >
 histogram_1D<ELEMTYPE> * image_storage<ELEMTYPE >::get_histogram()
 {

@@ -53,6 +53,7 @@ class histogram_base
         unsigned short num_buckets;     //buckets per dimension, ie. actual #buckets = num_buckets^2 for 2D histogram
         unsigned long bucket_max;
         unsigned long bucket_mean;
+        unsigned long num_elements_in_hist;	//stores total number of elements in histogram, (e.g. histograms from masked regions)
 
         bool readytorender;
         
@@ -156,6 +157,8 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 
 //		void smooth_mean(int nr_of_neighbours=3, int nr_of_times=1);
 		void smooth_mean(int nr_of_neighbours, int nr_of_times, int from, int to);
+
+		ELEMTYPE get_intensity_at_histogram_lower_percentile(float percentile);
 
 		//------ Fitting of gaussian functions ------
 		void fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info=false);
