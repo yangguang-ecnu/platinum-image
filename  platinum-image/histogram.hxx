@@ -167,6 +167,19 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 				//NOT VERY good to write outside allocated memory
 				if(bucketpos>=0 && bucketpos<this->num_buckets){	
 
+
+					//---------------------------------------
+					//------------ PRINT --------------------
+					//---------------------------------------
+//					cout<<endl;
+//					for (unsigned short i = 0; i < this->num_buckets; i++){
+//						cout<<this->buckets[i]<<" ";
+//					}
+//					cout<<endl;
+					//---------------------------------------
+					//------------ PRINT --------------------
+					//---------------------------------------
+
 					//calculate distinct value count
 					if (this->buckets[bucketpos] == 0)
 					{this->num_distinct_values++;}
@@ -494,6 +507,10 @@ template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info)
 {
     cout<<"fit_gaussian_to_intensity_range..."<<endl;
+	cout<<"this->max()="<<this->max()<<endl;
+	cout<<"this->min()="<<this->min()<<endl;
+	cout<<"this->num_buckets()="<<this->num_buckets<<endl;
+
 	int from_bucket = intensity_to_bucketpos(from);
 	int to_bucket = intensity_to_bucketpos(to);
 

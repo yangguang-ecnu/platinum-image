@@ -231,5 +231,3 @@ Vector3Dint create_Vector3Dint( int x, int y, int z )
 	v[2] = z;
 	return v;
 }
-
-

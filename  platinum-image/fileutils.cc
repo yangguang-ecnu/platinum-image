@@ -262,7 +262,7 @@ bool does_dir_contain_dcmfile_with_tag_value(string dir_path, string dcm_tag, st
 		dicomIO->ReadImageInformation();		//get basic DICOM header
 		dicomIO->GetValueFromTag(dcm_tag,dcmdata);
 		remove_string_ending(dcmdata," "); //removes eventual last garbage char
-		cout<<"tag_val=("<<tag_val<<") dcmdata=("<<dcmdata<<")"<<endl;
+//		cout<<"tag_val=("<<tag_val<<") dcmdata=("<<dcmdata<<")"<<endl;
 		if(dcmdata == tag_val){
 			return true;
 		}

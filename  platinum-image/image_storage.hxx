@@ -374,6 +374,21 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
 			}
             break;
 
+		case COMB_MEAN_NON_ZERO:
+			cout<<"...COMB_MEAN_NON_ZERO";
+			while(i != this->end())
+			{
+				if(*i==0){
+					*i=*i2;
+				}else if(*i!=0 && *i2!=0){
+					*i = 0.5*float(*i + *i2);
+				} //if *i2==0 --> Nothing is done...
+				++i;
+				++i2;
+			}
+            break;
+		
+
 		default:
 			pt_error::error("image_storage<ELEMTYPE >::combine --> COMBINE_TYPE not recognized",pt_error::debug);
 			break;
