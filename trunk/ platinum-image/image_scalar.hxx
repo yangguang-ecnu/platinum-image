@@ -1395,10 +1395,24 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::rotate_voxel
 	}else{
 		pt_error::error("rotate_voxeldata_3D-->parameters...("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")",pt_error::debug);
 	}
-
 	return res;
+
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D_in_this(int rot_axis, int pos_neg_dir)
+{
+	image_scalar<ELEMTYPE, IMAGEDIM> *tmp = rotate_voxeldata_3D(rot_axis, pos_neg_dir);
+//	tmp->save_to_file("C:/joel/TMP/rot.vtk");
+	int sx = tmp->get_size_by_dim(0);
+	int sy = tmp->get_size_by_dim(1);
+	int sz = tmp->get_size_by_dim(2);
+
+	this->initialize_dataset(sx,sy,sz);
+	copy_data(tmp,this);
+	this->set_parameters(tmp);
+	delete tmp;
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::calculate_TP_FP_Udupa_3D(float &tp, float &fp, float &udupa, image_scalar<ELEMTYPE, IMAGEDIM>* ground_truth, ELEMTYPE gt_obj_val, ELEMTYPE this_obj_val)

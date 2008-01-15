@@ -510,8 +510,10 @@ void fcm::Update_imagefcm()
 	// (one might do more intelligent trimming of the image top intensity values)
 	//-----------------------
 	cout<<"scale..."<<endl;
+	int perc;
 	for(int b=0;b<n_bands();b++){
-		cout<<"band="<<b<<" max="<<images[b]->get_max()<<endl;
+		perc = images[b]->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(0.95);
+		cout<<"band="<<b<<" max="<<images[b]->get_max()<<" perc="<<perc<<endl;
 		images[b]->scale(0,1);
 		images[b]->data_has_changed();
 		cout<<"band="<<b<<" max="<<images[b]->get_max()<<endl;
@@ -608,9 +610,53 @@ void fcm::save_membership_images_to_vtk(string file_path_base)
 	}
 }
 
+void fcm::save_membership_image_collage_to_vtk(string file_path)
+{
+	image_scalar<float,3> *tmp = new image_scalar<float,3>(u_images[0]);
+	for(int c=1;c<n_clust();c++){
+		tmp->add_volume_3D(u_images[c],0);
+	}
+	tmp->save_to_VTK_file(file_path);
+	delete tmp;
+}
+
+
 fcm_image_vector_type fcm::get_membership_images()
 {
 	return u_images;
+}
+
+
+void fcm::load_vnl_matrix_from_file(vnl_matrix<float> &V, std::string file_path)
+{
+	if(file_exists(file_path)){
+		std::ifstream myfile;
+		myfile.open(file_path.c_str());
+		for(int r=0;r<V.rows();r++){
+			for(int c=0;c<V.cols();c++){
+//				myfile.
+	//			V(r,c,) = cin
+			}
+		}
+
+	//	myfile<<message<<std::endl;
+	//	myfile.close();
+	}
+}
+
+void fcm::save_vnl_matrix_to_file(vnl_matrix<float> &V, std::string file_path)
+{
+	std::ofstream myfile;
+	myfile.open(file_path.c_str());
+	for(int r=0;r<V.rows();r++){
+		for(int c=0;c<V.cols();c++){
+			myfile.write(float2str(V(r,c)).c_str(), sizeof(float));
+		}
+		myfile.write(string("\n").c_str(),sizeof(char));
+	}
+
+//	myfile<<message<<std::endl;
+	myfile.close();
 }
 
 

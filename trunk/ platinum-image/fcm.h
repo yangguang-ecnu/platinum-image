@@ -93,9 +93,12 @@ public:
 	void Update_imagefcm(); //executes fcm algorithm ( in sweet ITK style... ;-)  )...
 	void save_membership_images_to_dcm(string file_path_base, float scale_factor=1000); 
 	void save_membership_images_to_vtk(string file_path_base); 
+	void save_membership_image_collage_to_vtk(string file_path_base); 
 	fcm_image_vector_type get_membership_images();
 
 //	fcm_image_vector_type get_image_vector_from_u_vector(); //note that geometrical info is not reconstructed...
+	static void load_vnl_matrix_from_file(vnl_matrix<float> &V, std::string file_path);
+	static void save_vnl_matrix_to_file(vnl_matrix<float> &V, std::string file_path);
 };
 
 

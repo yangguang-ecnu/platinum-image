@@ -34,6 +34,8 @@
 #include "itkPoint.h"
 #include "itkMatrix.h"
 
+#include "fileutils.h"
+
 
 ///...and types
 typedef itk::Vector<float,3> Vector3D;
@@ -219,11 +221,8 @@ void print_type_limits()
 }
 
 void print_datatype_numerical_limits();
-
 double get_random_number_in_span(double min, double max);
-
 Vector3D create_Vector3D(float x, float y, float z);
-
-Vector3Dint create_Vector3Dint( int x, int y, int z );
+Vector3Dint create_Vector3Dint(int x, int y, int z);
 
 #endif	//__ptmath.h__

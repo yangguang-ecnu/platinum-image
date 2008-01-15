@@ -284,13 +284,15 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
         {
         this->num_elements *= datasize[i];
         }
+	
+	if(this->imagepointer()!=NULL)
+	{
+//		cout<<"initialize_dataset--> this->deallocate()... to avoid memory loss..."<<endl;
+		this->deallocate();
+	}else{
+//		cout<<"initialize_dataset--> ... pointer was already NULL..."<<endl;
+	}
 
-		if(this->imagepointer()!=NULL){
-//			cout<<"initialize_dataset--> pointer exists --> deallocate() to save memory"<<endl;
-			this->deallocate();
-		}else{
-//			cout<<"initialize_dataset--> pointer NULL --> no dealloc needed!"<<endl;
-		}
     this->imagepointer( new ELEMTYPE[this->num_elements] );
 
     if (ptr!=NULL) //memcpy is bad karma! Use copy_data(in, out) whenever you know your (input) datatype!
@@ -1519,6 +1521,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::print_geometry()
 {
 	std::cout<<"*************************************"<<std::endl;
 	std::cout<< this->name()<<"->print_geometry() datasize: ("<<datasize[0]<<","<<datasize[1]<<","<<datasize[2]<<")"<<endl;
+	std::cout<<"num_elements:"<<this->num_elements<<std::endl;
 	std::cout<<"origin:"<<this->origin<<std::endl;
 	std::cout<<"voxel_resize:"<<std::endl<<get_voxel_resize()<<std::endl;
 	std::cout<<"orientation:"<<std::endl;
