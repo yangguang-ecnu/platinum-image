@@ -175,10 +175,7 @@ bool dec_from_string(T& outType, const std::string& inString)
 class matrix_generator{
 public:
 	Matrix3D get_rot_x_matrix_3D(float fi);			//fi in radians
-    
 	Matrix3D get_rot_y_matrix_3D(float fi);			//fi in radians
-	
-    
 	Matrix3D get_rot_z_matrix_3D(float fi);			//fi in radians
 	
 	//rotation examples based on the "basic" image processing coordinate system
@@ -187,6 +184,7 @@ public:
 	//+fi_y rotates the image volume: "Counterclockwise" of the y-direction
 	//+fi_x rotates the image volume: "Counterclockwise" of the x-direction
 	Matrix3D get_rot_matrix_3D(float fi_z, float fi_y, float fi_x);	//fi_z/y/x in radians
+	Matrix3D get_rot_matrix_3D(int fi_z, int fi_y, int fi_x);	//fi_z/y/x in degrees
 };
 
 

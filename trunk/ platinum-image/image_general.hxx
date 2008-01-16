@@ -608,6 +608,14 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_size () const
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_center() const
+{
+	return get_origin() + get_orientation()*(get_physical_size()/2.0);
+}
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other)
     {
     for (unsigned int d=0;d < IMAGEDIM; d++)
@@ -671,6 +679,13 @@ template <class ELEMTYPE, int IMAGEDIM>
     
     return result;
     }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::rotate_geometry_around_center_voxel(int fi_z_deg, int fi_y_deg, int fi_x_deg)
+{
+	cout<<"rotate_geometry_around_center_voxel..."<<endl;
+
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2)
@@ -1035,6 +1050,113 @@ vector< image_scalar<ELEMTYPE, IMAGEDIM>* > image_general<ELEMTYPE, IMAGEDIM>::s
 	return vec;
 }
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D(int rot_axis, int pos_neg_dir)
+{ 
+	cout<<"rotate_voxeldata_3D("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")"<<endl;
+
+	image_scalar<ELEMTYPE, 3>* res = new image_scalar<ELEMTYPE, 3>(); 
+
+	int sx = this->get_size_by_dim(0);
+	int sy = this->get_size_by_dim(1);
+	int sz = this->get_size_by_dim(2);
+
+	if(rot_axis == 0 && pos_neg_dir == +1){
+
+		res->initialize_dataset(sx,sz,sy);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(x,sz-1-z,y,this->get_voxel(x,y,z));
+				}
+			}
+		}
+	}
+	else if(rot_axis == 0 && pos_neg_dir == -1){
+		//change orientation matrix
+		res->initialize_dataset(sx,sz,sy);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(x,z,sy-1-y,this->get_voxel(x,y,z));
+				}
+			}
+		}
+
+	}else if(rot_axis == 1 && pos_neg_dir == +1){
+
+		res->initialize_dataset(sz,sy,sx);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(z,y,sx-1-x,this->get_voxel(x,y,z));
+				}
+			}
+		}
+
+	}else if(rot_axis == 1 && pos_neg_dir == -1){
+
+		res->initialize_dataset(sz,sy,sx);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(sz-1-z,y,x,this->get_voxel(x,y,z));
+				}
+			}
+		}
+
+	}else if(rot_axis == 2 && pos_neg_dir == +1){
+
+		res->initialize_dataset(sy,sx,sz);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(sy-1-y,x,z,this->get_voxel(x,y,z));
+				}
+			}
+		}
+
+	}else if(rot_axis == 2 && pos_neg_dir == -1){
+
+		res->initialize_dataset(sy,sx,sz);
+		for(int x=0; x<sx; x++){
+			for(int y=0; y<sy; y++){
+				for(int z=0; z<sz; z++){
+					res->set_voxel(y,sx-1-x,z,this->get_voxel(x,y,z));
+				}
+			}
+		}
+
+	}else{
+		pt_error::error("rotate_voxeldata_3D-->parameters...("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")",pt_error::debug);
+	}
+	//JK ööö**ööö
+	res->set_parameters(this); //copy rotation and size infor to tmp image first... //TODO: JK-perform appropriate geometry changes...
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D_in_this(int rot_axis, int pos_neg_dir)
+{
+	cout<<"rotate_voxeldata_3D_in_this..."<<endl;
+	image_scalar<ELEMTYPE, IMAGEDIM> *tmp = rotate_voxeldata_3D(rot_axis, pos_neg_dir);
+//	tmp->save_to_file("C:/joel/TMP/rot.vtk");
+	int sx = tmp->get_size_by_dim(0);
+	int sy = tmp->get_size_by_dim(1);
+	int sz = tmp->get_size_by_dim(2);
+
+	tmp->name("tmp");
+	tmp->print_geometry();
+
+	this->initialize_dataset(sx,sy,sz);
+	copy_data(tmp,this);
+	this->set_parameters(tmp);
+
+	this->print_geometry();
+
+	delete tmp;
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -1528,6 +1650,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::print_geometry()
 	std::cout<<this->orientation[0][0]<<" "<<this->orientation[1][0]<<" "<<this->orientation[2][0]<<std::endl;
 	std::cout<<this->orientation[0][1]<<" "<<this->orientation[1][1]<<" "<<this->orientation[2][1]<<std::endl;
 	std::cout<<this->orientation[0][2]<<" "<<this->orientation[1][2]<<" "<<this->orientation[2][2]<<std::endl;
+	std::cout<<"physical_center:"<<this->get_physical_center()<<std::endl;
 	std::cout<<"*************************************"<<std::endl;
 }
 

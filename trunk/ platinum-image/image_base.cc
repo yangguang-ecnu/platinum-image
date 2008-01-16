@@ -19,21 +19,17 @@
 
 //#include "image_base.h"
 #include "datawidget.h"
-
 #include "bruker.h"
-
-#include "image_label.hxx"
-#include "image_complex.hxx"
-
+#include "image_label.hxx" //used in... analyze_objloader::read()
+//#include "image_complex.hxx"
 //#include "itkVTKImageIO.h"
-
-using namespace std;
-
 //#include "fileutils.h"
 //#include "image_integer.hxx"
 #include "viewmanager.h"
 #include "datamanager.h"
 #include "rendermanager.h"
+
+using namespace std;
 
 extern datamanager datamanagement;
 extern rendermanager rendermanagement;
@@ -81,11 +77,7 @@ void image_base::set_parameters ()
     name(namestream.str());
     }
 
-void image_base::rotate(float fi_z,float fi_y,float fi_x) //Is there a good reason for the z,y,x ordering?
-{
-    matrix_generator mg;
-    orientation = mg.get_rot_matrix_3D(fi_z,fi_y,fi_x)*orientation;
-}
+
 
 bool image_base::read_origin_from_dicom_file(std::string dcm_file)
 {
@@ -123,6 +115,66 @@ bool image_base::read_orientation_from_dicom_file(std::string dcm_file)
 		succeded = true;
         }
 	return succeded;
+}
+
+void image_base::rotate_orientation(int fi_z_deg, int fi_y_deg, int fi_x_deg) //Is there a good reason for the z,y,x ordering?
+{
+    matrix_generator mg;
+    orientation = mg.get_rot_matrix_3D(fi_z_deg,fi_y_deg,fi_x_deg)*orientation;
+}
+
+void image_base::rotate_orientation(float fi_z_rad, float fi_y_rad, float fi_x_rad) //Is there a good reason for the z,y,x ordering?
+{
+    matrix_generator mg;
+    orientation = mg.get_rot_matrix_3D(fi_z_rad,fi_y_rad,fi_x_rad)*orientation;
+}
+
+void image_base::rotate_origin(int rot_axis, int pos_neg_dir)
+{
+	int sx = this->get_size_by_dim(0);
+	int sy = this->get_size_by_dim(1);
+	int sz = this->get_size_by_dim(2);
+
+	if(rot_axis == 0 && pos_neg_dir == +1){
+		this->set_origin(this->voxel_to_world(create_Vector3D(0,0,sz)));
+	}
+	else if(rot_axis == 0 && pos_neg_dir == -1){
+		this->set_origin(this->voxel_to_world(create_Vector3D(0,sy,0)));
+	}
+	else if(rot_axis == 1 && pos_neg_dir == +1){
+		this->set_origin(this->voxel_to_world(create_Vector3D(sx,0,0)));
+	}
+	else if(rot_axis == 1 && pos_neg_dir == -1){
+		this->set_origin(this->voxel_to_world(create_Vector3D(0,0,sz)));
+	}
+	else if(rot_axis == 2 && pos_neg_dir == +1){
+		this->set_origin(this->voxel_to_world(create_Vector3D(0,sy,0)));
+	}
+	else if(rot_axis == 2 && pos_neg_dir == -1){
+		this->set_origin(this->voxel_to_world(create_Vector3D(sx,0,0)));
+	}
+	else{
+		pt_error::error("rotate_origin-->parameters...("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")",pt_error::debug);
+	}
+}
+
+void image_base::rotate_voxel_size(int rot_axis, int pos_neg_dir)
+{
+	Vector3D s = this->get_voxel_size();
+	cout<<"rotate_voxel_size... s="<<s<<endl;
+
+	if(rot_axis == 0){
+		this->set_voxel_size(create_Vector3D(s[0],s[2],s[1]));
+	}
+	else if(rot_axis == 1){
+		this->set_voxel_size(create_Vector3D(s[2],s[1],s[0]));
+	}
+	else if(rot_axis == 2){
+		this->set_voxel_size(create_Vector3D(s[1],s[0],s[2]));
+	}
+	else{
+		pt_error::error("rotate_voxel_size-->parameters...("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")",pt_error::debug);
+	}
 }
 
 void image_base::redraw()
