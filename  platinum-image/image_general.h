@@ -29,7 +29,6 @@
 #define __image_general__
 
 #define PI 3.1415926536
-#include "image_storage.h"
 
 //forward declarations, needed with GCC for unknown reasons
 template<class ELEMTYPE, int IMAGEDIM>
@@ -65,6 +64,7 @@ template<class ELEMTYPE, int IMAGEDIM>
 //#include "itkRigid3DTransform.h"				//used in image_scalar --> spline interpolation
 #include "itkMatrixOffsetTransformBase.h"		//used in image_scalar --> spline interpolation
 
+#include "image_storage.h"
 #include "global.h"
 #include "color.h"
 #include "bruker.h"
@@ -142,6 +142,7 @@ class image_general : public image_storage <ELEMTYPE >
 		bool is_physical_pos_within_image_3D(Vector3D phys_pos);
 		Vector3D get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos);	//truncation is performed in this function.
 
+
         // *** element access methods ***
         ELEMTYPE get_voxel(int x, int y, int z=0) const;
         ELEMTYPE get_voxel_in_physical_pos(Vector3D phys_pos);  
@@ -170,7 +171,8 @@ class image_general : public image_storage <ELEMTYPE >
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();
-        
+
+
         // *** size functions ***
         unsigned short get_size_by_dim(int dim) const;
         unsigned short get_size_by_dim_and_dir(int dim, int direction); //! get size in direction orthogonal to direction arg
@@ -178,11 +180,13 @@ class image_general : public image_storage <ELEMTYPE >
         bool same_size (image_base * other);				//test whether other image has same voxel dimensions
         bool same_size (image_base * other, int direction); //test whether other image has same voxel dimensions
         
-        Vector3D get_physical_size () const;
+        Vector3D get_physical_size() const;
+        Vector3D get_physical_center() const;
         
         const Vector3D get_voxel_size () const;       //return voxel size
 		void set_voxel_size(const Vector3D v);
         Matrix3D get_voxel_resize () const;           //return voxel size as matrix
+		void rotate_geometry_around_center_voxel(int fi_z_deg, int fi_y_deg, int fi_x_deg);
 
 
 		//****** Sub volume operations - regions ********
@@ -190,6 +194,7 @@ class image_general : public image_storage <ELEMTYPE >
 		void get_span_of_values_larger_than(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2);
 		image_general<ELEMTYPE, IMAGEDIM>* crop_3D(image_binary<3> *mask);	
 		//... get_sub_region(...)
+
 
 		//****** Sub volume operations - slices********
 
@@ -205,6 +210,12 @@ class image_general : public image_storage <ELEMTYPE >
 		// first used for slice sorting from DICOM export from "COMBI-acquisition" on Philips 1.5T MRI. 
 		vector< image_scalar<ELEMTYPE, IMAGEDIM>* > slice_reorganization_multicontrast(int no_dynamics, int no_contrasts);
 
+
+		//resamples the voxel data +x +y +z -x -y -z 
+		//positive direction defines anticlockwise rotation around rot_axis...
+		//JK-also (Note Warning) No changes are made to geometry origin, orientation size...
+		image_scalar<ELEMTYPE, IMAGEDIM>* rotate_voxeldata_3D(int rot_axis, int pos_neg_dir=+1);
+		void rotate_voxeldata_3D_in_this(int rot_axis, int pos_neg_dir=+1);
 
 
 //        void port_to_itk_format();	//initialize ITKimportimage, call before use of ITK functionality
@@ -243,7 +254,8 @@ class image_general : public image_storage <ELEMTYPE >
         bool read_geometry_from_dicom_file(std::string dcm_file);
         void print_geometry();
         void print_physical_corner_coords();
-        
+
+
         // *** processing ***
         template<class TARGETTYPE>	//Nearest neighbour image re-sampling-test
             void resample_into_this_image_NN(image_general<TARGETTYPE, 3> * new_image);

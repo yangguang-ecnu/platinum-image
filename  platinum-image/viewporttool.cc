@@ -309,7 +309,7 @@ void nav_tool::handle(viewport_event &event)
 						matrix_generator mg;
 						m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * m;
 						
-						datamanagement.get_image(top->get_id())->set_orientation(m);
+						datamanagement.get_image(top->get_id())->set_orientation(m); //TODO: use rotate_orientation instead...
 						datamanagement.data_has_changed(top->get_id());
 
 						

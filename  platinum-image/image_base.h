@@ -116,7 +116,13 @@ class image_base : public data_base
         
         bool read_origin_from_dicom_file(std::string dcm_file);
 		bool read_orientation_from_dicom_file(std::string dcm_file);
-		void rotate(float,float,float);        
+		//void rotate(...); //replaced by the 2 functions below...
+		void rotate_orientation(int fi_z_deg, int fi_y_deg, int fi_x_deg);
+		void rotate_orientation(float fi_z_rad, float fi_y_rad, float fi_x_rad);
+//		void rotate_geometry_around_center_voxel(int fi_z_deg, int fi_y_deg, int fi_x_deg); //implemented in image_general
+		void rotate_origin(int rot_axis, int pos_neg_dir=+1); //assumes orientation and voxel_size are correct
+		void rotate_voxel_size(int rot_axis, int pos_neg_dir=+1);
+
 
         Vector3D world_to_voxel( const Vector3D & wpos ) const;
 		Vector3D voxel_to_world( const Vector3D & vpos ) const;
