@@ -1146,14 +1146,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D_in_this(int rot_axis
 	int sy = tmp->get_size_by_dim(1);
 	int sz = tmp->get_size_by_dim(2);
 
-	tmp->name("tmp");
-	tmp->print_geometry();
-
 	this->initialize_dataset(sx,sy,sz);
 	copy_data(tmp,this);
 	this->set_parameters(tmp);
-
-	this->print_geometry();
 
 	delete tmp;
 }

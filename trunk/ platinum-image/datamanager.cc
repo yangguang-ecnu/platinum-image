@@ -383,7 +383,7 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
     {
 	string last_path = pt_config::read<string>("latest_path");
 	cout<<"last_path="<<last_path<<endl;
-	Fl_File_Chooser chooser(last_path.c_str(),"Any file - raw (*)\tVisualization Toolkit image (*.vtk)\tTyped DICOM file (*.dcm)\tAnalyze .hdr image (*.hdr)\tAnalyze .obj image (*.obj)",Fl_File_Chooser::MULTI,"Load VTK/DICOM image");
+	Fl_File_Chooser chooser(last_path.c_str(),"Any file - raw (*)\tDICOM image file (*.dcm)\tVisualization Toolkit image (*.vtk)\tAnalyze .hdr image (*.hdr)\tAnalyze .obj image (*.obj)\tNifTi file (*.nii)",Fl_File_Chooser::MULTI,"Load DICOM/VTK/Analyze/NifTi/Raw image");
 	cout<<"last_path="<<last_path<<endl;
 
     chooser.show();
