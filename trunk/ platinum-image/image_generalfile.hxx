@@ -685,6 +685,27 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_p
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_hdr_file(string file_path)
+    {
+	if(file_exists(file_path)){
+		typename theReaderType::Pointer r = theReaderType::New();
+		itk::AnalyzeImageIO::Pointer hdrIO = itk::AnalyzeImageIO::New();
+		r->SetFileName(file_path.c_str());
+		r->SetImageIO( hdrIO );
+		typename theImagePointer image = theImageType::New();
+		image = r->GetOutput();
+		r->Update();
+		typename theSizeType s = image->GetBufferedRegion().GetSize();
+		replicate_itk_to_image(image);
+		this->name_from_path (file_path);
+	}else{
+		pt_error::error("image_general::load_dataset_from_hdr_file()--> file does not exist...",pt_error::debug);
+	}
+    }
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_NIFTI_file(string file_path)
 {
 	if(file_exists(file_path)){

@@ -41,6 +41,7 @@
 #include "itkGDCMImageIO.h"			//used in dicomloader::
 #include "itkDICOMImageIO2.h"		//JK compresstion test...
 #include "itkNiftiImageIO.h"
+#include "itkAnalyzeImageIO.h"
 
 #include "gdcmFileHelper.h"			//used in dicomloader::
 
@@ -195,6 +196,18 @@ public:
     vtkloader(std::vector<std::string> *f);
     image_base* read();
 };
+
+class analyze_hdrloader_itk: public imageloader
+{
+private:
+    //itk::VTKImageIO::Pointer vtkIO;
+    itk::AnalyzeImageIO::Pointer hdrIO;
+    
+public:
+    analyze_hdrloader_itk(std::vector<std::string> *f);
+    image_base* read();
+};
+
 
 class analyze_objloader: public imageloader 
 {
