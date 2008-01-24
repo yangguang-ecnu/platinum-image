@@ -64,17 +64,15 @@ image_base::image_base(const string filepath):data_base()
 void image_base::set_parameters ()    
     {
     ostringstream namestream;
+    //constructor: add "Untitled" name and ID
+    namestream << "3D image (" << ID << ")";
+	widget=new datawidget<image_base>(this,namestream.str());
+    name(namestream.str());
     
     origin.Fill(0);
     orientation.SetIdentity();
 
-    //constructor: add "Untitled" name and ID
-    namestream << "3D image (" << ID << ")";
-
     Fl_Group::current(NULL); //evil bugfix: somehwere, sometime, a Group has not been ended
-    
-	widget=new datawidget<image_base>(this,namestream.str());
-    name(namestream.str());
     }
 
 
@@ -269,6 +267,7 @@ vtkloader::vtkloader(std::vector<std::string> * f): imageloader(f)
     vtkIO = itk::VTKImageIO::New();
 }
 
+
 image_base *vtkloader::read()
 {    
     image_base *result = NULL;
@@ -342,7 +341,62 @@ image_base *vtkloader::read()
 }
 
 
+analyze_hdrloader_itk::analyze_hdrloader_itk(std::vector<std::string> *f): imageloader(f)
+{
+	hdrIO = itk::AnalyzeImageIO::New();
+}
 
+    
+image_base *analyze_hdrloader_itk::read()
+{    
+    image_base *result = NULL;
+
+	for(vector<string>::iterator it = files->begin(); it != files->end() && result == NULL; it++){ // Repeat until one image has been read
+	string file_path = *it;
+
+	if(hdrIO->CanReadFile(file_path.c_str())){   //Assumption: File contains image data
+        hdrIO->SetFileName(file_path);
+        hdrIO->ReadImageInformation(); 
+        itk::ImageIOBase::IOPixelType pixelType=hdrIO->GetPixelType();
+        itk::ImageIOBase::IOComponentType componentType = hdrIO->GetComponentType();
+        
+        switch(pixelType){
+            case itk::ImageIOBase::SCALAR:
+                //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
+
+                switch(componentType){
+                    case itk::ImageIOBase::UCHAR:
+                        result =  new image_integer<unsigned char>();
+                        ((image_integer<unsigned char>*)result)->load_dataset_from_hdr_file(file_path);
+                        break;
+                    case itk::ImageIOBase::USHORT:
+                        result = new image_integer<unsigned short>();
+                        ((image_integer<unsigned short>*)result)->load_dataset_from_hdr_file(file_path);
+                        break;
+                    case itk::ImageIOBase::SHORT:
+                        result = new image_integer<short>();
+                        ((image_integer<short>*)result)->load_dataset_from_hdr_file(file_path);
+                        break;
+                    case itk::ImageIOBase::FLOAT:
+                        result = new image_integer<float>();
+                        ((image_integer<float>*)result)->load_dataset_from_hdr_file(file_path);
+                        break;
+                    default:
+                        pt_error::error("Load scalar hdr: unsupported component type: " + hdrIO->GetComponentTypeAsString (componentType), pt_error::warning);
+                    }
+                break;
+
+                break;
+            default:
+                pt_error::error("image_base::load(...): unsupported pixel type: " + hdrIO->GetPixelTypeAsString(pixelType), pt_error::warning);
+            }
+
+		    //file was read - remove from list
+	        files->erase(it);
+        }//can read
+	}//for
+    return result;
+}
 
 
 
@@ -1055,6 +1109,7 @@ void image_base::load( std::vector<std::string> chosen_files)	//loads all files 
 	
 	//Each read function reads the first image it can and removes it...
     //The try_loader calls the read function until NULL is returned...
+    try_loader<analyze_hdrloader_itk>(&chosen_files);	//try Analyze hdr
     try_loader<analyze_objloader>(&chosen_files);	//try Analyze obj
     try_loader<analyze_hdrloader>(&chosen_files);	//try Analyze hdr
     try_loader<brukerloader>(&chosen_files);		//try Bruker
