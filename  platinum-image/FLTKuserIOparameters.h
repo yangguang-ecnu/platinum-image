@@ -248,10 +248,41 @@ class FLTKuserIOpar_coord3Ddisplay : public FLTKuserIOparameter_base
         void set_coordinate(Vector3D v);
 		void update();
     };
-	
+
+
 class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 {
 	protected:
+
+		// Used an example from http://seriss.com/people/erco/fltk/ with some modifications
+		class ColResizeBrowser : public Fl_Hold_Browser
+		{
+			private:
+				Fl_Color _colsepcolor;	// color of column separator lines
+				int _showcolsep;		// flag to enable drawing column separators
+				Fl_Cursor _last_cursor;	// saved cursor state info
+				int _dragging;			// 1 = user dragging a column
+				int _dragcol;			// col# user is currently dragging
+				int *_widths;			// pointer to user's width[] array
+				int _nowidths[1];		// default width array (non-const)
+
+				void change_cursor(Fl_Cursor newcursor);
+				int which_col_near_mouse();
+
+			protected:
+				int handle(int e);
+				void draw();
+				
+			public:
+				ColResizeBrowser(int X, int Y, int W, int H, const char * L = 0);
+				Fl_Color colsepcolor() const;
+				void colsepcolor(Fl_Color val);
+				int showcolsep() const;
+				void showcolsep(int val);
+				int *column_widths() const;
+				void column_widths(int * val);
+		};
+		
 		class landmark
 		{
 			public:
@@ -263,15 +294,25 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 				landmark( const int l_index, const std::string l_description, const std::string l_option );
 		};
 
+		Fl_Box * emptyBoxThree;
+		Fl_Group * showGroup;
+		std::vector<Fl_Check_Button *> checkBtns;
+		Fl_Button * showBtn;
+
+		Fl_Box * emptyBoxTwo;
+		Fl_Group * goGroup;
+		Fl_Float_Input * xInput;
+		Fl_Float_Input * yInput;
+		Fl_Float_Input * zInput;
+		Fl_Button * goBtn;
 
 		Fl_Box * emptyBox;
-
 		Fl_Group * buttonGroup;
 		Fl_Button * loadSetBtn;		
-		Fl_Button * saveSetBtn;		
-		Fl_Button * resetSetBtn;		
-
-		Fl_Hold_Browser * browser;		
+		Fl_Button * saveSetBtn;
+		Fl_Button * resetSetBtn;
+		
+		ColResizeBrowser * browser;
 		
 		int column_widths[4];	// n columns requires n - 1 column widths + and an ending zero element to terminate the array
 			
@@ -290,6 +331,8 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 
         void data_vector_has_changed ();	//update browser from datamanager
 
+		static void showCallback(Fl_Widget * callingwidget, void * thisLandmarks);
+		static void goCallback(Fl_Widget * callingwidget, void * thisLandmarks);
 		static void resetSetCallback( Fl_Widget * callingwidget, void * thisLandmarks );
 		static void saveSetCallback( Fl_Widget * callingwidget, void * thisLandmarks );
 		static void loadSetCallback( Fl_Widget * callingwidget, void * thisLandmarks );
@@ -303,6 +346,8 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		void next();
 		
 		int get_landmarksID();
+		
+		int handle(int e);
 };
 
 class FLTKuserIOpar_float : public FLTKuserIOparameter_base    //float value (using slider)

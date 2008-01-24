@@ -148,6 +148,16 @@ void landmark_tool::handle(viewport_event &event)
 			}
 		break;	// end of pt_event::create
 		
+		// Remove this to enable rotation
+		case pt_event::rotate:
+			if ( event.state() == pt_event::iterate )
+			{ 
+				event.grab();
+				std::cout << "Rotation is currently disabled in landmark tool." << std::endl;
+			}
+		break;
+
+		
 		case pt_event::key:
 			if ( event.key_combo(pt_event::pageup_key) )
 			{
@@ -190,7 +200,13 @@ void landmark_tool::handle(viewport_event &event)
 		//NOTE: no break, update hovering also
 
 		case pt_event::hover:
-			event.grab();	
+					
+			if ( event.state() == pt_event::begin ) 
+				{ fl_cursor(FL_CURSOR_CROSS, FL_BLACK, FL_WHITE); }
+			else if ( event.state() == pt_event::end )
+				{ fl_cursor(FL_CURSOR_DEFAULT, FL_BLACK, FL_WHITE); }
+
+			event.grab();
 
 			Vector3D vpos = myRenderer->view_to_voxel(mouse2d[0], mouse2d[1],fvp->w(),fvp->h());
 

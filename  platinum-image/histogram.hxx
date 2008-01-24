@@ -156,12 +156,12 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 
 		unsigned short bucketpos;
 
-		num_elements_in_hist=0;
+		this->num_elements_in_hist=0;
 
 		for( v = this->i_start, v_bin = image_bin_mask->begin().pointer(); (v != this->i_end) && (v_bin != image_bin_mask->end().pointer()); ++v, ++v_bin){
 			if(*v_bin>0){
 				bucketpos = intensity_to_bucketpos(*v);
-				num_elements_in_hist++;
+				this->num_elements_in_hist++;
 				
 
 				//NOT VERY good to write outside allocated memory
@@ -275,12 +275,12 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 
         unsigned short bucketpos;
         ELEMTYPE * voxel;
-		num_elements_in_hist=0;
+		this->num_elements_in_hist=0;
 
 		for (voxel = this->i_start;voxel != this->i_end;++voxel)
 		{
 			bucketpos = intensity_to_bucketpos(*voxel);
-			num_elements_in_hist++;
+			this->num_elements_in_hist++;
 
 			//NOT VERY good to write outside allocated memory
 			if(bucketpos>=0 && bucketpos<this->num_buckets){	
@@ -488,7 +488,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(flo
 
 	//if histogram comes from masked region... following line wont work....
 //	float num_elem_limit = float(this->images[0]->get_num_elements())*percentile;
-	float num_elem_limit = float(num_elements_in_hist)*percentile;
+	float num_elem_limit = float(this->num_elements_in_hist)*percentile;
 
 	float sum_elements=0;
 

@@ -52,6 +52,20 @@ void point_collection::add(pointStorage::mapped_type point)
 	add_pair (index, point);
 }
 
+void point_collection::remove(pointStorage::key_type index)
+{
+	if ( thePoints.size() > 0 && thePoints.count(index) != 0)
+	{	// the point exists
+		pointStorage::iterator itr =  thePoints.find(index);
+		thePoints.erase(itr);
+	}
+	else
+	{
+		pt_error::error("point_collection::remove...",pt_error::warning);
+		throw out_of_range("Unvalid key");
+	}
+}
+
 void point_collection::add_pair(pointStorage::key_type index, pointStorage::mapped_type point)
 {
 	thePoints[index] = point;
@@ -59,13 +73,13 @@ void point_collection::add_pair(pointStorage::key_type index, pointStorage::mapp
 
 point_collection::pointStorage::mapped_type point_collection::get_point (int i)
 {
-	if ( thePoints.size()>0 && thePoints.count(i) != 0)
+	if ( thePoints.size() > 0 && thePoints.count(i) != 0)
 	{	// the point exists
 		return thePoints[i];
 	}
 	else
 	{
-		pt_error::error("point_collection::get_point...",pt_error::debug);
+		pt_error::error("point_collection::get_point...",pt_error::warning);
 		throw out_of_range("Unvalid key");
 	}
 }

@@ -808,7 +808,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_intensity_at_lower_percentile(float percentile)
 {
-	return stats->get_intensity_at_histogram_lower_percentile(percentile);
+	return this->stats->get_intensity_at_histogram_lower_percentile(percentile);
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
