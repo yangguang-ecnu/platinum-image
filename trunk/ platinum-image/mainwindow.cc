@@ -203,7 +203,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     viewsNstatusStack->resizable(viewsNlists);
     viewsNstatusStack->end();
 	
-	window.size_range(win_w, win_h);	// the initial size of the window is also the minimum size ie the window size can only be increased
+	//window.size_range(win_w, win_h);	// the initial size of the window is also the minimum size ie the window size can only be increased
     window.resizable(viewsNlists);
     window.end();
 

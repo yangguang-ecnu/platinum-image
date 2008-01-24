@@ -610,7 +610,7 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_size () const
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_center() const
 {
-	return get_origin() + get_orientation()*(get_physical_size()/2.0);
+	return this->get_origin() + this->get_orientation()*(get_physical_size()/2.0);
 }
 
 
@@ -1503,7 +1503,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_of_mask_3D(image_general<ELE
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::fill_image_border_3D(ELEMTYPE value, int border_thickness=1)
+void image_general<ELEMTYPE, IMAGEDIM>::fill_image_border_3D(ELEMTYPE value, int border_thickness)
 {
 	for(int dim=0;dim<=2;dim++){
 		this->fill_region_3D(dim,0,border_thickness-1, value);								//low x/y/z-values

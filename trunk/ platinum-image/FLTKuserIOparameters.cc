@@ -187,6 +187,190 @@ void FLTKuserIOpar_coord3Ddisplay::update()
 
 #pragma mark *** FLTKuserIOpar_landmarks ***
 
+// --- ColResizeBrowser ---
+
+// CHANGE CURSOR
+//     Does nothing if cursor already set to value specified.
+//
+void FLTKuserIOpar_landmarks::ColResizeBrowser::change_cursor(Fl_Cursor newcursor) 
+{
+	if ( newcursor != _last_cursor )
+	{
+		fl_cursor(newcursor, FL_BLACK, FL_WHITE);
+		_last_cursor = newcursor;
+	}
+}
+
+// RETURN THE COLUMN MOUSE IS 'NEAR'
+//     Returns -1 if none.
+//
+int FLTKuserIOpar_landmarks::ColResizeBrowser::which_col_near_mouse()
+{
+	int X,Y,W,H;
+	Fl_Browser::bbox(X,Y,W,H);		// area inside browser's box()
+	// EVENT NOT INSIDE BROWSER AREA? (eg. on a scrollbar)
+	if ( ! Fl::event_inside(X,Y,W,H) )
+		{ return(-1); }
+	int mousex = Fl::event_x() + hposition();
+	int colx = this->x();
+	for ( int t=0; _widths[t]; t++ )
+	{
+		colx += _widths[t];
+		int diff = mousex - colx;
+		// MOUSE 'NEAR' A COLUMN?
+		//     Return column #
+		//
+		if ( diff >= -4 && diff <= 4 )
+			{ return(t); }
+	}
+	return(-1);
+}
+
+// MANAGE EVENTS TO HANDLE COLUMN RESIZING
+int FLTKuserIOpar_landmarks::ColResizeBrowser::handle(int e)
+{
+	// Not showing column separators? Use default Fl_Browser::handle() logic
+	if ( ! showcolsep() )
+		{ return(Fl_Browser::handle(e)); }
+
+	// Handle column resizing
+	int ret = 0;
+	switch ( e )
+	{
+		case FL_ENTER:
+		{
+			ret = 1;
+			break;
+		}
+		case FL_MOVE:
+		{
+			if ( which_col_near_mouse() >= 0 )
+				{ change_cursor(FL_CURSOR_WE); }
+			else
+				{ change_cursor(FL_CURSOR_DEFAULT); }
+			ret = 1;
+			break;
+		}
+		case FL_PUSH:
+		{
+			int whichcol = which_col_near_mouse();
+			if ( whichcol >= 0 )
+			{
+				// CLICKED ON RESIZER? START DRAGGING
+				ret = 1;
+				_dragging = 1;
+				_dragcol = whichcol;
+				change_cursor(FL_CURSOR_DEFAULT);
+			}
+			break;
+		}
+		case FL_DRAG:
+		{
+			if ( _dragging )
+			{
+				ret = 1;
+				// Sum up column widths to determine position
+				int mousex = Fl::event_x() + hposition();
+				int newwidth = mousex - x();
+				for ( int t=0; _widths[t] && t<_dragcol; t++ )
+					{ newwidth -= _widths[t]; }
+				if ( newwidth > 0 )
+				{
+					// Apply new width, redraw interface
+					_widths[_dragcol] = newwidth;
+					if ( _widths[_dragcol] < 2 )
+						{ _widths[_dragcol] = 2; }
+					redraw();
+				}
+			}
+			break;
+		}
+		case FL_LEAVE:
+		case FL_RELEASE:
+		{
+			_dragging = 0;						// disable drag mode
+			change_cursor(FL_CURSOR_DEFAULT);	// ensure normal cursor
+			ret = 1;
+			break;
+		}
+	}
+	if ( _dragging )
+		{ return(1); }							// dragging? don't pass event to Fl_Browser
+
+	return ( Fl_Browser::handle(e) ? 1 : ret );
+}
+
+void FLTKuserIOpar_landmarks::ColResizeBrowser::draw()
+{
+	// DRAW BROWSER
+	Fl_Browser::draw();
+	if ( _showcolsep )
+	{
+		// DRAW COLUMN SEPARATORS
+		int colx = this->x() - hposition();
+		int X,Y,W,H;
+		Fl_Browser::bbox(X,Y,W,H);
+		fl_color(_colsepcolor);
+		for ( int t=0; _widths[t]; t++ )
+		{
+			colx += _widths[t];
+			if ( colx > X && colx < (X+W) )
+				{ fl_line(colx, Y, colx, Y+H-1); }
+		}
+	}
+}
+
+// CTOR
+FLTKuserIOpar_landmarks::ColResizeBrowser::ColResizeBrowser(int X, int Y, int W, int H, const char * L) : Fl_Hold_Browser(X, Y, W, H, L)
+{
+	_colsepcolor = Fl_Color(FL_GRAY);
+	_last_cursor = FL_CURSOR_DEFAULT;
+	_showcolsep  = 0;
+	_dragging    = 0;
+	_nowidths[0] = 0;
+	_widths      = _nowidths;
+}
+
+// GET/SET COLUMN SEPARATOR LINE COLOR
+Fl_Color FLTKuserIOpar_landmarks::ColResizeBrowser::colsepcolor() const 
+{
+	return(_colsepcolor);
+}
+
+void FLTKuserIOpar_landmarks::ColResizeBrowser::colsepcolor(Fl_Color val) 
+{
+	_colsepcolor = val;
+}
+
+// GET/SET DISPLAY OF COLUMN SEPARATOR LINES
+//     1: show lines, 0: don't show lines
+//
+int FLTKuserIOpar_landmarks::ColResizeBrowser::showcolsep() const 
+{
+	return(_showcolsep);
+}
+
+void FLTKuserIOpar_landmarks::ColResizeBrowser::showcolsep(int val) 
+{
+	_showcolsep = val;
+}
+
+// GET/SET COLUMN WIDTHS ARRAY
+//    Just like fltk method, but array is non-const.
+//
+int * FLTKuserIOpar_landmarks::ColResizeBrowser::column_widths() const 
+{
+	return(_widths);
+}
+
+void FLTKuserIOpar_landmarks::ColResizeBrowser::column_widths(int *val) 
+{
+	_widths = val;
+	Fl_Browser::column_widths(val);
+}
+
+
+// --- landmark ---
 FLTKuserIOpar_landmarks::landmark::landmark()
 {
 	index = -1;
@@ -201,37 +385,92 @@ FLTKuserIOpar_landmarks::landmark::landmark( const int l_index, const std::strin
 	option = l_option;
 }
 
-
-FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks( const std::string name ) : FLTKuserIOparameter_base( INITPARWIDGETWIDTH, int(STDPARWIDGETHEIGHT * 9), name )
+// --- FLTKuserIOpar_landmarks ---
+FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks( const std::string name ) : FLTKuserIOparameter_base( INITPARWIDGETWIDTH, int(STDPARWIDGETHEIGHT * 14), name )
 {
+	const int checkBtnWidth = 30;
 	const int btnWidth = 50;
-	const int btnHeight = BUTTONHEIGHT;
-	buttonGroup = new Fl_Group(x(), y() + PARTITLEMARGIN, w(), btnHeight);
-	{
-		emptyBox = new Fl_Box(x(), y() + PARTITLEMARGIN, w() -  3 * btnWidth, btnHeight);
+	const int btnHeight = 20;	// BUTTONHEIGHT = 25
+
+	showGroup = new Fl_Group(x(), y() + PARTITLEMARGIN, w(), btnHeight);
+	{		
+		emptyBoxThree = new Fl_Box(x(), y() + PARTITLEMARGIN, w() - 4 * checkBtnWidth - btnWidth, btnHeight);
 		
-		loadSetBtn = new Fl_Button(w() - 3 * btnWidth, y() + PARTITLEMARGIN, btnWidth, btnHeight, "Load");
+		for ( int i = 0; i < 4; i++ )
+		{
+			std::string index = int2str(i + 1);
+			
+			Fl_Check_Button * temp = new Fl_Check_Button(w() - (4 - i) * checkBtnWidth - btnWidth, y() + PARTITLEMARGIN, checkBtnWidth, btnHeight);
+			temp->copy_label(index.c_str());
+			if ( i < 3 )
+				{ temp->set(); }	// check viewport 1,2,3 by default
+			
+			checkBtns.push_back(temp);
+		}
+		
+		showBtn = new Fl_Button(w() - btnWidth, y() + PARTITLEMARGIN, btnWidth, btnHeight, "Show");
+		showBtn->callback(showCallback, (void *) this);
+		showBtn->tooltip("Show working image in selected viewports");
+
+	}
+	showGroup->resizable(emptyBoxThree);
+	showGroup->end();
+
+	goGroup = new Fl_Group(x(), y() + STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), btnHeight);
+	{ 
+		emptyBoxTwo = new Fl_Box(x(), y() + STDPARWIDGETHEIGHT + PARTITLEMARGIN, w() - 4 * btnWidth, btnHeight);
+		
+		xInput = new Fl_Float_Input(w() - 4 * btnWidth, y() + STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight); //, "Go to coordinate: ");
+		xInput->callback(goCallback, (void *) this);
+		xInput->when(FL_WHEN_ENTER_KEY);
+		xInput->tooltip("x-value");
+
+		yInput = new Fl_Float_Input(w() - 3 * btnWidth, y() + STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight);
+		yInput->callback(goCallback, (void *) this);
+		yInput->when(FL_WHEN_ENTER_KEY);
+		yInput->tooltip("y-value");
+
+		zInput = new Fl_Float_Input(w() - 2 * btnWidth, y() + STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight);
+		zInput->callback(goCallback, (void *) this);
+		zInput->when(FL_WHEN_ENTER_KEY);
+		zInput->tooltip("z-value");
+		
+		goBtn = new Fl_Button(w() - btnWidth, y() + STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight, "Go");
+		goBtn->callback(goCallback, (void *) this);
+	}
+	goGroup->resizable(emptyBoxTwo);
+	goGroup->end();
+
+	buttonGroup = new Fl_Group(x(), y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), btnHeight);
+	{
+		emptyBox = new Fl_Box(x(), y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w() -  3 * btnWidth, btnHeight);
+		
+		loadSetBtn = new Fl_Button(w() - 3 * btnWidth, y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight, "Load");
 		loadSetBtn->callback(loadSetCallback, (void *) this);
 		
-		saveSetBtn = new Fl_Button(w() - 2 * btnWidth, y() + PARTITLEMARGIN, btnWidth, btnHeight, "Save");
+		saveSetBtn = new Fl_Button(w() - 2 * btnWidth, y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight, "Save");
 		saveSetBtn->callback(saveSetCallback, (void *) this);
 		
-		resetSetBtn = new Fl_Button(w() - btnWidth, y() + PARTITLEMARGIN, btnWidth, btnHeight, "Reset");
+		resetSetBtn = new Fl_Button(w() - btnWidth, y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight, "Reset");
 		resetSetBtn->callback(resetSetCallback, (void *) this);
 	}
 	buttonGroup->resizable(emptyBox);
 	buttonGroup->end();
 	
-
-	browser = new Fl_Hold_Browser(x(), y() + STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), 8 * STDPARWIDGETHEIGHT - PARTITLEMARGIN);
+	browser = new ColResizeBrowser(x(), y() + 3 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), 11 * STDPARWIDGETHEIGHT - PARTITLEMARGIN);
 	browser->callback( browserCallback, (void *) this );
 	browser->textsize(12);
+	browser->showcolsep(1);
+	browser->colsepcolor(FL_BLACK);
 
 	// n columns requires n - 1 column widths + and an ending zero element to terminate the array
 	column_widths[0] = 30;
-	column_widths[1] = 200;
-	column_widths[2] = 40;
-	column_widths[3] = 0;	// zero-terminated
+	column_widths[1] = 60;
+	column_widths[2] = 0;
+	// Remove the row above, umcomment the following two and the row in
+	// resolve_string() to enable the option column in the browser
+	// column_widths[2] = 40;
+	// column_widths[3] = 0;	// zero-terminated
 
 	browser->column_widths(column_widths);
 	browser->column_char(';');
@@ -246,16 +485,16 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks( const std::string name ) : FLT
 	landmarksID = points->get_id();
 	
 	// show landmarks in viewport 1,2,3
-//	for ( int viewportID = 1; viewportID < 4; viewportID++ )
-//	{
-//		rendermanagement.enable_image(viewportID, landmarksID);
-//	}
+	for ( int viewportID = 1; viewportID < 4; viewportID++ )
+	{
+		rendermanagement.enable_image(viewportID, landmarksID);
+	}
 }
 
 void FLTKuserIOpar_landmarks::data_vector_has_changed()
 {
 	update_browser();
-	next();
+	//next();
 }
 
 void FLTKuserIOpar_landmarks::resetSetCallback( Fl_Widget * callingwidget, void * thisLandmarks )
@@ -355,6 +594,54 @@ void FLTKuserIOpar_landmarks::split( const std::string & s, char c, std::vector<
 	}
 }
 
+void FLTKuserIOpar_landmarks::showCallback(Fl_Widget * callingwidget, void * thisLandmarks)
+{
+	userIO * userIO_block = reinterpret_cast<userIO *>(callingwidget->parent()->parent()->parent());
+	
+	FLTKuserIOpar_image * image = NULL;
+	
+	int nc = userIO_block->children();
+
+	for (int c = 0; c < nc; c++)
+	{
+		if ( image = dynamic_cast<FLTKuserIOpar_image *>(userIO_block->child(c)) )
+			{ break; }
+	}
+	
+	if ( image == NULL )
+		{ return; }
+
+	int imageID;
+	 image->par_value(imageID);
+
+	if ( imageID == NOT_FOUND_ID )
+		{ return; }
+	
+	FLTKuserIOpar_landmarks * l = reinterpret_cast<FLTKuserIOpar_landmarks *>(thisLandmarks);
+	
+	int viewportID = 1;
+	for ( std::vector<Fl_Check_Button *>::const_iterator itr = l->checkBtns.begin(); itr != l->checkBtns.end(); itr++ )
+	{
+		if ( (*itr)->value() )
+		{	// is checked
+			rendermanagement.enable_image( viewportID, imageID );
+			rendermanagement.center_and_fit( viewportID, imageID );			
+		}
+		else
+		{
+			rendermanagement.disable_image( viewportID, imageID );			
+		}	
+		viewportID++;
+	}
+}
+
+void FLTKuserIOpar_landmarks::goCallback(Fl_Widget * callingwidget, void * thisLandmarks)
+{
+	FLTKuserIOpar_landmarks * l = reinterpret_cast<FLTKuserIOpar_landmarks *>(thisLandmarks);
+	
+	Vector3D point = create_Vector3D( atof(l->xInput->value()), atof(l->yInput->value()), atof(l->zInput->value()) );
+	viewmanagement.show_point_by_data(point, l->get_landmarksID());
+}
 
 void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * thisLandmarks )
 {
@@ -431,20 +718,30 @@ void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * 
 	
 	l->update_browser();
 	
-	l->browser->value(1);	// set the first landmark as active
-	points->set_active(l->landmarks[0].index);	// 0 = l->browser->value() - 1
-	
+
 	std::vector<int> combinationIDs = rendermanagement.combinations_from_data ( l->get_landmarksID() );
 	
-//	for ( std::vector<int>::const_iterator itr = combinationIDs.begin(); itr != combinationIDs.end(); itr++ )
-//	{
-//		viewmanagement.refresh_viewports_from_combination( *itr );
-//	}
-	
-	if ( points->contains(l->landmarks[0].index) )
-	{
-		viewmanagement.show_point_by_data(points->get_point(l->landmarks[0].index), l->get_landmarksID());
+	if ( points->empty() )
+	{ 
+		l->browser->value(1);	// activate the first landmark in the browser
+		points->set_active(l->landmarks[0].index);	// 0 is equal to l->browser->value() - 1
+		for ( std::vector<int>::const_iterator itr = combinationIDs.begin(); itr != combinationIDs.end(); itr++ )
+			{ viewmanagement.refresh_viewports_from_combination( *itr ); }
 	}
+	else
+	{	// find the first landmark in the browser that is "connected" to a coordinate
+		for ( unsigned int i = 0; i < l->landmarks.size(); i++ )
+		{
+			if ( points->contains(l->landmarks[i].index) )
+			{
+				l->browser->value(i + 1);
+				points->set_active(l->landmarks[i].index);
+				viewmanagement.show_point_by_data(points->get_point(l->landmarks[i].index), l->get_landmarksID());
+				break;
+			}
+		}
+	}
+		
 	
 	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1))); but change to latest_landmarks_path
 }
@@ -455,6 +752,13 @@ void FLTKuserIOpar_landmarks::browserCallback(Fl_Widget *callingwidget, void * t
 
 	if ( l->browser->value() < 1 )
 		{ return; }
+
+//	use this if a row with labels are implemented in the future
+//	if ( l->browser->value() == 1 )
+//	{	// the first row contains all the labels
+//		browser->deselect()
+//		return;
+//	}
 
 	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( l->get_landmarksID() ) );
 	
@@ -470,9 +774,11 @@ void FLTKuserIOpar_landmarks::browserCallback(Fl_Widget *callingwidget, void * t
 std::string FLTKuserIOpar_landmarks::resolve_string( int i )
 {
 	std::string str = "";
-	str += "@r" + int2str(landmarks[i].index) + ";";	// index
-	str += "@b" + landmarks[i].description	  + ";";	// description
-	str +=		  landmarks[i].option;					// option
+	str += "@r@." + int2str(landmarks[i].index);	// index
+	str += ";@b@." + landmarks[i].description;		// description
+	// Uncomment the following row and the column_widths[] rows in the constructor
+	// FLTKuserIOpar_landmarks() to enable the option column in the browser
+	// str += ";" + landmarks[i].option;			// option
 
 	return str;
 }
@@ -525,7 +831,7 @@ void FLTKuserIOpar_landmarks::update_browser()
 			}	
 			
 			std::string str = resolve_string(i) + ";";
-			str += "@b" + coordinate;
+			str += "@b@." + coordinate;
 
 			browser->add(str.c_str());
 		}
@@ -548,6 +854,42 @@ void FLTKuserIOpar_landmarks::next()
 int FLTKuserIOpar_landmarks::get_landmarksID()
 {
 	return landmarksID;
+}
+
+int FLTKuserIOpar_landmarks::handle(int event)
+{
+	int ret = 0;
+	
+	if ( event == FL_KEYDOWN )
+	{				
+		if ( Fl::event_key() == FL_Delete )
+		{			
+			if ( browser->size() == 0 )
+			{	// browser is empty
+				ret = 0;
+			}
+			else
+			{
+				point_collection * points = dynamic_cast<point_collection *>(datamanagement.get_data(landmarksID));
+
+				int index = landmarks[browser->value() - 1].index;
+				
+				if ( points->contains(index) )
+				{
+					points->remove(index);
+					
+					update_browser();
+					
+					std::vector<int> combinationIDs = rendermanagement.combinations_from_data(landmarksID);
+					
+					for ( std::vector<int>::const_iterator itr = combinationIDs.begin(); itr != combinationIDs.end(); itr++ )
+						{ viewmanagement.refresh_viewports_from_combination( *itr ); }
+				}
+				ret = 1;
+			}
+		}
+	}
+	return ( FLTKuserIOparameter_base::handle(event) ? 1 : ret );
 }
 
 
