@@ -127,6 +127,8 @@ public:
 	
 	Vector3D get_pos_of_max_grad_mag_in_region_voxel ( Vector3D center, Vector3D radius, GRAD_MAG_TYPE type );
 
+	void scale_slice_by_factor_3d(int dir, float factor, int slice);
+
 
 
 

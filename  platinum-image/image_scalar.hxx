@@ -1452,6 +1452,39 @@ Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_type_in_region_voxel( Vect
 	}
 }
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::scale_slice_by_factor_3d(int dir, float factor, int slice)
+{
+	if (dir<0 || dir>2) {
+		pt_error::error("Direction dir must be between 0 and 2 in scale_slice_by_factor_3d", pt_error::debug);
+	}
+	if(slice<0 || slice>=get_size_by_dim(dir)){
+		pt_error::error("Slice out of bounds in scale_slice_by_factor_3d",pt_error::debug); 
+	}
+	if (dir==0)	{
+		for(int j=0; j < this->get_size_by_dim(1); j++){
+			for(int k=0; k < this->get_size_by_dim(2); k++){
+				this->set_voxel(slice,j,k, int(float(this->get_voxel(slice,j,k))*factor));
+			}
+		}
+	}
+	else if (dir==1) {
+		for(int i=0; i < this->get_size_by_dim(0); i++){
+			for(int k=0; k < this->get_size_by_dim(2); k++){
+				this->set_voxel(i,slice,k, int(float(this->get_voxel(i,slice,k))*factor));
+			}
+		}
+	}
+	else {
+		for(int i=0; i < this->get_size_by_dim(0); i++){
+			for(int j=0; j < this->get_size_by_dim(1); j++){
+				this->set_voxel(i,j,slice, int(float(this->get_voxel(i,j,slice))*factor));
+			}
+		}
+	}
+}
+
 // old
 //template <class ELEMTYPE, int IMAGEDIM>
 //Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_type_in_region_voxel ( Vector3D center, Vector3D radius, POINT_TYPE point_type )
