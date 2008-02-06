@@ -129,7 +129,7 @@ public:
 
 	void scale_slice_by_factor_3d(int dir, float factor, int slice);
 
-
+	float get_mean_from_slice_3d(int dir, int slice, int low_thres, int high_thres);
 
 
 	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----
