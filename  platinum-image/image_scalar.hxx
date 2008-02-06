@@ -806,10 +806,19 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
-ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_intensity_at_lower_percentile(float percentile)
+ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_intensity_at_lower_percentile(float percentile, bool ignore_zero_intensity)
 {
-	return this->stats->get_intensity_at_histogram_lower_percentile(percentile);
+	return this->stats->get_intensity_at_histogram_lower_percentile(percentile, ignore_zero_intensity);
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, const std::string separator)
+	{
+		cout<<"save_histogram_to_txt_file..."<<endl;
+		cout<<this->stats<<endl;
+		pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
+		this->stats->save_histogram_to_txt_file(filename, separator);
+	}
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, bool reload_hist_from_image, gaussian *g, const std::string separator)

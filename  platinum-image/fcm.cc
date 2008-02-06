@@ -226,7 +226,7 @@ void fcm::Update_imagefcm(float scale_percentile)
 	cout<<"scale..."<<endl;
 	int perc;
 	for(int b=0;b<n_bands();b++){
-		perc = images[b]->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(scale_percentile);
+		perc = images[b]->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(scale_percentile, false);
 		cout<<"band="<<b<<" max="<<images[b]->get_max()<<" perc="<<perc<<endl;
 		images[b]->map_values(perc,10000000,perc);
 		images[b]->scale(0,1);
@@ -430,9 +430,9 @@ void sfcm::calc_sigma()
 	//then clac sigma by solving eq(8) in Liew2003 for lamda(delta_t)=0.8...
 	float delta_t=0;
 	if(image_mask==NULL){
-		delta_t = mean_nbh_dist_image->get_intensity_at_lower_percentile(0.95);
+		delta_t = mean_nbh_dist_image->get_intensity_at_lower_percentile(0.95, false);
 	}else{
-		delta_t = mean_nbh_dist_image->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(0.95);
+		delta_t = mean_nbh_dist_image->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(0.95, false);
 	}
 	
 	cout<<"delta_t="<<delta_t<<endl;

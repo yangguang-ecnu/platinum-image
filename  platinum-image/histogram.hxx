@@ -357,6 +357,10 @@ image_storage<ELEMTYPE> * histogram_1D<ELEMTYPE>::image ()
     return (this->images[0]); //will be NULL if historam uses data pointers
     }
 
+template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, std::string separator)	{
+	save_histogram_to_txt_file(filepath, false, NULL, separator);
+	}
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bool reload_hist_from_image, gaussian *g, std::string separator)	{
@@ -482,7 +486,7 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 }
 
 template <class ELEMTYPE>
-ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(float percentile)
+ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity)
 {
     cout<<"get_intensity_at_histogram_lower_percentile("<<percentile<<")"<<endl;
 
@@ -491,12 +495,16 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(flo
 	float num_elem_limit = float(this->num_elements_in_hist)*percentile;
 
 	float sum_elements=0;
+	
+	unsigned short the_zero_bucket = this->intensity_to_bucketpos(0);
 
 	for (unsigned short i = 0; i < this->num_buckets; i++)
 	{
-		sum_elements += this->buckets[i];
-		if(sum_elements>=num_elem_limit){
-			return bucketpos_to_intensity(i);
+		if (!ignore_zero_intensity || i!=the_zero_bucket) {
+			sum_elements += this->buckets[i];
+			if(sum_elements>=num_elem_limit){
+				return bucketpos_to_intensity(i);
+			}
 		}
 	}
 

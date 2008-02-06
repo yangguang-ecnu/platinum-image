@@ -149,6 +149,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 			{return this->readytorender;}   
 		image_storage<ELEMTYPE> * image ();
 
+		void save_histogram_to_txt_file(std::string filepath, std::string separator="\t");
 		void save_histogram_to_txt_file(std::string filepath, bool reload_hist_from_image=true, gaussian *g=NULL, std::string separator="\t");
 		
 		float get_scalefactor();
@@ -158,7 +159,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 //		void smooth_mean(int nr_of_neighbours=3, int nr_of_times=1);
 		void smooth_mean(int nr_of_neighbours, int nr_of_times, int from, int to);
 
-		ELEMTYPE get_intensity_at_histogram_lower_percentile(float percentile);
+		ELEMTYPE get_intensity_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity);
 
 		//------ Fitting of gaussian functions ------
 		void fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info=false);
