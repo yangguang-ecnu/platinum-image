@@ -400,6 +400,12 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
 }
 
 template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::print_stats()
+{
+//	stats->print_histogram_content();
+}
+
+template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::stats_refresh(bool min_max_refresh)
     {
 	if(min_max_refresh){
