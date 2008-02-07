@@ -1468,7 +1468,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::scale_slice_by_factor_3d(int dir, float f
 	if (dir<0 || dir>2) {
 		pt_error::error("Direction dir must be between 0 and 2 in scale_slice_by_factor_3d", pt_error::debug);
 	}
-	if(slice<0 || slice>=get_size_by_dim(dir)){
+	if(slice<0 || slice>=this->get_size_by_dim(dir)){
 		pt_error::error("Slice out of bounds in scale_slice_by_factor_3d",pt_error::debug); 
 	}
 	if (dir==0)	{
@@ -1501,7 +1501,7 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slic
 	if (dir<0 || dir>2) {
 		pt_error::error("Direction dir must be between 0 and 2 in get_mean_from_slice_3d", pt_error::debug);
 	}
-	if(slice<0 || slice>=get_size_by_dim(dir)){
+	if(slice<0 || slice>=this->get_size_by_dim(dir)){
 		pt_error::error("Slice out of bounds in get_mean_from_slice_3d",pt_error::debug); 
 	}
 	int value=0;

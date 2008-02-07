@@ -411,7 +411,6 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks( const std::string name ) : FLT
 		showBtn = new Fl_Button(w() - btnWidth, y() + PARTITLEMARGIN, btnWidth, btnHeight, "Show");
 		showBtn->callback(showCallback, (void *) this);
 		showBtn->tooltip("Show working image in selected viewports");
-
 	}
 	showGroup->resizable(emptyBoxThree);
 	showGroup->end();
@@ -436,6 +435,7 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks( const std::string name ) : FLT
 		zInput->tooltip("z-value");
 		
 		goBtn = new Fl_Button(w() - btnWidth, y() + STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight, "Go");
+		goBtn->tooltip("Go to the entered coordinate");
 		goBtn->callback(goCallback, (void *) this);
 	}
 	goGroup->resizable(emptyBoxTwo);
@@ -446,12 +446,15 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks( const std::string name ) : FLT
 		emptyBox = new Fl_Box(x(), y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w() -  3 * btnWidth, btnHeight);
 		
 		loadSetBtn = new Fl_Button(w() - 3 * btnWidth, y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight, "Load");
+		loadSetBtn->tooltip("Load landmark set");
 		loadSetBtn->callback(loadSetCallback, (void *) this);
 		
 		saveSetBtn = new Fl_Button(w() - 2 * btnWidth, y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight, "Save");
+		saveSetBtn->tooltip("Save landmark set");
 		saveSetBtn->callback(saveSetCallback, (void *) this);
 		
 		resetSetBtn = new Fl_Button(w() - btnWidth, y() + 2 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, btnWidth, btnHeight, "Reset");
+		resetSetBtn->tooltip("Reset landmark set");
 		resetSetBtn->callback(resetSetCallback, (void *) this);
 	}
 	buttonGroup->resizable(emptyBox);
