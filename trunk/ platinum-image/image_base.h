@@ -200,7 +200,6 @@ public:
 class analyze_hdrloader_itk: public imageloader
 {
 private:
-    //itk::VTKImageIO::Pointer vtkIO;
     itk::AnalyzeImageIO::Pointer hdrIO;
     
 public:

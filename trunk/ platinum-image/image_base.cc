@@ -347,14 +347,15 @@ analyze_hdrloader_itk::analyze_hdrloader_itk(std::vector<std::string> *f): image
 }
 
     
-image_base *analyze_hdrloader_itk::read()
+image_base * analyze_hdrloader_itk::read()
 {    
     image_base *result = NULL;
 
 	for(vector<string>::iterator it = files->begin(); it != files->end() && result == NULL; it++){ // Repeat until one image has been read
 	string file_path = *it;
 
-	if(hdrIO->CanReadFile(file_path.c_str())){   //Assumption: File contains image data
+	if(hdrIO->CanReadFile(file_path.c_str()))
+	{   //Assumption: File contains image data
         hdrIO->SetFileName(file_path);
         hdrIO->ReadImageInformation(); 
         itk::ImageIOBase::IOPixelType pixelType=hdrIO->GetPixelType();
@@ -395,7 +396,28 @@ image_base *analyze_hdrloader_itk::read()
 	        files->erase(it);
         }//can read
 	}//for
-    return result;
+	
+	if ( result != NULL )
+	{
+		std::vector<double> a = hdrIO->GetDirection(0);
+		std::vector<double> b = hdrIO->GetDirection(1);
+		std::vector<double> c = hdrIO->GetDirection(2);
+		
+		// std::cout << "original orientation:" << std::endl;
+		// std::cout << a[0] << "\t" << b[0] << "\t" << c[0] << std::endl;
+		// std::cout << a[1] << "\t" << b[1] << "\t" << c[1] << std::endl;
+		// std::cout << a[2] << "\t" << b[2] << "\t" << c[2] << std::endl;
+
+		// Not a very nice solution but it works for now...
+		Matrix3D m;	
+		
+		m[0][0] = 1;  m[0][1] = 0;  m[0][2] = 0;
+		m[1][0] = 0;  m[1][1] = 0;  m[1][2] = -1;
+		m[2][0] = 0;  m[2][1] = -1; m[2][2] = 0;
+		result->set_orientation(m);	
+	}
+	
+	return result;
 }
 
 
@@ -787,7 +809,7 @@ analyze_hdrloader::analyze_hdrloader(std::vector<std::string> * files): imageloa
 
 int analyze_hdrloader::buf2int(unsigned char* buf)
 	{
-	int res=buf[0]<<24|buf[1]<<16|buf[2]<<8|buf[3];
+	int res = buf[0] << 24|buf[1] << 16|buf[2] << 8|buf[3];
 	return res;
 	}
 
@@ -799,6 +821,7 @@ short analyze_hdrloader::buf2short(unsigned char* buf)
 
 image_base * analyze_hdrloader::read()
     {
+	
     image_base * newImage = NULL;
 	for(vector<string>::iterator it = files->begin(); it != files->end() && newImage == NULL; it++){ // Repeat until one image has been read
 		string file_path = *it;
@@ -829,12 +852,13 @@ image_base * analyze_hdrloader::read()
 				int bitDepth;
 
 				std::ifstream hdr (std::string(hdr_file).c_str(),ios::in);
-				int count=0;
 				unsigned char readbuf[100];
+				
 				hdr.read((char*)readbuf,4);
 				int sizeof_hdr=buf2int(readbuf);
-				count+=4;
+
 				hdr.ignore(36); //Skip
+				
 				hdr.read((char*)readbuf,2);
 				short endian=buf2short(readbuf);
 				bigEndian = ((endian >= 0) && (endian <= 15));
@@ -844,9 +868,12 @@ image_base * analyze_hdrloader::read()
 				size[1]=buf2short(readbuf);
 				hdr.read((char*)readbuf,2);
 				size[2]=buf2short(readbuf);
+				
 				hdr.ignore(22); //Skip
+				
 				hdr.read((char*)readbuf,2);
 				short datatype=buf2short(readbuf);
+
 				switch (datatype) {	      
 					case 2:
 						isSigned=false;
@@ -914,6 +941,7 @@ image_base * analyze_hdrloader::read()
 				}//exists
 			}//pos
 		}//for
+		
     return newImage;
 }
 
@@ -1105,13 +1133,14 @@ image_base *niftiloader::read()
 
 void image_base::load( std::vector<std::string> chosen_files)	//loads all files and adds them to datamanagement...
 {
+
 	userIOmanagement.progress_update( 1, "Loading image(s)...", 2 );
 	
 	//Each read function reads the first image it can and removes it...
     //The try_loader calls the read function until NULL is returned...
     try_loader<analyze_hdrloader_itk>(&chosen_files);	//try Analyze hdr
     try_loader<analyze_objloader>(&chosen_files);	//try Analyze obj
-    try_loader<analyze_hdrloader>(&chosen_files);	//try Analyze hdr
+    //try_loader<analyze_hdrloader>(&chosen_files);	//try Analyze hdr
     try_loader<brukerloader>(&chosen_files);		//try Bruker
     try_loader<vtkloader>(&chosen_files);			//try VTK
     try_loader<niftiloader>(&chosen_files);			//try NIFTI
