@@ -410,7 +410,7 @@ void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bo
 
 template <class ELEMTYPE>
 float histogram_1D<ELEMTYPE>::get_scalefactor(){
-	return float((this->max()-this->min()))/float(this->num_buckets-1);
+	return float((this->max()-this->min()))/float(this->num_buckets);
 }
 
 template <class ELEMTYPE>
@@ -492,11 +492,16 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(flo
 
 	//if histogram comes from masked region... following line wont work....
 //	float num_elem_limit = float(this->images[0]->get_num_elements())*percentile;
-	float num_elem_limit = float(this->num_elements_in_hist)*percentile;
+
+	unsigned short the_zero_bucket = this->intensity_to_bucketpos(0);
+	float num_elem_limit;
+
+	if (ignore_zero_intensity) {num_elem_limit = float(this->num_elements_in_hist-this->buckets[the_zero_bucket])*percentile;}
+	else {num_elem_limit = float(this->num_elements_in_hist)*percentile;}
 
 	float sum_elements=0;
 	
-	unsigned short the_zero_bucket = this->intensity_to_bucketpos(0);
+	
 
 	for (unsigned short i = 0; i < this->num_buckets; i++)
 	{
