@@ -1474,21 +1474,21 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::scale_slice_by_factor_3d(int dir, float f
 	if (dir==0)	{
 		for(int j=0; j < this->get_size_by_dim(1); j++){
 			for(int k=0; k < this->get_size_by_dim(2); k++){
-				this->set_voxel(slice,j,k, int(float(this->get_voxel(slice,j,k))*factor));
+				this->set_voxel(slice,j,k, ELEMTYPE(float(this->get_voxel(slice,j,k))*factor));
 			}
 		}
 	}
 	else if (dir==1) {
 		for(int i=0; i < this->get_size_by_dim(0); i++){
 			for(int k=0; k < this->get_size_by_dim(2); k++){
-				this->set_voxel(i,slice,k, int(float(this->get_voxel(i,slice,k))*factor));
+				this->set_voxel(i,slice,k, ELEMTYPE(float(this->get_voxel(i,slice,k))*factor));
 			}
 		}
 	}
 	else {
 		for(int i=0; i < this->get_size_by_dim(0); i++){
 			for(int j=0; j < this->get_size_by_dim(1); j++){
-				this->set_voxel(i,j,slice, int(float(this->get_voxel(i,j,slice))*factor));
+				this->set_voxel(i,j,slice, ELEMTYPE(float(this->get_voxel(i,j,slice))*factor));
 			}
 		}
 	}
@@ -1496,7 +1496,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::scale_slice_by_factor_3d(int dir, float f
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slice, int low_thres, int high_thres) 
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slice, ELEMTYPE low_thres, ELEMTYPE high_thres) 
 {
 	if (dir<0 || dir>2) {
 		pt_error::error("Direction dir must be between 0 and 2 in get_mean_from_slice_3d", pt_error::debug);
@@ -1504,7 +1504,7 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slic
 	if(slice<0 || slice>=this->get_size_by_dim(dir)){
 		pt_error::error("Slice out of bounds in get_mean_from_slice_3d",pt_error::debug); 
 	}
-	int value=0;
+	ELEMTYPE value=0;
 	float mean=0;
 	int no_voxels=0;
 
