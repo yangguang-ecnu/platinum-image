@@ -706,3 +706,12 @@ float histogram_1D<ELEMTYPE>::get_variance_in_bucket_range(int from, int to)
 	}
 	return sum/num_values;
 }
+
+/*
+template<class ELEMTYPE, int IMAGEDIM>
+histogram_2Dimage<ELEMTYPE,IMAGEDIM>::histogram_2Dimage<ELEMTYPE,IMAGEDIM>(image_scalar<ELEMTYPE,IMAGEDIM>* i1, image_scalar<ELEMTYPE,IMAGEDIM>* i2)
+{
+	this->im1 = new image_scalar<ELEMTYPE,IMAGEDIM>(i1,1);
+	this->im2 = new image_scalar<ELEMTYPE,IMAGEDIM>(i2,1);
+}
+*/

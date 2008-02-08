@@ -221,4 +221,32 @@ class histogram_2D : public histogram_base
         bool ready ();
     };
 
+/*
+template<class ELEMTYPE, int IMAGEDIM>
+class histogram_2Dimage : public histogram_base
+    {
+//   unsigned long render_max;
+//    bool * highlight_data;      //highlighting of region of interest
+//    int vol_h_ID,vol_v_ID;      //IDs of the two images used
+
+	private:
+		image_scalar<ELEMTYPE,IMAGEDIM>* im1;   //images are copied and stored in histogram2Dobject (original images can then be changed/deleted...)
+		image_scalar<ELEMTYPE,IMAGEDIM>* im2;
+
+		image_scalar<float,2>* hist;
+
+    protected:
+
+		void render_ (unsigned char * image, unsigned int width,unsigned int height);
+    public:
+        histogram_2Dimage(image_scalar<ELEMTYPE,IMAGEDIM>* im1, image_scalar<ELEMTYPE,IMAGEDIM>* im2);
+        ~histogram_2Dimage();
+//        void images (int image_hor,int image_vert);
+//        void calculate(int number_of_buckets=0);
+//        thresholdparvalue histogram_2D::get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
+//        void highlight (regionofinterest * region); //highlight histogram values for supplied
+                                                    //region of interest
+//        bool ready ();
+//    };
+*/
 #endif
