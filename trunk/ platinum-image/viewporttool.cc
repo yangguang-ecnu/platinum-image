@@ -247,7 +247,7 @@ void nav_tool::handle(viewport_event &event)
 
 			std::vector<int> mouse2d = event.mouse_pos_local();
 			Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
-			viewmanagement.show_point_by_combination ( mouse3d, myRenderer->combination_id() );
+			viewmanagement.show_point_by_combination ( mouse3d, myRenderer->combination_id() ); //jk-ööö
 		}
 	}
     
@@ -333,7 +333,7 @@ void nav_tool::handle(viewport_event &event)
                     
                     fvp->needs_rerendering();
 
-					refresh_by_image_and_direction();
+					refresh_by_image_and_direction(); //redraws slice locators in other viewports //TODO: use fl_overlays
 				}
 			//NOTE: no break, update hovering also
 				
@@ -434,7 +434,10 @@ void nav_tool::move_voxels( int x, int y, int z )
 	if ( rendermanagement.renderer_empty(myRenderer->get_id()) == RENDERER_NOT_EMPTY )
 	{ 
 		myRenderer->move_voxels( x, y, z);
-		refresh_by_image_and_direction();
+		refresh_by_image_and_direction(); //TODO - use fl_overlays for speedup
+	
+		//JK ööö window()->make_current() and then fl_overlay_rect()
+//		fl_overlay_rect(10,20,30,60); //overlay_window is needed.
 	}
 }
 

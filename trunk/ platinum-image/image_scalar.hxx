@@ -1430,6 +1430,19 @@ Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_max_grad_mag_in_region_vox
 	return pos;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_bias_field_data3D(bias_poly<3> b)
+{
+	for(int z=0; z<this->datasize[2]; z++){
+		for(int y=0; y<this->datasize[1]; y++){
+			for(int x=0; x<this->datasize[0]; x++){
+				this->set_voxel(x,y,z,b.eval3D(x,y,z));
+			}
+		}
+	}
+
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_type_in_region_voxel( Vector3D center, Vector3D radius, POINT_TYPE type )

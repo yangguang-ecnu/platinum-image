@@ -260,6 +260,7 @@ metadata& metadata::operator=(const metadata& source)
 
 void metadata::print_all()
 {
+	cout<<"metadata - print_all()"<<endl;
 	print_string(DCM_CREATION_DATE);
 	print_string(DCM_CREATION_TIME);
 	print_string(DCM_STUDY_DATE);

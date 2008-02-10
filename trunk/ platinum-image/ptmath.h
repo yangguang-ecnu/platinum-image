@@ -105,6 +105,7 @@ float max_norm (itk::Vector<sType, vDim> &V)     //normalize vector using
     return m;
 }
 
+
 template <class C, class D> void adjust_endian (D* data, C size,bool DataIsBigEndian)
 //alter endian if supplied value
 //and system value don't match
@@ -222,5 +223,8 @@ void print_datatype_numerical_limits();
 double get_random_number_in_span(double min, double max);
 Vector3D create_Vector3D(float x, float y, float z);
 Vector3Dint create_Vector3Dint(int x, int y, int z);
+
+unsigned int get_factorial(unsigned int i);
+unsigned int get_permutations(unsigned int n, unsigned int r); //returns pascals triangle values
 
 #endif	//__ptmath.h__

@@ -123,3 +123,66 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::weight_of_type( Vector3D center, Vector3
 }
 
 
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_body_from_sum_image(int initial_thres)
+{
+	cout<<"Treshold..."<<endl;
+	image_binary<3> *b = this->threshold(initial_thres);
+//	b->save_to_VTK_file(base+"__b01_Body.vtk");
+
+//	cout<<"Erode..."<<endl;
+	b->erode_3D(3);
+//	b->save_to_VTK_file(base+"__b02_Body_er.vtk");
+
+//	cout<<"Dilate..."<<endl;
+	b->dilate_3D(3);
+	b->dilate_3D(3);
+//	b->save_to_VTK_file(base+"__b03_Body_dil.vtk");
+
+//	cout<<"Region Grow Bg..."<<endl;
+	image_binary<3> *b2 = b->region_grow_3D(create_Vector3D(0,0,0),0,0);
+//	body->save_to_VTK_file(base+"__b04_Body_rg.vtk");
+
+	cout<<"Invert..."<<endl;
+	b2->invert();
+//	b2->save_to_VTK_file(base+"__b05_Body_rg_inv.vtk");
+
+	cout<<"Erode..."<<endl;
+	b2->erode_3D(3);
+//	b2->save_to_VTK_file(base+"__b06_Body_er.vtk");
+	delete b;
+	return b2;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_sum_image(int initial_upper_thres, image_binary<3> *body_mask)
+{
+	image_binary<3> *lungs = this->threshold(0,initial_upper_thres);
+//	lungs->name(id+"_lungs");
+
+	//clear a priori regions.... y = 0...50 and 100...
+	lungs->fill_region_3D(1,0,50,0);
+	lungs->fill_region_3D(1,100,lungs->get_size_by_dim(1)-1,0);
+//	lungs->save_to_VTK_file(base+"__c01_Lungs.vtk");
+
+//	cout<<"Mask body (lungs)..."<<endl;
+	lungs->mask_out(body_mask);
+//	lungs->save_to_VTK_file(base+"__c02_Lungs_masked.vtk");
+
+//	cout<<"Erode lungs..."<<endl;
+	image_binary<3> *tlungmask = new image_binary<3>(lungs);
+//	tlungmask->name(id+"_tlungmask");
+	tlungmask->erode_3D(7);
+//	tlungmask->save_to_VTK_file(base+"__c03_Lungmask_eroded.vtk");
+
+//	cout<<"Dilate lungs..."<<endl;
+	//there is a bug in dilate3D... An in-slice line (with 2 segments...) is sometimes seen....
+	tlungmask->dilate_3D(20);
+//	tlungmask->save_to_VTK_file(base+"__c04_Lungmask_dilated.vtk");
+
+	lungs->mask_out(tlungmask);
+//	lungs->save_to_VTK_file(base+"__c05_Lungs_masked.vtk");
+
+	delete tlungmask;
+	return lungs;
+}

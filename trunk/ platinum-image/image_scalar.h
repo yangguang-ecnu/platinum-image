@@ -31,6 +31,7 @@
 #include <stack>
 #include <queue>
 #include "image_general.h"
+#include "bias_field.h"
 #include "Utilities/vxl/contrib/mil3d_trilin_interp_3d.h"
 //#include "Utilities/tricubic1.0.0/libtricubic/tricubic.h" (//http://www.lekien.com/~francois/software/tricubic/)
 //#include "fcm.h"
@@ -132,6 +133,9 @@ public:
 
 	float get_mean_from_slice_3d(int dir, int slice, ELEMTYPE low_thres, ELEMTYPE high_thres);
 
+// -------------- bias field operations ---------------
+	void fill_image_with_bias_field_data3D(bias_poly<3> b);
+
 
 	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----
 
@@ -148,6 +152,11 @@ public:
 	float grad_mag_voxel ( int x, int y, int z, GRAD_MAG_TYPE type );
 	
 	float weight_of_type( Vector3D center, Vector3D current, WEIGHT_TYPE type );
+
+	//Simple functions for segmentation of bodies and lungs form whole-body MRI scans
+	//Assumes the feet direction is in increasing voxel-y direction...
+	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres);
+	image_binary<3>* appl_wb_segment_lungs_from_sum_image(int initial_upper_thres, image_binary<3> *body_mask);
 
 };
 

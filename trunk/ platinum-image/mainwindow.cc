@@ -28,6 +28,7 @@
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
+//#include <FL/Fl_Overlay_Window.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Scroll.H>
@@ -120,6 +121,7 @@ void platinum_init ()
 
     }
 
+//void platinum_setup (Fl_Overlay_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
 void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
     {
     const int win_w = window.w();

@@ -237,3 +237,18 @@ Vector3Dint create_Vector3Dint( int x, int y, int z )
 	v[2] = z;
 	return v;
 }
+
+unsigned int get_factorial(unsigned int i)
+{
+	if(i==1){
+		return 1;
+	}
+	else{
+		return i*get_factorial(i-1);
+	}
+}
+
+unsigned int get_permutations(unsigned int n, unsigned int r)
+{
+	return get_factorial(n)/(get_factorial(r)*get_factorial(n-r));
+}
