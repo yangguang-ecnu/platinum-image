@@ -95,17 +95,26 @@ class transfer_brightnesscontrast: public transfer_base <ELEMTYPE >
 protected:
 //	Fl_Slider* intensity_ctrl;
 //	Fl_Slider* contrast_ctrl;
-	Fl_Value_Slider* intensity_ctrl;
-	Fl_Value_Slider* contrast_ctrl;
-	ELEMTYPE intensity;
-	ELEMTYPE intensity_inv;
-	float contrast;
+	Fl_Value_Slider* min_ctrl;
+	Fl_Value_Slider* max_ctrl;
+	Fl_Slider* brightness_ctrl; //if all the way to the left --> center of transfer function line is at max intensity
+	Fl_Slider* contrast_ctrl;
+	ELEMTYPE min;
+	ELEMTYPE max;
+//	ELEMTYPE brightness;		
+//	ELEMTYPE brightness_inv;	//for calc speedup in get()-function 
+//	float contrast;				//angle of the transfer function line... (0...pi/2 radians)
 public:
 	transfer_brightnesscontrast (image_storage <ELEMTYPE > *);
 	void get (const ELEMTYPE v, RGBvalue &p);
-	void update();				//JK - updates intensity/contrast parameters from FLTK sliders ...
-	static void slider_cb(Fl_Widget *o, void *v);		//JK - slider_callback...
+	void update(string slider_label);				//Updates intensity/contrast parameters from FLTK sliders ...
+	static void slider_cb(Fl_Widget *o, void *v); //slicer callback
+//	static void min_slider_cb(Fl_Widget *o, void *v); //slicer callback
+//	static void max_slider_cb(Fl_Widget *o, void *v); //slicer callback
+//	static void brightn_slider_cb(Fl_Widget *o, void *v); //slicer callback
+//	static void contr_slider_cb(Fl_Widget *o, void *v); //slicer callback
 };
+
 
 template <class ELEMTYPE >
 class transfer_mapcolor: public transfer_base <ELEMTYPE >
