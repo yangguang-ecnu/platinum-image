@@ -133,7 +133,10 @@ public:
 
 	float get_mean_from_slice_3d(int dir, int slice, ELEMTYPE low_thres, ELEMTYPE high_thres);
 
+	float calculate_entropy_2d();
+
 // -------------- bias field operations ---------------
+	
 	void fill_image_with_bias_field_data3D(bias_poly<3> b);
 
 

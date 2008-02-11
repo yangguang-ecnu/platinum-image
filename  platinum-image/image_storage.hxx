@@ -464,6 +464,29 @@ void image_storage<ELEMTYPE >::get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &m
 }
 
 
+
+template <class ELEMTYPE >
+ELEMTYPE image_storage<ELEMTYPE >::get_sum_of_voxels() 
+{
+	ELEMTYPE sum=0;
+	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
+	while (itr != this->end())	
+	{
+		sum+=*itr;
+		itr++;
+	}
+	return sum;
+}
+
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::set_sum_of_voxels_to_value(float value)
+{
+	ELEMTYPE sum = this->get_sum_of_voxels();
+	float factor;
+	(sum==0) ? factor=1 : factor=value/sum;
+	this->scale_by_factor(factor);
+}
+
 /*
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::save_histogram_to_txt_file(std::string filepath, std::string separator)
