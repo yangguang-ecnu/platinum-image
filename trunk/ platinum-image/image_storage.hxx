@@ -466,14 +466,21 @@ void image_storage<ELEMTYPE >::get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &m
 
 
 template <class ELEMTYPE >
-ELEMTYPE image_storage<ELEMTYPE >::get_sum_of_voxels() 
+ELEMTYPE image_storage<ELEMTYPE >::get_sum_of_voxels(bool absolute_value) 
 {
 	ELEMTYPE sum=0;
 	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
-	while (itr != this->end())	
-	{
-		sum+=*itr;
-		itr++;
+	if (absolute_value) {
+		while(itr != this->end()) {
+			sum+=abs(*itr);
+			itr++;
+		}
+	}
+	else {
+		while(itr != this->end()) {
+			sum+=*itr;
+			itr++;
+		}
 	}
 	return sum;
 }
