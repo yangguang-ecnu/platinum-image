@@ -466,7 +466,7 @@ void image_storage<ELEMTYPE >::get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &m
 
 
 template <class ELEMTYPE >
-ELEMTYPE image_storage<ELEMTYPE >::get_sum_of_voxels(bool absolute_value) 
+ELEMTYPE image_storage<ELEMTYPE >::get_sum_of_voxels(bool calc_scalar_abs_value) 
 {
 	ELEMTYPE sum=0;
 	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
