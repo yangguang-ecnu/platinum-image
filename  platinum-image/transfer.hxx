@@ -63,20 +63,16 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	max = this->source->get_max();
     ELEMTYPE intrange = max-min;
 
-//	brightness = float(intrange)/2.0; //JK
-
-//	float contrast_min = 0;
-  //  float contrast_max = PI/2.0;
-//    contrast = PI/4.0;
-
 	//JK - GUI modification
 	int xx = frame->x();
 	int yy = frame->y();
 	int ww = frame->w();
 	int w2 = 50;
+	int x_start = xx+w2;
+	int width = ww-w2-1;
 	int dy = 20;
 
-	min_ctrl = new Fl_Value_Slider(xx+w2,yy+5,ww-w2,15,"Min");
+	min_ctrl = new Fl_Value_Slider(x_start,yy+5,ww-w2-1,15,"Min");
 	min_ctrl->type(FL_HOR_SLIDER);
 	min_ctrl->align(FL_ALIGN_LEFT);
     min_ctrl->value(min);
@@ -85,7 +81,7 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	min_ctrl->precision(2);
 	min_ctrl->callback(slider_cb,this);
 
-	max_ctrl = new Fl_Value_Slider(xx+w2,yy+5+dy,ww-w2,15,"Max");
+	max_ctrl = new Fl_Value_Slider(x_start,yy+5+dy,width,15,"Max");
 	max_ctrl->type(FL_HOR_SLIDER);
 	max_ctrl->align(FL_ALIGN_LEFT);
     max_ctrl->value(max);
@@ -94,7 +90,7 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	max_ctrl->precision(2);
 	max_ctrl->callback(slider_cb,this);
 
-    brightness_ctrl = new Fl_Slider(xx+w2,yy+5+2*dy,ww-w2,15,"Brightn");
+    brightness_ctrl = new Fl_Slider(x_start,yy+5+2*dy,width,15,"Brightn");
 	brightness_ctrl->type(FL_HOR_SLIDER);
 	brightness_ctrl->align(FL_ALIGN_LEFT);
     brightness_ctrl->value(float(intrange)/2.0);
@@ -103,10 +99,10 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	brightness_ctrl->precision(2);
 	brightness_ctrl->callback(slider_cb,this);
 
-    contrast_ctrl = new Fl_Slider(xx+w2,yy+5+3*dy,ww-w2,15,"Contr");
+    contrast_ctrl = new Fl_Slider(x_start,yy+5+3*dy,width,15,"Contr");
 	contrast_ctrl->type(FL_HOR_SLIDER);
 	contrast_ctrl->align(FL_ALIGN_LEFT);
-    contrast_ctrl->value(atan(255.0/float(intrange)));
+    contrast_ctrl->value(atan(1.0));
     contrast_ctrl->bounds(0,PI/2.0);
 	contrast_ctrl->step((PI/2.0)/100.0);
 	contrast_ctrl->precision(2);
@@ -115,7 +111,33 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	frame->end();
 //	this->update();
     frame->do_callback(); //redraw image that the transfer function is attached to ( 
+	//required when another transfer has just been used...
     }
+
+template <class ELEMTYPE >
+float transfer_brightnesscontrast<ELEMTYPE >::get_src_int_range()
+{
+	return float(this->source->get_max()-this->source->get_min());
+}
+
+template <class ELEMTYPE >
+float transfer_brightnesscontrast<ELEMTYPE >::get_transfer_center()
+{
+	return float(min + max)/2.0;
+}
+
+template <class ELEMTYPE >
+float transfer_brightnesscontrast<ELEMTYPE >::get_brightness_slider_value()
+{
+	return get_src_int_range()-get_transfer_center();
+}
+
+template <class ELEMTYPE >
+float transfer_brightnesscontrast<ELEMTYPE >::get_contrast_slider_value()
+{
+	//tan(alfa) = 255/(max-min)*K...    where K = src_range/255 (scaling factor)
+	return atan( get_src_int_range()/float(max-min) );
+}
 
 template <class ELEMTYPE >
 void transfer_brightnesscontrast<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
@@ -132,17 +154,16 @@ void transfer_brightnesscontrast<ELEMTYPE >::update(string slider_label)
 {
 	if(slider_label=="Min"){
 		min = this->min_ctrl->value();
-		this->brightness_ctrl->value((this->source->get_max()-this->source->get_min())-float(min + max)/2.0);
-		this->contrast_ctrl->value(atan(255.0/float(max-min)));
+		this->brightness_ctrl->value( get_brightness_slider_value() );
+		this->contrast_ctrl->value( get_contrast_slider_value() );
 
 	}else if(slider_label=="Max"){
 		max = this->max_ctrl->value();
-		this->brightness_ctrl->value((this->source->get_max()-this->source->get_min())-float(min + max)/2.0);
-		this->contrast_ctrl->value(atan(255.0/float(max-min)));
+		this->brightness_ctrl->value( get_brightness_slider_value() );
+		this->contrast_ctrl->value( get_contrast_slider_value() );
 
 	}else if(slider_label=="Brightn"){
-		cout<<"brightn."<<endl;
-		float new_center = (this->source->get_max()-this->source->get_min()) - this->brightness_ctrl->value();
+		float new_center = get_src_int_range() - this->brightness_ctrl->value();
 		float tmp = float(max-min)/2.0;
 		float fmin = new_center - tmp;
 		float fmax = new_center + tmp;
@@ -159,15 +180,11 @@ void transfer_brightnesscontrast<ELEMTYPE >::update(string slider_label)
 
 		this->min_ctrl->value(min);
 		this->max_ctrl->value(max);
-		this->contrast_ctrl->value(atan(255.0/float(max-min)));
-//		cout<<"***brightn***"<<endl;
-//		cout<<"new_center="<<new_center<<endl;
-//		cout<<"min="<<min<<endl;
-//		cout<<"max="<<max<<endl;
+		this->contrast_ctrl->value( get_contrast_slider_value() );
 
 	}else if(slider_label=="Contr"){
-		float center = float(max+min)/2.0;
-		float new_intrange = 255.0/tan(float(this->contrast_ctrl->value()));
+		float center = get_transfer_center();
+		float new_intrange = get_src_int_range()/tan(float(this->contrast_ctrl->value()));
 		float fmin = center - new_intrange/2.0;
 		float fmax = center + new_intrange/2.0;
 		if(fmin<this->source->get_min()){
@@ -182,12 +199,7 @@ void transfer_brightnesscontrast<ELEMTYPE >::update(string slider_label)
 		}
 		this->min_ctrl->value(min);
 		this->max_ctrl->value(max);
-		this->brightness_ctrl->value((this->source->get_max()-this->source->get_min())-float(min + max)/2.0);
-//		cout<<"***Contr***"<<endl;
-//		cout<<"center="<<center<<endl;
-//		cout<<"new_intrange="<<new_intrange<<endl;
-//		cout<<"min="<<min<<endl;
-//		cout<<"max="<<max<<endl;
+		this->brightness_ctrl->value( get_brightness_slider_value() );
 	}
 }
 
@@ -196,9 +208,11 @@ void transfer_brightnesscontrast<ELEMTYPE >::slider_cb(Fl_Widget *o, void *v)
 {
 //	cout<<"slider_cb"<<endl;
 	transfer_brightnesscontrast<ELEMTYPE>* tf = (transfer_brightnesscontrast<ELEMTYPE>*)v;
-	tf->update(string(o->label()));
-    tf->pane->do_callback(); //redraw transfer function source image...
+	tf->update(string(o->label())); //update "min" "max" and controls....
+    tf->pane->do_callback();		//redraw transfer function source image...
 }
+
+
 
 
 // *** transfer_mapcolor ***
