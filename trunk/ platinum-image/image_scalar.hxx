@@ -1557,6 +1557,33 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slic
 	return mean=mean/no_voxels;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::calculate_entropy_2d() 
+{
+	float size=get_size_by_dim(0)*get_size_by_dim(1);
+	
+	image_scalar<ELEMTYPE,IMAGEDIM> *copy = new image_scalar<ELEMTYPE,IMAGEDIM>(this);
+
+	copy->set_sum_of_voxels_to_value(1);
+
+	float entropy=0;
+	
+	for (int i=0; i<get_size_by_dim(0); i++) {
+		for (int j=0; j<get_size_by_dim(1); j++) {
+			ELEMTYPE val=copy->get_voxel(i,j);
+			if (val!=0) {
+				entropy -= this->get_voxel(i,j) * log(copy->get_voxel(i,j));
+			}
+		}
+	}
+	
+	entropy=entropy/size;
+
+	//ta bort kopia?
+	
+	return entropy;
+}
+
 // old
 //template <class ELEMTYPE, int IMAGEDIM>
 //Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_type_in_region_voxel ( Vector3D center, Vector3D radius, POINT_TYPE point_type )
