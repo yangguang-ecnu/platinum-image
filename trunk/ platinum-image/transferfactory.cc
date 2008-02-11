@@ -29,7 +29,7 @@
 
 const std::string transferfactory::tfunction_names[] =
     {"Default",
-    "Intensity/Contrast",
+    "Min/Max/Brightn/Contr",
     "Labels",
     "Linear",
     "Spline",
