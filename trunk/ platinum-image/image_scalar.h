@@ -32,12 +32,15 @@
 #include <queue>
 #include "image_general.h"
 #include "bias_field.h"
+#include "filters.h"
 #include "Utilities/vxl/contrib/mil3d_trilin_interp_3d.h"
 //#include "Utilities/tricubic1.0.0/libtricubic/tricubic.h" (//http://www.lekien.com/~francois/software/tricubic/)
 //#include "fcm.h"
 
 #define TRUE 1
 #define FALSE 0
+
+
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_scalar : public image_general <ELEMTYPE, IMAGEDIM>
@@ -135,6 +138,8 @@ public:
 
 	float calculate_entropy_2d();
 
+	void filter_3D(filter_base* filter, int borderflag=0);
+
 // -------------- bias field operations ---------------
 	
 	void fill_image_with_bias_field_data3D(bias_poly<3> b);
@@ -161,6 +166,9 @@ public:
 	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres);
 	image_binary<3>* appl_wb_segment_lungs_from_sum_image(int initial_upper_thres, image_binary<3> *body_mask);
 
+private:
+	void filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int borderflag, int x, int y, int z);
 };
+
 
 #endif

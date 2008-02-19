@@ -470,7 +470,7 @@ ELEMTYPE image_storage<ELEMTYPE >::get_sum_of_voxels(bool calc_scalar_abs_value)
 {
 	ELEMTYPE sum=0;
 	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
-	if (absolute_value) {
+	if (calc_scalar_abs_value) {
 		while(itr != this->end()) {
 			sum+=abs(*itr);
 			itr++;
