@@ -86,6 +86,7 @@ error.h
 event.h 
 fcm.h 
 fileutils.h 
+filters.h
 FLTKuserIOparameters.h 
 FLTKutilities.h 
 FLTKviewport.h 
@@ -146,6 +147,7 @@ error.cc
 event.cc 
 fcm.cc
 fileutils.cc 
+filters.hxx
 FLTKuserIOparameters.cc 
 FLTKutilities.cc 
 FLTKviewport.cc 
@@ -384,6 +386,7 @@ cursor3D.h
 error.h 
 fcm.h
 fileutils.h 
+filters.h
 FLTKutilities.h 
 histogram.h 
 listedfactory.h 
@@ -400,6 +403,7 @@ ${WIN32_DIRENT_SRC}
 error.cc 
 fcm.cc
 fileutils.cc 
+filters.hxx
 FLTKutilities.cc 
 histogram.cc 
 histogram.hxx 
