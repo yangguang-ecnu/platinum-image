@@ -542,10 +542,10 @@ FLTKgeom_image::FLTKgeom_image(int id, int x, int y, int w, int h):FLTKgeom_base
 {
 
 	// the sum of these should be <= w
-	const int orig_w = 80;
-	const int size_w = 40;
-	const int orient_w = 100;
-	const int rotation_w = 60;
+	const int orig_w = 17.0/60.0*w;
+	const int size_w = 10.0/60.0*w;
+	const int orient_w = 18.0/60.0*w;
+	const int rotation_w = 15.0/60.0*w;
 
 	orig = new FLTKVector3D(datamanagement.get_image(data_id)->get_origin(), x, y, orig_w, h, "x", "y", "z");
 	size = new FLTKVector3D(datamanagement.get_image(data_id)->get_voxel_size(), x + orig_w, y, size_w, h, "dx", "dy", "dz");

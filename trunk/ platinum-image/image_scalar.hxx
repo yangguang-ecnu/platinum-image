@@ -1114,33 +1114,49 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
 {
+	queue<Vector3D> s;
+	s.push(seed);
+	return region_grow_3D(s, min_intensity, max_intensity);
+}
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(image_binary<IMAGEDIM> *seed_image, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max())
+{
+	queue<Vector3D> s;
+
+	for(int x=0; x<this->datasize[0]; x++){
+		for(int y=0; y<this->datasize[1]; y++){
+			for(int z=0; z<this->datasize[2]; z++){
+				if(seed_image->get_voxel(x,y,z)){
+					s.push(create_Vector3D(x,y,z));
+				}
+			}
+		}
+	}
+	return region_grow_3D(s, min_intensity, max_intensity);
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(queue<Vector3D> seed_queue, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
+{
 	image_binary<IMAGEDIM> *res = new image_binary<IMAGEDIM>(this,0);
 	res->fill(false);
-	res->set_voxel(seed[0],seed[1],seed[2],true);
-
+	//for seed-queue... //res->set_voxel(seed[0],seed[1],seed[2],true);
 	int sx = this->datasize[0];
 	int sy = this->datasize[1];
 	int sz = this->datasize[2];
 //	cout<<sx<<" "<<sy<<" "<<sz<<endl;
 
-	queue<Vector3D> s;
-	s.push(seed);
 	Vector3D pos;
 	Vector3D pos2;
 
 	ELEMTYPE val;
 
-	while(s.size()>0){
-		pos = s.front();
-		s.pop();
-
-//		if(i%100000==0){
-//			val = this->get_voxel(pos[0],pos[1],pos[2]);
-//			cout<<"i="<<i<<" pos="<<pos[0]<<" "<<pos[1]<<" "<<pos[2]<<" val="<<val<<" s.size()="<<s.size()<<endl;
-//			cin>>c;
-//		}
-//		i++;
+	while(seed_queue.size()>0){
+		pos = seed_queue.front();
+		seed_queue.pop();
 
 		for(int x=std::max(0,int(pos[0]-1)); x<=std::min(int(pos[0]+1),sx-1); x++){
 			for(int y=std::max(0,int(pos[1]-1)); y<=std::min(int(pos[1]+1),sy-1); y++){
@@ -1149,19 +1165,17 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(Vector3
 
 					if(val>=min_intensity && val<=max_intensity && res->get_voxel(x,y,z)==false){
 						pos2[0]=x; pos2[1]=y; pos2[2]=z;
-						s.push(pos2);
+						seed_queue.push(pos2);
 						res->set_voxel(x,y,z,true);
 					}
 				}
 			}
 		}
 	}
-	cout<<"region_grow_3D --> Done...(s.size()="<<s.size()<<")"<<endl;
-//	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
-//	cout<<"before..."<<endl;
-//	copy_data(res,this);
+	cout<<"region_grow_3D --> Done...(seed_queue.size()="<<seed_queue.size()<<")"<<endl;
 	return res;
 }
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity, int nr_accepted_neighbours, int radius)
