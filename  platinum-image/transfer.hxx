@@ -55,7 +55,7 @@ template <class ELEMTYPE >
 transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_storage<ELEMTYPE > * s) : transfer_base<ELEMTYPE >(s)
     {
 	Fl_Group* frame = this->pane;
-	frame->resize(0,0,270,85);
+	frame->resize(0,0,270,65);
 	frame->callback(transfer_base<ELEMTYPE >::redraw_image_cb);
 	frame->user_data( static_cast<REDRAWCALLBACKPTYPE>(this->source) );
 
@@ -69,10 +69,11 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	int ww = frame->w();
 	int w2 = 50;
 	int x_start = xx+w2;
-	int width = ww-w2-1;
-	int dy = 20;
+	int width = ww-w2-2;
+	int dh = 12;
+	int dy = 15;
 
-	min_ctrl = new Fl_Value_Slider(x_start,yy+5,ww-w2-1,15,"Min");
+	min_ctrl = new Fl_Value_Slider(x_start,yy+5+0*dy,ww-w2-1,dh,"Min");
 	min_ctrl->type(FL_HOR_SLIDER);
 	min_ctrl->align(FL_ALIGN_LEFT);
     min_ctrl->value(min);
@@ -81,7 +82,7 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	min_ctrl->precision(2);
 	min_ctrl->callback(slider_cb,this);
 
-	max_ctrl = new Fl_Value_Slider(x_start,yy+5+dy,width,15,"Max");
+	max_ctrl = new Fl_Value_Slider(x_start,yy+5+1*dy,width,dh,"Max");
 	max_ctrl->type(FL_HOR_SLIDER);
 	max_ctrl->align(FL_ALIGN_LEFT);
     max_ctrl->value(max);
@@ -90,7 +91,7 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	max_ctrl->precision(2);
 	max_ctrl->callback(slider_cb,this);
 
-    brightness_ctrl = new Fl_Slider(x_start,yy+5+2*dy,width,15,"Brightn");
+    brightness_ctrl = new Fl_Slider(x_start,yy+5+2*dy,width,dh,"Brightn");
 	brightness_ctrl->type(FL_HOR_SLIDER);
 	brightness_ctrl->align(FL_ALIGN_LEFT);
     brightness_ctrl->value(float(intrange)/2.0);
@@ -99,7 +100,7 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	brightness_ctrl->precision(2);
 	brightness_ctrl->callback(slider_cb,this);
 
-    contrast_ctrl = new Fl_Slider(x_start,yy+5+3*dy,width,15,"Contr");
+    contrast_ctrl = new Fl_Slider(x_start,yy+5+3*dy,width,dh,"Contr");
 	contrast_ctrl->type(FL_HOR_SLIDER);
 	contrast_ctrl->align(FL_ALIGN_LEFT);
     contrast_ctrl->value(atan(1.0));

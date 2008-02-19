@@ -189,16 +189,16 @@ protected:
 	FLTKVector3D *orig;
 	FLTKVector3D *size;
 	FLTKMatrix3D *orient;
-	FLTKVector3D * rotation;
+	FLTKVector3D *rotation;
 	
 	//Matrix3D start;
 	
 public:
+	FLTKgeom_image(int id, int x=0, int y=0, int w=260, int h=50);
 	static void orig_update_cb(Fl_Widget *w, void*);
 	static void size_update_cb(Fl_Widget *w, void*);
 	static void orient_update_cb(Fl_Widget *w, void*);
 	static void rotation_update_cb ( Fl_Widget * w, void * );
-	FLTKgeom_image(int id, int x=0, int y=0, int w=200, int h=70);
 	
 	//const Matrix3D get_start() const;
 };
