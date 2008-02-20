@@ -166,9 +166,12 @@ public:
 	float weight_of_type( Vector3D center, Vector3D current, WEIGHT_TYPE type );
 
 	//Simple functions for segmentation of bodies and lungs form whole-body MRI scans
-	//Assumes the feet direction is in increasing voxel-y direction...
+	//Assumes the feet direction is in increasing voxel-y direction... (nose is in neg Z-direction) 
 	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres);
 	image_binary<3>* appl_wb_segment_lungs_from_sum_image(int initial_upper_thres, image_binary<3> *body_mask);
+	void appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres=950);
+	image_binary<3>* appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body);
+
 
 private:
 	void filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int borderflag, int x, int y, int z);
