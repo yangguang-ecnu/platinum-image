@@ -186,3 +186,94 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 	delete tlungmask;
 	return lungs;
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres)
+{
+	cout<<"appl_wb_segment_find_crotch_pos_from_water_percent_image..."<<endl;
+
+//	cout<<"create MIP (z)..."<<endl;
+	image_scalar<ELEMTYPE,IMAGEDIM> *tmip = this->create_projection_3D(2);
+	tmip->name("_tmip");
+//	tmip->save_to_VTK_file("c:/Joel/TMP/COMBI__d01_wpMIP.vtk");
+
+	cout<<"threshold MIP..."<<endl;
+	image_binary<3> *tbin = tmip->threshold(mip_thres);  //95% MIP - water content....
+	tbin->name("_tbin");
+//	tbin->save_to_VTK_file("c:/Joel/TMP/COMBI__d02_bin.vtk");
+
+	cout<<"filter bin..."<<endl;
+//	tbin->dilate_2D();
+	tbin->erode_2D();
+	tbin->dilate_2D();
+//	tbin->save_to_VTK_file("c:/Joel/TMP/COMBI__d03_bin_close_open.vtk");
+
+
+	cout<<"find_crotch..."<<endl;
+	int nx = tbin->get_size_by_dim(0);
+	int ny = tbin->get_size_by_dim(1);
+	int x_start = nx/2 - nx/20;    //search spans 10% of center region...
+	int x_end = nx/2 + nx/20;
+
+	pos_y=1000;
+	pos_x=0;
+
+	for(int x=x_start;x<x_end;x++){			//for each x in 10% range from center...
+		for(int y=ny-1;y>=0;y--){			//see how faar "up" you can go between the legs...
+			if(tbin->get_voxel(x,y)==0){
+				if(y<pos_y){
+					pos_y = y;
+					pos_x = x;
+				}
+			}else{
+				break;
+			}
+		}
+	}
+
+	cout<<"pos_x="<<pos_x<<endl;
+	cout<<"pos_y(=crotch_level)="<<pos_y<<endl;
+
+//	datamanagement.add(tmip);
+//	datamanagement.add(tbin);
+	delete tmip;
+	delete tbin;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body)
+{
+	cout<<"Erode body_mini..."<<endl;
+	image_binary<> *body_mini = new image_binary<>(bin_body);
+	body_mini->erode_3D(6);
+//	body_mini->save_to_VTK_file(base+"__g01_body_mini.vtk");
+
+	cout<<"Mask VAT-mask..."<<endl;
+	image_scalar<ELEMTYPE, IMAGEDIM> *abd = new image_scalar<ELEMTYPE, IMAGEDIM>(this);
+	abd->mask_out(body_mini);
+//	abd->save_to_VTK_file(base+"__g02_VAT_mini_mask.vtk");
+
+
+	cout<<"Threshold, erode2D, largest object..."<<endl;
+	image_binary<> *vat_mini = abd->threshold(500);
+//	vat_mini->save_to_VTK_file(base+"__g03_VAT_mini_thres.vtk");
+
+	vat_mini->erode_2D();
+//	vat_mini->save_to_VTK_file(base+"__g04_VAT_mini_erode.vtk");
+
+	vat_mini->largest_object_3D();
+//	vat_mini->save_to_VTK_file(base+"__g05_VAT_mini_largest_object.vtk");
+
+	cout<<"Convex Hull..."<<endl;
+	vat_mini->convex_hull_line_filling_3D(0);
+	vat_mini->convex_hull_line_filling_3D(2);
+//	vat_mini->save_to_VTK_file(base+"__g06_VAT_convex_lines.vtk");
+
+//	datamanagement.add(body_mini);
+//	datamanagement.add(vat_mask);
+//	datamanagement.add(vat_mini);
+	delete body_mini;
+	delete abd;
+
+	return vat_mini;
+}

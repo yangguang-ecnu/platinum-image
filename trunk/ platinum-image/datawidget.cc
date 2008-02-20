@@ -133,7 +133,7 @@ datawidget_base::datawidget_base(data_base * d, std::string n):Fl_Pack(0,0,270,1
 
 datawidget_base::~datawidget_base ()
     {
-	cout<<"~datawidget_base ()"<<endl;
+//	cout<<"~datawidget_base ()"<<endl;
     datamanagement.remove_datawidget(this);
 
     delete image();
@@ -141,7 +141,7 @@ datawidget_base::~datawidget_base ()
 
     if (thumbnail_image != NULL){
 		delete [] thumbnail_image;
-		cout<<"delete [] thumbnail_image"<<endl;
+//		cout<<"delete [] thumbnail_image"<<endl;
 	}
 
 	/*
