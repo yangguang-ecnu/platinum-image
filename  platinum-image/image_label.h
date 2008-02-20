@@ -37,32 +37,37 @@ class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
     public:
         virtual void transfer_function(transfer_base<IMGLABELTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
 
-        image_label(int w, int h, int d, IMGBINARYTYPE *ptr = NULL
-            ):image_integer<IMGLABELTYPE, IMAGEDIM>(w, h, d, ptr)
+        image_label(int w, int h, int d, IMGBINARYTYPE *ptr = NULL):image_integer<IMGLABELTYPE, IMAGEDIM>(w, h, d, ptr)
             {
             transfer_function();
             }
 
-        image_label (itk::SmartPointer< itk::OrientedImage<IMGLABELTYPE, IMAGEDIM > > &i):image_integer<IMGLABELTYPE, IMAGEDIM>(i) {
+        image_label (itk::SmartPointer< itk::OrientedImage<IMGLABELTYPE, IMAGEDIM > > &i):image_integer<IMGLABELTYPE, IMAGEDIM>(i) 
+			{
             transfer_function();
             }
 
-    template<class SOURCETYPE>
-        image_label(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_integer<IMGLABELTYPE, IMAGEDIM>(old_image, copyData)
-        {
-        transfer_function();
-        } //copy constructor
+	    template<class SOURCETYPE>
+	    image_label(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_integer<IMGLABELTYPE, IMAGEDIM>(old_image, copyData)
+			{
+	        transfer_function();
+		    } //copy constructor
 
-    image_label(IMGLABELTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize) : image_integer<IMGLABELTYPE, IMAGEDIM>(inData,inDataNumElems, width, height, voxelSize)
-        {
-        transfer_function();
-        }
-    //pre-loaded raw constructor
+		image_label(IMGLABELTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize) : image_integer<IMGLABELTYPE, IMAGEDIM>(inData,inDataNumElems, width, height, voxelSize)
+			{
+			transfer_function();
+			}
+		//pre-loaded raw constructor
 
-    image_label (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_integer<IMGLABELTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
-        {
-        transfer_function();
-        }
+		image_label (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_integer<IMGLABELTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
+			{
+			transfer_function();
+			}
+
+		image_label(const string filepath, const string name=""):image_integer<IMGLABELTYPE, IMAGEDIM>(filepath, name) 
+			{
+			transfer_function();
+			}
     };
 
 template <int IMAGEDIM>
