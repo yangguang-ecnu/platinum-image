@@ -36,16 +36,18 @@ class image_binary : public image_label <IMAGEDIM>
     public:
         image_binary(int w, int h, int d, IMGBINARYTYPE *ptr = NULL);
 
-    template<class SOURCETYPE>
+	    template<class SOURCETYPE>
         image_binary(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_label<IMAGEDIM>(old_image, copyData)
-        { } //!copy constructor
+        {} //!copy constructor
 
-    image_binary (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_label<IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
-        {} //!raw file constructor
+		image_binary(std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_label<IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
+		{} //!raw file constructor
 
-    image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i):
-        image_label<IMAGEDIM>(i)
-            {} //!ITK image constructor
+	    image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i):image_label<IMAGEDIM>(i)
+		{} //!ITK image constructor
+
+		image_binary(const string filepath, const string name=""):image_label<IMAGEDIM>(filepath, name) 
+		{}
 
     // *** operations ***
 
@@ -85,7 +87,6 @@ class image_binary : public image_label <IMAGEDIM>
 	void dilate_3D_26Nbh(IMGBINARYTYPE object_value=TRUE); ///Morphological dilate (26 Neighbourhood)
 	int find_voxel_index_percent_object_content(int dir, int object_content_percent, IMGBINARYTYPE object_value=TRUE); 
 	void convex_hull_line_filling_3D(int dir, IMGBINARYTYPE object_value=TRUE); 
-
     };
 
 template <int DIM>
