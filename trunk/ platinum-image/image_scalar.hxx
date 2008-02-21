@@ -111,7 +111,7 @@ image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_2nd
 
 
 template <class ELEMTYPE, int IMAGEDIM >
-void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im)
+void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im, int spline_order)
 {
 	cout<<"interpolate_spline_ITK_3D..."<<endl;
 	typedef itk::ResampleImageFilter<theImageType, theImageType>  FilterType;
@@ -139,7 +139,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 
 	typedef itk::BSplineInterpolateImageFunction<theOrientedImageType, double >  InterpolatorType;
 	typename InterpolatorType::Pointer interpolator = InterpolatorType::New(); //3-rd order is default.....
-
+	
+	interpolator->SetSplineOrder(spline_order);
 	filter->SetInput(this->get_image_as_itk_output());
 	filter->SetTransform( transform );
 	filter->SetInterpolator( interpolator );//3-rd order is default.....
@@ -224,7 +225,30 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scala
 	}
 }
 
+template <class ELEMTYPE, int IMAGEDIM >
+void image_scalar<ELEMTYPE, IMAGEDIM >::resample_with_spline_interpolation_3D(int newxsize, int newysize, int newzsize, int spline_order)
+{
+	int oldxsize=this->datasize[0];
+	int oldysize=this->datasize[1];
+	int oldzsize=this->datasize[2];
 
+	float xfactor=(float)newxsize/(float)oldxsize;
+	float yfactor=(float)newysize/(float)oldysize;
+	float zfactor=(float)newzsize/(float)oldzsize;
+
+	image_scalar<ELEMTYPE, IMAGEDIM> *ref_im = new image_scalar<ELEMTYPE, IMAGEDIM>(newxsize, newysize, newzsize); // sen template
+		
+	ref_im->set_parameters(this);
+
+	Vector3D v=ref_im->get_voxel_size();
+	v.SetElement(0, v.GetElement(0)/xfactor);
+	v.SetElement(1, v.GetElement(1)/yfactor);
+	v.SetElement(2, v.GetElement(2)/zfactor);
+	ref_im->set_voxel_size(v);
+	
+	this->interpolate_spline_ITK_3D(ref_im, spline_order);
+	delete ref_im;
+}
 
 template <class ELEMTYPE, int IMAGEDIM >
 void image_scalar<ELEMTYPE, IMAGEDIM >::set_a_coeff2(double a[64], double f[8], double dfdx[8], double dfdy[8], double dfdz[8], double d2fdxdy[8], double d2fdxdz[8], double d2fdydz[8], double d3fdxdydz[8]) 
@@ -839,12 +863,12 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file2(const std::st
 	}
 */
 template <class ELEMTYPE, int IMAGEDIM>
-image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity, int scale_a, int scale_b)
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity, int num_buckets_a, int num_buckets_b, image_binary<IMAGEDIM>* mask)
 {
-	if(scale_a<=0){	scale_a = this->get_max(); }
-	if(scale_b<=0){	scale_b = second_image->get_max(); }
+	if(num_buckets_a<=0){	num_buckets_a = this->get_max()-this->get_min()+1; }
+	if(num_buckets_b<=0){	num_buckets_b = second_image->get_max()-second_image->get_min()+1; }
 
-	image_scalar<ELEMTYPE, IMAGEDIM> *hist = new image_scalar<ELEMTYPE, IMAGEDIM>(scale_a,scale_b,1);
+	image_scalar<ELEMTYPE, IMAGEDIM> *hist = new image_scalar<ELEMTYPE, IMAGEDIM>(num_buckets_a,num_buckets_b,1);
 	hist->fill(0);
 
 	if(!this->same_size(second_image)){
@@ -853,19 +877,21 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhist
 	}else{
 		int this_x;
 		int this_y;
+		float scale_a = float(this->get_max()-this->get_min())*1.000001/float(num_buckets_a);
+		float scale_b = float(second_image->get_max()-second_image->get_min())*1.000001/float(num_buckets_b);
 		for(int z=0; z<this->datasize[2]; z++){
 			for(int y=0; y<this->datasize[1]; y++){
 				for(int x=0; x<this->datasize[0]; x++){
-					this_x = this->get_voxel(x,y,z)*float(scale_a)/this->get_max_float();
-					this_y = second_image->get_voxel(x,y,z)*float(scale_b)/second_image->get_max_float();
-					hist->set_voxel(this_x,this_y,0,hist->get_voxel(this_x,this_y,0)+1);
+					if ( (!remove_zero_intensity || this->get_voxel(x,y,z)!=0 || second_image->get_voxel(x,y,z)!=0) && (mask==NULL || mask->get_voxel(x,y,z)!=0) ) {
+						this_x = (this->get_voxel(x,y,z)-this->get_min())/scale_a;
+						this_y = (second_image->get_voxel(x,y,z)-second_image->get_min())/scale_b;
+						hist->set_voxel(this_x,this_y,0,hist->get_voxel(this_x,this_y,0)+1);
+					}
 				}
 			}
 		}
 	}
-	if(remove_zero_intensity){
-		hist->set_voxel(0,0,0,0);
-	}
+	
 	hist->data_has_changed(true);
 	return hist;
 }

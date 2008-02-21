@@ -96,12 +96,12 @@ class image_general : public image_storage <ELEMTYPE >
         void set_parameters ();                                                     //reset & calculate parameters
         void set_parameters (itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
         template <class sourceType>
-            void set_parameters (image_general<sourceType, IMAGEDIM> * from_image);         //clone parameters from another image
+        void set_parameters (image_general<sourceType, IMAGEDIM> * from_image);         //clone parameters from another image
         
         void calc_transforms (); //used by set_parameters(...), cached transform(s) recalculations
 
-    public:                                                    
-        image_base * alike (imageDataType);
+    public:     
+		image_base * alike (imageDataType);
 
         image_general(ELEMTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize);
         //create image from pre-loaded raw data
@@ -174,6 +174,7 @@ class image_general : public image_storage <ELEMTYPE >
 
 
         // *** size functions ***
+		unsigned short get_num_voxels();
         unsigned short get_size_by_dim(int dim) const;
         unsigned short get_size_by_dim_and_dir(int dim, int direction); //! get size in direction orthogonal to direction arg
         

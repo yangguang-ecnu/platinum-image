@@ -35,7 +35,7 @@ class filter_base
 public: 
 	filter_base(){}
 	vnl_matrix<float> data;			//coordinate offsets and weights... for example x,y,z, w (-1,-1, 0, w)
-	virtual float apply(float *neighbourhood){return 0;} //hmmm...hur ska det här bli nu då?
+	virtual float apply(float *neighbourhood){return 0;}
 };
 
 class filter_median : public filter_base
@@ -66,7 +66,7 @@ public:
 class filter_gaussian : public filter_linear
 {
 public:
-	filter_gaussian(int nx, int ny=1, int nz=1, float x_std_dev=-1, float y_std_dev=-1, float z_std_dev=-1, int xcenter=-1001, int ycenter=-1001, int zcenter=-1001);
+	filter_gaussian(int n, int dir, float std_dev=-1, int center=-1001);
 };
 
 class filter_mean : public filter_linear

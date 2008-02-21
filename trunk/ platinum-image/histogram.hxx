@@ -410,8 +410,8 @@ void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bo
 
 template <class ELEMTYPE>
 float histogram_1D<ELEMTYPE>::get_scalefactor(){
-	//return float(this->max()-this->min())*1.000001/float(this->num_buckets);
-	return float(this->max()-this->min())/float(this->num_buckets-1);
+	return float(this->max()-this->min())*1.000001/float(this->num_buckets);
+	//return float(this->max()-this->min())/float(this->num_buckets-1);
 }
 
 template <class ELEMTYPE>
