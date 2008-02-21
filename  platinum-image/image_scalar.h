@@ -63,12 +63,14 @@ public:
 
 	//------------------------- Interpolations -------------------------
 	//Implementation "inspired" by "ResampleImageFilter7" example in the ITK documentation
-	void interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im); 
+	void interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im, int spline_order=3); 
 
 
 //	void interpolate_bilinear_2D(float phys_x, float phys_y, int vox_z);
 //	void interpolate_trilinear_3D_ITK(float phys_x, float phys_y, float phys_z); //no boundary checks in "itkLinearInterpolateImageFunction.h" 
 	void interpolate_trilinear_3D_vxl(image_scalar<ELEMTYPE, IMAGEDIM > *src_im); //Implementation using the vxl package, alpha-tested
+
+	void resample_with_spline_interpolation_3D(int newxsize, int newysize, int newzsize, int spline_order=3);
 
 	// Tricubic interpolation using method described in:
 	// F. Lekien, J.E. Marsden
@@ -103,7 +105,7 @@ public:
     void save_histogram_to_txt_file(const std::string filename, bool reload_hist_from_image=true, gaussian *g=NULL, const std::string separator=";");
 //    void save_histogram_to_txt_file2(const std::string filename, bool reload_hist_from_image=true, const std::string separator=";");
 
-    image_scalar<ELEMTYPE, IMAGEDIM>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
+    image_scalar<ELEMTYPE, IMAGEDIM>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1, image_binary<IMAGEDIM>* mask=NULL); 
 
 	//the resulting histogram volume will have the intensities of first/second in the x/y directions.
 	//The z direction will gives the different 2D-histograms in the specified direction "hist_slc_dir"

@@ -48,9 +48,8 @@ float filter_median::apply(float* neighbourhood)
 	sort(neighbourhood,neighbourhood+size);
 	int undefined=0;
 	for (int i=0; i<size; i++) {
-		if (neighbourhood[i]<std::numeric_limits<float>::max() ) {undefined++;}
+		if (neighbourhood[i]>=std::numeric_limits<float>::max() ) {undefined++;}
 	}	
-	cout << "Median: " << neighbourhood[(size-undefined)/ 2] << endl;
 	return neighbourhood[(size-undefined)/ 2];
 }
 
@@ -127,36 +126,23 @@ filter_sobel_2d::filter_sobel_2d(int dir) {
 	delete w;
 	cout << "Created 2d sobel filter, direction: " << dir%8 << endl;
 }
-
-filter_gaussian::filter_gaussian(int nx, int ny, int nz, float x_std_dev, float y_std_dev, float z_std_dev, int xcenter, int ycenter, int zcenter)
+filter_gaussian::filter_gaussian(int size, int dir, float std_dev, int center)
 {
-	if (x_std_dev<0) {x_std_dev=(float)nx/5;}
-	if (y_std_dev<0) {y_std_dev=(float)ny/5;}
-	if (z_std_dev<0) {z_std_dev=(float)nz/5;}
-	if (xcenter<-1000) {xcenter=nx/2;}
-	if (ycenter<-1000) {ycenter=ny/2;}
-	if (zcenter<-1000) {zcenter=nz/2;}
+	if (std_dev<0) {std_dev=(float)size/5;}
+	if (center<-1000) {center=size/2;}
 
-	float *w = new float[nx*ny*nz];
+	float *w = new float[size];
 	float sum=0;
-	for (int z=0; z<nz; z++) {
-		for (int y=0; y<ny; y++) {
-			for (int x=0; x<nx; x++) {
-				w[x+nx*y+nx*ny*z]=exp( -pow(x-xcenter, 2)/pow(x_std_dev,2) - pow(y-ycenter, 2)/pow(y_std_dev,2) - pow(z-zcenter, 2)/pow(z_std_dev,2) );
-				sum+=w[x+nx*y+nx*ny*z];
-			}
-		}
+	for (int i=0; i<size; i++) {
+		w[i]=exp( -pow(i-center, 2)/pow(std_dev,2) );
+		sum+=w[i];
 	}
-	for (int z=0; z<nz; z++) {
-		for (int y=0; y<ny; y++) {
-			for (int x=0; x<nx; x++) {
-				w[x+nx*y+nx*ny*z]=w[x+nx*y+nx*ny*z]/sum; // normalize
-			}
-		}
-	}
-	this->set_data_from_floats(w,nx,ny,nz,xcenter,ycenter,zcenter);
+	for (int i=0; i<size; i++) {w[i]/=sum;	} // Normalize
+	if (dir==0) {this->set_data_from_floats(w,size,1,1,center,0,0);}
+	else if (dir==1) {this->set_data_from_floats(w,1,size,1,0,center,0);}
+	else {this->set_data_from_floats(w,1,1,size,0,0,center);}
 	delete w;
-	cout << "Created gaussian " << nx << "x" << ny << "x" << nz << " filter." << endl;
+	cout << "Created gaussian filter, kernel size " << size << ", direction " << dir << endl;
 }
 
 filter_mean::filter_mean(int nx, int ny, int nz, int xcenter, int ycenter, int zcenter)

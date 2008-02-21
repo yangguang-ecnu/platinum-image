@@ -76,7 +76,8 @@ class image_storage : public image_base
 //        float get_min_float() const;
         ELEMTYPE get_max() const;
         ELEMTYPE get_min() const;
-
+		float get_mean();
+		float get_standard_deviation();
         ELEMTYPE get_num_values();
 //		unsigned long get_num_elements();
         histogram_1D<ELEMTYPE> * get_histogram();
@@ -98,6 +99,7 @@ class image_storage : public image_base
 
         void erase();
 		void fill(ELEMTYPE value);
+		void add_value_to_all_voxels(ELEMTYPE value);
         void scale(ELEMTYPE new_min=0, ELEMTYPE new_max=255);   
 		void scale_by_factor(float factor, ELEMTYPE old_center=0, ELEMTYPE new_center=0);
 		void map_values(ELEMTYPE map_from=1, ELEMTYPE map_to=255, ELEMTYPE result_value=255);

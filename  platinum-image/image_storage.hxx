@@ -198,6 +198,35 @@ ELEMTYPE image_storage<ELEMTYPE >::get_max() const
     }
 
 template <class ELEMTYPE >
+float image_storage<ELEMTYPE >::get_mean()
+{
+	ELEMTYPE sum=0;
+	int num=0;
+	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
+	while(itr != this->end()) {
+		sum+=*itr;
+		num++;
+		itr++;
+	}
+	return (float)sum/num;
+}
+
+template <class ELEMTYPE >
+float image_storage<ELEMTYPE >::get_standard_deviation()
+{
+	float mean=get_mean();
+	ELEMTYPE sum=0;
+	int num=0;
+	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
+	while(itr != this->end()) {
+		sum+=pow(*itr-mean, 2);
+		num++;
+		itr++;
+	}
+	return (float)sqrt(sum/num);
+}
+
+template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_num_values()
 { 
 	return stats->num_values(); 
@@ -234,6 +263,16 @@ void image_storage<ELEMTYPE >::fill(ELEMTYPE value)
 		}
 	}
 
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::add_value_to_all_voxels(ELEMTYPE value)
+{
+	typename image_storage<ELEMTYPE>::iterator i = this->begin();
+	while (i != this->end())
+		{
+		*i += value;
+		++i;
+		}
+}
 
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)

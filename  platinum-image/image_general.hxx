@@ -573,6 +573,15 @@ typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer image_general<ELEMTYPE
 	return caster->GetOutput();
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_num_voxels()
+{
+	unsigned short num_voxels=1;
+	for (int dim=0; dim<IMAGEDIM; dim++) {
+		num_voxels*=datasize[dim];
+	}
+	return num_voxels;
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_size_by_dim(int dim) const
