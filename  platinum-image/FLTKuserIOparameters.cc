@@ -926,6 +926,11 @@ const std::string FLTKuserIOpar_float::type_name ()
     return "float";
     }
 
+void FLTKuserIOpar_float::set_value (float val)
+{
+	control->value(val);
+}
+
 #pragma mark *** FLTKuserIOpar_float_box ***
 
 FLTKuserIOpar_float_box::FLTKuserIOpar_float_box (const std::string name, float ma, float mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
@@ -986,6 +991,11 @@ const std::string FLTKuserIOpar_longint::type_name ()
     {
     return "long (slider)";
     }
+
+void FLTKuserIOpar_longint::set_value (long val)
+{
+	control->value(val);
+}
 
 #pragma mark *** FLTKuserIOpar_longint_box ***
 

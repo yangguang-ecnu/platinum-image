@@ -127,7 +127,7 @@ filter_sobel_2d::filter_sobel_2d(int dir) {
 	cout << "Created 2d sobel filter, direction: " << dir%8 << endl;
 }
 filter_gaussian::filter_gaussian(int size, int dir, float std_dev, int center)
-{
+{	if (size%2==0) {cout << "WARNING: Creating gaussian filter with kernel of even size";}
 	if (std_dev<0) {std_dev=(float)size/5;}
 	if (center<-1000) {center=size/2;}
 
@@ -142,7 +142,7 @@ filter_gaussian::filter_gaussian(int size, int dir, float std_dev, int center)
 	else if (dir==1) {this->set_data_from_floats(w,1,size,1,0,center,0);}
 	else {this->set_data_from_floats(w,1,1,size,0,0,center);}
 	delete w;
-	cout << "Created gaussian filter, kernel size " << size << ", direction " << dir << endl;
+	cout << "Created gaussian filter, kernel size " << size << ", direction " << dir << ", standard deviation " << std_dev << endl;
 }
 
 filter_mean::filter_mean(int nx, int ny, int nz, int xcenter, int ycenter, int zcenter)

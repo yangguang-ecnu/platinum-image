@@ -361,6 +361,7 @@ class FLTKuserIOpar_float : public FLTKuserIOparameter_base    //float value (us
                                                    //than max
         const std::string type_name ();
         void par_value (float & v);
+		void set_value (float val);
     };
 
 class FLTKuserIOpar_float_box : public FLTKuserIOparameter_base    //float value (using input box)
@@ -388,6 +389,7 @@ class FLTKuserIOpar_longint : public FLTKuserIOparameter_base    //integer value
                                                    //than max
         const std::string type_name ();
         void par_value (long & v);
+		void set_value (long val);
     };
 
 class FLTKuserIOpar_longint_box : public FLTKuserIOparameter_base    //integer value (using input box)

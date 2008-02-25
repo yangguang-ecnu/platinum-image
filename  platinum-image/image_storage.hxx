@@ -198,31 +198,55 @@ ELEMTYPE image_storage<ELEMTYPE >::get_max() const
     }
 
 template <class ELEMTYPE >
-float image_storage<ELEMTYPE >::get_mean()
+float image_storage<ELEMTYPE >::get_mean(image_storage<IMGBINARYTYPE>* mask)
 {
 	ELEMTYPE sum=0;
 	int num=0;
 	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
-	while(itr != this->end()) {
-		sum+=*itr;
-		num++;
-		itr++;
+	if (mask!=NULL) {
+		typename image_storage<IMGBINARYTYPE >::iterator mask_itr = mask->begin();
+		while(itr != this->end()) {
+			if (*mask_itr) {
+				sum+=*itr;
+				num++;
+			}
+			itr++;
+			mask_itr++;
+		}
+	}else {
+		while(itr != this->end()) {
+			sum+=*itr;
+			num++;
+			itr++;
+		}
 	}
 	return (float)sum/num;
 }
 
 template <class ELEMTYPE >
-float image_storage<ELEMTYPE >::get_standard_deviation()
+float image_storage<ELEMTYPE >::get_standard_deviation(image_storage<IMGBINARYTYPE>* mask)
 {
-	float mean=get_mean();
+	float mean=get_mean(mask);
 	ELEMTYPE sum=0;
 	int num=0;
 	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
-	while(itr != this->end()) {
-		sum+=pow(*itr-mean, 2);
-		num++;
-		itr++;
-	}
+	if (mask!=NULL) {
+		typename image_storage<IMGBINARYTYPE >::iterator mask_itr = mask->begin();
+		while(itr != this->end()) {
+			if (*mask_itr) {
+				sum+=pow(*itr-mean, 2);
+				num++;
+			}
+			itr++;
+			mask_itr++;
+		}
+	}else {
+		while(itr != this->end()) {
+			sum+=pow(*itr-mean, 2);
+			num++;
+			itr++;
+		}
+	} 
 	return (float)sqrt(sum/num);
 }
 
@@ -264,14 +288,22 @@ void image_storage<ELEMTYPE >::fill(ELEMTYPE value)
 	}
 
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::add_value_to_all_voxels(ELEMTYPE value)
+void image_storage<ELEMTYPE >::add_value_to_all_voxels(ELEMTYPE value, image_storage<IMGBINARYTYPE>* mask)
 {
 	typename image_storage<ELEMTYPE>::iterator i = this->begin();
-	while (i != this->end())
-		{
-		*i += value;
-		++i;
+	if (mask!=NULL) {
+		typename image_storage<IMGBINARYTYPE>::iterator mask_itr = mask->begin();
+		while (i != this->end()) {
+			if (*mask_itr) {*i += value;}
+			++i;
+			++mask_itr;
 		}
+	}else {
+		while (i != this->end()) {
+			*i += value;
+			++i;
+		}
+	}
 }
 
 template <class ELEMTYPE >
@@ -295,15 +327,22 @@ void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)
 	}
 
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::scale_by_factor(float factor, ELEMTYPE old_center, ELEMTYPE new_center)
-	{
+void image_storage<ELEMTYPE >::scale_by_factor(float factor, ELEMTYPE old_center, ELEMTYPE new_center, image_storage<IMGBINARYTYPE>* mask) {
 	typename image_storage<ELEMTYPE>::iterator i = this->begin();
-	while (i != this->end())
-		{
+	if (mask!=NULL) {
+		typename image_storage<IMGBINARYTYPE>::iterator mask_itr = mask->begin();
+		while (i != this->end()) {
+			if (*mask_itr) {*i = new_center + ELEMTYPE(float((*i)-old_center)*factor);}
+			++i;
+			++mask_itr;
+		}
+	}else {
+		while (i != this->end()) {
 		*i = new_center + ELEMTYPE(float((*i)-old_center)*factor);
 		++i;
 		}
 	}
+}
 
 
 template <class ELEMTYPE >
@@ -505,20 +544,36 @@ void image_storage<ELEMTYPE >::get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &m
 
 
 template <class ELEMTYPE >
-ELEMTYPE image_storage<ELEMTYPE >::get_sum_of_voxels(bool calc_scalar_abs_value) 
+ELEMTYPE image_storage<ELEMTYPE >::get_sum_of_voxels(bool calc_scalar_abs_value, image_storage<IMGBINARYTYPE>* mask) 
 {
 	ELEMTYPE sum=0;
 	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
-	if (calc_scalar_abs_value) {
-		while(itr != this->end()) {
-			sum+=abs(*itr);
-			itr++;
+	if (mask!=NULL) {
+		typename image_storage<IMGBINARYTYPE >::iterator mask_itr = mask->begin();
+		if (calc_scalar_abs_value) {
+			while(itr != this->end()) {
+				if (*mask_itr) {sum+=abs(*itr);}
+                itr++;
+				mask_itr++;
+			}
+		}else {
+			while(itr != this->end()) {
+				if (*mask_itr) {sum+=*itr;}
+				itr++;
+				mask_itr++;
+			}
 		}
-	}
-	else {
-		while(itr != this->end()) {
-			sum+=*itr;
-			itr++;
+	}else {
+		if (calc_scalar_abs_value) {
+			while(itr != this->end()) {
+				sum+=abs(*itr);
+				itr++;
+			}
+		}else {
+			while(itr != this->end()) {
+				sum+=*itr;
+				itr++;
+			}
 		}
 	}
 	return sum;
