@@ -93,8 +93,10 @@ template <class ELEMTYPE >
 class transfer_brightnesscontrast: public transfer_base <ELEMTYPE >
 {
 protected:
-	Fl_Value_Slider* min_ctrl;
-	Fl_Value_Slider* max_ctrl;
+//	Fl_Value_Slider* min_ctrl;
+//	Fl_Value_Slider* max_ctrl;
+	FLTK_Editable_Slider *min_ctrl;
+	FLTK_Editable_Slider *max_ctrl;
 	Fl_Slider* brightness_ctrl; //if all the way to the left --> center of transfer function line is at max intensity
 	Fl_Slider* contrast_ctrl;	//angle of the transfer function line... (0...pi/2 radians)
 	ELEMTYPE min;
@@ -107,6 +109,23 @@ public:
 	transfer_brightnesscontrast (image_storage <ELEMTYPE > *);
 	void get (const ELEMTYPE v, RGBvalue &p);
 	void update(string slider_label);				//Updates intensity/contrast parameters from FLTK sliders ...
+	static void slider_cb(Fl_Widget *w, void *data);	//slider callback
+};
+
+//-------------------
+
+template <class ELEMTYPE >
+class transfer_threshold_illustrator: public transfer_base <ELEMTYPE >
+{
+protected:
+//	Fl_Value_Slider* min_ctrl;
+//	Fl_Value_Slider* max_ctrl;
+	FLTK_Editable_Slider *min_ctrl;
+	FLTK_Editable_Slider *max_ctrl;
+public:
+	transfer_threshold_illustrator (image_storage <ELEMTYPE > *);
+	void get (const ELEMTYPE v, RGBvalue &p);
+//	void update(string slider_label);				//Updates intensity/contrast parameters from FLTK sliders ...
 	static void slider_cb(Fl_Widget *o, void *v); //slicer callback
 };
 

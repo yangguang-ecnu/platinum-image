@@ -46,7 +46,7 @@ template <class ELEMTYPE >
 void transfer_base<ELEMTYPE >::redraw_image_cb( Fl_Widget* o, void* p )
     {
     REDRAWCALLBACKPTYPE theImage = reinterpret_cast<REDRAWCALLBACKPTYPE > (p);
-	theImage->redraw();
+	theImage->redraw(); //this function can be accesses since "transfer_base" is "friend" of "image_base"...
     }
 
 // *** transfer_brightnesscontrast ***
@@ -73,7 +73,8 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	int dh = 12;
 	int dy = 15;
 
-	min_ctrl = new Fl_Value_Slider(x_start,yy+5+0*dy,ww-w2-1,dh,"Min");
+/*
+	min_ctrl = new Fl_Value_Slider(x_start,yy+5+0*dy,width,dh,"Min");
 	min_ctrl->type(FL_HOR_SLIDER);
 	min_ctrl->align(FL_ALIGN_LEFT);
     min_ctrl->value(min);
@@ -81,15 +82,27 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	min_ctrl->step(float(intrange)/100.0);
 	min_ctrl->precision(2);
 	min_ctrl->callback(slider_cb,this);
+//	min_ctrl->callback(slider_cb,"Min");
+*/
 
-	max_ctrl = new Fl_Value_Slider(x_start,yy+5+1*dy,width,dh,"Max");
-	max_ctrl->type(FL_HOR_SLIDER);
-	max_ctrl->align(FL_ALIGN_LEFT);
+
+	min_ctrl = new FLTK_Editable_Slider(x_start,yy+5+0*dy,width,dh,"Min");
+    min_ctrl->value(min);
+    min_ctrl->bounds(min,max);
+	min_ctrl->step(float(intrange)/100.0);
+	min_ctrl->precision(2);
+	min_ctrl->callback(slider_cb,this);
+	min_ctrl->labelsize(12);
+	min_ctrl->textsize(10);
+
+	max_ctrl = new FLTK_Editable_Slider(x_start,yy+5+1*dy,width,dh,"Max");
     max_ctrl->value(max);
     max_ctrl->bounds(min,max);
 	max_ctrl->step(float(intrange)/100.0);
 	max_ctrl->precision(2);
 	max_ctrl->callback(slider_cb,this);
+	max_ctrl->labelsize(12);
+	max_ctrl->textsize(10);
 
     brightness_ctrl = new Fl_Slider(x_start,yy+5+2*dy,width,dh,"Brightn");
 	brightness_ctrl->type(FL_HOR_SLIDER);
@@ -99,6 +112,7 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	brightness_ctrl->step(float(intrange)/100.0);
 	brightness_ctrl->precision(2);
 	brightness_ctrl->callback(slider_cb,this);
+	brightness_ctrl->labelsize(12);
 
     contrast_ctrl = new Fl_Slider(x_start,yy+5+3*dy,width,dh,"Contr");
 	contrast_ctrl->type(FL_HOR_SLIDER);
@@ -108,9 +122,9 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	contrast_ctrl->step((PI/2.0)/100.0);
 	contrast_ctrl->precision(2);
 	contrast_ctrl->callback(slider_cb,this);
+	contrast_ctrl->labelsize(12);
 
 	frame->end();
-//	this->update();
     frame->do_callback(); //redraw image that the transfer function is attached to ( 
 	//required when another transfer has just been used...
     }
@@ -202,15 +216,98 @@ void transfer_brightnesscontrast<ELEMTYPE >::update(string slider_label)
 		this->max_ctrl->value(max);
 		this->brightness_ctrl->value( get_brightness_slider_value() );
 	}
+
+//	this->pane->do_callack();
 }
 
 template <class ELEMTYPE >
-void transfer_brightnesscontrast<ELEMTYPE >::slider_cb(Fl_Widget *o, void *v)
+void transfer_brightnesscontrast<ELEMTYPE >::slider_cb(Fl_Widget *w, void *data)
 {
-//	cout<<"slider_cb"<<endl;
-	transfer_brightnesscontrast<ELEMTYPE>* tf = (transfer_brightnesscontrast<ELEMTYPE>*)v;
-	tf->update(string(o->label())); //update "min" "max" and controls....
-    tf->pane->do_callback();		//redraw transfer function source image...
+	cout<<"slider_cb"<<endl;
+	transfer_brightnesscontrast<ELEMTYPE>* tf = (transfer_brightnesscontrast<ELEMTYPE>*)data;
+
+	if(w == tf->min_ctrl){
+		cout<<"w == tf->min_ctrl"<<endl;
+		tf->update("Min");				//Update "min" "max" and controls....
+		tf->pane->do_callback();		//Redraw transfer function source image...
+	}else if( w == tf->max_ctrl){
+		tf->update("Max");
+		tf->pane->do_callback();
+	}else if( w == tf->brightness_ctrl){
+		tf->update("Brightn");
+		tf->pane->do_callback();
+	}else if( w == tf->contrast_ctrl){
+		tf->update("Contr");
+		tf->pane->do_callback();
+	}
+}
+
+
+
+// *** transfer_threshold_illustrator ***
+
+template <class ELEMTYPE >
+transfer_threshold_illustrator<ELEMTYPE >::transfer_threshold_illustrator (image_storage<ELEMTYPE > * s) : transfer_base<ELEMTYPE >(s)
+{
+	Fl_Group* frame = this->pane;
+	frame->resize(0,0,270,35); //JK
+	frame->callback(transfer_base<ELEMTYPE >::redraw_image_cb);
+	frame->user_data( static_cast<REDRAWCALLBACKPTYPE>(this->source) );
+
+	float min = this->source->get_min();
+	float max = this->source->get_max();
+    float intrange = max-min;
+
+	//JK - GUI modification
+	int xx = frame->x();
+	int yy = frame->y();
+	int ww = frame->w();
+	int w2 = 50;
+	int x_start = xx+w2;
+	int width = ww-w2-2;
+	int dh = 12;
+	int dy = 15;
+
+	min_ctrl = new FLTK_Editable_Slider(x_start,yy+5+0*dy,width,dh,"Min");
+    min_ctrl->value(float(intrange)/2.0);
+    min_ctrl->bounds(min,max);
+	min_ctrl->step(float(intrange)/100.0);
+	min_ctrl->precision(2);
+	min_ctrl->callback(slider_cb,(void*)this);
+	min_ctrl->user_data((void*)this); //This is needed to pass a "pointer" argument to the "slider_cb" callback
+	min_ctrl->labelsize(12);
+	min_ctrl->textsize(10);
+
+	max_ctrl = new FLTK_Editable_Slider(x_start,yy+5+1*dy,width,dh,"Max");
+    max_ctrl->value(max);
+    max_ctrl->bounds(min,max);
+	max_ctrl->step(float(intrange)/100.0);
+	max_ctrl->precision(2);
+	max_ctrl->callback(slider_cb,this);
+	max_ctrl->labelsize(12);
+	max_ctrl->textsize(10);
+
+	frame->end();
+    frame->do_callback(); //redraw image that the transfer function is attached to ( 
+	//required when another transfer has just been used...
+}
+
+
+template <class ELEMTYPE >
+void transfer_threshold_illustrator<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
+{
+	if( v>=min_ctrl->value() && v<=max_ctrl->value() ){
+		p.set_rgb(255,0,0);
+	}else{
+		p.set_mono( (v-this->source->get_min())*255.0/(this->source->get_max()-this->source->get_min()) );
+	}
+}
+
+template <class ELEMTYPE >
+void transfer_threshold_illustrator<ELEMTYPE >::slider_cb(Fl_Widget *o, void *v)
+{
+	transfer_threshold_illustrator<ELEMTYPE>* t = (transfer_threshold_illustrator<ELEMTYPE>*)v;
+    t->pane->do_callback();		//redraw transfer function source image...
 }
 
 

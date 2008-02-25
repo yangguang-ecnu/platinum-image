@@ -31,6 +31,9 @@ transfer_base<ELEMTYPE > * transferfactory::Create(factoryIdType unique_id, imag
     
     if (unique_id == tfunction_names [n++] )
         {return new transfer_brightnesscontrast<ELEMTYPE>(s);}
+
+	if (unique_id == tfunction_names [n++] )
+        {return new transfer_threshold_illustrator<ELEMTYPE>(s);}
     
     if (unique_id == tfunction_names [n++] )
         {return new transfer_mapcolor<ELEMTYPE>(s);}
