@@ -877,21 +877,23 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhist
 	}else{
 		int this_x;
 		int this_y;
-		float scale_a = float(this->get_max()-this->get_min())*1.000001/float(num_buckets_a);
-		float scale_b = float(second_image->get_max()-second_image->get_min())*1.000001/float(num_buckets_b);
+		float this_min=this->get_min();
+		float second_min=second_image->get_min();
+		float scale_a = float(this->get_max()-this_min)*1.000001/float(num_buckets_a);
+		float scale_b = float(second_image->get_max()-second_min)*1.000001/float(num_buckets_b);
 		for(int z=0; z<this->datasize[2]; z++){
 			for(int y=0; y<this->datasize[1]; y++){
 				for(int x=0; x<this->datasize[0]; x++){
-					if ( (!remove_zero_intensity || this->get_voxel(x,y,z)!=0 || second_image->get_voxel(x,y,z)!=0) && (mask==NULL || mask->get_voxel(x,y,z)!=0) ) {
-						this_x = (this->get_voxel(x,y,z)-this->get_min())/scale_a;
-						this_y = (second_image->get_voxel(x,y,z)-second_image->get_min())/scale_b;
+					if ( mask==NULL || mask->get_voxel(x,y,z)!=0 ) {
+						this_x = (this->get_voxel(x,y,z)-this_min)/scale_a;
+						this_y = (second_image->get_voxel(x,y,z)-second_min)/scale_b;
 						hist->set_voxel(this_x,this_y,0,hist->get_voxel(this_x,this_y,0)+1);
 					}
 				}
 			}
 		}
+		if (remove_zero_intensity) {hist->set_voxel((0-this_min)/scale_a, (0-second_min)/scale_b, 0, 0);}
 	}
-	
 	hist->data_has_changed(true);
 	return hist;
 }
@@ -1616,7 +1618,7 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::calculate_entropy_2d()
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3D(filter_base* filter, int borderflag)
+void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3D(filter_base* filter, int borderflag, image_binary<IMAGEDIM>* mask)
 {
 	// borderflag=0: Ignore voxels outside image border
 	// borderflag=1: Ignore voxels outside image border and renormalize filter weight (sum of weights=1) for border voxels (use for linear filters only)
@@ -1635,46 +1637,93 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3D(filter_base* filter, int border
 	int z_offs_min = max ((int)(-filter->data.get_column(2).min_value()), 0);
 	int z_offs_max = min ((int)(zsize-filter->data.get_column(2).max_value()), zsize); 
 	
-	// voxels where the filter neighbourhood includes voxels outside image borders are handled by image_scalar::filter_3d_border_voxel
-	for (int y=0; y<ysize; y++) {
-		for (int x=0; x<xsize; x++) {
-			for (int z=0; z<z_offs_min; z++) {
-				this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
-			}
-			for (int z=z_offs_max; z<zsize; z++) {
-				this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
-			}
-		}
-	}
-	for (int x=0; x<xsize; x++) {
-		for (int z=z_offs_min; z<z_offs_max; z++) {
-			for (int y=0; y<y_offs_min; y++) {
-				this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
-			}
-			for (int y=y_offs_max; y<ysize; y++) {
-				this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
-			}
-		}
-	}
-	for (int z=z_offs_min; z<z_offs_max; z++) {
-		for (int y=y_offs_min; y<y_offs_max; y++) {
-			for (int x=0; x<x_offs_min; x++) {
-				this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
-			}
-			for (int x=x_offs_min; x<x_offs_max; x++) { // voxels where the filter neighbourhood includes no voxels outside the image borders:
-				float* neighbourhood = new float[filter->data.rows()];
-				for (int i=0; i<filter->data.rows(); i++) {
-					neighbourhood[i]=this->get_voxel(x+filter->data.get(i,0),y+filter->data.get(i,1),z+filter->data.get(i,2));
+	if (mask!=NULL) {
+		// voxels where the filter neighbourhood includes voxels outside image borders are handled by image_scalar::filter_3d_border_voxel
+		for (int y=0; y<ysize; y++) {
+			for (int x=0; x<xsize; x++) {
+				for (int z=0; z<z_offs_min; z++) {
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
 				}
-				float res=filter->apply(neighbourhood);
-				delete neighbourhood;
-				copy->set_voxel(x,y,z,(ELEMTYPE)res );
+				for (int z=z_offs_max; z<zsize; z++) {
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+				}
 			}
-			for (int x=x_offs_max; x<xsize; x++) {
-				this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+		}
+		for (int x=0; x<xsize; x++) {
+			for (int z=z_offs_min; z<z_offs_max; z++) {
+				for (int y=0; y<y_offs_min; y++) {
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+				}
+				for (int y=y_offs_max; y<ysize; y++) {
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+				}
+			}
+		}
+		for (int z=z_offs_min; z<z_offs_max; z++) {
+			for (int y=y_offs_min; y<y_offs_max; y++) {
+				for (int x=0; x<x_offs_min; x++) {
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+				}
+				for (int x=x_offs_min; x<x_offs_max; x++) { // voxels where the filter neighbourhood includes no voxels outside the image borders:
+					if (mask->get_voxel(x,y,z)) {
+						float* neighbourhood = new float[filter->data.rows()];
+						for (int i=0; i<filter->data.rows(); i++) {
+							neighbourhood[i]=this->get_voxel(x+filter->data.get(i,0),y+filter->data.get(i,1),z+filter->data.get(i,2));
+						}
+						float res=filter->apply(neighbourhood);
+						delete neighbourhood;
+						copy->set_voxel(x,y,z,(ELEMTYPE)res );
+					}
+				}
+				for (int x=x_offs_max; x<xsize; x++) {
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+				}
 			}
 		}
 	}
+	else {
+		// voxels where the filter neighbourhood includes voxels outside image borders are handled by image_scalar::filter_3d_border_voxel
+		for (int y=0; y<ysize; y++) {
+			for (int x=0; x<xsize; x++) {
+				for (int z=0; z<z_offs_min; z++) {
+					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+				}
+				for (int z=z_offs_max; z<zsize; z++) {
+					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+				}
+			}
+		}
+		for (int x=0; x<xsize; x++) {
+			for (int z=z_offs_min; z<z_offs_max; z++) {
+				for (int y=0; y<y_offs_min; y++) {
+					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+				}
+				for (int y=y_offs_max; y<ysize; y++) {
+					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+				}
+			}
+		}
+		for (int z=z_offs_min; z<z_offs_max; z++) {
+			for (int y=y_offs_min; y<y_offs_max; y++) {
+				for (int x=0; x<x_offs_min; x++) {
+					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+				}
+				for (int x=x_offs_min; x<x_offs_max; x++) { // voxels where the filter neighbourhood includes no voxels outside the image borders:
+					float* neighbourhood = new float[filter->data.rows()];
+					for (int i=0; i<filter->data.rows(); i++) {
+						neighbourhood[i]=this->get_voxel(x+filter->data.get(i,0),y+filter->data.get(i,1),z+filter->data.get(i,2));
+					}
+					float res=filter->apply(neighbourhood);
+					delete neighbourhood;
+					copy->set_voxel(x,y,z,(ELEMTYPE)res );
+				}
+				for (int x=x_offs_max; x<xsize; x++) {
+					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+				}
+			}
+		}
+	}
+
 	copy_data(copy,this);
 	delete copy;
 }

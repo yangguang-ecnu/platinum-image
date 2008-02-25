@@ -156,9 +156,13 @@ int userIOmanager::add_par_landmarks(int userIO_ID, const std::string name)
 	return block_from_ID(userIO_ID)->add_par(par);
 }
 
-int userIOmanager::add_par_float(int userIO_ID, std::string new_param_name,float max,float min)
+int userIOmanager::add_par_float(int userIO_ID, std::string new_param_name,float max,float min, float start_val)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_float (new_param_name,max,min);
+	if (start_val<=max && start_val>=min) {
+		FLTKuserIOpar_float * p = (FLTKuserIOpar_float*)par;
+		p->set_value(start_val);
+	}
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
@@ -168,9 +172,13 @@ int userIOmanager::add_par_float_box(int userIO_ID, std::string new_param_name,f
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
-int userIOmanager::add_par_longint(int userIO_ID, std::string new_param_name,long max,long min)
+int userIOmanager::add_par_longint(int userIO_ID, std::string new_param_name,long max,long min, long start_val)
     {
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_longint (new_param_name,max,min);
+	if (start_val<=max && start_val>=min) {
+		FLTKuserIOpar_longint * p = (FLTKuserIOpar_longint*)par;
+		p->set_value(start_val);
+	}
     return block_from_ID(userIO_ID)->add_par(par);
     }
 

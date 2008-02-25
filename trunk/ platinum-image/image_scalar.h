@@ -144,7 +144,7 @@ public:
 
 	float calculate_entropy_2d();
 
-	void filter_3D(filter_base* filter, int borderflag=0);
+	void filter_3D(filter_base* filter, int borderflag=0, image_binary<IMAGEDIM>* mask=NULL);
 
 // -------------- bias field operations ---------------
 	
