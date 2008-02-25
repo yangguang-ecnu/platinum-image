@@ -90,3 +90,94 @@ void horizresizeablescroll::resize (int newx, int newy, int neww, int newh)
     Fl_Widget::resize(newx, newy, neww, newh);
     interior->resize(newx+scroll_x,newy+scroll_y,neww-FLTK_SCROLLBAR_SIZE,interior->h());
     }
+
+
+
+// -------- FLTK_Editable_Slider ------------
+
+void FLTK_Editable_Slider::Slider_CB2() {
+        static int recurse = 0;
+        if(recurse){ 
+			std::cout<<"FLTK_Editable_Slider-Slider_CB2-recurse"<<std::endl;
+			return;
+		}else{
+            recurse = 1;
+			input->value( float2str(slider->value()).c_str() );    // pass slider's value to input
+//			std::cout<<"label()="<<this->label()<<std::endl;
+			this->do_callback(); //calls callback function connected to this "FLTK_Editable_Slider"
+			recurse = 0;
+        }
+    }
+
+void FLTK_Editable_Slider::Slider_CB(Fl_Widget *w, void *data) {
+        ((FLTK_Editable_Slider*)data)->Slider_CB2();
+    }
+
+
+void FLTK_Editable_Slider::Input_CB2(){
+        static int recurse = 0;
+        if(recurse){
+			std::cout<<"FLTK_Editable_Slider-Input_CB2-recurse"<<std::endl;
+			return;
+		}else{
+            recurse = 1;
+            slider->value(atof(input->value()));
+//			std::cout<<"label()="<<this->label()<<std::endl;
+			this->do_callback(); //calls callback function connected to this class
+            recurse = 0;
+        }
+    }
+
+void FLTK_Editable_Slider::Input_CB(Fl_Widget *w, void *data) {
+        ((FLTK_Editable_Slider*)data)->Input_CB2();
+    }
+
+FLTK_Editable_Slider::FLTK_Editable_Slider(int x, int y, int w, int h, const char *l, int input_w) : Fl_Group(x,y,w,h,0) {
+        input  = new Fl_Float_Input(x, y, input_w, h);
+        input->callback(Input_CB, (void*)this);
+        input->when(FL_WHEN_ENTER_KEY|FL_WHEN_NOT_CHANGED);
+		input->label(l);
+		input->labelsize(h);
+		input->textsize(h);
+
+        slider = new Fl_Slider(x+input_w+5, y, w - (input_w+5), h);
+        slider->type(FL_HOR_SLIDER);
+        slider->callback(Slider_CB, (void*)this);
+		end();			// close the group
+    }
+
+float FLTK_Editable_Slider::value() 
+	{ return slider->value(); }
+
+void FLTK_Editable_Slider::value(float val) 
+	{ slider->value(val); Slider_CB2(); }
+
+void FLTK_Editable_Slider::minumum(float val)
+	{ slider->minimum(val); }
+
+float FLTK_Editable_Slider::minumum()
+	{ return slider->minimum(); }
+
+void FLTK_Editable_Slider::maximum(float val) 
+	{ slider->maximum(val); }
+
+float FLTK_Editable_Slider::maximum() 
+	{ return slider->maximum(); }
+
+void FLTK_Editable_Slider::bounds(float low, float high) 
+	{ slider->bounds(low, high); }
+
+void FLTK_Editable_Slider::step(float val)
+	{ slider->step(val); }
+
+void FLTK_Editable_Slider::precision(float val)
+	{ slider->precision(val); }
+
+void FLTK_Editable_Slider::labelsize(unsigned char s)
+	{ input->labelsize(s); }
+
+void FLTK_Editable_Slider::textsize(unsigned char s)
+	{ input->textsize(s); }
+
+const char* FLTK_Editable_Slider::label()
+	{ return input->label();};

@@ -30,6 +30,7 @@
 const std::string transferfactory::tfunction_names[] =
     {"Default",
     "Min/Max/Brightn/Contr",
+    "Intensity Threshold",
     "Labels",
     "Linear",
     "Spline",

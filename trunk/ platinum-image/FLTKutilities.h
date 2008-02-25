@@ -27,9 +27,16 @@
 #ifndef __FLTKutilities__
 #define __FLTKutilities__
 
+#include <cstdio> //sprintf //sscanf
+#include <stdio.h> //sprintf //sscanf
+#include <iostream> //cout
+
+#include "fileutils.h"
+
+#include <FL/Fl_Float_Input.H>
 #include <FL/Fl_Menu_Item.H>
-#include <FL/Fl_Scroll.H>
 #include <FL/Fl_Pack.H>
+#include <FL/Fl_Scroll.H>
 
 void init_fl_menu_item(Fl_Menu_Item & m);
 
@@ -47,5 +54,44 @@ class horizresizeablescroll : public Fl_Scroll  //Fl_Scroll with integrated pack
         void begin ();
         void end ();
     };
+
+
+//----------------------
+//Adapted from "Erco's FLTK Cheat Page" (http://seriss.com/people/erco/fltk/)
+
+//TODO: JK move definitions to .cc file...
+class FLTK_Editable_Slider : public Fl_Group 
+{
+private:
+    Fl_Float_Input	*input;
+    Fl_Slider		*slider;
+
+    void Slider_CB2();
+    static void Slider_CB(Fl_Widget *w, void *data);
+
+    void Input_CB2();
+	static void Input_CB(Fl_Widget *w, void *data);
+
+
+public:
+    FLTK_Editable_Slider(int x, int y, int w, int h, const char *l=0, int input_w=60);
+
+    float value();
+    void value(float val);
+
+	void minumum(float val);
+    float minumum();
+
+	void maximum(float val);
+    float maximum();
+
+	void bounds(float low, float high);
+	void step(float val);
+	void precision(float val);
+	void labelsize(unsigned char s);
+	void textsize(unsigned char s);
+	const char* label();
+
+};
 
 #endif
