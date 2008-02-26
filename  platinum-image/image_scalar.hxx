@@ -1618,13 +1618,16 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::calculate_entropy_2d()
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3D(filter_base* filter, int borderflag, image_binary<IMAGEDIM>* mask)
+void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3D(filter_base* filter, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag)
 {
+	// maskflag=0: Perform filtering for mask voxels only
+	// maskflag=1: Perform filtering for mask voxels only, and handle non-mask voxels in neighbourhood as voxels outside image border (works only with borderflags 0 and 1)
 	// borderflag=0: Ignore voxels outside image border
 	// borderflag=1: Ignore voxels outside image border and renormalize filter weight (sum of weights=1) for border voxels (use for linear filters only)
 	// borderflag=2: Treat voxels outside image border as nearest border voxel
 	// borderflag=3: Calculate values of voxels outside image border as value of voxel "reflected" in image border
 	if (borderflag<0 || borderflag>3) {borderflag=0;}
+	if (maskflag<0 || maskflag>1) {maskflag=0;}
 
 	image_scalar<ELEMTYPE,IMAGEDIM> *copy = new image_scalar<ELEMTYPE,IMAGEDIM>(this);
 	int xsize=this->datasize[0];
@@ -1637,32 +1640,32 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3D(filter_base* filter, int border
 	int z_offs_min = max ((int)(-filter->data.get_column(2).min_value()), 0);
 	int z_offs_max = min ((int)(zsize-filter->data.get_column(2).max_value()), zsize); 
 	
-	if (mask!=NULL) {
+	if (mask!=NULL && maskflag==0) {
 		// voxels where the filter neighbourhood includes voxels outside image borders are handled by image_scalar::filter_3d_border_voxel
 		for (int y=0; y<ysize; y++) {
 			for (int x=0; x<xsize; x++) {
 				for (int z=0; z<z_offs_min; z++) {
-					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, maskflag);}
 				}
 				for (int z=z_offs_max; z<zsize; z++) {
-					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, maskflag);}
 				}
 			}
 		}
 		for (int x=0; x<xsize; x++) {
 			for (int z=z_offs_min; z<z_offs_max; z++) {
 				for (int y=0; y<y_offs_min; y++) {
-					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, maskflag);}
 				}
 				for (int y=y_offs_max; y<ysize; y++) {
-					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, maskflag);}
 				}
 			}
 		}
 		for (int z=z_offs_min; z<z_offs_max; z++) {
 			for (int y=y_offs_min; y<y_offs_max; y++) {
 				for (int x=0; x<x_offs_min; x++) {
-					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, maskflag);}
 				}
 				for (int x=x_offs_min; x<x_offs_max; x++) { // voxels where the filter neighbourhood includes no voxels outside the image borders:
 					if (mask->get_voxel(x,y,z)) {
@@ -1676,37 +1679,45 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3D(filter_base* filter, int border
 					}
 				}
 				for (int x=x_offs_max; x<xsize; x++) {
-					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);}
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, maskflag);}
 				}
 			}
 		}
-	}
-	else {
+	}else if (mask!=NULL && maskflag==1) {
+		// voxels where the filter neighbourhood includes voxels outside image borders are handled by image_scalar::filter_3d_border_voxel
+		for (int z=0; z<zsize; z++) {
+			for (int y=0; y<ysize; y++) {
+				for (int x=0; x<xsize; x++) {
+					if (mask->get_voxel(x,y,z)) {this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, maskflag);}
+				}
+			}
+		}
+	}else {
 		// voxels where the filter neighbourhood includes voxels outside image borders are handled by image_scalar::filter_3d_border_voxel
 		for (int y=0; y<ysize; y++) {
 			for (int x=0; x<xsize; x++) {
 				for (int z=0; z<z_offs_min; z++) {
-					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+					this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, 0);
 				}
 				for (int z=z_offs_max; z<zsize; z++) {
-					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+					this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, 0);
 				}
 			}
 		}
 		for (int x=0; x<xsize; x++) {
 			for (int z=z_offs_min; z<z_offs_max; z++) {
 				for (int y=0; y<y_offs_min; y++) {
-					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+					this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, 0);
 				}
 				for (int y=y_offs_max; y<ysize; y++) {
-					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+					this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, 0);
 				}
 			}
 		}
 		for (int z=z_offs_min; z<z_offs_max; z++) {
 			for (int y=y_offs_min; y<y_offs_max; y++) {
 				for (int x=0; x<x_offs_min; x++) {
-					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+					this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, 0);
 				}
 				for (int x=x_offs_min; x<x_offs_max; x++) { // voxels where the filter neighbourhood includes no voxels outside the image borders:
 					float* neighbourhood = new float[filter->data.rows()];
@@ -1718,7 +1729,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3D(filter_base* filter, int border
 					copy->set_voxel(x,y,z,(ELEMTYPE)res );
 				}
 				for (int x=x_offs_max; x<xsize; x++) {
-					this->filter_3d_border_voxel(filter, copy, borderflag, x, y, z);
+					this->filter_3d_border_voxel(filter, copy, x, y, z, borderflag, mask, 0);
 				}
 			}
 		}
@@ -1729,13 +1740,13 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3D(filter_base* filter, int border
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int borderflag, int x, int y, int z)
+void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag)
 {
 	int xsize=this->datasize[0];
 	int ysize=this->datasize[1];
 	int zsize=this->datasize[2];
 
-	if (borderflag==0) { // Ignore voxels outside image border
+	if (borderflag==0 && maskflag==0) { // Ignore voxels outside image border
 		int input_x; int input_y; int input_z;
 		float* neighbourhood = new float[filter->data.rows()];
 		for (int i=0; i<filter->data.rows(); i++) {
@@ -1751,7 +1762,23 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filte
 		delete neighbourhood;
 		copy->set_voxel(x,y,z,(ELEMTYPE)res );
 	}
-	if (borderflag==1) { // Ignore voxels outside image border and renormalize filter weight (sum of weights=1) for border voxels
+	else if (borderflag==0 && maskflag ==1) { // Ignore voxels outside image border
+		int input_x; int input_y; int input_z;
+		float* neighbourhood = new float[filter->data.rows()];
+		for (int i=0; i<filter->data.rows(); i++) {
+			input_x = x+filter->data.get(i,0);
+			input_y = y+filter->data.get(i,1);
+			input_z = z+filter->data.get(i,2);
+			if (!(input_x<0 || input_y<0 || input_z<0 || input_x>=xsize || input_y>=ysize || input_z>=zsize || mask->get_voxel(input_x, input_y, input_z)==0)) { // Ignore voxels outside image border
+				neighbourhood[i]=this->get_voxel(input_x,input_y,input_z);
+			}
+			else {neighbourhood[i]= std::numeric_limits<float>::max();}
+		}
+		float res=filter->apply(neighbourhood);
+		delete neighbourhood;
+		copy->set_voxel(x,y,z,(ELEMTYPE)res );
+	}
+	else if (borderflag==1 && maskflag==0) { // Ignore voxels outside image border and renormalize filter weight (sum of weights=1) for border voxels
 		float weight=0;
 		int num_image_elements=0;
 		int input_x; int input_y; int input_z;
@@ -1772,7 +1799,28 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filte
 		delete neighbourhood;
 		copy->set_voxel(x,y,z,(ELEMTYPE)res/weight );
 	}
-	if (borderflag==2) { // Treat voxels outside image border as nearest border voxel
+	else if (borderflag==1 && maskflag==1) { // Ignore voxels outside image border and renormalize filter weight (sum of weights=1) for border voxels
+		float weight=0;
+		int num_image_elements=0;
+		int input_x; int input_y; int input_z;
+		float* neighbourhood = new float[filter->data.rows()];
+		for (int i=0; i<filter->data.rows(); i++) {
+			input_x = x+filter->data.get(i,0);
+			input_y = y+filter->data.get(i,1);
+			input_z = z+filter->data.get(i,2);
+			if (!(input_x<0 || input_y<0 || input_z<0 || input_x>=xsize || input_y>=ysize || input_z>=zsize || mask->get_voxel(input_x, input_y, input_z)==0)) { // Ignore voxels outside image border and calculate weight compensation
+				neighbourhood[i]=this->get_voxel(input_x,input_y,input_z);
+				weight+= filter->data.get(i,3);
+				num_image_elements++;
+			}
+			else {neighbourhood[i]=std::numeric_limits<float>::max();}
+		}
+		if (num_image_elements==0) {weight=1;}
+		float res=filter->apply(neighbourhood);
+		delete neighbourhood;
+		copy->set_voxel(x,y,z,(ELEMTYPE)res/weight );
+	}
+	else if (borderflag==2) { // Treat voxels outside image border as nearest border voxel
 		int input_x; int input_y; int input_z;
 		float* neighbourhood = new float[filter->data.rows()];
 		for (int i=0; i<filter->data.rows(); i++) {
@@ -1791,7 +1839,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filte
 		delete neighbourhood;
 		copy->set_voxel(x,y,z,(ELEMTYPE)res );
 	}
-	if (borderflag==3) { // Calculate values of voxels outside image border as value of voxel "reflected" in image border
+	else if (borderflag==3) { // Calculate values of voxels outside image border as value of voxel "reflected" in image border
 		int input_x; int input_y; int input_z;
 		float* neighbourhood = new float[filter->data.rows()];
 		for (int i=0; i<filter->data.rows(); i++) {

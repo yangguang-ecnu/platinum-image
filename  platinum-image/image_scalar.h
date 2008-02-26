@@ -144,7 +144,7 @@ public:
 
 	float calculate_entropy_2d();
 
-	void filter_3D(filter_base* filter, int borderflag=0, image_binary<IMAGEDIM>* mask=NULL);
+	void filter_3D(filter_base* filter, int borderflag=0, image_binary<IMAGEDIM>* mask=NULL, int maskflag=0);
 
 // -------------- bias field operations ---------------
 	
@@ -176,7 +176,7 @@ public:
 
 
 private:
-	void filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int borderflag, int x, int y, int z);
+	void filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag);
 };
 
 

@@ -200,54 +200,54 @@ ELEMTYPE image_storage<ELEMTYPE >::get_max() const
 template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_mean(image_storage<IMGBINARYTYPE>* mask)
 {
-	ELEMTYPE sum=0;
+	double sum=0;
 	int num=0;
 	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
 	if (mask!=NULL) {
 		typename image_storage<IMGBINARYTYPE >::iterator mask_itr = mask->begin();
 		while(itr != this->end()) {
 			if (*mask_itr) {
-				sum+=*itr;
-				num++;
+				sum+=(double) *itr;
+				++num;
 			}
-			itr++;
-			mask_itr++;
+			++itr;
+			++mask_itr;
 		}
 	}else {
 		while(itr != this->end()) {
-			sum+=*itr;
-			num++;
-			itr++;
+			sum += (double) *itr;
+			++num;
+			++itr;
 		}
 	}
-	return (float)sum/num;
+	return (float) sum/num;
 }
 
 template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_standard_deviation(image_storage<IMGBINARYTYPE>* mask)
 {
 	float mean=get_mean(mask);
-	ELEMTYPE sum=0;
+	double sum=0;
 	int num=0;
 	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
 	if (mask!=NULL) {
 		typename image_storage<IMGBINARYTYPE >::iterator mask_itr = mask->begin();
 		while(itr != this->end()) {
 			if (*mask_itr) {
-				sum+=pow(*itr-mean, 2);
-				num++;
+				sum+=pow((double)*itr-mean, 2);
+				++num;
 			}
-			itr++;
-			mask_itr++;
+			++itr;
+			++mask_itr;
 		}
 	}else {
 		while(itr != this->end()) {
-			sum+=pow(*itr-mean, 2);
-			num++;
-			itr++;
+			sum+=pow((double)*itr-mean, 2);
+			++num;
+			++itr;
 		}
 	} 
-	return (float)sqrt(sum/num);
+	return (float) sqrt(sum/num);
 }
 
 template <class ELEMTYPE >
@@ -360,16 +360,16 @@ void image_storage<ELEMTYPE >::map_values(ELEMTYPE map_from, ELEMTYPE map_to, EL
 
 
 template <class ELEMTYPE >
-float image_storage<ELEMTYPE >::get_number_of_voxels_with_value(ELEMTYPE val)
+int image_storage<ELEMTYPE >::get_number_of_voxels_with_value(ELEMTYPE val)
 	{
 		iterator i = this->begin();
-		float nr=0;
+		int num=0;
 		while(i != this->end())
 		{
-			if(*i == val){nr++;}
-			i++;
+			if(*i == val){++num;}
+			++i;
 		}
-		return nr;
+		return num;
 	}
 
 template <class ELEMTYPE >
@@ -544,35 +544,35 @@ void image_storage<ELEMTYPE >::get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &m
 
 
 template <class ELEMTYPE >
-ELEMTYPE image_storage<ELEMTYPE >::get_sum_of_voxels(bool calc_scalar_abs_value, image_storage<IMGBINARYTYPE>* mask) 
+double image_storage<ELEMTYPE >::get_sum_of_voxels(bool calc_scalar_abs_value, image_storage<IMGBINARYTYPE>* mask) 
 {
-	ELEMTYPE sum=0;
+	double sum=0;
 	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
 	if (mask!=NULL) {
 		typename image_storage<IMGBINARYTYPE >::iterator mask_itr = mask->begin();
 		if (calc_scalar_abs_value) {
 			while(itr != this->end()) {
-				if (*mask_itr) {sum+=abs(*itr);}
-                itr++;
-				mask_itr++;
+				if (*mask_itr) {sum+=abs((double)*itr);}
+                ++itr;
+				++mask_itr;
 			}
 		}else {
 			while(itr != this->end()) {
-				if (*mask_itr) {sum+=*itr;}
-				itr++;
-				mask_itr++;
+				if (*mask_itr) {sum+=(double)*itr;}
+				++itr;
+				++mask_itr;
 			}
 		}
 	}else {
 		if (calc_scalar_abs_value) {
 			while(itr != this->end()) {
-				sum+=abs(*itr);
-				itr++;
+				sum+=abs((double)*itr);
+				++itr;
 			}
 		}else {
 			while(itr != this->end()) {
-				sum+=*itr;
-				itr++;
+				sum+=(double)*itr;
+				++itr;
 			}
 		}
 	}
@@ -580,11 +580,11 @@ ELEMTYPE image_storage<ELEMTYPE >::get_sum_of_voxels(bool calc_scalar_abs_value,
 }
 
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::set_sum_of_voxels_to_value(float value)
+void image_storage<ELEMTYPE >::set_sum_of_voxels_to_value(double value)
 {
-	ELEMTYPE sum = this->get_sum_of_voxels();
+	double sum = this->get_sum_of_voxels();
 	float factor;
-	(sum==0) ? factor=1 : factor=value/sum;
+	(sum==0) ? factor=1 : factor= (float) value/sum;
 	this->scale_by_factor(factor);
 }
 
