@@ -252,3 +252,15 @@ unsigned int get_permutations(unsigned int n, unsigned int r)
 {
 	return get_factorial(n)/(get_factorial(r)*get_factorial(n-r));
 }
+
+unsigned int get_smallest_power_above(unsigned int this_val, unsigned int power_base)
+{
+	unsigned int res=0;
+	for(unsigned int i=0;i<std::numeric_limits<unsigned int>::max();i++){
+		res = pow(float(power_base),float(i));
+		if(res>=this_val){
+			return res;
+		}
+	}
+	return 0;
+}

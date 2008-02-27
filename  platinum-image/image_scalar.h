@@ -119,6 +119,10 @@ public:
 	image_binary<IMAGEDIM>* region_grow_3D(queue<Vector3D> seed_queue, ELEMTYPE min_intensity, ELEMTYPE max_intensity);
 	
 	image_binary<IMAGEDIM>* region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
+
+	//------------------- Filter functions ----------------------
+	image_scalar<ELEMTYPE, IMAGEDIM>* get_gradmagn_filter3D_image_3D(Vector3D from, Vector3D to, GRAD_MAG_TYPE type = XY);
+
 //	void medianFilter2D();
 //	void meanFilter();
 //	void discreteGaussFilter(double gaussianVariance,int maxKernelWidth);

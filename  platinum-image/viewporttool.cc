@@ -213,6 +213,8 @@ nav_tool::nav_tool (viewport_event & event):viewporttool(event)
     //or it won't be created
     if (event.type() == pt_event::hover || event.type() == pt_event::browse || event.type() == pt_event::adjust || event.type() == pt_event::scroll || event.type() == pt_event::key || event.type() == pt_event::focus_viewports)
         {event.grab();}
+
+	zoom_start_pos = std::vector<int>(2);
     }
 
 const std::string nav_tool::name()
@@ -230,11 +232,15 @@ void nav_tool::handle(viewport_event &event)
 
     if ( event.state() == pt_event::begin )
 	{
-//		cout<<"(pt_event::begin)"<<endl;
+		cout<<"(pt_event::begin)"<<endl;
         event.grab();
         		
         dragLast[0] = event.mouse_pos_global()[0];
         dragLast[1] = event.mouse_pos_global()[1];
+
+		global_zoom_start_pos = myRenderer->view_to_world(event.mouse_pos_global()[0], event.mouse_pos_global()[1], fvp->w(), fvp->h());
+		zoom_start_pos[0] = event.mouse_pos_global()[0];
+		zoom_start_pos[1] = event.mouse_pos_global()[1];
     }
 
 	if ( event.type() == pt_event::focus_viewports )
@@ -279,8 +285,20 @@ void nav_tool::handle(viewport_event &event)
 				{
                     event.grab();
 //                    cout<<"("<<mouse[1]<<","<<dragLast[1]<<") "<<1+(mouse[1]-dragLast[1])*zoom_factor<<endl;
-                    myRenderer->move_view(viewSize,0,0,0,abs(float(1.0+(mouse[1]-dragLast[1])*zoom_factor)));
-					//the absolute value is needed since negative values inverts the image...
+					float z = abs(float(1.0+(mouse[1]-dragLast[1])*zoom_factor));
+					
+					//zoom...
+					myRenderer->move_view(viewSize,0,0,0,z); //the absolute value is needed since negative values inverts the image...
+
+					//move....
+					std::vector<int> new_pos = myRenderer->world_to_view(fvp->w(),fvp->h(),global_zoom_start_pos);
+//					int dx = float(myPort->pixmap_size()[0]/2-zoom_start_pos[0])*(1.0-z);
+//					int dy = float(myPort->pixmap_size()[1]/2-zoom_start_pos[1])*(1.0-z);
+					int dx = new_pos[0]-zoom_start_pos[0];
+					int dy = new_pos[1]-zoom_start_pos[1];
+                    cout<<"dx="<<dx<<endl;
+                    cout<<"dy="<<dy<<endl;
+					myRenderer->move_view(viewSize,dx,dy);
                     
                     fvp->needs_rerendering();
 				}					
