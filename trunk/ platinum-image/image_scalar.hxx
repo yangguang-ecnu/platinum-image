@@ -1294,6 +1294,29 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(
 }
 
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_gradmagn_filter3D_image_3D(Vector3D from, Vector3D to, GRAD_MAG_TYPE type)
+{
+	cout<<"get_gradmagn_filter3D_image_3D..."<<endl;
+	image_scalar<ELEMTYPE, 3> *res = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0); 
+	res->fill(0);
+	for(int d=0; d<3; d++){		
+		from[d] = std::max( float(1.0), float(from[d]) );
+		to[d] = std::min( float(to[d]), float(this->get_size_by_dim(d)-1) );
+	}
+
+	for(int z=from[0]; z<=to[0]; z++){
+		for(int y=from[1]; y<=to[1]; y++){
+			for(int x=from[2]; x<=to[2]; x++){
+				res->set_voxel( x,y,z, this->grad_mag_voxel(x,y,z,type) );
+			}
+		}
+	}
+	return res;
+}
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3D(int dir, PROJECTION_MODE PROJ)
 { //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
