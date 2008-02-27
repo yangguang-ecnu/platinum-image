@@ -1942,6 +1942,56 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filte
 //	return pos;
 //}
 
+
+//Vector3D get_pos_of_type_in_region_voxel ( Vector3D center, Vector3D radius, POINT_TYPE point_type )
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_square_difference_to_template_3D(Vector3D pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template)
+{
+	double cost=0;
+	int dx = small_template->get_size_by_dim(0);
+	int dy = small_template->get_size_by_dim(1);
+	int dz = small_template->get_size_by_dim(2);
+
+	for(int x=pos[0], int m_x=0;x<pos[0]+dx;x++,m_x++){
+		for(int y=pos[1], int m_y=0;y<pos[1]+dy;y++,m_y++){
+			for(int z=pos[2], int m_z=0;z<pos[2]+dz;z++,m_z++){
+				cost += pow(small_template->get_voxel(m_x,m_y,m_z) - this->get_voxel(x,y,z),2);
+			}
+		}
+	}
+	return sqrt( cost/double(dx*dy*dz) );
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<float, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_square_difference_image_3D(Vector3D from_pos, Vector3D to_pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template)
+{
+	image_scalar<float,3> *res = new image_scalar<float,3>(this,0);
+	res->fill(0);
+	cout<<"from_pos="<<from_pos<<endl;
+	cout<<"to_pos="<<to_pos<<endl;
+	for(int d=0;d<3;d++){
+		from_pos[d] = std::max(int(from_pos[d]), int(0) );
+		to_pos[d] = std::min(int(to_pos[d]), int(this->get_size_by_dim(d) - small_template->get_size_by_dim(d) - 1) );
+	}
+	cout<<"from_pos="<<from_pos<<endl;
+	cout<<"to_pos="<<to_pos<<endl;
+	
+	float r=0;
+	for(int k=from_pos[0];k<=to_pos[0];k++){
+		cout<<"k="<<k<<endl;
+		for(int j=from_pos[1];j<=to_pos[1];j++){
+			for(int i=from_pos[2];i<=to_pos[2];i++){
+				r = this->get_mean_least_square_difference_to_template_3D(create_Vector3D(i,j,k),small_template);
+				res->set_voxel(i,j,k,r);
+			}
+		}
+	}
+	return res;
+}
+	 
+
+
 #include "image_scalarprocess.hxx"
 
 #endif

@@ -492,23 +492,16 @@ void rendermanager::center_and_fit( const int rendererID, const int imageID )
 	image_base * image = datamanagement.get_image( imageID );
 	
 	Vector3D size = image->get_physical_size();
+	cout<<"size="<<size<<endl;
 
-	Vector3D half_size;
-	half_size = size / 2;
-		
 	// måste beräkna maxstorleken på annat sätt eftersom om bilden är tex en
 	// kvadrat och den är roterad 45 grader och står på ett hörn så blir ju
 	// maxstorleken diagonalen av kvadraten (bilden)
 	float maxsize = max_norm ( size );
-		
-	Matrix3D orientation = image->get_orientation();	
-	
-	Vector3D center;
-	center = image->get_origin() + orientation * half_size;
+	cout<<"maxsize="<<maxsize<<endl;
 
 
 /*
-
 	rendergeometry * geometry = rendermanagement.get_geometry(rendererID);
 	Vector3D xDir = create_Vector3D(1,0,0);
 	xDir = geometry->dir * xDir;
@@ -517,7 +510,6 @@ void rendermanager::center_and_fit( const int rendererID, const int imageID )
 	
 	xDir = orientation * xDir;
 	yDir = orientation * yDir;
-	
 	
 	xDir[0] = abs(xDir[0]);
 	xDir[1] = abs(xDir[1]);
@@ -536,27 +528,9 @@ void rendermanager::center_and_fit( const int rendererID, const int imageID )
 */	
 	
 	//set_geometry ( rendererID, center, renderer_base::display_scale /  test.GetNorm() );
-	set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
 	//set_geometry ( rendererID, center, 0 );
-	
-	
-
-/*working
-	// get a zoom factor that will show the entire image
-	Vector3D size = image->get_physical_size();
-	float maxsize = max_norm ( size );
-
-	Matrix3D orientation = image->get_orientation();
-		
-	Vector3D half_size;
-	half_size = size / 2;
-	
-	Vector3D center;
-	
-	center =  image->get_origin() + orientation * half_size;
-	
-	set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
-*/
+//	set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
+	set_geometry ( rendererID, image->get_physical_center(), renderer_base::display_scale/maxsize );
 }
 
 void rendermanager::center_and_fit( const int imageID )

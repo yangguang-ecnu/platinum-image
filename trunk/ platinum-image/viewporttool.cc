@@ -205,7 +205,7 @@ void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
 #pragma mark *** navigation tool ***
 
 const float nav_tool::wheel_factor=renderer_base::display_scale/10;
-const float nav_tool::zoom_factor=0.01;
+const float nav_tool::zoom_factor=0.005;
 
 nav_tool::nav_tool (viewport_event & event):viewporttool(event)
     {    
@@ -230,6 +230,7 @@ void nav_tool::handle(viewport_event &event)
 
     if ( event.state() == pt_event::begin )
 	{
+//		cout<<"(pt_event::begin)"<<endl;
         event.grab();
         		
         dragLast[0] = event.mouse_pos_global()[0];
@@ -277,8 +278,9 @@ void nav_tool::handle(viewport_event &event)
                 if ( event.state() == pt_event::iterate)
 				{
                     event.grab();
-                    
-                    myRenderer->move_view(viewSize,0,0,0,1+(mouse[1]-dragLast[1])*zoom_factor);
+//                    cout<<"("<<mouse[1]<<","<<dragLast[1]<<") "<<1+(mouse[1]-dragLast[1])*zoom_factor<<endl;
+                    myRenderer->move_view(viewSize,0,0,0,abs(float(1.0+(mouse[1]-dragLast[1])*zoom_factor)));
+					//the absolute value is needed since negative values inverts the image...
                     
                     fvp->needs_rerendering();
 				}					
