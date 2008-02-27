@@ -174,9 +174,13 @@ public:
 	void appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres=950);
 	image_binary<3>* appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body);
 
+	//JK move to private later....
+	float get_mean_least_square_difference_to_template_3D(Vector3D pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template);
+	image_scalar<float, IMAGEDIM>* get_mean_least_square_difference_image_3D(Vector3D from_pos, Vector3D to_pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template);
 
 private:
 	void filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag);
+
 };
 
 

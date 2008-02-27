@@ -113,6 +113,7 @@ class image_base : public data_base
 
         virtual unsigned short get_size_by_dim(int dim) const = 0;  //return voxel dimensions
         virtual Vector3D get_physical_size () const = 0; //return size in world coordinates
+        virtual Vector3D get_physical_center() const = 0; //return center in world coordinates
         virtual bool same_size (image_base *) = 0;
         
         bool read_origin_from_dicom_file(std::string dcm_file);

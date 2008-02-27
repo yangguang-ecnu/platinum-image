@@ -117,7 +117,9 @@ void renderer_base::move_view (int vsize, int pan_x, int pan_y, int pan_z, float
     pan[1]=pan_y*renderer_base::display_scale/(float)(vsize * wheretorender->zoom);
     pan[2]=pan_z;
     
+//	cout<<"zoom="<<wheretorender->zoom<<"-->";
     wheretorender->zoom*=zoom_d;
+//	cout<<wheretorender->zoom<<endl;
     wheretorender->look_at+=wheretorender->dir*pan;
 }
 

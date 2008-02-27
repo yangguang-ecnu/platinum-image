@@ -79,8 +79,7 @@ float min_norm (itk::Vector<sType, vDim> &V)     //normalize vector using
 }
 
 template <class sType, unsigned int vDim>
-void min_normalize (itk::Vector<sType, vDim> &V)     //normalize vector using
-                                                     //minimum norm
+void min_normalize (itk::Vector<sType, vDim> &V)     //normalize vector using minimum norm
 {
 	sType min_norm = V[0];
     
@@ -92,8 +91,7 @@ void min_normalize (itk::Vector<sType, vDim> &V)     //normalize vector using
 }
 
 template <class sType, unsigned int vDim>
-float max_norm (itk::Vector<sType, vDim> &V)     //normalize vector using
-                                                     //minimum norm
+float max_norm (itk::Vector<sType, vDim> &V)
 {
 	sType m = V[0];
     
@@ -226,5 +224,6 @@ Vector3Dint create_Vector3Dint(int x, int y, int z);
 
 unsigned int get_factorial(unsigned int i);
 unsigned int get_permutations(unsigned int n, unsigned int r); //returns pascals triangle values
+unsigned int get_smallest_power_above(unsigned int this_val, unsigned int power_base=2); //e.g. this_val=10 (base=2) --> 16
 
 #endif	//__ptmath.h__
