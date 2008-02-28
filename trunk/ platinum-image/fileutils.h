@@ -89,7 +89,7 @@ template <class ELEMTYPE >
 string templ_to_string (ELEMTYPE t)
     {
     ostringstream output;
-    output.flags( ios::boolalpha | ios::dec );
+	output.flags( ios::boolalpha | ios::dec );
     output.fill(' ');
 
     //a true templated function would *not* cast to float,
