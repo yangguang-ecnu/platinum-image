@@ -147,11 +147,12 @@ void stringmatrix::set(int r, int c, float val)
 
 void stringmatrix::set_where_first_col_contains(string key, int c, string val)
 {
-	cout<<"stringmatrix::set_where_first_col_contains..."<<endl;
+	cout<<"stringmatrix::set_where_first_col_contains...("<<key.c_str()<<")"<<endl;
 	bool found = false;
 	for(int r=0; r<rows(); r++)
 	{
-		if( get(r,0).c_str() == key.c_str() ){
+		if( (get(r,0).find(key)==0) && (get(r,0).size()==key.size()) ){ // spooky... compiler does not accept (string1 == string2) !!!
+			cout<<"found --> r="<<r<<endl;
 			found = true;
 			data[r][c] = val;
 		}
