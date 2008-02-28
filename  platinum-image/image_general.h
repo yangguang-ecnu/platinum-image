@@ -189,6 +189,7 @@ class image_general : public image_storage <ELEMTYPE >
         Matrix3D get_voxel_resize () const;           //return voxel size as matrix
 		void rotate_geometry_around_center_voxel(int fi_z_deg, int fi_y_deg, int fi_x_deg);
 
+		image_general<ELEMTYPE, IMAGEDIM>* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, ELEMTYPE value=0);	
 
 		//****** Sub volume operations - regions ********
 		image_general<ELEMTYPE, IMAGEDIM>* get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2);	

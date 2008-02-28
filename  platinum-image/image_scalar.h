@@ -105,7 +105,7 @@ public:
     void save_histogram_to_txt_file(const std::string filename, bool reload_hist_from_image=true, gaussian *g=NULL, const std::string separator=";");
 //    void save_histogram_to_txt_file2(const std::string filename, bool reload_hist_from_image=true, const std::string separator=";");
 
-    image_scalar<ELEMTYPE, IMAGEDIM>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1, image_binary<IMAGEDIM>* mask=NULL); 
+    image_scalar<unsigned int, 3>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1, image_binary<IMAGEDIM>* mask=NULL); 
 
 	//the resulting histogram volume will have the intensities of first/second in the x/y directions.
 	//The z direction will gives the different 2D-histograms in the specified direction "hist_slc_dir"
@@ -146,7 +146,9 @@ public:
 
 	float get_mean_from_slice_3d(int dir, int slice, ELEMTYPE low_thres, ELEMTYPE high_thres);
 
-	float calculate_entropy_2d();
+	void logarithm_3d(int zero_handling=0);
+
+	double calculate_entropy_2d();
 
 	void filter_3D(filter_base* filter, int borderflag=0, image_binary<IMAGEDIM>* mask=NULL, int maskflag=0);
 
@@ -177,6 +179,7 @@ public:
 	image_binary<3>* appl_wb_segment_lungs_from_sum_image(int initial_upper_thres, image_binary<3> *body_mask);
 	void appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres=950);
 	image_binary<3>* appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body);
+	void appl_wb_SIM_bias_correction(image_scalar<ELEMTYPE, IMAGEDIM>* second_feature, int num_iterations=1, float iteration_strength=0.02, float map_x_smoothing_std_dev=60, float map_y_smoothing_std_dev=15, float map_z_smoothing_std_dev=60, float feat1_smoothing_std_dev=30, float feat2_smoothing_std_dev=30, int initial_thres_body_mask=3000, int num_buckets_feat1=200, int num_buckets_feat2=200, bool save_corrected_images_each_iteration=false, bool save_histogram_each_iteration=false, bool save_field_each_iteration=false);
 
 	//JK move to private later....
 	float get_mean_least_square_difference_to_template_3D(Vector3D pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template);

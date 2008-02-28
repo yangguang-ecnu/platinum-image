@@ -213,6 +213,7 @@ float image_storage<ELEMTYPE >::get_mean(image_storage<IMGBINARYTYPE>* mask)
 			++itr;
 			++mask_itr;
 		}
+		pt_error::error_if_false(itr == this->end() && mask_itr == mask->end(),"Binary mask size didn't match image size when calculating mean",pt_error::serious);
 	}else {
 		while(itr != this->end()) {
 			sum += (double) *itr;
@@ -240,6 +241,7 @@ float image_storage<ELEMTYPE >::get_standard_deviation(image_storage<IMGBINARYTY
 			++itr;
 			++mask_itr;
 		}
+		pt_error::error_if_false(itr == this->end() && mask_itr == mask->end(),"Binary mask size didn't match image size when calculating standard deviation",pt_error::serious);
 	}else {
 		while(itr != this->end()) {
 			sum+=pow((double)*itr-mean, 2);
@@ -290,18 +292,19 @@ void image_storage<ELEMTYPE >::fill(ELEMTYPE value)
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::add_value_to_all_voxels(ELEMTYPE value, image_storage<IMGBINARYTYPE>* mask)
 {
-	typename image_storage<ELEMTYPE>::iterator i = this->begin();
+	typename image_storage<ELEMTYPE>::iterator itr = this->begin();
 	if (mask!=NULL) {
 		typename image_storage<IMGBINARYTYPE>::iterator mask_itr = mask->begin();
-		while (i != this->end()) {
-			if (*mask_itr) {*i += value;}
-			++i;
+		while (itr != this->end()) {
+			if (*mask_itr) {*itr += value;}
+			++itr;
 			++mask_itr;
 		}
+		pt_error::error_if_false(itr == this->end() && mask_itr == mask->end(),"Binary mask size didn't match image size when adding value to voxels",pt_error::serious);
 	}else {
-		while (i != this->end()) {
-			*i += value;
-			++i;
+		while (itr != this->end()) {
+			*itr += value;
+			++itr;
 		}
 	}
 }
@@ -328,18 +331,19 @@ void image_storage<ELEMTYPE >::scale(ELEMTYPE new_min, ELEMTYPE new_max)
 
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::scale_by_factor(float factor, ELEMTYPE old_center, ELEMTYPE new_center, image_storage<IMGBINARYTYPE>* mask) {
-	typename image_storage<ELEMTYPE>::iterator i = this->begin();
+	typename image_storage<ELEMTYPE>::iterator itr = this->begin();
 	if (mask!=NULL) {
 		typename image_storage<IMGBINARYTYPE>::iterator mask_itr = mask->begin();
-		while (i != this->end()) {
-			if (*mask_itr) {*i = new_center + ELEMTYPE(float((*i)-old_center)*factor);}
-			++i;
+		while (itr != this->end()) {
+			if (*mask_itr) {*itr = new_center + ELEMTYPE(float((*itr)-old_center)*factor);}
+			++itr;
 			++mask_itr;
 		}
+		pt_error::error_if_false(itr == this->end() && mask_itr == mask->end(),"Binary mask size didn't match image size when scaling by factor",pt_error::serious);
 	}else {
-		while (i != this->end()) {
-		*i = new_center + ELEMTYPE(float((*i)-old_center)*factor);
-		++i;
+		while (itr != this->end()) {
+		*itr = new_center + ELEMTYPE(float((*itr)-old_center)*factor);
+		++itr;
 		}
 	}
 }
@@ -563,6 +567,7 @@ double image_storage<ELEMTYPE >::get_sum_of_voxels(bool calc_scalar_abs_value, i
 				++mask_itr;
 			}
 		}
+		pt_error::error_if_false(itr == this->end() && mask_itr == mask->end(),"Binary mask size didn't match image size when calculating sum of voxels",pt_error::serious);
 	}else {
 		if (calc_scalar_abs_value) {
 			while(itr != this->end()) {
