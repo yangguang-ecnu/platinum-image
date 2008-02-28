@@ -75,6 +75,7 @@ public:
 	void set(int r, int c, string val);
 	void set(int r, int c, int val);
 	void set(int r, int c, float val);
+	void set_where_first_col_contains(string key, int c, string val);
 
 	void fill(string val);
 	void clear();

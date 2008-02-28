@@ -145,6 +145,24 @@ void stringmatrix::set(int r, int c, float val)
 	}
 }
 
+void stringmatrix::set_where_first_col_contains(string key, int c, string val)
+{
+	cout<<"stringmatrix::set_where_first_col_contains..."<<endl;
+	bool found = false;
+	for(int r=0; r<rows(); r++)
+	{
+		if( get(r,0).c_str() == key.c_str() ){
+			found = true;
+			data[r][c] = val;
+		}
+	}
+	if(!found){
+		vector<string> row = vector<string>(cols());
+		row[0]=key;
+		row[c]=val;
+		add_row(row);
+	}
+}
 
 
 void stringmatrix::fill(string val)
@@ -419,15 +437,44 @@ void stringmatrix::read_from_csvfile(string filepath, string sep)
 void stringmatrix::write_to_csvfile(string filepath, string sep)
 {
 	cout<<"write_to_csvfile... "<<endl;
-	ofstream myfile;
+    ofstream myfile;
 	myfile.open(filepath.c_str());
-	for(int r=0; r<rows(); r++)
-	{
-		for(int c=0; c<cols(); c++)
-		{
+	for(int r=0; r<rows(); r++){
+		for(int c=0; c<cols(); c++){
 			myfile<<get(r,c).c_str()<<sep.c_str();
 		}
 		myfile<<"\n";
 	}
 	myfile.close();
 }
+
+/*
+void stringmatrix::write_to_csvfile(string filepath, string sep, bool merge_if_already_exists)
+{
+	cout<<"write_to_csvfile... "<<endl;
+    ofstream myfile;
+	if(merge_if_already_exists && file_exists(filepath)){
+		cout<<"merge... "<<endl;
+		stringmatrix tmp;
+		tmp.read_from_csvfile(filepath);
+		for(int r=0; r<rows(); r++){
+			for(int c=0; c<cols(); c++){
+				if(get(r,c)!="" && get(r,c)!=" "){
+					set(r,c,tmp.get(r,c));
+				}
+			}
+		}
+		write_to_csvfile(filepath, sep, false); // now write the file...
+
+	}else{
+		myfile.open(filepath.c_str());
+		for(int r=0; r<rows(); r++){
+			for(int c=0; c<cols(); c++){
+				myfile<<get(r,c).c_str()<<sep.c_str();
+			}
+			myfile<<"\n";
+		}
+	}
+	myfile.close();
+}
+*/
