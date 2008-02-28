@@ -697,6 +697,28 @@ void image_general<ELEMTYPE, IMAGEDIM>::rotate_geometry_around_center_voxel(int 
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, ELEMTYPE value)
+{
+	cout<<"expanding image borders..."<<endl;
+	int old_size_x=this->get_size_by_dim(0);
+	int old_size_y=this->get_size_by_dim(1);
+	int old_size_z=this->get_size_by_dim(2);
+	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(old_size_x+2*dx, old_size_y+2*dy, old_size_z+2*dz);
+	res->fill(value);
+	res->set_parameters(this);
+
+	for (int z=0; z<old_size_z; z++){
+		for (int y=0; y<old_size_y; y++){
+			for (int x=0; x<old_size_x; x++){
+				res->set_voxel(x+dx,y+dy,z+dz, this->get_voxel(x,y,z));
+			}
+		}
+	}
+	res->set_origin(this->get_physical_pos_for_voxel(-dx,-dy,-dz));
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2)
 {
 	cout<<"get_subvolume_from_region_3D..."<<endl;

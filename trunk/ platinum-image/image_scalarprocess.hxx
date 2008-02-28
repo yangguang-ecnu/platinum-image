@@ -277,3 +277,178 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 
 	return vat_mini;
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<ELEMTYPE, IMAGEDIM>* second_feature, int num_iterations, float iteration_strength, float map_x_smoothing_std_dev, float map_y_smoothing_std_dev, float map_z_smoothing_std_dev, float feat1_smoothing_std_dev, float feat2_smoothing_std_dev, int initial_thres_body_mask, int num_buckets_feat1, int num_buckets_feat2, bool save_corrected_images_each_iteration, bool save_histogram_each_iteration, bool save_field_each_iteration) 
+{
+	image_scalar<float,3> *temp1 = dynamic_cast<image_scalar<float,3 >*>(this);
+	image_scalar<float,3> *feat1 = new image_scalar<float,3>(temp1); delete temp1;
+	image_scalar<float,3> *temp2 = dynamic_cast<image_scalar<float,3 >*>(second_feature);
+	image_scalar<float,3> *feat2 = new image_scalar<float,3>(temp2); delete temp2;
+		
+	cout << "Calculating binary mask..." << endl;
+	image_scalar<float,3> *sum = new image_scalar<float,3>(feat1);
+	sum->combine(feat2, COMB_ADD);
+	image_binary<3>* mask=sum->appl_wb_segment_body_from_sum_image(initial_thres_body_mask);
+	image_binary<3>* lungs=sum->appl_wb_segment_lungs_from_sum_image(initial_thres_body_mask, mask);
+	mask->combine(lungs, COMB_SUB);
+	delete sum; delete lungs;
+		
+	// bias correction field:
+	image_scalar<float,3> *field = new image_scalar<float,3>(feat1);
+	field->fill(0);	field->data_has_changed();
+				
+	// corrected images:
+	image_scalar<float,3> *feat1_corr = new image_scalar<float,3>(feat1);
+	image_scalar<float,3> *feat2_corr = new image_scalar<float,3>(feat2);
+
+	//Parameters:
+	filter_gaussian* gauss_feat1=new filter_gaussian(num_buckets_feat1-num_buckets_feat1%2+1, 0, feat1_smoothing_std_dev); // odd size of kernel
+	filter_gaussian* gauss_feat2=new filter_gaussian(num_buckets_feat2-num_buckets_feat2%2+1, 1, feat2_smoothing_std_dev);
+	filter_sobel_2d* sobel_feat1=new filter_sobel_2d(0);
+	filter_sobel_2d* sobel_feat2=new filter_sobel_2d(2);
+	filter_gaussian* gauss_x=new filter_gaussian(map_x_smoothing_std_dev*2+1,0,map_x_smoothing_std_dev);
+	filter_gaussian* gauss_y=new filter_gaussian(map_y_smoothing_std_dev*2+1,1,map_y_smoothing_std_dev);
+	filter_gaussian* gauss_z=new filter_gaussian(map_z_smoothing_std_dev*2+1,2,map_z_smoothing_std_dev);
+	float feat1_scale; float feat2_scale;
+	int feat1_bucket; int feat2_bucket;
+	float feat1_min; float feat2_min;
+	int bodysize=mask->get_number_of_voxels_with_value(1);
+	int xsize=feat1->get_size_by_dim(0);
+	int ysize=feat1->get_size_by_dim(1);
+	int zsize=feat1->get_size_by_dim(2);
+	string str;
+
+	image_scalar<float,3>** fields = new image_scalar<float,3>*[num_iterations];
+	image_scalar<float,3>** feat1_corred = new image_scalar<float,3>*[num_iterations];
+	image_scalar<float,3>** feat2_corred = new image_scalar<float,3>*[num_iterations];
+	image_scalar<unsigned int,3>** histograms = new image_scalar<unsigned int,3>*[num_iterations];
+
+	// iteration starts
+	for (int iter=0; iter<num_iterations; iter++)
+	{
+		cout << "-----Starting iteration " << iter+1 << " out of " << num_iterations << " -----" << endl;
+
+		// Calculate feature space
+		image_scalar<unsigned int,3> *temp3 = feat1_corr->create2Dhistogram_3D(feat2_corr, true, num_buckets_feat1, num_buckets_feat2, mask);
+		image_scalar<float,3> *hist = new image_scalar<float,3>(temp3); delete temp3;
+	
+		// Expand
+		image_scalar<float,3> *hist_expanded = dynamic_cast<image_scalar<float,3 >*>(hist->expand_borders(1, 1, 0));
+		//image_scalar<float,3> *hist_expanded = new image_scalar<float, 3>(num_buckets_feat1 + 2, num_buckets_feat2 + 2,1);
+		//hist_expanded->fill(0);
+		//for (int i=0; i<num_buckets_feat1; i++) {
+		//	for (int j=0; j<num_buckets_feat2; j++) {
+		//		hist_expanded->set_voxel(i+1,j+1,0,hist->get_voxel(i,j,0));
+		//	}
+		//}
+		delete hist;
+			
+		// Calculate force in each bucket: Smooth, normalize and logarithmate, then derivate in each direction with sobel filter
+		hist_expanded->filter_3D(gauss_feat1, 0);
+		hist_expanded->filter_3D(gauss_feat2, 0);
+		hist_expanded->set_sum_of_voxels_to_value(1);
+		hist_expanded->logarithm_3d(0);
+
+		image_scalar<float,3> *feat1_force_expanded = new image_scalar<float,3>(hist_expanded);
+		image_scalar<float,3> *feat2_force_expanded = new image_scalar<float,3>(hist_expanded);
+		delete hist_expanded;
+		feat1_force_expanded->filter_3D(sobel_feat1, 0);
+		feat2_force_expanded->filter_3D(sobel_feat2, 0);
+	
+		// Contract
+		image_scalar<float,3> *feat1_force = dynamic_cast<image_scalar<float,3 >*>(feat1_force_expanded->get_subvolume_from_region_3D(1, 1, 0, num_buckets_feat1, num_buckets_feat2, 0));
+		image_scalar<float,3> *feat2_force = dynamic_cast<image_scalar<float,3 >*>(feat2_force_expanded->get_subvolume_from_region_3D(1, 1, 0, num_buckets_feat1, num_buckets_feat2, 0));
+		//image_scalar<float,3> *feat1_force = new image_scalar<float,3>(num_buckets_feat1, num_buckets_feat2, 1);
+		//image_scalar<float,3> *feat2_force = new image_scalar<float,3>(num_buckets_feat1, num_buckets_feat2, 1);
+		//for (int i=0; i<num_buckets_feat1; i++) {
+		//	for (int j=0; j<num_buckets_feat2; j++) {
+		//		feat1_force->set_voxel(i,j,0,feat1_force_expanded->get_voxel(i+1,j+1,0));
+		//		feat2_force->set_voxel(i,j,0,feat2_force_expanded->get_voxel(i+1,j+1,0));
+		//	}
+		//}
+		delete feat1_force_expanded; delete feat2_force_expanded;
+	
+		// Map forces to inhomogeniety field map as Force = feat1_force * feat1_intensity + feat2_force * feat2_intensity
+		image_scalar<float,3> *inh_map = new image_scalar<float,3>(field);
+		feat1_min=feat1_corr->get_min(); feat2_min=feat2_corr->get_min();
+		feat1_scale = float(feat1_corr->get_max()-feat1_min)*1.000001/float(num_buckets_feat1);
+		feat2_scale = float(feat2_corr->get_max()-feat2_min)*1.000001/float(num_buckets_feat2);
+		for (int x=0; x<xsize; x++) {
+			for (int y=0; y<ysize; y++) {
+				for (int z=0; z<zsize; z++) {
+					if (mask->get_voxel(x,y,z))	{
+						feat1_bucket=(feat1_corr->get_voxel(x,y,z)-feat1_min)/feat1_scale;
+						feat2_bucket=(feat2_corr->get_voxel(x,y,z)-feat2_min)/feat2_scale;
+						inh_map->set_voxel(x,y,z, (feat1_force->get_voxel(feat1_bucket,feat2_bucket)*feat1_bucket+feat2_force->get_voxel(feat1_bucket,feat2_bucket)*feat2_bucket) );
+					}
+				}
+			}
+		}
+		delete feat1_force; delete feat2_force;
+			
+		// Smooth in each direction
+		cout << "Gauss smoothing in x-direction" << endl;
+		inh_map->filter_3D(gauss_x, 1, mask, 1);
+		cout << "Gauss smoothing in y-direction" << endl;
+		inh_map->filter_3D(gauss_y, 1, mask, 1);
+		cout << "Gauss smoothing in z-direction" << endl;
+		inh_map->filter_3D(gauss_z, 1, mask, 1);
+
+		// field[i] = field[i-1] + iteration_strength*(force / mean(abs(force)))
+		inh_map->mask_out(mask);
+		inh_map->scale_by_factor(iteration_strength/((inh_map->get_sum_of_voxels(true, mask))/bodysize)); // oklart varför
+		field->combine(inh_map, COMB_ADD);
+		field->data_has_changed();
+			
+		if (save_field_each_iteration) {
+			fields[iter] = new image_scalar<float,3>(field);
+			str = "Field, iteration " + int2str(iter+1);
+			fields[iter]->name(str);
+			datamanagement.add(fields[iter]);
+		}
+		delete inh_map;
+	
+		//Beräkna ekv (7) i SIM-paper
+		feat1_corr->fill(0); feat2_corr->fill(0);
+		feat1_corr->combine(field, COMB_ADD); feat2_corr->combine(field, COMB_ADD);
+		feat1_corr->add_value_to_all_voxels(1); feat2_corr->add_value_to_all_voxels(1);
+		feat1_corr->combine(feat1, COMB_MULT); feat2_corr->combine(feat2, COMB_MULT);
+		feat1_corr->data_has_changed(); feat2_corr->data_has_changed();
+
+		if (save_histogram_each_iteration) {	
+			histograms[iter] = feat1_corr->create2Dhistogram_3D(feat2_corr, false, num_buckets_feat1, num_buckets_feat2, mask);
+			str = "Histogram, iteration " + int2str(iter+1);
+			histograms[iter]->data_has_changed();
+			histograms[iter]->name(str);
+			datamanagement.add(histograms[iter]);
+		}
+
+		if (save_corrected_images_each_iteration) {
+			feat1_corred[iter] = new image_scalar<float,3>(feat1_corr);
+			str = "Corrected feature 1, iteration " + int2str(iter+1);
+			feat1_corred[iter]->name(str);
+			datamanagement.add(feat1_corred[iter]);
+			feat2_corred[iter] = new image_scalar<float,3>(feat2_corr);
+			str = "Corrected feature 2, iteration " + int2str(iter+1);
+			feat2_corred[iter]->name(str);
+			datamanagement.add(feat2_corred[iter]);
+		}
+
+	// end of iteration
+	}
+	// Delete stuff
+	delete feat1; delete feat2; delete mask;
+	delete gauss_feat1; delete gauss_feat2;
+	delete sobel_feat1; delete sobel_feat2;
+	delete gauss_x; delete gauss_y; delete gauss_z;
+	delete field;
+
+	cout << "Saving to file corrected_feat1_backup.vtk" << endl;
+	feat1_corr->save_to_VTK_file("corrected_feat1_backup.vtk");
+	cout << "Saving to file corrected_feat2_backup.vtk" << endl;
+	feat2_corr->save_to_VTK_file("corrected_feat2_backup.vtk");
+
+	feat1_corr->name("Corrected feature 1"); datamanagement.add(feat1_corr);
+	feat2_corr->name("Corrected feature 2"); datamanagement.add(feat2_corr);
+}
