@@ -232,15 +232,17 @@ void nav_tool::handle(viewport_event &event)
 
     if ( event.state() == pt_event::begin )
 	{
-		cout<<"(pt_event::begin)"<<endl;
+//		cout<<"(pt_event::begin)"<<endl;
         event.grab();
-        		
-        dragLast[0] = event.mouse_pos_global()[0];
+		
+        dragLast[0] = event.mouse_pos_global()[0]; //used in various functions
         dragLast[1] = event.mouse_pos_global()[1];
 
-		global_zoom_start_pos = myRenderer->view_to_world(event.mouse_pos_global()[0], event.mouse_pos_global()[1], fvp->w(), fvp->h());
-		zoom_start_pos[0] = event.mouse_pos_global()[0];
-		zoom_start_pos[1] = event.mouse_pos_global()[1];
+		//Used in zoom function
+		//Note: it is important to use local mouse coordinates when using world<-->view transformations...
+		global_zoom_start_pos = myRenderer->view_to_world(event.mouse_pos_local()[0], event.mouse_pos_local()[1], fvp->w(), fvp->h());
+		zoom_start_pos[0] = event.mouse_pos_local()[0];
+		zoom_start_pos[1] = event.mouse_pos_local()[1];
     }
 
 	if ( event.type() == pt_event::focus_viewports )
@@ -285,10 +287,11 @@ void nav_tool::handle(viewport_event &event)
 				{
                     event.grab();
 //                    cout<<"("<<mouse[1]<<","<<dragLast[1]<<") "<<1+(mouse[1]-dragLast[1])*zoom_factor<<endl;
-					float z = abs(float(1.0+(mouse[1]-dragLast[1])*zoom_factor));
+
+					float z = abs(float(1.0+(mouse[1]-dragLast[1])*zoom_factor)); //the absolute value is needed since negative values inverts the image...
 					
 					//zoom...
-					myRenderer->move_view(viewSize,0,0,0,z); //the absolute value is needed since negative values inverts the image...
+					myRenderer->move_view(viewSize,0,0,0,z); 
 
 					//move....
 					std::vector<int> new_pos = myRenderer->world_to_view(fvp->w(),fvp->h(),global_zoom_start_pos);
@@ -296,6 +299,8 @@ void nav_tool::handle(viewport_event &event)
 //					int dy = float(myPort->pixmap_size()[1]/2-zoom_start_pos[1])*(1.0-z);
 					int dx = new_pos[0]-zoom_start_pos[0];
 					int dy = new_pos[1]-zoom_start_pos[1];
+                    cout<<"new_pos[0]="<<new_pos[0]<<endl;
+                    cout<<"new_pos[1]="<<new_pos[1]<<endl;
                     cout<<"dx="<<dx<<endl;
                     cout<<"dy="<<dy<<endl;
 					myRenderer->move_view(viewSize,dx,dy);
