@@ -54,10 +54,6 @@ void rendergeometry::refresh_viewports()
 	
 float rendergeometry::distance_to_viewing_plane(Vector3D point)
 {
-	// distance to viewing plane
-	// http://www.math.umn.edu/~nykamp/m2374/readings/planedist/index.html
-
-	
 	Vector3D v;
 	
 	v = point - look_at;

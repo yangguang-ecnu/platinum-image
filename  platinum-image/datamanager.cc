@@ -239,7 +239,7 @@ void datamanager::add(image_base * v)
                     
                     if (rendermanagement.renderer_empty(rendererID))
                         {
-							rendermanagement.center_and_fit( rendererID, the_image_id );
+							rendermanagement.center3d_and_fit( rendererID, the_image_id );
                         }
                     
                     rendermanagement.connect_data_renderer(rendererID,the_image_id);

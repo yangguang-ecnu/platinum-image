@@ -42,6 +42,7 @@
 #include "itkDICOMImageIO2.h"		//JK compresstion test...
 #include "itkNiftiImageIO.h"
 #include "itkAnalyzeImageIO.h"
+#include "itkGE5ImageIO.h"
 
 #include "gdcmFileHelper.h"			//used in dicomloader::
 
@@ -208,6 +209,15 @@ public:
     image_base* read();
 };
 
+class ximgloader : public imageloader
+{
+	private:
+		itk::GE5ImageIO::Pointer ximgIO;
+		
+	public:
+		ximgloader(std::vector<std::string> * f);
+		image_base * read();
+};
 
 class analyze_objloader: public imageloader 
 {

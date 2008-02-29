@@ -117,7 +117,7 @@ void rendercombination::toggle_data(int dataID)
         
         if ( image != NULL )
 		{	// it is an image
-			rendermanagement.center_and_fit( rendermanagement.renderer_from_combination(get_id()), image->get_id() );
+			rendermanagement.center3d_and_fit( rendermanagement.renderer_from_combination(get_id()), image->get_id() );
 		}
 	}
 }
@@ -143,7 +143,7 @@ void rendercombination::enable_data( int dataID )
         
         if ( image != NULL )
 		{	// it is an image
-			rendermanagement.center_and_fit( rendermanagement.renderer_from_combination(get_id()), image->get_id() );
+			rendermanagement.center3d_and_fit( rendermanagement.renderer_from_combination(get_id()), image->get_id() );
 		}
 	}
 }

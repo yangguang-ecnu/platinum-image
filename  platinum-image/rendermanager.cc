@@ -486,60 +486,41 @@ void rendermanager::set_blendmode(int renderer_index,blendmode mode)
     {
     renderers[renderer_index]->imagestorender->blend_mode(mode);
     }
-	
-void rendermanager::center_and_fit( const int rendererID, const int imageID )
+
+Vector3D rendermanager::center_of_image(const int imageID) const
 {
-	image_base * image = datamanagement.get_image( imageID );
-	
-	Vector3D size = image->get_physical_size();
-	cout<<"size="<<size<<endl;
-
-	// måste beräkna maxstorleken på annat sätt eftersom om bilden är tex en
-	// kvadrat och den är roterad 45 grader och står på ett hörn så blir ju
-	// maxstorleken diagonalen av kvadraten (bilden)
-	float maxsize = max_norm ( size );
-	cout<<"maxsize="<<maxsize<<endl;
-
-
-/*
-	rendergeometry * geometry = rendermanagement.get_geometry(rendererID);
-	Vector3D xDir = create_Vector3D(1,0,0);
-	xDir = geometry->dir * xDir;
-	Vector3D yDir = create_Vector3D(0,1,0);
-	yDir = geometry->dir * yDir;
-	
-	xDir = orientation * xDir;
-	yDir = orientation * yDir;
-	
-	xDir[0] = abs(xDir[0]);
-	xDir[1] = abs(xDir[1]);
-	xDir[2] = abs(xDir[2]);
-	
-	Vector3D test;
-	test = center;
-	
-	while ( xDir[0] <= half_size[0] && xDir[1] <= half_size[1] && xDir[2] <= half_size[2]  )
-	{ 
-		test += xDir;
-	}
-		
-	std::cout << std::endl << size << std::endl;
-	std::cout << "test.GetNorm() " << test.GetNorm() << std::endl;
-*/	
-	
-	//set_geometry ( rendererID, center, renderer_base::display_scale /  test.GetNorm() );
-	//set_geometry ( rendererID, center, 0 );
-//	set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
-	set_geometry ( rendererID, image->get_physical_center(), renderer_base::display_scale/maxsize );
+	image_base * image = datamanagement.get_image(imageID);
+	return image->get_origin() + image->get_orientation() * (image->get_physical_size() / 2);
 }
 
-void rendermanager::center_and_fit( const int imageID )
+void rendermanager::center2d(const int rendererID, const int imageID)
+{
+	Vector3D center = center_of_image(imageID);
+	rendergeometry * where = get_geometry(rendererID);
+	center = center - (where->get_n() * (where->get_n() * (center - where->look_at)));
+	
+	set_geometry(rendererID, center);
+}
+
+void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
+{
+	image_base * image = datamanagement.get_image(imageID);
+	// TODO: determine the maximum size in some other way!
+	// example: if the image is rotated 45 degrees the maximum size should be the diagonal
+	Vector3D size = image->get_physical_size();
+	float maxsize = max_norm(size);
+	Vector3D center = center_of_image(imageID);
+
+	set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
+}
+
+void rendermanager::center3d_and_fit( const int imageID )
 {
 	std::vector<int> rendererIDs = rendermanagement.renderers_from_data( imageID );
 	
 	for ( std::vector<int>::iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
 	{
-		center_and_fit( *itr, imageID );
+		center3d_and_fit( *itr, imageID );
 	}
 }
 
@@ -547,7 +528,7 @@ std::vector<int> rendermanager::images_from_combination ( const int combinationI
 {
 	std::vector<int> imageIDs;
 
-	rendercombination * combination = get_combination ( combinationID );
+	rendercombination * combination = get_combination( combinationID );
 	
 	for ( std::list<rendercombination::renderpair>::const_iterator itr = combination->begin(); itr != combination->end(); itr++ )
 	{

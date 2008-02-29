@@ -545,7 +545,7 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 
 	std::vector<int> loc = world_to_view(where, rgb_sx, rgb_sy, point);
 	
-	// Vertical
+	// Vertical part
 	if ( loc[0] >= 0 && loc[0] <= rgb_sx )
 	{
 		for (int d = -size; d <= size; d++)
@@ -563,7 +563,7 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 		}
 	}
 
-	// Horizontal
+	// Horizontal part
 	if ( loc[1] >= 0 && loc[1] <= rgb_sy )
 	{								
 		for (int d = -size; d <= size; d++)
