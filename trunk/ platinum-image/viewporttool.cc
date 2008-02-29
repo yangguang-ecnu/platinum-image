@@ -343,7 +343,7 @@ void nav_tool::handle(viewport_event &event)
 						// och en metod som roterar bild kring dess origin (ändrar endast orientation)
 					
 												
-						// rendermanagement.center_and_fit ( top->get_id() );
+						// rendermanagement.center3d_and_fit ( top->get_id() );
 						
 					}
 				}
@@ -424,11 +424,18 @@ void nav_tool::handle(viewport_event &event)
                     fvp->needs_rerendering();
 				}
 				
-				if ( event.key_combo( pt_event::space_key ) )
+				if ( event.key_combo( pt_event::space_key + pt_event::shift_key ) )
 				{
 					event.grab();
-					center_and_fit();
-				}			
+					center3d_and_fit();
+				}
+				
+				if ( event.key_combo( pt_event::space_key ) )
+				{			
+					event.grab();
+					center2d();
+				}
+
 			break;
 		}
         
@@ -466,16 +473,25 @@ void nav_tool::move_voxels( int x, int y, int z )
 	}
 }
 
-void nav_tool::center_and_fit()
+void nav_tool::center3d_and_fit()
 {
 	image_base * top;
 	if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
 	{	// there is an image in current viewport			
-		rendermanagement.center_and_fit ( myRenderer->get_id(), top->get_id() );
+		rendermanagement.center3d_and_fit(myRenderer->get_id(), top->get_id());
 		refresh_by_image_and_direction();
 	}
 }
 
+void nav_tool::center2d()
+{
+	image_base * top;
+	if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
+	{	// there is an image in current viewport			
+		rendermanagement.center2d(myRenderer->get_id(), top->get_id());
+		refresh_by_image_and_direction();
+	}
+}
 
 #pragma mark *** dummy tool ***
 

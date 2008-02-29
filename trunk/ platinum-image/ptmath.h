@@ -27,6 +27,9 @@
 
 #define PI 3.1415926536
 
+#define SQR(x) ((x) * (x))
+#define MIN(A,B) ((A) < (B)) ? (A) : (B)
+
 #include <limits>	//for example...  numeric_limits<float>
 
 //tensor algebra type defs, dependencies...
@@ -35,6 +38,13 @@
 #include "itkMatrix.h"
 
 #include "fileutils.h"
+
+#include <vnl/vnl_float_3.h>
+#include <vnl/vnl_float_3x3.h>
+#include <vnl/vnl_float_2.h>
+#include <vnl/vnl_float_2x2.h>
+//#include <vnl/vnl_vector.h>
+//#include <vnl/vnl_matrix.h>
 
 
 ///...and types
@@ -222,8 +232,31 @@ double get_random_number_in_span(double min, double max);
 Vector3D create_Vector3D(float x, float y, float z);
 Vector3Dint create_Vector3Dint(int x, int y, int z);
 
+Matrix3D outer_product(const Vector3D a, const Vector3D b);
+
 unsigned int get_factorial(unsigned int i);
 unsigned int get_permutations(unsigned int n, unsigned int r); //returns pascals triangle values
 unsigned int get_smallest_power_above(unsigned int this_val, unsigned int power_base=2); //e.g. this_val=10 (base=2) --> 16
+
+vnl_float_2 mean2d(const std::vector<vnl_float_2> & x);
+vnl_float_3 mean(const std::vector<vnl_float_3> & x);
+vnl_float_2x2 cov(const std::vector<vnl_float_2> & x);
+vnl_float_2x2 cov(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y);
+vnl_float_3x3 covm(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y);
+float tsquare(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y);
+
+double invcdf(double p, double a, double b);	// 357
+double invbetai(double p, double a, double b);	// 297
+double gammln(const double xx);					// 281
+double betai(const double a, const double b, const double x);	// 296
+double betacf(const double a, const double b, const double x);	// 296
+
+// double invcdfAF(const double p, const double a, const double b);
+// double invbetaiAF(const double p, const double a, const double b);
+// double gammalnAF(const double x);
+double betaiAF(const double a, const double b, const double x);
+
+
+
 
 #endif	//__ptmath.h__

@@ -622,7 +622,7 @@ void FLTKgeom_image::rotation_update_cb ( Fl_Widget * w, void * )
 	datamanagement.get_image(g->data_id)->set_orientation(m);
 	datamanagement.data_has_changed(g->data_id);
 	
-	// rendermanagement.center_and_fit( g->data_id );	
+	// rendermanagement.center3d_and_fit( g->data_id );	
 }
 
 //const Matrix3D FLTKgeom_image::get_start() const

@@ -239,6 +239,7 @@ class image_general : public image_storage <ELEMTYPE >
 
         void load_dataset_from_VTK_file(std::string file_path);
         void load_dataset_from_hdr_file(std::string file_path);
+		void load_dataset_from_ximg_file(std::string file_path);
         void load_dataset_from_NIFTI_file(std::string file_path);
 //        void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier); //gdcm
   //      void load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier);//"itk-dcm"

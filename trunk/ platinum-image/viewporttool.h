@@ -100,7 +100,8 @@ protected:
 
 	void refresh_by_image_and_direction();
 	void move_voxels( int x, int y, int z );
-	void center_and_fit();
+	void center3d_and_fit();
+	void center2d();
 		
 public:
     nav_tool (viewport_event &);

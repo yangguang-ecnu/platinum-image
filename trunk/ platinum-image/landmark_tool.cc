@@ -148,7 +148,7 @@ void landmark_tool::handle(viewport_event &event)
 			}
 		break;	// end of pt_event::create
 		
-		// Remove this to enable rotation
+		// Remove this to enable rotation (the event is then handled by nav_tool)
 		case pt_event::rotate:
 			if ( event.state() == pt_event::iterate )
 			{ 
@@ -156,9 +156,8 @@ void landmark_tool::handle(viewport_event &event)
 				std::cout << "Rotation is currently disabled in landmark tool." << std::endl;
 			}
 		break;
-
 		
-		case pt_event::key:
+		case pt_event::key:		
 			if ( event.key_combo(pt_event::pageup_key) )
 			{
 				event.grab();
@@ -176,11 +175,18 @@ void landmark_tool::handle(viewport_event &event)
 				fvp->needs_rerendering();
 			}
 
-			if ( event.key_combo( pt_event::space_key ) )
+			if ( event.key_combo( pt_event::space_key + pt_event::shift_key ) )
 			{
 				event.grab();
-				center_and_fit();
+				center3d_and_fit();
 			}
+			
+			if ( event.key_combo( pt_event::space_key ) )
+			{			
+				event.grab();
+				center2d();
+			}
+
 		// NOTE: no break, update hovering also (scroll is ignored because there is no iterate event)
 		
 		case pt_event::scroll:
