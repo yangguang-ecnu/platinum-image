@@ -523,6 +523,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_included_num_pix_from_lower_in
     cout<<"get_intensity_at_included_num_pix_from_lower_int("<<lower_int<<","<<num_pix<<")"<<endl;
 
 	unsigned short start_bucket = this->intensity_to_bucketpos(lower_int);
+    cout<<"start_bucket="<<start_bucket<<endl;
 	float sum_elements=0;
 
 	for (unsigned short i = start_bucket; i < this->num_buckets; i++){
