@@ -518,6 +518,27 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(flo
 }
 
 template <class ELEMTYPE>
+ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_included_num_pix_from_lower_int(ELEMTYPE lower_int, float num_pix)
+{
+    cout<<"get_intensity_at_included_num_pix_from_lower_int("<<lower_int<<","<<num_pix<<")"<<endl;
+
+	unsigned short start_bucket = this->intensity_to_bucketpos(lower_int);
+	float sum_elements=0;
+
+	for (unsigned short i = start_bucket; i < this->num_buckets; i++){
+		sum_elements += this->buckets[i];
+		if(sum_elements>=num_pix){
+			return bucketpos_to_intensity(i);
+		}
+	}
+
+	return bucketpos_to_intensity(this->num_buckets-1);
+}
+
+		 
+
+
+template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info)
 {
     cout<<"fit_gaussian_to_intensity_range..."<<endl;

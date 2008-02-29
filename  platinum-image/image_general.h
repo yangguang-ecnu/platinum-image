@@ -134,6 +134,10 @@ class image_general : public image_storage <ELEMTYPE >
 
 		void set_voxel_size(float dx, float dy, float dz=0);			//physical voxel size
 		bool read_voxel_size_from_dicom_file(std::string dcm_file);	//physical voxel size	
+		float get_voxel_volume_in_mm3();
+		float get_voxel_volume_in_cm3();
+		float get_voxel_volume_in_dm3();
+		float get_num_voxels_per_dm3();
 
 		bool is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z);  
 		bool is_voxelpos_within_image_3D(Vector3D vp);  
