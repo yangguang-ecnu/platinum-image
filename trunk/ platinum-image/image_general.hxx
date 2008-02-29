@@ -676,6 +676,43 @@ bool image_general<ELEMTYPE, IMAGEDIM>::read_voxel_size_from_dicom_file(std::str
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+float image_general<ELEMTYPE, IMAGEDIM>::get_voxel_volume_in_mm3()
+{
+	float res = 1;
+	for(int i=0;i<IMAGEDIM;i++){
+		res *= voxel_size[i];
+	}
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_general<ELEMTYPE, IMAGEDIM>::get_voxel_volume_in_cm3()
+{
+	float res = 1;
+	for(int i=0;i<IMAGEDIM;i++){
+		res *= voxel_size[i]*0.1;
+	}
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_general<ELEMTYPE, IMAGEDIM>::get_voxel_volume_in_dm3()
+{
+	float res = 1;
+	for(int i=0;i<IMAGEDIM;i++){
+		res *= voxel_size[i]*0.01;
+	}
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_general<ELEMTYPE, IMAGEDIM>::get_num_voxels_per_dm3()
+{
+	return 1.0/get_voxel_volume_in_dm3();
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
     Matrix3D image_general<ELEMTYPE, IMAGEDIM>::get_voxel_resize () const
     {
     Matrix3D result;

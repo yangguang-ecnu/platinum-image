@@ -38,7 +38,7 @@ image_binary<DIM>* binary_copycast (image_base* input)
             }
         }
 
-            {
+        {
         image_integer <unsigned short,DIM>* input_general =
             dynamic_cast<image_integer <unsigned short, DIM> *> (input) ;
 
@@ -47,7 +47,7 @@ image_binary<DIM>* binary_copycast (image_base* input)
             output = new image_binary<DIM> (input_general,true);
             //delete input;
             } 
-            }
+        }
 
     return output;
     }

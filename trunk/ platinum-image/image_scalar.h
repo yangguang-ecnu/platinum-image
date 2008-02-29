@@ -102,7 +102,7 @@ public:
 
 	ELEMTYPE get_intensity_at_lower_percentile(float percentile, bool ignore_zero_intensity);
     void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
-    void save_histogram_to_txt_file(const std::string filename, bool reload_hist_from_image=true, gaussian *g=NULL, const std::string separator=";");
+    void save_histogram_to_txt_file(const std::string filename, bool reload_hist_from_image, gaussian *g=NULL, const std::string separator=";");
 //    void save_histogram_to_txt_file2(const std::string filename, bool reload_hist_from_image=true, const std::string separator=";");
 
     image_scalar<unsigned int, 3>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1, image_binary<IMAGEDIM>* mask=NULL); 

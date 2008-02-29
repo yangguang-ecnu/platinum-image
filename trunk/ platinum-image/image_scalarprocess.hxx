@@ -157,6 +157,18 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_body_from_sum
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_sum_image(int initial_upper_thres, image_binary<3> *body_mask)
 {
+	
+	image_binary<3> *half_body_mask = binary_copycast<3>(body_mask);	// = image_binary<3>(body_mask);
+
+	half_body_mask->fill_region_3D(1,130,body_mask->get_size_by_dim(1)-1,0);
+	half_body_mask->save_to_file("D:/Joel/TMP/half_body.vtk");
+
+	histogram_1D<ELEMTYPE> *h = this->get_histogram_from_masked_region_3D(half_body_mask);
+	h->save_histogram_to_txt_file("D:/Joel/TMP/half_body_sum_hist.txt");
+
+	cout<<"lung_tresh="<<h->get_intensity_at_included_num_pix_from_lower_int(2,this->get_num_voxels_per_dm3()*2)<<endl;
+
+
 	image_binary<3> *lungs = this->threshold(0,initial_upper_thres);
 //	lungs->name(id+"_lungs");
 
