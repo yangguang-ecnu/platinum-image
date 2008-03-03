@@ -22,6 +22,30 @@
 #include <vcl_iostream.h>
 #include <vnl/algo/vnl_matrix_inverse.h>
 
+line3D::line3D()
+{
+	point = create_Vector3D(0,0,0);
+	direction = create_Vector3D(0,0,0);
+}
+
+line3D least_square_fit_line_to_points_in_3D(vector<Vector3D> v)
+{
+	line3D line = line3D();
+
+	for(int p=0;p<v.size();p++){
+		cout<<"p="<<p<<" "<<v[p]<<endl;
+		line.point += v[p];
+	}
+	line.point /= v.size();
+	cout<<"center="<<endl<<line.point<<endl;
+
+//	for(int p=0;p<v.size();p++){
+//		cout<<"p="<<p<<" "<<v[p]<<endl;
+//	}
+	return line;
+}
+
+
 void pt_spline1D(float x[],float y[],int n,float yp1,float ypn,float y2[])
 {
 	int i,k;

@@ -51,6 +51,15 @@ typedef itk::Point<float,3> Point3D;
 typedef std::pair<long, long> HistoPair;
 typedef itk::Matrix<float> Matrix3D;
 
+class line3D{
+public:
+	line3D();
+	Vector3D point;
+	Vector3D direction;
+};
+
+line3D least_square_fit_line_to_points_in_3D(vector<Vector3D> v);
+
 //not typical tensor functions, just for lack of a better place
 
 template<class T>                   

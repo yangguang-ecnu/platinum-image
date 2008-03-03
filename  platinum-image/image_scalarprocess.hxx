@@ -161,7 +161,8 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 	image_binary<3> *half_body_mask = binary_copycast<3>(body_mask);	// = image_binary<3>(body_mask);
 
 	half_body_mask->fill_region_3D(1,130,body_mask->get_size_by_dim(1)-1,0);
-	half_body_mask->save_to_file("D:/Joel/TMP/half_body.vtk");
+	half_body_mask->erode_3D_26Nbh();
+	half_body_mask->save_to_file("D:/Joel/TMP/half_body_small.vtk");
 
 	histogram_1D<ELEMTYPE> *h = this->get_histogram_from_masked_region_3D(half_body_mask);
 	h->save_histogram_to_txt_file("D:/Joel/TMP/half_body_sum_hist.txt");
