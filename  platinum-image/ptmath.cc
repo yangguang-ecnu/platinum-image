@@ -382,14 +382,26 @@ vnl_float_3x3 cov(const std::vector<vnl_float_3> & x, const std::vector<vnl_floa
 	return s;
 }
 
-float tsquare(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y)
+float tsquare2d(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y)
 {
-	const float nx = x.size();			// use float to avoid "int/int = int" later
+	const float nx = x.size();				// use float to avoid "int/int = int" later
 	const float ny = y.size();
 	const vnl_float_2 xmean = mean(x);
 	const vnl_float_2 ymean = mean(y);
 	const vnl_float_2x2 s = cov(x, y);
 	const vnl_float_2x2 s_inv = vnl_matrix_inverse<float>(s).inverse();
+
+	return ((nx * ny) / (nx + ny)) * dot_product(xmean - ymean, s_inv * (xmean - ymean));
+}
+
+float tsquare3d(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y)
+{
+	const float nx = x.size();				// use float to avoid "int/int = int" later
+	const float ny = y.size();
+	const vnl_float_3 xmean = mean(x);
+	const vnl_float_3 ymean = mean(y);
+	const vnl_float_3x3 s = cov(x, y);
+	const vnl_float_3x3 s_inv = vnl_matrix_inverse<float>(s).inverse();
 
 	return ((nx * ny) / (nx + ny)) * dot_product(xmean - ymean, s_inv * (xmean - ymean));
 }

@@ -256,7 +256,8 @@ vnl_float_3 mean(const std::vector<vnl_float_3> & x);
 vnl_float_2x2 cov(const std::vector<vnl_float_2> & x);
 vnl_float_2x2 cov(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y);
 vnl_float_3x3 covm(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y);
-float tsquare(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y);	// Hotelling's two-sample t-square statistic
+float tsquare2d(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y);		// Hotelling's two-sample t-square statistic
+float tsquare3d(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y);		// Hotelling's two-sample t-square statistic
 
 // Parts of the implementation of some the following algorithms were inspired by
 // "Numerical Recipes in C", Second Edition, Press, Teukolsky, Vetterling, Flannery
