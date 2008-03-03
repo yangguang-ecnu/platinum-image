@@ -174,10 +174,8 @@ bool dec_from_string(T& outType, const std::string& inString)
      return true;
  }
  */
-//Following rules can be notes about the rotation matrices below:
-// R^(-1)(fi) = R(-fi)
-// R^(-1)(fi) = R^T(fi)
-// R-total = RzRyRx --< R^(-1) = R^(T)
+
+/*
 class matrix_generator{
 public:
 	Matrix3D get_rot_x_matrix_3D(float fi);			//fi in radians
@@ -192,6 +190,24 @@ public:
 	Matrix3D get_rot_matrix_3D(float fi_z, float fi_y, float fi_x);	//fi_z/y/x in radians
 	Matrix3D get_rot_matrix_3D(int fi_z, int fi_y, int fi_x);	//fi_z/y/x in degrees
 };
+*/
+
+//Following rules can be noted about the rotation matrices below:
+// R^(-1)(fi) = R(-fi)
+// R^(-1)(fi) = R^T(fi)
+// R-total = RzRyRx --> R^(-1) = R^(T)
+
+//rotation examples based on the "basic" image processing coordinate system
+//(x-->right, y-->down and z--> the view direction of the screen)
+//+fi_z rotates the image volume: "Counterclockwise" of the z-direction
+//+fi_y rotates the image volume: "Counterclockwise" of the y-direction
+//+fi_x rotates the image volume: "Counterclockwise" of the x-direction
+
+Matrix3D create_rot_x_matrix_3D(float fi_rad);									//fi in radians
+Matrix3D create_rot_y_matrix_3D(float fi_rad);									//fi in radians
+Matrix3D create_rot_z_matrix_3D(float fi_rad);									//fi in radians
+Matrix3D create_rot_matrix_3D(float fi_x_rad, float fi_y_rad, float fi_z_rad);	//fi_x/y/z in radians
+
 
 
 

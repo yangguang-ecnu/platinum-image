@@ -613,9 +613,10 @@ void FLTKgeom_image::rotation_update_cb ( Fl_Widget * w, void * )
 	// convert degrees to radians
 	angle *= ( PI / 180.0 );	
 	
-	matrix_generator mg;
-	m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * datamanagement.get_image(g->data_id)->get_orientation();
+//	matrix_generator mg;
+//	m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * datamanagement.get_image(g->data_id)->get_orientation();
 //	m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * g->get_start();
+	m = create_rot_matrix_3D(angle[0], angle[1], angle[2]) * datamanagement.get_image(g->data_id)->get_orientation();
 
 	matrix3d->value(m);
 	

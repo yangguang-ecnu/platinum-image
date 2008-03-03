@@ -101,6 +101,7 @@ private:
     static void cb_renderer_select (Fl_Widget * o, void * v);
     void rebuild_blendmode_menu ();//update checkmark for current blend mode
 	
+	Matrix3D get_direction();
 	void set_direction( const Matrix3D & dir );
 	void set_direction( preset_direction direction ); 
 	

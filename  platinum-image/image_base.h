@@ -120,8 +120,8 @@ class image_base : public data_base
         bool read_origin_from_dicom_file(std::string dcm_file);
 		bool read_orientation_from_dicom_file(std::string dcm_file);
 		//void rotate(...); //replaced by the 2 functions below...
-		void rotate_orientation(int fi_z_deg, int fi_y_deg, int fi_x_deg);
-		void rotate_orientation(float fi_z_rad, float fi_y_rad, float fi_x_rad);
+		void rotate_orientation(int fi_x_deg, int fi_y_deg, int fi_z_deg);
+		void rotate_orientation(float fi_x_rad, float fi_y_rad, float fi_z_rad);
 //		void rotate_geometry_around_center_voxel(int fi_z_deg, int fi_y_deg, int fi_x_deg); //implemented in image_general
 		void rotate_origin(int rot_axis, int pos_neg_dir=+1); //assumes orientation and voxel_size are correct
 		void rotate_voxel_size(int rot_axis, int pos_neg_dir=+1);
@@ -140,6 +140,7 @@ class image_base : public data_base
         
         Matrix3D get_orientation () const;
 		string get_orientation_as_dcm_string(); //print first two columns (cosines for x and y direction)
+        Vector3D get_slice_direction();
 		void set_orientation(const Matrix3D m);
         Vector3D get_origin() const;
         void set_origin(const Vector3D v);

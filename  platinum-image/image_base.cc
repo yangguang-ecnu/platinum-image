@@ -117,16 +117,18 @@ bool image_base::read_orientation_from_dicom_file(std::string dcm_file)
 	return succeded;
 }
 
-void image_base::rotate_orientation(int fi_z_deg, int fi_y_deg, int fi_x_deg) //Is there a good reason for the z,y,x ordering?
+void image_base::rotate_orientation(int fi_x_deg, int fi_y_deg, int fi_z_deg)
 {
-    matrix_generator mg;
-    orientation = mg.get_rot_matrix_3D(fi_z_deg,fi_y_deg,fi_x_deg)*orientation;
+//    matrix_generator mg;
+//    orientation = mg.get_rot_matrix_3D(fi_z_deg,fi_y_deg,fi_x_deg)*orientation;
+    orientation = create_rot_matrix_3D(fi_x_deg*PI/180.0, fi_y_deg*PI/180.0, fi_z_deg*PI/180.0)*orientation;
 }
 
-void image_base::rotate_orientation(float fi_z_rad, float fi_y_rad, float fi_x_rad) //Is there a good reason for the z,y,x ordering?
+void image_base::rotate_orientation(float fi_x_rad, float fi_y_rad, float fi_z_rad)
 {
-    matrix_generator mg;
-    orientation = mg.get_rot_matrix_3D(fi_z_rad,fi_y_rad,fi_x_rad)*orientation;
+//    matrix_generator mg;
+//    orientation = mg.get_rot_matrix_3D(fi_z_rad,fi_y_rad,fi_x_rad)*orientation;
+    orientation = create_rot_matrix_3D(fi_x_rad, fi_y_rad, fi_z_rad)*orientation;
 }
 
 void image_base::rotate_origin(int rot_axis, int pos_neg_dir)
@@ -197,6 +199,12 @@ string image_base::get_orientation_as_dcm_string()
 	}
 	return s;
 }
+
+Vector3D image_base::get_slice_direction()
+{
+	return create_Vector3D(orientation[0][2],orientation[1][2],orientation[2][2]);
+}
+
 
 void image_base::set_orientation(const Matrix3D m)
 {

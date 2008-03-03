@@ -156,7 +156,11 @@ void FLTK_event::set_type ()
 	}
 	
 	// left MB + ctrl key
-	if ( (state & FL_BUTTON1) && (state & FL_CTRL) )
+//	if ( (state & FL_BUTTON1) && (state & FL_CTRL) )
+//		{ type_ = rotate; }
+
+	// left MB + ctrl key
+	if ( (state & FL_BUTTON1) && (state & FL_SHIFT) && (state & FL_CTRL) )
 		{ type_ = rotate; }
 }
 
