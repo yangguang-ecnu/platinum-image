@@ -105,7 +105,7 @@ public:
     void save_histogram_to_txt_file(const std::string filename, bool reload_hist_from_image, gaussian *g=NULL, const std::string separator=";");
 //    void save_histogram_to_txt_file2(const std::string filename, bool reload_hist_from_image=true, const std::string separator=";");
 
-    image_scalar<unsigned int, 3>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1, image_binary<IMAGEDIM>* mask=NULL); 
+    image_scalar<unsigned short, 3>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1, image_binary<IMAGEDIM>* mask=NULL); 
 
 	//the resulting histogram volume will have the intensities of first/second in the x/y directions.
 	//The z direction will gives the different 2D-histograms in the specified direction "hist_slc_dir"
@@ -144,7 +144,7 @@ public:
 
 	void scale_slice_by_factor_3d(int dir, float factor, int slice);
 
-	float get_mean_from_slice_3d(int dir, int slice, ELEMTYPE low_thres, ELEMTYPE high_thres);
+	float get_mean_from_slice_3d(int dir, int slice, image_binary<IMAGEDIM>* mask=NULL);
 
 	void logarithm_3d(int zero_handling=0);
 
