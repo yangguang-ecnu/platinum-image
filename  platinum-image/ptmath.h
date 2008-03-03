@@ -27,9 +27,6 @@
 
 #define PI 3.1415926536
 
-#define SQR(x) ((x) * (x))
-#define MIN(A,B) ((A) < (B)) ? (A) : (B)
-
 #include <limits>	//for example...  numeric_limits<float>
 
 //tensor algebra type defs, dependencies...
@@ -243,19 +240,15 @@ vnl_float_3 mean(const std::vector<vnl_float_3> & x);
 vnl_float_2x2 cov(const std::vector<vnl_float_2> & x);
 vnl_float_2x2 cov(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y);
 vnl_float_3x3 covm(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y);
-float tsquare(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y);
+float tsquare(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y);	// Hotelling's two-sample t-square statistic
 
-double invcdf(double p, double a, double b);	// 357
-double invbetai(double p, double a, double b);	// 297
-double gammln(const double xx);					// 281
-double betai(const double a, const double b, const double x);	// 296
-double betacf(const double a, const double b, const double x);	// 296
-
-// double invcdfAF(const double p, const double a, const double b);
-// double invbetaiAF(const double p, const double a, const double b);
-// double gammalnAF(const double x);
-double betaiAF(const double a, const double b, const double x);
-
+// Parts of the implementation of some the following algorithms were inspired by
+// "Numerical Recipes in C", Second Edition, Press, Teukolsky, Vetterling, Flannery
+double invF(const double p, const double a, const double b);				// Inverse cumulative F distribution function
+double invIncompleteBeta(const double p, const double a, const double b);	// Inverse incomplete beta function
+double logGamma(const double x);											// Logarithm of the Gamma function
+double incompleteBeta(const double a, const double b, const double x);		// Incomplete beta function
+double incompleteBetaCF(const double a, const double b, const double x);	// Continued fraction for incomplete beta function
 
 
 

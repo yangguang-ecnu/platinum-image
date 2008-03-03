@@ -279,17 +279,6 @@ unsigned int get_smallest_power_above(unsigned int this_val, unsigned int power_
 	return 0;
 }
 
-
-
-
-
-
-
-
-
-
-
-// sample mean
 vnl_float_2 mean(const std::vector<vnl_float_2> & x)
 {
 	vnl_float_2 sum(0.0, 0.0);
@@ -299,7 +288,6 @@ vnl_float_2 mean(const std::vector<vnl_float_2> & x)
 	return sum;
 }
 
-// sample mean (centroid)
 vnl_float_3 mean(const std::vector<vnl_float_3> & x)
 {
 	vnl_float_3 sum(0.0, 0.0, 0.0);
@@ -365,120 +353,51 @@ vnl_float_3x3 cov(const std::vector<vnl_float_3> & x, const std::vector<vnl_floa
 	return s;
 }
 
-// Hotelling's two-sample t-square statistic
 float tsquare(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y)
 {
-	const float nx = x.size();	// use float to avoid int/int = int later
+	const float nx = x.size();			// use float to avoid "int/int = int" later
 	const float ny = y.size();
 	const vnl_float_2 xmean = mean(x);
 	const vnl_float_2 ymean = mean(y);
 	const vnl_float_2x2 s = cov(x, y);
 	const vnl_float_2x2 s_inv = vnl_matrix_inverse<float>(s).inverse();
-	
-	// vnl_float_2 a_star = s_inv * (xmean - ymean);
 
 	return ((nx * ny) / (nx + ny)) * dot_product(xmean - ymean, s_inv * (xmean - ymean));
 }
 
-// 
-double invcdf(double p, double a, double b)
+double invF(const double p, const double a, const double b)
 { 
 	// Return inverse cumulative distribution function. 
 	if ( p <= 0.0 || p >= 1.0 )
-		{ pt_error::error("invcdf(): value out of range", pt_error::serious); }
+		{ pt_error::error("invcdf(): argument out of range", pt_error::serious); }
 		
-	double x = invbetai(p, 0.5 * a, 0.5 * b); 
+	double x = invIncompleteBeta(p, 0.5 * a, 0.5 * b); 
 	return b * x / (a * (1.0 - x));
 }
 
-double invbetai(double p, double a, double b)
-{ 
-	const double EPS = 1.e-8; 
-	double pp,t,u,err,x,al,h,w,afac,a1=a-1.,b1=b-1.; 
-	int j; 
-	if (p <= 0.) return 0.; 
-	else if (p >= 1.) return 1.; 
-	else if (a >= 1. && b >= 1.)
-	{ 
-		pp = (p < 0.5)? p : 1. - p; 
-		t = sqrt(-2.*log(pp)); 
-		x = (2.30753+t*0.27061)/(1.+t*(0.99229+t*0.04481)) - t; 
-		if (p < 0.5) x = -x; 
-		al = (SQR(x)-3.)/6.;						// prova att ändra SQR(x) till x*x och ta bort #define i h-filen
-		h = 2./(1./(2.*a-1.)+1./(2.*b-1.)); 
-		w = (x*sqrt(al+h)/h)-(1./(2.*b-1)-1./(2.*a-1.))*(al+5./6.-2./(3.*h)); 
-		x = a/(a+b*exp(2.*w)); 
-	}
-	else
-	{ 
-		double lna = log(a/(a+b)), lnb = log(b/(a+b)); 
-		t = exp(a*lna)/a; 
-		u = exp(b*lnb)/b; 
-		w = t + u; 
-		if (p < t/w) x = pow(a*w*p,1./a); 
-		else x = 1. - pow(b*w*(1.-p),1./b); 
-	} 
-	afac = -gammln(a)-gammln(b)+gammln(a+b); 
-	for (j=0;j<10;j++)
-	{ 
-		if (x == 0. || x == 1.) return x; 
-		err = betai(a,b,x) - p;									// varför är inte anropet betai(x,a,b) ?? felskrivet?
-		t = exp(a1*log(x)+b1*log(1.-x) + afac); 
-		u = err/t;
-		x -= (t = u/(1.-0.5*MIN(1.,u*(a1/x - b1/(1.-x)))));		// prova att ändra MIN() till min och ta bort #define i h-filen
-		if (x <= 0.) x = 0.5*(x + t);
-		if (x >= 1.) x = 0.5*(x + t + 1.); 
-		if (fabs(t) < EPS*x && j > 0) break; 
-	} 
-	return x; 
-} 
-
-/*
-double invbetaiAF(const double p, const double a, const double b)
+double invIncompleteBeta(const double p, const double a, const double b)
 {
 	double x;
 	double i = 0;
 	double j = 1;
-	double precision = 1.0e-8;		// converge until 8 decimals
-	
-	std::cout << "precision " << precision << std::endl;
+	double precision = 1.0e-10;		// converge until 10 decimals
 
 	while ( (j - i) > precision )
 	{
 		x = (i + j) / 2;
 		
-		if ( betai(a, b, x) > p )					// varför är inte anropet betai(x,a,b) ?? felskrivet? prova!
+		if ( incompleteBeta(a, b, x) > p )
 			{ j = x; }
 		else
 			{ i = x; }
 	}
 	return x;
 }
-*/
 
-double gammln(const double xx)
-{ 
-	int j;
-	double x,tmp,y,ser; 
-	static const double cof[14]={57.1562356658629235,-59.5979603554754912, 
-	14.1360979747417471,-0.491913816097620199,.339946499848118887e-4, 
-	.465236289270485756e-4,-.983744753048795646e-4,.158088703224912494e-3, 
-	-.210264441724104883e-3,.217439618115212643e-3,-.164318106536763890e-3, 
-	.844182239838527433e-4,-.261908384015814087e-4,.368991826595316234e-5}; 
-	if (xx <= 0) throw("bad arg in gammln"); 
-	y=x=xx; 
-	tmp = x+5.24218750000000000; 
-	tmp = (x+0.5)*log(tmp)-tmp; 
-	ser = 0.999999999999997092; 
-	for (j=0;j<14;j++) ser += cof[j]/++y; 
-	return tmp+log(2.5066282746310005*ser/x); 
-} 
-
-/*
 // Lanczos approximation is used to compute the Gamma function.
 // The logarithm of the Gamma function is computed since the
 // Gamma function will overflow at quite small values.
-double gammalnAF(double x)
+double logGamma(double x)
 {
 	if ( x <= 0 )
 		{ pt_error::error("gammaln(): value out of range", pt_error::serious); }
@@ -492,111 +411,78 @@ double gammalnAF(double x)
 
 	return log((sqrt(2 * PI) / x) * (c[0] + sum)) + (x + 0.5) * log(x + 5.5) - (x + 5.5);
 }
-*/
 
-// 
-double betai(const double a, const double b, const double x)
+
+double incompleteBeta(const double a, const double b, const double x)
 { 
-	//return betaiAF();
-
-	// Returns incomplete beta function Ix .a; b/ for positive a and b, and x between 0 and 1. 
-
-	//	static const int SWITCH = 3000;
-
-	double bt;
-	
 	if ( a <= 0.0 || b <= 0.0 )
-		{ pt_error::error("betai(): value out of range", pt_error::serious); }
+		{ pt_error::error("betai(): argument out of range", pt_error::serious); }
 	if ( x < 0.0 || x > 1.0 ) 
-		{ pt_error::error("betai(): value out of range", pt_error::serious); }
+		{ pt_error::error("betai(): argument out of range", pt_error::serious); }
+
 	if ( x == 0.0 || x == 1.0 )
-		{ pt_error::error("betai(): value out of range", pt_error::serious); }
+		{ return x; }
+
+	double result = std::exp(logGamma(a + b) - logGamma(a) - logGamma(b) + a * std::log(x) + b * std::log(1.0 - x));
 	
-	//if (a > SWITCH && b > SWITCH) return betaiapprox(a,b,x);
-	
-	bt = exp(gammln(a + b) - gammln(a) - gammln(b) + a * log(x) + b * log(1.0 - x));
-	
-	if (x < (a + 1.0) / (a + b + 2.0))
-		{ return bt * betacf(a, b, x) / a; }
+	if ( x < ((a + 1.0) / (a + b + 2.0)) )
+		{ return result * incompleteBetaCF(a, b, x) / a; }
 	else
-		{ return 1.0 - bt * betacf(b, a, 1.0 - x) / b; }
+		{ return 1.0 - result * incompleteBetaCF(b, a, 1.0 - x) / b; }
 }
 
-// Incomplete beta function
-double betaiAF(const double a, const double b, const double x)
+double incompleteBetaCF(const double a, const double b, const double x)
 {
-	// OBS! om jag ändrar ordningen på parametrarna så måste jag också se till att anropen sker därefter
+	const double accuracy = std::numeric_limits<double>::epsilon();
+	const double qlepsilon = std::numeric_limits<double>::min() / accuracy;
 
-	if ( x < 0.0 || x > 1.0 )
-		{ pt_error::error("betai(): value out of range", pt_error::serious); }
-	if ( a <= 0.0 || b <= 0.0 )
-		{ pt_error::error("betai(): value out of range", pt_error::serious); }
-		
-	if ( x < 0.5 )
-		{ return betacf(a, b, x); }
-	else
-		{ return 1.0 - betacf(b, a, 1.0 - x); }
-}
+	double aa, del;
+	double qab = a + b;
+	double qap = a + 1.0;
+	double qam = a - 1.0;
+	double c = 1.0;
+	double d = 1.0 - qab * x / qap;
+	
+	if ( std::fabs(d) < qlepsilon )
+		{ d = qlepsilon; }
 
-// 
-double betacf(const double a, const double b, const double x)
-{ 
-	// Evaluates continued fraction for incomplete beta function by modified Lentz’s method 
-	// (§5.2). User should not call directly. 
-	
-	const double EPS = numeric_limits<double>::epsilon();
-	const double FPMIN = numeric_limits<double>::min() / EPS;
-	
-	int m,m2; 
-	double aa, c, d, del, h, qab, qam, qap;
-	
-	qab = a+b;						// These q’s will be used in factors that occur in the coefficients (6.4.6).
-	qap = a + 1.0; 
-	qam = a - 1.0; 
-	c = 1.0;						// First step of Lentz’s method. 
-	d = 1.0 - qab * x / qap;
-	
-	if ( fabs(d) < FPMIN )
-		{ d = FPMIN; }
+	d = 1.0 / d;
+	double result = d;
+
+	int j;
+	for ( int i = 1; i <= 10000; i++ )
+	{
+		j = 2 * i;
+		aa = i * (b - i) * x / ((qam + j) * (a + j));
+		d = 1.0 + aa * d;
 		
-	d = 1.0 / d; 
-	h = d;  
-	for ( m = 1; m < 10000; m++ )
-	{ 
-		m2 = 2 * m; 
-		aa = m * (b - m) * x / ((qam + m2) * (a + m2)); 
-		d = 1.0 + aa * d;			// One step (the even one) of the recurrence.
-		
-		if ( fabs(d) < FPMIN )
-			{ d = FPMIN; }
+		if ( std::fabs(d) < qlepsilon )
+			{ d = qlepsilon; }
 			
-		c = 1.0 + aa / c; 
+		c	= 1.0 + aa / c;
 		
-		if (fabs(c) < FPMIN)
-			{ c = FPMIN; }
+		if ( std::fabs(c) < qlepsilon )
+			{ c = qlepsilon; }
 			
-		d = 1.0 / d; 
-		h *= d * c; 
-		aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2)); 
-		d = 1.0 + aa * d;			// Next step of the recurrence (the odd one).
+		d = 1.0 / d;
+		result *= d * c;
+		aa = -(a + i) * (qab + i) * x / ((a + j) * (qap + j));
+		d = 1.0 + aa * d;
 		
-		if ( fabs(d) < FPMIN) d=FPMIN; 
+		if ( std::fabs(d) < qlepsilon )
+			{ d = qlepsilon; }
+			
+		c = 1.0 + aa / c;
 		
-		c=1.0+aa/c; 
+		if ( std::fabs(c) < qlepsilon )
+			{ c = qlepsilon; }
+			
+		d = 1.0 / d;
+		del = d * c;
+		result *= del;
 		
-		if (fabs(c) < FPMIN) c=FPMIN; 
-		d=1.0/d; 
-		del=d*c; 
-		h *= del; 
-		if (fabs(del-1.0) <= EPS) break; // Are we done? 
-	} 
-	return h;
-} 
-
-/*
-double betacf(const double a, const double b, const double x)
-{
-	// OBS! om jag ändrar ordningen på parametrarna så måste jag också se till att anropen sker därefter
-
+		if ( std::fabs(del - 1.0) < accuracy )
+			{ break; }
+	}
+	return result;
 }
-*/
