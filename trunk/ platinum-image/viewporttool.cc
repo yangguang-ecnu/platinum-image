@@ -299,10 +299,10 @@ void nav_tool::handle(viewport_event &event)
 //					int dy = float(myPort->pixmap_size()[1]/2-zoom_start_pos[1])*(1.0-z);
 					int dx = new_pos[0]-zoom_start_pos[0];
 					int dy = new_pos[1]-zoom_start_pos[1];
-                    cout<<"new_pos[0]="<<new_pos[0]<<endl;
-                    cout<<"new_pos[1]="<<new_pos[1]<<endl;
-                    cout<<"dx="<<dx<<endl;
-                    cout<<"dy="<<dy<<endl;
+//                    cout<<"new_pos[0]="<<new_pos[0]<<endl;
+  //                  cout<<"new_pos[1]="<<new_pos[1]<<endl;
+    //                cout<<"dx="<<dx<<endl;
+      //              cout<<"dy="<<dy<<endl;
 					myRenderer->move_view(viewSize,dx,dy);
                     
                     fvp->needs_rerendering();
@@ -312,8 +312,27 @@ void nav_tool::handle(viewport_event &event)
 			case pt_event::rotate:
 				if ( event.state() == pt_event::iterate )
 				{
+					//TODO... correct slice pos illustrations
 					event.grab();
-					
+					cout<<"***pt_event::rotate - temporary work (ctrl + shift + mouse drag)***"<<endl; 
+					float dx = (mouse[0]-dragLast[0]);
+					float dy = (mouse[1]-dragLast[1]);
+//					cout<<"dx="<<dx<<endl;
+//					cout<<"dy="<<dy<<endl;
+					Matrix3D dir = myRenderer->wheretorender->dir;
+//					cout<<"dir="<<endl<<dir<<endl;
+//					Matrix3D m = mg.get_rot_matrix_3D( 0.0, float(-dx*PI/180.0), float(dy*PI/180.0));
+					Matrix3D m = create_rot_matrix_3D(dy*PI/180.0, -dx*PI/180.0, 0.0);
+//					cout<<"m="<<endl<<m<<endl;
+					dir = dir*m;
+//					cout<<"dir2="<<endl<<dir<<endl;
+
+					myRenderer->wheretorender->dir = dir;
+
+					fvp->needs_rerendering();
+					refresh_by_image_and_direction(); //redraws slice locators in other viewports //TODO: use fl_overlays
+
+				/*	
 					image_base * top;
 					if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
 					{	// there is an image in current viewport
@@ -330,22 +349,18 @@ void nav_tool::handle(viewport_event &event)
 						
 						// convert degrees to radians
 						angle *= ( PI / 180.0 );	
-						
-						matrix_generator mg;
-						m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * m;
-						
+						//matrix_generator mg; //depricated use create_rot... instead...
+						//m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * m;
+			
 						datamanagement.get_image(top->get_id())->set_orientation(m); //TODO: use rotate_orientation instead...
 						datamanagement.data_has_changed(top->get_id());
-
 						
 						// skriv en metod som roterarar en bild (volym) kring dess centrum (ändrar orientation och origin.
 						// origin måste ändras för att rotationen ska bli "korrekt")
 						// och en metod som roterar bild kring dess origin (ändrar endast orientation)
-					
-												
 						// rendermanagement.center3d_and_fit ( top->get_id() );
-						
 					}
+*/
 				}
 			break;	// end of pt_event::rotate
 				

@@ -79,6 +79,7 @@ float pt_splint1D(float xa[],float ya[],float y2a[],int n,float x)
 	return a*ya[klo]+b*ya[khi]+((a*a*a-a)*y2a[klo]+(b*b*b-b)*y2a[khi])*(h*h)/6.0;
 }
 
+/*
 Matrix3D matrix_generator::get_rot_x_matrix_3D(float fi)			//fi in radians
 {
     Matrix3D r;
@@ -106,12 +107,6 @@ Matrix3D matrix_generator::get_rot_z_matrix_3D(float fi)			//fi in radians
     return r;
 }
 
-//rotation examples based on the "basic" image processing coordinate system
-//(x-->right, y-->down and z--> the view direction of the screen)
-//+fi_z rotates the image volume: "Counterclockwise" of the z-direction
-//+fi_y rotates the image volume: "Counterclockwise" of the y-direction
-//+fi_x rotates the image volume: "Counterclockwise" of the x-direction
-
 // Note that order of the angles are z, y and x!
 Matrix3D matrix_generator::get_rot_matrix_3D(int fi_z, int fi_y, int fi_x)	//fi_z/y/x in radians
 {
@@ -122,6 +117,40 @@ Matrix3D matrix_generator::get_rot_matrix_3D(int fi_z, int fi_y, int fi_x)	//fi_
 Matrix3D matrix_generator::get_rot_matrix_3D(float fi_z, float fi_y, float fi_x)	//fi_z/y/x in radians
 {
     return get_rot_z_matrix_3D(fi_z)*get_rot_y_matrix_3D(fi_y)*get_rot_x_matrix_3D(fi_x);
+}
+*/
+
+Matrix3D create_rot_x_matrix_3D(float fi_rad)
+{
+    Matrix3D r;
+    r[0][0] = 1;	r[1][0] = 0; 			r[2][0] = 0;
+    r[0][1] = 0;	r[1][1] = cos(fi_rad); 	r[2][1] = -sin(fi_rad);
+    r[0][2] = 0;	r[1][2] = sin(fi_rad); 	r[2][2] = cos(fi_rad);
+    return r;
+}
+
+Matrix3D create_rot_y_matrix_3D(float fi_rad)
+{
+    Matrix3D r;
+    r[0][0] = cos(fi_rad);	r[1][0] = 0; 		r[2][0] = sin(fi_rad);
+    r[0][1] = 0;			r[1][1] = 1;		r[2][1] = 0;
+    r[0][2] = -sin(fi_rad);	r[1][2] = 0;		r[2][2] = cos(fi_rad);
+    return r;
+}
+
+Matrix3D create_rot_z_matrix_3D(float fi_rad)
+{
+    Matrix3D r;
+	r[0][0] = cos(fi_rad);	r[1][0] = -sin(fi_rad);	r[2][0] = 0;
+    r[0][1] = sin(fi_rad);	r[1][1] = cos(fi_rad);	r[2][1] = 0;
+    r[0][2] = 0;			r[1][2] = 0;			r[2][2] = 1;
+     return r;
+}
+
+Matrix3D create_rot_matrix_3D(float fi_x_rad, float fi_y_rad, float fi_z_rad)	//fi_z/y/x in radians
+{
+	//matrixes shall be mlutiplied as m_z*m_y*m_x... // After many mistakes... The arguments are given as x/y/z - rotation
+    return create_rot_z_matrix_3D(fi_z_rad)*create_rot_y_matrix_3D(fi_y_rad)*create_rot_x_matrix_3D(fi_x_rad);
 }
 
 

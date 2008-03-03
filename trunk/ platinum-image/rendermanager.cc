@@ -453,8 +453,12 @@ void rendermanager::data_vector_has_changed()
             }*/
         }
 }
+Matrix3D rendermanager::get_direction(int renderer_index)
+{
+	return renderers[renderer_index]->wheretorender->dir;
+}
 
-void rendermanager::set_geometry(int renderer_index,Matrix3D * dir)
+void rendermanager::set_geometry(int renderer_index, Matrix3D * dir)
     {
     renderers[renderer_index]->wheretorender->dir=(*dir);
     renderers[renderer_index]->wheretorender->refresh_viewports();

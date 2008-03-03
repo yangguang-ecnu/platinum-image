@@ -138,6 +138,7 @@ class rendermanager
         std::map<std::string,float> get_values (int rendererIndex, int px, int py,int sx, int sy);
         Vector3D get_location (int rendererIndex, int imageID, int px, int py, int sx, int sy);
 
+        Matrix3D get_direction(int renderer_index);
         void set_geometry(int renderer_index, Matrix3D * dir);
         void set_geometry(int renderer_ID, Vector3D look_at,float zoom = 0);
 

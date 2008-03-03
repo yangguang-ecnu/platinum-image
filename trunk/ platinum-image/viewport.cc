@@ -609,6 +609,12 @@ void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
 
 }
 
+Matrix3D viewport::get_direction()
+{
+	return rendermanagement.get_direction(rendererIndex);
+}
+
+
 void viewport::set_direction( const Matrix3D & dir )
 {
     Matrix3D * dir_p = new Matrix3D(dir);
@@ -690,6 +696,9 @@ void viewport::set_direction( preset_direction direction )
             dir[z][1]=-1;
             dir[x][2]=-1;
             break;
+
+//JK2			this->
+//			rendermanagement.ge
     }
 	
 	set_direction( dir );
