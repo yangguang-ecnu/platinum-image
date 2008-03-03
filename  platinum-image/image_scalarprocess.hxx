@@ -334,7 +334,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<
 	image_scalar<float,3>** fields = new image_scalar<float,3>*[num_iterations];
 	image_scalar<float,3>** feat1_corred = new image_scalar<float,3>*[num_iterations];
 	image_scalar<float,3>** feat2_corred = new image_scalar<float,3>*[num_iterations];
-	image_scalar<unsigned int,3>** histograms = new image_scalar<unsigned int,3>*[num_iterations];
+	image_scalar<unsigned short,3>** histograms = new image_scalar<unsigned short,3>*[num_iterations];
 
 	// iteration starts
 	for (int iter=0; iter<num_iterations; iter++)
@@ -342,7 +342,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<
 		cout << "-----Starting iteration " << iter+1 << " out of " << num_iterations << " -----" << endl;
 
 		// Calculate feature space
-		image_scalar<unsigned int,3> *temp3 = feat1_corr->create2Dhistogram_3D(feat2_corr, true, num_buckets_feat1, num_buckets_feat2, mask);
+		image_scalar<unsigned short,3> *temp3 = feat1_corr->create2Dhistogram_3D(feat2_corr, true, num_buckets_feat1, num_buckets_feat2, mask);
 		image_scalar<float,3> *hist = new image_scalar<float,3>(temp3); delete temp3;
 	
 		// Expand

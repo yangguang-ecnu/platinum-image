@@ -863,12 +863,12 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file2(const std::st
 	}
 */
 template <class ELEMTYPE, int IMAGEDIM>
-image_scalar<unsigned int, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity, int num_buckets_a, int num_buckets_b, image_binary<IMAGEDIM>* mask)
+image_scalar<unsigned short, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity, int num_buckets_a, int num_buckets_b, image_binary<IMAGEDIM>* mask)
 {
 	if(num_buckets_a<=0){	num_buckets_a = this->get_max()-this->get_min()+1; }
 	if(num_buckets_b<=0){	num_buckets_b = second_image->get_max()-second_image->get_min()+1; }
 
-	image_scalar<unsigned int, 3> *hist = new image_scalar<unsigned int, 3>(num_buckets_a,num_buckets_b,1);
+	image_scalar<unsigned short, 3> *hist = new image_scalar<unsigned short, 3>(num_buckets_a,num_buckets_b,1);
 	hist->fill(0);
 
 	if(!this->same_size(second_image)){
@@ -1294,29 +1294,6 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(
 }
 
 
-
-template <class ELEMTYPE, int IMAGEDIM>
-image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_gradmagn_filter3D_image_3D(Vector3D from, Vector3D to, GRAD_MAG_TYPE type)
-{
-	cout<<"get_gradmagn_filter3D_image_3D..."<<endl;
-	image_scalar<ELEMTYPE, 3> *res = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0); 
-	res->fill(0);
-	for(int d=0; d<3; d++){		
-		from[d] = std::max( float(1.0), float(from[d]) );
-		to[d] = std::min( float(to[d]), float(this->get_size_by_dim(d)-1) );
-	}
-
-	for(int z=from[0]; z<=to[0]; z++){
-		for(int y=from[1]; y<=to[1]; y++){
-			for(int x=from[2]; x<=to[2]; x++){
-				res->set_voxel( x,y,z, this->grad_mag_voxel(x,y,z,type) );
-			}
-		}
-	}
-	return res;
-}
-
-
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3D(int dir, PROJECTION_MODE PROJ)
 { //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
@@ -1572,27 +1549,21 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::scale_slice_by_factor_3d(int dir, float f
 	}
 }
 
-
 template <class ELEMTYPE, int IMAGEDIM>
-float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slice, ELEMTYPE low_thres, ELEMTYPE high_thres) 
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slice, image_binary<IMAGEDIM>* mask) 
 {
-	if (dir<0 || dir>2) {
-		pt_error::error("Direction dir must be between 0 and 2 in get_mean_from_slice_3d", pt_error::debug);
-	}
-	if(slice<0 || slice>=this->get_size_by_dim(dir)){
-		pt_error::error("Slice out of bounds in get_mean_from_slice_3d",pt_error::debug); 
-	}
-	ELEMTYPE value=0;
-	float mean=0;
-	int no_voxels=0;
+	pt_error::error_if_false(dir>=0 && dir<=2, "Direction dir must be between 0 and 2 in get_mean_from_slice_3d", pt_error::debug);
+	pt_error::error_if_false(slice>=0 && slice<this->get_size_by_dim(dir), "Slice out of bounds in get_mean_from_slice_3d",pt_error::debug); 
+	pt_error::error_if_false(this->same_size(mask),"Image size does not match mask size in get_mean_from_slice_3d", pt_error::debug);
+	float sum=0;
+	int num_voxels=0;
 
 	if (dir==0)	{
 		for (int j=0; j < this->get_size_by_dim(1); j++){
 			for(int k=0; k < this->get_size_by_dim(2); k++){
-				value=this->get_voxel(slice,j,k);
-				if (value >= low_thres && value <= high_thres) {
-					mean += value;
-					no_voxels++;
+				if (mask==NULL || mask->get_voxel(slice,j,k)) {
+					sum += this->get_voxel(slice,j,k);
+					num_voxels++;
 				}
 			}
 		}
@@ -1600,10 +1571,9 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slic
 	else if (dir==1)	{
 		for (int i=0; i < this->get_size_by_dim(0); i++){
 			for(int k=0; k < this->get_size_by_dim(2); k++){
-				value=this->get_voxel(i,slice,k);
-				if (value >= low_thres && value <= high_thres) {
-					mean += value;
-					no_voxels++;
+				if (mask==NULL || mask->get_voxel(i,slice,k)) {
+					sum += this->get_voxel(i,slice,k);
+					num_voxels++;
 				}
 			}
 		}
@@ -1611,15 +1581,14 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slic
 	else {
 		for (int i=0; i < this->get_size_by_dim(0); i++){
 			for(int j=0; j < this->get_size_by_dim(1); j++){
-				value=this->get_voxel(i,j,slice);
-				if (value >= low_thres && value <= high_thres) {
-					mean += value;
-					no_voxels++;
+				if (mask==NULL || mask->get_voxel(i,j,slice)) {
+					sum += this->get_voxel(i,j,slice);
+					num_voxels++;
 				}
 			}
 		}
 	}
-	return mean=mean/no_voxels;
+	return sum/num_voxels;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
