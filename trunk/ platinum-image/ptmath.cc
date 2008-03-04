@@ -39,9 +39,10 @@ line3D least_square_fit_line_to_points_in_3D(vector<Vector3D> v)
 	line.point /= v.size();
 	cout<<"center="<<endl<<line.point<<endl;
 
-//	for(int p=0;p<v.size();p++){
-//		cout<<"p="<<p<<" "<<v[p]<<endl;
-//	}
+	Vector3D R = create_Vector3D(0,0,0);
+	for(int p=0;p<v.size();p++){
+		R += (v[p]-line.point)*(v[p]-line.point);
+	}
 	return line;
 }
 
