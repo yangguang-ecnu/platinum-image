@@ -46,10 +46,13 @@
 
 ///...and types
 typedef itk::Vector<float,3> Vector3D;
-typedef itk::Vector<int, 3> Vector3Dint;
+typedef itk::Vector<int,3> Vector3Dint;
 typedef itk::Point<float,3> Point3D;
 typedef std::pair<long, long> HistoPair;
 typedef itk::Matrix<float> Matrix3D;
+
+typedef itk::Vector<float,2> Vector2D;
+typedef itk::Matrix<float,2,2> Matrix2D;
 
 class line3D{
 public:
@@ -253,6 +256,8 @@ void print_datatype_numerical_limits();
 double get_random_number_in_span(double min, double max);
 Vector3D create_Vector3D(float x, float y, float z);
 Vector3Dint create_Vector3Dint(int x, int y, int z);
+Vector2D create_Vector2D(float x, float y);
+
 
 Matrix3D outer_product(const Vector3D a, const Vector3D b);
 
@@ -260,13 +265,14 @@ unsigned int get_factorial(unsigned int i);
 unsigned int get_permutations(unsigned int n, unsigned int r); //returns pascals triangle values
 unsigned int get_smallest_power_above(unsigned int this_val, unsigned int power_base=2); //e.g. this_val=10 (base=2) --> 16
 
-vnl_float_2 mean2d(const std::vector<vnl_float_2> & x);
-vnl_float_3 mean(const std::vector<vnl_float_3> & x);
-vnl_float_2x2 cov(const std::vector<vnl_float_2> & x);
-vnl_float_2x2 cov(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y);
-vnl_float_3x3 covm(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y);
-float tsquare2d(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y);		// Hotelling's two-sample t-square statistic
-float tsquare3d(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y);		// Hotelling's two-sample t-square statistic
+Vector2D mean(const std::vector<Vector2D> & x);
+Vector3D mean(const std::vector<Vector3D> & x);
+Matrix2D cov(const std::vector<Vector2D> & x);
+Matrix2D cov(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y);
+Matrix3D cov(const std::vector<Vector3D> & x);
+Matrix3D cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y);
+float tsquare(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y);		// Hotelling's two-sample t-square statistic
+float tsquare(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y);		// Hotelling's two-sample t-square statistic
 
 // Parts of the implementation of some the following algorithms were inspired by
 // "Numerical Recipes in C", Second Edition, Press, Teukolsky, Vetterling, Flannery

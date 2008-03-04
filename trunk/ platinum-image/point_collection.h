@@ -44,10 +44,10 @@ class point_collection : public data_base
         pointStorage::iterator begin();
         pointStorage::iterator end();
 
-        void add (pointStorage::mapped_type); //add point or change if exist
+        void add(pointStorage::mapped_type); //add point or change if exist
         //void remove (pointStorage::iterator); //the opposite of above
 		void remove(pointStorage::key_type);
-		void add_pair (pointStorage::key_type, pointStorage::mapped_type);
+		void add_pair(pointStorage::key_type, pointStorage::mapped_type);
 		
 //		pointStorage::size_type num_points;
 		
@@ -76,8 +76,10 @@ class point_collection : public data_base
 		bool contains( pointStorage::key_type index );
 		
 		bool empty();
+		
+		int size();
 
 		virtual	void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");		
-    };
+};
 	
 #endif
