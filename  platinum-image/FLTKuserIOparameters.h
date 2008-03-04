@@ -319,11 +319,7 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 		std::vector<landmark> landmarks;
 
 		std::string resolve_string(int index);
-		
-		// split a delimited string into multiple strings
-		// example: "aaa;bbb;ccc" -> "aaa" "bbb" "ccc"
-		void split( const std::string & s, char c, std::vector<std::string> & v );
-		
+
 		int landmarksID;
 		
 	public:

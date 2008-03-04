@@ -579,24 +579,6 @@ void FLTKuserIOpar_landmarks::saveSetCallback(Fl_Widget * callingwidget, void * 
 	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1))); but change to latest_landmarks_path
 }
 
-void FLTKuserIOpar_landmarks::split( const std::string & s, char c, std::vector<std::string> & v )
-{
-	string::size_type i = 0;
-	string::size_type j = s.find(c);
-	
-	while ( j != string::npos )
-	{
-		v.push_back( s.substr(i, j - i) );
-		i = ++j;
-		j = s.find(c, j);
-		
-		if ( j == string::npos )
-		{	// there are no more delimiters. get the last part of s
-			v.push_back( s.substr(i) );
-		}
-	}
-}
-
 void FLTKuserIOpar_landmarks::showCallback(Fl_Widget * callingwidget, void * thisLandmarks)
 {
 	userIO * userIO_block = reinterpret_cast<userIO *>(callingwidget->parent()->parent()->parent());
@@ -695,7 +677,7 @@ void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * 
 			{	// not a comment line (ie a row beginning with '#')
 
 				std::vector<std::string> v;
-				l->split(s, ';', v);
+				split(s, ';', v);
 
 				int index = atoi( v[0].c_str() );
 								
@@ -706,7 +688,7 @@ void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * 
 					std::string coordinate = v[3];	
 					coordinate = coordinate.substr( coordinate.find('[', 0) + 1, coordinate.find(']', 0) - ( coordinate.find('[', 0) + 1) );	// get the string inside [...]
 					std::vector<std::string> vv;
-					l->split(coordinate, ',', vv);
+					split(coordinate, ',', vv);
 										
 					Vector3D point = create_Vector3D( atof(vv[0].c_str()), atof(vv[1].c_str()), atof(vv[2].c_str()) );
 					

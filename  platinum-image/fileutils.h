@@ -116,4 +116,14 @@ string templ_to_string (unsigned char t)
     }*/
 
 
+
+
+
+// split a delimited string into multiple strings
+// example: "aaa;bbb;ccc" -> "aaa" "bbb" "ccc"
+void split(const std::string & s, char c, std::vector<std::string> & v);
+	
+
+
+
 #endif

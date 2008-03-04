@@ -294,6 +294,26 @@ Vector3Dint create_Vector3Dint( int x, int y, int z )
 	return v;
 }
 
+Vector2D create_Vector2D(float x, float y)
+{
+	Vector2D v;
+	v[0] = x;
+	v[1] = y;
+	return v;
+}
+
+Matrix2D outer_product(const Vector2D a, const Vector2D b)
+{
+	Matrix2D m;
+	
+	for ( int i  = 0; i < 2; i++ )
+	{
+		for ( int j = 0; j < 2; j++ )
+			{ m[i][j] = a[i] * b[j]; }
+	}
+	return m;
+}
+
 Matrix3D outer_product(const Vector3D a, const Vector3D b)
 {
 	Matrix3D m;
@@ -333,6 +353,15 @@ unsigned int get_smallest_power_above(unsigned int this_val, unsigned int power_
 	return 0;
 }
 
+Vector2D mean(const std::vector<Vector2D> & x)
+{
+	Vector2D sum = create_Vector2D(0.0, 0.0);
+	for ( std::vector<Vector2D>::const_iterator itr = x.begin(); itr != x.end(); itr++ )
+		{ sum += *itr; }
+	sum /= x.size();
+	return sum;
+}
+/*
 vnl_float_2 mean(const std::vector<vnl_float_2> & x)
 {
 	vnl_float_2 sum(0.0, 0.0);
@@ -341,7 +370,17 @@ vnl_float_2 mean(const std::vector<vnl_float_2> & x)
 	sum /= x.size();
 	return sum;
 }
+*/
 
+Vector3D mean(const std::vector<Vector3D> & x)
+{
+	Vector3D sum = create_Vector3D(0.0, 0.0, 0.0);
+	for ( std::vector<Vector3D>::const_iterator itr = x.begin(); itr != x.end(); itr++ )
+		{ sum += *itr; }
+	sum /= x.size();
+	return sum;
+}
+/*
 vnl_float_3 mean(const std::vector<vnl_float_3> & x)
 {
 	vnl_float_3 sum(0.0, 0.0, 0.0);
@@ -350,7 +389,22 @@ vnl_float_3 mean(const std::vector<vnl_float_3> & x)
 	sum /= x.size();
 	return sum;
 }
+*/
 
+Matrix2D cov(const std::vector<Vector2D> & x)
+{
+	const Vector2D xmean = mean(x);
+
+	Matrix2D sx;
+	sx.Fill(0.0);
+	for ( std::vector<Vector2D>::const_iterator itr = x.begin(); itr != x.end(); itr++ )
+		{ sx += outer_product(*itr - xmean, *itr - xmean); }
+
+	sx /= (x.size() - 1);
+		
+	return sx;
+}
+/*
 vnl_float_2x2 cov(const std::vector<vnl_float_2> & x)
 {
 	const vnl_float_2 xmean = mean(x);
@@ -364,7 +418,22 @@ vnl_float_2x2 cov(const std::vector<vnl_float_2> & x)
 		
 	return sx;
 }
+*/
 
+Matrix2D cov(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y)
+{
+	Matrix2D sx = cov(x);
+	sx *= (x.size() - 1);
+
+	Matrix2D sy = cov(y);
+	sy *= (y.size() - 1);
+	
+	Matrix2D s = sx + sy;
+	s /= (x.size() + y.size() - 2);
+	
+	return s;
+}
+/*
 vnl_float_2x2 cov(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y)
 {
 	vnl_float_2x2 sx = cov(x);
@@ -378,7 +447,22 @@ vnl_float_2x2 cov(const std::vector<vnl_float_2> & x, const std::vector<vnl_floa
 	
 	return s;
 }
+*/
 
+Matrix3D cov(const std::vector<Vector3D> & x)
+{
+	const Vector3D xmean = mean(x);
+
+	Matrix3D sx;
+	sx.Fill(0.0);
+	for ( std::vector<Vector3D>::const_iterator itr = x.begin(); itr != x.end(); itr++ )
+		{ sx += outer_product(*itr - xmean, *itr - xmean); }
+
+	sx /= (x.size() - 1);
+		
+	return sx;
+}
+/*
 vnl_float_3x3 cov(const std::vector<vnl_float_3> & x)
 {
 	const vnl_float_3 xmean = mean(x);
@@ -392,7 +476,22 @@ vnl_float_3x3 cov(const std::vector<vnl_float_3> & x)
 		
 	return sx;
 }
+*/
 
+Matrix3D cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
+{
+	Matrix3D sx = cov(x);
+	sx *= (x.size() - 1);
+
+	Matrix3D sy = cov(y);
+	sy *= (y.size() - 1);
+	
+	Matrix3D s = sx + sy;
+	s /= (x.size() + y.size() - 2);
+	
+	return s;
+}
+/*
 vnl_float_3x3 cov(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y)
 {
 	vnl_float_3x3 sx = cov(x);
@@ -406,7 +505,20 @@ vnl_float_3x3 cov(const std::vector<vnl_float_3> & x, const std::vector<vnl_floa
 	
 	return s;
 }
+*/
 
+float tsquare(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y)
+{
+	const float nx = x.size();				// use float to avoid "int/int = int" later
+	const float ny = y.size();
+	const Vector2D xmean = mean(x);
+	const Vector2D ymean = mean(y);
+	const Matrix2D s = cov(x, y);
+	const Matrix2D s_inv = static_cast<Matrix2D>(s.GetInverse());
+
+	return ((nx * ny) / (nx + ny)) * ((xmean - ymean) * (s_inv * (xmean - ymean)));
+}
+/*
 float tsquare2d(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y)
 {
 	const float nx = x.size();				// use float to avoid "int/int = int" later
@@ -418,7 +530,20 @@ float tsquare2d(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_
 
 	return ((nx * ny) / (nx + ny)) * dot_product(xmean - ymean, s_inv * (xmean - ymean));
 }
+*/
 
+float tsquare(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
+{
+	const float nx = x.size();				// use float to avoid "int/int = int" later
+	const float ny = y.size();
+	const Vector3D xmean = mean(x);
+	const Vector3D ymean = mean(y);
+	const Matrix3D s = cov(x, y);
+	const Matrix3D s_inv = static_cast<Matrix3D>(s.GetInverse());
+
+	return ((nx * ny) / (nx + ny)) * ((xmean - ymean) * (s_inv * (xmean - ymean)));
+}
+/*
 float tsquare3d(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y)
 {
 	const float nx = x.size();				// use float to avoid "int/int = int" later
@@ -430,6 +555,7 @@ float tsquare3d(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_
 
 	return ((nx * ny) / (nx + ny)) * dot_product(xmean - ymean, s_inv * (xmean - ymean));
 }
+*/
 
 double invF(const double p, const double a, const double b)
 { 
