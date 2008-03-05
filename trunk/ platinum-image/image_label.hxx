@@ -23,6 +23,79 @@
 #include "image_label.h"
 #include "image_integer.hxx"
 
+
+template <int IMAGEDIM>
+image_label<IMAGEDIM>::image_label(int w, int h, int d, IMGBINARYTYPE *ptr):image_integer<IMGLABELTYPE, IMAGEDIM>(w, h, d, ptr)
+{
+transfer_function();
+}
+
+template <int IMAGEDIM>
+image_label<IMAGEDIM>::image_label(itk::SmartPointer< itk::OrientedImage<IMGLABELTYPE, IMAGEDIM > > &i):image_integer<IMGLABELTYPE, IMAGEDIM>(i) 
+{
+transfer_function();
+}
+/*
+template <int IMAGEDIM>
+template<class SOURCETYPE>
+image_label<IMAGEDIM>::image_label(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData): image_integer<IMGLABELTYPE, IMAGEDIM>(old_image, copyData)
+{
+transfer_function();
+} //copy constructor
+*/
+
+template <int IMAGEDIM>
+image_label<IMAGEDIM>::image_label(IMGLABELTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize) : image_integer<IMGLABELTYPE, IMAGEDIM>(inData,inDataNumElems, width, height, voxelSize)
+{
+transfer_function();
+}
+
+template <int IMAGEDIM>
+image_label<IMAGEDIM>::image_label (std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile,unsigned int increment): image_integer<IMGLABELTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
+{
+transfer_function();
+}
+
+template <int IMAGEDIM>
+image_label<IMAGEDIM>::image_label(const string filepath, const string name):image_integer<IMGLABELTYPE, IMAGEDIM>(filepath, name) 
+{
+transfer_function();
+}
+
+template <int IMAGEDIM>
+image_label<IMAGEDIM>::image_label(vector< image_binary<IMAGEDIM>* > images, const string name):image_integer<IMGLABELTYPE, IMAGEDIM>(images[0]->nx(),images[0]->ny(),images[0]->nz())
+{
+	this->fill(0);
+	for(int i=0;i<images.size();i++){
+		this->fill_region_of_mask_3D(images[i],i+1);
+	}
+	this->data_has_changed();
+	transfer_function();
+}
+
+
+
+
+
+template<int IMAGEDIM >
+void image_label<IMAGEDIM >:: transfer_function(transfer_base<IMGLABELTYPE > * const t)
+    {
+    if (this->tfunction != NULL)
+        {delete this->tfunction;}
+
+    if (t == NULL)
+        this->tfunction = new transfer_mapcolor<IMGLABELTYPE >(this);
+    else
+        this->tfunction = t;
+    }
+
+
+
+
+
+
+
+
 template <int IMAGEDIM>
 image_label<IMAGEDIM>* label_copycast (image_base* const input) //! Converts IMGLABELTYPE (uchar) into image_label
     {
@@ -39,16 +112,5 @@ image_label<IMAGEDIM>* label_copycast (image_base* const input) //! Converts IMG
     return output;
     }
 
-template<int IMAGEDIM >
-void image_label<IMAGEDIM >:: transfer_function(transfer_base<IMGLABELTYPE > * const t)
-    {
-    if (this->tfunction != NULL)
-        {delete this->tfunction;}
-
-    if (t == NULL)
-        this->tfunction = new transfer_mapcolor<IMGLABELTYPE >(this);
-    else
-        this->tfunction = t;
-    }
 
 #endif

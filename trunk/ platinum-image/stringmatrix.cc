@@ -59,7 +59,7 @@ stringmatrix::stringmatrix()
 
 stringmatrix::stringmatrix(int no_rows, int no_cols, string value)
 {
-	cout<<"stringmatrix::stringmatrix(int no_rows, int no_cols, string value)"<<endl;
+	cout<<"stringmatrix::stringmatrix(no_rows="<<no_rows<<", no_cols="<<no_cols<<", value="<<value.c_str()<<")"<<endl;
 
 	vector<string> row;
 	for(int c=0; c<no_cols; c++){row.push_back(value);}
