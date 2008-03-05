@@ -235,7 +235,7 @@ void ConfigFile::update_value_in_file(const string filename, const string& key, 
 {
 	//ˆˆˆ
 
-	std::cout<<"update_value_in_file...."<< std::endl;
+	std::cout<<"ConfigFile::update_value_in_file...."<< std::endl;
 	string value_string = T_as_string(value);
 
 	std::ifstream in( filename.c_str() );
