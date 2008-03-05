@@ -34,14 +34,14 @@
 
 #include <cmath>
 
-#include "platinumprogram.h"
+#include "../../platinumprogram.h"
 
 #include <cstdio>
 #include <iostream>
 
-#include "global.h"
+#include "../../global.h"
 
-#include "image_binary.hxx"
+#include "../../image_binary.hxx"
 
 //inclusions related to histogram segmentation project
 #include "itkBinaryBallStructuringElement.h" 
@@ -57,9 +57,11 @@
 //!(ITK does not support true 'bool')
 #define theBinaryPixelType unsigned char
 
-#define theBinaryImageType itk::Image<theBinaryPixelType ,3 >
+//#define theBinaryImageType itk::Image<theBinaryPixelType ,3 >
+#define theBinaryImageType itk::OrientedImage<theBinaryPixelType ,3 >
 #define theIndexedPixelType unsigned char
-#define theIndexedImageType itk::Image<theIndexedPixelType ,3 >
+//#define theIndexedImageType itk::Image<theIndexedPixelType ,3 >
+#define theIndexedImageType itk::OrientedImage<theIndexedPixelType ,3 >
 #define theBinaryIteratorType itk::ImageRegionIterator<theBinaryImageType >
 #define theIndexedIteratorType itk::ImageRegionIterator<theIndexedImageType >
 #define theIndexType theBinaryImageType::RegionType::IndexType
@@ -271,9 +273,10 @@ void threshold_artifact_process (int u,int p)
             //image_label is a good choice
 
         // *** get ITK image from input parameter
-        input_vol->make_image_an_itk_reader();
         theBinaryImagePointer input;
-        input = input_vol->itk_image();
+        //input_vol->make_image_an_itk_reader(); //Depricated
+        //input = input_vol->itk_image(); //Depricated
+		input = input_vol->get_image_as_itk_output();
 
         int radius = userIOmanagement.get_parameter<long>(u,1);
 
@@ -403,7 +406,9 @@ void threshold_artifact_process (int u,int p)
         // *** convert result to an image ***
         userIOmanagement.progress_update(5,"Adding image",5);
 
-        datamanagement.add(new image_label<3> (final));
+//        datamanagement.add(new image_label<3> (final));
+		image_label<3> *f = new image_label<3>(final);
+		datamanagement.add(f);
         
         userIOmanagement.progress_update();
         }
