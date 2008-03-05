@@ -590,6 +590,24 @@ unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_size_by_dim(int dim) const
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+unsigned short image_general<ELEMTYPE, IMAGEDIM>::nx() const
+{
+	return get_size_by_dim(0);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+unsigned short image_general<ELEMTYPE, IMAGEDIM>::ny() const
+{
+	return get_size_by_dim(1);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+unsigned short image_general<ELEMTYPE, IMAGEDIM>::nz() const
+{
+	return get_size_by_dim(2);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_size_by_dim_and_dir(int dim, int direction)
     {
 	return get_size_by_dim((dim+direction+1)%IMAGEDIM);
@@ -976,6 +994,15 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 	delete res;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_label<IMAGEDIM> *src, int add_dir)
+{
+	image_scalar<ELEMTYPE,IMAGEDIM> *src2 = scalar_copycast<image_scalar,ELEMTYPE,IMAGEDIM>(src);
+//	src2->save_to_file("C:/Joel/TMP/bin_add_volume_3D.vtk");
+	src2->scale_by_factor( this->get_max_float()/src2->get_max_float() );	//Often used to create collages of results where binary images benefit from scaling... 
+	this->add_volume_3D(src2,add_dir);
+	delete src2;
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -1553,7 +1580,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(int dir, int start_index,
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::fill_region_of_mask_3D(image_general<ELEMTYPE, IMAGEDIM> *mask, ELEMTYPE value)
+void image_general<ELEMTYPE, IMAGEDIM>::fill_region_of_mask_3D(image_binary<IMAGEDIM> *mask, ELEMTYPE value)
 {
 	if(this->same_size(mask)){
 		for (int k=0; k<this->datasize[2]; k++){

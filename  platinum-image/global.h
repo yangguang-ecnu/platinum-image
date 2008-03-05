@@ -65,6 +65,7 @@ enum POINT_TYPE { MAX_GRAD_MAG_X, MAX_GRAD_MAG_Y, MAX_GRAD_MAG_Z, MAX_GRAD_MAG_X
 enum GRAD_MAG_TYPE { X, Y, Z, XYZ, XY, XZ, YZ };
 enum WEIGHT_TYPE { CHESSBOARD };
 enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG};
+enum SPACE_TYPE {VOXEL_SPACE, PHYSICAL_SPACE};
 
 //Dicom Tag definitions
 //More DICOM tag definitions can be found at:  http://medical.nema.org/dicom/2007/07_06pu.pdf

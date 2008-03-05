@@ -25,25 +25,42 @@
 line3D::line3D()
 {
 	point = create_Vector3D(0,0,0);
-	direction = create_Vector3D(0,0,0);
+	direction = create_Vector3D(1,1,1);
 }
 
-line3D least_square_fit_line_to_points_in_3D(vector<Vector3D> v)
+void line3D::least_square_fit_line_to_points_in_3D(vector<Vector3D> points, int dir)
 {
-	line3D line = line3D();
+	this->set_point_to_center_of_gravity_from_points_in_3D(points);
+	this->set_direction_to_point_cloud_variations_given_one_dir(dir, points);
+}
 
-	for(int p=0;p<v.size();p++){
-		cout<<"p="<<p<<" "<<v[p]<<endl;
-		line.point += v[p];
+void line3D::set_point_to_center_of_gravity_from_points_in_3D(vector<Vector3D> points)
+{
+	for(int p=0;p<points.size();p++){
+		this->point += points[p];
 	}
-	line.point /= v.size();
-	cout<<"center="<<endl<<line.point<<endl;
+	this->point /= points.size();
+	cout<<"set_point_to_center_of_gravity_from_points_in_3D -->"<<this->point<<endl;
+}
 
+void line3D::set_direction_to_point_cloud_variations_given_one_dir(int dir, vector<Vector3D> points)
+{
 	Vector3D R = create_Vector3D(0,0,0);
-	for(int p=0;p<v.size();p++){
-		R += (v[p]-line.point)*(v[p]-line.point);
+	float da=0;
+	float daa=0;
+	for(int p=0;p<points.size();p++){
+		da = points[p][dir]-this->point[dir];
+		R[0] += (points[p][0]-this->point[0])*da;
+		R[1] += (points[p][1]-this->point[1])*da;
+		R[2] += (points[p][2]-this->point[2])*da;
+		daa += da*da;
 	}
-	return line;
+	R[0] = R[0]/daa;	//Rxy/Ryy for example...
+	R[1] = R[1]/daa;	//Rxy/Ryy for example...
+	R[2] = R[2]/daa;	//Rxy/Ryy for example...
+	R[dir] = 1;			//Ryy/Ryy = 1;
+	this->direction = R;
+	cout<<"direction="<<this->direction<<endl;
 }
 
 

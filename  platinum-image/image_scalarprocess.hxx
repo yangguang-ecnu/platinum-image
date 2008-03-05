@@ -122,6 +122,28 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::weight_of_type( Vector3D center, Vector3
 	}
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_correct_inclination(image_scalar<ELEMTYPE, IMAGEDIM> *fat, image_scalar<ELEMTYPE, IMAGEDIM> *water)
+{
+	cout<<"appl_wb_correct_inclination..."<<endl;
+	image_scalar<ELEMTYPE,IMAGEDIM> *sum = new image_scalar<ELEMTYPE,IMAGEDIM>(fat);
+	sum->combine(water,COMB_ADD);
+	sum->fill_region_3D(1,0,40,0);	//clear first 40 slices to reduce sensitivity to position of arms....
+	vector<Vector3D> cg_points = sum->get_in_slice_center_of_gravities_in_dir(1,1);
+	line3D cg_line;
+	cg_line.least_square_fit_line_to_points_in_3D(cg_points,1);
+
+	image_scalar<unsigned short,3> *f2  = fat->correct_inclined_object_slicewise_after_cg_line(0,cg_line);
+	image_scalar<unsigned short,3> *w2  = water->correct_inclined_object_slicewise_after_cg_line(0,cg_line);
+
+	copy_data(f2,fat);
+	copy_data(w2,water);
+	delete sum;
+	delete f2;
+	delete w2;
+
+	return cg_line.direction[0];
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_body_from_sum_image(int initial_thres)

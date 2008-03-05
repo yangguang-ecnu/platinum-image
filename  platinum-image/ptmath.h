@@ -54,14 +54,22 @@ typedef itk::Matrix<float> Matrix3D;
 typedef itk::Vector<float,2> Vector2D;
 typedef itk::Matrix<float,2,2> Matrix2D;
 
-class line3D{
+
+class line3D{ //TODO: A future plan in to put this under data_base and connect useful rendering to it...
+
 public:
 	line3D();
 	Vector3D point;
 	Vector3D direction;
+
+	void least_square_fit_line_to_points_in_3D(vector<Vector3D> points, int dir);
+
+protected:
+	void set_point_to_center_of_gravity_from_points_in_3D(vector<Vector3D> points);
+	void set_direction_to_point_cloud_variations_given_one_dir(int dir, vector<Vector3D> points); //note that point needs to be set to center of gravity...
 };
 
-line3D least_square_fit_line_to_points_in_3D(vector<Vector3D> v);
+
 
 //not typical tensor functions, just for lack of a better place
 

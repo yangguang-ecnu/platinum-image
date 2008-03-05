@@ -1293,6 +1293,148 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(
 	return res;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_in_slice_center_of_gravity_in_dir(int dir, int slice, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit,  SPACE_TYPE type)
+{
+	Vector3D res = create_Vector3D(-1,-1,-1);
+	Vector3D cg = create_Vector3D(0,0,0);
+	float num_voxels=0;
+
+	if(type == VOXEL_SPACE){
+		if(dir==0){
+			for(int z=0;z<this->nz();z++){
+				for(int y=0;y<this->ny();y++){
+					if(this->get_voxel(slice,y,z) >= lower_int_limit && this->get_voxel(slice,y,z) <= upper_int_limit){
+						cg[1] += y;
+						cg[2] += z;
+						num_voxels++;
+					}
+				}
+			}
+			if(num_voxels>0){
+				res = cg / num_voxels;
+				res[0]=slice;
+			}
+
+		}else if(dir==1){
+			for(int z=0;z<this->nz();z++){
+				for(int x=0;x<this->nx();x++){
+					if(this->get_voxel(x,slice,z) >= lower_int_limit && this->get_voxel(x,slice,z) <= upper_int_limit){
+						cg[0] += x;
+						cg[2] += z;
+						num_voxels++;
+					}
+				}
+			}
+			if(num_voxels>0){
+				res = cg / num_voxels;
+				res[1]=slice;
+			}
+		}else{ //dir == 2
+			for(int y=0;y<this->ny();y++){
+				for(int x=0;x<this->nx();x++){
+					if(this->get_voxel(x,y,slice) >= lower_int_limit && this->get_voxel(x,y,slice) <= upper_int_limit){
+						cg[0] += x;
+						cg[1] += y;
+						num_voxels++;
+					}
+				}
+			}
+			if(num_voxels>0){
+				res = cg / num_voxels;
+				res[2]=slice;
+			}
+		}
+
+	// ----------------------------------- PHYSICAL_SPACE --------------------------------------
+	}else if(type == PHYSICAL_SPACE){
+		if(dir==0){
+			for(int z=0;z<this->nz();z++){
+				for(int y=0;y<this->ny();y++){
+					if(this->get_voxel(slice,y,z) >= lower_int_limit && this->get_voxel(slice,y,z) <= upper_int_limit){
+						cg += this->get_physical_pos_for_voxel(slice,y,z);
+						num_voxels++;
+					}
+				}
+			}
+			if(num_voxels>0){
+				res = cg / num_voxels;
+			}
+		}else if(dir==1){
+			for(int z=0;z<this->nz();z++){
+				for(int x=0;x<this->nx();x++){
+					if(this->get_voxel(x,slice,z) >= lower_int_limit && this->get_voxel(x,slice,z) <= upper_int_limit){
+						cg += this->get_physical_pos_for_voxel(x,slice,z);
+						num_voxels++;
+					}
+				}
+			}
+			if(num_voxels>0){
+				res = cg / num_voxels;
+			}
+		}else{ //dir==2
+			for(int y=0;y<this->ny();y++){
+				for(int x=0;x<this->nx();x++){
+					if(this->get_voxel(x,y,slice) >= lower_int_limit && this->get_voxel(x,y,slice) <= upper_int_limit){
+						cg += this->get_physical_pos_for_voxel(x,y,slice);
+						num_voxels++;
+					}
+				}
+			}
+			if(num_voxels>0){
+				res = cg / num_voxels;
+			}
+		}
+
+	}	//SPACE_TYPE
+
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+vector<Vector3D> image_scalar<ELEMTYPE, IMAGEDIM>::get_in_slice_center_of_gravities_in_dir(int dir, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit, SPACE_TYPE type)
+{
+	vector<Vector3D> cg_points;
+	Vector3D tmp;
+	Vector3D tmp2 = create_Vector3D(-1,-1,-1);
+
+	for(int s=0;s<this->get_size_by_dim(dir);s++){
+		tmp = this->get_in_slice_center_of_gravity_in_dir(dir, s, lower_int_limit, upper_int_limit, type);
+		if(tmp != tmp2){
+			cg_points.push_back(tmp);
+		}
+	}
+
+	return cg_points;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::correct_inclined_object_slicewise_after_cg_line(int dir, line3D cg_line, SPACE_TYPE type)
+{
+	image_scalar<unsigned short,3> *res = new image_scalar<unsigned short,3>(this,0);
+	res->fill(0);
+	int this_da=0;
+	int a_new=0;
+
+	if(type == VOXEL_SPACE && dir ==0){
+		for(int y=0;y<this->ny();y++){
+			this_da = int( cg_line.direction[0]*(y-this->ny()/2) );
+//			cout<<"y="<<y<<" this_da="<<this_da<<endl;
+			for(int x=0;x<this->nx();x++){
+				a_new = x-this_da;
+				if( a_new >=0 && a_new<this->nx()){
+					for(int z=0;z<this->nz();z++){
+						res->set_voxel(a_new,y,z,this->get_voxel(x,y,z));
+					}
+				}
+			}
+		}
+	}else{
+		pt_error::error("correct_inclined_object_slicewise_after_cg_line... for these arguments... not implemented yet...",pt_error::debug);
+	}
+	return res;
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3D(int dir, PROJECTION_MODE PROJ)
