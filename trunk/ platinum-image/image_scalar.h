@@ -180,6 +180,8 @@ public:
 
 	//Simple functions for segmentation of bodies and lungs form whole-body MRI scans
 	//Assumes the feet direction is in increasing voxel-y direction... (nose is in neg Z-direction) 
+
+	//Function for localizing main axis of objects (via 2D center of gravities)... pixels are not weighted by their intensities...
 	float appl_wb_correct_inclination(image_scalar<ELEMTYPE, IMAGEDIM>*fat, image_scalar<ELEMTYPE, IMAGEDIM>*water);
 	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres);
 	image_binary<3>* appl_wb_segment_lungs_from_sum_image(int initial_upper_thres, image_binary<3> *body_mask);
