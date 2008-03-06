@@ -230,18 +230,19 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_wate
 //	cout<<"create MIP (z)..."<<endl;
 	image_scalar<ELEMTYPE,IMAGEDIM> *tmip = this->create_projection_3D(2);
 	tmip->name("_tmip");
-//	tmip->save_to_VTK_file("c:/Joel/TMP/COMBI__d01_wpMIP.vtk");
+	tmip->save_to_VTK_file("D:/Joel/TMP/_wpMIP1.vtk");
 
 	cout<<"threshold MIP..."<<endl;
 	image_binary<3> *tbin = tmip->threshold(mip_thres);  //95% MIP - water content....
 	tbin->name("_tbin");
-//	tbin->save_to_VTK_file("c:/Joel/TMP/COMBI__d02_bin.vtk");
+	tbin->save_to_VTK_file("D:/Joel/TMP/_wpMIP2_thres.vtk");
+
 
 	cout<<"filter bin..."<<endl;
 //	tbin->dilate_2D();
 	tbin->erode_2D();
 	tbin->dilate_2D();
-//	tbin->save_to_VTK_file("c:/Joel/TMP/COMBI__d03_bin_close_open.vtk");
+	tbin->save_to_VTK_file("D:/Joel/TMP/_wpMIP3_open2D.vtk");
 
 
 	cout<<"find_crotch..."<<endl;
@@ -280,8 +281,12 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 {
 	cout<<"Erode body_mini..."<<endl;
 	image_binary<> *body_mini = new image_binary<>(bin_body);
-	body_mini->erode_3D(6);
-//	body_mini->save_to_VTK_file(base+"__g01_body_mini.vtk");
+	body_mini->save_to_VTK_file("D:/Joel/TMP/g01_body_mini.vtk");
+//	body_mini->erode_3D(9);
+	body_mini->erode_3D_26Nbh();
+	body_mini->erode_3D_26Nbh();
+	body_mini->erode_3D_26Nbh();
+	body_mini->save_to_VTK_file("D:/Joel/TMP/g01_body_mini2.vtk");
 
 	cout<<"Mask VAT-mask..."<<endl;
 	image_scalar<ELEMTYPE, IMAGEDIM> *abd = new image_scalar<ELEMTYPE, IMAGEDIM>(this);
