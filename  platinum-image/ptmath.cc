@@ -28,6 +28,18 @@ line3D::line3D()
 	direction = create_Vector3D(1,1,1);
 }
 
+line3D::line3D(Vector3D pnt, Vector3D dir)
+{
+	point = pnt;
+	direction = dir;
+}
+
+line3D::line3D(float x1, float y1, float z1, float x2, float y2, float z2)
+{
+	point = create_Vector3D(x1,y1,z1);
+	direction = create_Vector3D(x1-x2, y1-y2, z1-z2);
+}
+
 void line3D::least_square_fit_line_to_points_in_3D(vector<Vector3D> points, int dir)
 {
 	this->set_point_to_center_of_gravity_from_points_in_3D(points);
@@ -63,6 +75,33 @@ void line3D::set_direction_to_point_cloud_variations_given_one_dir(int dir, vect
 	cout<<"direction="<<this->direction<<endl;
 }
 
+plane3D::plane3D()
+{
+	point = create_Vector3D(0,0,0);
+	normal = create_Vector3D(1,0,0);
+}
+
+plane3D::plane3D(Vector3D pnt, Vector3D norm)
+{
+	point = pnt;
+	normal = norm;
+}
+
+plane3D::plane3D(Vector3D point1, Vector3D point2, Vector3D point3) // Construct plane from 3 points, not laying on a straight line
+{
+	point = point1;
+	Vector3D dir1 = create_Vector3D(point2[0]-point1[0],point2[1]-point1[1],point2[2]-point1[2]);
+	Vector3D dir2 = create_Vector3D(point3[0]-point1[0],point3[1]-point1[1],point3[2]-point1[2]);
+	normal = CrossProduct (dir1, dir2);
+}
+
+/*
+plane3D::plane3D(line3D line1, line3D line2)
+{
+	point = line1.get_point_of_intersection(line2);
+	normal = CrossProduct (line1.direction, line2.direction);
+}
+*/
 
 void pt_spline1D(float x[],float y[],int n,float yp1,float ypn,float y2[])
 {

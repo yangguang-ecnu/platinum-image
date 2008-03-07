@@ -59,6 +59,8 @@ class line3D{ //TODO: A future plan in to put this under data_base and connect u
 
 public:
 	line3D();
+	line3D(Vector3D pnt, Vector3D dir);
+	line3D(float x1, float y1, float z1, float x2, float y2, float z2);
 	Vector3D point;
 	Vector3D direction;
 
@@ -67,6 +69,15 @@ public:
 protected:
 	void set_point_to_center_of_gravity_from_points_in_3D(vector<Vector3D> points);
 	void set_direction_to_point_cloud_variations_given_one_dir(int dir, vector<Vector3D> points); //note that point needs to be set to center of gravity...
+};
+
+class plane3D{
+public:
+	plane3D();
+	plane3D(Vector3D pnt, Vector3D norm);
+	plane3D(Vector3D point1, Vector3D point2, Vector3D point3);
+	Vector3D point;
+	Vector3D normal;
 };
 
 
