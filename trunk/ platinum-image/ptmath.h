@@ -64,6 +64,8 @@ public:
 	Vector3D point;
 	Vector3D direction;
 
+	//Point3D get_point_of_intersection(plane3D* plane);
+
 	void least_square_fit_line_to_points_in_3D(vector<Vector3D> points, int dir);
 
 protected:
@@ -78,6 +80,9 @@ public:
 	plane3D(Vector3D point1, Vector3D point2, Vector3D point3);
 	Vector3D point;
 	Vector3D normal;
+
+	void invert();
+	Vector3D get_point_of_intersection(line3D* line);
 };
 
 

@@ -73,9 +73,29 @@ image_label<IMAGEDIM>::image_label(vector< image_binary<IMAGEDIM>* > images, con
 	transfer_function();
 }
 
-
-
-
+template <int IMAGEDIM>
+image_label<IMAGEDIM>::image_label(image_binary<IMAGEDIM>* image1, image_binary<IMAGEDIM>* image2, image_binary<IMAGEDIM>* image3, image_binary<IMAGEDIM>* image4, image_binary<IMAGEDIM>* image5, const string name):image_integer<IMGLABELTYPE, IMAGEDIM>(image1->nx(),image1->ny(),image1->nz())
+{
+	int num_images=5;
+	if (image2==NULL) {num_images=1;}
+	else if (image3==NULL) {num_images=2;}
+	else if (image4==NULL) {num_images=3;}
+	else if (image5==NULL) {num_images=4;}
+	
+	vector< image_binary<IMAGEDIM>* > images(num_images);
+    images[0]=image1;
+	if (image2!=NULL) {images[1]=image2;}
+	if (image3!=NULL) {images[2]=image3;}
+	if (image4!=NULL) {images[3]=image4;}
+	if (image5!=NULL) {images[4]=image5;}
+	
+	this->fill(0);
+	for(int i=0;i<num_images;i++){
+		this->fill_region_of_mask_3D(images[i],i+1);
+	}
+	this->data_has_changed();
+	transfer_function();
+}
 
 template<int IMAGEDIM >
 void image_label<IMAGEDIM >:: transfer_function(transfer_base<IMGLABELTYPE > * const t)
