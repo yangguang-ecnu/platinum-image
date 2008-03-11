@@ -96,7 +96,9 @@ public:
 	bool row_sum_threshold(int* res, ELEMTYPE low_thr, ELEMTYPE high_thr, int row_direction=0, int z_direction=2, int first_slice=-1, int last_slice=-1); ///Compute optimal split level for each slice
     void mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value=TRUE, ELEMTYPE blank=0); ///All voxels in the current image where the corresponding mask voxels != object_value are set to blank.
     void mask_out(int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, ELEMTYPE blank=0); ///All voxels within the given sub-volume are set to blank.
-    std::vector<double> get_slice_sum(int direction=2);
+    void mask_out_from_planes_3D(vector<plane3D*> planes, ELEMTYPE blank=0);
+	void mask_out_from_planes_3D(plane3D* plane1, plane3D* plane2=NULL, plane3D* plane3=NULL, plane3D* plane4=NULL, plane3D* plane5=NULL, ELEMTYPE blank=0);
+	std::vector<double> get_slice_sum(int direction=2);
 
 	void flip_voxel_data_3D(int direction);
 
@@ -183,11 +185,12 @@ public:
 
 	//Function for localizing main axis of objects (via 2D center of gravities)... pixels are not weighted by their intensities...
 	float appl_wb_correct_inclination(image_scalar<ELEMTYPE, IMAGEDIM>*fat, image_scalar<ELEMTYPE, IMAGEDIM>*water);
-	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres);
+	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres=3000);
 	image_binary<3>* appl_wb_segment_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres=2.5);
 	void appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres=950);
 	image_binary<3>* appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body, string base="");
-	void appl_wb_SIM_bias_correction(image_scalar<ELEMTYPE, IMAGEDIM>* second_feature, int num_iterations=1, float iteration_strength=0.02, float map_x_smoothing_std_dev=60, float map_y_smoothing_std_dev=15, float map_z_smoothing_std_dev=60, float feat1_smoothing_std_dev=30, float feat2_smoothing_std_dev=30, int initial_thres_body_mask=3000, int num_buckets_feat1=200, int num_buckets_feat2=200, bool save_corrected_images_each_iteration=false, bool save_histogram_each_iteration=false, bool save_field_each_iteration=false);
+	void appl_wb_normalize_features_slicewise_by_global_mean_on_this_float (image_scalar<float, 3>* second_feature, image_scalar<float, 3>* sum=NULL, image_binary<3>* body_lung_mask=NULL);
+	void appl_wb_SIM_bias_correction_on_this_float(image_scalar<float, 3>* second_feature, int num_iterations=1, float iteration_strength=0.02, float map_x_smoothing_std_dev=60, float map_y_smoothing_std_dev=15, float map_z_smoothing_std_dev=60, float feat1_smoothing_std_dev=30, float feat2_smoothing_std_dev=30, image_binary<3>* body_lung_mask=NULL, int num_buckets_feat1=200, int num_buckets_feat2=200, bool save_corrected_images_each_iteration=false, bool save_histogram_each_iteration=false, bool save_field_each_iteration=false);
 
 	//JK move to private later....
 	float get_mean_least_square_difference_to_template_3D(Vector3D pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template);

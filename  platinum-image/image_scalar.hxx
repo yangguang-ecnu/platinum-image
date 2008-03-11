@@ -747,6 +747,47 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out(int low_x, int high_x, int low_y
 				this->set_voxel(x,y,z,blank);
     }
 	
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(vector<plane3D*> planes, ELEMTYPE blank)
+{
+	int num_planes=planes.size();
+	vector<float> d(num_planes);
+	for (int i=0; i<num_planes; i++) {
+		d[i]= planes[i]->point*planes[i]->normal;
+	}
+	for (int x=0; x<this->get_size_by_dim(0); x++) {
+		for (int y=0; y<this->get_size_by_dim(1); y++) {
+			for (int z=0; z<this->get_size_by_dim(2); z++) {
+				for (int i=0; i<num_planes; i++) {
+					if (d[i] > create_Vector3D(x,y,z)*planes[i]->normal) {
+						this->set_voxel(x,y,z,blank);
+						break;
+					}	
+				}
+			}
+		}
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(plane3D* plane1, plane3D* plane2, plane3D* plane3, plane3D* plane4, plane3D* plane5, ELEMTYPE blank)
+{
+	int num_planes=5;
+	if (plane2==NULL) {num_planes=1;}
+	else if (plane3==NULL) {num_planes=2;}
+	else if (plane4==NULL) {num_planes=3;}
+	else if (plane5==NULL) {num_planes=4;}
+	
+	vector<plane3D*> planes(num_planes);
+    planes[0]=plane1;
+	if (plane2!=NULL) {planes[1]=plane2;}
+	if (plane3!=NULL) {planes[2]=plane3;}
+	if (plane4!=NULL) {planes[3]=plane4;}
+	if (plane5!=NULL) {planes[4]=plane5;}
+	
+	mask_out_from_planes_3D(planes, blank);
+}
+	
 	template <class ELEMTYPE, int IMAGEDIM>
 		std::vector<double> image_scalar<ELEMTYPE, IMAGEDIM>::get_slice_sum(int direction)
 	{

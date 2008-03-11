@@ -322,21 +322,68 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<ELEMTYPE, IMAGEDIM>* second_feature, int num_iterations, float iteration_strength, float map_x_smoothing_std_dev, float map_y_smoothing_std_dev, float map_z_smoothing_std_dev, float feat1_smoothing_std_dev, float feat2_smoothing_std_dev, int initial_thres_body_mask, int num_buckets_feat1, int num_buckets_feat2, bool save_corrected_images_each_iteration, bool save_histogram_each_iteration, bool save_field_each_iteration) 
+void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_normalize_features_slicewise_by_global_mean_on_this_float (image_scalar<float, 3>* second_feature, image_scalar<float, 3>* sum, image_binary<3>* body_lung_mask)
 {
-	image_scalar<float,3> *temp1 = dynamic_cast<image_scalar<float,3 >*>(this);
-	image_scalar<float,3> *feat1 = new image_scalar<float,3>(temp1); delete temp1;
-	image_scalar<float,3> *temp2 = dynamic_cast<image_scalar<float,3 >*>(second_feature);
-	image_scalar<float,3> *feat2 = new image_scalar<float,3>(temp2); delete temp2;
+	if (sum==NULL) {
+		sum = new image_scalar<float, 3>(this);
+		sum->combine(second_feature, COMB_ADD);
+	}
+	if (body_lung_mask==NULL) {
+		body_lung_mask=new image_binary<3>(sum->appl_wb_segment_body_from_sum_image());
+		image_binary<3>* lungs=sum->appl_wb_segment_lungs_from_sum_image(body_lung_mask);
+		body_lung_mask->combine(lungs, COMB_SUB);
+		delete lungs;
+	}
+	int value=0;
+	int	num_voxels=0;
+	int total_num_voxels=0;
+	float total_mean=0;
+	vector<float> mean(sum->get_size_by_dim(1));
+
+	for (int j=0; j<sum->get_size_by_dim(1); j++){
+		num_voxels=0;
+		mean[j] = sum->get_mean_from_slice_3d(1, j, body_lung_mask);
+		for (int i=0; i < sum->get_size_by_dim(0); i++){
+			for (int k=0; k < sum->get_size_by_dim(2); k++){
+				if (body_lung_mask->get_voxel(i,j,k)) {num_voxels++;}
+			}
+		}
+		if (num_voxels!=0) {
+			total_mean += mean[j]*num_voxels;
+			total_num_voxels += num_voxels;
+		}
+		else {mean[j]=0;}
+	}
+	if (total_num_voxels!=0) {total_mean=total_mean / total_num_voxels;}
+
+	float factor;
+	// Set new intensities
+	for (int j=0; j<sum->get_size_by_dim(1); j++){
+		if (mean[j]!=0) {factor = total_mean / mean[j];}
+		else {factor=1;}
+		this->scale_slice_by_factor_3d(1, factor, j);
+		second_feature->scale_slice_by_factor_3d(1, factor, j);
+	}
+	this->data_has_changed();
+	second_feature->data_has_changed();
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float(image_scalar<float, 3>* second_feature, int num_iterations, float iteration_strength, float map_x_smoothing_std_dev, float map_y_smoothing_std_dev, float map_z_smoothing_std_dev, float feat1_smoothing_std_dev, float feat2_smoothing_std_dev, image_binary<3>* body_lung_mask, int num_buckets_feat1, int num_buckets_feat2, bool save_corrected_images_each_iteration, bool save_histogram_each_iteration, bool save_field_each_iteration) 
+{
+	image_scalar<float,3> *feat1 = new image_scalar<float,3>(this);
+	image_scalar<float,3> *feat2 = new image_scalar<float,3>(second_feature);
 		
-	cout << "Calculating binary mask..." << endl;
-	image_scalar<float,3> *sum = new image_scalar<float,3>(feat1);
-	sum->combine(feat2, COMB_ADD);
-	image_binary<3>* mask=sum->appl_wb_segment_body_from_sum_image(initial_thres_body_mask);
-	image_binary<3>* lungs=sum->appl_wb_segment_lungs_from_sum_image(initial_thres_body_mask, mask);
-	mask->combine(lungs, COMB_SUB);
-	delete sum; delete lungs;
-		
+	if (body_lung_mask==NULL) {
+		cout << "Calculating body-lung mask..." << endl;
+		image_scalar<float,3> *sum = new image_scalar<float,3>(feat1);
+		sum->combine(feat2, COMB_ADD);
+		body_lung_mask=sum->appl_wb_segment_body_from_sum_image();
+		image_binary<3>* lungs=sum->appl_wb_segment_lungs_from_sum_image(body_lung_mask);
+		body_lung_mask->combine(lungs, COMB_SUB);
+		delete sum; delete lungs;
+	}
+
 	// bias correction field:
 	image_scalar<float,3> *field = new image_scalar<float,3>(feat1);
 	field->fill(0);	field->data_has_changed();
@@ -356,7 +403,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<
 	float feat1_scale; float feat2_scale;
 	int feat1_bucket; int feat2_bucket;
 	float feat1_min; float feat2_min;
-	int bodysize=mask->get_number_of_voxels_with_value(1);
+	int bodysize=body_lung_mask->get_number_of_voxels_with_value(1);
 	int xsize=feat1->get_size_by_dim(0);
 	int ysize=feat1->get_size_by_dim(1);
 	int zsize=feat1->get_size_by_dim(2);
@@ -373,18 +420,11 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<
 		cout << "-----Starting iteration " << iter+1 << " out of " << num_iterations << " -----" << endl;
 
 		// Calculate feature space
-		image_scalar<unsigned short,3> *temp3 = feat1_corr->create2Dhistogram_3D(feat2_corr, true, num_buckets_feat1, num_buckets_feat2, mask);
+		image_scalar<unsigned short,3> *temp3 = feat1_corr->create2Dhistogram_3D(feat2_corr, true, num_buckets_feat1, num_buckets_feat2, body_lung_mask);
 		image_scalar<float,3> *hist = new image_scalar<float,3>(temp3); delete temp3;
 	
 		// Expand
 		image_scalar<float,3> *hist_expanded = dynamic_cast<image_scalar<float,3 >*>(hist->expand_borders(1, 1, 0));
-		//image_scalar<float,3> *hist_expanded = new image_scalar<float, 3>(num_buckets_feat1 + 2, num_buckets_feat2 + 2,1);
-		//hist_expanded->fill(0);
-		//for (int i=0; i<num_buckets_feat1; i++) {
-		//	for (int j=0; j<num_buckets_feat2; j++) {
-		//		hist_expanded->set_voxel(i+1,j+1,0,hist->get_voxel(i,j,0));
-		//	}
-		//}
 		delete hist;
 			
 		// Calculate force in each bucket: Smooth, normalize and logarithmate, then derivate in each direction with sobel filter
@@ -402,14 +442,6 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<
 		// Contract
 		image_scalar<float,3> *feat1_force = dynamic_cast<image_scalar<float,3 >*>(feat1_force_expanded->get_subvolume_from_region_3D(1, 1, 0, num_buckets_feat1, num_buckets_feat2, 0));
 		image_scalar<float,3> *feat2_force = dynamic_cast<image_scalar<float,3 >*>(feat2_force_expanded->get_subvolume_from_region_3D(1, 1, 0, num_buckets_feat1, num_buckets_feat2, 0));
-		//image_scalar<float,3> *feat1_force = new image_scalar<float,3>(num_buckets_feat1, num_buckets_feat2, 1);
-		//image_scalar<float,3> *feat2_force = new image_scalar<float,3>(num_buckets_feat1, num_buckets_feat2, 1);
-		//for (int i=0; i<num_buckets_feat1; i++) {
-		//	for (int j=0; j<num_buckets_feat2; j++) {
-		//		feat1_force->set_voxel(i,j,0,feat1_force_expanded->get_voxel(i+1,j+1,0));
-		//		feat2_force->set_voxel(i,j,0,feat2_force_expanded->get_voxel(i+1,j+1,0));
-		//	}
-		//}
 		delete feat1_force_expanded; delete feat2_force_expanded;
 	
 		// Map forces to inhomogeniety field map as Force = feat1_force * feat1_intensity + feat2_force * feat2_intensity
@@ -420,7 +452,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<
 		for (int x=0; x<xsize; x++) {
 			for (int y=0; y<ysize; y++) {
 				for (int z=0; z<zsize; z++) {
-					if (mask->get_voxel(x,y,z))	{
+					if (body_lung_mask->get_voxel(x,y,z))	{
 						feat1_bucket=(feat1_corr->get_voxel(x,y,z)-feat1_min)/feat1_scale;
 						feat2_bucket=(feat2_corr->get_voxel(x,y,z)-feat2_min)/feat2_scale;
 						inh_map->set_voxel(x,y,z, (feat1_force->get_voxel(feat1_bucket,feat2_bucket)*feat1_bucket+feat2_force->get_voxel(feat1_bucket,feat2_bucket)*feat2_bucket) );
@@ -432,15 +464,15 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<
 			
 		// Smooth in each direction
 		cout << "Gauss smoothing in x-direction" << endl;
-		inh_map->filter_3D(gauss_x, 1, mask, 1);
+		inh_map->filter_3D(gauss_x, 1, body_lung_mask, 1);
 		cout << "Gauss smoothing in y-direction" << endl;
-		inh_map->filter_3D(gauss_y, 1, mask, 1);
+		inh_map->filter_3D(gauss_y, 1, body_lung_mask, 1);
 		cout << "Gauss smoothing in z-direction" << endl;
-		inh_map->filter_3D(gauss_z, 1, mask, 1);
+		inh_map->filter_3D(gauss_z, 1, body_lung_mask, 1);
 
 		// field[i] = field[i-1] + iteration_strength*(force / mean(abs(force)))
-		inh_map->mask_out(mask);
-		inh_map->scale_by_factor(iteration_strength/((inh_map->get_sum_of_voxels(true, mask))/bodysize)); // oklart varför
+		inh_map->mask_out(body_lung_mask);
+		inh_map->scale_by_factor(iteration_strength/((inh_map->get_sum_of_voxels(true, body_lung_mask))/bodysize)); // oklart varför
 		field->combine(inh_map, COMB_ADD);
 		field->data_has_changed();
 			
@@ -457,10 +489,19 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<
 		feat1_corr->combine(field, COMB_ADD); feat2_corr->combine(field, COMB_ADD);
 		feat1_corr->add_value_to_all_voxels(1); feat2_corr->add_value_to_all_voxels(1);
 		feat1_corr->combine(feat1, COMB_MULT); feat2_corr->combine(feat2, COMB_MULT);
+		//Set negative values to zero
+		for (int x=0; x<xsize; x++) {
+			for (int y=0; y<ysize; y++) {
+				for (int z=0; z<zsize; z++) {
+					if (feat1_corr->get_voxel(x,y,z)<0) {feat1_corr->set_voxel(x,y,z,0);}
+					if (feat2_corr->get_voxel(x,y,z)<0) {feat2_corr->set_voxel(x,y,z,0);}
+				}
+			}
+		}
 		feat1_corr->data_has_changed(); feat2_corr->data_has_changed();
 
 		if (save_histogram_each_iteration) {	
-			histograms[iter] = feat1_corr->create2Dhistogram_3D(feat2_corr, false, num_buckets_feat1, num_buckets_feat2, mask);
+			histograms[iter] = feat1_corr->create2Dhistogram_3D(feat2_corr, false, num_buckets_feat1, num_buckets_feat2, body_lung_mask);
 			str = "Histogram, iteration " + int2str(iter+1);
 			histograms[iter]->data_has_changed();
 			histograms[iter]->name(str);
@@ -481,7 +522,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction(image_scalar<
 	// end of iteration
 	}
 	// Delete stuff
-	delete feat1; delete feat2; delete mask;
+	delete feat1; delete feat2; delete body_lung_mask;
 	delete gauss_feat1; delete gauss_feat2;
 	delete sobel_feat1; delete sobel_feat2;
 	delete gauss_x; delete gauss_y; delete gauss_z;
