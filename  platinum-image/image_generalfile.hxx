@@ -625,22 +625,39 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_NIFTI_file(const std::string fil
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::save_to_TIF_file_series_3D(const std::string file_path_base)
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_TIF_file_series_3D(const std::string file_path_base, int dir, int from_slice, int to_slice)
 {
 	char buf[10];
-	for(int z=0;z<datasize[2];z++)
-	{
-		image_scalar<ELEMTYPE, IMAGEDIM> *slc = new image_scalar<ELEMTYPE, IMAGEDIM>();
-		slc->initialize_dataset(datasize[0],datasize[1],1);
-		slc->copy_slice_from_3D(this,z,0,2);
-		slc->scale(); //0...256
-		slc->data_has_changed(true);
+	int s_start=0;
+	int s_end;
+	
+	if(dir==2){
+		if(from_slice>=0){
+			s_start = from_slice;
+		}
+		if(to_slice>=0){
+			s_end = to_slice;
+		}else{
+			s_end = nz();
+		}
+		
+		image_scalar<ELEMTYPE, IMAGEDIM> *slc;
+		image_scalar<unsigned char,3> *slc2;
+		for(int s=s_start; s<=s_end; s++){
+			slc = new image_scalar<ELEMTYPE, IMAGEDIM>();
+			slc->initialize_dataset(datasize[0],datasize[1],1);
+			slc->copy_slice_from_3D(this,s,0,2);
+			slc->scale(); //0...256
+			slc->data_has_changed(true);
 
-		sprintf(buf,"%04i",z);
-		image_scalar<unsigned char,3> *slc2 = new image_scalar<unsigned char,3>(slc);
-		slc2->save_uchar2D_to_TIF_file(file_path_base, string(buf));
-		delete slc;
-		delete slc2;
+			sprintf(buf,"%04i",s);
+			slc2 = new image_scalar<unsigned char,3>(slc);
+			slc2->save_uchar2D_to_TIF_file(file_path_base, string(buf));
+			delete slc;
+			delete slc2;
+		}
+	}else{
+		pt_error::error("image_general::save_to_TIF_file_series_3D()--> not implemented for this dir...",pt_error::debug);
 	}
 }
 
