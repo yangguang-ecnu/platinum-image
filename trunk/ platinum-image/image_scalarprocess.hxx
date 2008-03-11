@@ -188,7 +188,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 
 	histogram_1D<ELEMTYPE> *h = this->get_histogram_from_masked_region_3D(half_body_mask);
 //	cout<<"initial_upper_thres="<<initial_upper_thres<<endl;
-	int lung_tresh = h->get_intensity_at_included_num_pix_from_lower_int(2,this->get_num_voxels_per_dm3()*lung_volume);
+	int lung_tresh = h->get_intensity_at_included_num_pix_from_lower_int(2,this->get_num_voxels_per_dm3()*lung_volume_in_litres);
 	cout<<"lung_tresh="<<lung_tresh<<endl;
 
 //	image_binary<3> *lungs = this->threshold(0,initial_upper_thres);
@@ -282,41 +282,39 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_wate
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body)
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body, string base="")
 {
 	cout<<"Erode body_mini..."<<endl;
 	image_binary<> *body_mini = new image_binary<>(bin_body);
-	body_mini->save_to_VTK_file("D:/Joel/TMP/g01_body_mini.vtk");
-//	body_mini->erode_3D(9);
 	body_mini->erode_3D_26Nbh();
 	body_mini->erode_3D_26Nbh();
 	body_mini->erode_3D_26Nbh();
-	body_mini->save_to_VTK_file("D:/Joel/TMP/g01_body_mini2.vtk");
+	
+	if(base!=""){
+		body_mini->save_to_VTK_file(base + "__g00a_eroded_body.vtk");
+	}
 
 	cout<<"Mask VAT-mask..."<<endl;
 	image_scalar<ELEMTYPE, IMAGEDIM> *abd = new image_scalar<ELEMTYPE, IMAGEDIM>(this);
 	abd->mask_out(body_mini);
-//	abd->save_to_VTK_file(base+"__g02_VAT_mini_mask.vtk");
-
 
 	cout<<"Threshold, erode2D, largest object..."<<endl;
 	image_binary<> *vat_mini = abd->threshold(500);
-//	vat_mini->save_to_VTK_file(base+"__g03_VAT_mini_thres.vtk");
+	if(base!=""){
+		vat_mini->save_to_VTK_file(base + "__g00b_before_eroded_2D.vtk");
+	}
 
-	vat_mini->erode_2D();
-//	vat_mini->save_to_VTK_file(base+"__g04_VAT_mini_erode.vtk");
+	vat_mini->erode_2D(); 
+	if(base!=""){
+		vat_mini->save_to_VTK_file(base + "__g00c_after_eroded_2D.vtk");
+	}
 
 	vat_mini->largest_object_3D();
-//	vat_mini->save_to_VTK_file(base+"__g05_VAT_mini_largest_object.vtk");
 
 	cout<<"Convex Hull..."<<endl;
 	vat_mini->convex_hull_line_filling_3D(0);
 	vat_mini->convex_hull_line_filling_3D(2);
-//	vat_mini->save_to_VTK_file(base+"__g06_VAT_convex_lines.vtk");
 
-//	datamanagement.add(body_mini);
-//	datamanagement.add(vat_mask);
-//	datamanagement.add(vat_mini);
 	delete body_mini;
 	delete abd;
 
