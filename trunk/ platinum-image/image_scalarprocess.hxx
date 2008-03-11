@@ -177,48 +177,53 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_body_from_sum
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_sum_image(int initial_upper_thres, image_binary<3> *body_mask)
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres)
 {
 	
 	image_binary<3> *half_body_mask = binary_copycast<3>(body_mask);	// = image_binary<3>(body_mask);
-
-	half_body_mask->fill_region_3D(1,130,body_mask->get_size_by_dim(1)-1,0);
+	//clear a priori regions.... y = 0...40 and 120...
+	half_body_mask->fill_region_3D(1,0,40,0);
+	half_body_mask->fill_region_3D(1,120,body_mask->get_size_by_dim(1)-1,0);
 	half_body_mask->erode_3D_26Nbh();
-	half_body_mask->save_to_file("D:/Joel/TMP/half_body_small.vtk");
 
 	histogram_1D<ELEMTYPE> *h = this->get_histogram_from_masked_region_3D(half_body_mask);
-	h->save_histogram_to_txt_file("D:/Joel/TMP/half_body_sum_hist.txt");
+//	cout<<"initial_upper_thres="<<initial_upper_thres<<endl;
+	int lung_tresh = h->get_intensity_at_included_num_pix_from_lower_int(2,this->get_num_voxels_per_dm3()*lung_volume);
+	cout<<"lung_tresh="<<lung_tresh<<endl;
 
-	cout<<"lung_tresh="<<h->get_intensity_at_included_num_pix_from_lower_int(2,this->get_num_voxels_per_dm3()*2)<<endl;
-
-
-	image_binary<3> *lungs = this->threshold(0,initial_upper_thres);
-//	lungs->name(id+"_lungs");
+//	image_binary<3> *lungs = this->threshold(0,initial_upper_thres);
+	image_binary<3> *lungs = this->threshold(0,lung_tresh);
 
 	//clear a priori regions.... y = 0...50 and 100...
 	lungs->fill_region_3D(1,0,50,0);
 	lungs->fill_region_3D(1,100,lungs->get_size_by_dim(1)-1,0);
-//	lungs->save_to_VTK_file(base+"__c01_Lungs.vtk");
 
-//	cout<<"Mask body (lungs)..."<<endl;
-	lungs->mask_out(body_mask);
-//	lungs->save_to_VTK_file(base+"__c02_Lungs_masked.vtk");
+//	lungs->mask_out(body_mask);
+	lungs->mask_out(half_body_mask);
 
-//	cout<<"Erode lungs..."<<endl;
-	image_binary<3> *tlungmask = new image_binary<3>(lungs);
-//	tlungmask->name(id+"_tlungmask");
-	tlungmask->erode_3D(7);
-//	tlungmask->save_to_VTK_file(base+"__c03_Lungmask_eroded.vtk");
+	image_binary<3> *rough_lung_mask = new image_binary<3>(lungs);
+//	rough_lung_mask->erode_3D(7);
+//	rough_lung_mask->dilate_3D(20);
+	rough_lung_mask->erode_3D_26Nbh();
 
-//	cout<<"Dilate lungs..."<<endl;
-	//there is a bug in dilate3D... An in-slice line (with 2 segments...) is sometimes seen....
-	tlungmask->dilate_3D(20);
-//	tlungmask->save_to_VTK_file(base+"__c04_Lungmask_dilated.vtk");
+	image_binary<3> *lung1 = new image_binary<3>(rough_lung_mask);
+	image_binary<3> *lung2 = new image_binary<3>(rough_lung_mask);
+	lung1->largest_object_3D();
+	lung2->mask_out(lung1,0);
+	lung2->largest_object_3D();
+	lung1->combine(lung2,COMB_MAX);
+	lung1->dilate_3D_26Nbh();
+	lung1->dilate_3D_26Nbh();
+//	lung1->save_to_file("D:/Joel/TMP/roughLungs.vtk");
 
-	lungs->mask_out(tlungmask);
-//	lungs->save_to_VTK_file(base+"__c05_Lungs_masked.vtk");
 
-	delete tlungmask;
+	lungs->mask_out(lung1);
+
+	delete half_body_mask;
+	delete rough_lung_mask;
+	delete lung1;
+	delete lung2;
+
 	return lungs;
 }
 
@@ -230,19 +235,19 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_wate
 //	cout<<"create MIP (z)..."<<endl;
 	image_scalar<ELEMTYPE,IMAGEDIM> *tmip = this->create_projection_3D(2);
 	tmip->name("_tmip");
-	tmip->save_to_VTK_file("D:/Joel/TMP/_wpMIP1.vtk");
+//	tmip->save_to_VTK_file("D:/Joel/TMP/_wpMIP1.vtk");
 
 	cout<<"threshold MIP..."<<endl;
 	image_binary<3> *tbin = tmip->threshold(mip_thres);  //95% MIP - water content....
 	tbin->name("_tbin");
-	tbin->save_to_VTK_file("D:/Joel/TMP/_wpMIP2_thres.vtk");
+//	tbin->save_to_VTK_file("D:/Joel/TMP/_wpMIP2_thres.vtk");
 
 
 	cout<<"filter bin..."<<endl;
 //	tbin->dilate_2D();
 	tbin->erode_2D();
 	tbin->dilate_2D();
-	tbin->save_to_VTK_file("D:/Joel/TMP/_wpMIP3_open2D.vtk");
+//	tbin->save_to_VTK_file("D:/Joel/TMP/_wpMIP3_open2D.vtk");
 
 
 	cout<<"find_crotch..."<<endl;
