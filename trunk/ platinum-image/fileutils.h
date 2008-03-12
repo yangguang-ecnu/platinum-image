@@ -65,6 +65,7 @@ void add_to_string_vector_if_not_present(vector<string> &v, string s);
 //------------- Dicom specific file handling ----------------------
 
 vector<string>	get_dicom_files_in_dir(string dir_path, bool full_path=false);
+string			get_first_dicom_file_in_dir(string dir_path, bool full_path=false);
 vector<string>	get_dicom_files_with_dcm_tag_value(vector<string> files, string dcm_tag, string tag_val);
 int				get_number_of_dicom_files_in_dir(string dir_path);
 string			get_dicom_tag_value(string file_path, string dcm_tag, bool remove_garbage_tag=true);
@@ -81,6 +82,7 @@ vector<string>	list_dicom_tag_values_in_subdirs(string dir_path, string dcm_tag,
 bool does_string_end_with(string s, string ending);
 bool remove_file_lastname(string &s, int max_no_lastname_chars=3);
 bool remove_string_ending(string &s, string ending=" ");
+string replace_last_substring(string s, string val, string replacement="");
 
 string int2str(int i);
 string float2str(float f);
