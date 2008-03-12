@@ -187,7 +187,7 @@ vector<string> get_dicom_files_in_dir(string dir_path, bool full_path)
 	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
 
 	vector<string> dcm_files;
-	vector<string> all_files = get_dir_entries(dir_path,full_path);
+	vector<string> all_files = get_dir_entries(dir_path,true);
 
 	for(int i=0;i<all_files.size();i++)
 	{
@@ -199,6 +199,16 @@ vector<string> get_dicom_files_in_dir(string dir_path, bool full_path)
 		}
 	}
 	return dcm_files;
+}
+
+string get_first_dicom_file_in_dir(string dir_path, bool full_path)
+{
+	vector<string> v = get_dicom_files_in_dir(dir_path, full_path);
+//	cout<<"v.size()="<<v.size()<<endl;
+	if(v.size()>0){
+		return v[0];
+	}
+	return "";
 }
 
 vector<string> get_dicom_files_with_dcm_tag_value(vector<string> files, string dcm_tag, string tag_val)
@@ -262,7 +272,7 @@ bool does_dir_contain_dcmfile_with_tag_value(string dir_path, string dcm_tag, st
 		dicomIO->ReadImageInformation();		//get basic DICOM header
 		dicomIO->GetValueFromTag(dcm_tag,dcmdata);
 		remove_string_ending(dcmdata," "); //removes eventual last garbage char
-//		cout<<"tag_val=("<<tag_val<<") dcmdata=("<<dcmdata<<")"<<endl;
+		//cout<<"tag_val=("<<tag_val<<") dcmdata=("<<dcmdata<<")"<<endl;
 		if(dcmdata == tag_val){
 			return true;
 		}
@@ -390,6 +400,19 @@ bool remove_string_ending(string &s, string ending)
 		return true;
 	}
 	return false;
+}
+
+string replace_last_substring(string s, string val, string replacement){
+	cout<<"replace_last_substring..."<<endl;
+	int last = s.find_last_of(val);
+	string a = s.substr(0,last-val.size()+1);
+	string b = replacement;
+	string c = s.substr(last+1,s.size()-1);
+//	cout<<"last="<<last<<endl;
+//	cout<<"a="<<a<<endl;
+//	cout<<"b="<<b<<endl;
+//	cout<<"c="<<c<<endl;
+	return a+b+c;
 }
 
 vector<string> subdirs (string dir_path)
