@@ -1198,7 +1198,8 @@ void image_binary<IMAGEDIM>::fill_holes_3D(IMGBINARYTYPE object_value)
 	delete[] lut;
 	delete label_image;				
 	}	
-		
+	
+/*
 template <int IMAGEDIM>
 image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool edge_is_object, IMGBINARYTYPE object_value)
 	{
@@ -1267,6 +1268,7 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 			}
 		}
 	//Backward pass
+
 	for(w=max_w-1; w>=0; w--)
 		{
 		for(v=max_v-1; v>=0; v--)
@@ -1321,6 +1323,111 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 				}
 			}
 		}
+
+	//output->min_max_refresh();
+	return output;
+	}
+*/
+
+	template <int IMAGEDIM>
+image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool edge_is_object, IMGBINARYTYPE object_value)
+	{
+	image_integer<short, IMAGEDIM>* output = new image_integer<short,IMAGEDIM> (this,false);
+	int u,v,w;
+	int max_u=this->get_size_by_dim(0);
+	int max_v=this->get_size_by_dim(1);
+	int max_w=this->get_size_by_dim(2);
+	int veryhigh = (std::max(max_w,std::max(max_u,max_v))*5); //5 times the largest voxel direction... //std::numeric_limits<int>::max()-11;
+	int initvalue = (edge_is_object)?veryhigh:0;
+	IMGBINARYTYPE p;//pixel value
+	int d,ul,um,ur,ml,mr,ll,lm,lr,aul,aum,aur,aml,amm,amr,all,alm,alr;//neighbour labels 
+	//Forward pass
+
+	for(w=0; w<max_w; w++){
+		for(v=0; v<max_v; v++){
+			u=0;
+			ml=initvalue;
+			ul=initvalue;
+			aml=initvalue;
+			aul=initvalue;
+			all=initvalue;
+			um=(v>0)? output->get_voxel(u,v-1,w) : initvalue;
+			aum=(v>0 && w>0)? output->get_voxel(u,v-1,w-1) : initvalue;
+			amm=(w>0)? output->get_voxel(u,v,w-1) : initvalue;
+			alm=(v<max_v && w>0)? output->get_voxel(u,v+1,w-1) : initvalue;
+			for(u=0; u<max_u; u++){
+				p=this->get_voxel(u,v,w);
+				ur=(u<max_u-1 && v>0)? output->get_voxel(u+1,v-1,w) : initvalue;
+				aur=(u<max_u-1 && v>0 && w>0)? output->get_voxel(u+1,v-1,w-1) : initvalue;
+				amr=(u<max_u-1 && w>0)? output->get_voxel(u+1,v,w-1) : initvalue;
+				alr=(u<max_u-1 && v<max_v-1 && w>0)? output->get_voxel(u+1,v+1,w-1) : initvalue;
+				d=(p==object_value)?std::min(
+											std::min(
+												std::min( std::min(5+aul,4+aum),std::min(5+aur,4+aml) ),
+                                                std::min( std::min(3+amm,4+amr),std::min(5+all,4+alm) )
+												),
+											std::min( std::min( std::min(5+alr,4+ul),std::min(3+um,4+ur) ), 3+ml )
+											):0;
+				output->set_voxel(u,v,w,d);
+				ml=d; //??? d is calculated...			//traverse the information minimie "get_voxel" calls...
+				ul=um;
+				um=ur;
+				aul=aum;
+				aum=aur;
+				aml=amm;
+				amm=amr;
+				all=alm;
+				alm=alr;
+				}
+			}
+		}
+
+	//Backward pass
+	for(w=max_w-1; w>=0; w--){
+		for(v=max_v-1; v>=0; v--){
+			u=max_u-1;
+			mr=initvalue;
+//			ur=initvalue; //bug --> ur-->lr		//another bug was fixed by setting all "w-1" --> "w+1"
+			lr=initvalue;
+			amr=initvalue;
+			aur=initvalue;
+			alr=initvalue;
+			lm=(v<max_v-1)? output->get_voxel(u,v+1,w) : initvalue;
+			aum=(v>0 && w>0)? output->get_voxel(u,v-1,w+1) : initvalue;
+			amm=(w>0)? output->get_voxel(u,v,w+1) : initvalue;
+			alm=(v<max_v && w>0)? output->get_voxel(u,v+1,w+1) : initvalue;
+
+			for(u=max_u-1; u>=0; u--){
+				p=this->get_voxel(u,v,w);
+				d=output->get_voxel(u,v,w);
+				ll=(u>0 && v<max_v-1)? output->get_voxel(u-1,v+1,w) : initvalue;
+				aul=(u>0 && v>0 && w>0)? output->get_voxel(u-1,v-1,w+1) : initvalue;
+				aml=(u>0 && w>0)? output->get_voxel(u-1,v,w+1) : initvalue;
+				all=(u>0 && v<max_v-1 && w>0)? output->get_voxel(u-1,v+1,w+1) : initvalue;
+				d=(p==object_value)?std::min(
+                                            std::min(
+												std::min( std::min(5+aul,4+aum),std::min(5+aur,4+aml) ),
+                                                std::min( std::min(3+amm,4+amr),std::min(5+all,4+alm) )
+												),
+											std::min( 
+												std::min(std::min(5+alr,4+ll),std::min(3+lm,4+lr) ),
+                                                std::min(d,3+mr)
+												)
+											):0;
+				output->set_voxel(u,v,w,d);
+				mr=d;
+				lr=lm;
+				lm=ll;
+				aur=aum;
+				aum=aul;
+				amr=amm;
+				amm=aml;
+				alr=alm;
+				alm=all;
+				}
+			}
+		}
+
 	//output->min_max_refresh();
 	return output;
 	}
@@ -1730,8 +1837,8 @@ void image_binary<IMAGEDIM>::dilate_3D_26Nbh(IMGBINARYTYPE object_value)
     image_binary<IMAGEDIM> * res = new image_binary<IMAGEDIM>(this,0); //resulting image...
 	res->set_parameters(this); //copy rotation and size infor to tmp image first...
 
-	cout<<"object_value="<<object_value<<endl;
-	cout<<"!object_value="<<!object_value<<endl;
+//	cout<<"object_value="<<object_value<<endl;
+//	cout<<"!object_value="<<!object_value<<endl;
 	res->fill(!object_value);
 
 	int max_x=this->get_size_by_dim(0);

@@ -51,7 +51,7 @@
 struct regionofinterest;
 
 #include "global.h"
-
+#include "FLTKutilities.h"	//Editable slider...
 #include "histogram.h"
 #include "threshold.h"
 
@@ -377,7 +377,8 @@ class FLTKuserIOpar_float_box : public FLTKuserIOparameter_base    //float value
 class FLTKuserIOpar_longint : public FLTKuserIOparameter_base    //integer value (using slider)
     {
     protected:
-        Fl_Value_Slider * control;
+//        Fl_Value_Slider * control;
+		FLTK_Editable_Slider * control;
     public:
         FLTKuserIOpar_longint (const std::string name, long ma=255, long mi=0);
                                                    //order of parameters reverse of expected,

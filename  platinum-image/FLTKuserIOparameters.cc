@@ -950,7 +950,10 @@ FLTKuserIOpar_longint::FLTKuserIOpar_longint (const std::string name, long ma, l
     {
     //label set by superclass constructor
     //position & width set by parent userIO later, including margin
-    control = new Fl_Value_Slider(x(),y()+PARTITLEMARGIN,w(),h()-PARTITLEMARGIN);
+
+//    control = new Fl_Value_Slider(x(),y()+PARTITLEMARGIN,w(),h()-PARTITLEMARGIN);
+    control = new FLTK_Editable_Slider(x(),y()+PARTITLEMARGIN,w(),h()-PARTITLEMARGIN,"",20);
+	
 
     control->callback(par_update_callback);
 

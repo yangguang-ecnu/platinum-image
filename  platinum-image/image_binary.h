@@ -85,6 +85,7 @@ class image_binary : public image_label <IMAGEDIM>
 	//JK - there is a bug in dilate3D... An in-slice line (with 2 segments...) is sometimes seen....
 	void dilate_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE); ///Morphological dilate up to distance value=thickness.
 	void outline_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE); ///Morphological outline up to distance value=thickness.
+//    image_integer<short, IMAGEDIM> * distance_345_3D(bool edge_is_object=false, IMGBINARYTYPE object_value=TRUE); ///Compute 345 chamfer distance map. If edge_is_object=true then everything outside the image is regarded to be object voxels.
     image_integer<short, IMAGEDIM> * distance_345_3D(bool edge_is_object=false, IMGBINARYTYPE object_value=TRUE); ///Compute 345 chamfer distance map. If edge_is_object=true then everything outside the image is regarded to be object voxels.
 
 	void erode_3D_26Nbh(IMGBINARYTYPE object_value=TRUE); ///Morphological erode (26 Neighbourhood)
