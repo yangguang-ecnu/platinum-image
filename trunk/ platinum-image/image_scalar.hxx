@@ -1577,7 +1577,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::correct_incl
 
 	if(type == VOXEL_SPACE && dir ==0){
 		for(int y=0;y<this->ny();y++){
-			this_da = int( cg_line.direction[0]*(y-this->ny()/2) );
+			this_da = int( cg_line.get_direction()[0]*(y-this->ny()/2) );
 //			cout<<"y="<<y<<" this_da="<<this_da<<endl;
 			for(int x=0;x<this->nx();x++){
 				a_new = x-this_da;

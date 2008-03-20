@@ -138,7 +138,7 @@ FLTK_Editable_Slider::FLTK_Editable_Slider(int x, int y, int w, int h, const cha
         input->when(FL_WHEN_ENTER_KEY|FL_WHEN_NOT_CHANGED);
 		input->label(l);
 		input->labelsize(h);
-		input->textsize(h);
+		input->textsize(FLTK_LABEL_SIZE);
 
         slider = new Fl_Slider(x+input_w+5, y, w - (input_w+5), h);
         slider->type(FL_HOR_SLIDER);
@@ -152,10 +152,10 @@ float FLTK_Editable_Slider::value()
 void FLTK_Editable_Slider::value(float val) 
 	{ slider->value(val); Slider_CB2(); }
 
-void FLTK_Editable_Slider::minumum(float val)
+void FLTK_Editable_Slider::minimum(float val)
 	{ slider->minimum(val); }
 
-float FLTK_Editable_Slider::minumum()
+float FLTK_Editable_Slider::minimum()
 	{ return slider->minimum(); }
 
 void FLTK_Editable_Slider::maximum(float val) 

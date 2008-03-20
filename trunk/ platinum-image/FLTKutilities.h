@@ -79,8 +79,8 @@ public:
     float value();
     void value(float val);
 
-	void minumum(float val);
-    float minumum();
+	void minimum(float val);
+    float minimum();
 
 	void maximum(float val);
     float maximum();

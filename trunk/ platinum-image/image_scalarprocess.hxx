@@ -142,7 +142,7 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_correct_inclination(image_scalar
 	delete f2;
 	delete w2;
 
-	return cg_line.direction[0];
+	return cg_line.get_direction()[0];
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -291,35 +291,69 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 	body_mini->erode_3D_26Nbh();
 	body_mini->erode_3D_26Nbh();
 	
-	if(base!=""){
-		body_mini->save_to_VTK_file(base + "__g00a_eroded_body.vtk");
-	}
-
-	cout<<"Mask VAT-mask..."<<endl;
+	cout<<"Mask body mini,	Threshold, largest object, Convex Hull..."<<endl;
 	image_scalar<ELEMTYPE, IMAGEDIM> *abd = new image_scalar<ELEMTYPE, IMAGEDIM>(this);
 	abd->mask_out(body_mini);
-
-	cout<<"Threshold, erode2D, largest object..."<<endl;
-	image_binary<> *vat_mini = abd->threshold(500);
+	image_binary<> *vat_mask = abd->threshold(500);
+	vat_mask->largest_object_3D();
+	vat_mask->convex_hull_line_filling_3D(0);
+	vat_mask->convex_hull_line_filling_3D(2);
 	if(base!=""){
-		vat_mini->save_to_VTK_file(base + "__g00b_before_eroded_2D.vtk");
+		vat_mask->save_to_VTK_file(base + "__g00b_convex_hull.vtk");
+	}
+	vat_mask->dilate_3D_26Nbh();
+	vat_mask->erode_3D_26Nbh();
+	if(base!=""){
+		vat_mask->save_to_VTK_file(base + "__g00c_closed.vtk");
 	}
 
-	vat_mini->erode_2D(); 
+	image_binary<> *vat_mask_mini = new image_binary<>(vat_mask);
+	vat_mask_mini->erode_2D(6,1);
+
+
+	image_binary<> *sat = abd->threshold(0,500);
+	image_binary<> *sat_seed = new image_binary<>(sat);
+	sat_seed->mask_out(vat_mask,0);
+	sat_seed->mask_out(bin_body);
+	int x1;
+	int y1;
+	int z1;
+	int x2;
+	int y2;
+	int z2;
+	vat_mask->get_span_of_values_larger_than(0,x1,y1,z1,x2,y2,z2);
+	sat_seed->fill_region_3D(1,0,y1-1,0);
+	sat_seed->fill_region_3D(1,y2+1,sat_seed->ny()-1,0);
 	if(base!=""){
-		vat_mini->save_to_VTK_file(base + "__g00c_after_eroded_2D.vtk");
+		sat_seed->save_to_VTK_file(base + "__g00e_sat_seed.vtk");
 	}
 
-	vat_mini->largest_object_3D();
+	sat->mask_out(vat_mask_mini,0);
+	if(base!=""){
+		sat->save_to_VTK_file(base + "__g00f_sat_limit.vtk");
+	}
 
-	cout<<"Convex Hull..."<<endl;
-	vat_mini->convex_hull_line_filling_3D(0);
-	vat_mini->convex_hull_line_filling_3D(2);
+	sat->region_grow_3D(sat_seed,1);
+
+	if(base!=""){
+		sat->save_to_VTK_file(base + "__g00g_sat_grown.vtk");
+	}
+
+	if(base!=""){
+		vat_mask->save_to_VTK_file(base + "__g00h_vat_before.vtk");
+	}
+	vat_mask->mask_out(sat,0);
+	if(base!=""){
+		vat_mask->save_to_VTK_file(base + "__g00i_vat_after.vtk");
+	}
+
 
 	delete body_mini;
 	delete abd;
+	delete sat;
+	delete sat_seed;
 
-	return vat_mini;
+	return vat_mask;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
