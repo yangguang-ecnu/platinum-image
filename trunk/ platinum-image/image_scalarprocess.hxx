@@ -188,6 +188,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 	half_body_mask->erode_3D_26Nbh();
 
 	histogram_1D<ELEMTYPE> *h = this->get_histogram_from_masked_region_3D(half_body_mask);
+	h->save_histogram_to_txt_file("d:/Joel/TMP/hist.txt");
 //	cout<<"initial_upper_thres="<<initial_upper_thres<<endl;
 	int lung_tresh = h->get_intensity_at_included_num_pix_from_lower_int(2,this->get_num_voxels_per_dm3()*lung_volume_in_litres);
 	cout<<"lung_tresh="<<lung_tresh<<endl;
@@ -201,6 +202,8 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 
 //	lungs->mask_out(body_mask);
 	lungs->mask_out(half_body_mask);
+
+	cout<<"Lungvol_after_thres_and_mask="<<lungs->get_voxel_volume_in_dm3()*lungs->get_number_of_voxels_with_value(1)<<endl;
 
 	image_binary<3> *rough_lung_mask = new image_binary<3>(lungs);
 //	rough_lung_mask->erode_3D(7);

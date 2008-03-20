@@ -74,10 +74,11 @@ private:
 
 
 public:
-    FLTK_Editable_Slider(int x, int y, int w, int h, const char *l=0, int input_w=60);
+    FLTK_Editable_Slider(int x, int y, int w, int h, const char *l=0, int input_w=20);
 
     float value();
     void value(float val);
+    void value_no_Fl_callback(float val);
 
 	void minimum(float val);
     float minimum();

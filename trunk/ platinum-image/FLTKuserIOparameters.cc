@@ -982,6 +982,11 @@ void FLTKuserIOpar_longint::set_value (long val)
 	control->value(val);
 }
 
+void FLTKuserIOpar_longint::set_value_no_Fl_callback(long val)
+{
+	control->value_no_Fl_callback(val);
+}
+
 #pragma mark *** FLTKuserIOpar_longint_box ***
 
 FLTKuserIOpar_longint_box::FLTKuserIOpar_longint_box (const std::string name, long ma, long mi) : FLTKuserIOparameter_base (INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)

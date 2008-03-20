@@ -387,6 +387,7 @@ class FLTKuserIOpar_longint : public FLTKuserIOparameter_base    //integer value
         const std::string type_name ();
         void par_value (long & v);
 		void set_value (long val);
+		void set_value_no_Fl_callback(long val);
     };
 
 class FLTKuserIOpar_longint_box : public FLTKuserIOparameter_base    //integer value (using input box)

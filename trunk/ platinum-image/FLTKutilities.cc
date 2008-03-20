@@ -103,13 +103,16 @@ void FLTK_Editable_Slider::Slider_CB2() {
 		}else{
             recurse = 1;
 			input->value( float2str(slider->value()).c_str() );    // pass slider's value to input
-//			std::cout<<"label()="<<this->label()<<std::endl;
-			this->do_callback(); //calls callback function connected to this "FLTK_Editable_Slider"
+			std::cout<<"label()="<<this->label()<<std::endl;
+			if(this->callback()!=NULL){ //if connected to a callback!!!
+				this->do_callback(); //calls callback function connected to this "FLTK_Editable_Slider"
+			}
 			recurse = 0;
         }
     }
 
 void FLTK_Editable_Slider::Slider_CB(Fl_Widget *w, void *data) {
+
         ((FLTK_Editable_Slider*)data)->Slider_CB2();
     }
 
@@ -143,6 +146,7 @@ FLTK_Editable_Slider::FLTK_Editable_Slider(int x, int y, int w, int h, const cha
         slider = new Fl_Slider(x+input_w+5, y, w - (input_w+5), h);
         slider->type(FL_HOR_SLIDER);
         slider->callback(Slider_CB, (void*)this);
+
 		end();			// close the group
     }
 
@@ -151,6 +155,9 @@ float FLTK_Editable_Slider::value()
 
 void FLTK_Editable_Slider::value(float val) 
 	{ slider->value(val); Slider_CB2(); }
+
+void FLTK_Editable_Slider::value_no_Fl_callback(float val)
+	{ input->value(float2str(val).c_str()); slider->value(val);}    // pass slider's value to input
 
 void FLTK_Editable_Slider::minimum(float val)
 	{ slider->minimum(val); }
