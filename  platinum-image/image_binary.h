@@ -64,7 +64,9 @@ class image_binary : public image_label <IMAGEDIM>
 
     // 2D operations in image_binaryprocess
     void fill_holes_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Fill holes in objects defined by object_value in 2D-planes orthogonal to the axis given by direction.
-    void largest_object_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
+    image_label<3>* label_connected_objects_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Get image_label from connected objects in 2D-planes orthogonal to the axis given by direction.
+	image_integer<unsigned long, 3>* label_connected_objects_with_area_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Get image_integer from connected objects in 2D-planes orthogonal to the axis given by direction with labels corresponding to object volume.
+	void largest_object_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
     void threshold_size_2D(int min_size, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep all objects (defined by object_value) > min_size voxels for each plane in 2D-planes orthogonal to the axis given by direction.
     void cog_inside_2D(image_binary<IMAGEDIM>* mask, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep all objects (defined by object_value) having their cog within mask in 2D-planes orthogonal to the axis given by direction.
 	void erode_2D(int thickness=3, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological erode up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
@@ -75,6 +77,8 @@ class image_binary : public image_label <IMAGEDIM>
 
     // 3D operations in image_binaryprocess
     void fill_holes_3D(IMGBINARYTYPE object_value=TRUE); ///Fill holes in objects defined by object_value.
+	image_label<3>* label_connected_objects_3D(IMGBINARYTYPE object_value=TRUE); ///Get image_label from connected objects in binary.
+	image_integer<unsigned long,3>* label_connected_objects_with_volume_3D(IMGBINARYTYPE object_value=TRUE); ///Get image_integer from connected objects in binary with labels corresponding to object volume.
 	void largest_object_3D(IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value).
 	void erode_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE);///Morphological erode up to distance value=thickness.
 

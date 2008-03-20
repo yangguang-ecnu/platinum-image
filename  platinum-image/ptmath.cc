@@ -35,19 +35,45 @@ line3D::line3D(Vector3D pnt, Vector3D dir)
 	direction = dir;
 }
 
-line3D::line3D(float x1, float y1, float z1, float x2, float y2, float z2)
+line3D::line3D(float point_x, float point_y, float point_z, float dir_x, float dir_y, float dir_z)
 {
-	point = create_Vector3D(x1,y1,z1);
-	direction = create_Vector3D(x2-x1, y2-y1, z2-z1);
-	pt_error::error_if_false(direction[0]!=0 || direction[1]!=0 || direction[2]!=0, "Direction must be non-zero vector", pt_error::debug);
+	pt_error::error_if_false(dir_x!=0 || dir_y!=0 || dir_z!=0, "Direction must be non-zero vector", pt_error::debug);
+	point = create_Vector3D(point_x,point_y,point_z);
+	direction = create_Vector3D(dir_x, dir_y, dir_z);
 }
 
-/*
-Point3D line3D::get_point_of_intersection(plane3D* plane)
+Vector3D line3D::get_point()
 {
-	return plane->get_point_of_intersection(this);
+	return point;
 }
-*/
+
+Vector3D line3D::get_direction()
+{
+	return direction;
+}
+
+void line3D::set_point(Vector3D pnt)
+{
+	point=pnt;
+}
+
+void line3D::set_point(float point_x, float point_y, float point_z)
+{
+	point = create_Vector3D(point_x,point_y,point_z);
+}
+
+void line3D::set_direction(Vector3D dir)
+{
+	pt_error::error_if_false(dir[0]!=0 || dir[1]!=0 || dir[2]!=0, "Direction must be non-zero vector", pt_error::debug);
+	direction=dir;
+}
+
+void line3D::set_direction(float dir_x, float dir_y, float dir_z)
+{
+	pt_error::error_if_false(dir_x!=0 || dir_y!=0 || dir_z!=0, "Direction must be non-zero vector", pt_error::debug);
+	direction = create_Vector3D(dir_x,dir_y,dir_z);
+}
+
 
 void line3D::least_square_fit_line_to_points_in_3D(vector<Vector3D> points, int dir)
 {
@@ -88,12 +114,24 @@ plane3D::plane3D()
 {
 	point = create_Vector3D(0,0,0);
 	normal = create_Vector3D(1,0,0);
+	defined=false;
+
 }
 
 plane3D::plane3D(Vector3D pnt, Vector3D norm)
 {
+	pt_error::error_if_false(norm[0]!=0 || norm[1]!=0 || norm[2]!=0, "Normal must be non-zero vector", pt_error::debug);
 	point = pnt;
 	normal = norm;
+	defined=true;
+}
+
+plane3D::plane3D(float point_x, float point_y, float point_z, float normal_x, float normal_y, float normal_z)
+{
+	pt_error::error_if_false(normal_x!=0 || normal_y!=0 || normal_z!=0, "Normal must be non-zero vector", pt_error::debug);
+	point = create_Vector3D(point_x,point_y,point_z);
+	normal = create_Vector3D(normal_x,normal_y,normal_z);
+	defined=true;
 }
 
 plane3D::plane3D(Vector3D point1, Vector3D point2, Vector3D point3) // Construct plane from 3 points, not laying on a straight line
@@ -102,6 +140,49 @@ plane3D::plane3D(Vector3D point1, Vector3D point2, Vector3D point3) // Construct
 	Vector3D dir1 = create_Vector3D(point2[0]-point1[0],point2[1]-point1[1],point2[2]-point1[2]);
 	Vector3D dir2 = create_Vector3D(point3[0]-point1[0],point3[1]-point1[1],point3[2]-point1[2]);
 	normal = CrossProduct (dir1, dir2);
+	pt_error::error_if_false(normal[0]!=0 || normal[1]!=0 || normal[2]!=0, "Normal must be non-zero vector", pt_error::debug);
+	defined=true;
+}
+
+Vector3D plane3D::get_point()
+{
+	return point;
+}
+
+Vector3D plane3D::get_normal()
+{
+	return normal;
+}
+
+bool plane3D::is_defined()
+{
+	return defined;
+}
+
+void plane3D::set_point(Vector3D pnt)
+{
+	point=pnt;
+	defined=true;
+}
+
+void plane3D::set_point(float point_x, float point_y, float point_z)
+{
+	point=create_Vector3D(point_x,point_y,point_z);
+	defined=true;
+}
+
+void plane3D::set_normal(Vector3D norm)
+{
+	pt_error::error_if_false(norm[0]!=0 || norm[1]!=0 || norm[2]!=0, "Normal must be non-zero vector", pt_error::debug);
+	normal=norm;
+	defined=true;
+}
+
+void plane3D::set_normal(float normal_x, float normal_y, float normal_z)
+{
+	pt_error::error_if_false(normal_x!=0 || normal_y!=0 || normal_z!=0, "Normal must be non-zero vector", pt_error::debug);
+	normal = create_Vector3D(normal_x,normal_y,normal_z);
+	defined=true;
 }
 
 void plane3D::invert()
@@ -109,11 +190,20 @@ void plane3D::invert()
 	normal*=-1;
 }
 
-Vector3D plane3D::get_point_of_intersection(line3D* line)
+Vector3D plane3D::get_point_of_intersection(line3D line)
 {
-	return line->point+((point-line->point)*normal)/(line->direction*normal)*line->direction;
+	return line.get_point()+((point-line.get_point())*normal)/(line.get_direction()*normal)*line.get_direction();
 }
 
+line3D plane3D::get_line_of_intersection(plane3D plane)
+{
+	Vector3D dir=CrossProduct(normal, plane.get_normal());
+	float d1=-point*normal;
+	float d2=-plane.get_point()*plane.get_normal();
+	Vector3D pnt=CrossProduct((d2*normal-d1*plane.get_normal()), dir)/dir.GetSquaredNorm();
+	line3D line=line3D(pnt,dir);
+	return line;
+}
 
 void pt_spline1D(float x[],float y[],int n,float yp1,float ypn,float y2[])
 {

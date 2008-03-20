@@ -66,6 +66,7 @@ template <int IMAGEDIM>
 image_label<IMAGEDIM>::image_label(vector< image_binary<IMAGEDIM>* > images, const string name):image_integer<IMGLABELTYPE, IMAGEDIM>(images[0]->nx(),images[0]->ny(),images[0]->nz())
 {
 	this->fill(0);
+	this->set_parameters(images[0]);
 	for(int i=0;i<images.size();i++){
 		this->fill_region_of_mask_3D(images[i],i+1);
 	}
@@ -90,6 +91,7 @@ image_label<IMAGEDIM>::image_label(image_binary<IMAGEDIM>* image1, image_binary<
 	if (image5!=NULL) {images[4]=image5;}
 	
 	this->fill(0);
+	this->set_parameters(images[0]);
 	for(int i=0;i<num_images;i++){
 		this->fill_region_of_mask_3D(images[i],i+1);
 	}
