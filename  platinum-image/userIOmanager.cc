@@ -177,7 +177,7 @@ int userIOmanager::add_par_longint(int userIO_ID, std::string new_param_name,lon
     FLTKuserIOparameter_base * par=new FLTKuserIOpar_longint (new_param_name,max,min);
 	if (start_val<=max && start_val>=min) {
 		FLTKuserIOpar_longint * p = (FLTKuserIOpar_longint*)par;
-		p->set_value(start_val);
+		p->set_value_no_Fl_callback(start_val); //JK
 	}
     return block_from_ID(userIO_ID)->add_par(par);
     }
