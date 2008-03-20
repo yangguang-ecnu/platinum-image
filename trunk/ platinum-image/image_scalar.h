@@ -96,8 +96,8 @@ public:
 	bool row_sum_threshold(int* res, ELEMTYPE low_thr, ELEMTYPE high_thr, int row_direction=0, int z_direction=2, int first_slice=-1, int last_slice=-1); ///Compute optimal split level for each slice
     void mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value=TRUE, ELEMTYPE blank=0); ///All voxels in the current image where the corresponding mask voxels != object_value are set to blank.
     void mask_out(int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, ELEMTYPE blank=0); ///All voxels within the given sub-volume are set to blank.
-    void mask_out_from_planes_3D(vector<plane3D*> planes, ELEMTYPE blank=0);
-	void mask_out_from_planes_3D(plane3D* plane1, plane3D* plane2=NULL, plane3D* plane3=NULL, plane3D* plane4=NULL, plane3D* plane5=NULL, ELEMTYPE blank=0);
+    void mask_out_from_planes_3D(vector<plane3D> planes, ELEMTYPE blank=0);
+	void mask_out_from_planes_3D(plane3D plane1, plane3D plane2=plane3D(), plane3D plane3=plane3D(), plane3D plane4=plane3D(), plane3D plane5=plane3D(), ELEMTYPE blank=0);
 	std::vector<double> get_slice_sum(int direction=2);
 
 	void flip_voxel_data_3D(int direction);
@@ -119,7 +119,10 @@ public:
 	image_binary<IMAGEDIM>* region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<IMAGEDIM>* region_grow_3D(image_binary<IMAGEDIM> *seed_image, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<IMAGEDIM>* region_grow_3D(queue<Vector3D> seed_queue, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
-	
+	image_binary<3>* region_grow_3D_using_object_labeling(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
+	image_binary<3>* region_grow_3D_using_object_labeling(image_binary<IMAGEDIM> *seed_image, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
+	image_binary<3>* region_grow_3D_using_object_labeling(queue<Vector3D> seed_queue, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
+
 	image_binary<IMAGEDIM>* region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
 
 	Vector3D get_in_slice_center_of_gravity_in_dir(int dir, int slice, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(),  SPACE_TYPE type = VOXEL_SPACE);

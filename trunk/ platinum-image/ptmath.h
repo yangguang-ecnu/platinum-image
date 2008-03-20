@@ -60,15 +60,20 @@ class line3D{ //TODO: A future plan in to put this under data_base and connect u
 public:
 	line3D();
 	line3D(Vector3D pnt, Vector3D dir);
-	line3D(float x1, float y1, float z1, float x2, float y2, float z2);
-	Vector3D point;
-	Vector3D direction;
+	line3D(float point_x, float point_y, float point_z, float dir_x, float dir_y, float dir_z);
 
-	//Point3D get_point_of_intersection(plane3D* plane);
+	Vector3D get_point();
+	Vector3D get_direction();
+	void set_point(Vector3D pnt);
+	void set_point(float point_x, float point_y, float point_z);
+	void set_direction(Vector3D dir);
+	void set_direction(float dir_x, float dir_y, float dir_z);
 
 	void least_square_fit_line_to_points_in_3D(vector<Vector3D> points, int dir);
 
 protected:
+	Vector3D point;
+	Vector3D direction;
 	void set_point_to_center_of_gravity_from_points_in_3D(vector<Vector3D> points);
 	void set_direction_to_point_cloud_variations_given_one_dir(int dir, vector<Vector3D> points); //note that point needs to be set to center of gravity...
 };
@@ -77,12 +82,25 @@ class plane3D{
 public:
 	plane3D();
 	plane3D(Vector3D pnt, Vector3D norm);
+	plane3D(float point_x, float point_y, float point_z, float normal_x, float normal_y, float normal_z);
 	plane3D(Vector3D point1, Vector3D point2, Vector3D point3);
-	Vector3D point;
-	Vector3D normal;
+	
+	Vector3D get_point();
+	Vector3D get_normal();
+	bool is_defined();
+	void set_point(Vector3D pnt);
+	void set_point(float point_x, float point_y, float point_z);
+	void set_normal(Vector3D norm);
+	void set_normal(float normal_x, float normal_y, float normal_z);
 
 	void invert();
-	Vector3D get_point_of_intersection(line3D* line);
+	Vector3D get_point_of_intersection(line3D line);
+	line3D get_line_of_intersection(plane3D plane);
+
+protected:
+	Vector3D point;
+	Vector3D normal;
+	bool defined; //Undefined planes can be used as default values for functions taking a varying number of planes as arguemt
 };
 
 

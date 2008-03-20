@@ -748,18 +748,18 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out(int low_x, int high_x, int low_y
     }
 	
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(vector<plane3D*> planes, ELEMTYPE blank)
+void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(vector<plane3D> planes, ELEMTYPE blank)
 {
 	int num_planes=planes.size();
 	vector<float> d(num_planes);
 	for (int i=0; i<num_planes; i++) {
-		d[i]= planes[i]->point*planes[i]->normal;
+		d[i]= planes[i].get_point()*planes[i].get_normal();
 	}
 	for (int x=0; x<this->get_size_by_dim(0); x++) {
 		for (int y=0; y<this->get_size_by_dim(1); y++) {
 			for (int z=0; z<this->get_size_by_dim(2); z++) {
 				for (int i=0; i<num_planes; i++) {
-					if (d[i] > create_Vector3D(x,y,z)*planes[i]->normal) {
+					if (d[i] > create_Vector3D(x,y,z)*planes[i].get_normal()) {
 						this->set_voxel(x,y,z,blank);
 						break;
 					}	
@@ -770,20 +770,20 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(vector<plane3D*> 
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(plane3D* plane1, plane3D* plane2, plane3D* plane3, plane3D* plane4, plane3D* plane5, ELEMTYPE blank)
+void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(plane3D plane1, plane3D plane2, plane3D plane3, plane3D plane4, plane3D plane5, ELEMTYPE blank)
 {
 	int num_planes=5;
-	if (plane2==NULL) {num_planes=1;}
-	else if (plane3==NULL) {num_planes=2;}
-	else if (plane4==NULL) {num_planes=3;}
-	else if (plane5==NULL) {num_planes=4;}
+	if (!plane2.is_defined()) {num_planes=1;}
+	else if (!plane3.is_defined()) {num_planes=2;}
+	else if (!plane4.is_defined()) {num_planes=3;}
+	else if (!plane5.is_defined()) {num_planes=4;}
 	
-	vector<plane3D*> planes(num_planes);
+	vector<plane3D> planes(num_planes);
     planes[0]=plane1;
-	if (plane2!=NULL) {planes[1]=plane2;}
-	if (plane3!=NULL) {planes[2]=plane3;}
-	if (plane4!=NULL) {planes[3]=plane4;}
-	if (plane5!=NULL) {planes[4]=plane5;}
+	if (plane2.is_defined()) {planes[1]=plane2;}
+	if (plane3.is_defined()) {planes[2]=plane3;}
+	if (plane4.is_defined()) {planes[3]=plane4;}
+	if (plane5.is_defined()) {planes[4]=plane5;}
 	
 	mask_out_from_planes_3D(planes, blank);
 }
@@ -1206,7 +1206,6 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(image_b
 	return region_grow_3D(s, min_intensity, max_intensity);
 }
 
-
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(queue<Vector3D> seed_queue, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
 {
@@ -1245,6 +1244,125 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(queue<V
 	return res;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D_using_object_labeling(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
+{
+	queue<Vector3D> s;
+	s.push(seed);
+	return region_grow_3D_using_object_labeling(s, min_intensity, max_intensity);
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D_using_object_labeling(image_binary<IMAGEDIM> *seed_image, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
+{
+	queue<Vector3D> s;
+
+	for(int x=0; x<this->datasize[0]; x++){
+		for(int y=0; y<this->datasize[1]; y++){
+			for(int z=0; z<this->datasize[2]; z++){
+				if(seed_image->get_voxel(x,y,z)){
+					s.push(create_Vector3D(x,y,z));
+				}
+			}
+		}
+	}
+	return region_grow_3D_using_object_labeling(s, min_intensity, max_intensity);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D_using_object_labeling(queue<Vector3D> seed_queue, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
+{
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim(0);
+	max_v=this->get_size_by_dim(1);
+	max_w=this->get_size_by_dim(2);
+		
+	ELEMTYPE p;//pixel value
+	int label,above,up,left;//neighbour labels 
+    image_integer<int,IMAGEDIM> * label_image = new image_integer<int,IMAGEDIM> (this);
+	int new_label;
+	//init labels
+	int number_of_objects=1;
+	vector<int> changes;
+	changes.push_back(0);
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				p=this->get_voxel(u,v,w);
+				if(p>=min_intensity && p<=max_intensity) {
+					above=(w>0)? label_image->get_voxel(u,v,w-1) : 0;
+					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
+					left=(u>0)? label_image->get_voxel(u-1,v,w) : 0;
+					while(above!=changes[above])
+						above=changes[above];
+					while(up!=changes[up])
+						up=changes[up];
+					while(left!=changes[left])
+						left=changes[left];
+					new_label=number_of_objects;
+					if(above>0 && above<new_label)
+						new_label=above;
+					if(up>0 && up<new_label)
+						new_label=up;
+					if(left>0 && left<new_label)
+						new_label=left;
+					if(above>new_label)
+						changes[above]=new_label;
+					if(up>new_label)
+						changes[up]=new_label;
+					if(left>new_label)
+						changes[left]=new_label;
+					if(new_label==number_of_objects) {
+						changes.push_back(number_of_objects);
+						number_of_objects++;	
+					}
+					label_image->set_voxel(u,v,w,new_label);
+				}
+				else
+					label_image->set_voxel(u,v,w,0);
+			}
+		}
+	}
+	
+	// calculate look-up-table
+	int* lut=new int[number_of_objects];
+	memset(lut, 0, sizeof(int)*number_of_objects);
+	Vector3D pos;
+	while(seed_queue.size()>0){
+		pos = seed_queue.front();
+		seed_queue.pop();
+		label=label_image->get_voxel(pos[0], pos[1], pos[2]);
+		while(label!=changes[label])
+			label=changes[label];
+		changes[label]=0;
+	}
+	for(int i=1; i<number_of_objects; i++) {
+		label=i;
+		while(label!=changes[label])
+			label=changes[label];
+		if(label==0)
+			lut[i]=1;
+		else
+			lut[i]=0;
+	}
+	
+    // set new labels from look-up table
+	image_binary<IMAGEDIM> * region_image = new image_binary<IMAGEDIM> (label_image);
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				label=label_image->get_voxel(u,v,w);
+				if (label>0)
+					region_image->set_voxel(u,v,w,lut[label]);
+			}
+		}
+	}
+	delete[] lut;
+	delete label_image;
+	return region_image;
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity, int nr_accepted_neighbours, int radius)

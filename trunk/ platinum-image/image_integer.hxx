@@ -23,6 +23,26 @@
 
 // *** Processing ***
 
+template <class ELEMTYPE, int IMAGEDIM>
+vector<ELEMTYPE> image_integer<ELEMTYPE, IMAGEDIM>::get_distinct_values_in_slice_2D(int slice, int direction, bool ignore_zeroes)
+{
+	ELEMTYPE p;
+	vector<ELEMTYPE> values;
+	vector<ELEMTYPE>::iterator iterator;
+	for (int u=0; u<this->get_size_by_dim_and_dir(0,direction); u++) {
+		for (int v=0; v<this->get_size_by_dim_and_dir(1,direction); v++) {
+			p=this->get_voxel_by_dir(u,v,slice,direction);
+			if (!ignore_zeroes || p!=0) {
+				iterator = values.begin();
+				while( iterator != values.end() && *iterator != p)
+					iterator++;
+				if (iterator==values.end())
+					values.push_back(p);
+			}
+		}
+	}
+	return values;
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::gauss_fit2()

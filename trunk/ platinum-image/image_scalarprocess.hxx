@@ -173,6 +173,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_body_from_sum
 	b2->erode_3D(3);
 //	b2->save_to_VTK_file(base+"__b06_Body_er.vtk");
 	delete b;
+	b2->largest_object_3D();
 	return b2;
 }
 

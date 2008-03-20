@@ -134,6 +134,180 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, IMGBINARYTYPE object_v
 	}
 	
 template <int IMAGEDIM>
+image_label<3>* image_binary<IMAGEDIM>::label_connected_objects_2D(int direction, IMGBINARYTYPE object_value)
+{
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim_and_dir(0, direction);
+	max_v=this->get_size_by_dim_and_dir(1, direction);
+	max_w=this->get_size_by_dim_and_dir(2, direction);
+		
+	IMGBINARYTYPE p;//pixel value
+	int label,up,left;//neighbour labels 
+    image_integer<int,IMAGEDIM> * label_image = new image_integer<int,IMAGEDIM> (this);
+	int new_label;
+	//init labels
+	int number_of_objects=1;
+	vector<int> changes;
+	changes.push_back(0);
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				p=this->get_voxel_by_dir(u,v,w,direction);
+				if(p==object_value)	{
+					up=(v>0)? label_image->get_voxel_by_dir(u,v-1,w,direction) : 0;
+					left=(u>0)? label_image->get_voxel_by_dir(u-1,v,w,direction) : 0;
+					while(up!=changes[up])
+						up=changes[up];
+					while(left!=changes[left])
+						left=changes[left];
+					new_label=number_of_objects;
+					if(up>0 && up<new_label)
+						new_label=up;
+					if(left>0 && left<new_label)
+						new_label=left;
+					if(up>new_label)
+						changes[up]=new_label;
+					if(left>new_label)
+						changes[left]=new_label;
+					if(new_label==number_of_objects) {
+						changes.push_back(number_of_objects);
+						number_of_objects++;	
+					}
+					label_image->set_voxel_by_dir(u,v,w,new_label,direction);
+				}
+				else
+					label_image->set_voxel_by_dir(u,v,w,0,direction);
+			}
+		}
+	}
+	
+	// calculate look-up-table
+	int* lut=new int[number_of_objects];
+	memset(lut, 0, sizeof(int)*number_of_objects);
+	new_label=1;
+	for(int i=1; i<number_of_objects; i++) {
+		label=i;
+		while(label!=changes[label])
+			label=changes[label];
+		if(label==i) {
+			lut[i]=new_label;
+			new_label++;
+		}
+		else
+			lut[i]=lut[label];
+	}
+	
+    // set new labels from look-up table
+	image_label<IMAGEDIM> * label_image_label = new image_label<IMAGEDIM> (label_image);
+	int max_label=0;
+	int new_max_label;
+	for(w=0; w<max_w; w++) {
+		new_max_label=max_label;
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				label=label_image->get_voxel_by_dir(u,v,w,direction);
+				if (lut[label]>new_max_label) 
+					new_max_label=lut[label];
+				if (label>0)
+					label_image_label->set_voxel_by_dir(u,v,w,lut[label]-max_label,direction);
+			}
+		}
+		max_label=new_max_label;
+	}
+	delete[] lut;
+	delete label_image;
+	return label_image_label;
+}
+
+template <int IMAGEDIM>
+image_integer<unsigned long, 3>* image_binary<IMAGEDIM>::label_connected_objects_with_area_2D(int direction, IMGBINARYTYPE object_value)
+{
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
+		
+	IMGBINARYTYPE p;//pixel value
+	int label,up,left;//neighbour labels 
+    image_integer<unsigned long,IMAGEDIM> * label_image = new image_integer<unsigned long,IMAGEDIM> (this);
+	int new_label;
+	//init labels
+	int number_of_objects=1;
+	vector<int> changes;
+	changes.push_back(0);
+	vector<int> sizes;
+	sizes.push_back(0);
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				p=this->get_voxel_by_dir(u,v,w,direction);
+				if(p==object_value)	{
+					up=(v>0)? label_image->get_voxel_by_dir(u,v-1,w,direction) : 0;
+					left=(u>0)? label_image->get_voxel_by_dir(u-1,v,w,direction) : 0;
+					while(up!=changes[up])
+						up=changes[up];
+					while(left!=changes[left])
+						left=changes[left];
+					new_label=number_of_objects;
+					if(up>0 && up<new_label)
+						new_label=up;
+					if(left>0 && left<new_label)
+						new_label=left;
+					if(up>new_label)
+						changes[up]=new_label;
+					if(left>new_label)
+						changes[left]=new_label;
+					if(new_label==number_of_objects) {
+						changes.push_back(number_of_objects);
+						sizes.push_back(0);
+						number_of_objects++;	
+					}
+					label_image->set_voxel_by_dir(u,v,w,new_label,direction);
+					sizes[new_label]++;
+				}
+				else
+					label_image->set_voxel_by_dir(u,v,w,0,direction);
+			}
+		}
+	}
+	
+	// calculate look-up-table and sizes
+	int* lut=new int[number_of_objects];
+	memset(lut, 0, sizeof(int)*number_of_objects);
+	vector<int> tot_sizes;
+	tot_sizes.push_back(0);
+	new_label=1;
+	for(int i=1; i<number_of_objects; i++) {
+		label=i;
+		while(label!=changes[label])
+			label=changes[label];
+		if(label==i) {
+			lut[i]=new_label;
+			new_label++;
+			tot_sizes.push_back(0);
+		}
+		else
+			lut[i]=lut[label];
+		tot_sizes[lut[i]]+=sizes[i];
+	}
+	
+    // set new labels from look-up table and sizes
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				label=label_image->get_voxel_by_dir(u,v,w,direction);
+				if (label>0)
+					label_image->set_voxel_by_dir(u,v,w,tot_sizes[lut[label]],direction);
+			}
+		}
+	}
+	delete[] lut;
+	return label_image;
+}
+
+template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::largest_object_2D(int direction, IMGBINARYTYPE object_value)
 	{
 	int u,v,w;
@@ -1150,6 +1324,189 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 	//output->min_max_refresh();
 	return output;
 	}
+
+template <int IMAGEDIM>
+image_label<3>* image_binary<IMAGEDIM>::label_connected_objects_3D(IMGBINARYTYPE object_value)
+{
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim(0);
+	max_v=this->get_size_by_dim(1);
+	max_w=this->get_size_by_dim(2);
+		
+	IMGBINARYTYPE p;//pixel value
+	int label,above,up,left;//neighbour labels 
+    image_integer<int,IMAGEDIM> * label_image = new image_integer<int,IMAGEDIM> (this);
+	int new_label;
+	//init labels
+	int number_of_objects=1;
+	vector<int> changes;
+	changes.push_back(0);
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				p=this->get_voxel(u,v,w);
+				if(p==object_value)	{
+					above=(w>0)? label_image->get_voxel(u,v,w-1) : 0;
+					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
+					left=(u>0)? label_image->get_voxel(u-1,v,w) : 0;
+					while(above!=changes[above])
+						above=changes[above];
+					while(up!=changes[up])
+						up=changes[up];
+					while(left!=changes[left])
+						left=changes[left];
+					new_label=number_of_objects;
+					if(above>0 && above<new_label)
+						new_label=above;
+					if(up>0 && up<new_label)
+						new_label=up;
+					if(left>0 && left<new_label)
+						new_label=left;
+					if(above>new_label)
+						changes[above]=new_label;
+					if(up>new_label)
+						changes[up]=new_label;
+					if(left>new_label)
+						changes[left]=new_label;
+					if(new_label==number_of_objects) {
+						changes.push_back(number_of_objects);
+						number_of_objects++;	
+					}
+					label_image->set_voxel(u,v,w,new_label);
+				}
+				else
+					label_image->set_voxel(u,v,w,0);
+			}
+		}
+	}
+	
+	// calculate look-up-table
+	int* lut=new int[number_of_objects];
+	memset(lut, 0, sizeof(int)*number_of_objects);
+	new_label=1;
+	for(int i=1; i<number_of_objects; i++) {
+		label=i;
+		while(label!=changes[label])
+			label=changes[label];
+		if(label==i) {
+			lut[i]=new_label;
+			new_label++;
+		}
+		else
+			lut[i]=lut[label];
+	}
+	
+    // set new labels from look-up table
+	image_label<IMAGEDIM> * label_image_label = new image_label<IMAGEDIM> (label_image);
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				label=label_image->get_voxel(u,v,w);
+				if (label>0)
+					label_image_label->set_voxel(u,v,w,lut[label]);
+			}
+		}
+	}
+	delete[] lut;
+	delete label_image;
+	return label_image_label;
+}
+
+template <int IMAGEDIM>
+image_integer<unsigned long,3>* image_binary<IMAGEDIM>::label_connected_objects_with_volume_3D(IMGBINARYTYPE object_value)
+{
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim(0);
+	max_v=this->get_size_by_dim(1);
+	max_w=this->get_size_by_dim(2);
+		
+	IMGBINARYTYPE p;//pixel value
+	int label,above,up,left;//neighbour labels 
+    image_integer<unsigned long,IMAGEDIM> * label_image = new image_integer<unsigned long,IMAGEDIM> (this);
+	int new_label;
+	//init labels
+	int number_of_objects=1;
+	vector<int> changes;
+	changes.push_back(0);
+	vector<int> sizes;
+	sizes.push_back(0);
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				p=this->get_voxel(u,v,w);
+				if(p==object_value)	{
+					above=(w>0)? label_image->get_voxel(u,v,w-1) : 0;
+					up=(v>0)? label_image->get_voxel(u,v-1,w) : 0;
+					left=(u>0)? label_image->get_voxel(u-1,v,w) : 0;
+					while(above!=changes[above])
+						above=changes[above];
+					while(up!=changes[up])
+						up=changes[up];
+					while(left!=changes[left])
+						left=changes[left];
+					new_label=number_of_objects;
+					if(above>0 && above<new_label)
+						new_label=above;
+					if(up>0 && up<new_label)
+						new_label=up;
+					if(left>0 && left<new_label)
+						new_label=left;
+					if(above>new_label)
+						changes[above]=new_label;
+					if(up>new_label)
+						changes[up]=new_label;
+					if(left>new_label)
+						changes[left]=new_label;
+					if(new_label==number_of_objects) {
+						changes.push_back(number_of_objects);
+						sizes.push_back(0);
+						number_of_objects++;	
+					}
+					label_image->set_voxel(u,v,w,new_label);
+					sizes[new_label]++;
+				}
+				else
+					label_image->set_voxel(u,v,w,0);
+			}
+		}
+	}
+	
+	// calculate look-up-table and sizes
+	int* lut=new int[number_of_objects];
+	memset(lut, 0, sizeof(int)*number_of_objects);
+	vector<int> tot_sizes;
+	tot_sizes.push_back(0);
+	new_label=1;
+	for(int i=1; i<number_of_objects; i++) {
+		label=i;
+		while(label!=changes[label])
+			label=changes[label];
+		if(label==i) {
+			lut[i]=new_label;
+			new_label++;
+			tot_sizes.push_back(0);
+		}
+		else
+			lut[i]=lut[label];
+		tot_sizes[lut[i]]+=sizes[i];
+	}
+	
+    // set new labels from look-up table and sizes
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				label=label_image->get_voxel(u,v,w);
+				if (label>0) {
+					label_image->set_voxel(u,v,w,tot_sizes[lut[label]]);
+				}
+			}
+		}
+	}
+	delete[] lut;
+	return label_image;
+}
 
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::largest_object_3D(IMGBINARYTYPE object_value)
