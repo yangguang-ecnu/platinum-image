@@ -22,6 +22,79 @@
 #include <vcl_iostream.h>
 #include <vnl/algo/vnl_matrix_inverse.h>
 
+
+line2D::line2D()
+{
+	point = create_Vector2D(0,0);
+	direction = create_Vector2D(1,1);
+}
+
+line2D::line2D(Vector2D pnt1, Vector2D pnt2)
+{
+	pt_error::error_if_false((pnt2[0]-pnt1[0])!=0 || (pnt2[1]-pnt1[1])!=0, "Direction must be non-zero vector", pt_error::debug);
+	point = pnt1;
+	direction = pnt2-pnt1;
+}
+
+line2D::line2D(float x1, float y1, float x2, float y2)
+{
+	pt_error::error_if_false((x2-x1)!=0 || (y2-y1)!=0, "Direction must be non-zero vector", pt_error::debug);
+	point = create_Vector2D(x1,y1);
+	direction = create_Vector2D(x2-x1, y2-y1);
+}
+
+Vector2D line2D::get_point()
+{
+	return point;
+}
+
+Vector2D line2D::get_direction()
+{
+	return direction;
+}
+
+void line2D::set_point(Vector2D pnt)
+{
+	point=pnt;
+}
+
+void line2D::set_point(float point_x, float point_y)
+{
+	point = create_Vector2D(point_x,point_y);
+}
+
+void line2D::set_direction(Vector2D dir)
+{
+	pt_error::error_if_false(dir[0]!=0 || dir[1]!=0, "Direction must be non-zero vector", pt_error::debug);
+	direction=dir;
+}
+
+void line2D::set_direction(float dir_x, float dir_y)
+{
+	pt_error::error_if_false(dir_x!=0 || dir_y!=0, "Direction must be non-zero vector", pt_error::debug);
+	direction = create_Vector2D(dir_x,dir_y);
+}
+
+bool line2D::is_point_left_of_line(Vector2D pnt)
+{
+	return (pnt[1]-point[1])*direction[0]<(pnt[0]-point[0])*direction[1];
+}
+
+bool line2D::is_point_right_of_line(Vector2D pnt)
+{
+	return (pnt[1]-point[1])*direction[0]>(pnt[0]-point[0])*direction[1];
+}
+
+bool line2D::is_point_left_of_line(float x, float y)
+{
+	return is_point_left_of_line(create_Vector2D(x,y));
+}
+
+bool line2D::is_point_right_of_line(float x, float y)
+{
+	return is_point_right_of_line(create_Vector2D(x,y));
+}
+
 line3D::line3D()
 {
 	point = create_Vector3D(0,0,0);
