@@ -55,6 +55,30 @@ typedef itk::Vector<float,2> Vector2D;
 typedef itk::Matrix<float,2,2> Matrix2D;
 
 
+class line2D{
+
+public:
+	line2D();
+	line2D(Vector2D pnt1, Vector2D pnt2);
+	line2D(float x1, float y1, float x2, float y2);
+
+	Vector2D get_point();
+	Vector2D get_direction();
+	void set_point(Vector2D pnt);
+	void set_point(float point_x, float point_y);
+	void set_direction(Vector2D dir);
+	void set_direction(float dir_x, float dir_y);
+
+	bool is_point_left_of_line(Vector2D pnt);
+	bool is_point_right_of_line(Vector2D pnt);
+	bool is_point_left_of_line(float x, float y);
+	bool is_point_right_of_line(float x, float y);
+
+protected:
+	Vector2D point;
+	Vector2D direction;
+};
+
 class line3D{ //TODO: A future plan in to put this under data_base and connect useful rendering to it...
 
 public:
