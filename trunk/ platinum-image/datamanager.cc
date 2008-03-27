@@ -304,7 +304,7 @@ void datamanager::delete_data (data_base * d)
 
 void datamanager::delete_data (int id)
 {
-	pt_error::error("datamanager::delete_data",pt_error::debug);
+	// pt_error::error("datamanager::delete_data",pt_error::debug);
     for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
         {
         if ((*itr)->get_id() == id)

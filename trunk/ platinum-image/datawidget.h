@@ -78,6 +78,7 @@ protected:
     // *** menus       
     enum {remove_mi_num=0,save_mi_num, dup_mi_num};
     const static Fl_Menu_Item menu_featuremenu_base[];
+    const static Fl_Menu_Item menu_featuremenu_point_collection[];
     const static Fl_Menu_Item *remove_mi;
     const static Fl_Menu_Item *save_vtk_mi;
     const static Fl_Menu_Item *duplicate_mi;

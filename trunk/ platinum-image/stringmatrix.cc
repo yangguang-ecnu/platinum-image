@@ -90,7 +90,7 @@ stringmatrix::~stringmatrix()
 
 // --------------------- GET/SET operations ------------------------
 
-string stringmatrix::get(int r, int c)
+string stringmatrix::get(int r, int c) const
 {
 	string ret="";
 	if(r>=0 && c>=0 && (unsigned int)(r)<rows() && (unsigned int)(c)<cols())
@@ -184,12 +184,12 @@ void stringmatrix::clear()
 }
 
 
-unsigned int stringmatrix::rows()
+unsigned int stringmatrix::rows() const
 {
 	return data.size();
 }
 
-unsigned int stringmatrix::cols()
+unsigned int stringmatrix::cols() const
 {
 	return (rows()>0)?data[0].size():0;
 }

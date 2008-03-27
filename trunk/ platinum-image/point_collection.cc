@@ -22,20 +22,57 @@
 point_collection::point_collection() : data_base()
 {
     //start empty
-    widget=new datawidget<point_collection>(this,"Untitled point");
+    widget = new datawidget<point_collection>(this, "Untitled point_collection");
 	active = -1;
 }
 
 point_collection::~point_collection() {}
 
+point_collection::point_collection(const point_collection & source) // : data_base(source)
+{
+	// ID is not copied (which is correct)
+	// TODO: should meta and from_file() be copied in data_base() instead?
+	meta = source.meta;
+	from_file(source.from_file());
+	widget = new datawidget<point_collection>(this, source.name());
+	thePoints = source.thePoints;
+	active = source.active;
+}
+
+const point_collection & point_collection::operator=(const point_collection & source)
+{
+	if ( this != &source )	// make sure not the same object
+	{
+		// ID is not copied (which is correct)
+		// TODO: should meta and from_file() be copied in data_base() instead?
+		meta = source.meta;
+		from_file(source.from_file());
+		delete widget;
+		widget = new datawidget<point_collection>(this, source.name());
+		thePoints = source.thePoints;
+		active = source.active;
+	}
+	return *this;
+}
+
+point_collection::pointStorage::const_iterator point_collection::begin() const
+{
+	return thePoints.begin();
+}
+
 point_collection::pointStorage::iterator point_collection::begin()
 {
-	return pointStorage::iterator(thePoints.begin());
+	return thePoints.begin();
+}
+
+point_collection::pointStorage::const_iterator point_collection::end() const
+{
+	return thePoints.end();
 }
 
 point_collection::pointStorage::iterator point_collection::end()
 {
-	return pointStorage::iterator(thePoints.end());
+	return thePoints.end();
 }
 
 void point_collection::add(pointStorage::mapped_type point)
@@ -61,7 +98,7 @@ void point_collection::remove(pointStorage::key_type index)
 	}
 	else
 	{
-		pt_error::error("point_collection::remove...",pt_error::warning);
+		pt_error::error("point_collection::remove()",pt_error::warning);
 		throw out_of_range("Unvalid key");
 	}
 }
@@ -79,7 +116,7 @@ point_collection::pointStorage::mapped_type point_collection::get_point (int i)
 	}
 	else
 	{
-		pt_error::error("point_collection::get_point...",pt_error::warning);
+		pt_error::error("point_collection::get_point()",pt_error::warning);
 		throw out_of_range("Unvalid key");
 	}
 }
@@ -117,6 +154,18 @@ bool point_collection::empty()
 int point_collection::size()
 {
 	return thePoints.size();
+}
+
+void point_collection::info()
+{
+	std::cout << std::endl;
+	std::cout << "ID = " << ID << std::endl;
+	if ( widget == NULL ) { std::cout << "widget = NULL" << endl; }
+	else { std::cout << "widget.name() = " << widget->name() << std::endl; }
+	std::cout << "thePoints.size() = " << size() << std::endl;
+	std::cout << "active = " << active << std::endl;
+	//std::cout << "from_file() = " << from_file() << std::endl;
+	std::cout << std::endl;
 }
 
 void point_collection::save_histogram_to_txt_file(const std::string filename, const std::string separator)

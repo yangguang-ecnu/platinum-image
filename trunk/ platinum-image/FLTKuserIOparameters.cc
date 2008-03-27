@@ -509,6 +509,12 @@ void FLTKuserIOpar_landmarks::resetSetCallback( Fl_Widget * callingwidget, void 
 
 	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data(l->get_landmarksID()) );
 	
+	if ( points == NULL )
+	{
+		pt_error::error("FLTKuserIOpar_landmarks::resetSetCallback(): point_collection does not exist", pt_error::warning);
+		return;
+	}
+
 	points->clear();
 
 	l->update_browser();
@@ -533,6 +539,11 @@ void FLTKuserIOpar_landmarks::saveSetCallback(Fl_Widget * callingwidget, void * 
 
 	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( l->get_landmarksID() ) );
 
+	if ( points == NULL )
+	{
+		pt_error::error("FLTKuserIOpar_landmarks::resetSetCallback(): point_collection does not exist", pt_error::warning);
+		return;
+	}
 
 	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_landmarks_path
 	Fl_File_Chooser chooser( ".", "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::CREATE, "Save landmarks" );
@@ -656,9 +667,15 @@ void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * 
 	FLTKuserIOpar_landmarks * l = reinterpret_cast<FLTKuserIOpar_landmarks *>(thisLandmarks);
 
 	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( l->get_landmarksID() ) );
-	
-	points->clear();
 
+	if ( points == NULL )
+	{
+		// TODO: create a new point_collection instead of just returning an error message
+		pt_error::error("FLTKuserIOpar_landmarks::resetSetCallback(): point_collection does not exist", pt_error::warning);
+		return;
+	}
+
+	points->clear();
 	l->landmarks.clear();
 
 	const int line_length = 500;
@@ -746,6 +763,12 @@ void FLTKuserIOpar_landmarks::browserCallback(Fl_Widget *callingwidget, void * t
 //	}
 
 	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( l->get_landmarksID() ) );
+
+	if ( points == NULL )
+	{
+		pt_error::error("FLTKuserIOpar_landmarks::resetSetCallback(): point_collection does not exist", pt_error::warning);
+		return;
+	}
 	
 	int index = l->landmarks[l->browser->value() - 1].index;
 	points->set_active(index);
@@ -791,6 +814,9 @@ void FLTKuserIOpar_landmarks::update_browser()
 	
 	point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( landmarksID ) );
 
+	if ( points == NULL )
+		{ return; }
+
 	if ( points->empty() )
 	{
 		for ( unsigned int i = 0; i < landmarks.size(); i++ )
@@ -832,6 +858,12 @@ void FLTKuserIOpar_landmarks::next()
 		browser->value(browser->value() + 1);
 		point_collection * points = dynamic_cast<point_collection *>( datamanagement.get_data( landmarksID ) );
 
+		if ( points == NULL )
+		{
+			pt_error::error("FLTKuserIOpar_landmarks::resetSetCallback(): point_collection does not exist", pt_error::warning);
+			return;
+		}
+
 		points->set_active(landmarks[browser->value() - 1].index);
 	}
 }
@@ -856,6 +888,12 @@ int FLTKuserIOpar_landmarks::handle(int event)
 			else
 			{
 				point_collection * points = dynamic_cast<point_collection *>(datamanagement.get_data(landmarksID));
+				
+				if ( points == NULL )
+				{
+					pt_error::error("FLTKuserIOpar_landmarks::resetSetCallback(): point_collection does not exist", pt_error::warning);
+					return 1;
+				}
 
 				int index = landmarks[browser->value() - 1].index;
 				

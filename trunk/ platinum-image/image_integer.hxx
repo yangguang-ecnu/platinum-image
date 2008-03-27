@@ -28,7 +28,7 @@ vector<ELEMTYPE> image_integer<ELEMTYPE, IMAGEDIM>::get_distinct_values_in_slice
 {
 	ELEMTYPE p;
 	vector<ELEMTYPE> values;
-	vector<ELEMTYPE>::iterator iterator;
+	typename vector<ELEMTYPE>::iterator iterator;
 	for (int u=0; u<this->get_size_by_dim_and_dir(0,direction); u++) {
 		for (int v=0; v<this->get_size_by_dim_and_dir(1,direction); v++) {
 			p=this->get_voxel_by_dir(u,v,slice,direction);
