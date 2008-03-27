@@ -67,7 +67,7 @@ public:
 //	stringmatrix(const stringmatrix &s);
 	~stringmatrix();
 
-	string get(int r, int c);
+	string get(int r, int c) const;
 	int getInt(int r, int c);
 	long getLong(int r, int c);
 	double getDouble(int r, int c);
@@ -82,8 +82,8 @@ public:
 
 //	void rows(int val);
 //	void cols(int val);
-	inline unsigned int rows();
-	inline unsigned int cols();
+	inline unsigned int rows() const;
+	inline unsigned int cols() const;
 
 	// --- row operations ---
 	void add_row(vector<string> r, string space_holder="");

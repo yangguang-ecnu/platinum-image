@@ -36,14 +36,6 @@
 
 #include "fileutils.h"
 
-#include <vnl/vnl_float_3.h>
-#include <vnl/vnl_float_3x3.h>
-#include <vnl/vnl_float_2.h>
-#include <vnl/vnl_float_2x2.h>
-//#include <vnl/vnl_vector.h>
-//#include <vnl/vnl_matrix.h>
-
-
 ///...and types
 typedef itk::Vector<float,3> Vector3D;
 typedef itk::Vector<int,3> Vector3Dint;
@@ -341,7 +333,7 @@ Matrix3D cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y);
 float tsquare(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y);		// Hotelling's two-sample t-square statistic
 float tsquare(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y);		// Hotelling's two-sample t-square statistic
 
-// Parts of the implementation of some the following algorithms were inspired by
+// Some parts of the implementation of some the following algorithms were inspired by
 // "Numerical Recipes in C", Second Edition, Press, Teukolsky, Vetterling, Flannery
 double invF(const double p, const double a, const double b);				// Inverse cumulative F distribution function
 double invIncompleteBeta(const double p, const double a, const double b);	// Inverse incomplete beta function

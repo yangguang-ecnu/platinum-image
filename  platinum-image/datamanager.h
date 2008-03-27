@@ -40,7 +40,6 @@
 
 #include "global.h"
 
-//#include "point_base.h"
 #include "datawidget.h"
 #include "ptconfig.h"
 //#include "image_base.h"

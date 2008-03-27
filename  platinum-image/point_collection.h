@@ -33,15 +33,20 @@ class point_collection : public data_base
 	public:
 		typedef std::map<int, Vector3D> pointStorage;
 			
-	protected:        
+	protected:
         pointStorage thePoints;
 		int active;	// This variable is set from FLTKuserIOpar_landmarks and is used in rendererMPR 
 		
 	public:
         point_collection();
 		~point_collection();
+
+		point_collection(const point_collection & source);	// copy constructor
+		const point_collection & operator=(const point_collection & source);
          
+		pointStorage::const_iterator begin() const;
         pointStorage::iterator begin();
+		pointStorage::const_iterator end() const;
         pointStorage::iterator end();
 
         void add(pointStorage::mapped_type); //add point or change if exist
@@ -78,6 +83,8 @@ class point_collection : public data_base
 		bool empty();
 		
 		int size();
+
+		void info();
 
 		virtual	void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");		
 };

@@ -52,9 +52,13 @@ class data_base
     
         data_base ();
         data_base (data_base * const);
+		//data_base(const data_base & source);		// copy constructor
 
     public:
+	
         virtual ~data_base();
+		
+		//virtual const data_base & operator=(const data_base & source);
 
         //virtual const data_base &operator=(const data_base &k) { return k; }
         bool virtual operator<<(const data_base &k)
@@ -87,7 +91,7 @@ class data_base
 
         virtual void name (const std::string n);          //set name
         virtual const std::string name () const;          //get name
-        bool from_file();
+        bool from_file() const;
         void from_file(bool f); //set "from file" status
         virtual void save_to_DCM_file(const std::string, const bool useCompression = true, const bool anonymize = true) = 0;
         virtual void save_to_VTK_file(const std::string, const bool useCompression = true) = 0;

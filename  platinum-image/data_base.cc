@@ -86,6 +86,31 @@ data_base::data_base (data_base * const source)
     from_file(source->from_file());
 	meta = source->meta;
     }
+/*
+data_base::data_base(const data_base & source)
+{
+	std::cout << "data_base --- copy constructor" << std::endl;
+
+	ID = data_next_ID++;
+	widget = NULL;
+	from_file(source.from_file());
+	meta = source.meta;
+}
+
+const data_base & data_base::operator=(const data_base & source)
+{
+	if ( this != &source )	// make sure not the same object
+	{
+		std::cout << "data:base --- operator=" << std::endl;
+
+		ID = data_next_ID++;
+		widget = NULL;
+		from_file(source.from_file());
+		meta = source.meta;
+	}
+	return *this;
+}
+*/
 
 void data_base::data_has_changed (bool) 
 {}
@@ -101,7 +126,7 @@ void data_base::activate()
     widget->activate();
 }
 
-bool data_base::from_file()
+bool data_base::from_file() const
     {
     if (widget !=NULL)
         { return (widget->from_file()); }

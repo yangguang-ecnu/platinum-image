@@ -309,7 +309,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_wate
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body, string base="")
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body, string base)
 {
 	cout<<"Erode body_mini..."<<endl;
 	image_binary<> *body_mini = new image_binary<>(bin_body);

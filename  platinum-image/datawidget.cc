@@ -76,6 +76,17 @@ const Fl_Menu_Item datawidget_base::menu_featuremenu_base[] = {
  {0,0,0,0,0,0,0,0,0}
 };
 
+const Fl_Menu_Item datawidget_base::menu_featuremenu_point_collection[] = {
+ {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
 // *** custom constructor declared in FLUID: ***
 
 datawidget_base::datawidget_base(data_base * d, std::string n):Fl_Pack(0,0,270,130,NULL) {
@@ -406,16 +417,10 @@ void datawidget<image_base>::cb_show_hide_tfunction(Fl_Widget* callingwidget, vo
 
 datawidget<point_collection>::datawidget (point_collection* p, std::string n): datawidget_base (p,n)
 {
-    featuremenu->menu(menu_featuremenu_base);
-   
-    //TODO: disable Save as VTK
-	//TODO: disable Geometry Edit
+    featuremenu->menu(menu_featuremenu_point_collection);
 }
 
-
-
-
-//-----------------------------
+#pragma mark FLTKVector3D
 FLTKVector3D::FLTKVector3D(Vector3D v, int x, int y, int w, int h, const char *sx, const char *sy, const char *sz):Fl_Group(x,y,w,h)
 {
 	int dh = int(float(h)/3.0);

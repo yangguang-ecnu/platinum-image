@@ -1,4 +1,3 @@
-
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
 //
@@ -20,8 +19,6 @@
 #include "ptmath.h"
 #include "error.h"
 #include <vcl_iostream.h>
-#include <vnl/algo/vnl_matrix_inverse.h>
-
 
 line2D::line2D()
 {
@@ -648,16 +645,6 @@ Vector2D mean(const std::vector<Vector2D> & x)
 	sum /= x.size();
 	return sum;
 }
-/*
-vnl_float_2 mean(const std::vector<vnl_float_2> & x)
-{
-	vnl_float_2 sum(0.0, 0.0);
-	for ( std::vector<vnl_float_2>::const_iterator itr = x.begin(); itr != x.end(); itr++ )
-		{ sum += *itr; }
-	sum /= x.size();
-	return sum;
-}
-*/
 
 Vector3D mean(const std::vector<Vector3D> & x)
 {
@@ -667,16 +654,6 @@ Vector3D mean(const std::vector<Vector3D> & x)
 	sum /= x.size();
 	return sum;
 }
-/*
-vnl_float_3 mean(const std::vector<vnl_float_3> & x)
-{
-	vnl_float_3 sum(0.0, 0.0, 0.0);
-	for ( std::vector<vnl_float_3>::const_iterator itr = x.begin(); itr != x.end(); itr++ )
-		{ sum += *itr; }
-	sum /= x.size();
-	return sum;
-}
-*/
 
 Matrix2D cov(const std::vector<Vector2D> & x)
 {
@@ -691,21 +668,6 @@ Matrix2D cov(const std::vector<Vector2D> & x)
 		
 	return sx;
 }
-/*
-vnl_float_2x2 cov(const std::vector<vnl_float_2> & x)
-{
-	const vnl_float_2 xmean = mean(x);
-
-	vnl_float_2x2 sx;
-	sx.fill(0.0);
-	for ( std::vector<vnl_float_2>::const_iterator itr = x.begin(); itr != x.end(); itr++ )
-		{ sx += outer_product(*itr - xmean, *itr - xmean); }
-
-	sx /= (x.size() - 1);
-		
-	return sx;
-}
-*/
 
 Matrix2D cov(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y)
 {
@@ -720,21 +682,6 @@ Matrix2D cov(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y)
 	
 	return s;
 }
-/*
-vnl_float_2x2 cov(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y)
-{
-	vnl_float_2x2 sx = cov(x);
-	sx *= (x.size() - 1);
-
-	vnl_float_2x2 sy = cov(y);
-	sy *= (y.size() - 1);
-	
-	vnl_float_2x2 s = sx + sy;
-	s /= (x.size() + y.size() - 2);
-	
-	return s;
-}
-*/
 
 Matrix3D cov(const std::vector<Vector3D> & x)
 {
@@ -749,21 +696,6 @@ Matrix3D cov(const std::vector<Vector3D> & x)
 		
 	return sx;
 }
-/*
-vnl_float_3x3 cov(const std::vector<vnl_float_3> & x)
-{
-	const vnl_float_3 xmean = mean(x);
-
-	vnl_float_3x3 sx;
-	sx.fill(0.0);
-	for ( std::vector<vnl_float_3>::const_iterator itr = x.begin(); itr != x.end(); itr++ )
-		{ sx += outer_product(*itr - xmean, *itr - xmean); }
-
-	sx /= (x.size() - 1);
-		
-	return sx;
-}
-*/
 
 Matrix3D cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
 {
@@ -778,21 +710,6 @@ Matrix3D cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
 	
 	return s;
 }
-/*
-vnl_float_3x3 cov(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y)
-{
-	vnl_float_3x3 sx = cov(x);
-	sx *= (x.size() - 1);
-
-	vnl_float_3x3 sy = cov(y);
-	sy *= (y.size() - 1);
-	
-	vnl_float_3x3 s = sx + sy;
-	s /= (x.size() + y.size() - 2);
-	
-	return s;
-}
-*/
 
 float tsquare(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y)
 {
@@ -805,19 +722,6 @@ float tsquare(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y)
 
 	return ((nx * ny) / (nx + ny)) * ((xmean - ymean) * (s_inv * (xmean - ymean)));
 }
-/*
-float tsquare2d(const std::vector<vnl_float_2> & x, const std::vector<vnl_float_2> & y)
-{
-	const float nx = x.size();				// use float to avoid "int/int = int" later
-	const float ny = y.size();
-	const vnl_float_2 xmean = mean(x);
-	const vnl_float_2 ymean = mean(y);
-	const vnl_float_2x2 s = cov(x, y);
-	const vnl_float_2x2 s_inv = vnl_matrix_inverse<float>(s).inverse();
-
-	return ((nx * ny) / (nx + ny)) * dot_product(xmean - ymean, s_inv * (xmean - ymean));
-}
-*/
 
 float tsquare(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
 {
@@ -830,19 +734,6 @@ float tsquare(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
 
 	return ((nx * ny) / (nx + ny)) * ((xmean - ymean) * (s_inv * (xmean - ymean)));
 }
-/*
-float tsquare3d(const std::vector<vnl_float_3> & x, const std::vector<vnl_float_3> & y)
-{
-	const float nx = x.size();				// use float to avoid "int/int = int" later
-	const float ny = y.size();
-	const vnl_float_3 xmean = mean(x);
-	const vnl_float_3 ymean = mean(y);
-	const vnl_float_3x3 s = cov(x, y);
-	const vnl_float_3x3 s_inv = vnl_matrix_inverse<float>(s).inverse();
-
-	return ((nx * ny) / (nx + ny)) * dot_product(xmean - ymean, s_inv * (xmean - ymean));
-}
-*/
 
 double invF(const double p, const double a, const double b)
 { 
