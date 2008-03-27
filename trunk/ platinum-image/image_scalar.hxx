@@ -2092,7 +2092,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3D(filter_base* filter, int border
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag)
+//void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag)
+void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filter, image_scalar<ELEMTYPE,IMAGEDIM>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag)
 {
 	int xsize=this->datasize[0];
 	int ysize=this->datasize[1];

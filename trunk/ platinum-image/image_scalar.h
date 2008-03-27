@@ -201,7 +201,8 @@ public:
 	image_scalar<float, IMAGEDIM>* get_mean_least_square_difference_image_3D(Vector3D from_pos, Vector3D to_pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template);
 
 private:
-	void filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag);
+	//void filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag);
+	void filter_3d_border_voxel(filter_base* filter, image_scalar<ELEMTYPE,IMAGEDIM>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag);
 
 };
 

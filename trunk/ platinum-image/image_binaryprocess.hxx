@@ -24,6 +24,123 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // Loops over the dimension given by direction and performs a slice-wise hole filling
+
+template <int IMAGEDIM>
+image_binary<3>* image_binary<IMAGEDIM>::convex_hull_2D(int dir)
+{
+	image_binary<IMAGEDIM>* res = new image_binary<IMAGEDIM>(this);
+	for (int w=0; w<this->get_size_by_dim(dir); w++)
+		convex_hull_in_slice_2D(res, dir, w);
+	return res;
+}
+
+template <int IMAGEDIM>
+image_binary<3>* image_binary<IMAGEDIM>::convex_hull_objectwise_2D(int dir)
+{
+	image_label<3>* label_image=this->label_connected_objects_2D(dir);
+	for (int w=0; w<this->get_size_by_dim(dir); w++)
+		convex_hull_objectwise_in_slice_2D(label_image, dir, w);
+	image_binary<3>* res=label_image->threshold(1);
+	delete label_image;
+	return res;
+}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::convex_hull_in_slice_2D(image_binary<3>* image, int dir, int slice )
+{
+	int usize=image->get_size_by_dim_and_dir(0,dir);
+	int vsize=image->get_size_by_dim_and_dir(1,dir);
+	// put object voxels in vector<Vector2D>
+	vector<Vector2D> points;
+	for (int u=0; u<usize; u++) {
+		for (int v=0; v<vsize; v++) {
+			if (image->get_voxel_by_dir(u,v,slice,dir))
+				points.push_back(create_Vector2D(u,v));
+		}
+	}
+	// if 3 or more object voxels, calculate convex hull
+	if (points.size()>2) {
+		vector<Vector2D> hull=get_convex_hull_2D(points);
+		// get line2D:s constituting convex hull
+		vector<line2D> hull_lines;
+		vector<Vector2D>::iterator i;
+		for(i=hull.begin(); i!=hull.end()-1; i++)
+			hull_lines.push_back(line2D(*i, *(i+1)));
+		hull_lines.push_back(line2D(hull.back(), hull.front()));
+
+		// voxels "left" of all lines are inside convex hull
+		vector<line2D>::iterator j;
+		bool inside_hull;
+		for (int u=0; u<usize; u++) {
+			for (int v=0; v<vsize; v++) {
+				inside_hull=true;
+				for(j=hull_lines.begin(); j!=hull_lines.end(); j++)
+					if ((*j).is_point_right_of_line(u,v)) {
+						inside_hull=false;
+						break;
+					}
+				if (inside_hull)
+					image->set_voxel_by_dir(u,v,slice,1,dir);
+			}
+		}
+	}
+}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::convex_hull_objectwise_in_slice_2D(image_label<3>* image, int dir, int slice)
+{
+	int usize=image->get_size_by_dim_and_dir(0,dir);
+	int vsize=image->get_size_by_dim_and_dir(1,dir);
+	// for each object, put object voxels in a vector<Vector2D>
+	vector<vector<Vector2D> > points;
+	IMGLABELTYPE p;
+	for (int u=0; u<usize; u++) {
+		for (int v=0; v<vsize; v++) {
+		p=image->get_voxel_by_dir(u,v,slice,dir);
+			if (p>0) {
+				while (points.size()<p)
+					points.push_back(vector<Vector2D>() );
+				points[p-1].push_back(create_Vector2D(u,v));
+			}
+		}
+	}
+	int num_objects=points.size();
+	vector<vector<Vector2D> > hulls(num_objects);
+	vector<vector<line2D> > hull_lines(num_objects);
+	vector<Vector2D>::iterator i;
+	for (int k=0; k<num_objects; k++) {
+		// for each object, if 3 or more object voxels, calculate convex hull
+		if (points[k].size()>2) {
+			hulls[k]=get_convex_hull_2D(points[k]);
+			// get line2D:s constituting convex hull
+			for(i=hulls[k].begin(); i!=hulls[k].end()-1; i++)
+				hull_lines[k].push_back(line2D(*i, *(i+1)));
+			hull_lines[k].push_back(line2D(hulls[k].back(), hulls[k].front()));	
+		}
+	}
+	// for each object, voxels "left" of all object lines are inside convex hull
+	vector<line2D>::iterator j;
+	vector<bool> inside_hull(num_objects);
+	for (int u=0; u<usize; u++) {
+		for (int v=0; v<vsize; v++) {
+			for (int k=0; k<num_objects; k++) {
+				if(hulls[k].size()<3) {
+					inside_hull[k]=false;
+				} else {
+				inside_hull[k]=true;
+				for(j=hull_lines[k].begin(); j!=hull_lines[k].end(); j++)
+					if ((*j).is_point_right_of_line(u,v)) {
+						inside_hull[k]=false;
+						break;
+					}
+				}
+				if (inside_hull[k])
+					image->set_voxel_by_dir(u,v,slice,k+1,dir);
+			}
+		}
+	}
+}
+
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::fill_holes_2D(int direction, IMGBINARYTYPE object_value)
 	{

@@ -65,7 +65,11 @@ class image_binary : public image_label <IMAGEDIM>
 
     // ----------- 2D operations in image_binaryprocess ---------------
 
-	void fill_holes_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Fill holes in objects defined by object_value in 2D-planes orthogonal to the axis given by direction.
+	image_binary<3>* convex_hull_2D(int dir=2); // Get convex hull in 2D-planes orthogonal to the axis given by direction.
+	image_binary<3>* convex_hull_objectwise_2D(int dir=2); // Get convex hull of each 4-connected object in 2D-planes orthogonal to the axis given by direction.
+	void convex_hull_in_slice_2D(image_binary<3>* image, int dir=2, int slice=0); // Get convex hull in specified 2D-plane orthogonal to the axis given by direction.
+	void convex_hull_objectwise_in_slice_2D(image_label<3>* image, int dir=2, int slice=0); // Get convex hull of each 4-connected object in specified 2D-plane orthogonal to the axis given by direction.
+    void fill_holes_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Fill holes in objects defined by object_value in 2D-planes orthogonal to the axis given by direction.
     image_label<3>* label_connected_objects_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Get image_label from connected objects in 2D-planes orthogonal to the axis given by direction.
 	image_integer<unsigned long, 3>* label_connected_objects_with_area_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Get image_integer from connected objects in 2D-planes orthogonal to the axis given by direction with labels corresponding to object volume.
 	void largest_object_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.

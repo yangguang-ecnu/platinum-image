@@ -115,7 +115,7 @@ void filter_linear::print() {
 }
 
 filter_sobel_2d::filter_sobel_2d(int dir) {
-	// dir=direction; 0=east, 1=southeast, 2=south...7=northeast
+	// dir=in-plane direction; 0=east, 1=southeast, 2=south...7=northeast
 	if (dir<0) {dir=0;}
 	int nx=3; int ny=3; int nz=1;
 	int *w = new int[nx*ny*nz];
@@ -126,6 +126,22 @@ filter_sobel_2d::filter_sobel_2d(int dir) {
 	delete w;
 	cout << "Created 2d sobel filter, direction: " << dir%8 << endl;
 }
+
+filter_laplace_2d::filter_laplace_2d(int dir, bool eight_connected) //four-connected if not eight-connected
+{
+	int *w = new int[9];
+	w[0]=eight_connected;	w[1]= 1;						w[2]= eight_connected;
+	w[3]=1;					w[4]= -4 -4*eight_connected;	w[5]= 1;
+	w[6]=eight_connected;	w[7]= 1;						w[8]= eight_connected;
+	
+	if (dir==0) {this->set_data_from_ints(w,1,3,3,0,1,1);}
+	else if (dir==1) {this->set_data_from_ints(w,3,1,3,1,0,1);}
+	else {this->set_data_from_ints(w,3,3,1,1,1,0);}
+
+	delete w;
+	cout << "Created 2d Laplace filter" << endl;
+}
+
 filter_gaussian::filter_gaussian(int size, int dir, float std_dev, int center)
 {	if (size%2==0) {cout << "WARNING: Creating gaussian filter with kernel of even size";}
 	if (std_dev<0) {std_dev=(float)size/5;}

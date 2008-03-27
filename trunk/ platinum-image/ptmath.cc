@@ -278,6 +278,62 @@ line3D plane3D::get_line_of_intersection(plane3D plane)
 	return line;
 }
 
+bool convex_last_three_points(vector<Vector2D>::iterator end, bool lower)
+{
+	line2D line=line2D(*(end-3), *(end-1));
+	if (lower) 
+		return line.is_point_right_of_line(*(end-2));
+	else 
+		return line.is_point_left_of_line(*(end-2));
+}
+
+vector<Vector2D> get_convex_hull_2D(vector<Vector2D> points)
+{
+	// GRAHAM SCAN:
+	Vector2D left=points.front();
+	points.erase(points.begin());
+	Vector2D right=points.back();
+	points.pop_back();
+	
+	line2D middle=line2D(left, right);
+	Vector2D point;
+	vector<Vector2D> hull, upper_hull, lower_hull, upper, lower;
+	upper.push_back(right);
+	lower.push_back(right);
+	while (points.size()!=0) {
+		point=points.back();
+		points.pop_back();
+		if (middle.is_point_left_of_line(point))
+			upper.push_back(point);
+		else if (middle.is_point_right_of_line(point))
+			lower.push_back(point);
+	}
+	
+	lower_hull.push_back(left);
+	while (lower.size()!=0) {
+		lower_hull.push_back(lower.back());
+		lower.pop_back();
+		while (lower_hull.size()>=3 && !convex_last_three_points(lower_hull.end(), true))
+			lower_hull.erase(lower_hull.end()-2);
+	}
+
+	upper_hull.push_back(left);
+	while (upper.size()!=0) {
+		upper_hull.push_back(upper.back());
+		upper.pop_back();
+		while (upper_hull.size()>=3 && !convex_last_three_points(upper_hull.end(), false))
+			upper_hull.erase(upper_hull.end()-2);
+	}
+	
+	vector<Vector2D>::iterator i;
+	for (i=lower_hull.begin(); i!=lower_hull.end()-1; i++)
+		hull.push_back(*i);
+	for (i=upper_hull.end()-1; i!=upper_hull.begin(); i--)
+		hull.push_back(*i);
+
+	return hull;
+}
+
 void pt_spline1D(float x[],float y[],int n,float yp1,float ypn,float y2[])
 {
 	int i,k;

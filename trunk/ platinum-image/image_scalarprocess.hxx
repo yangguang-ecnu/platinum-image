@@ -546,9 +546,10 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 		delete inh_map;
 	
 		//Beräkna ekv (7) i SIM-paper
-		feat1_corr->fill(0); feat2_corr->fill(0);
+		//feat1_corr->fill(0); feat2_corr->fill(0);
+		feat1_corr->fill(1); feat2_corr->fill(1);
 		feat1_corr->combine(field, COMB_ADD); feat2_corr->combine(field, COMB_ADD);
-		feat1_corr->add_value_to_all_voxels(1); feat2_corr->add_value_to_all_voxels(1);
+		//feat1_corr->add_value_to_all_voxels(1); feat2_corr->add_value_to_all_voxels(1);
 		feat1_corr->combine(feat1, COMB_MULT); feat2_corr->combine(feat2, COMB_MULT);
 		//Set negative values to zero
 		for (int x=0; x<xsize; x++) {
