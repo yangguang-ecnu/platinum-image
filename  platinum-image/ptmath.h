@@ -127,7 +127,8 @@ protected:
 	bool defined; //Undefined planes can be used as default values for functions taking a varying number of planes as arguemt
 };
 
-
+bool convex_last_three_points(vector<Vector2D>::iterator end, bool lower); // used by get_convex_hull_2D
+vector<Vector2D> get_convex_hull_2D(vector<Vector2D> points); // points should be sorted, first by x, then by y (first and second values in Vector2D)
 
 //not typical tensor functions, just for lack of a better place
 
