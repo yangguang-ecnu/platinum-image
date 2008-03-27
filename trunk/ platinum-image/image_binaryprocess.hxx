@@ -1629,6 +1629,26 @@ void image_binary<IMAGEDIM>::largest_object_3D(IMGBINARYTYPE object_value)
 	}
 
 template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::largest_objects_3D(int num_objects, IMGBINARYTYPE object_value)
+{
+	image_binary<3> *res = new image_binary<3>(this,0);
+	res->fill(!object_value);
+
+	image_binary<3> *tmp;
+	for(int i=0;i<num_objects;i++){
+		cout<<"i="<<i<<endl;
+		tmp = new image_binary<3>(this);
+		tmp->mask_out(res,!object_value);	//remove already selected objects...
+		tmp->largest_object_3D();
+		res->combine(tmp,COMB_MAX);
+		cout<<"res_vol="<<res->get_number_of_voxels_with_value(object_value)<<endl;
+		delete tmp;
+	}
+
+	copy_data(res,this);
+}
+
+template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::erode_2D(int thickness, int direction, IMGBINARYTYPE object_value)
 	{		
 	bool edge_is_object=false;
@@ -1892,4 +1912,81 @@ void image_binary<IMAGEDIM>::convex_hull_line_filling_3D(int dir, IMGBINARYTYPE 
 
 }
 
-	 
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::get_num_neighbours_distribution_3D_26Nbh(vector<int> &num_nb, vector<int> &num_vox, IMGBINARYTYPE object_value)
+{
+	int nx = this->nx();
+	int ny = this->ny();
+	int nz = this->nz();
+	int tmp;
+	
+	num_nb.clear();
+	num_vox.clear();
+	for(int i=0; i<=26; i++){
+		num_nb.push_back(i);
+		num_vox.push_back(0);
+	}
+
+	for(int z=0; z<nz; z++){		
+		for(int y=0; y<ny; y++){
+			for(int x=0; x<nx; x++){
+				if(this->get_voxel(x,y,z)==object_value){
+					tmp=0;
+
+					for(int t=std::max(0,z-1); t<=std::min(z+1,nz-1); t++){
+						for(int s=std::max(0,y-1); s<=std::min(y+1,ny-1); s++){
+							for(int r=std::max(0,x-1); r<=std::min(x+1,nx-1); r++){
+								if(this->get_voxel(r,s,t)==object_value){
+									tmp++;
+								}
+							}
+						}
+					}
+
+					num_vox[tmp]++;
+
+				}
+
+			}
+		}
+	}
+
+	int inside_limit = 17;
+	float border=0;
+	float sum=0;
+
+	for(int i=0; i<=26; i++){
+		sum += num_vox[i];
+		if(i<=inside_limit){
+			border += num_vox[i];
+		}
+	}
+
+	cout<<"num_nb\tnum_vox\percent"<<endl;
+	for(int i=0; i<=26; i++){
+		cout<<num_nb[i]<<"\t"<<num_vox[i]<<"\t"<<float(num_vox[i])/sum<<endl;
+	}
+
+	cout<<"border_percent="<<border/sum<<endl;
+}
+
+
+template <int IMAGEDIM>
+float image_binary<IMAGEDIM>::get_border_volume_ratio_3D_26Nbh(int num_nb_inside_limit, IMGBINARYTYPE object_value=TRUE)
+{
+	vector<int> num_nb;
+	vector<int> num_vox;
+	this->get_num_neighbours_distribution_3D_26Nbh(num_nb, num_vox, object_value);
+
+	float border=0;
+	float sum=0;
+
+	for(int i=0; i<=26; i++){
+		sum += num_vox[i];
+		if(i<=num_nb_inside_limit){
+			border += num_vox[i];
+		}
+	}
+	return border/sum;
+}

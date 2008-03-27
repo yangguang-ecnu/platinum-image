@@ -287,60 +287,74 @@ void datamanager::add(point_collection * p)
 
 void datamanager::delete_data (data_base * d)
 {
-    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
+    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
         {
         if (*itr == d)
             {
             delete *itr; //the data_base destructor calls remove_data() to
                          //remove it from dataItems 
-            break;
+            //break;
             }
+		else
+			{
+			itr++;
+			}
         }
 }
 
 void datamanager::delete_data (int id)
 {
 	pt_error::error("datamanager::delete_data",pt_error::debug);
-    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
+    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
         {
         if ((*itr)->get_id() == id)
             {
             delete *itr;
 
-            break;
+            //break;
             }
-        }
+		else{
+			itr++;
+		}
+		}
 }
 
 // Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allocated memory is removed)
 void datamanager::remove_data (int id)
 {
-    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
+    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
         {
         if ((*itr)->get_id() == id)
             {
-            dataItems.erase( itr); 
+            itr = dataItems.erase(itr); 
             
             data_vector_has_changed();
-            break;
+            //break;
             }
+		else
+			{
+				itr++;
+			}
         }
 }
 
 // Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allocated memory is removed)
 void datamanager::remove_data (data_base * d)
 {
-    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();itr++)
+    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
         {
         if (*itr == d)
             {
 
-			dataItems.erase( itr); 
+			itr = dataItems.erase(itr); 
             
             data_vector_has_changed();
 
-            break;
+            //break;
             }
+		else{
+			itr++;
+		}
         }
 }
 

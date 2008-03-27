@@ -797,8 +797,9 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvol
 	res->set_origin(this->get_physical_pos_for_voxel(x1,y1,z1));
 	return res;
 }
+
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_values_larger_than(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2)
+void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_values_larger_than_3D(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2)
 {
 	x1 = datasize[0];	x2 = 0;
 	y1 = datasize[1];	y2 = 0;
@@ -818,6 +819,52 @@ void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_values_larger_than(ELEMTYPE 
 			}
 		}
 	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_value_3D(ELEMTYPE val, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2)
+{
+	x1 = datasize[0];	x2 = 0;
+	y1 = datasize[1];	y2 = 0;
+    z1 = datasize[2];	z2 = 0;
+
+	for (int z=0; z < datasize[2]; z++){
+		for (int y=0; y < datasize[1]; y++){
+			for (int x=0; x < datasize[0]; x++){
+				if(get_voxel(x,y,z)==val){
+					x1 = min(x,x1);
+					y1 = min(y,y1);
+					z1 = min(z,z1);
+					x2 = max(x,x2);
+					y2 = max(y,y2);
+					z2 = max(z,z2);
+				}
+			}
+		}
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+int image_general<ELEMTYPE, IMAGEDIM>::get_span_size_of_value_3D(ELEMTYPE val, int dir)
+{
+	int x1;
+	int y1;
+	int z1;
+	int x2;
+	int y2;
+	int z2;
+	get_span_of_value_3D(val,x1,y1,z1,x2,y2,z2);
+
+	int ret=-1;
+
+	if(dir==0){
+		ret = x2-x1+1;
+	}else if(dir==1){
+		ret = y2-y1+1;
+	}else if(dir==2){
+		ret = z2-z1+1;
+	}
+	return ret;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
