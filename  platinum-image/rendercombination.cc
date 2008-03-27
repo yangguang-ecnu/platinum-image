@@ -198,7 +198,7 @@ void rendercombination::data_vector_has_changed()
     {
     //images may have been deleted too, we need to update both image ID and image pointer
 
-	for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
+	for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();)
         {
         itr->pointer=datamanagement.get_data(itr->ID);
         
@@ -206,9 +206,13 @@ void rendercombination::data_vector_has_changed()
             {
             //image at p does not exist
             
-            renderdata.erase(itr);
-			itr = renderdata.begin();//To avoid undefined values of itr
+            itr = renderdata.erase(itr);
+			//itr = renderdata.begin();//To avoid undefined values of itr
             }
+		else
+			{
+				itr++;
+			}
         };
     
     rendermanagement.combination_update_callback(id);

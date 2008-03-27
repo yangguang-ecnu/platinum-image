@@ -1245,6 +1245,47 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(queue<V
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D_if_equal_or_lower_intensity(queue<Vector3D> seed_queue, ELEMTYPE min_intensity)
+{
+	image_binary<IMAGEDIM> *res = new image_binary<IMAGEDIM>(this,0);
+	res->fill(false);
+	int sx = this->datasize[0];
+	int sy = this->datasize[1];
+	int sz = this->datasize[2];
+//	cout<<sx<<" "<<sy<<" "<<sz<<endl;
+
+	Vector3D pos;
+	Vector3D pos2;
+
+	ELEMTYPE current_val;
+	ELEMTYPE val;
+
+	while(seed_queue.size()>0){
+		pos = seed_queue.front();
+		seed_queue.pop();
+
+		current_val = this->get_voxel(pos[0],pos[1],pos[2]);
+		for(int x=std::max(0,int(pos[0]-1)); x<=std::min(int(pos[0]+1),sx-1); x++){
+			for(int y=std::max(0,int(pos[1]-1)); y<=std::min(int(pos[1]+1),sy-1); y++){
+				for(int z=std::max(0,int(pos[2]-1)); z<=std::min(int(pos[2]+1),sz-1); z++){
+					val = this->get_voxel(x,y,z);
+
+					if(val<=current_val && val>=min_intensity && res->get_voxel(x,y,z)==false){
+						pos2[0]=x; pos2[1]=y; pos2[2]=z;
+						seed_queue.push(pos2);
+						res->set_voxel(x,y,z,true);
+					}
+				}
+			}
+		}
+	}
+
+	cout<<"region_grow_3D_if_equal_or_lower_intensity --> Done...(seed_queue.size()="<<seed_queue.size()<<")"<<endl;
+	return res;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D_using_object_labeling(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
 {
 	queue<Vector3D> s;

@@ -49,6 +49,7 @@ class image_binary : public image_label <IMAGEDIM>
 		image_binary(const string filepath, const string name=""):image_label<IMAGEDIM>(filepath, name) 
 		{}
 
+
     // *** operations ***
 
     image_binary<IMAGEDIM> * logical_or(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A OR B operation
@@ -62,8 +63,9 @@ class image_binary : public image_label <IMAGEDIM>
 
     // *** applications ***
 
-    // 2D operations in image_binaryprocess
-    void fill_holes_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Fill holes in objects defined by object_value in 2D-planes orthogonal to the axis given by direction.
+    // ----------- 2D operations in image_binaryprocess ---------------
+
+	void fill_holes_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Fill holes in objects defined by object_value in 2D-planes orthogonal to the axis given by direction.
     image_label<3>* label_connected_objects_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Get image_label from connected objects in 2D-planes orthogonal to the axis given by direction.
 	image_integer<unsigned long, 3>* label_connected_objects_with_area_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Get image_integer from connected objects in 2D-planes orthogonal to the axis given by direction with labels corresponding to object volume.
 	void largest_object_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
@@ -75,24 +77,28 @@ class image_binary : public image_label <IMAGEDIM>
     void connect_outer_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Connect outer contour of objects (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
     image_integer<short, IMAGEDIM> * distance_34_2D(bool edge_is_object=false, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Compute 34 chamfer distance map for each plane in 2D-planes orthogonal to the axis given by direction. If edge_is_object=true then everything outside the image is regarded to be object voxels.
 
-    // 3D operations in image_binaryprocess
+    // --------------- 3D operations in image_binaryprocess ---------------
+
     void fill_holes_3D(IMGBINARYTYPE object_value=TRUE); ///Fill holes in objects defined by object_value.
 	image_label<3>* label_connected_objects_3D(IMGBINARYTYPE object_value=TRUE); ///Get image_label from connected objects in binary.
 	image_integer<unsigned long,3>* label_connected_objects_with_volume_3D(IMGBINARYTYPE object_value=TRUE); ///Get image_integer from connected objects in binary with labels corresponding to object volume.
 	void largest_object_3D(IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value).
+	void largest_objects_3D(int num_objects=2, IMGBINARYTYPE object_value=TRUE); ///Keep the x largest objects (defined by object_value).
 	void erode_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE);///Morphological erode up to distance value=thickness.
-
 	//JK - there is a bug in dilate3D... An in-slice line (with 2 segments...) is sometimes seen....
 	void dilate_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE); ///Morphological dilate up to distance value=thickness.
 	void outline_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE); ///Morphological outline up to distance value=thickness.
     image_integer<short, IMAGEDIM> * distance_345_3D(bool edge_is_object=false, IMGBINARYTYPE object_value=TRUE); ///Compute 345 chamfer distance map. If edge_is_object=true then everything outside the image is regarded to be object voxels.
 	//TODO: create distancetransform where weights are given as argument (3,4,5)... can then be used to weight spatial resolution....
 
-
 	void erode_3D_26Nbh(IMGBINARYTYPE object_value=TRUE); ///Morphological erode (26 Neighbourhood)
 	void dilate_3D_26Nbh(IMGBINARYTYPE object_value=TRUE); ///Morphological dilate (26 Neighbourhood)
 	int find_voxel_index_percent_object_content(int dir, int object_content_percent, IMGBINARYTYPE object_value=TRUE); 
 	void convex_hull_line_filling_3D(int dir, IMGBINARYTYPE object_value=TRUE); 
+
+	void get_num_neighbours_distribution_3D_26Nbh(vector<int> &num_nb, vector<int> &num_vox, IMGBINARYTYPE object_value=TRUE); //Returns statistics on the number of object neighbours object voxels have.
+	float get_border_volume_ratio_3D_26Nbh(int num_nb_inside_limit=17, IMGBINARYTYPE object_value=TRUE); //Returns statistics on the number of object neighbours object voxels have.
+
     };
 
 template <int DIM>

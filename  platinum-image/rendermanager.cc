@@ -336,16 +336,18 @@ void rendermanager::remove_renderer (int ID)
 
 void rendermanager::remove_renderer (renderer_base * r)
 {
-    for (std::vector<renderer_base *>::iterator itr = renderers.begin();itr != renderers.end();itr++)
+    for (std::vector<renderer_base *>::iterator itr = renderers.begin();itr != renderers.end();)
         {
         if ((*itr) == r)
             {
             delete (*itr);
-            renderers.erase(itr);
+            itr = renderers.erase(itr);
             viewmanagement.refresh_viewports();
 
-            break;
-            }
+            //break;
+			}else{
+				itr++;
+			}
         }
 }
 

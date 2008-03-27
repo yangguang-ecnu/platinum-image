@@ -183,22 +183,44 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 	
 	image_binary<3> *half_body_mask = binary_copycast<3>(body_mask);	// = image_binary<3>(body_mask);
 	//clear a priori regions.... y = 0...40 and 120...
-	half_body_mask->fill_region_3D(1,0,40,0);
-	half_body_mask->fill_region_3D(1,120,body_mask->get_size_by_dim(1)-1,0);
+	half_body_mask->fill_region_3D(1,0,45,0);
+	half_body_mask->fill_region_3D(1,100,body_mask->get_size_by_dim(1)-1,0);
 	half_body_mask->erode_3D_26Nbh();
 
 	histogram_1D<ELEMTYPE> *h = this->get_histogram_from_masked_region_3D(half_body_mask);
 	h->save_histogram_to_txt_file("d:/Joel/TMP/hist.txt");
-//	cout<<"initial_upper_thres="<<initial_upper_thres<<endl;
-	int lung_tresh = h->get_intensity_at_included_num_pix_from_lower_int(2,this->get_num_voxels_per_dm3()*lung_volume_in_litres);
+	int lung_tresh = h->get_intensity_at_included_num_pix_from_lower_int(0,this->get_num_voxels_per_dm3()*lung_volume_in_litres);
 	cout<<"lung_tresh="<<lung_tresh<<endl;
+
+//-------------------------------------
+//New determination of lung threshold....
+//-------------------------------------
+/*
+	float amp=0;
+	float center=0;
+	float sigma=0;
+	h->fit_gaussian_to_intensity_range(amp,center,sigma,50,this->get_max()-1,true);
+
+	cout<<endl;
+	cout<<"Result-amp="<<amp<<endl;
+	cout<<"Result-center="<<center<<endl;
+	cout<<"Result-sigma="<<sigma<<endl;
+
+//	gaussian *g = new gaussian(amp,center,sigma);
+//	h->save_histogram_to_txt_file(base+"__c04c_masked_Lung_histogram.txt",false,g); //for threshold determination
+
+	int lung_tresh = center - 3*sigma;
+	cout<<"my_lung_thres="<<lung_tresh<<endl;
+*/
+//-------------------------------------
+//-------------------------------------
 
 //	image_binary<3> *lungs = this->threshold(0,initial_upper_thres);
 	image_binary<3> *lungs = this->threshold(0,lung_tresh);
 
-	//clear a priori regions.... y = 0...50 and 100...
+	//clear a priori regions.... y = 0...50 and 95...
 	lungs->fill_region_3D(1,0,50,0);
-	lungs->fill_region_3D(1,100,lungs->get_size_by_dim(1)-1,0);
+	lungs->fill_region_3D(1,95,lungs->get_size_by_dim(1)-1,0);
 
 //	lungs->mask_out(body_mask);
 	lungs->mask_out(half_body_mask);
@@ -224,6 +246,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 	lungs->mask_out(lung1);
 
 	delete half_body_mask;
+
 	delete rough_lung_mask;
 	delete lung1;
 	delete lung2;
@@ -324,7 +347,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 	int x2;
 	int y2;
 	int z2;
-	vat_mask->get_span_of_values_larger_than(0,x1,y1,z1,x2,y2,z2);
+	vat_mask->get_span_of_values_larger_than_3D(0,x1,y1,z1,x2,y2,z2);
 	sat_seed->fill_region_3D(1,0,y1-1,0);
 	sat_seed->fill_region_3D(1,y2+1,sat_seed->ny()-1,0);
 	if(base!=""){
