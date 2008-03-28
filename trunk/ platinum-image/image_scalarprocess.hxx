@@ -178,6 +178,133 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_body_from_sum
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_rough_lung_from_sum_image(image_binary<3> *mask, float lung_volume_in_litres)
+{
+	histogram_1D<unsigned short> *h = this->get_histogram_from_masked_region_3D(mask);
+	int lung_tresh = h->get_intensity_at_included_num_pix_from_lower_int(0,this->get_num_voxels_per_dm3() * lung_volume_in_litres);	// volume in liters...
+	cout<<"lung_tresh="<<lung_tresh<<endl;
+
+	image_binary<3> *rough_lung = this->threshold(0,lung_tresh);
+	rough_lung->name("rough_lung");
+	rough_lung->fill_region_3D(1,0,50,0);
+	rough_lung->fill_region_3D(1,95,rough_lung->get_size_by_dim(1)-1,0);
+	rough_lung->mask_out(mask);
+	cout<<"Lungvol_after_thres_and_mask="<<rough_lung->get_voxel_volume_in_dm3()*rough_lung->get_number_of_voxels_with_value(1)<<endl;
+
+	return rough_lung;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_from_sum_image(image_binary<3> *right_thorax_body_mask, float lung_volume_in_litres)
+{
+
+	image_binary<3> *rough_lung = this->appl_wb_segment_rough_lung_from_sum_image(right_thorax_body_mask, lung_volume_in_litres);
+	rough_lung->name("rough_lung");
+
+	image_integer<short,3> *dist = rough_lung->distance_345_3D();
+	dist->name("dist");
+
+	image_binary<3> *seeds = new image_binary<3>(rough_lung);
+	seeds->name("seeds");
+	seeds->erode_3D_26Nbh();
+	seeds->erode_3D_26Nbh();
+	seeds->erode_3D_26Nbh();
+	seeds->largest_object_3D();
+
+	image_binary<3> *res = dist->region_grow_3D_if_lower_intensity(seeds);
+	res->name("res");
+	res->dilate_3D_26Nbh();
+	res->dilate_3D_26Nbh();
+
+	histogram_1D<unsigned short> *h2 = this->get_histogram_from_masked_region_3D(res);
+
+	float a;
+	float c;
+	float s;
+	h2->fit_gaussian_to_intensity_range(a,c,s,1,50);
+	cout<<"a="<<a<<endl;
+	cout<<"c="<<c<<endl;
+	cout<<"s="<<s<<endl;
+	cout<<"-->thres="<<c+2*s<<endl;
+
+//	gaussian *g = new gaussian(a,c,s);
+//	h2->save_histogram_to_txt_file(base + "__c08_lung hist.txt",false,g);
+
+	//************************************
+	//thresholda på c + 2*s...
+	//************************************
+
+	image_binary<3> *right_lung = this->threshold(0,c+2*s);
+	right_lung->name("right_lung");
+	right_lung->mask_out(res);
+	right_lung->largest_object_3D();
+
+//	datamanagement.add(rough_lung);
+//	datamanagement.add(dist);
+//	datamanagement.add(seeds);
+//	datamanagement.add(res);
+	delete rough_lung;
+	delete dist;
+	delete seeds;
+	delete res;
+
+	return right_lung;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres)
+{
+	// ---- Create Common thorax mask -----
+	image_binary<3> *thorax_mask = new image_binary<3>(body_mask);
+	thorax_mask->name("thorax_mask");
+	thorax_mask->fill_region_3D(1,0,45,0);
+	thorax_mask->fill_region_3D(1,100,thorax_mask->get_size_by_dim(1)-1,0);
+
+	Vector3D cg = thorax_mask->get_center_of_gravity(1);
+	cout<<"thorax_cg="<<cg<<endl;
+//	cout<<"s="<<thorax_mask->get_size_by_dim(0)<<endl;
+
+	thorax_mask->erode_3D_26Nbh();
+
+
+	// ---- Segment RIGHT Lung -----
+	image_binary<3> *right_mask = new image_binary<3>(thorax_mask);
+	right_mask->fill_region_3D(0,cg[0]+2,body_mask->get_size_by_dim(0)-1,0);
+	image_binary<3> *r_lung = this->appl_wb_segment_right_lung_from_sum_image(right_mask,lung_volume_in_litres);
+	r_lung->name("r_lung");
+
+
+
+	// ---- Segment LEFT Lung -----
+	int x1,y1,z1,x2,y2,z2;
+	r_lung->get_span_of_value_3D(1,x1,y1,z1,x2,y2,z2);
+
+	image_binary<3> *left_mask = new image_binary<3>(thorax_mask);
+	left_mask->fill_region_3D(0,0,cg[0]-2,0);
+	left_mask->fill_region_3D(1,0,y1,0);
+	left_mask->fill_region_3D(1,y2,left_mask->ny()-1,0);
+	image_binary<3> *l_lung = this->appl_wb_segment_right_lung_from_sum_image(left_mask,lung_volume_in_litres);
+	l_lung->name("l_lung");
+
+
+	r_lung->combine(l_lung,COMB_MAX);
+	r_lung->name("lungs");
+
+	datamanagement.add(thorax_mask);
+//	datamanagement.add(right_mask);
+//	datamanagement.add(left_mask);
+	delete right_mask;
+	delete left_mask;
+	datamanagement.add(r_lung);
+//	datamanagement.add(l_lung);
+	delete l_lung;
+
+	return r_lung;
+}
+
+
+/*
+template <class ELEMTYPE, int IMAGEDIM>
 image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres)
 {
 	
@@ -195,23 +322,23 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 //-------------------------------------
 //New determination of lung threshold....
 //-------------------------------------
-/*
-	float amp=0;
-	float center=0;
-	float sigma=0;
-	h->fit_gaussian_to_intensity_range(amp,center,sigma,50,this->get_max()-1,true);
 
-	cout<<endl;
-	cout<<"Result-amp="<<amp<<endl;
-	cout<<"Result-center="<<center<<endl;
-	cout<<"Result-sigma="<<sigma<<endl;
+//	float amp=0;
+//	float center=0;
+//	float sigma=0;
+//	h->fit_gaussian_to_intensity_range(amp,center,sigma,50,this->get_max()-1,true);
+
+//	cout<<endl;
+//	cout<<"Result-amp="<<amp<<endl;
+//	cout<<"Result-center="<<center<<endl;
+//	cout<<"Result-sigma="<<sigma<<endl;
 
 //	gaussian *g = new gaussian(amp,center,sigma);
 //	h->save_histogram_to_txt_file(base+"__c04c_masked_Lung_histogram.txt",false,g); //for threshold determination
 
-	int lung_tresh = center - 3*sigma;
-	cout<<"my_lung_thres="<<lung_tresh<<endl;
-*/
+//	int lung_tresh = center - 3*sigma;
+//	cout<<"my_lung_thres="<<lung_tresh<<endl;
+
 //-------------------------------------
 //-------------------------------------
 
@@ -253,6 +380,8 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 
 	return lungs;
 }
+*/
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres)
@@ -309,7 +438,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_wate
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body, string base)
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body, string base="")
 {
 	cout<<"Erode body_mini..."<<endl;
 	image_binary<> *body_mini = new image_binary<>(bin_body);

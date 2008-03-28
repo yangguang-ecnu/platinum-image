@@ -120,14 +120,18 @@ public:
 	image_binary<IMAGEDIM>* region_grow_3D(image_binary<IMAGEDIM> *seed_image, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<IMAGEDIM>* region_grow_3D(queue<Vector3D> seed_queue, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<IMAGEDIM>* region_grow_3D_if_equal_or_lower_intensity(queue<Vector3D> seed_queue, ELEMTYPE min_intensity=1);
+	image_binary<IMAGEDIM>* region_grow_3D_if_lower_intensity(image_binary<IMAGEDIM> *seed_image, ELEMTYPE min_intensity=1);
+	image_binary<IMAGEDIM>* region_grow_3D_if_lower_intensity(queue<Vector3D> seed_queue, ELEMTYPE min_intensity=1);
 	image_binary<3>* region_grow_3D_using_object_labeling(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<3>* region_grow_3D_using_object_labeling(image_binary<IMAGEDIM> *seed_image, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<3>* region_grow_3D_using_object_labeling(queue<Vector3D> seed_queue, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 
 	image_binary<IMAGEDIM>* region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
 
+	Vector3D get_center_of_gravity(ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(),  SPACE_TYPE type = VOXEL_SPACE);
 	Vector3D get_in_slice_center_of_gravity_in_dir(int dir, int slice, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(),  SPACE_TYPE type = VOXEL_SPACE);
 	vector<Vector3D> get_in_slice_center_of_gravities_in_dir(int dir, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(), SPACE_TYPE type = VOXEL_SPACE);
+	Vector3D get_pos_of_highest_value();
 
 	image_scalar<ELEMTYPE, IMAGEDIM>* correct_inclined_object_slicewise_after_cg_line(int dir, line3D cg_line, SPACE_TYPE type = VOXEL_SPACE);
 
@@ -184,13 +188,17 @@ public:
 	
 	float weight_of_type( Vector3D center, Vector3D current, WEIGHT_TYPE type );
 
-	//Simple functions for segmentation of bodies and lungs form whole-body MRI scans
+	//-----------------------------------------------------------------
+	//Functions for segmentation of bodies and lungs form whole-body MRI scans
 	//Assumes the feet direction is in increasing voxel-y direction... (nose is in neg Z-direction) 
 
 	//Function for localizing main axis of objects (via 2D center of gravities)... pixels are not weighted by their intensities...
 	float appl_wb_correct_inclination(image_scalar<ELEMTYPE, IMAGEDIM>*fat, image_scalar<ELEMTYPE, IMAGEDIM>*water);
 	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres=3000);
-	image_binary<3>* appl_wb_segment_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres=5);
+	image_binary<3>* appl_wb_segment_rough_lung_from_sum_image(image_binary<3> *mask, float lung_volume_in_litres=2.5);
+	image_binary<3>* appl_wb_segment_right_lung_from_sum_image(image_binary<3> *right_thorax_body_mask, float lung_volume_in_litres=2.5);
+	image_binary<3>* appl_wb_segment_both_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres=2.5);
+//	image_binary<3>* appl_wb_segment_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres=5);
 	void appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres=950);
 	image_binary<3>* appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body, string base="");
 	void appl_wb_normalize_features_slicewise_by_global_mean_on_this_float (image_scalar<float, 3>* second_feature, image_scalar<float, 3>* sum=NULL, image_binary<3>* body_lung_mask=NULL);
