@@ -2080,7 +2080,7 @@ void image_binary<IMAGEDIM>::get_num_neighbours_distribution_3D_26Nbh(vector<int
 		}
 	}
 
-	cout<<"num_nb\tnum_vox\percent"<<endl;
+	cout<<"num_nb\tnum_vox\tpercent"<<endl;
 	for(int i=0; i<=26; i++){
 		cout<<num_nb[i]<<"\t"<<num_vox[i]<<"\t"<<float(num_vox[i])/sum<<endl;
 	}
