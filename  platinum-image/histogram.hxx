@@ -149,8 +149,8 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 				}
 			}
 		}
-		cout<<"masked hist v_min="<<v_min<<endl;
-		cout<<"masked hist v_max="<<v_max<<endl;
+//		cout<<"masked hist v_min="<<v_min<<endl;
+//		cout<<"masked hist v_max="<<v_max<<endl;
 		this->min(v_min);
 		this->max(v_max);
 

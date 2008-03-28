@@ -1286,6 +1286,65 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D_if_equa
 
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D_if_lower_intensity(image_binary<IMAGEDIM> *seed_image, ELEMTYPE min_intensity)
+{
+	queue<Vector3D> s;
+
+	for(int x=0; x<this->datasize[0]; x++){
+		for(int y=0; y<this->datasize[1]; y++){
+			for(int z=0; z<this->datasize[2]; z++){
+				if(seed_image->get_voxel(x,y,z)){
+					s.push(create_Vector3D(x,y,z));
+				}
+			}
+		}
+	}
+	return region_grow_3D_if_lower_intensity(s, min_intensity);
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D_if_lower_intensity(queue<Vector3D> seed_queue, ELEMTYPE min_intensity)
+{
+	image_binary<IMAGEDIM> *res = new image_binary<IMAGEDIM>(this,0);
+	res->fill(false);
+	int sx = this->datasize[0];
+	int sy = this->datasize[1];
+	int sz = this->datasize[2];
+//	cout<<sx<<" "<<sy<<" "<<sz<<endl;
+
+	Vector3D pos;
+	Vector3D pos2;
+
+	ELEMTYPE current_val;
+	ELEMTYPE val;
+
+	while(seed_queue.size()>0){
+		pos = seed_queue.front();
+		seed_queue.pop();
+
+		current_val = this->get_voxel(pos[0],pos[1],pos[2]);
+		for(int x=std::max(0,int(pos[0]-1)); x<=std::min(int(pos[0]+1),sx-1); x++){
+			for(int y=std::max(0,int(pos[1]-1)); y<=std::min(int(pos[1]+1),sy-1); y++){
+				for(int z=std::max(0,int(pos[2]-1)); z<=std::min(int(pos[2]+1),sz-1); z++){
+					val = this->get_voxel(x,y,z);
+
+					if(val<current_val && val>=min_intensity && res->get_voxel(x,y,z)==false){
+						pos2[0]=x; pos2[1]=y; pos2[2]=z;
+						seed_queue.push(pos2);
+						res->set_voxel(x,y,z,true);
+					}
+				}
+			}
+		}
+	}
+
+	cout<<"region_grow_3D_if_lower_intensity --> Done...(seed_queue.size()="<<seed_queue.size()<<")"<<endl;
+	return res;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D_using_object_labeling(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
 {
 	queue<Vector3D> s;
@@ -1494,6 +1553,35 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_center_of_gravity(ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit,  SPACE_TYPE type)
+{
+	Vector3D res = create_Vector3D(-1,-1,-1);
+	Vector3D cg = create_Vector3D(0,0,0);
+	float num_voxels=0;
+
+	for(int z=0;z<this->nz();z++){
+		for(int y=0;y<this->ny();y++){
+			for(int x=0;x<this->nx();x++){
+				if(this->get_voxel(x,y,z) >= lower_int_limit && this->get_voxel(x,y,z) <= upper_int_limit){
+					cg[0] += x;
+					cg[1] += y;
+					cg[2] += z;
+					num_voxels++;
+				}
+			}
+		}
+	}
+	if(num_voxels>0){
+		res = cg / num_voxels;
+
+		if(type == PHYSICAL_SPACE){
+			res = this->get_physical_pos_for_voxel(res[0],res[1],res[2]);
+		}
+	}
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_in_slice_center_of_gravity_in_dir(int dir, int slice, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit,  SPACE_TYPE type)
 {
 	Vector3D res = create_Vector3D(-1,-1,-1);
@@ -1606,6 +1694,32 @@ vector<Vector3D> image_scalar<ELEMTYPE, IMAGEDIM>::get_in_slice_center_of_gravit
 	}
 
 	return cg_points;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_highest_value()
+{
+	int nx = this->nx();
+	int ny = this->ny();
+	int nz = this->nz();
+	ELEMTYPE max = std::numeric_limits<ELEMTYPE>::min();
+	Vector3D max_pos = create_Vector3D(-1,-1,-1);
+	ELEMTYPE val;
+
+	for(int z=0;z<nz;z++){
+		for(int y=0;y<ny;y++){
+			for(int x=0;x<nx;x++){
+				val = this->get_voxel(x,y,z);
+				if(val>max){
+					max = val; 
+					max_pos = create_Vector3D(x,y,z);
+				}
+			}
+		}
+	}
+
+	return max_pos;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
