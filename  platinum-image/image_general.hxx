@@ -773,30 +773,6 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::expand_bor
 	return res;
 }
 
-template <class ELEMTYPE, int IMAGEDIM>
-image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2)
-{
-	cout<<"get_subvolume_from_region_3D..."<<endl;
-	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(x2-x1+1, y2-y1+1, z2-z1+1);
-	res->set_parameters(this);
-
-	int max_x=this->get_size_by_dim(0);
-	int max_y=this->get_size_by_dim(1);
-	int max_z=this->get_size_by_dim(2);
-	x1 = max(x1,0);	x2 = min(x2,max_x);
-	y1 = max(y1,0);	y2 = min(y2,max_y);
-	z1 = max(z1,0);	z2 = min(z2,max_z);
-
-	for (int z=z1, res_z=0; z<=z2; z++, res_z++){
-		for (int y=y1, res_y=0; y<=y2; y++,res_y++){
-			for (int x=x1, res_x=0; x<=x2; x++,res_x++){
-				res->set_voxel(res_x,res_y,res_z, this->get_voxel(x,y,z));
-			}
-		}
-	}
-	res->set_origin(this->get_physical_pos_for_voxel(x1,y1,z1));
-	return res;
-}
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_values_larger_than_3D(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2)
@@ -1362,10 +1338,10 @@ bool image_general<ELEMTYPE, IMAGEDIM>::is_physical_pos_within_image_3D(Vector3D
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
-Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos)
+Vector3Dint image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos)
 	{
 	Vector3D vox = this->world_to_voxel(phys_pos);
-	Vector3D vox2;
+	Vector3Dint vox2;
 	vox2[0] = round<float>(vox[0]);
 	vox2[1] = round<float>(vox[1]);
 	vox2[2] = round<float>(vox[2]);
@@ -1490,6 +1466,14 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE 
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_in_physical_pos(Vector3D phys_pos, ELEMTYPE voxelvalue)
+{
+	Vector3Dint pos = this->get_voxelpos_integers_from_physical_pos_3D(phys_pos);
+	this->set_voxel(pos[0],pos[1],pos[2],voxelvalue);
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z) const
     {
     this->tfunction->get(get_voxel (x, y, z),val);
@@ -1575,6 +1559,32 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(int x, int y, int z, int 
 		}
 	}
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size, ELEMTYPE value)
+{
+	this->fill_region_3D(vox_pos[0],vox_pos[1],vox_pos[2],vox_size[0],vox_size[1],vox_size[2], value);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(image_general<ELEMTYPE, IMAGEDIM> *subvolume)
+{
+	int nx = subvolume->nx();
+	int ny = subvolume->ny();
+	int nz = subvolume->nz();
+	Vector3D phys_pos;
+	for(int z=0; z<nz; z++){
+		for(int y=0; y<ny; y++){
+			for(int x=0; x<nx; x++){
+				phys_pos = subvolume->get_physical_pos_for_voxel(x,y,z);
+				if( this->is_physical_pos_within_image_3D(phys_pos) ){
+					this->set_voxel_in_physical_pos(phys_pos, subvolume->get_voxel(x,y,z));
+				}
+			}
+		}
+	}
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(int dir, int start_index, int end_index, ELEMTYPE value)

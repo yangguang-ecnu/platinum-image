@@ -144,7 +144,7 @@ class image_general : public image_storage <ELEMTYPE >
 		bool is_voxelpos_inside_image_border_3D(int vp_x, int vp_y, int vp_z, int dist=1);
 		bool is_voxelpos_inside_image_border_3D(Vector3D vp, int dist=1);  
 		bool is_physical_pos_within_image_3D(Vector3D phys_pos);
-		Vector3D get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos);	//truncation is performed in this function.
+		Vector3Dint get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos);	//truncation is performed in this function.
 
 
         // *** element access methods ***
@@ -167,9 +167,12 @@ class image_general : public image_storage <ELEMTYPE >
         histogram_1D<ELEMTYPE>* get_histogram_from_masked_region_3D(image_binary<3>* mask, int num_buckets=500);
 
         void set_voxel(int x, int y, int z, ELEMTYPE voxelvalue);
+        void set_voxel_in_physical_pos(Vector3D phys_pos, ELEMTYPE voxelvalue);
 		void set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction=2);
 		void fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
 		void fill_region_3D(int dir, int start_index, int end_index, ELEMTYPE value);
+		void fill_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size, ELEMTYPE value);
+		void fill_region_3D_with_subvolume_image(image_general<ELEMTYPE, IMAGEDIM> *subvolume);
 		void fill_region_of_mask_3D(image_binary<IMAGEDIM> *mask, ELEMTYPE value);
 		void fill_image_border_3D(ELEMTYPE value, int border_thickness=1);
 
@@ -199,7 +202,6 @@ class image_general : public image_storage <ELEMTYPE >
 		image_general<ELEMTYPE, IMAGEDIM>* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, ELEMTYPE value=0);	
 
 		//****** Sub volume operations - regions ********
-		image_general<ELEMTYPE, IMAGEDIM>* get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2);	
 		void get_span_of_values_larger_than_3D(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2);
 		void get_span_of_value_3D(ELEMTYPE val, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2);
 		int get_span_size_of_value_3D(ELEMTYPE val, int dir);
