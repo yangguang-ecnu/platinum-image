@@ -51,6 +51,17 @@ void rendererMPR::connect_image(int vHandlerID)
     imagestorender->add_data(vHandlerID);
 	}
 
+void rendererMPR::refesh_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h)
+{
+//ööö
+	//wheretorender //where
+	//imagestorender //what
+	//draw_slice_locators(pixels, rgb_sx, rgb_sy, where, what);
+
+	draw_slice_locators_to_overlay(vp_offset_x, vp_offset_y,  vp_w, vp_h, wheretorender, imagestorender);
+
+}
+
 Vector3D rendererMPR::view_to_world(int vx, int vy,int sx,int sy) const
 {
     Vector3D viewCentered,world;
@@ -142,6 +153,9 @@ void rendererMPR::render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
 {
     render_( rgb, rgb_sx, rgb_sy,wheretorender,imagestorender,NULL);
 }
+
+
+
 
 //render orthogonal slices using memory-order scanline
 void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry * where,rendercombination * what,thresholdparvalue * threshold)
@@ -584,6 +598,7 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 
 void rendererMPR::draw_slice_locators ( uchar *pixels, int sx, int sy, rendergeometry * where, rendercombination * what )
 {
+/*
 	std::vector<int> geometryIDs = rendermanagement.geometries_by_image_and_direction( what->get_id() );	// get geometries that holds at least one of the images in the input combination
 																									// and have a different direction than the input geometry (i.e. not the same
 																									// direction nor the opposite direction)
@@ -593,13 +608,19 @@ void rendererMPR::draw_slice_locators ( uchar *pixels, int sx, int sy, rendergeo
 	{
 		geometries.push_back( rendermanagement.get_geometry(*itr) );		
 	}
+*/	
+	std::vector<rendergeometry *> geometries = rendermanagement.geometries_by_image_and_direction( what->get_id() );	// get geometries that holds at least one of the images in the input combination
+																									// and have a different direction than the input geometry (i.e. not the same
+																									// direction nor the opposite direction)
 	
 
 
 	renderer_base * renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(where->get_id()) );
+	//because class/function is static
 
 	// increase the length of the vector to eliminate problems when converting from world to view coordinates (ie it becomes zero at certain scales) 
 	int smin = std::min(sx, sy);
+	
 	Vector3D vmin = renderer->view_to_world(smin, 0, sx, sy) - renderer->view_to_world(0, 0, sx, sy);
 	
 	Vector3D a = where->get_N();
@@ -671,6 +692,44 @@ void rendererMPR::draw_slice_locators ( uchar *pixels, int sx, int sy, rendergeo
 
 	}
 }
+
+void rendererMPR::draw_slice_locators_to_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, rendergeometry * where, rendercombination * what)
+{
+	//JK
+	std::vector<rendergeometry *> geoms = rendermanagement.geometries_by_image_and_direction( what->get_id() );	// get geometries that holds at least one of the images in the input combination
+	cout<<"slice..."<<geoms.size()<<endl;
+
+	renderer_base *renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(where->get_id()) );	//because class/function is static
+
+	int smin = std::min(vp_w, vp_h);
+	
+	Vector3D vmin = renderer->view_to_world(smin, 0, vp_w, vp_h) - renderer->view_to_world(0, 0, vp_w, vp_h);
+	Vector3D a = where->get_N();
+	Vector3D b;
+	Vector3D c;
+	cout<<"a="<<a<<endl;
+
+	for(int i=0; i<geoms.size();i++){
+		b = geoms[i]->get_N();
+		cout<<"b="<<b<<endl;
+		c = CrossProduct(a, b);
+		cout<<"c="<<c<<endl;
+		c *= ( vmin.GetNorm() / c.GetNorm() ) / 2.0;
+		cout<<"c="<<c<<endl;
+
+		std::vector<int> p = world_to_view(where, vp_w, vp_h, geoms[i]->look_at);	// determine the position of one of the "other" planes in the active viewport
+		std::vector<int> v = world_to_view(where, vp_w, vp_h, c + geoms[i]->look_at);
+		
+		int dx = abs ( p[0] - v[0] ); //JK hm... this might be the source....
+		int dy = abs ( p[1] - v[1] );
+		cout<<"dx="<<dx<<endl;
+		cout<<"dy="<<dy<<endl;
+
+	}
+
+	fl_rect( vp_offset_x+10, vp_offset_y+10, vp_w-10, vp_h-10, FL_YELLOW);
+}
+
 
 int rendererMPR::sgn ( long a )
 {

@@ -193,21 +193,14 @@ std::vector<int> rendermanager::geometries_from_renderers ( const std::vector<in
 std::vector<int> rendermanager::geometries_by_direction ( const int geometryID, const std::vector<int> & geometryIDs )
 {
 	std::vector<int> IDs;
-
-	Vector3D  a = get_geometry(geometryID)->get_N();
-
 	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
 	{
-		Vector3D b = get_geometry(*itr)->get_N();
-		Vector3D c = CrossProduct( a, b);
-		
-		Vector3D zeros = create_Vector3D(0, 0, 0);
-		
-		if ( c != zeros )
-		{	// a and b are not parallel (i.e. the angle between a and b is 0 or 180)
+		if ( get_geometry(*itr)->get_N() != get_geometry(geometryID)->get_N() )
+		{
 			IDs.push_back( *itr );
 		}
 	}
+
 	return IDs;
 }
 
@@ -223,7 +216,7 @@ std::vector<int> rendermanager::geometries_by_direction ( const int geometryID )
 	return geometries_by_direction ( geometryID, geometryIDs );
 }
 
-std::vector<int> rendermanager::geometries_by_image_and_direction ( const int combinationID )
+std::vector<int> rendermanager::geometryIDs_by_image_and_direction ( const int combinationID )
 {
 	int rendererID = renderer_from_combination( combinationID );
 	int geometryID = get_geometry_id( find_renderer_index( rendererID ) );
@@ -235,6 +228,17 @@ std::vector<int> rendermanager::geometries_by_image_and_direction ( const int co
 																				// the input geomtry (i.e. not the same nor the opposite direction)
 	return geometryIDs;
 }
+
+std::vector<rendergeometry *> rendermanager::geometries_by_image_and_direction ( const int combinationID )
+{
+	std::vector<int> geomIDs = rendermanagement.geometryIDs_by_image_and_direction(combinationID);
+	std::vector<rendergeometry *> geom;
+	for(int i=0;i<geomIDs.size();i++){
+		geom.push_back( rendermanagement.get_geometry(geomIDs[i]) );		
+	}
+	return geom;
+}
+
 
 std::vector<int> rendermanager::geometries_by_image ( const int combinationID )
 {

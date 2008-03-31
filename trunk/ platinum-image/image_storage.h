@@ -93,7 +93,7 @@ class image_storage : public image_base
         void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
                                     //! for use inside processing functions
         void get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &maximum);
-		double get_sum_of_voxels(bool calc_scalar_abs_value=false, image_storage<IMGBINARYTYPE>* mask=NULL);
+		double get_sum_of_voxels(ELEMTYPE lower_limit = std::numeric_limits<ELEMTYPE>::min(), bool calc_scalar_abs_value=false, image_storage<IMGBINARYTYPE>* mask=NULL);
 		void set_sum_of_voxels_to_value(double value);
 //		void save_histogram_to_txt_file(std::string filepath, std::string separator=";");
 

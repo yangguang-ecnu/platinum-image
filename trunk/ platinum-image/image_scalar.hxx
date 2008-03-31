@@ -849,6 +849,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(plane3D plane1, p
 		return res;
 	}
 
+
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::flip_voxel_data_3D(int direction)
 	{

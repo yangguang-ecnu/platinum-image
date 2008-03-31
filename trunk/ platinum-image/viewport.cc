@@ -217,6 +217,15 @@ void viewport::refresh()
         }
 }
 
+
+void viewport::refresh_overlay()
+{
+//	this-> //what is my position....
+//	fl_rect(x()+50,y()+50,w()-100,h()-100,FL_BLUE);
+	//rendererID
+//	rendermanagement.get_renderer(rendererID)->refesh_overlay(x(), y(), w(), h());
+}
+
 void viewport::update_fbstring (FLTKviewport* f)
 {
     std::map<std::string,float> values;
@@ -282,6 +291,20 @@ bool viewport::render_if_needed (FLTKviewport * f)
         }
     return false;
 }
+
+int viewport::x(){
+	return viewport_widget->x();
+}
+int viewport::y(){
+	return viewport_widget->y();
+}
+int viewport::w(){
+	return viewport_widget->w();
+}
+int viewport::h(){
+	return viewport_widget->h();
+}
+
 
 void viewport::viewport_callback(Fl_Widget *callingwidget){
     FLTKviewport* f = (FLTKviewport*)callingwidget;

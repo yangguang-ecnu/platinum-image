@@ -468,7 +468,7 @@ void nav_tool::refresh_by_image_and_direction()
 {
 	// get geometries that holds at least one of the images in the input combination and have a different
 	// direction than the input geometry (i.e. not the same nor the opposite direction)					
-	std::vector<int> geometryIDs = rendermanagement.geometries_by_image_and_direction( myRenderer->combination_id() );
+	std::vector<int> geometryIDs = rendermanagement.geometryIDs_by_image_and_direction( myRenderer->combination_id() );
 
 	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
 	{
