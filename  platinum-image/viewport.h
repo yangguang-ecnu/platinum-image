@@ -109,6 +109,10 @@ private:
 public:
     viewport();
     virtual ~viewport();
+	int x();	
+	int y();
+	int w();
+	int h();
 
 	void viewport_callback(Fl_Widget *callingwidget);                               //callback that handles events
                                                                                     //always redraws
@@ -129,6 +133,7 @@ public:
     void refresh_from_geometry (int g);         //!refresh if it uses the geometry specified by argument
     void refresh_from_combination (int c);      //!refresh if it uses the geometry specified by argument
     void refresh ();                            //!re-builds menu and makes viewport re-render and redraw eventually
+    void refresh_overlay();                     //re-draws overlays
     
     threshold_overlay * get_threshold_overlay (thresholdparvalue *);
 

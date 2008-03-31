@@ -49,6 +49,7 @@ class rendererMPR : public renderer_base
 		static void draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D  point, std::vector<int>);
 		
 		static void draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry * where, rendercombination * what);
+		static void draw_slice_locators_to_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, rendergeometry * where, rendercombination * what);
 		
 		static int sgn(long a);
 		
@@ -73,6 +74,9 @@ class rendererMPR : public renderer_base
         
         virtual std::string find_typekey() const
             {return typekey();}
+
+		void refesh_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h);
+
         };
 
 #endif

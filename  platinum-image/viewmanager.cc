@@ -386,6 +386,20 @@ void viewmanager::refresh_viewports_from_geometry(int g)
         }
     }
 
+void viewmanager::refresh_overlays()
+{
+	cout<<"refresh_overlays()... ";
+
+    for (unsigned int i=0; i < viewports.size(); i++) 
+        {
+			cout<<i<<" ";
+			viewports[i].refresh_overlay();
+        }
+
+	cout<<endl;
+
+}
+
 void viewmanager::refresh_viewports()
     {
     for (unsigned int i=0; i < viewports.size(); i++) 

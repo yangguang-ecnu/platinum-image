@@ -117,7 +117,9 @@ class rendermanager
 		std::vector<int> geometries_by_direction ( const int geometryID );	// return geometries that has a different direction than the input geometry
 																			// i.e not the same nor the opposite direction
 		
-		std::vector<int> geometries_by_image_and_direction ( const int combinationID );	// return geometries that holds at least one of the images in the input combination
+		std::vector<int> geometryIDs_by_image_and_direction ( const int combinationID );	// return geometries that holds at least one of the images in the input combination
+																						// and have a different direction than the input geometry (i.e. not the same nor the opposite direction)
+		std::vector<rendergeometry *> geometries_by_image_and_direction ( const int combinationID );	// return geometries that holds at least one of the images in the input combination
 																						// and have a different direction than the input geometry (i.e. not the same nor the opposite direction)
 																						
 		std::vector<int> geometries_by_image ( const int combinationID );	// return geometries that holds at least one of the images in the input combination

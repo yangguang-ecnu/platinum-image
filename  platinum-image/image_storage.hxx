@@ -548,7 +548,7 @@ void image_storage<ELEMTYPE >::get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &m
 
 
 template <class ELEMTYPE >
-double image_storage<ELEMTYPE >::get_sum_of_voxels(bool calc_scalar_abs_value, image_storage<IMGBINARYTYPE>* mask) 
+double image_storage<ELEMTYPE >::get_sum_of_voxels(ELEMTYPE lower_limit, bool calc_scalar_abs_value, image_storage<IMGBINARYTYPE>* mask) 
 {
 	double sum=0;
 	typename image_storage<ELEMTYPE >::iterator itr = this->begin();
@@ -556,27 +556,32 @@ double image_storage<ELEMTYPE >::get_sum_of_voxels(bool calc_scalar_abs_value, i
 		typename image_storage<IMGBINARYTYPE >::iterator mask_itr = mask->begin();
 		if (calc_scalar_abs_value) {
 			while(itr != this->end()) {
-				if (*mask_itr) {sum+=abs((double)*itr);}
+				if (*mask_itr && *itr>lower_limit)
+					{sum+=abs((double)*itr);}
                 ++itr;
 				++mask_itr;
 			}
 		}else {
 			while(itr != this->end()) {
-				if (*mask_itr) {sum+=(double)*itr;}
+				if (*mask_itr && *itr>lower_limit)
+					{sum+=(double)*itr;}
 				++itr;
 				++mask_itr;
 			}
 		}
 		pt_error::error_if_false(itr == this->end() && mask_itr == mask->end(),"Binary mask size didn't match image size when calculating sum of voxels",pt_error::serious);
+
 	}else {
 		if (calc_scalar_abs_value) {
 			while(itr != this->end()) {
-				sum+=abs((double)*itr);
+				if(*itr>lower_limit)
+					{sum+=abs((double)*itr);}
 				++itr;
 			}
 		}else {
 			while(itr != this->end()) {
-				sum+=(double)*itr;
+				if(*itr>lower_limit)
+					{sum+=(double)*itr;}
 				++itr;
 			}
 		}
