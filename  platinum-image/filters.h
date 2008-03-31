@@ -59,13 +59,25 @@ public:
 class filter_sobel_2d : public filter_linear
 {
 public:
-	filter_sobel_2d(int dir=0);
+	filter_sobel_2d(int orientation=0, int dir=2);
 };
 
 class filter_laplace_2d : public filter_linear
 {
 public:
 	filter_laplace_2d(int dir=2, bool eight_connected=true); //four-connected if not eight-connected
+};
+
+class filter_laplace_1d : public filter_linear
+{
+public:
+	filter_laplace_1d(int dir=2);
+};
+
+class filter_central_difference: public filter_linear
+{
+public:
+	filter_central_difference(int dir=2);
 };
 
 class filter_gaussian : public filter_linear
