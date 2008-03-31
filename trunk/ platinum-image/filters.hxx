@@ -114,17 +114,20 @@ void filter_linear::print() {
 	}
 }
 
-filter_sobel_2d::filter_sobel_2d(int dir) {
-	// dir=in-plane direction; 0=east, 1=southeast, 2=south...7=northeast
-	if (dir<0) {dir=0;}
-	int nx=3; int ny=3; int nz=1;
-	int *w = new int[nx*ny*nz];
-	w[0]=abs((dir+2)%8-3)-2; w[1]= abs((dir+1)%8-3)-2; w[2]= abs((dir+0)%8-3)-2;
-	w[3]=abs((dir+3)%8-3)-2; w[4]= 0;                  w[5]= abs((dir+7)%8-3)-2;
-	w[6]=abs((dir+4)%8-3)-2; w[7]= abs((dir+5)%8-3)-2; w[8]= abs((dir+6)%8-3)-2;
-	this->set_data_from_ints(w,nx,ny,nz,1,1,0);
+filter_sobel_2d::filter_sobel_2d(int orientation, int dir) {
+	// orientation=in-plane direction; 0=east, 1=southeast, 2=south...7=northeast
+	if (orientation<0) {orientation=0;}
+	//int nx=3; int ny=3; int nz=1;
+	int *w = new int[9];
+	w[0]=abs((orientation+2)%8-3)-2; w[1]= abs((orientation+1)%8-3)-2;	w[2]= abs((orientation+0)%8-3)-2;
+	w[3]=abs((orientation+3)%8-3)-2; w[4]= 0;							w[5]= abs((orientation+7)%8-3)-2;
+	w[6]=abs((orientation+4)%8-3)-2; w[7]= abs((orientation+5)%8-3)-2;	w[8]= abs((orientation+6)%8-3)-2;
+	//this->set_data_from_ints(w,nx,ny,nz,1,1,0);
+	if (dir==0) {this->set_data_from_ints(w,1,3,3,0,1,1);}
+	else if (dir==1) {this->set_data_from_ints(w,3,1,3,1,0,1);}
+	else {this->set_data_from_ints(w,3,3,1,1,1,0);}
 	delete w;
-	cout << "Created 2d sobel filter, direction: " << dir%8 << endl;
+	cout << "Created 2d sobel filter, orientation: " << orientation%8 << endl;
 }
 
 filter_laplace_2d::filter_laplace_2d(int dir, bool eight_connected) //four-connected if not eight-connected
@@ -140,6 +143,36 @@ filter_laplace_2d::filter_laplace_2d(int dir, bool eight_connected) //four-conne
 
 	delete w;
 	cout << "Created 2d Laplace filter" << endl;
+}
+
+filter_laplace_1d::filter_laplace_1d(int dir)
+{
+	int *w = new int[3];
+	w[0]= 1;
+	w[1]=-2;
+	w[2]= 1;
+	
+	if (dir==0) {this->set_data_from_ints(w,3,1,1,1,0,0);}
+	else if (dir==1) {this->set_data_from_ints(w,1,3,1,0,1,0);}
+	else {this->set_data_from_ints(w,1,1,3,0,0,1);}
+
+	delete w;
+	cout << "Created 1d Laplace filter" << endl;
+}
+
+filter_central_difference::filter_central_difference(int dir)
+{
+	int *w = new int[3];
+	w[0]=-1;
+	w[1]= 0;
+	w[2]= 1;
+	
+	if (dir==0) {this->set_data_from_ints(w,3,1,1,1,0,0);}
+	else if (dir==1) {this->set_data_from_ints(w,1,3,1,0,1,0);}
+	else {this->set_data_from_ints(w,1,1,3,0,0,1);}
+
+	delete w;
+	cout << "Created 1d central difference filter" << endl;
 }
 
 filter_gaussian::filter_gaussian(int size, int dir, float std_dev, int center)
