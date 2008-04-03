@@ -108,7 +108,7 @@ void FLTKuserIOpar_filepath::browse_button_cb(Fl_Widget *callingwidget, void *)
 {
 //	cout<<"browse_button_cb..."<<endl;
 
-	string last_path = pt_config::read<string>("latest_path");
+	string last_path = pt_config::read<std::string>("latest_path");
 	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::CREATE,"Choose file");
 //	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
     fc.show();
@@ -545,8 +545,14 @@ void FLTKuserIOpar_landmarks::saveSetCallback(Fl_Widget * callingwidget, void * 
 		return;
 	}
 
+	std::string last_path;
+	try 
+		{ last_path = pt_config::read<std::string>("latest_landmarks_path"); } 
+	catch ( pt_error )
+		{ last_path = "."; }
+
 	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_landmarks_path
-	Fl_File_Chooser chooser( ".", "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::CREATE, "Save landmarks" );
+	Fl_File_Chooser chooser(last_path.c_str(), "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::CREATE, "Save landmarks");
     chooser.ok_label( "Save" );	
 	chooser.show();
 		
@@ -558,6 +564,8 @@ void FLTKuserIOpar_landmarks::saveSetCallback(Fl_Widget * callingwidget, void * 
         pt_error::error ( "Save landmarks dialog cancel", pt_error::notice );
 		return;
 	}
+
+	pt_config::write("latest_landmarks_path", path_parent(chooser.value(1)));
 	
 	// add the prefix ".txt" if not present
 	string temp( chooser.value() );
@@ -641,10 +649,14 @@ void FLTKuserIOpar_landmarks::goCallback(Fl_Widget * callingwidget, void * thisL
 
 void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * thisLandmarks )
 {
-	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_landmarks_path
-	
-	Fl_File_Chooser chooser( ".", "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::SINGLE, "Load landmark file" );	
-    chooser.ok_label( "Load" );	
+	std::string last_path;
+	try 
+		{ last_path = pt_config::read<std::string>("latest_landmarks_path"); } 
+	catch ( pt_error )
+		{ last_path = "."; }
+
+	Fl_File_Chooser chooser(last_path.c_str(), "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::SINGLE, "Load landmark file");	
+    chooser.ok_label("Load");	
 	chooser.show();
 		
 	while ( chooser.shown() )
@@ -652,15 +664,17 @@ void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * 
 		
 	if ( chooser.value() == NULL )
 	{
-        pt_error::error( "Landmark load dialog cancel", pt_error::notice );
+        pt_error::error( "FLTKuserIOpar_landmarks::loadSetCallback():Landmark load dialog cancel", pt_error::notice );
 		return;
 	}
+
+	pt_config::write("latest_landmarks_path", path_parent(chooser.value(1)));
 
 	ifstream ifs( chooser.value() );
 	
 	if ( !ifs )
 	{
-		// TODO: use the pt_error class to generate an error message
+		pt_error::error("FLTKuserIOpar_landmarks::loadSetCallback(): unable to read file", pt_error::warning);
 		return;
 	}
 
@@ -671,7 +685,7 @@ void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * 
 	if ( points == NULL )
 	{
 		// TODO: create a new point_collection instead of just returning an error message
-		pt_error::error("FLTKuserIOpar_landmarks::resetSetCallback(): point_collection does not exist", pt_error::warning);
+		pt_error::error("FLTKuserIOpar_landmarks::loadSetCallback(): point_collection does not exist", pt_error::warning);
 		return;
 	}
 
@@ -719,7 +733,6 @@ void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * 
 	ifs.close();
 	
 	l->update_browser();
-	
 
 	std::vector<int> combinationIDs = rendermanagement.combinations_from_data ( l->get_landmarksID() );
 	
@@ -742,10 +755,7 @@ void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * 
 				break;
 			}
 		}
-	}
-		
-	
-	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1))); but change to latest_landmarks_path
+	}		
 }
 
 void FLTKuserIOpar_landmarks::browserCallback(Fl_Widget *callingwidget, void * thisLandmarks )

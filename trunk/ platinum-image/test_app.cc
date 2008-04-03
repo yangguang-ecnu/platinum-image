@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     platinum_init();
     
     //set up main window
-    Fl_Window window(800,600);
+    myFl_Overlay_Window window(800,600);
     
     //prepare Platinum for userIO creation
     platinum_setup(window);

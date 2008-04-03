@@ -49,6 +49,7 @@ class pt_config{
 			static T read(string key, string filename=DEFAULT_CONFIG_FILE);  // call as read<T>
 		template<class T> 
 			static void write(string key, T value, string filename=DEFAULT_CONFIG_FILE);  // call as read<T>
+
 /*
     private:
         std::string _M_msg;
@@ -77,26 +78,32 @@ class pt_config{
         virtual const char* 
             what() const throw();
 */
-    };
+};
 
 template<class T> 
-T pt_config::read(string key, string filename){
-	ConfigFile cf = ConfigFile(filename,"=","//");	
-	T res;
-	try{
-		res = cf.read<T>(key);
-	}catch(ConfigFile::key_not_found k){
-		pt_error::error("Exception - pt_config::read(key=\""+key+"\" filename=\""+filename+"\")",pt_error::debug);
-		return NULL;
+T pt_config::read(string key, string filename)
+{
+	ConfigFile cf = ConfigFile(filename, "=", "//");	
+	T t;
+
+	if ( cf.keyExists(key) )
+		{ t = cf.read<T>(key); }
+	else
+		{ throw pt_error("pt_config::read(): the key \"" + key + "\" is not found in \"" +  filename + "\"", pt_error::warning); }		
+	return t;
+}
+
+template<class T> 
+void pt_config::write(string key, T value, string filename)
+{
+	ConfigFile cf = ConfigFile(filename, "=", "//");
+	if ( cf.keyExists(key) )
+		{ cf.update_value_in_file(filename,key,value); }
+	else
+	{
+		cf.add<T>(key, value);
+		cf.save_to_file(filename);
 	}
-	return res;
 }
-
-template<class T> 
-void pt_config::write(string key, T value, string filename){
-	ConfigFile cf = ConfigFile(filename,"=","//");	
-	cf.update_value_in_file(filename,key,value);
-}
-
 
 #endif __ptconfig__
