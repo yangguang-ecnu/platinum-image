@@ -231,7 +231,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_fr
 //	h2->save_histogram_to_txt_file(base + "__c08_lung hist.txt",false,g);
 
 	//************************************
-	//thresholda på c + 2*s...
+	//thresholda pÃ‚ c + 2*s...
 	//************************************
 
 	image_binary<3> *right_lung = this->threshold(0,c+2*s);
@@ -438,7 +438,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_wate
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body, string base="")
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body, string base)
 {
 	cout<<"Erode body_mini..."<<endl;
 	image_binary<> *body_mini = new image_binary<>(bin_body);
@@ -520,7 +520,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_normalize_features_slicewise_by_g
 	}
 	if (body_lung_mask==NULL) {
 		body_lung_mask=new image_binary<3>(sum->appl_wb_segment_body_from_sum_image());
-		image_binary<3>* lungs=sum->appl_wb_segment_lungs_from_sum_image(body_lung_mask);
+		image_binary<3>* lungs=this->sum->appl_wb_segment_lungs_from_sum_image(body_lung_mask);
 		body_lung_mask->combine(lungs, COMB_SUB);
 		delete lungs;
 	}
@@ -569,7 +569,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 		image_scalar<float,3> *sum = new image_scalar<float,3>(feat1);
 		sum->combine(feat2, COMB_ADD);
 		body_lung_mask=sum->appl_wb_segment_body_from_sum_image();
-		image_binary<3>* lungs=sum->appl_wb_segment_lungs_from_sum_image(body_lung_mask);
+		image_binary<3>* lungs=this->sum->appl_wb_segment_lungs_from_sum_image(body_lung_mask);
 		body_lung_mask->combine(lungs, COMB_SUB);
 		delete sum; delete lungs;
 	}
@@ -662,7 +662,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 
 		// field[i] = field[i-1] + iteration_strength*(force / mean(abs(force)))
 		inh_map->mask_out(body_lung_mask);
-		inh_map->scale_by_factor(iteration_strength/((inh_map->get_sum_of_voxels(true, body_lung_mask))/bodysize)); // oklart varför
+		inh_map->scale_by_factor(iteration_strength/((inh_map->get_sum_of_voxels(true, body_lung_mask))/bodysize)); // oklart varfË†r
 		field->combine(inh_map, COMB_ADD);
 		field->data_has_changed();
 			
@@ -674,7 +674,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 		}
 		delete inh_map;
 	
-		//Beräkna ekv (7) i SIM-paper
+		//Berâ€°kna ekv (7) i SIM-paper
 		//feat1_corr->fill(0); feat2_corr->fill(0);
 		feat1_corr->fill(1); feat2_corr->fill(1);
 		feat1_corr->combine(field, COMB_ADD); feat2_corr->combine(field, COMB_ADD);

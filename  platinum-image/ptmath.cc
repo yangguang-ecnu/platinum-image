@@ -665,7 +665,7 @@ Matrix2D cov(const std::vector<Vector2D> & x)
 		{ sx += outer_product(*itr - xmean, *itr - xmean); }
 
 	sx /= (x.size() - 1);
-		
+
 	return sx;
 }
 
@@ -739,7 +739,7 @@ double invF(const double p, const double a, const double b)
 { 
 	// Return inverse cumulative distribution function. 
 	if ( p <= 0.0 || p >= 1.0 )
-		{ pt_error::error("invcdf(): argument out of range", pt_error::serious); }
+		{ pt_error::error("invF(): argument out of range", pt_error::serious); }
 		
 	double x = invIncompleteBeta(p, 0.5 * a, 0.5 * b); 
 	return b * x / (a * (1.0 - x));
@@ -786,9 +786,9 @@ double logGamma(double x)
 double incompleteBeta(const double a, const double b, const double x)
 { 
 	if ( a <= 0.0 || b <= 0.0 )
-		{ pt_error::error("betai(): argument out of range", pt_error::serious); }
+		{ pt_error::error("incompleteBeta(): argument out of range", pt_error::serious); }
 	if ( x < 0.0 || x > 1.0 ) 
-		{ pt_error::error("betai(): argument out of range", pt_error::serious); }
+		{ pt_error::error("incompleteBeta(): argument out of range", pt_error::serious); }
 
 	if ( x == 0.0 || x == 1.0 )
 		{ return x; }
