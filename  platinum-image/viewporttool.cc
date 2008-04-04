@@ -259,7 +259,15 @@ void nav_tool::handle(viewport_event &event)
 			viewmanagement.show_point_by_combination ( mouse3d, myRenderer->combination_id() ); //jk-ööö
 		}
 	}
-    
+	
+	if ( event.type() == pt_event::focus_viewports_center )
+	{	// double click and shift
+		std::cout << "Focus and center" << std::endl;
+		std::vector<int> mouse2d = event.mouse_pos_local();
+		Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
+		viewmanagement.show_point_by_combination(mouse3d, myRenderer->combination_id(), -1);		
+	}
+
     if (!event.handled())
 	{
 		
