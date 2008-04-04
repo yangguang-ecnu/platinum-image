@@ -151,7 +151,11 @@ void FLTK_event::set_type ()
 	// left MB double click
 	if ( (state & FL_BUTTON1) && Fl::event_clicks() > 0 )
 	{	//  Fl::event_clicks returns non-zero if the most recent FL_PUSH or FL_KEYBOARD was a "double click"
-		type_ = focus_viewports;
+	
+		if ( state & FL_SHIFT )
+			{ type_ = focus_viewports_center; }
+		else
+			{ type_ = focus_viewports; }
 		Fl::event_clicks(0);	// set it to zero so that later code does not think an item was double-clicked
 	}
 	

@@ -48,6 +48,7 @@ public:
         draw,
         resize,
 		focus_viewports,	// focus all viewports at the coordinate where the mouse is (typically double LMB)
+		focus_viewports_center,
 		rotate
     }pt_event_type;
     typedef enum  { no_state,

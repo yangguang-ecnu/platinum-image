@@ -55,7 +55,7 @@ class viewmanager
         std::vector<viewport> viewports;
         bool irregular_tiles;
 		
-		void show_point_by_renderers ( const Vector3D & point, const std::vector<int> & rendererIDs, const unsigned int margin = 5 );	// show this point in each viewport connected to one of the renderer ids
+		void show_point_by_renderers ( const Vector3D & point, const std::vector<int> & rendererIDs, const int margin = 5 );	// show this point in each viewport connected to one of the renderer ids
 
     public:
         void setup_views(int virtualview, int windowwidth, int windowheight); // 0...antal som anv‰nds-1
@@ -93,9 +93,9 @@ class viewmanager
 		
 		viewport * get_viewport( int viewportID );	// return a viewport
 		
-		void viewmanager::show_point_by_combination ( const Vector3D & point, const int combinationID,  const unsigned int margin = 5 );	// show this point in all viewports that has at least on of ids in combinationIDs active
-	
-		void viewmanager::show_point_by_data ( const Vector3D & point, const int dataID, const unsigned int margin = 5 );	// show this point in all viewports that has the dataID active
+		// if the margin is set to -1 the point will always be centered
+		void viewmanager::show_point_by_combination ( const Vector3D & point, const int combinationID,  const int margin = 5 );	// show this point in all viewports that has at least on of ids in combinationIDs active
+		void viewmanager::show_point_by_data ( const Vector3D & point, const int dataID, const int margin = 5 );				// show this point in all viewports that has the dataID active
 																									
     };
 

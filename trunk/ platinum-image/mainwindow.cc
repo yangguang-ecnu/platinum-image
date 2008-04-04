@@ -130,8 +130,8 @@ void platinum_init ()
 
     }
 
-void platinum_setup (myFl_Overlay_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
-//void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
+//void platinum_setup (myFl_Overlay_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
+void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
     {
     const int win_w = window.w();
     const int win_h = window.h();

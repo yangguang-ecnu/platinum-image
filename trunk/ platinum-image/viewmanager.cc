@@ -468,7 +468,7 @@ viewport * viewmanager::get_viewport( int viewportID )
 	return NULL;
 }
 
-void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::vector<int> & rendererIDs, const unsigned int margin )
+void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::vector<int> & rendererIDs, const int margin )
 {
 
 	for ( std::vector<int>::const_iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
@@ -488,8 +488,8 @@ void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::v
 		
 		Vector3D at = geometry->look_at;
 
-		if ( point_in_view[0] < 0 + margin || point_in_view[0] > sx - margin || point_in_view[1] < 0 + margin || point_in_view[1] > sy - margin )
-		{	// the point is outside the viewport margin -> show the plane of the point AND center the point 
+		if ( margin == -1 || point_in_view[0] < 0 + margin || point_in_view[0] > sx - margin || point_in_view[1] < 0 + margin || point_in_view[1] > sy - margin )
+		{	// the margin is -1 OR the point is outside the viewport margin -> show the plane of the point AND center the point 
 			tmp = point;
 		}
 		else
@@ -510,14 +510,24 @@ void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::v
 
 }
 
-void viewmanager::show_point_by_combination ( const Vector3D & point, const int combinationID,  const unsigned int margin )
+void viewmanager::show_point_by_combination ( const Vector3D & point, const int combinationID,  const int margin )
 {
 	std::vector<int> dataIDs = rendermanagement.data_from_combination ( combinationID );	// get all data ids in the combination
 	std::vector<int> rendererIDs = rendermanagement.renderers_from_data ( dataIDs );		// get the renderers that is connected to at least one of the images
+	const int id = 	rendermanagement.renderer_from_combination(combinationID);				// id of the active viewport
+	// remove the id of the active viewport from the vector to prevent it from being updated
+	for ( std::vector<int>::iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
+	{
+		if ( *itr == id )
+		{
+			itr = rendererIDs.erase(itr);
+			break;
+		}
+	}
 	show_point_by_renderers ( point, rendererIDs, margin );
 }
 
-void viewmanager::show_point_by_data ( const Vector3D & point, const int dataID, const unsigned int margin )
+void viewmanager::show_point_by_data ( const Vector3D & point, const int dataID, const int margin )
 {
 	std::vector<int> rendererIDs = rendermanagement.renderers_from_data ( dataID );		// return any renderer connected to this data id
 	show_point_by_renderers ( point, rendererIDs, margin );
