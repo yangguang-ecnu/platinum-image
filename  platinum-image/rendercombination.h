@@ -37,7 +37,8 @@ BLEND_OVERWRITE=0,
 BLEND_MAX,
 BLEND_MIN,
 BLEND_AVG,
-BLEND_TINT, NUM_BLEND_MODES ,
+BLEND_TINT,
+BLEND_GREY_PLUS_RED, NUM_BLEND_MODES,
 RENDER_THRESHOLD};  //RENDER_THRESHOLD is not user-selectable, used internally 
                     //for rendering threshold overlays
 

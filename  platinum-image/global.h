@@ -44,7 +44,7 @@
 #define RGBpixmap_bytesperpixel 3
 #define RGBApixmap_bytesperpixel 4
 
-#define IMGELEMCOMPTYPE unsigned char
+#define IMGELEMCOMPTYPE unsigned char	//image element computer type...
 #define IMGELEMCOMPMAX 255.0
 #define RADDR 0
 #define GADDR 1

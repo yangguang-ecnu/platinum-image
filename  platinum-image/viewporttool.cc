@@ -232,6 +232,7 @@ void nav_tool::handle(viewport_event &event)
 
     if ( event.state() == pt_event::begin )
 	{
+        cout<<"nav_tool.. begin..."<<endl;
 //		cout<<"(pt_event::begin)"<<endl;
         event.grab();
 		
@@ -293,6 +294,7 @@ void nav_tool::handle(viewport_event &event)
             case pt_event::adjust:	// zoom
                 if ( event.state() == pt_event::iterate)
 				{
+                    cout<<"nav_tool_zoom..."<<endl;
                     event.grab();
 //                    cout<<"("<<mouse[1]<<","<<dragLast[1]<<") "<<1+(mouse[1]-dragLast[1])*zoom_factor<<endl;
 
@@ -338,7 +340,8 @@ void nav_tool::handle(viewport_event &event)
 					myRenderer->wheretorender->dir = dir;
 
 					fvp->needs_rerendering();
-					refresh_by_image_and_direction(); //redraws slice locators in other viewports //TODO: use fl_overlays
+//					refresh_by_image_and_direction(); //redraws slice locators in other viewports //TODO: use fl_overlays
+					this->refresh_overlay_by_image_and_direction();
 
 				/*	
 					image_base * top;
@@ -381,7 +384,8 @@ void nav_tool::handle(viewport_event &event)
                     
                     fvp->needs_rerendering();
 
-					refresh_by_image_and_direction(); //redraws slice locators in other viewports //TODO: use fl_overlays
+//					refresh_by_image_and_direction(); //redraws slice locators in other viewports //TODO: use fl_overlays
+					this->refresh_overlay_by_image_and_direction();
 				}
 			//NOTE: no break, update hovering also
 				
@@ -483,6 +487,20 @@ void nav_tool::refresh_by_image_and_direction()
 		viewmanagement.refresh_viewports_from_geometry( *itr ) ;
 	}
 }
+
+void nav_tool::refresh_overlay_by_image_and_direction()
+{
+	cout<<"refresh_overlay_by_image_and_direction..."<<endl;
+	std::vector<int> geometryIDs = rendermanagement.geometryIDs_by_image_and_direction( myRenderer->combination_id() );
+	cout<<"geometryIDs.size()="<<geometryIDs.size()<<endl;
+
+	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
+	{
+		cout<<"*itr="<<*itr<<endl;
+		viewmanagement.refresh_overlays_from_geometry( *itr ) ;
+	}
+}
+
 
 void nav_tool::move_voxels( int x, int y, int z )
 {

@@ -396,4 +396,46 @@ void transfer_spline<ELEMTYPE >::transferchart_spline::update ()
 	this->redraw();
 }
 
+
+template <class ELEMTYPE>
+transfer_scalar_to_RGB_linear<ELEMTYPE >::transfer_scalar_to_RGB_linear(image_storage <ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
+{
+    //pane->choice ();
+    Fl_Group * frame = this->pane;
+    frame->resize(0,0,270,30);
+    frame->resizable(NULL);
+    frame->end();
+	
+	colornode cn1 = colornode(this->source->get_min(),0,0,0);
+	colornode cn2 = colornode(float(this->source->get_max()+this->source->get_min())/2.0,255,0,0);
+	colornode cn3 = colornode(this->source->get_max(),255,255,255);
+	
+	vector<colornode> v;
+
+	v.push_back(cn1);
+	v.push_back(cn2);
+	v.push_back(cn3);
+	map = colormap(v);
+	map.print_all();
+
+//    this->update();
+}
+template <class ELEMTYPE >
+void transfer_scalar_to_RGB_linear<ELEMTYPE>::get (ELEMTYPE v, RGBvalue &p)
+    {
+		//Return the right color....
+		IMGELEMCOMPTYPE r=0;
+		IMGELEMCOMPTYPE g=0;
+		IMGELEMCOMPTYPE b=0;
+		map.get_color(v,r,g,b);
+		p.set_rgb(r,g,b);
+/*
+		float mi = this->source->get_min();
+		float ma = this->source->get_max();
+		float mean = (ma+mi)/2.0;
+
+		p.set_mono( 255*(v- mi)/(ma-mi) );
+*/
+	}
+
 #endif

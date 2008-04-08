@@ -43,13 +43,21 @@ const IMGELEMCOMPTYPE color_base::mono()
     {
     return (static_cast<IMGELEMCOMPTYPE>(0.3*r()+0.6*g()+0.1*b()));
     }
-
+/*
+RGBvalue::RGBvalue(IMGELEMCOMPTYPE r_,IMGELEMCOMPTYPE g_,IMGELEMCOMPTYPE b_)
+	{
+    r(r_);
+    g(g_);
+    b(b_);
+	}
+*/
 RGBvalue::RGBvalue(const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_): color_base()
     {
     r(r_);
     g(g_);
     b(b_);
     }
+
 
 RGBvalue::RGBvalue (const IMGELEMCOMPTYPE* p)
     {
@@ -92,3 +100,29 @@ RGBAvalue::RGBAvalue (const IMGELEMCOMPTYPE i, const IMGELEMCOMPTYPE a_): color_
     {
     a(a_);
     }
+
+
+
+
+
+colornode::colornode():RGBvalue()
+{
+	position=0;
+}
+
+/*
+//TODO: ööö: FAN: 2 overloads have no legal conversion for 'this' pointer...
+colornode::colornode(colornode const &c)//:RGBvalue(c.r(),c.g(),c.b()) 
+{
+	const IMGELEMCOMPTYPE rr = c.r();
+//	this->r( c.r() );
+//	this->g( c.g() );
+//	this->b( c.b() );
+	this->position = c.position;
+}
+*/
+
+colornode::colornode(float pos, IMGELEMCOMPTYPE r, IMGELEMCOMPTYPE g, IMGELEMCOMPTYPE b):RGBvalue(r,g,b)
+{
+	position = pos;
+}

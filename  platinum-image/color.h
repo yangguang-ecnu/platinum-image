@@ -82,6 +82,7 @@ class RGBvalue:public color_base
         IMGELEMCOMPTYPE values [3];
     public:
         RGBvalue () {}
+//        RGBvalue (IMGELEMCOMPTYPE r_,IMGELEMCOMPTYPE g_,IMGELEMCOMPTYPE b_);
         RGBvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_);
         RGBvalue (const IMGELEMCOMPTYPE i) : color_base (i) {};
         RGBvalue (const IMGELEMCOMPTYPE* p); //pixel pointer constructor
@@ -138,11 +139,16 @@ class RGBAvalue:public color_base
             {values[AADDR] = a_;}
     };
 
-class colornode:public HSVvalue
+class colornode:public RGBvalue
     {
     protected:
-        int position; // what voxel/pixel/... value this color corresponds to
-    public:
+
+	public:
+		colornode();
+//		colornode(colornode const &c);
+		colornode(float pos, IMGELEMCOMPTYPE r, IMGELEMCOMPTYPE g, IMGELEMCOMPTYPE b);
+        float position; // what voxel/pixel/... value this color corresponds to
+
         // convert from HSV - behövs EFTER interpolation - kunde vara en fristående funktion men passar här
         // dessa behöver "vector" så vi kan sortera arrayen
         // void operator=(const color &k) { }; // DEFAULT OPERATOR OK

@@ -112,6 +112,7 @@ public:
 	void invert();
 	Vector3D get_point_of_intersection(line3D line);
 	line3D get_line_of_intersection(plane3D plane);
+	line2D get_projected_line(line3D line);
 
 protected:
 	Vector3D point;
