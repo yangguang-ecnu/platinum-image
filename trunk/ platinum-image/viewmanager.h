@@ -81,7 +81,9 @@ class viewmanager
         void refresh_viewports_after_toolswitch();
         void refresh_viewports_from_combination(int c);
         void refresh_viewports_from_geometry(int g);
+//        void refresh_viewports_from_data_id(int id);
         void refresh_overlays();
+        void refresh_overlays_from_geometry(int g);
 
         int get_viewport_id(int v, int h, int virtualview);
         int get_renderer_id(int viewportid);

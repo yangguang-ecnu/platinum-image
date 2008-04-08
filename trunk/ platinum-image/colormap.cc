@@ -22,3 +22,41 @@
 // färgsamples som finns. Kan omvandla RGB <-> HSV 
 // All interpolering mm i HSV (inte RGB)
 //
+
+colormap::colormap()
+{
+	colors = std::map<float,colornode>();
+}
+
+colormap::colormap(std::vector<colornode> c)
+{
+	for(int i=0;i<c.size();i++){
+		colors[c[i].position] = c[i];
+	}
+	print_all();
+}
+
+void colormap::set_color(float position, IMGELEMCOMPTYPE r, IMGELEMCOMPTYPE g, IMGELEMCOMPTYPE b)
+{
+//	colors.insert(position,);
+}
+
+void colormap::get_color(float position, IMGELEMCOMPTYPE &r, IMGELEMCOMPTYPE &g, IMGELEMCOMPTYPE &b){
+	print_all;
+	std::map<float,colornode>::iterator low = colors.lower_bound( position );
+	std::map<float,colornode>::iterator high = colors.upper_bound( position );
+	float dist = high->first - low->first;
+	r = low->second.r() + (position - low->first)/dist * (high->second.r() - low->second.r());
+	g = low->second.g() + (position - low->first)/dist * (high->second.g() - low->second.g());
+	b = low->second.b() + (position - low->first)/dist * (high->second.b() - low->second.b());
+}
+ // returns RGB at the interpolated position
+
+
+void colormap::print_all()
+{
+	std::map<float,colornode>::iterator iter;
+	for( iter = colors.begin(); iter != colors.end(); ++iter ) {
+		std::cout << "Key: '" << iter->first << "', Value: " << iter->second.r() << std::endl; 
+	}
+}

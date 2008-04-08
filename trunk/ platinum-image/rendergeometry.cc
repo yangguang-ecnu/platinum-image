@@ -76,3 +76,18 @@ Vector3D rendergeometry::get_n()
 	Vector3D N = get_N();
 	return N / N.GetNorm();
 }
+
+line3D rendergeometry::get_physical_line_of_intersection(rendergeometry *rg2)
+{
+	plane3D p = plane3D(this->look_at,this->get_n());
+	plane3D p2 = plane3D(rg2->look_at,rg2->get_n());
+	return p.get_line_of_intersection(p2);
+}
+
+line2D rendergeometry::get_physical_line_of_intersection_projected(rendergeometry *rg2)
+{
+	line3D l = get_physical_line_of_intersection(rg2);
+	plane3D p = plane3D(this->look_at,this->get_n());
+	return p.get_projected_line(l);
+}
+

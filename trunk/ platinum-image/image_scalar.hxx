@@ -1143,10 +1143,15 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_ITK(Vector3D radius)
 	r[2] = radius[2];
 
 	filter->SetRadius(r);
+	cout<<"before -->ITK..."<<clock()<<endl;
 	filter->SetInput(this->get_image_as_itk_output());
+	cout<<"after..."<<clock()<<endl;
+	cout<<"before Update()"<<clock()<<endl;
 	filter->Update();
-
+	cout<<"after..."<<clock()<<endl;
+	cout<<"before --> Pt"<<clock()<<endl;
 	this->replicate_itk_to_image(filter->GetOutput());
+	cout<<"after..."<<clock()<<endl;
 	//JK - verify... ööö
 }
 

@@ -64,5 +64,9 @@ class rendergeometry
 		Vector3D get_N();	// return normal vector
 		
 		Vector3D get_n();	// return unit normal vector
+
+		line3D get_physical_line_of_intersection(rendergeometry *rg2);
+		line2D get_physical_line_of_intersection_projected(rendergeometry *rg2);
+
 	};
 #endif

@@ -29,7 +29,8 @@
 #include "color.h"
 
 #include <iostream>
-#include <vector>
+//#include <vector>
+#include <map>
 
 #include "global.h"
 
@@ -39,12 +40,17 @@
 class colormap
     {
     private:
-//        std::vector<colornode> colors;
-    public:
-        void set_color(int position, float r, float g, float b);    // glöm inte att sortera/stoppa in på rätt plats
-        void get_color(int position, float &r, float &g, float &b); // returns RGB at the interpolated position
+        std::map<float,colornode> colors;
+
+	public:
+		colormap();
+		colormap(std::vector<colornode> c);
+        void set_color(float position, IMGELEMCOMPTYPE r, IMGELEMCOMPTYPE g, IMGELEMCOMPTYPE b);    // glöm inte att sortera/stoppa in på rätt plats
+        void get_color(float position, IMGELEMCOMPTYPE &r, IMGELEMCOMPTYPE &g, IMGELEMCOMPTYPE &b); //TODO: returns RGB at the interpolated position
                                                                     // - no use to return an instance of color
-        void remove_color(int position);
+        void remove_color(float position);
         void initialize_colortable();  // always set colors at -oo, oo  in addition to user input
+		void print_all();
     };
+
 #endif

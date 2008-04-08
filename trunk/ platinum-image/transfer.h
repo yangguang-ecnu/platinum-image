@@ -34,6 +34,7 @@
 #include <FL/fl_draw.H>
 
 #include "color.h"
+#include "colormap.h"
 #include "FLTKutilities.h"
 #include "points_seq_func1D.h"	//used for spline/linear knots
 #include "transferfactory.h"
@@ -146,38 +147,37 @@ public:
 
     class transferchart :protected Fl_Widget
     {
-protected:
-        friend class               transfer_interpolated;
-        unsigned long              lookupSize;
-        float                      
-            lookupStart,
-            lookupScale,
-            lookupEnd; //redundant, but allows a faster implementation of get(...)
-        IMGELEMCOMPTYPE                 * lookup ;
-        histogram_1D<ELEMTYPE >         * histogram;
-        IMGELEMCOMPTYPE                 * imgdata;
-        Fl_RGB_Image			        * histimg;	//keeps the histogram background layer
+	protected:
+        friend class			transfer_interpolated;
+        unsigned long			lookupSize;
+        float					lookupStart, lookupScale, lookupEnd; //redundant, but allows a faster implementation of get(...)
+        IMGELEMCOMPTYPE         *lookup ;
+        histogram_1D<ELEMTYPE > *histogram;
+        IMGELEMCOMPTYPE			*imgdata;
+        Fl_RGB_Image			*histimg;	//keeps the histogram background layer
 //        points_seq_func1D<float,float>	intensity_knots;		//used for anchor points handling and interpolation 
-        points_seq_func1D<float,unsigned char>	intensity_knots;		//used for anchor points handling and interpolation 
-                                                                //knots are of course also wanted for R,G,B, respectively.
+        points_seq_func1D<float,unsigned char>	intensity_knots;	//used for anchor points handling and interpolation 
+																	//knots are of course also wanted for R,G,B, respectively.
+
 
         void calc_lookup_params (int newSize = 0);
-        virtual void update () = 0;
+        virtual void update() = 0;
+        transferchart(histogram_1D<ELEMTYPE > *, int, int, int, int);
+
+	public:
+		virtual ~transferchart();
         
-        transferchart (histogram_1D<ELEMTYPE > *, int, int, int, int);
-public:
-            virtual ~transferchart();
-        
-        void draw ();
+        void draw();
 		int handle(int);
 	};
 
 protected:
-    transferchart * chart;
-    transfer_interpolated (image_storage <ELEMTYPE > * s);
+    transferchart *chart;
+    transfer_interpolated(image_storage <ELEMTYPE > * s);
+
 public:
-        virtual ~transfer_interpolated();
-    void get (const ELEMTYPE v, RGBvalue &p);
+	virtual ~transfer_interpolated();
+    void get(const ELEMTYPE v, RGBvalue &p);
     virtual void update();
 };
 
@@ -210,6 +210,20 @@ class transfer_spline: public transfer_interpolated <ELEMTYPE >
             };
 public:
 	transfer_spline (image_storage <ELEMTYPE > * s);
+};
+
+
+template <class ELEMTYPE >
+class transfer_scalar_to_RGB_linear: public transfer_base <ELEMTYPE >
+{
+protected:
+//	Some_FL_color_vector_widget *w;
+	colormap map;
+public:
+	transfer_scalar_to_RGB_linear(image_storage <ELEMTYPE > *);
+	void get(const ELEMTYPE v, RGBvalue &p);
+//	void update(string slider_label);				//Updates intensity/contrast parameters from FLTK sliders ...
+//	static void slider_cb(Fl_Widget *o, void *v); //slicer callback
 };
 
 #include "transferfactory.hxx"

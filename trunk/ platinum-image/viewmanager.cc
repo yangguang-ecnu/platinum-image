@@ -385,20 +385,39 @@ void viewmanager::refresh_viewports_from_geometry(int g)
         viewports[i].refresh_from_geometry(g);
         }
     }
-
+/*
+void viewmanager::refresh_viewports_from_data_id(int id)
+{
+	viewports[0].refresh_from_combination(..refresh_from_geometry(g);
+ 	cout<<"refresh_viewports_from_data_id("<<id<<")... "<<endl;
+	std::vector<int> combs = rendermanagement.combinations_from_data(id);
+    for (unsigned int c=0; c < combs.size(); c++) 
+       {
+			cout<<"comb="<<c<<endl;
+			view
+			refresh_viewports_from_combination(c);
+        }
+}
+*/
 void viewmanager::refresh_overlays()
 {
-	cout<<"refresh_overlays()... ";
-
-    for (unsigned int i=0; i < viewports.size(); i++) 
-        {
-			cout<<i<<" ";
-			viewports[i].refresh_overlay();
-        }
-
+//	cout<<"refresh_overlays()... ";
+    for(unsigned int i=0; i < viewports.size(); i++){
+		cout<<i<<" ";
+		viewports[i].refresh_overlay();
+	}
 	cout<<endl;
-
 }
+
+void viewmanager::refresh_overlays_from_geometry(int g)
+{
+//	cout<<"refresh_overlays_from_geometry()... "<<endl;
+    for (unsigned int i=0; i < viewports.size(); i++) {
+        viewports[i].refresh_overlay_from_geometry(g);
+    }
+	cout<<endl;
+}
+
 
 void viewmanager::refresh_viewports()
     {
@@ -515,8 +534,10 @@ void viewmanager::show_point_by_combination ( const Vector3D & point, const int 
 	std::vector<int> dataIDs = rendermanagement.data_from_combination ( combinationID );	// get all data ids in the combination
 	std::vector<int> rendererIDs = rendermanagement.renderers_from_data ( dataIDs );		// get the renderers that is connected to at least one of the images
 	const int id = 	rendermanagement.renderer_from_combination(combinationID);				// id of the active viewport
+
 	// remove the id of the active viewport from the vector to prevent it from being updated
-	for ( std::vector<int>::iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
+	// Redraw its overlay first...
+/*	for ( std::vector<int>::iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
 	{
 		if ( *itr == id )
 		{
@@ -524,7 +545,7 @@ void viewmanager::show_point_by_combination ( const Vector3D & point, const int 
 			break;
 		}
 	}
-	show_point_by_renderers ( point, rendererIDs, margin );
+*/	show_point_by_renderers ( point, rendererIDs, margin );
 }
 
 void viewmanager::show_point_by_data ( const Vector3D & point, const int dataID, const int margin )

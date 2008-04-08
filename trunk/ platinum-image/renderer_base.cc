@@ -161,6 +161,22 @@ std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,
     return view;
 }
 
+std::vector<float> renderer_base::world_dir_to_view_dir (rendergeometry * g,int sx,int sy,const Vector3D w_dir)
+{
+    std::vector<float> view;
+	int vmin = std::min (sx,sy);
+   
+    Matrix3D world_to_view_matrix;
+    world_to_view_matrix = g->view_to_world_matrix(vmin).GetInverse();
+    
+    Vector3D toView = world_to_view_matrix * (w_dir);
+    	
+    view.push_back(toView[0]);
+    view.push_back(toView[1]);
+    return view;
+}
+
+
 std::vector<int> renderer_base::world_to_view (int sx,int sy,const Vector3D wpos) const
 {
     return world_to_view(wheretorender,sx,sy,wpos);

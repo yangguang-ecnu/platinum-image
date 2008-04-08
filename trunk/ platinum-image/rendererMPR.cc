@@ -53,13 +53,8 @@ void rendererMPR::connect_image(int vHandlerID)
 
 void rendererMPR::refesh_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h)
 {
-//ööö
-	//wheretorender //where
-	//imagestorender //what
-	//draw_slice_locators(pixels, rgb_sx, rgb_sy, where, what);
-
+//	cout<<"rendererMPR::refesh_overlay.."<<endl;
 	draw_slice_locators_to_overlay(vp_offset_x, vp_offset_y,  vp_w, vp_h, wheretorender, imagestorender);
-
 }
 
 Vector3D rendererMPR::view_to_world(int vx, int vy,int sx,int sy) const
@@ -128,6 +123,7 @@ bool rendererMPR::supports_mode (int m)
         case BLEND_MIN:
         case BLEND_AVG:
         case BLEND_TINT:
+        case BLEND_GREY_PLUS_RED:
         case RENDER_THRESHOLD:
             return true;
             break;
@@ -165,6 +161,8 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         //*** no images: exit ***
         return;
         }
+
+	cout<<"render_ ( what->get_id()="<<what->get_id()<<" )"<<endl;
     
     //*** Variables ***
         
@@ -258,8 +256,8 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             int tint_r=(((the_image % 3) ==0) ^ (the_image > 2));
             int tint_b=(((the_image % 3) ==1) ^ (the_image > 2));	
             int tint_g=(((the_image % 3) ==2) ^ (the_image > 2));
-            
-            //pixel fill start & end points, used in common blend mode code
+        
+           //pixel fill start & end points, used in common blend mode code
             long fill_x_start,
                 fill_x_end,
                 fill_y_start,
@@ -408,6 +406,22 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                                         pixels[RGBpixmap_bytesperpixel *
                                             (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += tint_b*value.mono();
                                         break;
+
+									case BLEND_GREY_PLUS_RED:
+										if(the_image==0){ //if first image --> Grey scale
+//											value.r(value.r()/vol_count);
+//											value.g(value.g()/vol_count);
+//											value.b(value.b()/vol_count);
+                                            value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
+										}else{ //--> weight in the red direction...
+//											pixels[RGBpixmap_bytesperpixel *
+//												(rgb_fill_x+rgb_sx*rgb_fill_y)] *= value.r()/255; // /vol_count
+	                                        pixels[RGBpixmap_bytesperpixel *
+		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
+			                                pixels[RGBpixmap_bytesperpixel *
+				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
+										}
+                                        break;
                                         
                                     case RENDER_THRESHOLD:
                                         if (threshold_value)
@@ -451,7 +465,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 	} //per-image loop
     	
 
-	draw_slice_locators(pixels, rgb_sx, rgb_sy, where, what);
+//	draw_slice_locators(pixels, rgb_sx, rgb_sy, where, what);
 
 
     #pragma mark *** per-point render loop ***
@@ -695,39 +709,89 @@ void rendererMPR::draw_slice_locators ( uchar *pixels, int sx, int sy, rendergeo
 
 void rendererMPR::draw_slice_locators_to_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, rendergeometry * where, rendercombination * what)
 {
-	//JK
+//	cout<<"rendererMPR-draw_slice_locators_to_overlay... "<<endl;
+
 	std::vector<rendergeometry *> geoms = rendermanagement.geometries_by_image_and_direction( what->get_id() );	// get geometries that holds at least one of the images in the input combination
-	cout<<"slice..."<<geoms.size()<<endl;
 
-	renderer_base *renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(where->get_id()) );	//because class/function is static
+	if(geoms.size()>0){
+		renderer_base *renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(where->get_id()) );	//because class/function is static
 
-	int smin = std::min(vp_w, vp_h);
-	
-	Vector3D vmin = renderer->view_to_world(smin, 0, vp_w, vp_h) - renderer->view_to_world(0, 0, vp_w, vp_h);
-	Vector3D a = where->get_N();
-	Vector3D b;
-	Vector3D c;
-	cout<<"a="<<a<<endl;
+		int smin = std::min(vp_w, vp_h);
+		Vector3D vmin = renderer->view_to_world(smin, 0, vp_w, vp_h) - renderer->view_to_world(0, 0, vp_w, vp_h);
+		//vmin contains the length of the smallest vp direction in world coordinates...
 
-	for(int i=0; i<geoms.size();i++){
-		b = geoms[i]->get_N();
-		cout<<"b="<<b<<endl;
-		c = CrossProduct(a, b);
-		cout<<"c="<<c<<endl;
-		c *= ( vmin.GetNorm() / c.GetNorm() ) / 2.0;
-		cout<<"c="<<c<<endl;
+		line3D phys_line;
+		line2D local_vp_line;
 
-		std::vector<int> p = world_to_view(where, vp_w, vp_h, geoms[i]->look_at);	// determine the position of one of the "other" planes in the active viewport
-		std::vector<int> v = world_to_view(where, vp_w, vp_h, c + geoms[i]->look_at);
-		
-		int dx = abs ( p[0] - v[0] ); //JK hm... this might be the source....
-		int dy = abs ( p[1] - v[1] );
-		cout<<"dx="<<dx<<endl;
-		cout<<"dy="<<dy<<endl;
+		for(int i=0; i<geoms.size();i++){
+			phys_line = where->get_physical_line_of_intersection(geoms[i]);
+			std::vector<int> view1 = world_to_view(where, vp_w, vp_h, phys_line.get_point());
+			std::vector<float> dir_loc = world_dir_to_view_dir (where,vp_w, vp_h,phys_line.get_direction());
+			local_vp_line.set_point(view1[0],view1[1]);
+			local_vp_line.set_direction(dir_loc[0],dir_loc[1]);
 
+			draw_overlay_line(vp_offset_x, vp_offset_y, vp_w, vp_h, local_vp_line);
+		}//for
+
+//		fl_rect( vp_offset_x+1, vp_offset_y+1, vp_w-2, vp_h-2, FL_YELLOW);
+
+	}//if
+}
+
+
+void rendererMPR::draw_overlay_line(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, line2D local_vp_line)
+{
+//	cout<<"draw_overlay_line..."<<endl;
+//	cout<<"local_vp_line="<<local_vp_line.get_point()<<" "<<local_vp_line.get_direction()<<endl;
+	Vector2D p = local_vp_line.get_point();
+	Vector2D d = local_vp_line.get_direction();
+
+	int x;
+	int y;
+	int x2;
+	int y2;
+
+	float dydx = float(d[1])/float(d[0]);
+	float dxdy = float(d[0])/float(d[1]);
+
+	fl_color(FL_RED);
+	if(d[0]==0){
+		x = p[0];
+		y = 0;
+		x2 = x;
+		y2 = vp_h;
+		if(x>=0 && x<=vp_w){ //make sure no drawing is made outside current vp... 
+			fl_line(vp_offset_x+x, vp_offset_y+y, vp_offset_x+x2, vp_offset_y+y2);
+		}
+	}else{
+		x = 0;
+		y = p[1] - dydx*p[0];
+		x2 = vp_w;
+		y2 = p[1] + dydx*(vp_w-p[0]);
+				
+		//remove drawing outside viewport (vp) in y-direction
+
+		if(y<0){ //drawing outside(above) upper left
+			x = p[0] - dxdy*p[1];
+			y = 0;
+		}
+		if(y2<0){
+			x2 = p[0] - dxdy*p[1];
+			y2 = 0;
+		}
+		if(y>vp_h){
+			x = p[0] + dxdy*(vp_h-p[1]);
+			y = vp_h-1;
+		}
+		if(y2>vp_h){
+			x2 = p[0] + dxdy*(vp_h-p[1]);
+			y2 = vp_h-1;
+		}
+
+//		cout<<"("<<x<<","<<y<<")   ("<<x2<<","<<y2<<")"<<endl;
+
+		fl_line(vp_offset_x+x, vp_offset_y+y, vp_offset_x+x2, vp_offset_y+y2);
 	}
-
-	fl_rect( vp_offset_x+10, vp_offset_y+10, vp_w-10, vp_h-10, FL_YELLOW);
 }
 
 

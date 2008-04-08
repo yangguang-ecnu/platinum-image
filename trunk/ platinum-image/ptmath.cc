@@ -100,14 +100,14 @@ line3D::line3D()
 
 line3D::line3D(Vector3D pnt, Vector3D dir)
 {
-	pt_error::error_if_false(dir[0]!=0 || dir[1]!=0 || dir[2]!=0, "Direction must be non-zero vector", pt_error::debug);
+	pt_error::error_if_false(dir[0]!=0 || dir[1]!=0 || dir[2]!=0, "line3D-Direction must be non-zero vector", pt_error::debug);
 	point = pnt;
 	direction = dir;
 }
 
 line3D::line3D(float point_x, float point_y, float point_z, float dir_x, float dir_y, float dir_z)
 {
-	pt_error::error_if_false(dir_x!=0 || dir_y!=0 || dir_z!=0, "Direction must be non-zero vector", pt_error::debug);
+	pt_error::error_if_false(dir_x!=0 || dir_y!=0 || dir_z!=0, "line3D-Direction must be non-zero vector", pt_error::debug);
 	point = create_Vector3D(point_x,point_y,point_z);
 	direction = create_Vector3D(dir_x, dir_y, dir_z);
 }
@@ -274,6 +274,27 @@ line3D plane3D::get_line_of_intersection(plane3D plane)
 	line3D line=line3D(pnt,dir);
 	return line;
 }
+
+line2D plane3D::get_projected_line(line3D line)
+{
+	cout<<"get_projected_line..."<<endl;
+	cout<<this->get_point()<<" "<<this->get_normal()<<endl;
+
+	Vector3D p1 = this->get_point_of_intersection(line);
+	cout<<"p1= "<<p1<<endl;
+	line3D tmp = line3D(p1+line.get_direction(),-this->get_normal());
+	cout<<"tmp= "<<tmp.get_point()<<" "<<tmp.get_direction()<<endl;
+	Vector3D p2 = this->get_point_of_intersection(tmp);
+	cout<<"p2= "<<p2<<endl;
+	line3D res2 = line3D(p1,p2-p1);
+	cout<<"res2= "<<res2.get_point()<<" "<<res2.get_direction()<<endl;
+	Vector3D a = res2.get_point();
+	Vector3D b = res2.get_direction();
+	line2D res = line2D(a[0],a[1],a[0]+b[0],a[1]+b[1]);
+	cout<<"-->"<<res.get_point()<<" "<<res.get_direction()<<endl;
+	return res;
+}
+
 
 bool convex_last_three_points(vector<Vector2D>::iterator end, bool lower)
 {

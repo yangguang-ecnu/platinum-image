@@ -62,9 +62,9 @@ private:
 
 	void draw_cursor(bool filledcenter);    // it's better that viewport draws the cursor
                                             //than cursor itself (drawing is ugly, FLTK-dependent; keep #renderingclasses down
-	void  draw_mousemode(int currentmode);
-	void  draw_coordinates(int x, int y);
-	void  draw_scolling_borders();
+	void draw_mousemode(int currentmode);
+	void draw_coordinates(int x, int y);
+	void draw_scolling_borders();
 
 	//void  reslice();                         // will call renderer_base::reslice(...) and
                                              //supply our bitmap pointer to the 2D- or 3D-renderer which
@@ -134,6 +134,7 @@ public:
     void refresh_from_combination (int c);      //!refresh if it uses the geometry specified by argument
     void refresh ();                            //!re-builds menu and makes viewport re-render and redraw eventually
     void refresh_overlay();                     //re-draws overlays
+	void refresh_overlay_from_geometry(int g);
     
     threshold_overlay * get_threshold_overlay (thresholdparvalue *);
 

@@ -50,6 +50,7 @@ class rendererMPR : public renderer_base
 		
 		static void draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry * where, rendercombination * what);
 		static void draw_slice_locators_to_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, rendergeometry * where, rendercombination * what);
+		static void draw_overlay_line(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, line2D local_vp_line);
 		
 		static int sgn(long a);
 		

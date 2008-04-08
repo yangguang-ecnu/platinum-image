@@ -289,9 +289,13 @@ factoryIdType rendermanager::get_renderer_type (int ID)
 }
 
 int rendermanager::get_combination_id(int rendererIndex)
-    {
-    return renderers[rendererIndex]->imagestorender->get_id();
-    }
+{
+	int c=-1;
+	if(rendererIndex>=0 && rendererIndex<renderers.size()){
+		c = renderers[rendererIndex]->imagestorender->get_id();
+	}
+	return c;
+}
 	
 int rendermanager::get_geometry_id(int rendererIndex)
     {

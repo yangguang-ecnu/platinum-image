@@ -72,7 +72,8 @@ const char * blend_mode_labels[] =
     "Max",
     "Min",
     "Average",
-    "Tint"
+    "Tint",
+    "Grey+Red" //JK
 };
 
 struct menu_callback_params
@@ -220,10 +221,23 @@ void viewport::refresh()
 
 void viewport::refresh_overlay()
 {
-//	this-> //what is my position....
-//	fl_rect(x()+50,y()+50,w()-100,h()-100,FL_BLUE);
-	//rendererID
-//	rendermanagement.get_renderer(rendererID)->refesh_overlay(x(), y(), w(), h());
+//	cout<<"vp-refresh_overlay... "<<endl;
+	rendermanagement.get_renderer(rendererID)->refesh_overlay(x(), y(), w(), h());
+
+	if (viewport_widget != NULL){
+		//needed for the update of the overlay region...
+	    viewport_widget->damage(FL_DAMAGE_ALL); 
+	}
+}
+
+void viewport::refresh_overlay_from_geometry(int g)
+{
+//	cout<<"vp-refresh_overlay_from_geometry()... "<<endl;
+	if(rendererIndex >= 0 && rendermanagement.get_geometry_id(rendererIndex) == g)
+	{
+	//refresh();
+	refresh_overlay();
+	}
 }
 
 void viewport::update_fbstring (FLTKviewport* f)
@@ -481,6 +495,8 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     
     for (m=0;m<NUM_BLEND_MODES;m++ )
         {
+		cout<<"m="<<m<<"/"<<NUM_BLEND_MODES<<endl;
+
         menu_callback_params * cbp=new menu_callback_params;
         cbp->mode=(blendmode)m;
         cbp->rend_index=rendererIndex;
@@ -588,6 +604,7 @@ void viewport::update_objects_menu()
                     menu_callback_params * p= new menu_callback_params;
                     p->rend_index=rendererIndex;
                     p->vol_id=base_menu[m].argument();  //image ID is stored in user data initially
+//					p->vport = this; //JK
                     
                     new_menu[m].callback((Fl_Callback *)toggle_image_callback);
                     new_menu[m].user_data(p);
@@ -615,21 +632,22 @@ void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
     rendermanagement.toggle_image(widget_user_data->rend_index,widget_user_data->vol_id);
 
 	// update all viewports that shows at least one of the images in the current viewport:
-		
-//	int combinationID = rendermanagement.get_combination_id( widget_user_data->rend_index );
-//		
-//	std::vector<int> geometryIDs = rendermanagement.geometries_by_image ( combinationID );				// return geometries that holds at least one of the images in the input combination
-//
-//	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
-//	{
-//		viewmanagement.refresh_viewports_from_geometry( *itr );
-//	}
+	int c_id = rendermanagement.get_combination_id(widget_user_data->rend_index);
+	if(c_id>=0){
+		viewmanagement.refresh_viewports_from_combination(c_id);
+		viewmanagement.refresh_overlays();
+		//JK also refresh other overlays...
+	}else{
+		viewmanagement.refresh_viewports(); //complicated to remember old settings... slow but simple solution... 
+	}
 
 	// TODO: only refresh viewports that holds the addded/removed image
 	// hur kan det aktuella bild id:et erhållas? undersök om det verkligen är en bild (dvs exkludera tex en point_collection)
 	// möjlig lösning är att jämföra de bilder combination innehåller före och efter toggle_image() 
-	viewmanagement.refresh_viewports();
 
+//	cout<<"vport_id= "<<widget_user_data->vport->get_id()<<endl;
+//	viewmanagement.refresh_viewports(); //time consuming to update all....
+//	widget_user_data->vport->refresh(); //occasionally results in an error...
 }
 
 Matrix3D viewport::get_direction()
@@ -646,15 +664,6 @@ void viewport::set_direction( const Matrix3D & dir )
     
     delete dir_p;
 	
-	// update all viewports that shows at least one of the images in the current viewport (slice locators)
-		
-	int combinationID = rendermanagement.get_combination_id( rendererIndex );
-	std::vector<int> geometryIDs = rendermanagement.geometries_by_image ( combinationID );		// return geometries that holds at least one of the images in the input combination
-
-	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
-	{
-		viewmanagement.refresh_viewports_from_geometry( *itr );
-	}
 }
 
 void viewport::set_direction( preset_direction direction ) 
@@ -744,6 +753,19 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
 {
     menu_callback_params * params = (menu_callback_params *) p;
 	params->vport->set_direction( params->direction );
+
+	params->vport->refresh();
+	viewmanagement.refresh_overlays();
+/*
+	// update all viewports that shows at least one of the images in the current viewport (slice locators)
+	int combinationID = rendermanagement.get_combination_id( params->rend_index );
+	std::vector<int> geometryIDs = rendermanagement.geometries_by_image ( combinationID );		// return geometries that holds at least one of the images in the input combination
+
+	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
+	{
+		viewmanagement.refresh_viewports_from_geometry( *itr );
+	}
+*/
 }
 
 void viewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
@@ -804,9 +826,13 @@ void viewport::rebuild_blendmode_menu ()//update checkmark for current blend mod
 			((menu_callback_params *)(blendmodemenu[m].argument()))->rend_index=rendererIndex;
 			
 			if (rendererIndex <0 || !rendermanagement.renderer_supports_mode(rendererIndex,m))
-				{blendmodemenu[m].deactivate();}
+				{
+					blendmodemenu[m].deactivate();
+				}
 			else
-				{blendmodemenu[m].activate();}
+				{
+					blendmodemenu[m].activate();
+				}
 			}
 		
 		if (rendererIndex >= 0)

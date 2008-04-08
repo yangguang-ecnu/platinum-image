@@ -202,6 +202,7 @@ void landmark_tool::handle(viewport_event &event)
 				fvp->needs_rerendering();
 				
 				refresh_by_image_and_direction();
+//				this->refresh_overlay_by_image_and_direction(); //JK speedup....
 			}
 		//NOTE: no break, update hovering also
 

@@ -65,7 +65,7 @@ void myFl_Overlay_Window::draw_overlay()
 //	cout<<"draw_overlay()..."<<endl;
 //	fl_color(FL_RED);
 //	fl_rect(20,20,40,20);
-//	viewmanagement.refresh_overlays();
+	viewmanagement.refresh_overlays();
 }
 
 
