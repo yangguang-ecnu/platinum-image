@@ -50,6 +50,9 @@ class image_binary : public image_label <IMAGEDIM>
 		{}
 
 
+	image_binary<IMAGEDIM>* get_subvolume_from_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size);
+	image_binary<IMAGEDIM>* get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2);
+
     // *** operations ***
 
     image_binary<IMAGEDIM> * logical_or(image_binary<IMAGEDIM> *input, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A OR B operation

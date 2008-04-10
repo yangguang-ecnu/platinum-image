@@ -125,13 +125,13 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_spline_ITK_3D(image_scalar<E
 	TransformType::MatrixType m;
 
 	typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::DirectionType d = ref_im->get_orientation_itk();
-	cout<<"m="<<endl;
+//	cout<<"m="<<endl;
 	for(int i=0;i<3;i++){
 		for(int j=0;j<3;j++){
 			m[i][j] = d[i][j];
-			cout<<m[i][j]<<" ";
+//			cout<<m[i][j]<<" ";
 		}
-		cout<<endl;
+//		cout<<endl;
 	}
 //	transform->SetRotationMatrix(m);
 //	transform->SetMatrix(m);
