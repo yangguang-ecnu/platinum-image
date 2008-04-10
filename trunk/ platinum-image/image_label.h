@@ -54,6 +54,10 @@ public:
 	image_label(image_binary<IMAGEDIM>* image1, image_binary<IMAGEDIM>* image2=NULL, image_binary<IMAGEDIM>* image3=NULL, image_binary<IMAGEDIM>* image4=NULL, image_binary<IMAGEDIM>* image5=NULL, const string name="");
 
     virtual void transfer_function(transfer_base<IMGLABELTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
+
+	image_label<IMAGEDIM>* get_subvolume_from_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size);
+	image_label<IMAGEDIM>* get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2);
+
 };
 
 template <int IMAGEDIM>

@@ -2248,6 +2248,39 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	return output;
 	}
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_integer<ELEMTYPE, IMAGEDIM>* image_integer<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size)
+{
+	return get_subvolume_from_region_3D(vox_pos[0],vox_pos[1],vox_pos[2],vox_pos[0]+vox_size[0],vox_pos[1]+vox_size[1],vox_pos[2]+vox_size[2]);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_integer<ELEMTYPE, IMAGEDIM>* image_integer<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2)
+{
+	cout<<"image_integer-get_subvolume_from_region_3D..."<<endl;
+
+	int nx=this->nx();
+	int ny=this->ny();
+	int nz=this->nz();
+	x1 = max(x1,0);	x2 = min(x2,nx);
+	y1 = max(y1,0);	y2 = min(y2,ny);
+	z1 = max(z1,0);	z2 = min(z2,nz);
+
+	image_integer<ELEMTYPE, IMAGEDIM>* res = new image_integer<ELEMTYPE, IMAGEDIM>(x2-x1+1, y2-y1+1, z2-z1+1);
+	res->set_parameters(this);
+	res->set_origin(this->get_physical_pos_for_voxel(x1,y1,z1));
+
+	for (int z=z1, res_z=0; z<=z2; z++, res_z++){
+		for (int y=y1, res_y=0; y<=y2; y++,res_y++){
+			for (int x=x1, res_x=0; x<=x2; x++,res_x++){
+				res->set_voxel(res_x,res_y,res_z, this->get_voxel(x,y,z));
+			}
+		}
+	}
+	return res;
+}
+
 template <class ELEMTYPE, int IMAGEDIM>
 int image_integer<ELEMTYPE, IMAGEDIM>::findNode(int e, int* par_node)
 	{

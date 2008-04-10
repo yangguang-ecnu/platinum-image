@@ -495,7 +495,7 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     
     for (m=0;m<NUM_BLEND_MODES;m++ )
         {
-		cout<<"m="<<m<<"/"<<NUM_BLEND_MODES<<endl;
+//		cout<<"m="<<m<<"/"<<NUM_BLEND_MODES<<endl;
 
         menu_callback_params * cbp=new menu_callback_params;
         cbp->mode=(blendmode)m;

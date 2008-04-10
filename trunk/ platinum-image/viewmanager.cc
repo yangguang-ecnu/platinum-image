@@ -403,10 +403,10 @@ void viewmanager::refresh_overlays()
 {
 //	cout<<"refresh_overlays()... ";
     for(unsigned int i=0; i < viewports.size(); i++){
-		cout<<i<<" ";
+//		cout<<i<<" ";
 		viewports[i].refresh_overlay();
 	}
-	cout<<endl;
+//	cout<<endl;
 }
 
 void viewmanager::refresh_overlays_from_geometry(int g)
@@ -415,7 +415,7 @@ void viewmanager::refresh_overlays_from_geometry(int g)
     for (unsigned int i=0; i < viewports.size(); i++) {
         viewports[i].refresh_overlay_from_geometry(g);
     }
-	cout<<endl;
+//	cout<<endl;
 }
 
 
