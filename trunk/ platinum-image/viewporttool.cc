@@ -341,7 +341,9 @@ void nav_tool::handle(viewport_event &event)
 
 					fvp->needs_rerendering();
 //					refresh_by_image_and_direction(); //redraws slice locators in other viewports //TODO: use fl_overlays
-					this->refresh_overlay_by_image_and_direction();
+//					this->refresh_overlay_by_image_and_direction();
+					viewmanagement.update_overlays();
+
 
 				/*	
 					image_base * top;
@@ -385,7 +387,9 @@ void nav_tool::handle(viewport_event &event)
                     fvp->needs_rerendering();
 
 //					refresh_by_image_and_direction(); //redraws slice locators in other viewports //TODO: use fl_overlays
-					this->refresh_overlay_by_image_and_direction();
+//					this->refresh_overlay_by_image_and_direction();
+					viewmanagement.update_overlays();
+
 				}
 			//NOTE: no break, update hovering also
 				
@@ -488,6 +492,7 @@ void nav_tool::refresh_by_image_and_direction()
 	}
 }
 
+/*
 void nav_tool::refresh_overlay_by_image_and_direction()
 {
 	cout<<"refresh_overlay_by_image_and_direction..."<<endl;
@@ -500,7 +505,7 @@ void nav_tool::refresh_overlay_by_image_and_direction()
 		viewmanagement.refresh_overlays_from_geometry( *itr ) ;
 	}
 }
-
+*/
 
 void nav_tool::move_voxels( int x, int y, int z )
 {

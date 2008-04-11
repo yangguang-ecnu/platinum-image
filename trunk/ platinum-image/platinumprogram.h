@@ -23,7 +23,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
-#include <FL/Fl_Overlay_Window.H>
 
 #include "viewmanager.h"
 #include "datamanager.h"
@@ -36,14 +35,9 @@ extern viewmanager viewmanagement;
 extern userIOmanager userIOmanagement;
 
 
-class myFl_Overlay_Window : public Fl_Overlay_Window{
-	public:
-		myFl_Overlay_Window(int w, int h):Fl_Overlay_Window(w,h){}
-		void draw_overlay();
-};
 
 
 void platinum_init ();
-//void platinum_setup (myFl_Overlay_Window & window, int num_viewports_h = 2, int num_viewports_v = 2,int tool_area_w = 250);
+void platinum_setup (myFl_Overlay_Window & window, int num_viewports_h = 2, int num_viewports_v = 2,int tool_area_w = 250);
 void platinum_setup (Fl_Window & window, int num_viewports_h = 2, int num_viewports_v = 2,int tool_area_w = 250);
 static void close_program_callback(Fl_Widget *callingwidget, void *data);

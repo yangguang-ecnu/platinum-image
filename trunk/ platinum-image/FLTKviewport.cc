@@ -55,7 +55,6 @@ string eventnames[] =
 FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
     {
     needs_rerendering();
-    
     callback_action=CB_ACTION_NONE;
     }
 
