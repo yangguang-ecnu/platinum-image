@@ -18,8 +18,8 @@
 #include "colormap.h"
 
 //
-// Hanterar en färgtabell för voxelvärden. Interpolerar mellan de 
-// färgsamples som finns. Kan omvandla RGB <-> HSV 
+// Hanterar en fâ€°rgtabell fË†r voxelvâ€°rden. Interpolerar mellan de 
+// fâ€°rgsamples som finns. Kan omvandla RGB <-> HSV 
 // All interpolering mm i HSV (inte RGB)
 //
 
@@ -42,7 +42,7 @@ void colormap::set_color(float position, IMGELEMCOMPTYPE r, IMGELEMCOMPTYPE g, I
 }
 
 void colormap::get_color(float position, IMGELEMCOMPTYPE &r, IMGELEMCOMPTYPE &g, IMGELEMCOMPTYPE &b){
-	print_all;
+	print_all();
 	std::map<float,colornode>::iterator low = colors.lower_bound( position );
 	std::map<float,colornode>::iterator high = colors.upper_bound( position );
 	float dist = high->first - low->first;
