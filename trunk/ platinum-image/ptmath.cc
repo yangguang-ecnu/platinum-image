@@ -877,3 +877,79 @@ double incompleteBetaCF(const double a, const double b, const double x)
 	}
 	return result;
 }
+
+bool fit_points(const std::vector<Vector3D> & fixed, std::vector<Vector3D> & moving, 
+	const std::map<int,int> & fixedToMoving)
+{
+	if ( fixedToMoving.size() < 3 )
+	{
+		pt_error::error("fit_points: number of points used for matching is less than 3",
+			pt_error::warning);
+		return false;
+	}
+
+	typedef unsigned char PixelType;
+	const unsigned int Dimension = 3;
+
+	typedef itk::Image<PixelType, Dimension> FixedImageType;
+	typedef itk::Image<PixelType, Dimension> MovingImageType;
+	
+	// Set the transform type
+	typedef itk::VersorRigid3DTransform<double> TransformType;
+	TransformType::Pointer transform = TransformType::New();
+	typedef itk::LandmarkBasedTransformInitializer<TransformType, FixedImageType, MovingImageType> 
+		TransformInitializerType;
+	TransformInitializerType::Pointer initializer = TransformInitializerType::New();
+
+	TransformInitializerType::LandmarkPointContainer fixedLandmarks;
+	TransformInitializerType::LandmarkPointContainer movingLandmarks;
+
+	TransformInitializerType::LandmarkPointType fixedPoint;
+	TransformInitializerType::LandmarkPointType movingPoint;
+
+
+	for ( std::map<int,int>::const_iterator itr = fixedToMoving.begin(); 
+		itr != fixedToMoving.end(); itr++ )
+	{
+		fixedPoint[0] = fixed[itr->first][0];
+		fixedPoint[1] = fixed[itr->first][1];
+		fixedPoint[2] = fixed[itr->first][2];
+		fixedLandmarks.push_back(fixedPoint);
+		
+		movingPoint[0] = moving[itr->second][0];
+		movingPoint[1] = moving[itr->second][1];
+		movingPoint[2] = moving[itr->second][2];
+		movingLandmarks.push_back(movingPoint);
+	}
+	
+	initializer->SetFixedLandmarks(fixedLandmarks);
+	initializer->SetMovingLandmarks(movingLandmarks);
+	initializer->SetTransform(transform);
+	initializer->InitializeTransform();
+
+	TransformType::Pointer invTransform = TransformType::New();
+	if ( !transform->GetInverse(invTransform) )
+	{
+		pt_error::error("fit_points: cannot compute inverse transformation",
+			pt_error::warning);		
+		return false;
+	}
+		
+	// Transform the moving landmarks
+	TransformInitializerType::LandmarkPointType transformedPoint;
+	for ( std::vector<Vector3D>::iterator mitr = moving.begin(); mitr != moving.end(); mitr++ )
+	{
+		// "convert" from Vector3D to LandmarkPointType
+		movingPoint[0] = (*mitr)[0];
+		movingPoint[1] = (*mitr)[1];
+		movingPoint[2] = (*mitr)[2];
+		
+		transformedPoint = invTransform->TransformPoint(movingPoint);
+
+		(*mitr)[0] = transformedPoint[0];
+		(*mitr)[1] = transformedPoint[1];
+		(*mitr)[2] = transformedPoint[2];
+	}
+	
+	return true;
+}

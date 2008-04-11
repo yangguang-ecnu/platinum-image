@@ -34,6 +34,10 @@
 #include "itkPoint.h"
 #include "itkMatrix.h"
 
+// used by fit_points
+#include "itkLandmarkBasedTransformInitializer.h"
+#include "itkImage.h"
+
 #include "fileutils.h"
 
 ///...and types
@@ -342,6 +346,11 @@ double logGamma(const double x);											// Logarithm of the Gamma function
 double incompleteBeta(const double a, const double b, const double x);		// Incomplete beta function
 double incompleteBetaCF(const double a, const double b, const double x);	// Continued fraction for incomplete beta function
 
+// Rigid 3D landmark based alignment
+// Three non-collinear landmarks is sufficient to guarantee a solution
+// fixedToMoving usage: fixedToMoving[index_of_fixed] = index_of_moving
+bool fit_points(const std::vector<Vector3D> & fixed, std::vector<Vector3D> & moving, 
+	const std::map<int,int> & fixedToMoving);
 
 
 #endif	//__ptmath.h__
