@@ -60,13 +60,6 @@ window.show(argc, argv);
 return Fl::run();
 }*/
 
-void myFl_Overlay_Window::draw_overlay()
-{
-//	cout<<"draw_overlay()..."<<endl;
-//	fl_color(FL_RED);
-//	fl_rect(20,20,40,20);
-	viewmanagement.refresh_overlays();
-}
 
 
 void close_program_callback(Fl_Widget *callingwidget, void *data)
@@ -130,8 +123,8 @@ void platinum_init ()
 
     }
 
-//void platinum_setup (myFl_Overlay_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
-void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
+void platinum_setup (myFl_Overlay_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
+//void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_v,int list_area_w )
     {
     const int win_w = window.w();
     const int win_h = window.h();

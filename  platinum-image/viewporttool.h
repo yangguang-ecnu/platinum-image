@@ -99,7 +99,7 @@ protected:
     std::ostringstream numbers;
 
 	void refresh_by_image_and_direction();
-	void refresh_overlay_by_image_and_direction();
+//	void refresh_overlay_by_image_and_direction();
 	void move_voxels( int x, int y, int z );
 	void center3d_and_fit();
 	void center2d();

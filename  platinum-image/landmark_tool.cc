@@ -203,6 +203,8 @@ void landmark_tool::handle(viewport_event &event)
 				
 				refresh_by_image_and_direction();
 //				this->refresh_overlay_by_image_and_direction(); //JK speedup....
+				viewmanagement.update_overlays();
+
 			}
 		//NOTE: no break, update hovering also
 

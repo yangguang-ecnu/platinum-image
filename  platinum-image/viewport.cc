@@ -229,7 +229,7 @@ void viewport::refresh_overlay()
 	    viewport_widget->damage(FL_DAMAGE_ALL); 
 	}
 }
-
+/*
 void viewport::refresh_overlay_from_geometry(int g)
 {
 //	cout<<"vp-refresh_overlay_from_geometry()... "<<endl;
@@ -239,6 +239,7 @@ void viewport::refresh_overlay_from_geometry(int g)
 	refresh_overlay();
 	}
 }
+*/
 
 void viewport::update_fbstring (FLTKviewport* f)
 {
@@ -635,7 +636,11 @@ void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
 	int c_id = rendermanagement.get_combination_id(widget_user_data->rend_index);
 	if(c_id>=0){
 		viewmanagement.refresh_viewports_from_combination(c_id);
-		viewmanagement.refresh_overlays();
+//		viewmanagement.refresh_overlays();
+
+		//since we are now in a static function... we have to send the window of the widget...
+		viewmanagement.update_overlays(callingwidget->window());
+
 		//JK also refresh other overlays...
 	}else{
 		viewmanagement.refresh_viewports(); //complicated to remember old settings... slow but simple solution... 
@@ -755,7 +760,10 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
 	params->vport->set_direction( params->direction );
 
 	params->vport->refresh();
-	viewmanagement.refresh_overlays();
+//	viewmanagement.refresh_overlays();
+//	viewmanagement.update_overlays();
+	viewmanagement.update_overlays(callingwidget->window()); //since we are in a static function...
+
 /*
 	// update all viewports that shows at least one of the images in the current viewport (slice locators)
 	int combinationID = rendermanagement.get_combination_id( params->rend_index );

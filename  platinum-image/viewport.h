@@ -80,7 +80,7 @@ private:
     void clear_rgbpixmap();             //fill for viewport without renderer
 
     Fl_Group *containerwidget;          //the containerwidget is the full viewport area: image + controls
-    FLTKviewport *viewport_widget;      //the frame ("viewport") displaying a rendered image
+//    FLTKviewport *viewport_widget;      //the frame ("viewport") displaying a rendered image
     Fl_Gl_Window * GL_widget;
     
     Fl_Menu_Button * imagemenu_button;   
@@ -109,6 +109,9 @@ private:
 public:
     viewport();
     virtual ~viewport();
+
+    FLTKviewport *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
+
 	int x();	
 	int y();
 	int w();
@@ -132,9 +135,9 @@ public:
                                                 //!The tool will be deleted
     void refresh_from_geometry (int g);         //!refresh if it uses the geometry specified by argument
     void refresh_from_combination (int c);      //!refresh if it uses the geometry specified by argument
-    void refresh ();                            //!re-builds menu and makes viewport re-render and redraw eventually
+    void refresh();								//!re-builds menu and makes viewport re-render and redraw eventually
     void refresh_overlay();                     //re-draws overlays
-	void refresh_overlay_from_geometry(int g);
+//	void refresh_overlay_from_geometry(int g);
     
     threshold_overlay * get_threshold_overlay (thresholdparvalue *);
 
