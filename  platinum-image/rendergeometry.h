@@ -62,8 +62,10 @@ class rendergeometry
 		float distance_to_viewing_plane(Vector3D point);
 
 		Vector3D get_N();	// return normal vector
-		
 		Vector3D get_n();	// return unit normal vector
+
+		Vector3D get_X();	// return global vector for viewport x-dir
+		Vector3D get_Y();	// return global vector for viewport y-dir
 
 		line3D get_physical_line_of_intersection(rendergeometry *rg2);
 		line2D get_physical_line_of_intersection_projected(rendergeometry *rg2);

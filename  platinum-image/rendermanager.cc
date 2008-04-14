@@ -521,11 +521,21 @@ void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
 	image_base * image = datamanagement.get_image(imageID);
 	// TODO: determine the maximum size in some other way!
 	// example: if the image is rotated 45 degrees the maximum size should be the diagonal
-	Vector3D size = image->get_physical_size();
-	float maxsize = max_norm(size);
+  
+	cout<<"center3d_and_fit..."<<endl;
+    int r_ind = find_renderer_index(rendererID);
+	cout<<"X="<<renderers[r_ind]->wheretorender->get_X()<<endl;
+	cout<<"Y="<<renderers[r_ind]->wheretorender->get_Y()<<endl;
+	float span_x = image->get_phys_span_in_dir(renderers[r_ind]->wheretorender->get_X());
+	float span_y = image->get_phys_span_in_dir(renderers[r_ind]->wheretorender->get_Y());
+	cout<<"span_x="<<span_x<<endl;
+	cout<<"span_y="<<span_y<<endl;
 	Vector3D center = center_of_image(imageID);
+	set_geometry(rendererID, center, renderer_base::display_scale/std::max(span_x,span_y) );
 
-	set_geometry ( rendererID, center, renderer_base::display_scale/maxsize );
+//	Vector3D size = image->get_physical_size();
+//	float maxsize = max_norm(size);
+//	set_geometry(rendererID, center, renderer_base::display_scale/maxsize );
 }
 
 void rendermanager::center3d_and_fit( const int imageID )

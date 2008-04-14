@@ -387,6 +387,31 @@ void image_general<ELEMTYPE, IMAGEDIM>::calc_transforms ()
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_phys_pos_of_corner(int corner_id)
+{
+	Vector3D ret;
+	if(corner_id==0){
+		ret = get_physical_pos_for_voxel(0,0,0);
+	}else if(corner_id==1){
+		ret = get_physical_pos_for_voxel(this->datasize[0],0,0);
+	}else if(corner_id==2){
+		ret = get_physical_pos_for_voxel(this->datasize[0],this->datasize[1],0);
+	}else if(corner_id==3){
+		ret = get_physical_pos_for_voxel(0,this->datasize[1],0);
+	}else if(corner_id==4){
+		ret = get_physical_pos_for_voxel(0,0,this->datasize[2]);
+	}else if(corner_id==5){
+		ret = get_physical_pos_for_voxel(this->datasize[0],0,this->datasize[2]);
+	}else if(corner_id==6){
+		ret = get_physical_pos_for_voxel(this->datasize[0],this->datasize[1],this->datasize[2]);
+	}else if(corner_id==7){
+		ret = get_physical_pos_for_voxel(0,this->datasize[1],this->datasize[2]);
+	}
+
+	return ret;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters()
     {
     calc_transforms();
@@ -1453,6 +1478,29 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, in
 	return phys_pos;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+float image_general<ELEMTYPE, IMAGEDIM>::get_phys_span_in_dir(Vector3D dir)
+{
+	float min_dist=std::numeric_limits<float>::max();
+	float max_dist=std::numeric_limits<float>::min();
+
+	//normalize dir...
+	float a=0;
+	for(int i=0;i<3;i++){
+		a += dir[i]*dir[i];
+	}
+	a = sqrt(a);
+	dir /= a;
+
+	for(int i=0;i<8;i++){
+		a = dir*this->get_phys_pos_of_corner(i);
+//		cout<<"i="<<i<<" "<<a<<endl;
+		min_dist = std::min(min_dist, a);
+		max_dist = std::max(max_dist, a);
+	}
+
+	return max_dist-min_dist;
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
