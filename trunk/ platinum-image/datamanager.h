@@ -49,7 +49,7 @@ enum imageFileType {UNKNOWN_TYPE=-1, VTK_TYPE, DICOM_TYPE};
 class datamanager
     {
     public:
-        static const unsigned int IMAGEVECTORMAX = 50;
+        static const unsigned int IMAGEVECTORMAX = 10000;
 
     protected:
         std::vector<data_base* > dataItems;

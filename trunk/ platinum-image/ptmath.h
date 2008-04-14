@@ -48,6 +48,7 @@ typedef std::pair<long, long> HistoPair;
 typedef itk::Matrix<float> Matrix3D;
 
 typedef itk::Vector<float,2> Vector2D;
+typedef itk::Vector<int,2> Vector2Dint;
 typedef itk::Matrix<float,2,2> Matrix2D;
 
 
@@ -309,7 +310,7 @@ double get_random_number_in_span(double min, double max);
 Vector3D create_Vector3D(float x, float y, float z);
 Vector3Dint create_Vector3Dint(int x, int y, int z);
 Vector2D create_Vector2D(float x, float y);
-
+Vector2Dint create_Vector2Dint(int x, int y);
 
 Matrix3D outer_product(const Vector3D a, const Vector3D b);
 
