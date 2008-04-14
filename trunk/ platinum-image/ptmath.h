@@ -149,40 +149,28 @@ T abs_ceil (T f)   //round to nearest higher, ignoring sign
 }
 
 template <class sType, unsigned int vDim>
-float min_norm (itk::Vector<sType, vDim> &V)     //normalize vector using
-                                                     //minimum norm
+float min_norm(itk::Vector<sType, vDim> &V)     //normalize vector using minimum norm
 {
 	sType m = V[0];
-    
-	for (unsigned int d=0;d < vDim;d++)
-        {
-		min_norm=min(min_norm,V[d]);
-        }
+	for (unsigned int d=0;d < vDim;d++){
+		m = min(m,V[d]);
+	}
     return m;
 }
 
 template <class sType, unsigned int vDim>
-void min_normalize (itk::Vector<sType, vDim> &V)     //normalize vector using minimum norm
+void min_normalize(itk::Vector<sType, vDim> &V)     //normalize vector using minimum norm
 {
-	sType min_norm = V[0];
-    
-	for (unsigned int d=0;d < vDim;d++)
-        {
-		min_norm=min(min_norm,V[d]);
-        }
-	V /=min_norm;
+	V /= min_norm<sType,vDim>(V);
 }
 
 template <class sType, unsigned int vDim>
 float max_norm (itk::Vector<sType, vDim> &V)
 {
 	sType m = V[0];
-    
-	for (unsigned int d=0;d < vDim;d++)
-        {
+	for (unsigned int d=0;d < vDim;d++){
 		m=max(m,V[d]);
-        }
-    
+    }
     return m;
 }
 

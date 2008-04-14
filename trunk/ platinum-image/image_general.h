@@ -100,6 +100,8 @@ class image_general : public image_storage <ELEMTYPE >
         
         void calc_transforms (); //used by set_parameters(...), cached transform(s) recalculations
 
+		Vector3D get_phys_pos_of_corner(int corner_id); //return physical position of corner 0...7
+
     public:     
 		image_base * alike (imageDataType);
 
@@ -130,9 +132,9 @@ class image_general : public image_storage <ELEMTYPE >
 		void replicate_itk_to_image(typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer i);
 
 
-        virtual void data_has_changed(bool stats_refresh = true);          //called when image data has been changed
+        virtual void data_has_changed(bool stats_refresh = true);   //called when image data has been changed
 
-		void set_voxel_size(float dx, float dy, float dz=0);			//physical voxel size
+		void set_voxel_size(float dx, float dy, float dz=0);		//physical voxel size
 		bool read_voxel_size_from_dicom_file(std::string dcm_file);	//physical voxel size	
 		float get_voxel_volume_in_mm3();
 		float get_voxel_volume_in_cm3();
@@ -155,6 +157,7 @@ class image_general : public image_storage <ELEMTYPE >
         //ELEMTYPE get_voxel(unsigned long offset); //deprecated: use iterator!
 
 		Vector3D get_physical_pos_for_voxel(int x, int y, int z);
+		float get_phys_span_in_dir(Vector3D dir); //return the largest physical image span in dir...
 
         RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>) const;
         virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
