@@ -83,6 +83,9 @@ class image_binary : public image_label <IMAGEDIM>
 	void outline_2D(int thickness=3, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological outline up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
     void connect_outer_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Connect outer contour of objects (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
     image_integer<short, IMAGEDIM> * distance_34_2D(bool edge_is_object=false, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Compute 34 chamfer distance map for each plane in 2D-planes orthogonal to the axis given by direction. If edge_is_object=true then everything outside the image is regarded to be object voxels.
+	
+	void get_num_neighbours_distribution_in_slice_2D_4Nbh(vector<int> &num_vox, int slice, int dir=2, IMGBINARYTYPE object_value=TRUE);
+	void get_num_neighbours_distribution_in_slice_2D_8Nbh(vector<int> &num_vox, int slice, int dir=2, IMGBINARYTYPE object_value=TRUE);
 
     // --------------- 3D operations in image_binaryprocess ---------------
 
@@ -105,7 +108,7 @@ class image_binary : public image_label <IMAGEDIM>
 
 	void get_num_neighbours_distribution_3D_26Nbh(vector<int> &num_nb, vector<int> &num_vox, IMGBINARYTYPE object_value=TRUE); //Returns statistics on the number of object neighbours object voxels have.
 	float get_border_volume_ratio_3D_26Nbh(int num_nb_inside_limit=17, IMGBINARYTYPE object_value=TRUE); //Returns statistics on the number of object neighbours object voxels have.
-
+	float mutual_overlap_3D(image_binary<IMAGEDIM>* second_image);
     };
 
 template <int DIM>

@@ -798,6 +798,20 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::expand_bor
 	return res;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+unsigned long image_general<ELEMTYPE, IMAGEDIM>::get_number_of_voxels_with_value_in_slice_2D(int slice, int dir, ELEMTYPE value)
+{
+    int usize=this->get_size_by_dim_and_dir(0,dir);
+	int vsize=this->get_size_by_dim_and_dir(1,dir);
+	unsigned long res=0;
+	for (int u=0; u<usize; u++) {
+		for (int v=0; v<vsize; v++) {
+			if (this->get_voxel_by_dir(u,v,slice,dir)==value)
+				res++;
+		}
+	}
+	return res;
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_values_larger_than_3D(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2)
@@ -1614,20 +1628,47 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D(Vector3Dint vox_pos, Vect
 	this->fill_region_3D(vox_pos[0],vox_pos[1],vox_pos[2],vox_size[0],vox_size[1],vox_size[2], value);
 }
 
+//template <class ELEMTYPE, int IMAGEDIM>
+//void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(image_general<ELEMTYPE, IMAGEDIM> *subvolume)
+//{
+//	int nx = subvolume->nx();
+//	int ny = subvolume->ny();
+//	int nz = subvolume->nz();
+//	Vector3D phys_pos;
+//	for(int z=0; z<nz; z++){
+//		for(int y=0; y<ny; y++){
+//			for(int x=0; x<nx; x++){
+//				phys_pos = subvolume->get_physical_pos_for_voxel(x,y,z);
+//				if( this->is_physical_pos_within_image_3D(phys_pos) ){
+//					this->set_voxel_in_physical_pos(phys_pos, subvolume->get_voxel(x,y,z));
+//				}
+//			}
+//		}
+//	}
+//}
+
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(image_general<ELEMTYPE, IMAGEDIM> *subvolume)
 {
 	int nx = subvolume->nx();
 	int ny = subvolume->ny();
 	int nz = subvolume->nz();
+	Vector3D this_begin_phys = this->get_physical_pos_for_voxel(0,0,0);
+	Vector3D this_end_phys = this->get_physical_pos_for_voxel(this->nx(),this->ny(),this->nz());
+	Vector3Dint this_begin = subvolume->get_voxelpos_integers_from_physical_pos_3D(this_begin_phys);
+	Vector3D subvolume_begin_phys = subvolume->get_physical_pos_for_voxel(0,0,0);
+	Vector3D subvolume_end_phys = subvolume->get_physical_pos_for_voxel(nx,ny,nz);
+	Vector3D begin_phys = create_Vector3D(max(this_begin_phys[0], subvolume_begin_phys[0]), max(this_begin_phys[1], subvolume_begin_phys[1]), max(this_begin_phys[2], subvolume_begin_phys[2]));
+	Vector3D end_phys = create_Vector3D(min(this_end_phys[0], subvolume_end_phys[0]), min(this_end_phys[1], subvolume_end_phys[1]), min(this_end_phys[2], subvolume_end_phys[2]));
+	Vector3Dint begin = subvolume->get_voxelpos_integers_from_physical_pos_3D(begin_phys);
+	Vector3Dint end = subvolume->get_voxelpos_integers_from_physical_pos_3D(end_phys);
 	Vector3D phys_pos;
-	for(int z=0; z<nz; z++){
-		for(int y=0; y<ny; y++){
-			for(int x=0; x<nx; x++){
-				phys_pos = subvolume->get_physical_pos_for_voxel(x,y,z);
-				if( this->is_physical_pos_within_image_3D(phys_pos) ){
-					this->set_voxel_in_physical_pos(phys_pos, subvolume->get_voxel(x,y,z));
-				}
+	for(int z=begin[2]; z<end[2]; z++){
+		for(int y=begin[1]; y<end[1]; y++){
+			for(int x=begin[0]; x<end[0]; x++){
+				//phys_pos = subvolume->get_physical_pos_for_voxel(x,y,z);
+				//this->set_voxel_in_physical_pos(phys_pos, subvolume->get_voxel(x,y,z));
+				this->set_voxel(x-this_begin[0],y-this_begin[1],z-this_begin[2], subvolume->get_voxel(x,y,z));
 			}
 		}
 	}

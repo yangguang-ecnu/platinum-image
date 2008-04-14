@@ -64,9 +64,14 @@ void image_binary<IMAGEDIM>::convex_hull_in_slice_2D(image_binary<3>* image, int
 		// get line2D:s constituting convex hull
 		vector<line2D> hull_lines;
 		vector<Vector2D>::iterator i;
-		for(i=hull.begin(); i!=hull.end()-1; i++)
+        for(i=hull.begin(); i!=hull.end()-1; i++)
 			hull_lines.push_back(line2D(*i, *(i+1)));
 		hull_lines.push_back(line2D(hull.back(), hull.front()));
+		if (hull.size()==2)
+		{
+			hull_lines.push_back(line2D(hull[0].GetElement(0), hull[0].GetElement(1), hull[0].GetElement(0)+hull_lines[0].get_direction().GetElement(1), hull[0].GetElement(1)-hull_lines[0].get_direction().GetElement(0)));
+			hull_lines.push_back(line2D(hull[1].GetElement(0), hull[1].GetElement(1), hull[1].GetElement(0)+hull_lines[1].get_direction().GetElement(1), hull[1].GetElement(1)-hull_lines[1].get_direction().GetElement(0)));
+		}
 
 		// voxels "left" of all lines are inside convex hull
 		vector<line2D>::iterator j;
@@ -116,6 +121,11 @@ void image_binary<IMAGEDIM>::convex_hull_objectwise_in_slice_2D(image_label<3>* 
 			for(i=hulls[k].begin(); i!=hulls[k].end()-1; i++)
 				hull_lines[k].push_back(line2D(*i, *(i+1)));
 			hull_lines[k].push_back(line2D(hulls[k].back(), hulls[k].front()));	
+			if (hulls[k].size()==2)
+			{
+				hull_lines[k].push_back(line2D(hulls[k][0].GetElement(0), hulls[k][0].GetElement(1), hulls[k][0].GetElement(0)+hull_lines[k][0].get_direction().GetElement(1), hulls[k][0].GetElement(1)-hull_lines[k][0].get_direction().GetElement(0)));
+				hull_lines[k].push_back(line2D(hulls[k][1].GetElement(0), hulls[k][1].GetElement(1), hulls[k][1].GetElement(0)+hull_lines[k][1].get_direction().GetElement(1), hulls[k][1].GetElement(1)-hull_lines[k][1].get_direction().GetElement(0)));
+			}
 		}
 	}
 	// for each object, voxels "left" of all object lines are inside convex hull
@@ -1190,6 +1200,71 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool ed
 	return output;
 	}
 
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::get_num_neighbours_distribution_in_slice_2D_4Nbh(vector<int> &num_vox, int slice, int dir, IMGBINARYTYPE object_value)
+{
+	int usize = this->get_size_by_dim_and_dir(0,dir);
+	int vsize = this->get_size_by_dim_and_dir(1,dir);
+	int tmp;
+	num_vox.clear();
+	for(int i=0; i<=4; i++){
+		num_vox.push_back(0);
+	}
+	
+	for(int v=0; v<vsize; v++){
+		for(int u=0; u<usize; u++){
+			if(this->get_voxel_by_dir(u,v,slice,dir)==object_value){
+				tmp=0;
+
+				if(v>0 && this->get_voxel_by_dir(u,v-1,slice,dir)==object_value)
+					tmp++;	
+				if(u>0 && this->get_voxel_by_dir(u-1,v,slice,dir)==object_value)
+					tmp++;	
+				if((u+1)<usize && this->get_voxel_by_dir(u+1,v,slice,dir)==object_value)
+					tmp++;	
+				if((v+1)<vsize && this->get_voxel_by_dir(u,v+1,slice,dir)==object_value)
+					tmp++;
+				
+				num_vox[tmp]++;
+			}
+
+		}
+	}
+
+}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::get_num_neighbours_distribution_in_slice_2D_8Nbh(vector<int> &num_vox, int slice, int dir, IMGBINARYTYPE object_value)
+{
+	int usize = this->get_size_by_dim_and_dir(0,dir);
+	int vsize = this->get_size_by_dim_and_dir(1,dir);
+	int tmp;
+	num_vox.clear();
+	for(int i=0; i<=8; i++){
+		num_vox.push_back(0);
+	}
+	
+	for(int v=0; v<vsize; v++){
+		for(int u=0; u<usize; u++){
+			if(this->get_voxel_by_dir(u,v,slice,dir)==object_value){
+				tmp=0;
+
+				for(int s=std::max(0,v-1); s<=std::min(v+1,vsize-1); s++){
+					for(int r=std::max(0,u-1); r<=std::min(u+1,usize-1); r++){
+						if(this->get_voxel_by_dir(r,s,slice,dir)==object_value)
+							tmp++;	
+					}	
+				}
+
+				num_vox[tmp]++;
+
+			}
+
+		}
+	}
+
+}
+
 //3D functions	
 	
 template <int IMAGEDIM>
@@ -1763,6 +1838,7 @@ void image_binary<IMAGEDIM>::largest_objects_3D(int num_objects, IMGBINARYTYPE o
 	}
 
 	copy_data(res,this);
+	delete res;
 }
 
 template <int IMAGEDIM>
@@ -2029,7 +2105,6 @@ void image_binary<IMAGEDIM>::convex_hull_line_filling_3D(int dir, IMGBINARYTYPE 
 
 }
 
-
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::get_num_neighbours_distribution_3D_26Nbh(vector<int> &num_nb, vector<int> &num_vox, IMGBINARYTYPE object_value)
 {
@@ -2106,4 +2181,33 @@ float image_binary<IMAGEDIM>::get_border_volume_ratio_3D_26Nbh(int num_nb_inside
 		}
 	}
 	return border/sum;
+}
+
+template <int IMAGEDIM>
+float image_binary<IMAGEDIM>::mutual_overlap_3D(image_binary<IMAGEDIM>* second_image)
+{
+	pt_error::error_if_false(this->same_size(second_image), "images must be of same size in image_binary<IMAGEDIM>::mutual_overlap", pt_error::debug);
+		
+	int mutual_voxels=0;
+	int num_voxels_this=0;
+	int num_voxels_second=0;
+	for (int x=0; x<this->get_size_by_dim(0); x++) {
+		for (int y=0; y<this->get_size_by_dim(1); y++) {
+			for (int z=0; z<this->get_size_by_dim(2); z++) {
+				if (this->get_voxel(x,y,z)) {
+					num_voxels_this++;
+					if (second_image->get_voxel(x,y,z)) {
+						mutual_voxels++;
+						num_voxels_second++;
+					}
+				}
+				else if (second_image->get_voxel(x,y,z))
+					num_voxels_second++;
+			}
+		}
+	}
+	if ((num_voxels_this + num_voxels_second)!=0)
+		return float(2*mutual_voxels)/float(num_voxels_this + num_voxels_second);
+	else
+		return 0;
 }

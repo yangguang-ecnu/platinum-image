@@ -180,7 +180,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_body_from_sum
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_rough_lung_from_sum_image(image_binary<3> *mask, float lung_volume_in_litres)
 {
-	histogram_1D<unsigned short> *h = this->get_histogram_from_masked_region_3D(mask);
+	histogram_1D<ELEMTYPE> *h = this->get_histogram_from_masked_region_3D(mask);
 	int lung_tresh = h->get_intensity_at_included_num_pix_from_lower_int(0,this->get_num_voxels_per_dm3() * lung_volume_in_litres);	// volume in liters...
 	cout<<"lung_tresh="<<lung_tresh<<endl;
 
@@ -216,7 +216,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_fr
 	res->dilate_3D_26Nbh();
 	res->dilate_3D_26Nbh();
 
-	histogram_1D<unsigned short> *h2 = this->get_histogram_from_masked_region_3D(res);
+	histogram_1D<ELEMTYPE> *h2 = this->get_histogram_from_masked_region_3D(res);
 
 	float a;
 	float c;
@@ -231,7 +231,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_fr
 //	h2->save_histogram_to_txt_file(base + "__c08_lung hist.txt",false,g);
 
 	//************************************
-	//thresholda pÃ‚ c + 2*s...
+	//thresholda pÂ c + 2*s...
 	//************************************
 
 	image_binary<3> *right_lung = this->threshold(0,c+2*s);
@@ -520,7 +520,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_normalize_features_slicewise_by_g
 	}
 	if (body_lung_mask==NULL) {
 		body_lung_mask=new image_binary<3>(sum->appl_wb_segment_body_from_sum_image());
-		image_binary<3>* lungs=this->sum->appl_wb_segment_lungs_from_sum_image(body_lung_mask);
+		image_binary<3>* lungs=sum->appl_wb_segment_both_lungs_from_sum_image(body_lung_mask);
 		body_lung_mask->combine(lungs, COMB_SUB);
 		delete lungs;
 	}
@@ -569,7 +569,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 		image_scalar<float,3> *sum = new image_scalar<float,3>(feat1);
 		sum->combine(feat2, COMB_ADD);
 		body_lung_mask=sum->appl_wb_segment_body_from_sum_image();
-		image_binary<3>* lungs=this->sum->appl_wb_segment_lungs_from_sum_image(body_lung_mask);
+		image_binary<3>* lungs=sum->appl_wb_segment_both_lungs_from_sum_image(body_lung_mask);
 		body_lung_mask->combine(lungs, COMB_SUB);
 		delete sum; delete lungs;
 	}
@@ -662,7 +662,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 
 		// field[i] = field[i-1] + iteration_strength*(force / mean(abs(force)))
 		inh_map->mask_out(body_lung_mask);
-		inh_map->scale_by_factor(iteration_strength/((inh_map->get_sum_of_voxels(true, body_lung_mask))/bodysize)); // oklart varfË†r
+		inh_map->scale_by_factor(iteration_strength/((inh_map->get_sum_of_voxels(true, body_lung_mask))/bodysize)); // oklart varfˆr
 		field->combine(inh_map, COMB_ADD);
 		field->data_has_changed();
 			
@@ -674,7 +674,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 		}
 		delete inh_map;
 	
-		//Berâ€°kna ekv (7) i SIM-paper
+		//Ber‰kna ekv (7) i SIM-paper
 		//feat1_corr->fill(0); feat2_corr->fill(0);
 		feat1_corr->fill(1); feat2_corr->fill(1);
 		feat1_corr->combine(field, COMB_ADD); feat2_corr->combine(field, COMB_ADD);

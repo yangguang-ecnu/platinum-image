@@ -607,6 +607,14 @@ Vector2D create_Vector2D(float x, float y)
 	return v;
 }
 
+Vector2Dint create_Vector2Dint(int x, int y)
+{
+	Vector2Dint v;
+	v[0] = x;
+	v[1] = y;
+	return v;
+}
+
 Matrix2D outer_product(const Vector2D a, const Vector2D b)
 {
 	Matrix2D m;
