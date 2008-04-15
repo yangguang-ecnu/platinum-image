@@ -713,6 +713,8 @@ void rendererMPR::draw_slice_locators_to_overlay(int vp_offset_x, int vp_offset_
 
 	std::vector<rendergeometry *> geoms = rendermanagement.geometries_by_image_and_direction( what->get_id() );	// get geometries that holds at least one of the images in the input combination
 
+//	cout<<"geoms.size()="<<geoms.size()<<endl;
+
 	if(geoms.size()>0){
 		renderer_base *renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(where->get_id()) );	//because class/function is static
 

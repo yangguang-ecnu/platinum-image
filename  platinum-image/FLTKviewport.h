@@ -29,6 +29,7 @@
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
+#include <FL/Fl_Overlay_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Image.H>
@@ -62,7 +63,17 @@ enum callbackAction {
     CB_ACTION_WHEEL_FLIP	//mouse wheel flip through rendered image sequence
     };
 
-class FLTKviewport : public Fl_Widget
+
+class myFl_Overlay_Window : public Fl_Overlay_Window{
+	public:
+		myFl_Overlay_Window(int w, int h):Fl_Overlay_Window(w,h){}
+		myFl_Overlay_Window(int x, int y, int w, int h):Fl_Overlay_Window(x,y,w,h){}
+		void draw_overlay();
+};
+
+
+class FLTKviewport : public myFl_Overlay_Window
+//class FLTKviewport : public Fl_Widget
 {
 	    friend class viewport;
         //friend class viewporttool;
@@ -78,6 +89,9 @@ class FLTKviewport : public Fl_Widget
 	    void resize (int new_x,int new_y,int new_w,int new_h);
 	    int handle(int event);
         void needs_rerendering ();
+
+//		void damage(uchar d); //JK-ööö-overlay_win_test
+
         
 private:
         void draw();                //FLTK draw call - called when FLTK wants the viewport updated

@@ -50,7 +50,7 @@ extern rendermanager rendermanagement;
 extern userIOmanager userIOmanagement;
 viewmanager viewmanagement;
 
-
+/*
 void myFl_Overlay_Window::draw_overlay()
 {
 //	cout<<"draw_overlay()..."<<endl;
@@ -58,7 +58,7 @@ void myFl_Overlay_Window::draw_overlay()
 //	fl_rect(20,20,40,20);
 	viewmanagement.refresh_overlays();
 }
-
+*/
 
 void viewmanager::listviewports()
 {

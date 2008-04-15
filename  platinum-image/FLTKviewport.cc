@@ -52,7 +52,20 @@ string eventnames[] =
     "FL_DND_RELEASE",	//23
     };
 
-FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
+
+void myFl_Overlay_Window::draw_overlay()
+{
+//	viewmanagement.refresh_overlays();
+	this->redraw_overlay();
+}
+
+
+
+
+
+FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : myFl_Overlay_Window(X,Y,W,H)
+//FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
+
     {
     needs_rerendering();
     callback_action=CB_ACTION_NONE;
@@ -65,10 +78,12 @@ void FLTKviewport::draw()
     {
     //The draw() virtual method is called when FLTK wants you to redraw your widget.
     //It will be called if and only if damage()  is non-zero, and damage() will be cleared to zero after it returns
-   
+   cout<<"FLTKviewport::draw()..."<<endl;
     callback_event = viewport_event (pt_event::draw,this);
     //callback_event.FLTK_event::attach (this);
-    
+
+	//        viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKviewport) handles the callbacks
+
     do_callback(CB_ACTION_DRAW);
     }
 
@@ -157,3 +172,10 @@ void FLTKviewport::needs_rerendering ()
 {
     needsReRendering = true;
 }
+
+/*
+void FLTKviewport::damage(uchar d)
+{
+	myFl_Overlay_Window::damage(d);
+}
+*/
