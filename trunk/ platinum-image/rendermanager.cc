@@ -193,19 +193,22 @@ std::vector<int> rendermanager::geometries_from_renderers ( const std::vector<in
 std::vector<int> rendermanager::geometries_by_direction ( const int geometryID, const std::vector<int> & geometryIDs )
 {
 	std::vector<int> IDs;
-	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )
-	{
-		if ( get_geometry(*itr)->get_N() != get_geometry(geometryID)->get_N() )
-		{
+	Vector3D a = get_geometry(geometryID)->get_N();
+	Vector3D b;
+	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ ){
+		b = get_geometry(*itr)->get_N();
+//		cout<<"a="<<a<<endl;
+//		cout<<"b="<<b<<endl;
+		if ( (a!=b) && (a!=-b) ){
 			IDs.push_back( *itr );
 		}
 	}
-
 	return IDs;
 }
 
 std::vector<int> rendermanager::geometries_by_direction ( const int geometryID )
 {
+	cout<<"hej..."<<endl;
 	std::vector<int> geometryIDs;
 	
 	for ( std::vector<rendergeometry *>::const_iterator itr = geometries.begin(); itr != geometries.end(); itr++ )

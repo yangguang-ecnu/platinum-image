@@ -331,6 +331,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
         render_if_needed(f);
         f->damage(FL_DAMAGE_ALL);
         f->draw(rgbpixmap);
+		cout<<"viewport::viewport_callback...draw(pxmap)"<<endl;
         f->damage(0);
         }
     if (busyTool == NULL)
@@ -536,9 +537,9 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     //// the image frame
     //
     viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight);
-    viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKviewport)
-                                                        //handles the callbacks
-    containerwidget->resizable(viewport_widget);
+    viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKviewport) handles the callbacks
+
+	containerwidget->resizable(viewport_widget);
     
     containerwidget->end();
     containerwidget->box(FL_BORDER_BOX);

@@ -33,13 +33,14 @@
 #include "viewport.h"
 #include "global.h"
 
-
+/*
 class myFl_Overlay_Window : public Fl_Overlay_Window{
 	public:
 		myFl_Overlay_Window(int w, int h):Fl_Overlay_Window(w,h){}
+		myFl_Overlay_Window(int x, int y, int w, int h):Fl_Overlay_Window(x,y,w,h){}
 		void draw_overlay();
 };
-
+*/
 
 // this contains the setup information - should be loaded/stored, changed by interacting w. widgets, ...
 
