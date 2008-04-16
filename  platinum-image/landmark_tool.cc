@@ -42,7 +42,9 @@ void landmark_tool::init()
 
 void landmark_tool::handle(viewport_event &event)
 {
-	std::vector<int> mouse2d = event.mouse_pos_local();
+//	std::vector<int> mouse2d = event.mouse_pos_local();
+    const int * mouse2d = event.mouse_pos_local();
+
 
 	int point_collection_ID;
 	
@@ -193,18 +195,14 @@ void landmark_tool::handle(viewport_event &event)
 			if ( event.state() == pt_event::iterate)
 			{
 				event.grab();
-
 				const int * pms = myPort->pixmap_size();
 				int viewSize = std::min(pms[0],pms[1]);
 				
 				myRenderer->move_view(viewSize,0,0,event.scroll_delta()*wheel_factor);
 				
 				fvp->needs_rerendering();
-				
 				refresh_by_image_and_direction();
-//				this->refresh_overlay_by_image_and_direction(); //JK speedup....
 				viewmanagement.update_overlays();
-
 			}
 		//NOTE: no break, update hovering also
 

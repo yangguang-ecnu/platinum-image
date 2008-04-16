@@ -50,15 +50,6 @@ extern rendermanager rendermanagement;
 extern userIOmanager userIOmanagement;
 viewmanager viewmanagement;
 
-/*
-void myFl_Overlay_Window::draw_overlay()
-{
-//	cout<<"draw_overlay()..."<<endl;
-//	fl_color(FL_RED);
-//	fl_rect(20,20,40,20);
-	viewmanagement.refresh_overlays();
-}
-*/
 
 void viewmanager::listviewports()
 {
@@ -410,16 +401,15 @@ void viewmanager::refresh_viewports_from_data_id(int id)
 }
 */
 
-void viewmanager::update_overlays(Fl_Window *w)
+
+
+void viewmanager::update_overlays()
 {
-	myFl_Overlay_Window *w2;
-	if(w==NULL){
-		w2 = (myFl_Overlay_Window*)myFl_Overlay_Window::current();
-	}else{
-		w2 = (myFl_Overlay_Window*)w;
+    for(unsigned int i=0; i < viewports.size(); i++){
+		viewports[i].refresh_overlay();
 	}
-	w2->redraw_overlay();
 }
+
 
 void viewmanager::refresh_overlays()
 {
@@ -430,16 +420,6 @@ void viewmanager::refresh_overlays()
 	}
 //	cout<<endl;
 }
-/*
-void viewmanager::refresh_overlays_from_geometry(int g)
-{
-//	cout<<"refresh_overlays_from_geometry()... "<<endl;
-    for (unsigned int i=0; i < viewports.size(); i++) {
-        viewports[i].refresh_overlay_from_geometry(g);
-    }
-//	cout<<endl;
-}
-*/
 
 void viewmanager::refresh_viewports()
     {

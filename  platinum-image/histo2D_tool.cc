@@ -60,8 +60,8 @@ void histo2D_tool::handle(viewport_event &event)
 
     if (event.state() == pt_event::begin  ) 
         {
-        dragLast[0] = mouse[0];
-        dragLast[1] = mouse[1];
+        last_global_x = mouse[0];
+        last_global_y = mouse[1];
         }
 
     FLTKviewport * fvp = event.get_FLTK_viewport();
@@ -92,7 +92,7 @@ void histo2D_tool::handle(viewport_event &event)
                                 FLTK2Dregionofinterest::current_ROI = ROI;
                                 }
 
-                            ROI->drag(this->dragLast[0],this->dragLast[1],mouse[0]-this->dragLast[0],mouse[1]-this->dragLast[1],fvp);
+                            ROI->drag(this->last_global_x,this->last_global_y,mouse[0]-this->last_global_x,mouse[1]-this->last_global_y,fvp);
                             }
                         fvp->damage(FL_DAMAGE_ALL);
                         }
@@ -102,14 +102,14 @@ void histo2D_tool::handle(viewport_event &event)
         case pt_event::browse:
             {
                 event.grab();
-                ROI->resize (mouse[0]-this->dragLast[0],mouse[1]-this->dragLast[1],1,fvp);
+                ROI->resize (mouse[0]-this->last_global_x,mouse[1]-this->last_global_y,1,fvp);
             }
             break;
             
         case pt_event::create:
             event.grab();
             
-            ROI->resize (0,0,1+this->dragLast[1]*zoom_factor,fvp);
+            ROI->resize (0,0,1+this->last_global_y*zoom_factor,fvp);
                         
             //zooming invalidates ROI
             FLTK2Dregionofinterest::current_ROI = NULL;
@@ -180,8 +180,8 @@ void histo2D_tool::handle(viewport_event &event)
 
     if (event.state() == pt_event::iterate)
         {
-        dragLast[0] = mouse[0];
-        dragLast[1] = mouse[1];
+        last_global_x = mouse[0];
+        last_global_y = mouse[1];
         }
 }
 

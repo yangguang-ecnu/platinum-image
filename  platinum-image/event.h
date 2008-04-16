@@ -102,10 +102,10 @@ public:
         //FL_Meta_L - The left meta/command/Windows key,FL_Meta_R - The right meta/command/Windows key.
         meta_key = 0x1000000 //this may be swapped with ctrl on Macs
     } pt_event_keypress;
-    
+
 protected:
-        bool handled_;
-    int mousePos[2];
+    bool handled_;
+    int mousePos[2];		//local mouse coordinates in each viewport... 
     int mouseStart[2];
     int resizeDim[2];
     int wheelDelta;
@@ -129,7 +129,7 @@ public:
     const pt_event_state state();
     bool has_modifier(const int); //!true if the argument mod keys (shift, alt etc.) were pressed - any other mods ignored
     bool key_combo (const int);
-    const int * mouse_pos_global();
+//    const int * mouse_pos_global();
 };
 
 class FLTK_event : public pt_event
@@ -138,13 +138,17 @@ private:
     static std::string eventnames[];
     void set_type (); //helper to set type variable
     void attach (Fl_Widget *);
+    int mousePosGlobal[2];	// only used as a tmp variable ...
 protected:
-        Fl_Widget * myWidget;
+    Fl_Widget * myWidget;
     FLTK_event (int FL_event, FLTKviewport * fvp); //! constructor translates the content of the FLTK event into a neutral format that is stored in the base class
     FLTK_event (FLTKviewport * fvp);
-    
 public:
-        std::vector<int> mouse_pos_local();
+//	std::vector<int> mouse_pos_local();
+//	const int * mouse_pos_local();
+//	const int * mouse_pos_global();
+	int* mouse_pos_local();
+	int* mouse_pos_global();
 };
 
 class viewport_event : public FLTK_event

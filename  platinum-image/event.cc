@@ -88,10 +88,17 @@ bool pt_event::handled ()
     return handled_;
 }
 
+/*
 const int * pt_event::mouse_pos_global()
 {
-    return mousePos;
+//   int res[2];					//JK ööö Warning
+//   res[0] = mousePos[0] + myWidget->x()
+//   res[1] = mousePos[1] + myWidget->y()
+//   return res;
+   return mousePos;
 }
+*/
+
 
 const int pt_event::scroll_delta()
 {
@@ -171,11 +178,15 @@ void FLTK_event::set_type ()
 FLTK_event::FLTK_event (FLTKviewport * fvp) : pt_event ()
 { 
     attach (fvp);
+	mousePosGlobal[0] = 0;
+	mousePosGlobal[1] = 0;
 }
 
 FLTK_event::FLTK_event (int FL_event,FLTKviewport * fvp):pt_event()
     {
     attach (fvp);
+	mousePosGlobal[0] = 0;
+	mousePosGlobal[1] = 0;
     
     modifier = (Fl::event_state(FL_SHIFT)  ? shift_key : 0 ) + (Fl::event_state(FL_ALT)  ? alt_key : 0 )+ (Fl::event_state(FL_META)  ? meta_key : 0 ) + (Fl::event_state(FL_CTRL)  ? ctrl_key : 0 );
 
@@ -251,15 +262,32 @@ void FLTK_event::attach (Fl_Widget * w)
     myWidget = w;
 }
 
+int* FLTK_event::mouse_pos_local()
+{
+	return mousePos;
+}
+
+/*
 std::vector<int> FLTK_event::mouse_pos_local()
 {
+
     std::vector<int> result;
-    
-    result.push_back(mousePos[0]-myWidget->x());
-    result.push_back(mousePos[1]-myWidget->y());
+//	result.push_back(mousePos[0]-myWidget->x());
+//  result.push_back(mousePos[1]-myWidget->y());
+    result.push_back(mousePos[0]);
+    result.push_back(mousePos[1]);	//JK-ööö window --> now returns local coords
     
     return result;
 }
+*/
+
+int* FLTK_event::mouse_pos_global()
+{
+   mousePosGlobal[0] = myWidget->x() + mousePos[0];
+   mousePosGlobal[1] = myWidget->y() + mousePos[1];
+   return mousePosGlobal;
+}
+
 
 // *** viewport_event ***
 

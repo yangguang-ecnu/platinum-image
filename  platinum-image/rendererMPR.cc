@@ -54,7 +54,8 @@ void rendererMPR::connect_image(int vHandlerID)
 void rendererMPR::refesh_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h)
 {
 //	cout<<"rendererMPR::refesh_overlay.."<<endl;
-	draw_slice_locators_to_overlay(vp_offset_x, vp_offset_y,  vp_w, vp_h, wheretorender, imagestorender);
+	draw_slice_locators_to_overlay(0, 0,  vp_w, vp_h, wheretorender, imagestorender); //JK --> changed to 0,0 when windows are used...
+//	draw_slice_locators_to_overlay(vp_offset_x, vp_offset_y,  vp_w, vp_h, wheretorender, imagestorender);
 }
 
 Vector3D rendererMPR::view_to_world(int vx, int vy,int sx,int sy) const
@@ -162,7 +163,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
         return;
         }
 
-	cout<<"render_ ( what->get_id()="<<what->get_id()<<" )"<<endl;
+//	cout<<"render_ ( what->get_id()="<<what->get_id()<<" )"<<endl;
     
     //*** Variables ***
         

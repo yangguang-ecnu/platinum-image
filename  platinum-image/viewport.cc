@@ -221,25 +221,15 @@ void viewport::refresh()
 
 void viewport::refresh_overlay()
 {
-//	cout<<"vp-refresh_overlay... "<<endl;
-	rendermanagement.get_renderer(rendererID)->refesh_overlay(x(), y(), w(), h());
+	viewport_widget->redraw_overlay();
+}
 
-	if (viewport_widget != NULL){
-		//needed for the update of the overlay region...
-	    viewport_widget->damage(FL_DAMAGE_ALL); 
-	}
-}
-/*
-void viewport::refresh_overlay_from_geometry(int g)
+void viewport::draw_overlay()
 {
-//	cout<<"vp-refresh_overlay_from_geometry()... "<<endl;
-	if(rendererIndex >= 0 && rendermanagement.get_geometry_id(rendererIndex) == g)
-	{
-	//refresh();
-	refresh_overlay();
-	}
+	rendermanagement.get_renderer(this->rendererID)->refesh_overlay(0, 0, w(), h());
 }
-*/
+
+
 
 void viewport::update_fbstring (FLTKviewport* f)
 {
@@ -270,8 +260,8 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
     //2D histogram should only allow this call when the uim tool is selected
     if (busyTool == NULL)
         {
-        viewport_event e = viewport_event(0,viewport_widget);
-        busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));
+//        viewport_event e = viewport_event(0,viewport_widget);															//JK-ööö
+//        busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));		//JK-ööö
         }
     
     if (busyTool != NULL) //might have been created earlier too
@@ -330,10 +320,15 @@ void viewport::viewport_callback(Fl_Widget *callingwidget){
         f->callback_event.grab();
         render_if_needed(f);
         f->damage(FL_DAMAGE_ALL);
-        f->draw(rgbpixmap);
-		cout<<"viewport::viewport_callback...draw(pxmap)"<<endl;
+//		cout<<"viewport::viewport_callback...draw(pxmap)"<<endl;//JK-ööö
+        f->draw(rgbpixmap); //JK-ööö
         f->damage(0);
         }
+//    if (f->callback_event.type() == pt_event::draw_overlay)
+//	{
+//		this->refresh_overlay(); //JK-ööö
+//	}
+	
     if (busyTool == NULL)
         { 
         busyTool = viewporttool::taste(f->callback_event,this,rendermanagement.get_renderer(rendererID));
@@ -536,7 +531,10 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     
     //// the image frame
     //
-    viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight);
+//	Fl_Group::current(NULL); //JK-ööö
+//	viewport_widget = new test_vp(xpos,ypos+buttonheight,width,height-buttonheight); //JK-ööö
+    viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight, this);
+//    viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight);
     viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKviewport) handles the callbacks
 
 	containerwidget->resizable(viewport_widget);
@@ -640,7 +638,7 @@ void viewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
 //		viewmanagement.refresh_overlays();
 
 		//since we are now in a static function... we have to send the window of the widget...
-		viewmanagement.update_overlays(callingwidget->window());
+		viewmanagement.update_overlays();
 
 		//JK also refresh other overlays...
 	}else{
@@ -762,8 +760,7 @@ void viewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
 
 	params->vport->refresh();
 //	viewmanagement.refresh_overlays();
-//	viewmanagement.update_overlays();
-	viewmanagement.update_overlays(callingwidget->window()); //since we are in a static function...
+	viewmanagement.update_overlays();
 
 /*
 	// update all viewports that shows at least one of the images in the current viewport (slice locators)

@@ -110,6 +110,7 @@ public:
     viewport();
     virtual ~viewport();
 
+//    test_vp *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
     FLTKviewport *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
 
 	int x();	
@@ -137,7 +138,7 @@ public:
     void refresh_from_combination (int c);      //!refresh if it uses the geometry specified by argument
     void refresh();								//!re-builds menu and makes viewport re-render and redraw eventually
     void refresh_overlay();                     //re-draws overlays
-//	void refresh_overlay_from_geometry(int g);
+    void draw_overlay();						//draws the actual lines
     
     threshold_overlay * get_threshold_overlay (thresholdparvalue *);
 
