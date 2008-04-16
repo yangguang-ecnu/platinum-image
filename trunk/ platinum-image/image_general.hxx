@@ -305,7 +305,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
     set_parameters();
 	}
 
-//ööö
+
 template <class ELEMTYPE, int IMAGEDIM>
 template <class LOADERTYPE>
 bool image_general<ELEMTYPE, IMAGEDIM>::try_single_loader(std::string s) //! helper for image_base::load
@@ -1288,7 +1288,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::rotate_voxe
 	}else{
 		pt_error::error("rotate_voxeldata_3D-->parameters...("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")",pt_error::debug);
 	}
-	//JK ööö**ööö
+
 	res->set_parameters(this); //copy rotation and size infor to tmp image first... //TODO: JK-perform appropriate geometry changes...
 	return res;
 }

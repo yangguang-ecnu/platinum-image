@@ -38,6 +38,5 @@ extern userIOmanager userIOmanagement;
 
 
 void platinum_init ();
-void platinum_setup (myFl_Overlay_Window & window, int num_viewports_h = 2, int num_viewports_v = 2,int tool_area_w = 250);
 void platinum_setup (Fl_Window & window, int num_viewports_h = 2, int num_viewports_v = 2,int tool_area_w = 250);
 static void close_program_callback(Fl_Widget *callingwidget, void *data);

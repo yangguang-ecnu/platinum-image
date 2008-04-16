@@ -208,13 +208,18 @@ const float nav_tool::wheel_factor=renderer_base::display_scale/10;
 const float nav_tool::zoom_factor=0.005;
 
 nav_tool::nav_tool (viewport_event & event):viewporttool(event)
-    {    
+    {
+    last_global_x = 0;
+    last_global_y = 0;
+    last_local_x = 0;
+    last_local_y = 0;
+
     //a tool constructor has to respond to the type of events it accepts by grabbing them,
     //or it won't be created
     if (event.type() == pt_event::hover || event.type() == pt_event::browse || event.type() == pt_event::adjust || event.type() == pt_event::scroll || event.type() == pt_event::key || event.type() == pt_event::focus_viewports)
         {event.grab();}
 
-	zoom_start_pos = std::vector<int>(2);
+	local_zoom_start_pos = std::vector<int>(2);
     }
 
 const std::string nav_tool::name()
@@ -227,23 +232,24 @@ void nav_tool::init()
 
 void nav_tool::handle(viewport_event &event)
 {
-
 	FLTKviewport * fvp = event.get_FLTK_viewport();
 
     if ( event.state() == pt_event::begin )
 	{
-        cout<<"nav_tool.. begin..."<<endl;
-//		cout<<"(pt_event::begin)"<<endl;
-        event.grab();
-		
-        dragLast[0] = event.mouse_pos_global()[0]; //used in various functions
-        dragLast[1] = event.mouse_pos_global()[1];
+//        cout<<"nav_tool.. begin..."<<endl;
+        last_global_x = event.mouse_pos_global()[0]; //used in various functions
+        last_global_y = event.mouse_pos_global()[1]; //used in various functions
+//		cout<<"***last_global="<<last_global_x<<" "<<last_global_y<<endl;
+		last_local_x = event.mouse_pos_local()[0]; //used in various functions
+		last_local_y = event.mouse_pos_local()[1]; //used in various functions
+//		cout<<"***last_local="<<last_local_x<<" "<<last_local_y<<endl;
 
-		//Used in zoom function
-		//Note: it is important to use local mouse coordinates when using world<-->view transformations...
-		global_zoom_start_pos = myRenderer->view_to_world(event.mouse_pos_local()[0], event.mouse_pos_local()[1], fvp->w(), fvp->h());
-		zoom_start_pos[0] = event.mouse_pos_local()[0];
-		zoom_start_pos[1] = event.mouse_pos_local()[1];
+		//Used in zoom function 	//Note: it is important to use local mouse coordinates when using world<-->view transformations...
+		physical_zoom_start_pos = myRenderer->view_to_world(last_local_x, last_local_y, fvp->w(), fvp->h());
+//      cout<<"physical_zoom_start_pos="<<physical_zoom_start_pos[0]<<" "<<physical_zoom_start_pos[1]<<endl;
+		local_zoom_start_pos = myRenderer->world_to_view(fvp->w(),fvp->h(),physical_zoom_start_pos);
+
+        event.grab();
     }
 
 	if ( event.type() == pt_event::focus_viewports )
@@ -255,26 +261,24 @@ void nav_tool::handle(viewport_event &event)
 			// (if there is at least one image in the viewport)
 			// TODO: implement a drop-down menu for each viewport where the user can set which viewports it should connect with.
 
-			std::vector<int> mouse2d = event.mouse_pos_local();
-			Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
-			viewmanagement.show_point_by_combination ( mouse3d, myRenderer->combination_id() ); //jk-ööö
+			Vector3D mouse3d = myRenderer->view_to_world(event.mouse_pos_local()[0], event.mouse_pos_local()[1], fvp->w(), fvp->h());
+			viewmanagement.show_point_by_combination ( mouse3d, myRenderer->combination_id() );
+			viewmanagement.refresh_overlays();
 		}
 	}
 	
 	if ( event.type() == pt_event::focus_viewports_center )
 	{	// double click and shift
 		std::cout << "Focus and center" << std::endl;
-		std::vector<int> mouse2d = event.mouse_pos_local();
-		Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
+//		std::vector<int> mouse2d = event.mouse_pos_local();
+		Vector3D mouse3d = myRenderer->view_to_world(event.mouse_pos_local()[0], event.mouse_pos_local()[1], fvp->w(), fvp->h());
 		viewmanagement.show_point_by_combination(mouse3d, myRenderer->combination_id(), -1);		
 	}
 
     if (!event.handled())
 	{
-		
         const int * pms = myPort->pixmap_size();
         int viewSize = std::min(pms[0],pms[1]);
-        //const float pan_factor=renderer_base::display_scale/(std::min(pms[0],pms[1]));
         const int * mouse = event.mouse_pos_global();
                 
         switch (event.type())
@@ -283,36 +287,32 @@ void nav_tool::handle(viewport_event &event)
             case pt_event::browse:	// pan
                 if ( event.state() == pt_event::iterate)
 				{
+//					std::cout<<"Pan..."<<std::endl;
                     event.grab();
-                    
-                    myRenderer->move_view(viewSize,-(mouse[0]-dragLast[0]),-(mouse[1]-dragLast[1]));
-                    
+                    myRenderer->move_view(viewSize,(last_local_x-event.mouse_pos_local()[0]),(last_local_y-event.mouse_pos_local()[1]));
                     fvp->needs_rerendering();
+					last_local_x = event.mouse_pos_local()[0];
+					last_local_y = event.mouse_pos_local()[1];
 				}
 			break;
                 
             case pt_event::adjust:	// zoom
                 if ( event.state() == pt_event::iterate)
 				{
-                    cout<<"nav_tool_zoom..."<<endl;
+//                    cout<<"nav_tool_zoom..."<<endl;
                     event.grab();
-//                    cout<<"("<<mouse[1]<<","<<dragLast[1]<<") "<<1+(mouse[1]-dragLast[1])*zoom_factor<<endl;
-
-					float z = abs(float(1.0+(mouse[1]-dragLast[1])*zoom_factor)); //the absolute value is needed since negative values inverts the image...
-					
+			
+					float z = abs(float(1.0+(event.mouse_pos_local()[1]-last_local_y)*zoom_factor)); //the absolute value is needed since negative values inverts the image...
+					last_local_y = event.mouse_pos_local()[1];
+	
 					//zoom...
 					myRenderer->move_view(viewSize,0,0,0,z); 
 
 					//move....
-					std::vector<int> new_pos = myRenderer->world_to_view(fvp->w(),fvp->h(),global_zoom_start_pos);
-//					int dx = float(myPort->pixmap_size()[0]/2-zoom_start_pos[0])*(1.0-z);
-//					int dy = float(myPort->pixmap_size()[1]/2-zoom_start_pos[1])*(1.0-z);
-					int dx = new_pos[0]-zoom_start_pos[0];
-					int dy = new_pos[1]-zoom_start_pos[1];
-//                    cout<<"new_pos[0]="<<new_pos[0]<<endl;
-  //                  cout<<"new_pos[1]="<<new_pos[1]<<endl;
-    //                cout<<"dx="<<dx<<endl;
-      //              cout<<"dy="<<dy<<endl;
+					std::vector<int> new_pos = myRenderer->world_to_view(fvp->w(),fvp->h(),physical_zoom_start_pos);
+
+					int dx = new_pos[0]-local_zoom_start_pos[0];
+					int dy = new_pos[1]-local_zoom_start_pos[1];
 					myRenderer->move_view(viewSize,dx,dy);
                     
                     fvp->needs_rerendering();
@@ -322,74 +322,27 @@ void nav_tool::handle(viewport_event &event)
 			case pt_event::rotate:
 				if ( event.state() == pt_event::iterate )
 				{
-					//TODO... correct slice pos illustrations
 					event.grab();
 					cout<<"***pt_event::rotate - temporary work (ctrl + shift + mouse drag)***"<<endl; 
-					float dx = (mouse[0]-dragLast[0]);
-					float dy = (mouse[1]-dragLast[1]);
-//					cout<<"dx="<<dx<<endl;
-//					cout<<"dy="<<dy<<endl;
+					float dx = (mouse[0]-last_global_x);
+					float dy = (mouse[1]-last_global_y);
 					Matrix3D dir = myRenderer->wheretorender->dir;
-//					cout<<"dir="<<endl<<dir<<endl;
-//					Matrix3D m = mg.get_rot_matrix_3D( 0.0, float(-dx*PI/180.0), float(dy*PI/180.0));
 					Matrix3D m = create_rot_matrix_3D(dy*PI/180.0, -dx*PI/180.0, 0.0);
-//					cout<<"m="<<endl<<m<<endl;
 					dir = dir*m;
-//					cout<<"dir2="<<endl<<dir<<endl;
-
 					myRenderer->wheretorender->dir = dir;
 
 					fvp->needs_rerendering();
-//					refresh_by_image_and_direction(); //redraws slice locators in other viewports //TODO: use fl_overlays
-//					this->refresh_overlay_by_image_and_direction();
 					viewmanagement.update_overlays();
-
-
-				/*	
-					image_base * top;
-					if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
-					{	// there is an image in current viewport
-					
-						Matrix3D m = datamanagement.get_image(top->get_id())->get_orientation();
-
-						Vector3D angle;
-//						angle[0] = -(mouse[0]-dragLast[0]);
-//						angle[1] = -(mouse[1]-dragLast[1]);
-//						angle[2] = 0.0;
-						angle[0] = 0.0;
-						angle[1] = 0.0;
-						angle[2] = (mouse[0]-dragLast[0]);
-						
-						// convert degrees to radians
-						angle *= ( PI / 180.0 );	
-						//matrix_generator mg; //depricated use create_rot... instead...
-						//m = mg.get_rot_matrix_3D ( angle[2], angle[1], angle[0] ) * m;
-			
-						datamanagement.get_image(top->get_id())->set_orientation(m); //TODO: use rotate_orientation instead...
-						datamanagement.data_has_changed(top->get_id());
-						
-						// skriv en metod som roterarar en bild (volym) kring dess centrum (ändrar orientation och origin.
-						// origin måste ändras för att rotationen ska bli "korrekt")
-						// och en metod som roterar bild kring dess origin (ändrar endast orientation)
-						// rendermanagement.center3d_and_fit ( top->get_id() );
-					}
-*/
 				}
-			break;	// end of pt_event::rotate
+			break;
 				
             case pt_event::scroll:	// pan in z-direction
                 if ( event.state() == pt_event::iterate)
 				{
                     event.grab();
-                    
                     myRenderer->move_view(viewSize,0,0,event.scroll_delta()*wheel_factor);
-                    
                     fvp->needs_rerendering();
-
-//					refresh_by_image_and_direction(); //redraws slice locators in other viewports //TODO: use fl_overlays
-//					this->refresh_overlay_by_image_and_direction();
 					viewmanagement.update_overlays();
-
 				}
 			//NOTE: no break, update hovering also
 				
@@ -401,14 +354,11 @@ void nav_tool::handle(viewport_event &event)
                     case pt_event::iterate:
 					{
 						event.grab();
-						
-						std::vector<int> lmouse = event.mouse_pos_local();
-						
 						numbers.str("");
 						
 						//get values and update statusfield
 						
-						const std::map<std::string, float> values = myRenderer->get_values_view( lmouse[0], lmouse[1], fvp->w(), fvp->h() );
+						const std::map<std::string, float> values = myRenderer->get_values_view( event.mouse_pos_local()[0], event.mouse_pos_local()[1], fvp->w(), fvp->h() );
 
 						if (values.empty())
 						{
@@ -475,8 +425,8 @@ void nav_tool::handle(viewport_event &event)
 
 		}
         
-        dragLast[0] = mouse[0];
-        dragLast[1] = mouse[1];
+        last_global_x = mouse[0];
+        last_global_y = mouse[1];
 	}
 }
 
@@ -512,10 +462,7 @@ void nav_tool::move_voxels( int x, int y, int z )
 	if ( rendermanagement.renderer_empty(myRenderer->get_id()) == RENDERER_NOT_EMPTY )
 	{ 
 		myRenderer->move_voxels( x, y, z);
-		refresh_by_image_and_direction(); //TODO - use fl_overlays for speedup
-	
-		//JK ööö window()->make_current() and then fl_overlay_rect()
-//		fl_overlay_rect(10,20,30,60); //overlay_window is needed.
+		refresh_by_image_and_direction(); //TODO - use fl_overlays for speedup JK ööö 
 	}
 }
 
@@ -635,7 +582,8 @@ void cursor_tool::init()
 
 void cursor_tool::handle(viewport_event &event)
 {
-    std::vector<int> mouse = event.mouse_pos_local();
+//    std::vector<int> mouse = event.mouse_pos_local();
+    int *mouse = event.mouse_pos_local();
     
     FLTKviewport * fvp = event.get_FLTK_viewport();
 

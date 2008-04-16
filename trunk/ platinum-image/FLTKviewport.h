@@ -46,6 +46,9 @@
 #include "threshold.h"
 #include "histo2D_tool.h"
 #include "event.h"
+//#include "viewmanager.h" //JK circular #include?
+//#include "rendermanager.h" //JK circular #include?
+#include "viewport.h" //JK circular #include?
 
 //Callback action identifiers.
 
@@ -64,43 +67,47 @@ enum callbackAction {
     };
 
 
-class myFl_Overlay_Window : public Fl_Overlay_Window{
-	public:
-		myFl_Overlay_Window(int w, int h):Fl_Overlay_Window(w,h){}
-		myFl_Overlay_Window(int x, int y, int w, int h):Fl_Overlay_Window(x,y,w,h){}
-		void draw_overlay();
+class FLTKviewport2 : public Fl_Widget
+{
+    friend class FLTKviewport;
+public:
+    FLTKviewport2(int X,int Y,int W,int H);  //constructor
+    int handle(int event);
+    void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 };
 
 
-class FLTKviewport : public myFl_Overlay_Window
-//class FLTKviewport : public Fl_Widget
+class FLTKviewport : public Fl_Overlay_Window
 {
 	    friend class viewport;
         //friend class viewporttool;
         friend class threshold_overlay;
         friend class histo2D_tool;
-    public:
-	    FLTKviewport(int X,int Y,int W,int H);  //constructor
+	    friend class FLTKviewport2;
+
+public:
+	    FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
         ~FLTKviewport();
+		void draw_overlay();
 	    void draw(unsigned char *rgbimage); //joel
                                             //our "active" draw method - will redraw directly whenever it is called
                                             //this method draws the argument rgbimage AND
                                             //feedback (coordinates, cursor)
 	    void resize (int new_x,int new_y,int new_w,int new_h);
-	    int handle(int event);
+//	    int handle(int event);
         void needs_rerendering ();
-
-//		void damage(uchar d); //JK-ööö-overlay_win_test
 
         
 private:
+		viewport *viewport_parent;
+		FLTKviewport2 *drawing_widget;
+
         void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 	    void draw_feedback();       //draws the cursor
 	    bool needsReRendering;	//set to true when we need to update the data drawn on screen
 	   
         std::string feedback_string;      //info (coordinates and such)
-        void do_callback (callbackAction action = CB_ACTION_NONE);  //do callback with specified action
-
+		void do_callback (callbackAction action = CB_ACTION_NONE);  //do callback with specified action
 	    //Variables used by callback function to process events
         int mouse_pos[2];
 	    int drag_dx;

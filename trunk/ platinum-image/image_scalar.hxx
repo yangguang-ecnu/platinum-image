@@ -1184,7 +1184,6 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_ITK(Vector3D radius)
 	cout<<"before --> Pt"<<clock()<<endl;
 	this->replicate_itk_to_image(filter->GetOutput());
 	cout<<"after..."<<clock()<<endl;
-	//JK - verify... ööö
 }
 
 

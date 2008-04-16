@@ -33,17 +33,8 @@
 #include "viewport.h"
 #include "global.h"
 
-/*
-class myFl_Overlay_Window : public Fl_Overlay_Window{
-	public:
-		myFl_Overlay_Window(int w, int h):Fl_Overlay_Window(w,h){}
-		myFl_Overlay_Window(int x, int y, int w, int h):Fl_Overlay_Window(x,y,w,h){}
-		void draw_overlay();
-};
-*/
 
 // this contains the setup information - should be loaded/stored, changed by interacting w. widgets, ...
-
 
 class viewmanager
     {
@@ -88,9 +79,8 @@ class viewmanager
         void refresh_viewports_from_combination(int c);
         void refresh_viewports_from_geometry(int g);
 //        void refresh_viewports_from_data_id(int id);
-        void update_overlays(Fl_Window *w=NULL);
+        void update_overlays();
         void refresh_overlays();
-//        void refresh_overlays_from_geometry(int g);
 
         int get_viewport_id(int v, int h, int virtualview);
         int get_renderer_id(int viewportid);

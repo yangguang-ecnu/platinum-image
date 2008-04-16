@@ -91,10 +91,12 @@ protected:
     static const float wheel_factor;
     static const float zoom_factor;
 
-    int dragLast[2]; //pt_event store drag origin (most useful) but
-                      //for panning we need the pos at last iteration
-    Vector3D global_zoom_start_pos;		//pt_event store initial "Global" position of mouse, used to zoom on the first position clicked...
-    std::vector<int> zoom_start_pos;	//pt_event store initial "Local" position of mouse, used to zoom on the first position clicked...
+    int last_global_x;					//pt_event store drag origin (most useful) but for panning we need the pos at last iteration
+    int last_global_y;					//pt_event store drag origin (most useful) but for panning we need the pos at last iteration
+    int last_local_x;					
+    int last_local_y;					
+    Vector3D physical_zoom_start_pos;		//pt_event store initial "Global" position of mouse, used to zoom on the first position clicked...
+    std::vector<int> local_zoom_start_pos;	//pt_event store initial "Local" position of mouse, used to zoom on the first position clicked...
     renderer_base * renderer;
     std::ostringstream numbers;
 
