@@ -615,18 +615,6 @@ Vector2Dint create_Vector2Dint(int x, int y)
 	return v;
 }
 
-Matrix2D outer_product(const Vector2D a, const Vector2D b)
-{
-	Matrix2D m;
-	
-	for ( int i  = 0; i < 2; i++ )
-	{
-		for ( int j = 0; j < 2; j++ )
-			{ m[i][j] = a[i] * b[j]; }
-	}
-	return m;
-}
-
 Matrix3D outer_product(const Vector3D a, const Vector3D b)
 {
 	Matrix3D m;
@@ -666,15 +654,6 @@ unsigned int get_smallest_power_above(unsigned int this_val, unsigned int power_
 	return 0;
 }
 
-Vector2D mean(const std::vector<Vector2D> & x)
-{
-	Vector2D sum = create_Vector2D(0.0, 0.0);
-	for ( std::vector<Vector2D>::const_iterator itr = x.begin(); itr != x.end(); itr++ )
-		{ sum += *itr; }
-	sum /= x.size();
-	return sum;
-}
-
 Vector3D mean(const std::vector<Vector3D> & x)
 {
 	Vector3D sum = create_Vector3D(0.0, 0.0, 0.0);
@@ -684,35 +663,7 @@ Vector3D mean(const std::vector<Vector3D> & x)
 	return sum;
 }
 
-Matrix2D cov(const std::vector<Vector2D> & x)
-{
-	const Vector2D xmean = mean(x);
-
-	Matrix2D sx;
-	sx.Fill(0.0);
-	for ( std::vector<Vector2D>::const_iterator itr = x.begin(); itr != x.end(); itr++ )
-		{ sx += outer_product(*itr - xmean, *itr - xmean); }
-
-	sx /= (x.size() - 1);
-
-	return sx;
-}
-
-Matrix2D cov(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y)
-{
-	Matrix2D sx = cov(x);
-	sx *= (x.size() - 1);
-
-	Matrix2D sy = cov(y);
-	sy *= (y.size() - 1);
-	
-	Matrix2D s = sx + sy;
-	s /= (x.size() + y.size() - 2);
-	
-	return s;
-}
-
-Matrix3D cov(const std::vector<Vector3D> & x)
+Matrix3D var(const std::vector<Vector3D> & x)
 {
 	const Vector3D xmean = mean(x);
 
@@ -726,12 +677,13 @@ Matrix3D cov(const std::vector<Vector3D> & x)
 	return sx;
 }
 
-Matrix3D cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
+// unbiased pooled covariance matrix estimate
+Matrix3D pooled_cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
 {
-	Matrix3D sx = cov(x);
+	Matrix3D sx = var(x);
 	sx *= (x.size() - 1);
 
-	Matrix3D sy = cov(y);
+	Matrix3D sy = var(y);
 	sy *= (y.size() - 1);
 	
 	Matrix3D s = sx + sy;
@@ -740,25 +692,13 @@ Matrix3D cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
 	return s;
 }
 
-float tsquare(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y)
-{
-	const float nx = x.size();				// use float to avoid "int/int = int" later
-	const float ny = y.size();
-	const Vector2D xmean = mean(x);
-	const Vector2D ymean = mean(y);
-	const Matrix2D s = cov(x, y);
-	const Matrix2D s_inv = static_cast<Matrix2D>(s.GetInverse());
-
-	return ((nx * ny) / (nx + ny)) * ((xmean - ymean) * (s_inv * (xmean - ymean)));
-}
-
 float tsquare(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
 {
 	const float nx = x.size();				// use float to avoid "int/int = int" later
 	const float ny = y.size();
 	const Vector3D xmean = mean(x);
 	const Vector3D ymean = mean(y);
-	const Matrix3D s = cov(x, y);
+	const Matrix3D s = pooled_cov(x, y);
 	const Matrix3D s_inv = static_cast<Matrix3D>(s.GetInverse());
 
 	return ((nx * ny) / (nx + ny)) * ((xmean - ymean) * (s_inv * (xmean - ymean)));

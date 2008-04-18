@@ -424,8 +424,9 @@ int main(int argc, char *argv[])
     int windowwidth = 800-w_margin;
     int windowheight = 600-w_margin;
 
-    Fl_Window window(800,600);
-
+    // myFl_Overlay_Window window(800,600);
+	Fl_Window window(800, 600);
+	
     platinum_setup(window);
 
     // *** 2D histogram project ***

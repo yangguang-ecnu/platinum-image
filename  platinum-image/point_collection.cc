@@ -151,7 +151,7 @@ bool point_collection::empty()
 	return false;
 }
 
-int point_collection::size()
+int point_collection::size() const
 {
 	return thePoints.size();
 }

@@ -391,6 +391,8 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks( const std::string name ) : FLT
 	const int checkBtnWidth = 30;
 	const int btnWidth = 50;
 	const int btnHeight = 20;	// BUTTONHEIGHT = 25
+	
+	this->
 
 	showGroup = new Fl_Group(x(), y() + PARTITLEMARGIN, w(), btnHeight);
 	{		
@@ -461,12 +463,12 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks( const std::string name ) : FLT
 	buttonGroup->end();
 	
 	browser = new ColResizeBrowser(x(), y() + 3 * STDPARWIDGETHEIGHT + PARTITLEMARGIN, w(), 11 * STDPARWIDGETHEIGHT - PARTITLEMARGIN);
-	browser->callback( browserCallback, (void *) this );
+	browser->callback(browserCallback, (void*) this);
 	browser->textsize(12);
 	browser->showcolsep(1);
 	browser->colsepcolor(FL_BLACK);
 
-	// n columns requires n - 1 column widths + and an ending zero element to terminate the array
+	// n columns requires n - 1 column widths + an ending zero element to terminate the array
 	column_widths[0] = 30;
 	column_widths[1] = 60;
 	column_widths[2] = 0;
@@ -547,11 +549,10 @@ void FLTKuserIOpar_landmarks::saveSetCallback(Fl_Widget * callingwidget, void * 
 
 	std::string last_path;
 	try 
-		{ last_path = pt_config::read<std::string>("latest_landmarks_path"); } 
+		{ last_path = pt_config::read<std::string>("latest_path-landmarks_save"); } 
 	catch ( pt_error )
 		{ last_path = "."; }
 
-	// TODO: use: string last_path = pt_config::read<string>("latest_path"); but change to latest_landmarks_path
 	Fl_File_Chooser chooser(last_path.c_str(), "Landmark files (*.txt)\tAny file (*)", Fl_File_Chooser::CREATE, "Save landmarks");
     chooser.ok_label( "Save" );	
 	chooser.show();
@@ -565,7 +566,7 @@ void FLTKuserIOpar_landmarks::saveSetCallback(Fl_Widget * callingwidget, void * 
 		return;
 	}
 
-	pt_config::write("latest_landmarks_path", path_parent(chooser.value(1)));
+	pt_config::write("latest_path-landmarks_save", path_parent(chooser.value(1)));
 	
 	// add the prefix ".txt" if not present
 	string temp( chooser.value() );
@@ -594,8 +595,6 @@ void FLTKuserIOpar_landmarks::saveSetCallback(Fl_Widget * callingwidget, void * 
 	}
 			
 	ofs.close();
-	
-	// TODO: use: pt_config::write("latest_path",path_parent(chooser.value(1))); but change to latest_landmarks_path
 }
 
 void FLTKuserIOpar_landmarks::showCallback(Fl_Widget * callingwidget, void * thisLandmarks)
@@ -651,7 +650,7 @@ void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * 
 {
 	std::string last_path;
 	try 
-		{ last_path = pt_config::read<std::string>("latest_landmarks_path"); } 
+		{ last_path = pt_config::read<std::string>("latest_path-landmarks_load"); } 
 	catch ( pt_error )
 		{ last_path = "."; }
 
@@ -668,7 +667,7 @@ void FLTKuserIOpar_landmarks::loadSetCallback( Fl_Widget *callingwidget, void * 
 		return;
 	}
 
-	pt_config::write("latest_landmarks_path", path_parent(chooser.value(1)));
+	pt_config::write("latest_path-landmarks_load", path_parent(chooser.value(1)));
 
 	ifstream ifs( chooser.value() );
 	

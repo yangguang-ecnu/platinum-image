@@ -47,12 +47,22 @@ void fl_menu_userdata_delete (const Fl_Menu_Item * m);
 class horizresizeablescroll : public Fl_Scroll  //Fl_Scroll with integrated packer that resizes horizontally
                                                 //(and scrolls/packs vertically)
     {
+	protected:
+		int xpos;
+		int ypos;
+	
     public:
         Fl_Pack * interior;                     //the actual list
         horizresizeablescroll(int x, int y, int w, int h, const char *label = 0);
         void resize(int x, int y, int w, int h);
         void begin ();
         void end ();
+		
+		
+		static void widget_callback(Fl_Widget* callingwidget, void* test);
+		//void setupCallback();
+		
+		int handle(int event);
     };
 
 

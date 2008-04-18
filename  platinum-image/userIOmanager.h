@@ -54,6 +54,8 @@ class userIOmanager
         userIOmanager() { }
 
         ~userIOmanager();
+		
+//		static void test_callback(Fl_Widget* callingwidget, void* test);
 
         void setup();                   //create FLTK list widget and all, puts associated widgets in Fl_Group::current()
 
