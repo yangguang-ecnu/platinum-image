@@ -279,7 +279,7 @@ class FLTKuserIOpar_landmarks : public FLTKuserIOparameter_base
 				void colsepcolor(Fl_Color val);
 				int showcolsep() const;
 				void showcolsep(int val);
-				int *column_widths() const;
+				int * column_widths() const;
 				void column_widths(int * val);
 		};
 		

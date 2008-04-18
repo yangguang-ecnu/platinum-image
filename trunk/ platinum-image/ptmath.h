@@ -49,7 +49,7 @@ typedef itk::Matrix<float> Matrix3D;
 
 typedef itk::Vector<float,2> Vector2D;
 typedef itk::Vector<int,2> Vector2Dint;
-typedef itk::Matrix<float,2,2> Matrix2D;
+//typedef itk::Matrix<float,2,2> Matrix2D;
 
 
 class line2D{
@@ -318,13 +318,37 @@ unsigned int get_factorial(unsigned int i);
 unsigned int get_permutations(unsigned int n, unsigned int r); //returns pascals triangle values
 unsigned int get_smallest_power_above(unsigned int this_val, unsigned int power_base=2); //e.g. this_val=10 (base=2) --> 16
 
-Vector2D mean(const std::vector<Vector2D> & x);
+// mean
+template <class T>
+double mean(const std::vector<T> & v)
+{
+	double sum = 0.0;
+	for (typename std::vector<T>::const_iterator itr = v.begin(); itr != v.end(); itr++)
+		{ sum += *itr; }
+	return sum / v.size(); 
+}
+
+// variance
+template <class T>
+double var(const std::vector<T> & v)
+{
+	double m = mean(v);
+	double sum = 0.0;
+	for (typename std::vector<T>::const_iterator itr = v.begin(); itr != v.end(); itr++)
+		{ sum += (*itr - m) * (*itr - m); }
+	return sum / (v.size() - 1);
+}
+
+// standard deviation
+template <class T>
+double sd(const std::vector<T> & v)
+{
+	return sqrt(var(v)); 
+}
+
 Vector3D mean(const std::vector<Vector3D> & x);
-Matrix2D cov(const std::vector<Vector2D> & x);
-Matrix2D cov(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y);
-Matrix3D cov(const std::vector<Vector3D> & x);
-Matrix3D cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y);
-float tsquare(const std::vector<Vector2D> & x, const std::vector<Vector2D> & y);		// Hotelling's two-sample t-square statistic
+Matrix3D var(const std::vector<Vector3D> & x);
+Matrix3D pooled_cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y);
 float tsquare(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y);		// Hotelling's two-sample t-square statistic
 
 // Some parts of the implementation of some the following algorithms were inspired by

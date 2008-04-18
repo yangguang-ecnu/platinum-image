@@ -23,6 +23,9 @@
 
 #include "FLTKutilities.h"
 
+#include <FL/Fl.H>
+#include "event.h"
+
 void init_fl_menu_item(Fl_Menu_Item & m)
     {
     m.label("");
@@ -69,6 +72,12 @@ horizresizeablescroll::horizresizeablescroll (int x, int y, int w, int h, const 
     interior->type(FL_VERTICAL);
     box(FL_FLAT_BOX);
     interior->box(FL_NO_BOX);
+	
+	xpos = 0;
+	ypos = 0;
+	
+	//interior->callback(widget_callback, (void*) this);
+	this->callback(widget_callback, (void*) this);
     }
 
 void horizresizeablescroll::begin ()
@@ -92,6 +101,78 @@ void horizresizeablescroll::resize (int newx, int newy, int neww, int newh)
     }
 
 
+
+void horizresizeablescroll::widget_callback(Fl_Widget* callingwidget, void* test) {
+
+
+	std::cout << "widget_callback" << std::endl;
+}
+
+//void horizresizeablescroll::setupCallback() {
+//	this->callback(widget_callback, (void*) this);
+//}
+
+int horizresizeablescroll::handle(int event)
+{
+	int ret = 0;
+
+//	if (Fl::event() == FL_DRAG )
+//		{ std::cout << "FL_DRAG" << std::endl; }
+
+//	while ( Fl::event_button1() )
+//	{
+//		std::cout << "event_button1" << std::endl;
+//		Fl::flush();
+//	}
+
+//	//if (event == FL_DRAG)
+//	if (Fl::event_state(FL_BUTTON1))
+//	{
+//		std::cout << "FL_DRAG" << std::endl;
+//		while (Fl::event_buttons() != 0)
+//		{
+//			std::cout << "hold" << std::endl;
+//			if (abs(ypos - yposition()) > 0 || abs(xpos - xposition()) > 0)
+//			{ 
+//				ypos = yposition();
+//				xpos = xposition();
+//
+//				std::cout << "redraw" << std::endl;
+//				this->redraw(); 
+//				
+//			}		
+//		}
+//	}
+
+
+
+//	if (Fl::event_state(FL_BUTTON1))
+//	{
+//		std::cout << "ADJUST" << std::endl;
+//	}
+//	
+//	if (event == FL_RELEASE)
+//		{ std::cout << "FL_RELEASE" << std::endl; }
+
+	//std::cout << yposition() << std::endl;
+	//std::cout << event << std::endl;
+//	if (abs(ypos - yposition()) > 0 || abs(xpos - xposition()) > 0)
+//	{ 
+//		ypos = yposition();
+//		xpos = xposition();
+//
+//		std::cout << "redraw" << std::endl;
+//		this->redraw(); 
+//		
+//	}
+	
+	//Fl_Widget::do_callback();
+	
+	Fl_Scroll::handle(event);
+	return 1; //Fl_Scroll::handle(event);
+	//return ( Fl_Scroll::handle(event) ? 1 : ret );
+
+}
 
 // -------- FLTK_Editable_Slider ------------
 

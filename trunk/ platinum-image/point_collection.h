@@ -82,7 +82,7 @@ class point_collection : public data_base
 		
 		bool empty();
 		
-		int size();
+		int size() const;
 
 		void info();
 

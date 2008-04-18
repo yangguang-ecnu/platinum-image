@@ -55,7 +55,6 @@ string eventnames[] =
     "FL_DND_RELEASE",	//23
     };
 
-
 FLTKviewport2::FLTKviewport2(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
 {}
 
@@ -122,9 +121,9 @@ FLTKviewport::FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Ov
 	needs_rerendering();
 	callback_action=CB_ACTION_NONE;
 
-//	resizable(this);	//JK-ööö
-//	show();				//JK-ööö
-//	Fl::run();			//JK-ööö
+//	resizable(this);	//JK-
+//	show();				//JK-
+//	Fl::run();			//JK-
 	}
 
 	
@@ -161,18 +160,23 @@ void FLTKviewport::draw(unsigned char *rgbimage)
     //damage (FL_DAMAGE_ALL);
 
     if (w() > 0 && h() > 0)
-        {
-        //do not redraw zero-sized viewport, fl_draw_image will break down
+    {
+        // do not redraw zero-sized viewport, fl_draw_image will break down
+		
+		fl_draw_image(rgbimage,0,0,w(),h());
+
+/*		This code is probably not needed anymore:
 
         #if defined(__APPLE__)
             const int LD=w(); //size of one pixmap line
-//            fl_draw_image(rgbimage,x(),y(),w(),h(), D,LD) ;
-            fl_draw_image(rgbimage,0,0,w(),h(), D,LD); //JK-ööö Drawing is done relative to the window...
+			// fl_draw_image(rgbimage,x(),y(),w(),h(), D,LD) ;
+            fl_draw_image(rgbimage,0,0,w(),h(), D,LD); //JK- Drawing is done relative to the window...
         #else
-//            fl_draw_image(rgbimage,x(),y(),w(),h(), D) ;
-            fl_draw_image(rgbimage,0,0,w(),h(), D); //JK-ööö Drawing is done relative to the window...
+			// fl_draw_image(rgbimage,x(),y(),w(),h(), D) ;
+            fl_draw_image(rgbimage,0,0,w(),h(), D); //JK- Drawing is done relative to the window...
         #endif
-        }
+*/
+    }
 
     //draw_feedback();
     }

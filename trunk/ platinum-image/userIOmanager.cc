@@ -36,7 +36,11 @@ void userIOmanager::setup()
     const unsigned int width=Fl_Group::current()->w();
 
     widgets_scroll = new horizresizeablescroll(xpos,ypos,width,height);
+	//widgets_scroll->callback(test_callback, this);
+	//widgets_scroll->setupCallback();
     widgets_scroll->end();
+	
+	
     
     //status area is initialized in mainwindow.cc, through its own constructor
     }
@@ -45,6 +49,11 @@ userIOmanager::~userIOmanager()
 {
     IOblocks.clear();
 }
+
+//void userIOmanager::test_callback(Fl_Widget *callingwidget, void* test) {
+//	std::cout << "test_callback" << std::endl;
+//}
+
 
 void userIOmanager::show_message (std::string name, std::string message, displayMethod method  )
 {

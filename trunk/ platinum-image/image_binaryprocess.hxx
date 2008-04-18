@@ -2165,7 +2165,7 @@ void image_binary<IMAGEDIM>::get_num_neighbours_distribution_3D_26Nbh(vector<int
 
 
 template <int IMAGEDIM>
-float image_binary<IMAGEDIM>::get_border_volume_ratio_3D_26Nbh(int num_nb_inside_limit, IMGBINARYTYPE object_value=TRUE)
+float image_binary<IMAGEDIM>::get_border_volume_ratio_3D_26Nbh(int num_nb_inside_limit, IMGBINARYTYPE object_value)
 {
 	vector<int> num_nb;
 	vector<int> num_vox;
