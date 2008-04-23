@@ -151,6 +151,7 @@ class image_general : public image_storage <ELEMTYPE >
 
         // *** element access methods ***
         ELEMTYPE get_voxel(int x, int y, int z=0) const;
+        ELEMTYPE get_voxel(Vector3Dint vox_pos) const;
         ELEMTYPE get_voxel_in_physical_pos(Vector3D phys_pos);  
         ELEMTYPE get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos);  
 		ELEMTYPE get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1, float w2, float w3, float w4);
@@ -206,6 +207,7 @@ class image_general : public image_storage <ELEMTYPE >
 
 		//****** Sub volume operations - regions ********
 		unsigned long get_number_of_voxels_with_value_in_slice_2D(int slice, int dir=2, ELEMTYPE value=1);
+		unsigned long get_number_of_voxels_with_value_in_26_nbh(int x, int y, int z, ELEMTYPE value);
 		void get_span_of_values_larger_than_3D(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2);
 		void get_span_of_value_3D(ELEMTYPE val, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2);
 		int get_span_size_of_value_3D(ELEMTYPE val, int dir);

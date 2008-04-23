@@ -73,8 +73,8 @@ image_label<IMAGEDIM>::image_label(vector< image_binary<IMAGEDIM>* > images, con
 	this->data_has_changed();
 	transfer_function();
 }
-/*
-/*
+
+
 template <int IMAGEDIM>
 image_label<IMAGEDIM>::image_label(image_binary<IMAGEDIM>* image1, image_binary<IMAGEDIM>* image2, image_binary<IMAGEDIM>* image3, image_binary<IMAGEDIM>* image4, image_binary<IMAGEDIM>* image5, const string name):image_integer<IMGLABELTYPE, IMAGEDIM>(image1->nx(),image1->ny(),image1->nz())
 {
@@ -99,7 +99,7 @@ image_label<IMAGEDIM>::image_label(image_binary<IMAGEDIM>* image1, image_binary<
 	this->data_has_changed();
 	transfer_function();
 }
-*/
+
 
 template<int IMAGEDIM >
 void image_label<IMAGEDIM >:: transfer_function(transfer_base<IMGLABELTYPE > * const t)

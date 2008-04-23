@@ -52,7 +52,7 @@ public:
 	image_label(const string filepath, const string name="");
 	image_label(vector< image_binary<IMAGEDIM>* > images, const string name="");
 //JK: TMP removal due to Histo2D - compile error!
-//	image_label(image_binary<IMAGEDIM>* image1, image_binary<IMAGEDIM>* image2, image_binary<IMAGEDIM>* image3=NULL, image_binary<IMAGEDIM>* image4=NULL, image_binary<IMAGEDIM>* image5=NULL, const string name="");
+	image_label(image_binary<IMAGEDIM>* image1, image_binary<IMAGEDIM>* image2, image_binary<IMAGEDIM>* image3, image_binary<IMAGEDIM>* image4=NULL, image_binary<IMAGEDIM>* image5=NULL, const string name="");
 
     virtual void transfer_function(transfer_base<IMGLABELTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
 

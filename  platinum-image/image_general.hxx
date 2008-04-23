@@ -814,6 +814,29 @@ unsigned long image_general<ELEMTYPE, IMAGEDIM>::get_number_of_voxels_with_value
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+unsigned long image_general<ELEMTYPE, IMAGEDIM>::get_number_of_voxels_with_value_in_26_nbh(int x, int y, int z, ELEMTYPE value)
+{
+	int z_from = std::max(0,z-1);
+	int y_from = std::max(0,y-1);
+	int x_from = std::max(0,x-1);
+	int z_to = std::min(int(this->nz()),z+1);
+	int y_to = std::min(int(this->ny()),y+1);
+	int x_to = std::min(int(this->nx()),x+1);
+	unsigned long res =0;
+	for(int c=z_from; c<=z_to; c++){
+		for(int b=y_from; b<=y_to; b++){
+			for(int a=x_from; a<=x_to; a++){
+				if(this->get_voxel(a,b,c)==value){
+					res++;
+				}
+			}
+		}
+	}
+	return res;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_values_larger_than_3D(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2)
 {
 	x1 = datasize[0];	x2 = 0;
@@ -1392,6 +1415,12 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z) const
     {
     return this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
     }
+
+template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(Vector3Dint vox_pos) const
+{
+    return this->dataptr[vox_pos[0] + datasize[0]*vox_pos[1] + datasize[0]*datasize[1]*vox_pos[2]];
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos(Vector3D phys_pos)
