@@ -28,6 +28,7 @@
 #define PI 3.1415926536
 
 #include <limits>	//for example...  numeric_limits<float>
+#include <set>
 
 //tensor algebra type defs, dependencies...
 #include "itkVector.h"
@@ -50,6 +51,10 @@ typedef itk::Matrix<float> Matrix3D;
 typedef itk::Vector<float,2> Vector2D;
 typedef itk::Vector<int,2> Vector2Dint;
 //typedef itk::Matrix<float,2,2> Matrix2D;
+
+
+
+
 
 
 class line2D{
@@ -239,6 +244,8 @@ bool dec_from_string(T& outType, const std::string& inString)
      return true;
  }
  */
+
+
 
 /*
 class matrix_generator{

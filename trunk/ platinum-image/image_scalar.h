@@ -181,6 +181,10 @@ public:
 
 	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----
 
+//	vector<voxel<ELEMTYPE>*> set_val_to_voxel_that_has_no_neighbour_with_val_in_radius2vox(int x, int y, int z, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val);
+
+
+
 	// See description in: Kullberg2006 - J Magn Reson Imaging. 2006 Aug;24(2):394-401.
 	// Whole-body T1 mapping improves the definition of adipose tissue: consequences for automated image analysis.
 	// Usage: large_flip->calc...(small_flip) 

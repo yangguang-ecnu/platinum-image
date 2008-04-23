@@ -23,39 +23,31 @@
 #include "image_binary.h"
 #include "image_label.hxx"
 
-template <int DIM>
-image_binary<DIM>* binary_copycast (image_base* input) 
-{
-    image_binary<DIM > * output = NULL;
-
-        {
-        image_integer <unsigned char, DIM>* input_general =
-            dynamic_cast<image_integer <unsigned char, DIM> *> (input) ; 
-
-        if (input_general != NULL) //! If cast was successful, input had the tried type and input_general can be used in a call to new class' copy constructor
-            {
-            output = new image_binary<DIM> (input_general,true);
-            }
-        }
-
-        {
-        image_integer <unsigned short,DIM>* input_general =
-            dynamic_cast<image_integer <unsigned short, DIM> *> (input) ;
-
-        if (input_general != NULL) //! If cast was successful, input had the tried type and input_general can be used in a call to new class' copy constructor
-            {
-            output = new image_binary<DIM> (input_general,true);
-            //delete input;
-            } 
-        }
-
-    return output;
-    }
 
 template <int IMAGEDIM>
-image_binary<IMAGEDIM>::image_binary(int w, int h, int d, IMGBINARYTYPE *ptr
-                                    ):image_label<IMAGEDIM>(w, h, d, ptr)
-    {}
+image_binary<IMAGEDIM>::image_binary(int w, int h, int d, IMGBINARYTYPE *ptr):image_label<IMAGEDIM>(w, h, d, ptr)
+{}
+/*
+template<int IMAGEDIM>
+template<class SOURCETYPE>
+image_binary<IMAGEDIM>::image_binary(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData): image_label<IMAGEDIM>(old_image, copyData)
+{}
+*/
+/*
+template <int IMAGEDIM>
+image_binary<IMAGEDIM>::image_binary(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile, unsigned int increment): image_label<IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
+{}
+
+*/
+template <int IMAGEDIM>
+image_binary<IMAGEDIM>::image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i):image_label<IMAGEDIM>(i)
+{}
+
+template <int IMAGEDIM>
+image_binary<IMAGEDIM>::image_binary(const string filepath, const string name):image_label<IMAGEDIM>(filepath, name) 
+{}
+
+
 
 
 
@@ -309,6 +301,35 @@ void image_binary<IMAGEDIM>::invert()
         }
 	//this->image_has_changed();
     } 
+
+template <int DIM>
+image_binary<DIM>* binary_copycast (image_base* input) 
+{
+    image_binary<DIM > * output = NULL;
+
+        {
+        image_integer <unsigned char, DIM>* input_general =
+            dynamic_cast<image_integer <unsigned char, DIM> *> (input) ; 
+
+        if (input_general != NULL) //! If cast was successful, input had the tried type and input_general can be used in a call to new class' copy constructor
+            {
+            output = new image_binary<DIM> (input_general,true);
+            }
+        }
+
+        {
+        image_integer <unsigned short,DIM>* input_general =
+            dynamic_cast<image_integer <unsigned short, DIM> *> (input) ;
+
+        if (input_general != NULL) //! If cast was successful, input had the tried type and input_general can be used in a call to new class' copy constructor
+            {
+            output = new image_binary<DIM> (input_general,true);
+            //delete input;
+            } 
+        }
+
+    return output;
+    }
 
 #include "image_binaryprocess.hxx"
 
