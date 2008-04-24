@@ -48,6 +48,7 @@ class image_binary : public image_label <IMAGEDIM>
 //		image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i):image_label<IMAGEDIM>(i){}
 //		image_binary(const string filepath, const string name=""):image_label<IMAGEDIM>(filepath, name){}
 
+	image_binary<IMAGEDIM>* get_subvolume_from_slice_3D(int slice, int dir=2);
 
 	image_binary<IMAGEDIM>* get_subvolume_from_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size);
 	image_binary<IMAGEDIM>* get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2);

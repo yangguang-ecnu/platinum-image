@@ -158,6 +158,7 @@ class image_general : public image_storage <ELEMTYPE >
         //ELEMTYPE get_voxel(unsigned long offset); //deprecated: use iterator!
 
 		Vector3D get_physical_pos_for_voxel(int x, int y, int z);
+		float get_physical_distance_between_voxels(int x1, int y1, int z1, int x2, int y2, int z2);
 		float get_phys_span_in_dir(Vector3D dir); //return the largest physical image span in dir...
 
         RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>) const;

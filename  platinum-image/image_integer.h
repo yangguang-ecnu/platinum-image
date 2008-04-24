@@ -62,8 +62,11 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
         image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, IMGBINARYTYPE object_value=TRUE, bool regionGrow=true); ///Computing a narrowest passage transform followed by competetive region growing. Assumes the current image to be a distance image and the mask image contains seedpoints for the target.
 		image_label<IMAGEDIM> * narrowest_passage_3D(image_binary<IMAGEDIM> * mask, int* no_internal_seeds, int y_direction, int z_direction,bool allow_before=true,IMGBINARYTYPE object_value=TRUE, bool regionGrow=true);
 
+		image_integer<ELEMTYPE, IMAGEDIM>* get_subvolume_from_slice_3D(int slice, int dir=2);
 		image_integer<ELEMTYPE, IMAGEDIM>* get_subvolume_from_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size);
 		image_integer<ELEMTYPE, IMAGEDIM>* get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2);
+		bool is_value_in_image(ELEMTYPE value);
+		bool is_value_in_slice_3D(ELEMTYPE value, int slice, int dir=2);
 
 
 	private:

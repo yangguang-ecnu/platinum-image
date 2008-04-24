@@ -195,7 +195,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_rough_lung_fr
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_from_sum_image(image_binary<3> *right_thorax_body_mask, float lung_volume_in_litres)
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_from_sum_image(image_binary<3> *right_thorax_body_mask, float lung_volume_in_litres, int low_threshold)
 {
 
 	image_binary<3> *rough_lung = this->appl_wb_segment_rough_lung_from_sum_image(right_thorax_body_mask, lung_volume_in_litres);
@@ -221,7 +221,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_fr
 	float a;
 	float c;
 	float s;
-	h2->fit_gaussian_to_intensity_range(a,c,s,1,50);
+	h2->fit_gaussian_to_intensity_range(a,c,s,1,low_threshold);
 	cout<<"a="<<a<<endl;
 	cout<<"c="<<c<<endl;
 	cout<<"s="<<s<<endl;
@@ -252,7 +252,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_fr
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres)
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres, int low_threshold)
 {
 	// ---- Create Common thorax mask -----
 	image_binary<3> *thorax_mask = new image_binary<3>(body_mask);
@@ -270,7 +270,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_fr
 	// ---- Segment RIGHT Lung -----
 	image_binary<3> *right_mask = new image_binary<3>(thorax_mask);
 	right_mask->fill_region_3D(0,cg[0]+2,body_mask->get_size_by_dim(0)-1,0);
-	image_binary<3> *r_lung = this->appl_wb_segment_right_lung_from_sum_image(right_mask,lung_volume_in_litres);
+	image_binary<3> *r_lung = this->appl_wb_segment_right_lung_from_sum_image(right_mask,lung_volume_in_litres, low_threshold);
 	r_lung->name("r_lung");
 
 
@@ -283,7 +283,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_fr
 	left_mask->fill_region_3D(0,0,cg[0]-2,0);
 	left_mask->fill_region_3D(1,0,y1,0);
 	left_mask->fill_region_3D(1,y2,left_mask->ny()-1,0);
-	image_binary<3> *l_lung = this->appl_wb_segment_right_lung_from_sum_image(left_mask,lung_volume_in_litres);
+	image_binary<3> *l_lung = this->appl_wb_segment_right_lung_from_sum_image(left_mask,lung_volume_in_litres, low_threshold);
 	l_lung->name("l_lung");
 
 

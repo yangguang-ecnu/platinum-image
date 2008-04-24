@@ -177,13 +177,15 @@ filter_central_difference::filter_central_difference(int dir)
 
 filter_gaussian::filter_gaussian(int size, int dir, float std_dev, int center)
 {	if (size%2==0) {cout << "WARNING: Creating gaussian filter with kernel of even size";}
-	if (std_dev<0) {std_dev=(float)size/5;}
+	if (std_dev<0) {std_dev=sqrt(float(2))*float(size)/float(5);}
 	if (center<-1000) {center=size/2;}
 
 	float *w = new float[size];
 	float sum=0;
+	gaussian gauss = gaussian(1,center,std_dev);
 	for (int i=0; i<size; i++) {
-		w[i]=exp( -pow(i-center, 2)/pow(std_dev,2) );
+		//w[i]=exp( -pow(i-center, 2)/pow(std_dev,2) );
+		w[i]=gauss.evaluate_at(i);
 		sum+=w[i];
 	}
 	for (int i=0; i<size; i++) {w[i]/=sum;	} // Normalize

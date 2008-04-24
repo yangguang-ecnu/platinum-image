@@ -556,14 +556,14 @@ double image_storage<ELEMTYPE >::get_sum_of_voxels(ELEMTYPE lower_limit, bool ca
 		typename image_storage<IMGBINARYTYPE >::iterator mask_itr = mask->begin();
 		if (calc_scalar_abs_value) {
 			while(itr != this->end()) {
-				if (*mask_itr && *itr>lower_limit)
+				if (*mask_itr && *itr>=lower_limit)
 					{sum+=abs((double)*itr);}
                 ++itr;
 				++mask_itr;
 			}
 		}else {
 			while(itr != this->end()) {
-				if (*mask_itr && *itr>lower_limit)
+				if (*mask_itr && *itr>=lower_limit)
 					{sum+=(double)*itr;}
 				++itr;
 				++mask_itr;

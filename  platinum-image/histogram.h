@@ -109,18 +109,6 @@ class histogram_typed : public histogram_base //!features common to histograms o
             {max_value=new_max;}
     };
 
-
-class gaussian{
-public:
-	gaussian(float amp=0, float cent=0, float sig=0);
-	~gaussian(void);
-	float amplitude;	
-	float center;
-	float sigma;		//standard deviation
-	float evaluate_at(float x);
-};
-
-
 template <class ELEMTYPE>
 class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph histogram
     {

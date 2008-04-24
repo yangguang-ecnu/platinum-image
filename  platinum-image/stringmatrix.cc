@@ -402,14 +402,14 @@ void stringmatrix::read_from_csvfile(string filepath, string sep)
 	int ind2=0;
 	if (myfile.is_open())
 	{
-		char buffer[1000];
+		char buffer[10000];
 		string s;
 		string word;
 		data.clear();
 		vector<string> row;
 		while (! myfile.eof() )
 		{
-			myfile.getline(buffer,1000);
+			myfile.getline(buffer,10000);
 //			cout<<buffer<<endl;
 			s=string(buffer);
 			ind1=0;

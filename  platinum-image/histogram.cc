@@ -379,17 +379,3 @@ void histogram_2D::calculate(int new_num_buckets)
                 }
             }
         }
-    
-
-gaussian::gaussian(float amp, float cent, float sig){
-	amplitude = amp;
-	center = cent;
-	sigma = sig;
-}
-
-gaussian::~gaussian(){}
-
-float gaussian::evaluate_at(float x){
-	return amplitude * exp( -pow((x-center),2)/pow(sigma,2) );	
-}
-

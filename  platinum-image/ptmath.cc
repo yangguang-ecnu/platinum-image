@@ -20,6 +20,40 @@
 #include "error.h"
 #include <vcl_iostream.h>
 
+
+gaussian::gaussian(float amp, float cent, float sig){
+	amplitude = amp;
+	center = cent;
+	sigma = sig;
+}
+
+gaussian::~gaussian(){}
+
+float gaussian::evaluate_at(float x){
+	return amplitude * exp( -0.5 * pow((x-center),2)/pow(sigma,2) );	
+}
+
+gaussian_2d::gaussian_2d(float amp, float cent_x, float cent_y, float sig_u, float sig_v, float angle){
+	amplitude = amp;
+	center_x = cent_x;
+	center_y = cent_y;
+	sigma_u = sig_u;
+	sigma_v = sig_v;
+	phi = angle;
+}
+
+gaussian_2d::~gaussian_2d(){}
+
+float gaussian_2d::evaluate_at(float x, float y){
+	float cos_phi = cos(phi);
+	float sin_phi = sin(phi);
+	float sigma_u_2 = pow(sigma_u,2);
+	float sigma_v_2 = pow(sigma_v,2);
+	float dx = x-center_x;
+	float dy = y-center_y;
+	return amplitude* exp( -0.5 * (pow( dx*cos_phi + dy*sin_phi , 2)/sigma_u_2 + pow( dy*cos_phi - dx*sin_phi , 2)/sigma_v_2) );
+}
+
 line2D::line2D()
 {
 	point = create_Vector2D(0,0);
