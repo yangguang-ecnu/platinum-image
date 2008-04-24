@@ -53,9 +53,28 @@ typedef itk::Vector<int,2> Vector2Dint;
 //typedef itk::Matrix<float,2,2> Matrix2D;
 
 
+class gaussian{
+public:
+	gaussian(float amp=0, float cent=0, float sig=0);
+	~gaussian(void);
+	float amplitude;	
+	float center;
+	float sigma;		//standard deviation
+	float evaluate_at(float x);
+};
 
-
-
+class gaussian_2d{
+public:
+	gaussian_2d(float amp=0, float cent_x=0, float cent_y=0, float sig_u=0, float sig_v=0, float angle=0);
+	~gaussian_2d(void);
+	float amplitude;	
+	float center_x;
+	float center_y;
+	float sigma_u;		//standard deviation
+	float sigma_v;
+	float phi;			//angle of u and v relative to x and y (radians)
+	float evaluate_at(float x, float y);
+};
 
 class line2D{
 
