@@ -2248,6 +2248,37 @@ image_label<IMAGEDIM> * image_integer<ELEMTYPE, IMAGEDIM>::narrowest_passage_3D(
 	return output;
 	}
 
+template <class ELEMTYPE, int IMAGEDIM>
+image_integer<ELEMTYPE, IMAGEDIM>* image_integer<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slice_3D(int slice, int dir)
+{
+	cout<<"get_subvolume_from_region_3D..."<<endl;
+
+	int usize=this->get_size_by_dim_and_dir(0,dir);
+	int vsize=this->get_size_by_dim_and_dir(1,dir);
+	pt_error::error_if_false(slice>=0 && slice<this->get_size_by_dim_and_dir(2,dir)," slice outside image dimensions in image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slice_3D",pt_error::debug);
+
+	image_integer<ELEMTYPE, IMAGEDIM>* res;
+	if (dir==0) {
+		res = new image_integer<ELEMTYPE, IMAGEDIM>(1, usize, vsize);
+		res->set_parameters(this);
+		res->set_origin(this->get_physical_pos_for_voxel(slice,0,0));
+	} else if (dir==1) {
+		res = new image_integer<ELEMTYPE, IMAGEDIM>(vsize, 1, usize);
+		res->set_parameters(this);
+		res->set_origin(this->get_physical_pos_for_voxel(0,slice,0));
+	} else {
+		res = new image_integer<ELEMTYPE, IMAGEDIM>(usize, vsize, 1);
+		res->set_parameters(this);
+		res->set_origin(this->get_physical_pos_for_voxel(0,0,slice));
+	}
+
+	for (int u=0; u<usize; u++){
+		for (int v=0; v<vsize; v++){
+			res->set_voxel_by_dir(u,v,0, this->get_voxel_by_dir(u,v,slice,dir), dir);
+		}
+	}
+	return res;
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_integer<ELEMTYPE, IMAGEDIM>* image_integer<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size)
@@ -2279,6 +2310,33 @@ image_integer<ELEMTYPE, IMAGEDIM>* image_integer<ELEMTYPE, IMAGEDIM>::get_subvol
 		}
 	}
 	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_integer<ELEMTYPE, IMAGEDIM>::is_value_in_image(ELEMTYPE value)
+{
+	typename image_storage<ELEMTYPE >::iterator iter = this->begin();
+    while (iter != this->end())
+        {
+        if (*iter==value)
+			return true;
+		++iter;
+        }
+	return false;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_integer<ELEMTYPE, IMAGEDIM>::is_value_in_slice_3D(ELEMTYPE value, int slice, int dir)
+{
+	int usize = this->get_size_by_dim_and_dir(0,dir);
+	int vsize = this->get_size_by_dim_and_dir(1,dir);
+	for (int u=0; u<usize; u++) {
+		for (int v=0; v<vsize; v++) {
+			if (this->get_voxel_by_dir(u,v,slice,dir)==value)
+				return true;
+		}
+	}
+	return false;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
