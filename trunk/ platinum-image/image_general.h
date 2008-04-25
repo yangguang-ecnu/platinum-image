@@ -212,8 +212,6 @@ class image_general : public image_storage <ELEMTYPE >
 		void get_span_of_values_larger_than_3D(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2);
 		void get_span_of_value_3D(ELEMTYPE val, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2);
 		int get_span_size_of_value_3D(ELEMTYPE val, int dir);
-		image_general<ELEMTYPE, IMAGEDIM>* crop_3D(image_binary<3> *mask);	
-		//... get_sub_region(...)
 
 
 		//****** Sub volume operations - slices********

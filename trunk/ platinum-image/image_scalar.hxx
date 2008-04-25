@@ -489,6 +489,38 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolum
 	return res;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::crop_and_return_3D(image_binary<3> *mask)
+{
+	image_scalar<ELEMTYPE, IMAGEDIM>* res;
+	if(this->same_size(mask)){
+		//jk-ööö... implement here... 
+		//if a return value is given in a similar function... also implement in all image_classes...
+		int x1,y1,z1,x2,y2,z2;
+		mask->get_span_of_value_3D(1,x1,y1,z1,x2,y2,z2);
+		res = this->get_subvolume_from_region_3D(x1,y1,z1,x2,y2,z2); //JK-ööö-update origin accordingly...
+
+	}else{
+		pt_error::error("crop_and_return_3D(image_binary<3> *mask)--> NOT same size...",pt_error::debug);
+	}
+
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::crop_3D(image_binary<3> *mask)
+{
+	if(this->same_size(mask)){
+		//jk-ööö... implement here... 
+		//if a return value is given in a similar function... also implement in all image_classes...
+		image_scalar<ELEMTYPE, IMAGEDIM>* res = this->crop_and_return_3D(mask);
+	    this->initialize_dataset(res->nx(), res->ny(), res->nz(), NULL); //deallocate is done in initialize_dataset, if needed...
+		copy_data(res,this);
+	}else{
+		pt_error::error("crop_3D(image_binary<3> *mask)--> NOT same size...",pt_error::debug);
+	}
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM> * image_scalar<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE low, ELEMTYPE high, IMGBINARYTYPE true_inside_threshold)

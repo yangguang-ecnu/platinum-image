@@ -342,7 +342,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_file_to_this(std::string f)	//loads
 		//do not pop up a raw_importer window...
 	    //rawimporter::create(chosen_files);
 
-		pt_error::error_if_false(success,"image_general-load_file_to_this - FAIL",pt_error::serious);
+		pt_error::error_if_false(success,"image_general-load_file_to_this - FAIL",pt_error::serious);  //Note: if you end up crashing here... you might have entered wrong ELEMTYPE
 	}else{
 		pt_error::error("image_general-load_file_to_this - file does not exist... \n("+f+")",pt_error::debug);
 	}
@@ -905,15 +905,6 @@ int image_general<ELEMTYPE, IMAGEDIM>::get_span_size_of_value_3D(ELEMTYPE val, i
 	return ret;
 }
 
-template <class ELEMTYPE, int IMAGEDIM>
-image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::crop_3D(image_binary<3> *mask)
-{
-	if(this->same_size(mask)){
-
-	}else{
-		pt_error::error("crop_3D(image_binary<3> *mask)--> NOT same size...",pt_error::debug);
-	}
-}
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slices_3D(int start_slice, int every_no_slice, int slice_dir)
@@ -1914,7 +1905,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::print_geometry()
 {
 	std::cout<<"*************************************"<<std::endl;
-	std::cout<< this->name()<<"->print_geometry() datasize: ("<<datasize[0]<<","<<datasize[1]<<","<<datasize[2]<<")"<<endl;
+	std::cout<< this->name()<<"\n->print_geometry() datasize: ("<<datasize[0]<<","<<datasize[1]<<","<<datasize[2]<<")"<<endl;
 	std::cout<<"num_elements:"<<this->num_elements<<std::endl;
 	std::cout<<"origin:"<<this->origin<<std::endl;
 	std::cout<<"voxel_resize:"<<std::endl<<get_voxel_resize()<<std::endl;
