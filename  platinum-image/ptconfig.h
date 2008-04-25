@@ -28,9 +28,7 @@
 #define __ptconfig__
 
 #include <string>
-//#include <stdio.h>
 #include <fstream>
-//#include "configfile.h"
 #include "Utilities/configfile/configfile.h"
 #include "fileutils.h"
 #include "error.h"
@@ -49,36 +47,8 @@ class pt_config{
 			static T read(string key, string filename=DEFAULT_CONFIG_FILE);  // call as read<T>
 		template<class T> 
 			static void write(string key, T value, string filename=DEFAULT_CONFIG_FILE);  // call as read<T>
-
-/*
-    private:
-        std::string _M_msg;
-        errorLevel level;
-
-    public:
-        static bool error_if_true (bool condition, std::string message, pt_error::errorLevel l = serious);
-        static bool error_if_false (bool condition, std::string message, pt_error::errorLevel l = serious)
-            {return error_if_true (!condition, message, l);}
-        template <class PTR>
-        static PTR * error_if_null (PTR * p, std::string message, pt_error::errorLevel l = fatal)
-            {
-            error_if_true (p == NULL, message, l);
-            return p;
-            }
-        static void error ( std::string message, pt_error::errorLevel l = serious);
-
-        static const std::string level_name (pt_error::errorLevel l);
-
-        explicit //avoid throwing this directly, rather use error (...) above
-            pt_error(const std::string& __arg,errorLevel l = serious);
-
-        virtual 
-            ~pt_error() throw() { }
-
-        virtual const char* 
-            what() const throw();
-*/
 };
+
 
 template<class T> 
 T pt_config::read(string key, string filename)
@@ -92,6 +62,7 @@ T pt_config::read(string key, string filename)
 		{ throw pt_error("pt_config::read(): the key \"" + key + "\" is not found in \"" +  filename + "\"", pt_error::warning); }		
 	return t;
 }
+
 
 template<class T> 
 void pt_config::write(string key, T value, string filename)

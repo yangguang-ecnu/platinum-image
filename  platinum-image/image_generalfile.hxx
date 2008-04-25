@@ -388,7 +388,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_files2(std::stri
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_fileAF(std::string file_path, std::string seriesIdentifier)
 { 
-//	std::cout<< "--- load_dataset_from_DICOM_filesAF" << std::endl;
+	std::cout<< "--- load_dataset_from_DICOM_filesAF" << std::endl;
 	std::cout<<"file_path="<<file_path<<std::endl;
 	std::cout<<"seriesIdentifier="<<seriesIdentifier<<std::endl;
 	string dir_path = path_parent(file_path);
@@ -416,7 +416,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_fileAF(std::stri
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_these_DICOM_files(vector<string> fileNames){
-
+	cout<<"load_dataset_from_these_DICOM_files...("<<fileNames.size()<<")"<<endl;
 	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
 	typename theImagePointer image = theImageType::New();
 
@@ -447,11 +447,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_these_DICOM_files(vect
 
     this->from_file(true);
 	this->meta.read_metadata_from_dcm_file(fileNames[0].c_str());	//JK1 - Loads meta data from first dicom file in vector...
-	this->meta.print_all();
-	cout<<"..."<<endl;
-	this->meta.print_all();
+//	this->meta.print_all();
+//	cout<<"..."<<endl;
 	this->name( this->meta.get_name() );
 	this->read_geometry_from_dicom_file ( fileNames[0].c_str() );			// use the first file name in the vector
+	this->print_geometry();
 }
 
 
