@@ -102,7 +102,9 @@ class image_binary : public image_label <IMAGEDIM>
 	//TODO: create distancetransform where weights are given as argument (3,4,5)... can then be used to weight spatial resolution....
 
 	void erode_3D_26Nbh(IMGBINARYTYPE object_value=TRUE); ///Morphological erode (26 Neighbourhood)
+	void erode_3D_26Nbh(int num_iter, IMGBINARYTYPE object_value); ///Morphological dilate (26 Neighbourhood)
 	void dilate_3D_26Nbh(IMGBINARYTYPE object_value=TRUE); ///Morphological dilate (26 Neighbourhood)
+	void dilate_3D_26Nbh(int num_iter, IMGBINARYTYPE object_value); ///Morphological dilate (26 Neighbourhood)
 	int find_voxel_index_percent_object_content(int dir, int object_content_percent, IMGBINARYTYPE object_value=TRUE); 
 	void convex_hull_line_filling_3D(int dir, IMGBINARYTYPE object_value=TRUE); 
 

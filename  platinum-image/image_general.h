@@ -95,14 +95,13 @@ class image_general : public image_storage <ELEMTYPE >
 
         void set_parameters ();                                                     //reset & calculate parameters
         void set_parameters (itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
-        template <class sourceType>
-        void set_parameters (image_general<sourceType, IMAGEDIM> * from_image);         //clone parameters from another image
-        
         void calc_transforms (); //used by set_parameters(...), cached transform(s) recalculations
-
-		Vector3D get_phys_pos_of_corner(int corner_id); //return physical position of corner 0...7
+		Vector3D get_phys_pos_of_corner(int corner_id); //return physical position of corner 0...7 (for simple iteration over all corners)
 
     public:     
+        template <class sourceType>
+        void set_parameters (image_general<sourceType, IMAGEDIM> * from_image);         //clone parameters from another image
+
 		image_base * alike (imageDataType);
 
         image_general(ELEMTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize);

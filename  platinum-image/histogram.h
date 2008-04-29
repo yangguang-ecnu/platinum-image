@@ -145,10 +145,12 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		int intensity_to_bucketpos(ELEMTYPE intensity);
 
 //		void smooth_mean(int nr_of_neighbours=3, int nr_of_times=1);
-		void smooth_mean(int nr_of_neighbours, int nr_of_times, int from, int to);
+		void smooth_mean(int nr_of_neighbours, int nr_of_times, int from_bucket, int to_bucket);
 
 		ELEMTYPE get_intensity_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity);
 		ELEMTYPE get_intensity_at_included_num_pix_from_lower_int(ELEMTYPE lower_int, float num_pix);
+
+		bool is_histogram_bimodal(int start, int end, int min_mode_sep=150, double valley_factor=0.7, ELEMTYPE peak_min=200, int speedup=1);
 
 		//------ Fitting of gaussian functions ------
 		void fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info=false);
@@ -156,8 +158,10 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		float find_better_center(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		float find_better_sigma(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		double get_least_square_diff(gaussian g, int from_bucket, int to_bucket);
-		int get_max_value_in_bucket_range(int from, int to);
-		int get_max_value_in_bucket_range(int from, int to, int &max_val_bucket_pos);
+		ELEMTYPE get_min_value_in_bucket_range(int from, int to);
+		ELEMTYPE get_min_value_in_bucket_range(int from, int to, int &min_val_bucket_pos);
+		ELEMTYPE get_max_value_in_bucket_range(int from, int to);
+		ELEMTYPE get_max_value_in_bucket_range(int from, int to, int &max_val_bucket_pos);
 		float get_mean_intensity_in_bucket_range(int from, int to);
 		float get_variance_in_bucket_range(int from, int to);
     };

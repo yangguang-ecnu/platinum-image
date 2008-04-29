@@ -1908,7 +1908,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::print_geometry()
 	std::cout<< this->name()<<"\n->print_geometry() datasize: ("<<datasize[0]<<","<<datasize[1]<<","<<datasize[2]<<")"<<endl;
 	std::cout<<"num_elements:"<<this->num_elements<<std::endl;
 	std::cout<<"origin:"<<this->origin<<std::endl;
-	std::cout<<"voxel_resize:"<<std::endl<<get_voxel_resize()<<std::endl;
+	std::cout<<"voxel_size:"<<this->get_voxel_size()<<std::endl;
+	std::cout<<"voxel_resize:"<<std::endl<<this->get_voxel_resize()<<std::endl;
 	std::cout<<"orientation:"<<std::endl;
 	std::cout<<this->orientation[0][0]<<" "<<this->orientation[1][0]<<" "<<this->orientation[2][0]<<std::endl;
 	std::cout<<this->orientation[0][1]<<" "<<this->orientation[1][1]<<" "<<this->orientation[2][1]<<std::endl;

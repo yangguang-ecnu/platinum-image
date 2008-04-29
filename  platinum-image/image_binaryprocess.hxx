@@ -1907,10 +1907,20 @@ void image_binary<IMAGEDIM>::outline_3D(int thickness, IMGBINARYTYPE object_valu
 	delete threshold_image;
 	}
 
+
+
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::erode_3D_26Nbh(IMGBINARYTYPE object_value)
 {
 	dilate_3D_26Nbh(!object_value);
+}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::erode_3D_26Nbh(int num_iter, IMGBINARYTYPE object_value)
+{
+	for(int i=0;i<num_iter;i++){
+		this->erode_3D_26Nbh(object_value);
+	}
 }
 
 
@@ -1957,6 +1967,13 @@ void image_binary<IMAGEDIM>::dilate_3D_26Nbh(IMGBINARYTYPE object_value)
 	delete res;
 }
 
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::dilate_3D_26Nbh(int num_iter, IMGBINARYTYPE object_value)
+{
+	for(int i=0;i<num_iter;i++){
+		this->dilate_3D_26Nbh(object_value);
+	}
+}
 
 template <int IMAGEDIM>
 int image_binary<IMAGEDIM>::find_voxel_index_percent_object_content(int dir, int object_content_percent, IMGBINARYTYPE object_value)
