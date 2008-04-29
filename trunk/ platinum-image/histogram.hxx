@@ -432,10 +432,10 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times){
 */
 
 template <class ELEMTYPE>
-void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, int from, int to){
+void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, int from_bucket, int to_bucket){
 	cout<<"smooth....("<<nr_of_neighbours<<","<<nr_of_times<<")...";
 
-	to = std::min((unsigned short) to, this->num_buckets);
+	to_bucket = std::min((unsigned short)to_bucket, this->num_buckets);
 
 	//this variable is filled in the smoothing loop to not affect the smooth input values...
 	//the "res-results" are then copied to the buckets[] variable for each iteration...	
@@ -445,11 +445,11 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 		res[i] = this->buckets[i];
 	}
 
-	if(nr_of_neighbours>=3 && to > (from + 3)){
+	if(nr_of_neighbours>=3 && to_bucket > (from_bucket + 3)){
 		ELEMTYPE tmp=0;
 		int half = int(float(nr_of_neighbours)/2.0);
-		int start_filt	= from + half;
-		int end_filt	= to - (nr_of_neighbours-half);
+		int start_filt	= from_bucket + half;
+		int end_filt	= to_bucket - (nr_of_neighbours-half);
 		int start_sum	= - half;
 		int end_sum		= nr_of_neighbours - half;
 		cout<<" half="<<half;
@@ -537,6 +537,38 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_included_num_pix_from_lower_in
 }
 
 		 
+template <class ELEMTYPE>
+bool histogram_1D<ELEMTYPE>::is_histogram_bimodal(int start_bucket, int end_bucket, int min_mode_sep, double valley_factor, ELEMTYPE peak_min, int speedup){
+	cout<<"isHistogramBimodal..."<<endl;
+	this->smooth_mean(5,1,start_bucket,end_bucket);
+
+	bool ret = false;
+	ELEMTYPE peak_1 = 0;
+	ELEMTYPE peak_2 = 0;
+	ELEMTYPE min_peak = 0;
+	ELEMTYPE valley = 0;
+	for(int i=start_bucket+1; i<=end_bucket-min_mode_sep; i = i+speedup){
+		for(int j=i+min_mode_sep; j<end_bucket; j = j+speedup){
+			peak_1 = this->get_max_value_in_bucket_range(start_bucket,i);
+			peak_2 = this->get_max_value_in_bucket_range(j,end_bucket);
+			valley = this->get_min_value_in_bucket_range(i,j);
+
+			min_peak = std::min(peak_1,peak_2);
+
+			if(min_peak > peak_min && valley < valley_factor*double(min_peak)){
+				cout<<"start_bucket\ti\tsep\tj\tend_bucket\tpeak_1\tpeak_2\tvalley"<<endl;
+				cout<<start_bucket<<"\t"<<i<<"\t"<<min_mode_sep<<"\t"<<j<<"\t";
+				cout<<end_bucket<<"\t"<<peak_1<<"\t"<<peak_2<<"\t"<<valley<<endl;
+				cout<<"***TRUE***"<<endl;
+				return true;
+			}
+
+		}
+	}
+	cout<<"***FALSE***"<<endl;
+	return false;
+}
+
 
 
 template <class ELEMTYPE>
@@ -549,6 +581,9 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 
 	int from_bucket = intensity_to_bucketpos(from);
 	int to_bucket = intensity_to_bucketpos(to);
+
+	cout<<"from_bucket="<<from_bucket<<endl;
+	cout<<"to_bucket="<<to_bucket<<endl;
 
 	gaussian g(amp,center,sigma);
 	g.amplitude = float(get_max_value_in_bucket_range(from_bucket,to_bucket));
@@ -677,19 +712,41 @@ double histogram_1D<ELEMTYPE>::get_least_square_diff(gaussian g, int from_bucket
 	return error;
 }
 
+template <class ELEMTYPE>
+ELEMTYPE histogram_1D<ELEMTYPE>::get_min_value_in_bucket_range(int from, int to)
+{
+	int pos=0;
+	return get_min_value_in_bucket_range(from, to, pos);
+}
+
+template <class ELEMTYPE>
+ELEMTYPE histogram_1D<ELEMTYPE>::get_min_value_in_bucket_range(int from, int to, int &min_val_bucket_pos)
+{
+	ELEMTYPE min_value = std::numeric_limits<ELEMTYPE>::max();
+
+	for(int i=from; i<=to; i++){
+		if(this->buckets[i]<max_value){
+			min_val_bucket_pos = i;
+			min_value = this->buckets[i];
+		}
+	}
+
+	return min_value;
+}
+
 
 
 template <class ELEMTYPE>
-int histogram_1D<ELEMTYPE>::get_max_value_in_bucket_range(int from, int to)
+ELEMTYPE histogram_1D<ELEMTYPE>::get_max_value_in_bucket_range(int from, int to)
 {
 	int pos=0;
 	return get_max_value_in_bucket_range(from, to, pos);
 }
 
 template <class ELEMTYPE>
-int histogram_1D<ELEMTYPE>::get_max_value_in_bucket_range(int from, int to, int &max_val_bucket_pos)
+ELEMTYPE histogram_1D<ELEMTYPE>::get_max_value_in_bucket_range(int from, int to, int &max_val_bucket_pos)
 {
-	int max_value = std::numeric_limits<ELEMTYPE>::min();
+	ELEMTYPE max_value = std::numeric_limits<ELEMTYPE>::min();
 
 	for(int i=from; i<=to; i++){
 		if(this->buckets[i]>max_value){

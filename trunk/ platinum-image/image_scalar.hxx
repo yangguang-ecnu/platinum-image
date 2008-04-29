@@ -486,6 +486,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolum
 			}
 		}
 	}
+	res->set_origin(this->get_physical_pos_for_voxel(x1,y1,z1));
 	return res;
 }
 
@@ -494,12 +495,10 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::crop_and_ret
 {
 	image_scalar<ELEMTYPE, IMAGEDIM>* res;
 	if(this->same_size(mask)){
-		//jk-ööö... implement here... 
-		//if a return value is given in a similar function... also implement in all image_classes...
+		//jk-ööö... implement here... //if a return value is given in a similar function... also implement in all image_classes...
 		int x1,y1,z1,x2,y2,z2;
 		mask->get_span_of_value_3D(1,x1,y1,z1,x2,y2,z2);
 		res = this->get_subvolume_from_region_3D(x1,y1,z1,x2,y2,z2); //JK-ööö-update origin accordingly...
-
 	}else{
 		pt_error::error("crop_and_return_3D(image_binary<3> *mask)--> NOT same size...",pt_error::debug);
 	}
@@ -516,6 +515,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::crop_3D(image_binary<3> *mask)
 		image_scalar<ELEMTYPE, IMAGEDIM>* res = this->crop_and_return_3D(mask);
 	    this->initialize_dataset(res->nx(), res->ny(), res->nz(), NULL); //deallocate is done in initialize_dataset, if needed...
 		copy_data(res,this);
+		this->set_parameters(res);
+		delete res;
 	}else{
 		pt_error::error("crop_3D(image_binary<3> *mask)--> NOT same size...",pt_error::debug);
 	}
@@ -530,8 +531,7 @@ image_binary<IMAGEDIM> * image_scalar<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE lo
     typename image_storage<ELEMTYPE >::iterator i = this->begin();
     typename image_binary<IMAGEDIM>::iterator o = output->begin();
     
-    while (i != this->end()) //images are same size and
-                       //should necessarily end at the same time
+    while (i != this->end()) //images are same size and should necessarily end at the same time
         {
         if(*i>=low && *i<=high)
             {*o=true_inside_threshold;}
@@ -541,7 +541,7 @@ image_binary<IMAGEDIM> * image_scalar<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE lo
         ++i; ++o;
         }
 
-	//output->image_has_changed();    
+	output->set_parameters(this);
     return output;
 	}
 
@@ -2607,6 +2607,15 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filte
 		copy->set_voxel(x,y,z,(ELEMTYPE)res );
 	}
 }
+
+/*
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::set_parameters (image_scalar<ELEMTYPE, IMAGEDIM> * sourceImage)
+    {
+	this->set_parameters( dynamic_cast<image_general<ELEMTYPE,IMAGEDIM>*>(input) );
+    }
+*/
+
 
 // old
 //template <class ELEMTYPE, int IMAGEDIM>
