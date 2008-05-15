@@ -33,6 +33,26 @@ float gaussian::evaluate_at(float x){
 	return amplitude * exp( -0.5 * pow((x-center),2)/pow(sigma,2) );	
 }
 
+double gaussian::integrate_total_area(int from_x, int to_x){
+	double area=0;
+	for(int i=from_x;i<=to_x;i++){
+		area += evaluate_at(i);
+	}
+	return area;
+}
+
+int gaussian::get_x_that_includes_area_fraction(double fraction, int from_x, int to_x){
+	double area=0;
+	double tot_area = this->integrate_total_area(from_x, to_x);
+	for(int i=from_x;i<=to_x;i++){
+		area += evaluate_at(i);
+		if(area/tot_area > fraction){
+			return i;
+		}
+	}
+	return to_x;
+}
+
 gaussian_2d::gaussian_2d(float amp, float cent_x, float cent_y, float sig_u, float sig_v, float angle){
 	amplitude = amp;
 	center_x = cent_x;

@@ -61,6 +61,8 @@ public:
 	float center;
 	float sigma;		//standard deviation
 	float evaluate_at(float x);
+	double integrate_total_area(int from_x, int to_x);
+	int get_x_that_includes_area_fraction(double fraction, int from_x, int to_x);
 };
 
 class gaussian_2d{

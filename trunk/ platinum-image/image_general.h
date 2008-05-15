@@ -176,7 +176,7 @@ class image_general : public image_storage <ELEMTYPE >
 		void fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
 		void fill_region_3D(int dir, int start_index, int end_index, ELEMTYPE value);
 		void fill_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size, ELEMTYPE value);
-		void fill_region_3D_with_subvolume_image(image_general<ELEMTYPE, IMAGEDIM> *subvolume);
+		void fill_region_3D_with_subvolume_image(image_general<ELEMTYPE, IMAGEDIM> *subvolume); //based on physical coordinates
 		void fill_region_of_mask_3D(image_binary<IMAGEDIM> *mask, ELEMTYPE value);
 		void fill_image_border_3D(ELEMTYPE value, int border_thickness=1);
 
@@ -191,6 +191,7 @@ class image_general : public image_storage <ELEMTYPE >
         unsigned short ny() const;
         unsigned short nz() const;
         unsigned short get_size_by_dim_and_dir(int dim, int direction); //! get size in direction orthogonal to direction arg
+        Vector3D get_size();
         
         bool same_size (image_base * other);				//test whether other image has same voxel dimensions
         bool same_size (image_base * other, int direction); //test whether other image has same voxel dimensions

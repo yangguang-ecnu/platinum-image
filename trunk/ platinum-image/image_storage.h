@@ -80,14 +80,9 @@ class image_storage : public image_base
 		float get_standard_deviation(image_storage<IMGBINARYTYPE>* mask=NULL);
         ELEMTYPE get_num_values();
 //		unsigned long get_num_elements();
-        histogram_1D<ELEMTYPE> * get_histogram();
-/*		histogram_1D<ELEMTYPE> * get_new_histogram()
-            {
-				ELEMTYPE minimum=1000, maximum=-1000;
-				get_min_max_values(minimum, maximum);
-				return new histogram_1D<ELEMTYPE>(this,int(maximum-minimum));
-            }
-  */
+        histogram_1D<ELEMTYPE>* get_histogram();
+		histogram_1D<ELEMTYPE>* get_histogram_new_with_same_num_buckets_as_intensities();
+
 		virtual void data_has_changed(bool stats_refresh = true) = 0;   
         void stats_refresh(bool min_max_refresh = false);
         void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
