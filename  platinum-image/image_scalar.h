@@ -130,6 +130,7 @@ public:
 	void smooth_ITK(Vector3D radius); 
 	void smooth_3D(Vector3D g); 
 
+	image_binary<IMAGEDIM>* region_grow_corners_3D(ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<IMAGEDIM>* region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<IMAGEDIM>* region_grow_3D(image_binary<IMAGEDIM> *seed_image, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<IMAGEDIM>* region_grow_3D(queue<Vector3D> seed_queue, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
@@ -149,7 +150,12 @@ public:
 	Vector3D get_center_of_gravity(ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(),  SPACE_TYPE type = VOXEL_SPACE);
 	Vector3D get_in_slice_center_of_gravity_in_dir(int dir, int slice, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(),  SPACE_TYPE type = VOXEL_SPACE);
 	vector<Vector3D> get_in_slice_center_of_gravities_in_dir(int dir, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(), SPACE_TYPE type = VOXEL_SPACE);
-	Vector3D get_pos_of_highest_value();
+	Vector3D get_pos_of_highest_value_in_region(int x1, int y1, int z1, int x2, int y2, int z2, ELEMTYPE upper_limit=std::numeric_limits<ELEMTYPE>::max());
+	Vector3D get_pos_of_highest_value_in_region(Vector3D from_pos, Vector3D to_pos, ELEMTYPE upper_limit=std::numeric_limits<ELEMTYPE>::max());
+	Vector3D get_pos_of_highest_value(ELEMTYPE upper_limit=std::numeric_limits<ELEMTYPE>::max());
+	Vector3D get_pos_of_lowest_value_in_region(int x1, int y1, int z1, int x2, int y2, int z2, ELEMTYPE lower_limit=std::numeric_limits<ELEMTYPE>::min());
+	Vector3D get_pos_of_lowest_value_in_region(Vector3D from_pos, Vector3D to_pos, ELEMTYPE lower_limit=std::numeric_limits<ELEMTYPE>::min());
+	Vector3D get_pos_of_lowest_value(ELEMTYPE lower_limit=std::numeric_limits<ELEMTYPE>::min());
 
 	image_scalar<ELEMTYPE, IMAGEDIM>* correct_inclined_object_slicewise_after_cg_line(int dir, line3D cg_line, SPACE_TYPE type = VOXEL_SPACE);
 
@@ -226,12 +232,10 @@ public:
 	void appl_wb_normalize_features_slicewise_by_global_mean_on_this_float (image_scalar<float, 3>* second_feature, image_scalar<float, 3>* sum=NULL, image_binary<3>* body_lung_mask=NULL);
 	void appl_wb_SIM_bias_correction_on_this_float(image_scalar<float, 3>* second_feature, int num_iterations=1, float iteration_strength=0.02, float map_x_smoothing_std_dev=60, float map_y_smoothing_std_dev=15, float map_z_smoothing_std_dev=60, float feat1_smoothing_std_dev=30, float feat2_smoothing_std_dev=30, image_binary<3>* body_lung_mask=NULL, int num_buckets_feat1=200, int num_buckets_feat2=200, bool save_corrected_images_each_iteration=false, bool save_histogram_each_iteration=false, bool save_field_each_iteration=false);
 
-	//JK move to private later....
+	//JK move to private later...
 	float get_mean_least_square_difference_to_template_3D(Vector3D pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template);
-	image_scalar<float, IMAGEDIM>* get_mean_least_square_difference_image_3D(Vector3D from_pos, Vector3D to_pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template);
-
+	image_scalar<float, IMAGEDIM>* get_mean_least_square_difference_image_3D(Vector3D from_center_pos, Vector3D to_center_pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template); //least square fit small template to region (center voxel template coordinates...)
 
 };
-
 
 #endif

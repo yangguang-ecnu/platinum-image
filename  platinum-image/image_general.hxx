@@ -639,6 +639,13 @@ unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_size_by_dim_and_dir(int di
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_size()
+{
+	return create_Vector3D(datasize[0],datasize[1],datasize[2]);
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_size () const
 {
     Vector3D result;

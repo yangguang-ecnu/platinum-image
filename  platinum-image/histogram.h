@@ -158,6 +158,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		float find_better_center(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		float find_better_sigma(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		double get_least_square_diff(gaussian g, int from_bucket, int to_bucket);
+		double get_least_square_diff_ignore_zeros(gaussian g, int from_bucket, int to_bucket);
 		ELEMTYPE get_min_value_in_bucket_range(int from, int to);
 		ELEMTYPE get_min_value_in_bucket_range(int from, int to, int &min_val_bucket_pos);
 		ELEMTYPE get_max_value_in_bucket_range(int from, int to);

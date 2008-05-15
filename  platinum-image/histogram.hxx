@@ -56,7 +56,7 @@ void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
     this->buckets = new unsigned long [this->num_buckets];
 
 	//resize() is called from the constructor
-    calculate();	
+    calculate(this->num_buckets);	 //the new number of buckets needs to be sent as argument
 }
 
 
@@ -237,11 +237,11 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
             this->num_buckets=new_num_buckets;
 		}
 
+		delete []this->buckets;  
+		this->buckets = NULL;
         this->buckets=new unsigned long [this->num_buckets];
 	}
 
-//    this->max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
-//    this->min_value = std::numeric_limits<ELEMTYPE>::max();
     this->num_distinct_values = 0;
     this->bucket_max=0;
 
@@ -277,6 +277,15 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
         ELEMTYPE * voxel;
 		this->num_elements_in_hist=0;
 
+		//calculate min/max
+	    this->max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
+		this->min_value = std::numeric_limits<ELEMTYPE>::max();
+		for (voxel = this->i_start;voxel != this->i_end;++voxel)
+		{
+			this->min_value = std::min (this->min_value,*voxel);
+			this->max_value = std::max (this->max_value,*voxel);
+		}
+
 		for (voxel = this->i_start;voxel != this->i_end;++voxel)
 		{
 			bucketpos = intensity_to_bucketpos(*voxel);
@@ -296,9 +305,6 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 				if (*voxel != 0 &&  *voxel != 1) //! feature: ignore 0 and true to get more sensible display scaling
 				{ this->bucket_max=std::max(this->buckets[bucketpos],this->bucket_max); }
 
-				//calculate min/max
-				this->min_value = std::min (this->min_value,*voxel);
-				this->max_value = std::max (this->max_value,*voxel);
 			}else{
 				pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
 				cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
@@ -581,7 +587,6 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 
 	int from_bucket = intensity_to_bucketpos(from);
 	int to_bucket = intensity_to_bucketpos(to);
-
 	cout<<"from_bucket="<<from_bucket<<endl;
 	cout<<"to_bucket="<<to_bucket<<endl;
 
@@ -646,7 +651,8 @@ float histogram_1D<ELEMTYPE>::find_better_amplitude(gaussian g, int from_bucket,
 	double error_min = 100000000000000000.0;
 
 	for(g.amplitude=start; g.amplitude<=end; g.amplitude+=step){
-		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
+//		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
+		error_sum = get_least_square_diff_ignore_zeros(g, from_bucket, to_bucket);
 		if(error_sum<error_min){
 			error_min = error_sum;
 			best = g.amplitude;
@@ -666,7 +672,8 @@ float histogram_1D<ELEMTYPE>::find_better_center(gaussian g, int from_bucket, in
 	double error_min = 100000000000000000.0;
 
 	for(g.center=start; g.center<=end; g.center+=step){
-		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
+//		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
+		error_sum = get_least_square_diff_ignore_zeros(g, from_bucket, to_bucket);
 		if(error_sum<error_min){
 			error_min = error_sum;
 			best = g.center;
@@ -686,7 +693,8 @@ float histogram_1D<ELEMTYPE>::find_better_sigma(gaussian g, int from_bucket, int
 	double error_min = 100000000000000000.0;
 
 	for(g.sigma=start; g.sigma<=end; g.sigma+=step){
-		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
+//		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
+		error_sum = get_least_square_diff_ignore_zeros(g, from_bucket, to_bucket);
 		if(error_sum<error_min){
 			error_min = error_sum;
 			best = g.sigma;
@@ -711,6 +719,27 @@ double histogram_1D<ELEMTYPE>::get_least_square_diff(gaussian g, int from_bucket
 	}
 	return error;
 }
+
+template <class ELEMTYPE>
+double histogram_1D<ELEMTYPE>::get_least_square_diff_ignore_zeros(gaussian g, int from_bucket, int to_bucket){
+//	cout<<"getError...."<<endl;
+	double error = 0;
+	float val=0;
+	for(int j=from_bucket;j<=to_bucket;j++){
+		//it is very important to use the intensity, and not the bucket position...
+
+		val = g.evaluate_at(bucketpos_to_intensity(j));	
+		if(this->buckets[j]>0){
+			if(j<0){
+				error += pow(val - 0, 2);
+			}else{
+				error += pow(val - float(this->buckets[j]), 2);
+			}
+		}
+	}
+	return error;
+}
+
 
 template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::get_min_value_in_bucket_range(int from, int to)

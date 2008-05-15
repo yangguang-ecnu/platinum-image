@@ -1280,7 +1280,25 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 	delete res;
 }
 
-	
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_corners_3D(ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max())
+{
+	queue<Vector3D> s;
+
+	s.push(create_Vector3D(0,				0,				0));
+	s.push(create_Vector3D(datasize[0]-1,	0,				0));
+	s.push(create_Vector3D(0,				datasize[1]-1,	0));
+	s.push(create_Vector3D(datasize[0]-1,	datasize[1]-1,	0));
+
+	s.push(create_Vector3D(0,				0,				datasize[2]-1));
+	s.push(create_Vector3D(datasize[0]-1,	0,				datasize[2]-1));
+	s.push(create_Vector3D(0,				datasize[1]-1,	datasize[2]-1));
+	s.push(create_Vector3D(datasize[0]-1,	datasize[1]-1,	datasize[2]-1));
+
+	return region_grow_3D(s, min_intensity, max_intensity);
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity)
@@ -1944,22 +1962,18 @@ vector<Vector3D> image_scalar<ELEMTYPE, IMAGEDIM>::get_in_slice_center_of_gravit
 	return cg_points;
 }
 
-
 template <class ELEMTYPE, int IMAGEDIM>
-Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_highest_value()
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_highest_value_in_region(int x1, int y1, int z1, int x2, int y2, int z2, ELEMTYPE upper_limit)
 {
-	int nx = this->nx();
-	int ny = this->ny();
-	int nz = this->nz();
 	ELEMTYPE max = std::numeric_limits<ELEMTYPE>::min();
 	Vector3D max_pos = create_Vector3D(-1,-1,-1);
 	ELEMTYPE val;
 
-	for(int z=0;z<nz;z++){
-		for(int y=0;y<ny;y++){
-			for(int x=0;x<nx;x++){
+	for(int z=z1;z<=z2;z++){
+		for(int y=y1;y<=y2;y++){
+			for(int x=x1;x<=x2;x++){
 				val = this->get_voxel(x,y,z);
-				if(val>max){
+				if(val<upper_limit && val>max){
 					max = val; 
 					max_pos = create_Vector3D(x,y,z);
 				}
@@ -1969,6 +1983,56 @@ Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_highest_value()
 
 	return max_pos;
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_highest_value_in_region(Vector3D pos, Vector3D size, ELEMTYPE upper_limit)
+{
+	return get_pos_of_highest_value_in_region(pos[0],pos[1],pos[2],to_pos[0],to_pos[1],to_pos[2], upper_limit);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_highest_value(ELEMTYPE upper_limit)
+{
+	return get_pos_of_highest_value_in_region(0,0,0,this->nx()-1,this->ny()-1,this->nz()-1, upper_limit);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_lowest_value_in_region(int x1, int y1, int z1, int x2, int y2, int z2, ELEMTYPE lower_limit)
+{
+	ELEMTYPE min = std::numeric_limits<ELEMTYPE>::max();
+	Vector3D min_pos = create_Vector3D(-1,-1,-1);
+	ELEMTYPE val;
+
+	for(int z=z1;z<=z2;z++){
+		for(int y=y1;y<=y2;y++){
+			for(int x=x1;x<=x2;x++){
+				val = this->get_voxel(x,y,z);
+				if(val>lower_limit && val<min){
+					min = val; 
+					min_pos = create_Vector3D(x,y,z);
+				}
+			}
+		}
+	}
+
+	return min_pos;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_lowest_value_in_region(Vector3D pos, Vector3D to_pos, ELEMTYPE lower_limit)
+{
+	return get_pos_of_lowest_value_in_region(pos[0],pos[1],pos[2],to_pos[0],to_pos[1],to_pos[2],lower_limit);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_lowest_value(ELEMTYPE lower_limit)
+{
+	return get_pos_of_lowest_value_in_region(0,0,0,this->nx()-1,this->ny()-1,this->nz()-1,lower_limit);
+}
+
+
+
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::correct_inclined_object_slicewise_after_cg_line(int dir, line3D cg_line, SPACE_TYPE type)
@@ -2721,26 +2785,30 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_square_difference_to_temp
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_scalar<float, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_square_difference_image_3D(Vector3D from_pos, Vector3D to_pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template)
+image_scalar<float, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_square_difference_image_3D(Vector3D fcp, Vector3D tcp, image_scalar<ELEMTYPE, IMAGEDIM> *small_template)
 {
 	image_scalar<float,3> *res = new image_scalar<float,3>(this,0);
 	res->fill(0);
-	cout<<"from_pos="<<from_pos<<endl;
-	cout<<"to_pos="<<to_pos<<endl;
+	Vector3D full_size = small_template->get_size();
+	Vector3D half_size = small_template->get_size()/2;
+	cout<<"full_size="<<full_size<<endl;
+	cout<<"half_size="<<half_size<<endl;
+	Vector3D from_pos;
+	Vector3D to_pos;
 	for(int d=0;d<3;d++){
-		from_pos[d] = std::max(int(from_pos[d]), int(0) );
-		to_pos[d] = std::min(int(to_pos[d]), int(this->get_size_by_dim(d) - small_template->get_size_by_dim(d) - 1) );
+		from_pos[d] = std::max( int(0), int(fcp[d]-half_size[d]) );
+		to_pos[d] = std::min( int(tcp[d]-half_size[d]), int(this->get_size_by_dim(d)-full_size[d]-1) );
 	}
 	cout<<"from_pos="<<from_pos<<endl;
 	cout<<"to_pos="<<to_pos<<endl;
 	
 	float r=0;
-	for(int k=from_pos[0];k<=to_pos[0];k++){
+	for(int k=from_pos[2];k<=to_pos[2];k++){
 		cout<<"k="<<k<<endl;
 		for(int j=from_pos[1];j<=to_pos[1];j++){
-			for(int i=from_pos[2];i<=to_pos[2];i++){
+			for(int i=from_pos[0];i<=to_pos[0];i++){
 				r = this->get_mean_least_square_difference_to_template_3D(create_Vector3D(i,j,k),small_template);
-				res->set_voxel(i,j,k,r);
+				res->set_voxel(i+half_size[0],j+half_size[1],k+half_size[2],r);
 			}
 		}
 	}
