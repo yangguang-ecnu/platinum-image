@@ -208,9 +208,11 @@ class image_general : public image_storage <ELEMTYPE >
 
 		//****** Sub volume operations - regions ********
 		unsigned long get_number_of_voxels_with_value_in_slice_2D(int slice, int dir=2, ELEMTYPE value=1);
+		unsigned long get_number_of_voxels_with_value_greater_than_in_slice_2D(int slice, int dir=2, ELEMTYPE value=0);
 		unsigned long get_number_of_voxels_with_value_in_26_nbh(int x, int y, int z, ELEMTYPE value);
 		void get_span_of_values_larger_than_3D(ELEMTYPE val_limit, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2);
 		void get_span_of_value_3D(ELEMTYPE val, int &x1, int &y1, int &z1, int &x2, int &y2, int &z2);
+		void get_span_of_value_in_subregion_3D(ELEMTYPE val, Vector3Dint sub_from, Vector3Dint sub_to, Vector3Dint &span_from, Vector3Dint &span_to);
 		int get_span_size_of_value_3D(ELEMTYPE val, int dir);
 
 

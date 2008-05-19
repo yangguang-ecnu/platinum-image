@@ -2568,7 +2568,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::filter_3d_border_voxel(filter_base* filte
 			if (!(input_x<0 || input_y<0 || input_z<0 || input_x>=xsize || input_y>=ysize || input_z>=zsize)) { // Ignore voxels outside image border
 				neighbourhood[i]=this->get_voxel(input_x,input_y,input_z);
 			}
-			else {neighbourhood[i]= std::numeric_limits<float>::max();}
+			else {neighbourhood[i]= std::numeric_limits<float>::max();} //strange... but can now be checked/found in the filter
 		}
 		float res=filter->apply(neighbourhood);
 		delete neighbourhood;

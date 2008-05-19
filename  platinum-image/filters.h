@@ -80,6 +80,13 @@ public:
 	filter_central_difference(int dir=2);
 };
 
+class filter_central_difference_magn_2d: public filter_base
+{
+public:
+	filter_central_difference_magn_2d(int dir=2);
+	float apply(float *neighbourhood);
+};
+
 class filter_gaussian : public filter_linear
 {
 public:

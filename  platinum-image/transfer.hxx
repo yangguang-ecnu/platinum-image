@@ -86,7 +86,7 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 */
 
 
-	min_ctrl = new FLTK_Editable_Slider(x_start,yy+5+0*dy,width,dh,"Min");
+	min_ctrl = new FLTK_Editable_Slider(x_start,yy+5+0*dy,width,dh,"Min",40);
     min_ctrl->value(min);
     min_ctrl->bounds(min,max);
 	min_ctrl->step(float(intrange)/100.0);
@@ -95,7 +95,7 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	min_ctrl->labelsize(12);
 	min_ctrl->textsize(10);
 
-	max_ctrl = new FLTK_Editable_Slider(x_start,yy+5+1*dy,width,dh,"Max");
+	max_ctrl = new FLTK_Editable_Slider(x_start,yy+5+1*dy,width,dh,"Max",40);
     max_ctrl->value(max);
     max_ctrl->bounds(min,max);
 	max_ctrl->step(float(intrange)/100.0);
@@ -268,7 +268,7 @@ transfer_threshold_illustrator<ELEMTYPE >::transfer_threshold_illustrator (image
 	int dh = 12;
 	int dy = 15;
 
-	min_ctrl = new FLTK_Editable_Slider(x_start,yy+5+0*dy,width,dh,"Min");
+	min_ctrl = new FLTK_Editable_Slider(x_start,yy+5+0*dy,width,dh,"Min",40);
     min_ctrl->value(float(intrange)/2.0);
     min_ctrl->bounds(min,max);
 	min_ctrl->step(float(intrange)/100.0);
@@ -278,7 +278,7 @@ transfer_threshold_illustrator<ELEMTYPE >::transfer_threshold_illustrator (image
 	min_ctrl->labelsize(12);
 	min_ctrl->textsize(10);
 
-	max_ctrl = new FLTK_Editable_Slider(x_start,yy+5+1*dy,width,dh,"Max");
+	max_ctrl = new FLTK_Editable_Slider(x_start,yy+5+1*dy,width,dh,"Max",40);
     max_ctrl->value(max);
     max_ctrl->bounds(min,max);
 	max_ctrl->step(float(intrange)/100.0);
