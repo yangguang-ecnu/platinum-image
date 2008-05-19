@@ -221,8 +221,8 @@ FLTK_Editable_Slider::FLTK_Editable_Slider(int x, int y, int w, int h, const cha
         input->callback(Input_CB, (void*)this);
         input->when(FL_WHEN_ENTER_KEY|FL_WHEN_NOT_CHANGED);
 		input->label(l);
-		input->labelsize(h);
-		input->textsize(FLTK_LABEL_SIZE);
+		input->labelsize(h-2);
+		input->textsize(h-2);
 
         slider = new Fl_Slider(x+input_w+5, y, w - (input_w+5), h);
         slider->type(FL_HOR_SLIDER);

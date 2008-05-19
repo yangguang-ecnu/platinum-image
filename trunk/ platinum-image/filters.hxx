@@ -175,6 +175,44 @@ filter_central_difference::filter_central_difference(int dir)
 	cout << "Created 1d central difference filter" << endl;
 }
 
+//----------------------------------------------------------------------
+//----------------------------------------------------------------------
+
+filter_central_difference_magn_2d::filter_central_difference_magn_2d(int dir) 
+{
+	data = vnl_matrix<float>(4,4); //4 coordinates and 4 different values (x,y,z,w)...
+	if(dir==0){
+		
+	}else if(dir==1){
+		
+	}else{
+		data.put(0,0,-1); data.put(0,1,0);	data.put(0,2,0); data.put(0,3,-1);	//neg x-dir
+		data.put(1,0,+1); data.put(1,1,0);	data.put(1,2,0); data.put(1,3,+1);	//pos x-dir
+		data.put(2,0,0);  data.put(2,1,-1);	data.put(2,2,0); data.put(2,3,-1);	//neg y-dir
+		data.put(3,0,0);  data.put(3,1,+1);	data.put(3,2,0); data.put(3,3,+1);	//pos y-dir
+	}
+}
+
+float filter_central_difference_magn_2d::apply(float* neighbourhood)
+{
+	//pixels outside boundary are set to "std::numeric_limits<float>::max()"...
+	//undo this here to prevent overflow...
+	for(int i=0;i<4;i++){
+		if(neighbourhood[i] == std::numeric_limits<float>::max()){
+			neighbourhood[i] = 0;
+		}
+	}
+
+	float du = neighbourhood[1]-neighbourhood[0];
+	float dv = neighbourhood[3]-neighbourhood[2];
+	//note that the weights are never used...
+	return sqrt(du*du+dv*dv);
+}
+
+//----------------------------------------------------------------------
+//----------------------------------------------------------------------
+
+
 filter_gaussian::filter_gaussian(int size, int dir, float std_dev, int center)
 {	if (size%2==0) {cout << "WARNING: Creating gaussian filter with kernel of even size";}
 	if (std_dev<0) {std_dev=sqrt(float(2))*float(size)/float(5);}

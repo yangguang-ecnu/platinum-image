@@ -821,6 +821,22 @@ unsigned long image_general<ELEMTYPE, IMAGEDIM>::get_number_of_voxels_with_value
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+unsigned long image_general<ELEMTYPE, IMAGEDIM>::get_number_of_voxels_with_value_greater_than_in_slice_2D(int slice, int dir, ELEMTYPE value)
+{
+    int usize=this->get_size_by_dim_and_dir(0,dir);
+	int vsize=this->get_size_by_dim_and_dir(1,dir);
+	unsigned long res=0;
+	for (int u=0; u<usize; u++) {
+		for (int v=0; v<vsize; v++) {
+			if (this->get_voxel_by_dir(u,v,slice,dir)>value)
+				res++;
+		}
+	}
+	return res;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 unsigned long image_general<ELEMTYPE, IMAGEDIM>::get_number_of_voxels_with_value_in_26_nbh(int x, int y, int z, ELEMTYPE value)
 {
 	int z_from = std::max(0,z-1);
@@ -883,6 +899,29 @@ void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_value_3D(ELEMTYPE val, int &
 					x2 = max(x,x2);
 					y2 = max(y,y2);
 					z2 = max(z,z2);
+				}
+			}
+		}
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_value_in_subregion_3D(ELEMTYPE val, Vector3Dint sub_from, Vector3Dint sub_to, Vector3Dint &span_from, Vector3Dint &span_to)
+{
+	span_from[0] = datasize[0];		span_to[0] = 0;
+	span_from[1] = datasize[1];		span_to[1] = 0;
+	span_from[2] = datasize[2];		span_to[2] = 0;
+
+	for (int z=sub_from[2]; z <= sub_to[2]; z++){
+		for (int y=sub_from[1]; y <= sub_to[1]; y++){
+			for (int x=sub_from[0]; x <= sub_to[0]; x++){
+				if(get_voxel(x,y,z)==val){
+					span_from[0] = min(x,span_from[0]);
+					span_from[1] = min(y,span_from[1]);
+					span_from[2] = min(z,span_from[2]);
+					span_to[0] = max(x,span_to[0]);
+					span_to[1] = max(y,span_to[1]);
+					span_to[2] = max(z,span_to[2]);
 				}
 			}
 		}

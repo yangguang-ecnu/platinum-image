@@ -386,6 +386,20 @@ int image_storage<ELEMTYPE >::get_number_of_voxels_with_value(ELEMTYPE val)
 	}
 
 template <class ELEMTYPE >
+int image_storage<ELEMTYPE >::get_number_of_voxels_with_value_greater_than(ELEMTYPE val)
+	{
+		iterator i = this->begin();
+		int num=0;
+		while(i != this->end())
+		{
+			if(*i > val){++num;}
+			++i;
+		}
+		return num;
+	}
+
+
+template <class ELEMTYPE >
 bool image_storage<ELEMTYPE >::same_size(image_storage<ELEMTYPE> *const image2)
 {
 	return (this->num_elements == image2->num_elements)?true:false;
@@ -474,6 +488,15 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
 				}else if(*i!=0 && *i2!=0){
 					*i = 0.5*float(*i + *i2);
 				} //if *i2==0 --> Nothing is done...
+				++i;
+				++i2;
+			}
+            break;
+		case COMB_MAGN:
+			cout<<"...COMB_MAGN";
+			while(i != this->end())
+			{
+				*i = sqrt( float((*i)*(*i) + (*i2)*(*i2)) );
 				++i;
 				++i2;
 			}
