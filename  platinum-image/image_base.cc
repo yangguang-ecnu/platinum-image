@@ -308,6 +308,14 @@ image_base *vtkloader::read()
                         result = new image_integer<short>();
                         ((image_integer<short>*)result)->load_dataset_from_VTK_file(file_path);
                         break;
+					case itk::ImageIOBase::ULONG:
+                        result = new image_integer<unsigned long>();
+                        ((image_integer<unsigned long>*)result)->load_dataset_from_VTK_file(file_path);
+                        break;
+					case itk::ImageIOBase::LONG:
+                        result = new image_integer<long>();
+                        ((image_integer<long>*)result)->load_dataset_from_VTK_file(file_path);
+                        break;
                     case itk::ImageIOBase::FLOAT:
                         result = new image_integer<float>();
                         ((image_integer<float>*)result)->load_dataset_from_VTK_file(file_path);

@@ -816,6 +816,33 @@ float histogram_1D<ELEMTYPE>::get_variance_in_bucket_range(int from, int to)
 	return sum/num_values;
 }
 
+
+template <class ELEMTYPE>
+float histogram_1D<ELEMTYPE>::get_variance_in_intensity_range(ELEMTYPE from, ELEMTYPE to)
+{
+	return get_variance_in_bucket_range(intensity_to_bucketpos(from),intensity_to_bucketpos(to));
+}
+
+template <class ELEMTYPE>
+int histogram_1D<ELEMTYPE>::get_bucket_pos_with_largest_value_in_bucket_range(int from, int to)
+{
+	int pos=0;
+	get_max_value_in_bucket_range(from, to, pos);
+	return pos;
+}
+
+
+template <class ELEMTYPE>
+int histogram_1D<ELEMTYPE>::get_bucket_pos_with_largest_value_in_intensity_range(ELEMTYPE from, ELEMTYPE to)
+{
+	int pos=0;
+	get_max_value_in_bucket_range(intensity_to_bucketpos(from), intensity_to_bucketpos(to), pos);
+	return pos;
+}
+
+
+
+
 /*
 template<class ELEMTYPE, int IMAGEDIM>
 histogram_2Dimage<ELEMTYPE,IMAGEDIM>::histogram_2Dimage<ELEMTYPE,IMAGEDIM>(image_scalar<ELEMTYPE,IMAGEDIM>* i1, image_scalar<ELEMTYPE,IMAGEDIM>* i2)
