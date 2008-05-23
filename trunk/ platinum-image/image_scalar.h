@@ -33,6 +33,7 @@
 #include "image_general.h"
 #include "bias_field.h"
 #include "filters.h"
+#include "voxel_tools.h"
 #include "Utilities/vxl/contrib/mil3d_trilin_interp_3d.h"
 //#include "Utilities/tricubic1.0.0/libtricubic/tricubic.h" (//http://www.lekien.com/~francois/software/tricubic/)
 //#include "fcm.h"
@@ -198,7 +199,8 @@ public:
 
 	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----
 
-
+	voxel_set<ELEMTYPE> set_val_to_voxel_that_has_no_neighbour_with_val_in_vox_radius(int radius, Vector3Dint pos, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val);
+	voxel_set<ELEMTYPE> set_val_to_voxel_that_has_some_neighbour_with_val_in_vox_radius(int radius, Vector3Dint pos, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val);
 
 
 	// See description in: Kullberg2006 - J Magn Reson Imaging. 2006 Aug;24(2):394-401.

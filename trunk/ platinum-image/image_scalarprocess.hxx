@@ -23,6 +23,71 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+voxel_set<ELEMTYPE> image_scalar<ELEMTYPE, IMAGEDIM>::set_val_to_voxel_that_has_no_neighbour_with_val_in_vox_radius(int radius, Vector3Dint pos, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val)
+{
+	int z_from = std::max(0,pos[2]-radius);
+	int y_from = std::max(0,pos[1]-radius);
+	int x_from = std::max(0,pos[0]-radius);
+	int z_to = std::min(int(this->nz()-1),pos[2]+radius);
+	int y_to = std::min(int(this->ny()-1),pos[1]+radius);
+	int x_to = std::min(int(this->nx()-1),pos[0]+radius);
+
+	ELEMTYPE val;
+	voxel_set<ELEMTYPE> res;
+
+	for(int c=z_from; c<=z_to; c++){
+		for(int b=y_from; b<=y_to; b++){
+			for(int a=x_from; a<=x_to; a++){
+
+				val = this->get_voxel(a,b,c);
+				if(val == from_val){
+					if(this->get_number_of_voxels_with_value_in_26_nbh(create_Vector3Dint(a,b,c),nb_val)==0){
+						this->set_voxel(a,b,c,to_val);
+						res.insert_voxel(new voxel<ELEMTYPE>(create_Vector3Dint(a,b,c),val));
+					}
+				}
+
+			}
+		}
+	}
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+voxel_set<ELEMTYPE> image_scalar<ELEMTYPE, IMAGEDIM>::set_val_to_voxel_that_has_some_neighbour_with_val_in_vox_radius(int radius, Vector3Dint pos, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val)
+{
+	int z_from = std::max(0,pos[2]-radius);
+	int y_from = std::max(0,pos[1]-radius);
+	int x_from = std::max(0,pos[0]-radius);
+	int z_to = std::min(int(this->nz()-1),pos[2]+radius);
+	int y_to = std::min(int(this->ny()-1),pos[1]+radius);
+	int x_to = std::min(int(this->nx()-1),pos[0]+radius);
+
+	ELEMTYPE val;
+	voxel_set<ELEMTYPE> res;
+
+	for(int c=z_from; c<=z_to; c++){
+		for(int b=y_from; b<=y_to; b++){
+			for(int a=x_from; a<=x_to; a++){
+
+				val = this->get_voxel(a,b,c);
+				if(val == from_val){
+					if(this->get_number_of_voxels_with_value_in_26_nbh(create_Vector3Dint(a,b,c),nb_val) > 0){
+						this->set_voxel(a,b,c,to_val);
+						res.insert_voxel(new voxel<ELEMTYPE>(create_Vector3Dint(a,b,c),val));
+					}
+				}
+
+			}
+		}
+	}
+	return res;
+}
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1Map_from_two_flip_angle_MRvolumes_3D(image_scalar<ELEMTYPE, IMAGEDIM > *small_flip, float body_thres, float t1_min, float t1_max)
 {
