@@ -265,7 +265,7 @@ void test_function(int userIO_ID,int par_num)
 		f->name("f");
 		datamanagement.add(f);
 
-		path = "C:\\Joel\\TMP\\Pivus75\\PD\\"
+		path = "C:\\Joel\\TMP\\Pivus75\\PD\\";
 		image_scalar<unsigned short,3> *t1 = new image_scalar<unsigned short,3>(path + "00000001");
 		t1->name("t1");
 		datamanagement.add(t1);
