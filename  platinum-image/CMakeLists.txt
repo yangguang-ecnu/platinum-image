@@ -57,6 +57,7 @@ INCLUDE_DIRECTORIES ( Utilities/vxl/contrib )
 #INCLUDE_DIRECTORIES( ${UTILITIES_FLTK} )			#Location of: Fl_Table.H/cxx Fl_Table_Row.H/cxx
 INCLUDE_DIRECTORIES( Utilities/fltk )
 #INCLUDE_DIRECTORIES( Apps/my_application )					#Modify this line to include application in this project
+#INCLUDE_DIRECTORIES( Apps/T1Mapping )						#Modify this line to include application in this project
 
 IF(WIN32)
   #dirent.h has to be hidden from UNIX compilers
@@ -130,6 +131,7 @@ userIOmanager.h
 viewport.h 
 viewporttool.h 
 viewmanager.h 
+voxel_tools.h 
 Utilities/vxl/contrib/mil3d_trilin_interp_3d.h 
 Utilities/configfile/configfile.h
 
@@ -194,6 +196,7 @@ userIOmanager.cc
 viewmanager.cc 
 viewport.cc 
 viewporttool.cc 
+voxel_tools.hxx
 ${WIN32_DIRENT_SRC} 
 CMakeLists.txt
 Utilities/fltk/Fl_Table.cxx 
@@ -251,11 +254,13 @@ IF(UNIX)
 ENDIF(UNIX)
 
 TARGET_LINK_LIBRARIES(platinumlib ITKCommon ITKIO ${FLTK_LIBRARIES})
+TARGET_LINK_LIBRARIES(platinumlib vtkRendering vtkVolumeRendering vtkIO)
 
 #test program for quick compile cycles
 #MACOSX_BUNDLE only affects OS X builds, and is required for GUI to function
 ADD_EXECUTABLE(PlatinumTest MACOSX_BUNDLE test_app.cc)
 #ADD_EXECUTABLE(my_application MACOSX_BUNDLE Apps/my_application/my_application.cc)					#Modify this line to include application in this project
+#ADD_EXECUTABLE(T1Mapping MACOSX_BUNDLE Apps/T1Mapping/T1Mapping.cc)								#Modify this line to include application in this project
 
 
 IF(APPLE)
@@ -264,6 +269,7 @@ IF(APPLE)
       ADD_CUSTOM_COMMAND(
         TARGET PlatinumTest.app/Contents/Resources/PlatinumTest.rsrc POST_BUILD
         #TARGET my_application.app/Contents/Resources/my_application.rsrc POST_BUILD		#Modify this line to include application in this project
+        #TARGET T1Mapping.app/Contents/Resources/T1Mapping.rsrc POST_BUILD					#Modify this line to include application in this project
   
     
         COMMAND ${ITK_APPLE_RESOURCE} ARGS -useDF ${FLTK_INCLUDE_DIR}/mac.r
@@ -274,9 +280,12 @@ ENDIF(APPLE)
 
 TARGET_LINK_LIBRARIES(PlatinumTest platinumlib)
 #TARGET_LINK_LIBRARIES(my_application platinumlib)					#Modify this line to include application in this project
+#TARGET_LINK_LIBRARIES(T1Mapping platinumlib)						#Modify this line to include application in this project
 
 ADD_DEPENDENCIES(PlatinumTest platinumlib)
 #ADD_DEPENDENCIES(my_application platinumlib)						#Modify this line to include application in this project
+#ADD_DEPENDENCIES(T1Mapping platinumlib)							#Modify this line to include application in this project
+
 
 #SOURCE_GROUP(Headers REGULAR_EXPRESSION ".*[.]h$")
 #SOURCE_GROUP(Headers FILES global.h platinumprogram.h ptmath.h)
@@ -308,6 +317,7 @@ point_collection.h
 points_seq_func1D.h 
 rawimporter.h 
 dicom_importer.h 
+voxel_tools.h
 datamanager.cc 
 data_base.cc 
 image_base.cc 
@@ -320,7 +330,8 @@ point_collection.cc
 point.cc 
 points_seq_func1D.hxx 
 rawimporter.cc 
-dicom_importer.cc)
+dicom_importer.cc
+voxel_tools.hxx)
 
 SOURCE_GROUP(Processing FILES 
 image_binaryprocess.hxx 
