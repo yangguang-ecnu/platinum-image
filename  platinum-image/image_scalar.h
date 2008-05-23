@@ -198,7 +198,6 @@ public:
 
 	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----
 
-//	vector<voxel<ELEMTYPE>*> set_val_to_voxel_that_has_no_neighbour_with_val_in_radius2vox(int x, int y, int z, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val);
 
 
 

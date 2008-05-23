@@ -230,9 +230,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_fr
 //	gaussian *g = new gaussian(a,c,s);
 //	h2->save_histogram_to_txt_file(base + "__c08_lung hist.txt",false,g);
 
-	//************************************
 	//thresholda pÂ c + 2*s...
-	//************************************
 
 	image_binary<3> *right_lung = this->threshold(0,c+2*s);
 	right_lung->name("right_lung");

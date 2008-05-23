@@ -296,7 +296,7 @@ string find_first_sub_dir_containing_dcm_file_with_tag_value(string dir_path, st
 			}
 		}
 		if(does_dir_contain_dcmfile_with_tag_value(dirs[i],dcm_tag,tag_val,false)){
-//			cout<<"****************"<<endl;
+//			cout<<"***"<<endl;
 			return dirs[i];
 		}
 	}

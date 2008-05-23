@@ -2253,39 +2253,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_bias_field_data3D(bias_po
 
 }
 
-/*
-template <class ELEMTYPE, int IMAGEDIM>
-vector<voxel<ELEMTYPE>*> image_scalar<ELEMTYPE, IMAGEDIM>::set_val_to_voxel_that_has_no_neighbour_with_val_in_radius2vox(int x, int y, int z, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val)
-{
-	int z_from = std::max(0,z-2);
-	int y_from = std::max(0,y-2);
-	int x_from = std::max(0,x-2);
-	int z_to = std::min(int(this->nz()),z+2);
-	int y_to = std::min(int(this->ny()),y+2);
-	int x_to = std::min(int(this->nx()),x+2);
 
-	ELEMTYPE val;
-	vector<voxel<ELEMTYPE>*> res;
 
-	for(int c=z_from; c<=z_to; c++){
-		for(int b=y_from; b<=y_to; b++){
-			for(int a=x_from; a<=x_to; a++){
-
-				val = this->get_voxel(a,b,c);
-				if(val == from_val){
-					if(this->get_number_of_voxels_with_value_in_26_nbh(a,b,c,nb_val)==0){
-						cout<<"***************"<<endl;
-						this->set_voxel(a,b,c,to_val);
-						res.push_back(new voxel<ELEMTYPE>(create_Vector3Dint(a,b,c),0));
-					}
-				}
-
-			}
-		}
-	}
-	return res;
-}
-*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_type_in_region_voxel( Vector3D center, Vector3D radius, POINT_TYPE type )
