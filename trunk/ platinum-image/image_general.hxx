@@ -837,14 +837,14 @@ unsigned long image_general<ELEMTYPE, IMAGEDIM>::get_number_of_voxels_with_value
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-unsigned long image_general<ELEMTYPE, IMAGEDIM>::get_number_of_voxels_with_value_in_26_nbh(int x, int y, int z, ELEMTYPE value)
+unsigned long image_general<ELEMTYPE, IMAGEDIM>::get_number_of_voxels_with_value_in_26_nbh(Vector3Dint pos, ELEMTYPE value)
 {
-	int z_from = std::max(0,z-1);
-	int y_from = std::max(0,y-1);
-	int x_from = std::max(0,x-1);
-	int z_to = std::min(int(this->nz()),z+1);
-	int y_to = std::min(int(this->ny()),y+1);
-	int x_to = std::min(int(this->nx()),x+1);
+	int z_from = std::max(0,pos[2]-1);
+	int y_from = std::max(0,pos[1]-1);
+	int x_from = std::max(0,pos[0]-1);
+	int z_to = std::min(int(this->nz()-1),pos[2]+1);
+	int y_to = std::min(int(this->ny()-1),pos[1]+1);
+	int x_to = std::min(int(this->nx()-1),pos[0]+1);
 	unsigned long res =0;
 	for(int c=z_from; c<=z_to; c++){
 		for(int b=y_from; b<=y_to; b++){
