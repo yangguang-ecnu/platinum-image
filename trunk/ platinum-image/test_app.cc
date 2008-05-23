@@ -58,16 +58,15 @@ int main(int argc, char *argv[])
     platinum_init();
     
     //set up main window
-    //myFl_Overlay_Window window(800,600);
-    Fl_Window window(800, 600);
-	
+    Fl_Window window(800,600);
+    
     //prepare Platinum for userIO creation
     platinum_setup(window);
     
     // *** begin userIO control definitions ***
     int create_vol_demo_ID=userIOmanagement.add_userIO("Add demo image",add_demo_image,"Add");
-    userIOmanagement.add_par_image(create_vol_demo_ID,"Working image: ");
-	userIOmanagement.add_par_histogram_2D(create_vol_demo_ID,"histogram_2d");
+//    userIOmanagement.add_par_image(create_vol_demo_ID,"Working image: ");
+//	userIOmanagement.add_par_histogram_2D(create_vol_demo_ID,"histogram_2d");
 	//userIOmanagement.add_par_voxelseed(create_vol_demo_ID,"voxelseed");
 //	userIOmanagement.add_par_float_box(create_vol_demo_ID,"float_box",50,0);
     userIOmanagement.finish_userIO(create_vol_demo_ID);
