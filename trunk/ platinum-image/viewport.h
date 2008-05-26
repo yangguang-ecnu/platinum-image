@@ -47,6 +47,7 @@ class viewport // friend with renderer_base
 {
 private:
     friend class FLTKviewport;
+    friend class VTK_FLTKviewport;
     friend class viewporttool;
 
     #pragma mark *** custom data ***
@@ -81,7 +82,7 @@ private:
 
     Fl_Group *containerwidget;          //the containerwidget is the full viewport area: image + controls
 //    FLTKviewport *viewport_widget;      //the frame ("viewport") displaying a rendered image
-    Fl_Gl_Window * GL_widget;
+//    Fl_Gl_Window * GL_widget;
     
     Fl_Menu_Button * imagemenu_button;   
     Fl_Menu_Button * directionmenu_button;
@@ -112,6 +113,7 @@ public:
 
 //    test_vp *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
     FLTKviewport *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
+//    VTK_FLTKviewport *viewport_widget;    
 
 	int x();	
 	int y();
@@ -159,8 +161,8 @@ public:
 
 	void initialize_viewport(int xpos, int ypos, int width, int height); 
     
-    void initialize_GL ();
-    void hide_GL ();
+//    void initialize_GL ();
+//    void hide_GL ();
     
     int get_id() const ;
 	int get_renderer_id() const ;

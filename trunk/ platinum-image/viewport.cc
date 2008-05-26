@@ -533,8 +533,12 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     //
 //	Fl_Group::current(NULL); //JK-ööö
 //	viewport_widget = new test_vp(xpos,ypos+buttonheight,width,height-buttonheight); //JK-ööö
+//  viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight);
+
     viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight, this);
-//    viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight);
+//    viewport_widget = new VTK_FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight, this);
+	
+
     viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKviewport) handles the callbacks
 
 	containerwidget->resizable(viewport_widget);
@@ -547,7 +551,7 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR));
 }
 
-
+/*
 void viewport::initialize_GL ()
 {
     Fl_Group::current(containerwidget);
@@ -557,8 +561,8 @@ void viewport::initialize_GL ()
     
     containerwidget->end();
 }
-
-
+*/
+/*
 void viewport::hide_GL ()
 {
     if (pt_error::error_if_null(GL_widget,"Attempting to hide GL without having initialized first",pt_error::warning) != NULL)
@@ -567,7 +571,7 @@ void viewport::hide_GL ()
         viewport_widget->show();
         }
 }
-
+*/
 void viewport::update_objects_menu()
 {	
     unsigned int m=0;

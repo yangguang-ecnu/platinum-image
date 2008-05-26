@@ -55,10 +55,10 @@ string eventnames[] =
     "FL_DND_RELEASE",	//23
     };
 
-FLTKviewport2::FLTKviewport2(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
+FLTK_Event_viewport::FLTK_Event_viewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
 {}
 
-int FLTKviewport2::handle(int event){
+int FLTK_Event_viewport::handle(int event){
 	FLTKviewport *fvp = (FLTKviewport*)this->parent();
 
 	fvp->callback_event = viewport_event(event,fvp);
@@ -95,9 +95,91 @@ return 1;//	return Fl_Widget::handle(event);
 }
 
 
-void FLTKviewport2::draw()
+void FLTK_Event_viewport::draw()
 {}
 
+
+VTK_FLTKviewport::VTK_FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
+{
+	 viewport_parent = vp_parent;
+//	event_widget = new FLTK_Event_viewport(0,0,W,H);
+	
+	 vtkFlRenderWindowInteractor *fl_vtk_window = NULL;
+
+//	   create_window_with_rwi(fl_vtk_window, main_window,"Cone3.cxx Main Window");
+//void create_window_with_rwi(vtkFlRenderWindowInteractor *&flrwi, ow *&flw, char *title)
+  // set up main FLTK window
+//   flw = new Fl_Window(300,330,title);
+   //flw = new ow(0,0,300,330);
+   
+   // and instantiate vtkFlRenderWindowInteractor (here it acts like a FLTK window, i.e. you could also instantiate it as child of a
+   // Fl_Group in a window)
+   fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,W,H,"");
+    
+   // this will be replaced if it's the main window 
+//   flw->callback(non_main_window_callback, flrwi);
+
+   // this will result in a little message under the rendering
+//   Fl_Box* box = new Fl_Box(5,261,290,34, "3 = stereo, j = joystick, t = trackball, "
+//                            "w = wireframe, s = surface, p = pick; "
+//                            "you can also resize the window");
+//   box->labelsize(10);
+//   box->align(FL_ALIGN_WRAP);
+   
+   // we want a button with which the user can quit the application
+//   Fl_Button* quit_button = new Fl_Button(100,300,100,25,"quit");
+//   quit_button->callback(quit_cb,NULL);
+   
+   // we're done populating the flw
+   //flw->end();
+   this->end();
+
+   // if the main window gets resized, the vtk window should resize with it
+   this->resizable(fl_vtk_window);
+
+//-------------------------------
+//-------------------------------
+  // create a rendering window and renderer
+  vtkRenderer *ren = vtkRenderer::New();
+  ren->SetBackground(0.1,0.1,0.1);
+  
+  vtkRenderWindow *renWindow = vtkRenderWindow::New();
+  renWindow->AddRenderer(ren);
+
+  // uncomment the statement below if things aren't rendering 100% on your
+  // configuration; the debug output could give you clues as to why
+  //renWindow->DebugOn();
+   
+  // NB: here we treat the vtkFlRenderWindowInteractor just like any other old vtkRenderWindowInteractor
+  fl_vtk_window->SetRenderWindow(renWindow);
+
+  // just like with any other vtkRenderWindowInteractor(), you HAVE to call
+  // Initialize() before the interactor will function.  See the docs in vtkRenderWindowInteractor.h
+  fl_vtk_window->Initialize();
+
+  // create an actor and give it cone geometry
+  vtkConeSource *cone = vtkConeSource::New();
+  cone->SetResolution(8);
+  vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
+  coneMapper->SetInput(cone->GetOutput());
+  vtkActor *coneActor = vtkActor::New();
+  coneActor->SetMapper(coneMapper);
+  coneActor->GetProperty()->SetColor(1.0, 0.0, 1.0);
+
+  // assign our actor to the renderer
+  ren->AddActor(coneActor);
+
+  // We can now delete all our references to the VTK pipeline (except for
+  // our reference to the vtkFlRenderWindowInteractor) as the objects
+  // themselves will stick around until we dereference fl_vtk_window
+  ren->Delete();
+  renWindow->Delete();
+  cone->Delete();
+  coneMapper->Delete();
+  coneActor->Delete();
+
+
+}
 
 
 //FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Window(X,Y,W,H)
@@ -107,13 +189,13 @@ FLTKviewport::FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Ov
 	 viewport_parent = vp_parent;
 
 //	cout<<"FLTKviewport::FLTKviewport "<<X<<" "<<Y<<" "<<W<<" "<<H<<endl;
-//	drawing_widget = new Fl_Button(X,Y,W,H,"test");
-//	drawing_widget = new Fl_Button(X+50,Y+50,100,40,"test");
-//	drawing_widget = new Fl_Button(50,50,50,50,"hej");
-	drawing_widget = new FLTKviewport2(0,0,W,H);
+//	event_widget = new Fl_Button(X,Y,W,H,"test");
+//	event_widget = new Fl_Button(X+50,Y+50,100,40,"test");
+//	event_widget = new Fl_Button(50,50,50,50,"hej");
+	event_widget = new FLTK_Event_viewport(0,0,W,H);
 
 
-//	drawing_widget->show();
+//	event_widget->show();
 //	this->box(FL_UP_BOX);
 //	this->color(FL_BLUE);
 

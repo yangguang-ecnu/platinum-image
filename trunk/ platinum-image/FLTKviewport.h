@@ -49,6 +49,29 @@
 //#include "viewmanager.h" //JK circular #include?
 //#include "rendermanager.h" //JK circular #include?
 #include "viewport.h" //JK circular #include?
+#include "Utilities/vtkFl/vtkFlRenderWindowInteractor.h"
+
+//------------------------------------
+//Test - vtkFlRenderWindowInteractor
+
+// here we have all the usual VTK stuff that we need for our pipeline
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkConeSource.h>
+#include <vtkSuperquadricSource.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkActor.h>
+
+// and here we have the famous vtkFlRenderWindowInteractor class
+//#include <vtkFlRenderWindowInteractor.h>
+
+// and of course some fltk stuff
+//#include <Fl/Fl_Box.H>
+//#include <Fl/Fl_Button.H>
+
+// ----------------------------------
+
 
 //Callback action identifiers.
 
@@ -67,15 +90,26 @@ enum callbackAction {
     };
 
 
-class FLTKviewport2 : public Fl_Widget
+class FLTK_Event_viewport : public Fl_Widget
 {
     friend class FLTKviewport;
 public:
-    FLTKviewport2(int X,int Y,int W,int H);  //constructor
+    FLTK_Event_viewport(int X,int Y,int W,int H);  //constructor
     int handle(int event);
     void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 };
 
+class VTK_FLTKviewport : public Fl_Overlay_Window
+{
+//		vtkFlRenderWindowInteractor *fl_vtk_window; //JK-ööö simple test...
+	public:
+	    VTK_FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
+	    bool needsReRendering;	//set to true when we need to update the data drawn on screen -//JK TODO fix...
+		void needs_rerendering(){needsReRendering=true;};	//JK TODO fix...
+	private:
+		viewport *viewport_parent;
+		void draw_overlay(){};
+};
 
 class FLTKviewport : public Fl_Overlay_Window
 {
@@ -83,7 +117,7 @@ class FLTKviewport : public Fl_Overlay_Window
         //friend class viewporttool;
         friend class threshold_overlay;
         friend class histo2D_tool;
-	    friend class FLTKviewport2;
+	    friend class FLTK_Event_viewport;
 
 public:
 	    FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
@@ -100,7 +134,7 @@ public:
         
 private:
 		viewport *viewport_parent;
-		FLTKviewport2 *drawing_widget;
+		FLTK_Event_viewport *event_widget; //used to catch events in the viewport...
 
         void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 	    void draw_feedback();       //draws the cursor
