@@ -35,14 +35,12 @@ FIND_PACKAGE( ITK )
 IF ( ITK_FOUND )
   INCLUDE( ${USE_ITK_FILE} )
 ENDIF( ITK_FOUND )
-
 INCLUDE_DIRECTORIES( ${ITK_INCLUDE_DIR} )
 
 FIND_PACKAGE ( FLTK )
 IF (   USE_FLTK_FILE   )
   INCLUDE(  ${USE_FLTK_FILE}  )
 ENDIF(   USE_FLTK_FILE   )
-
 INCLUDE_DIRECTORIES( ${FLTK_INCLUDE_DIR}  )
 
 LINK_DIRECTORIES(${ITK_LIBRARY_DIR} ${FLTK_LIBRARY_DIR})
@@ -54,10 +52,11 @@ INCLUDE_DIRECTORIES ( Utilities/vxl/contrib )
 
 
 #SET(UTILITIES_FLTK Utilities/fltk)
-#INCLUDE_DIRECTORIES( ${UTILITIES_FLTK} )			#Location of: Fl_Table.H/cxx Fl_Table_Row.H/cxx
+#INCLUDE_DIRECTORIES( ${UTILITIES_FLTK} )					#Location of: Fl_Table.H/cxx Fl_Table_Row.H/cxx
 INCLUDE_DIRECTORIES( Utilities/fltk )
-#INCLUDE_DIRECTORIES( Apps/my_application )					#Modify this line to include application in this project
-#INCLUDE_DIRECTORIES( Apps/T1Mapping )						#Modify this line to include application in this project
+#INCLUDE_DIRECTORIES( Apps/Histo2D)							#Modify this line to include application in this project
+#INCLUDE_DIRECTORIES( Apps/My_App)							#Modify this line to include application in this project
+INCLUDE_DIRECTORIES( Apps/T1Mapping)						#Modify this line to include application in this project
 
 IF(WIN32)
   #dirent.h has to be hidden from UNIX compilers
@@ -259,8 +258,10 @@ TARGET_LINK_LIBRARIES(platinumlib vtkRendering vtkVolumeRendering vtkIO)
 #test program for quick compile cycles
 #MACOSX_BUNDLE only affects OS X builds, and is required for GUI to function
 ADD_EXECUTABLE(PlatinumTest MACOSX_BUNDLE test_app.cc)
-#ADD_EXECUTABLE(my_application MACOSX_BUNDLE Apps/my_application/my_application.cc)					#Modify this line to include application in this project
-#ADD_EXECUTABLE(T1Mapping MACOSX_BUNDLE Apps/T1Mapping/T1Mapping.cc)								#Modify this line to include application in this project
+#ADD_EXECUTABLE(Histo2D MACOSX_BUNDLE Apps/Histo2D/Histo2D.cc)								#Modify this line to include application in this project
+#ADD_EXECUTABLE(My_App MACOSX_BUNDLE Apps/My_App/My_App.cc)									#Modify this line to include application in this project
+ADD_EXECUTABLE(T1Mapping MACOSX_BUNDLE Apps/T1Mapping/T1Mapping.cc)							#Modify this line to include application in this project
+
 
 
 IF(APPLE)
@@ -268,8 +269,9 @@ IF(APPLE)
    IF(ITK_APPLE_RESOURCE)
       ADD_CUSTOM_COMMAND(
         TARGET PlatinumTest.app/Contents/Resources/PlatinumTest.rsrc POST_BUILD
-        #TARGET my_application.app/Contents/Resources/my_application.rsrc POST_BUILD		#Modify this line to include application in this project
-        #TARGET T1Mapping.app/Contents/Resources/T1Mapping.rsrc POST_BUILD					#Modify this line to include application in this project
+        #TARGET Histo2D.app/Contents/Resources/Histo2D.rsrc POST_BUILD						#Modify this line to include application in this project
+        #TARGET My_App.app/Contents/Resources/My_App.rsrc POST_BUILD						#Modify this line to include application in this project
+        TARGET T1Mapping.app/Contents/Resources/T1Mapping.rsrc POST_BUILD					#Modify this line to include application in this project
   
     
         COMMAND ${ITK_APPLE_RESOURCE} ARGS -useDF ${FLTK_INCLUDE_DIR}/mac.r
@@ -279,12 +281,14 @@ IF(APPLE)
 ENDIF(APPLE)
 
 TARGET_LINK_LIBRARIES(PlatinumTest platinumlib)
-#TARGET_LINK_LIBRARIES(my_application platinumlib)					#Modify this line to include application in this project
-#TARGET_LINK_LIBRARIES(T1Mapping platinumlib)						#Modify this line to include application in this project
+#TARGET_LINK_LIBRARIES(Histo2D platinumlib)							#Modify this line to include application in this project
+#TARGET_LINK_LIBRARIES(My_App platinumlib)							#Modify this line to include application in this project
+TARGET_LINK_LIBRARIES(T1Mapping platinumlib)						#Modify this line to include application in this project
 
 ADD_DEPENDENCIES(PlatinumTest platinumlib)
-#ADD_DEPENDENCIES(my_application platinumlib)						#Modify this line to include application in this project
-#ADD_DEPENDENCIES(T1Mapping platinumlib)							#Modify this line to include application in this project
+#ADD_DEPENDENCIES(Histo2D platinumlib)								#Modify this line to include application in this project
+#ADD_DEPENDENCIES(My_App platinumlib)								#Modify this line to include application in this project
+ADD_DEPENDENCIES(T1Mapping platinumlib)								#Modify this line to include application in this project
 
 
 #SOURCE_GROUP(Headers REGULAR_EXPRESSION ".*[.]h$")
@@ -441,3 +445,15 @@ SET(Platinum_LIBRARY_DEPENDS_FILE ${Platinum_BINARY_DIR}/PlatinumLibraryDepends.
 EXPORT_LIBRARY_DEPENDENCIES(${Platinum_BINARY_DIR}/PlatinumLibraryDepends.cmake)
 CONFIGURE_FILE("${Platinum_SOURCE_DIR}/CMake/PlatinumConfig.cmake.in"
   "${Platinum_BINARY_DIR}/PlatinumConfig.cmake" @ONLY IMMEDIATE)
+
+
+
+#----------------------------------------------------------------------
+#          Reading file that sets up private applications
+#----------------------------------------------------------------------
+# IF(EXISTS... requires full path names....
+
+
+IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../PlatinumPrivateApps/CMakeLists_PrivateApps.txt")
+	INCLUDE("../PlatinumPrivateApps/CMakeLists_PrivateApps.txt")
+ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../PlatinumPrivateApps/CMakeLists_PrivateApps.txt")
