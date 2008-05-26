@@ -136,7 +136,7 @@ int thresholdparvalue::make_threshold_image ()
     return result_vol_ID;
     }
 
-threshold_overlay::threshold_overlay(FLTKviewport * o, int r_index)
+threshold_overlay::threshold_overlay(FLTK_draw_viewport * o, int r_index)
     {
     owner=o;
 

@@ -59,7 +59,7 @@ FLTK_Event_viewport::FLTK_Event_viewport(int X,int Y,int W,int H) : Fl_Widget(X,
 {}
 
 int FLTK_Event_viewport::handle(int event){
-	FLTKviewport *fvp = (FLTKviewport*)this->parent();
+	FLTK_draw_viewport *fvp = (FLTK_draw_viewport*)this->parent();
 
 	fvp->callback_event = viewport_event(event,fvp);
 
@@ -182,13 +182,13 @@ VTK_FLTKviewport::VTK_FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent)
 }
 
 
-//FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Window(X,Y,W,H)
-FLTKviewport::FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
-//FLTKviewport::FLTKviewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
+//FLTK_draw_viewport::FLTK_draw_viewport(int X,int Y,int W,int H) : Fl_Window(X,Y,W,H)
+FLTK_draw_viewport::FLTK_draw_viewport(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
+//FLTK_draw_viewport::FLTK_draw_viewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
 	{
 	 viewport_parent = vp_parent;
 
-//	cout<<"FLTKviewport::FLTKviewport "<<X<<" "<<Y<<" "<<W<<" "<<H<<endl;
+//	cout<<"FLTK_draw_viewport::FLTK_draw_viewport "<<X<<" "<<Y<<" "<<W<<" "<<H<<endl;
 //	event_widget = new Fl_Button(X,Y,W,H,"test");
 //	event_widget = new Fl_Button(X+50,Y+50,100,40,"test");
 //	event_widget = new Fl_Button(50,50,50,50,"hej");
@@ -209,33 +209,33 @@ FLTKviewport::FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Ov
 	}
 
 	
-void FLTKviewport::draw_overlay()
+void FLTK_draw_viewport::draw_overlay()
 {
 	this->viewport_parent->draw_overlay();
 }
 
 
-FLTKviewport::~FLTKviewport()
+FLTK_draw_viewport::~FLTK_draw_viewport()
 {}
 
 
-void FLTKviewport::draw()
+void FLTK_draw_viewport::draw()
     {
 
     //The draw() virtual method is called when FLTK wants you to redraw your widget.
     //It will be called if and only if damage()  is non-zero, and damage() will be cleared to zero after it returns
-//	cout<<"FLTKviewport::draw()..."<<endl;
+//	cout<<"FLTK_draw_viewport::draw()..."<<endl;
     callback_event = viewport_event (pt_event::draw,this);
     //callback_event.FLTK_event::attach (this);
 
-	//        viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKviewport) handles the callbacks
+	//        viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_draw_viewport) handles the callbacks
 
     do_callback(CB_ACTION_DRAW);
     }
 
-void FLTKviewport::draw(unsigned char *rgbimage)
+void FLTK_draw_viewport::draw(unsigned char *rgbimage)
     {
-//	cout<<"FLTKviewport::draw(unsigned char *rgbimage)..."<<endl;
+//	cout<<"FLTK_draw_viewport::draw(unsigned char *rgbimage)..."<<endl;
 //	cout<<"("<<x()<<" "<<y()<<" "<<w()<<" "<<h()<<")"<<endl;
     const int D=RGBpixmap_bytesperpixel;
 
@@ -264,8 +264,8 @@ void FLTKviewport::draw(unsigned char *rgbimage)
     }
 
 
-void FLTKviewport::resize  	(int new_in_x,int new_in_y, int new_in_w,int new_in_h) {
-//	cout<<"FLTKviewport::resize..."<<endl;
+void FLTK_draw_viewport::resize  	(int new_in_x,int new_in_y, int new_in_w,int new_in_h) {
+//	cout<<"FLTK_draw_viewport::resize..."<<endl;
 
     //store new size so CB_ACTION_RESIZE will know about it (via callback)
     resize_w=new_in_w; resize_h=new_in_h;
@@ -281,7 +281,7 @@ void FLTKviewport::resize  	(int new_in_x,int new_in_y, int new_in_w,int new_in_
     resize_w=w(); resize_h=h();
 }
 
-void FLTKviewport::do_callback (callbackAction action)
+void FLTK_draw_viewport::do_callback (callbackAction action)
     {
     callback_action=action;
 
@@ -291,7 +291,7 @@ void FLTKviewport::do_callback (callbackAction action)
     }
 
 
-void FLTKviewport::needs_rerendering ()
+void FLTK_draw_viewport::needs_rerendering ()
 {
     needsReRendering = true;
 }

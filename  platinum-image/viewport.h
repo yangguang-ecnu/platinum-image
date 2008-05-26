@@ -46,7 +46,7 @@ class thresholdparvalue;
 class viewport // friend with renderer_base
 {
 private:
-    friend class FLTKviewport;
+    friend class FLTK_draw_viewport;
     friend class VTK_FLTKviewport;
     friend class viewporttool;
 
@@ -81,7 +81,7 @@ private:
     void clear_rgbpixmap();             //fill for viewport without renderer
 
     Fl_Group *containerwidget;          //the containerwidget is the full viewport area: image + controls
-//    FLTKviewport *viewport_widget;      //the frame ("viewport") displaying a rendered image
+//    FLTK_draw_viewport *viewport_widget;      //the frame ("viewport") displaying a rendered image
 //    Fl_Gl_Window * GL_widget;
     
     Fl_Menu_Button * imagemenu_button;   
@@ -112,7 +112,7 @@ public:
     virtual ~viewport();
 
 //    test_vp *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
-    FLTKviewport *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
+    FLTK_draw_viewport *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
 //    VTK_FLTKviewport *viewport_widget;    
 
 	int x();	
@@ -128,7 +128,7 @@ public:
     static void set_direction_callback(Fl_Widget *callingwidget, void * params );
     static void set_blendmode_callback(Fl_Widget *callingwidget, void * params );
 	
-    bool render_if_needed (FLTKviewport * f);
+    bool render_if_needed (FLTK_draw_viewport * f);
         
     // *** refresh methods ***
     //called when any update of the visual parts of viewport is affected, i.e.
@@ -146,7 +146,7 @@ public:
 
     void update_viewsize(int width, int height);
 
-    void update_fbstring (FLTKviewport* f);   //refresh values in number-at-pointer string
+    void update_fbstring (FLTK_draw_viewport* f);   //refresh values in number-at-pointer string
 
     #pragma mark *** operators ***
 	// virtual const viewport &operator=(const viewport &k) { return k; }

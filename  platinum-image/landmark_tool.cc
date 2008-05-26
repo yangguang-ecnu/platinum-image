@@ -48,7 +48,7 @@ void landmark_tool::handle(viewport_event &event)
 
 	int point_collection_ID;
 	
-    FLTKviewport * fvp = event.get_FLTK_viewport();
+    FLTK_draw_viewport * fvp = event.get_FLTK_viewport();
 	Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
 
 	switch (event.type())

@@ -175,14 +175,14 @@ void FLTK_event::set_type ()
 		{ type_ = rotate; }
 }
 
-FLTK_event::FLTK_event (FLTKviewport * fvp) : pt_event ()
+FLTK_event::FLTK_event (FLTK_draw_viewport * fvp) : pt_event ()
 { 
     attach (fvp);
 	mousePosGlobal[0] = 0;
 	mousePosGlobal[1] = 0;
 }
 
-FLTK_event::FLTK_event (int FL_event,FLTKviewport * fvp):pt_event()
+FLTK_event::FLTK_event (int FL_event,FLTK_draw_viewport * fvp):pt_event()
     {
     attach (fvp);
 	mousePosGlobal[0] = 0;
@@ -291,26 +291,26 @@ int* FLTK_event::mouse_pos_global()
 
 // *** viewport_event ***
 
-viewport_event::viewport_event (int FL_event, FLTKviewport * fvp):FLTK_event(FL_event, fvp)
+viewport_event::viewport_event (int FL_event, FLTK_draw_viewport * fvp):FLTK_event(FL_event, fvp)
 {
     //at this point the parent classes have digested the event from FLTK down to a Platinum description
 }
 
-viewport_event::viewport_event (pt_event_type t, FLTKviewport * fvp):FLTK_event(fvp)
+viewport_event::viewport_event (pt_event_type t, FLTK_draw_viewport * fvp):FLTK_event(fvp)
 {
     type_ = t;
     state_ = idle;
 }
 
-FLTKviewport * viewport_event::get_FLTK_viewport()
+FLTK_draw_viewport * viewport_event::get_FLTK_viewport()
 {
-    return dynamic_cast<FLTKviewport *> (myWidget);
+    return dynamic_cast<FLTK_draw_viewport *> (myWidget);
 }
 
 void viewport_event::resize_point (int &x,int &y)
 {
     int oldSize [2];
-    FLTKviewport * fvp = get_FLTK_viewport();
+    FLTK_draw_viewport * fvp = get_FLTK_viewport();
     
     oldSize[0] = fvp->w(); oldSize[1] = fvp->h();
     
