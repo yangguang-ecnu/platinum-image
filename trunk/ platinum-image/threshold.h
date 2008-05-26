@@ -31,7 +31,7 @@
 
 #include "global.h"
 
-class FLTKviewport;
+class FLTK_draw_viewport;
 class viewport;
 
 enum {THRESHOLD_2D_MODE_RECT,THRESHOLD_2D_MODE_OVAL};
@@ -64,13 +64,13 @@ class threshold_overlay
 {
 protected:
     //Fl_RGB_Image * overlay_image;
-    FLTKviewport * owner;
+    FLTK_draw_viewport * owner;
     int width, height;
     int rendererIndex;                  //viewport's renderer
 
     thresholdparvalue * threshold;
 public:
-    threshold_overlay(FLTKviewport * o, int renderer_index);
+    threshold_overlay(FLTK_draw_viewport * o, int renderer_index);
     ~threshold_overlay();
 
     unsigned char * overlay_image_data;

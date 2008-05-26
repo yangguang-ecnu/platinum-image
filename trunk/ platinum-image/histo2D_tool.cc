@@ -64,7 +64,7 @@ void histo2D_tool::handle(viewport_event &event)
         last_global_y = mouse[1];
         }
 
-    FLTKviewport * fvp = event.get_FLTK_viewport();
+    FLTK_draw_viewport * fvp = event.get_FLTK_viewport();
 
     switch (event.type()) {
             case pt_event::adjust:

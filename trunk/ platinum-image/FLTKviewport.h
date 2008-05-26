@@ -92,7 +92,7 @@ enum callbackAction {
 
 class FLTK_Event_viewport : public Fl_Widget
 {
-    friend class FLTKviewport;
+    friend class FLTK_draw_viewport;
 public:
     FLTK_Event_viewport(int X,int Y,int W,int H);  //constructor
     int handle(int event);
@@ -111,7 +111,7 @@ class VTK_FLTKviewport : public Fl_Overlay_Window
 		void draw_overlay(){};
 };
 
-class FLTKviewport : public Fl_Overlay_Window
+class FLTK_draw_viewport : public Fl_Overlay_Window
 {
 	    friend class viewport;
         //friend class viewporttool;
@@ -120,8 +120,8 @@ class FLTKviewport : public Fl_Overlay_Window
 	    friend class FLTK_Event_viewport;
 
 public:
-	    FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
-        ~FLTKviewport();
+	    FLTK_draw_viewport(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
+        ~FLTK_draw_viewport();
 		void draw_overlay();
 	    void draw(unsigned char *rgbimage); //joel
                                             //our "active" draw method - will redraw directly whenever it is called
@@ -149,7 +149,7 @@ private:
 	    int wheel_y;            //mouse wheel rotation
 	    int callback_action;    //which action to perform during click or drag processed by callback
         viewport_event callback_event;
-	    int resize_w;	        //if FLTKviewport is resized --> needsReRendering = true;
+	    int resize_w;	        //if FLTK_draw_viewport is resized --> needsReRendering = true;
 	    int resize_h;
         };
 #endif

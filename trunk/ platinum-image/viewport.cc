@@ -231,7 +231,7 @@ void viewport::draw_overlay()
 
 
 
-void viewport::update_fbstring (FLTKviewport* f)
+void viewport::update_fbstring (FLTK_draw_viewport* f)
 {
     std::map<std::string,float> values;
     ostringstream infostring;
@@ -284,7 +284,7 @@ void viewport::viewport_callback(Fl_Widget *callingwidget, void *thisviewport)
     ((viewport*)thisviewport)->viewport_callback(callingwidget);
 }
 
-bool viewport::render_if_needed (FLTKviewport * f)
+bool viewport::render_if_needed (FLTK_draw_viewport * f)
 {
     if (rendererIndex>=0 && f->needsReRendering)
         {
@@ -312,7 +312,7 @@ int viewport::h(){
 
 
 void viewport::viewport_callback(Fl_Widget *callingwidget){
-    FLTKviewport* f = (FLTKviewport*)callingwidget;
+    FLTK_draw_viewport* f = (FLTK_draw_viewport*)callingwidget;
     //f points to the same GUI toolkit-dependent widget instance as viewport_widget
 
     if (f->callback_event.type() == pt_event::draw)
@@ -533,13 +533,13 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
     //
 //	Fl_Group::current(NULL); //JK-ööö
 //	viewport_widget = new test_vp(xpos,ypos+buttonheight,width,height-buttonheight); //JK-ööö
-//  viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight);
+//  viewport_widget = new FLTK_draw_viewport(xpos,ypos+buttonheight,width,height-buttonheight);
 
-    viewport_widget = new FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight, this);
+    viewport_widget = new FLTK_draw_viewport(xpos,ypos+buttonheight,width,height-buttonheight, this);
 //    viewport_widget = new VTK_FLTKviewport(xpos,ypos+buttonheight,width,height-buttonheight, this);
 	
 
-    viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKviewport) handles the callbacks
+    viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_draw_viewport) handles the callbacks
 
 	containerwidget->resizable(viewport_widget);
     
