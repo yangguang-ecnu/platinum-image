@@ -133,6 +133,7 @@ viewmanager.h
 voxel_tools.h 
 Utilities/vxl/contrib/mil3d_trilin_interp_3d.h 
 Utilities/configfile/configfile.h
+Utilities/vtkFl/vtkFlRenderWindowInteractor.h
 
 bias_base.cc
 bias_field.hxx
@@ -200,7 +201,9 @@ ${WIN32_DIRENT_SRC}
 CMakeLists.txt
 Utilities/fltk/Fl_Table.cxx 
 Utilities/fltk/Fl_Table_Row.cxx 
-Utilities/configfile/configfile.cc)
+Utilities/configfile/configfile.cc
+Utilities/vtkFl/vtkFlRenderWindowInteractor.h
+)
 			
 
 IF(BUILD_SHARED)
@@ -433,6 +436,8 @@ Utilities/fltk/Fl_Table_Row.cxx
 Utilities/vxl/contrib/mil3d_trilin_interp_3d.h
 Utilities/configfile/configfile.h
 Utilities/configfile/configfile.cc
+Utilities/vtkFl/vtkFlRenderWindowInteractor.h
+Utilities/vtkFl/vtkFlRenderWindowInteractor.cxx
 )
 
 #add CMakelists for inclusion in version control
