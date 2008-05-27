@@ -202,7 +202,7 @@ CMakeLists.txt
 Utilities/fltk/Fl_Table.cxx 
 Utilities/fltk/Fl_Table_Row.cxx 
 Utilities/configfile/configfile.cc
-Utilities/vtkFl/vtkFlRenderWindowInteractor.h
+Utilities/vtkFl/vtkFlRenderWindowInteractor.cxx
 )
 			
 

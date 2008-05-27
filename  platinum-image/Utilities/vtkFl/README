@@ -1,0 +1,68 @@
+$Id: README,v 1.20 2006/03/13 08:50:10 cpbotha Exp $
+
+vtkFlRenderWindowInteractor README
+----------------------------------
+
+vtkFlRenderWindowInteractor is a VTK class (actually FLTK too, but it helps
+to think of it as VTK) that enables VTK to render to and interact with your
+FLTK application.  It is based on code by David Pont (the code was then
+called FlvtkInteractorWindow) which in its turn was partly based on the
+wxVTK code by David D. Marshall and Brian Todd.  I reworked the code
+extensively to be simpler, more robust and bug-free(tm).  It should always
+be available from http://cpbotha.net/vtkFlRenderWindowInteractor.html.
+
+The main idea behind this class is to be as simple and robust as possible.
+It fulfils one purpose and that's to enable you to write applications with
+FLTK and VTK.  It is possible to have multiple VTK renderings (all active)
+in your FLTK application, each with its own independent working VTK
+interactorstyle.  You can also add custom interactorstyles, just like with
+any standard VTK interactor.  Picking also works fine, thank you.
+
+ONE VERY IMPORTANT NOTE: NEVER, I REPEAT NEVER, "delete" an instance of this
+class.  Being a VTK object, it makes use of the same reference counting,
+i.e. use ->Delete() !!!
+
+I have included a modified example from the VTK distribution (Cone3.cxx)
+that illustrates the use of this class.  Please study this example thoroughly
+before shooting off that idiotic email. :)  You can build it by making use
+of CMake and the included CMakeLists.txt as you normally would.  The older
+example GNU Makefiles for VTK3 and VTK4 are also included, but it is not
+recommended that you use these.
+
+Required
+--------
+
+* >= fltk 1.0.10 (theoretically 1.0.9 should work, but I've not tested this)
+* VTK 3.2.0 CVS tree checkout or VTK 4.0 and later (VTK 5.0 also works)
+  
+
+Tested configurations
+---------------------
+
+* This class has been part of the ITK InsightApplications distribution for
+  quite a while now, so it has had extensive testing on Windows, Linux,
+  MacOS-X (I believe), and other platforms where ITK is used.
+
+Charl P. Botha <cpbotha@cpbotha.net> http://cpbotha.net/
+March 2006
+
+
+
+Notes
+-----
+
+Shrinivas Kulkarni explains how to get vtkFlRenderWindowInteractor working
+with FLTK 2.0:
+I was able to use your vtkFlRenderWindowInteractor with FLTK2.0. Only 
+changes I need to made were:
+
+#include <FLTK/win32.H>
+TO
+#include <FLTK/x.H>
+
+and
+RenderWindow->SetWindowId( (void *)fl_xid( this ) );
+TO
+RenderWindow->SetWindowId( (void *)fltk::CreatedWindow::find(this)->xid);
+
+

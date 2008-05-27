@@ -50,6 +50,7 @@
 //#include "rendermanager.h" //JK circular #include?
 #include "viewport.h" //JK circular #include?
 #include "Utilities/vtkFl/vtkFlRenderWindowInteractor.h"
+//#include "Utilities/vtkFl/vtkFlRenderWindowInteractor.cxx"
 
 //------------------------------------
 //Test - vtkFlRenderWindowInteractor
