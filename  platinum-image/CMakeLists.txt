@@ -54,7 +54,7 @@ INCLUDE_DIRECTORIES ( Utilities/vxl/contrib )
 #SET(UTILITIES_FLTK Utilities/fltk)
 #INCLUDE_DIRECTORIES( ${UTILITIES_FLTK} )					#Location of: Fl_Table.H/cxx Fl_Table_Row.H/cxx
 INCLUDE_DIRECTORIES( Utilities/fltk )
-#INCLUDE_DIRECTORIES( Apps/Histo2D)							#Modify this line to include application in this project
+INCLUDE_DIRECTORIES( Apps/Histo2D)							#Modify this line to include application in this project
 #INCLUDE_DIRECTORIES( Apps/My_App)							#Modify this line to include application in this project
 INCLUDE_DIRECTORIES( Apps/T1Mapping)						#Modify this line to include application in this project
 
@@ -261,7 +261,7 @@ TARGET_LINK_LIBRARIES(platinumlib vtkRendering vtkVolumeRendering vtkIO)
 #test program for quick compile cycles
 #MACOSX_BUNDLE only affects OS X builds, and is required for GUI to function
 ADD_EXECUTABLE(PlatinumTest MACOSX_BUNDLE test_app.cc)
-#ADD_EXECUTABLE(Histo2D MACOSX_BUNDLE Apps/Histo2D/Histo2D.cc)								#Modify this line to include application in this project
+ADD_EXECUTABLE(Histo2D MACOSX_BUNDLE Apps/Histo2D/Histo2D.cc)								#Modify this line to include application in this project
 #ADD_EXECUTABLE(My_App MACOSX_BUNDLE Apps/My_App/My_App.cc)									#Modify this line to include application in this project
 ADD_EXECUTABLE(T1Mapping MACOSX_BUNDLE Apps/T1Mapping/T1Mapping.cc)							#Modify this line to include application in this project
 
@@ -272,7 +272,7 @@ IF(APPLE)
    IF(ITK_APPLE_RESOURCE)
       ADD_CUSTOM_COMMAND(
         TARGET PlatinumTest.app/Contents/Resources/PlatinumTest.rsrc POST_BUILD
-        #TARGET Histo2D.app/Contents/Resources/Histo2D.rsrc POST_BUILD						#Modify this line to include application in this project
+        TARGET Histo2D.app/Contents/Resources/Histo2D.rsrc POST_BUILD						#Modify this line to include application in this project
         #TARGET My_App.app/Contents/Resources/My_App.rsrc POST_BUILD						#Modify this line to include application in this project
         TARGET T1Mapping.app/Contents/Resources/T1Mapping.rsrc POST_BUILD					#Modify this line to include application in this project
   
@@ -284,12 +284,12 @@ IF(APPLE)
 ENDIF(APPLE)
 
 TARGET_LINK_LIBRARIES(PlatinumTest platinumlib)
-#TARGET_LINK_LIBRARIES(Histo2D platinumlib)							#Modify this line to include application in this project
+TARGET_LINK_LIBRARIES(Histo2D platinumlib)							#Modify this line to include application in this project
 #TARGET_LINK_LIBRARIES(My_App platinumlib)							#Modify this line to include application in this project
 TARGET_LINK_LIBRARIES(T1Mapping platinumlib)						#Modify this line to include application in this project
 
 ADD_DEPENDENCIES(PlatinumTest platinumlib)
-#ADD_DEPENDENCIES(Histo2D platinumlib)								#Modify this line to include application in this project
+ADD_DEPENDENCIES(Histo2D platinumlib)								#Modify this line to include application in this project
 #ADD_DEPENDENCIES(My_App platinumlib)								#Modify this line to include application in this project
 ADD_DEPENDENCIES(T1Mapping platinumlib)								#Modify this line to include application in this project
 

@@ -473,7 +473,7 @@ transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):tr
     }
 
 /*
-template <>	//JK2 image_complex testing
+template <>	//JK image_complex testing
 void transfer_default<std::complex<float> >::get (const std::complex<float> v, RGBvalue &p)
     {
     p.set_mono(255);

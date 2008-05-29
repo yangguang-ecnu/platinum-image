@@ -399,7 +399,8 @@ bool rendermanager::renderer_supports_mode(int rendererIndex,int m)
     return renderers[rendererIndex]->supports_mode (m); //JK corrects Visual C++ compile error ("must return a value")
 }
 
-std::map<std::string,float> rendermanager::get_values (int index, int px, int py,int sx, int sy)
+/*
+std::map<std::string,float> rendermanager::get_values(int index, int px, int py,int sx, int sy)
     {
     if (index != -1)
         {
@@ -410,6 +411,7 @@ std::map<std::string,float> rendermanager::get_values (int index, int px, int py
 
     return m;  //if ID is invalid
     }
+*/
 
 Vector3D rendermanager::get_location (int rendererIndex, int imageID, int px, int py, int sx, int sy)
     {

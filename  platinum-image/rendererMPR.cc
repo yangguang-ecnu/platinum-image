@@ -51,11 +51,11 @@ void rendererMPR::connect_image(int vHandlerID)
     imagestorender->add_data(vHandlerID);
 	}
 
-void rendererMPR::refesh_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h)
+void rendererMPR::paint_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h)
 {
 //	cout<<"rendererMPR::refesh_overlay.."<<endl;
-	draw_slice_locators_to_overlay(0, 0,  vp_w, vp_h, wheretorender, imagestorender); //JK --> changed to 0,0 when windows are used...
-//	draw_slice_locators_to_overlay(vp_offset_x, vp_offset_y,  vp_w, vp_h, wheretorender, imagestorender);
+	paint_slice_locators_to_overlay(0, 0,  vp_w, vp_h, wheretorender, imagestorender); //JK --> changed to 0,0 when windows are used...
+//	paint_slice_locators_to_overlay(vp_offset_x, vp_offset_y,  vp_w, vp_h, wheretorender, imagestorender);
 }
 
 Vector3D rendererMPR::view_to_world(int vx, int vy,int sx,int sy) const
@@ -708,10 +708,8 @@ void rendererMPR::draw_slice_locators ( uchar *pixels, int sx, int sy, rendergeo
 	}
 }
 
-void rendererMPR::draw_slice_locators_to_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, rendergeometry * where, rendercombination * what)
+void rendererMPR::paint_slice_locators_to_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, rendergeometry * where, rendercombination * what)
 {
-//	cout<<"rendererMPR-draw_slice_locators_to_overlay... "<<endl;
-
 	std::vector<rendergeometry *> geoms = rendermanagement.geometries_by_image_and_direction( what->get_id() );	// get geometries that holds at least one of the images in the input combination
 
 //	cout<<"geoms.size()="<<geoms.size()<<endl;
@@ -733,7 +731,7 @@ void rendererMPR::draw_slice_locators_to_overlay(int vp_offset_x, int vp_offset_
 			local_vp_line.set_point(view1[0],view1[1]);
 			local_vp_line.set_direction(dir_loc[0],dir_loc[1]);
 
-			draw_overlay_line(vp_offset_x, vp_offset_y, vp_w, vp_h, local_vp_line);
+			paint_overlay_line(vp_offset_x, vp_offset_y, vp_w, vp_h, local_vp_line);
 		}//for
 
 //		fl_rect( vp_offset_x+1, vp_offset_y+1, vp_w-2, vp_h-2, FL_YELLOW);
@@ -742,9 +740,9 @@ void rendererMPR::draw_slice_locators_to_overlay(int vp_offset_x, int vp_offset_
 }
 
 
-void rendererMPR::draw_overlay_line(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, line2D local_vp_line)
+void rendererMPR::paint_overlay_line(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, line2D local_vp_line)
 {
-//	cout<<"draw_overlay_line..."<<endl;
+//	cout<<"paint_overlay_line..."<<endl;
 //	cout<<"local_vp_line="<<local_vp_line.get_point()<<" "<<local_vp_line.get_direction()<<endl;
 	Vector2D p = local_vp_line.get_point();
 	Vector2D d = local_vp_line.get_direction();

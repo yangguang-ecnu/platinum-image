@@ -182,7 +182,7 @@ std::vector<int> renderer_base::world_to_view (int sx,int sy,const Vector3D wpos
     return world_to_view(wheretorender,sx,sy,wpos);
 }
 
-std::map<std::string,float> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const
+std::map<std::string,float> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const //JK3
 {
     //virtual function, MSVC gets hickups without namespace spec however :(
     return renderer_base::get_values_world(view_to_world(vx,vy,sx,sy));
