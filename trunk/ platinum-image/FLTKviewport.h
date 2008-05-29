@@ -31,31 +31,31 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Overlay_Window.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Box.H>
-#include <FL/Fl_Image.H>
+#include <FL/Fl_Pack.H>
+//#include <FL/Fl_Image.H>
 #include <FL/fl_draw.H>
 
 #include <iostream>
 #include <vector>
-
 #include <sstream>
 #include <string>
 
-#include "global.h"
+#include "viewport.h" //JK circular #include?
 
+#include "global.h"
 #include "threshold.h"
 #include "histo2D_tool.h"
 #include "event.h"
-//#include "viewmanager.h" //JK circular #include?
-//#include "rendermanager.h" //JK circular #include?
-#include "viewport.h" //JK circular #include?
+
+
+//------------------------------------
+//Test - vtkFlRenderWindowInteractor -  here we have all the usual VTK stuff that we need for our pipeline
+
 #include "Utilities/vtkFl/vtkFlRenderWindowInteractor.h"
 //#include "Utilities/vtkFl/vtkFlRenderWindowInteractor.cxx"
 
-//------------------------------------
-//Test - vtkFlRenderWindowInteractor
-
-// here we have all the usual VTK stuff that we need for our pipeline
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkConeSource.h>
@@ -63,15 +63,7 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkActor.h>
-
-// and here we have the famous vtkFlRenderWindowInteractor class
-//#include <vtkFlRenderWindowInteractor.h>
-
-// and of course some fltk stuff
-//#include <Fl/Fl_Box.H>
-//#include <Fl/Fl_Button.H>
-
-// ----------------------------------
+//------------------------------------
 
 
 //Callback action identifiers.
@@ -91,6 +83,19 @@ enum callbackAction {
     };
 
 
+class FLTK_VTK_viewport : public Fl_Overlay_Window
+{
+//		vtkFlRenderWindowInteractor *fl_vtk_window; //JK-ööö simple test...
+	public:
+	    FLTK_VTK_viewport(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
+		void needs_rerendering(); //passes this on to the viewport...
+	private:
+		viewport *viewport_parent;
+		void draw_overlay(){};
+};
+
+
+
 class FLTK_Event_viewport : public Fl_Widget
 {
     friend class FLTK_draw_viewport;
@@ -100,22 +105,12 @@ public:
     void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 };
 
-class VTK_FLTKviewport : public Fl_Overlay_Window
-{
-//		vtkFlRenderWindowInteractor *fl_vtk_window; //JK-ööö simple test...
-	public:
-	    VTK_FLTKviewport(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
-	    bool needsReRendering;	//set to true when we need to update the data drawn on screen -//JK TODO fix...
-		void needs_rerendering(){needsReRendering=true;};	//JK TODO fix...
-	private:
-		viewport *viewport_parent;
-		void draw_overlay(){};
-};
 
 class FLTK_draw_viewport : public Fl_Overlay_Window
 {
 	    friend class viewport;
-        //friend class viewporttool;
+        friend class FLTKviewport;
+//        friend class viewporttool;
         friend class threshold_overlay;
         friend class histo2D_tool;
 	    friend class FLTK_Event_viewport;
@@ -130,7 +125,7 @@ public:
                                             //feedback (coordinates, cursor)
 	    void resize (int new_x,int new_y,int new_w,int new_h);
 //	    int handle(int event);
-        void needs_rerendering ();
+        void needs_rerendering();
 
         
 private:
@@ -139,7 +134,6 @@ private:
 
         void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 	    void draw_feedback();       //draws the cursor
-	    bool needsReRendering;	//set to true when we need to update the data drawn on screen
 	   
         std::string feedback_string;      //info (coordinates and such)
 		void do_callback (callbackAction action = CB_ACTION_NONE);  //do callback with specified action
@@ -150,7 +144,52 @@ private:
 	    int wheel_y;            //mouse wheel rotation
 	    int callback_action;    //which action to perform during click or drag processed by callback
         viewport_event callback_event;
-	    int resize_w;	        //if FLTK_draw_viewport is resized --> needsReRendering = true;
+	    int resize_w;	        //if FLTK_draw_viewport is resized --> viewport->needsReRendering = true;
 	    int resize_h;
         };
+
+
+
+class FLTKviewport : public Fl_Window   //handles the FLTK part of the viewport class
+{
+private:
+	viewport *viewport_parent;
+
+    Fl_Pack			*viewport_buttons;		//group containing per-viewport widgets such as the image menu
+    Fl_Menu_Button	*datamenu_button;   
+    Fl_Menu_Button	*directionmenu_button;
+    Fl_Menu_Button	*renderermenu_button;
+    Fl_Menu_Button	*blendmenu_button;
+
+    void update_data_menu();   //set rendering status for images from rendercombination for this viewport's renderer
+    void rebuild_renderer_menu();//update checkmark for current renderer type
+    static void cb_renderer_select(Fl_Widget * o, void * v);
+    void rebuild_blendmode_menu();//update checkmark for current blend mode
+	
+	
+public:
+    FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_parent, int buttonheight=20, int buttonwidth=70);
+    virtual ~FLTKviewport();
+
+    FLTK_draw_viewport *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
+//    FLTK_VTK_viewport *viewport_widget;    
+
+	void viewport_callback(Fl_Widget *callingwidget);                               //Callback that handles events always redraws (pt_event::draw/resize)
+    static void viewport_callback(Fl_Widget *callingwidget, void *thisviewport);    //FLTK callback wrapper
+
+    static void toggle_image_callback(Fl_Widget *callingwidget, void *params);
+    static void set_direction_callback(Fl_Widget *callingwidget, void *params);
+    static void set_blendmode_callback(Fl_Widget *callingwidget, void *params);
+	void set_direction_button_label(preset_direction direction);
+	
+    bool render_if_needed(FLTK_draw_viewport *f);
+        
+    // *** refresh methods ***
+    //called when any update of the visual parts of viewport is affected, i.e. image and/or menu of images
+    void refresh_menus();
+    void refresh_overlay();                     //calls the redraw_overlay on the original FLTK_Overlay class... which schedules the redrawing... 
+    
+//    void update_fbstring (FLTK_draw_viewport* f);   //refresh values in number-at-pointer string
+};
+
 #endif

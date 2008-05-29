@@ -182,8 +182,10 @@ FLTK_event::FLTK_event (FLTK_draw_viewport * fvp) : pt_event ()
 	mousePosGlobal[1] = 0;
 }
 
-FLTK_event::FLTK_event (int FL_event,FLTK_draw_viewport * fvp):pt_event()
+FLTK_event::FLTK_event(int FL_event,FLTK_draw_viewport * fvp):pt_event()
     {
+	cout<<"x,y="<<Fl::event_x()<<","<<Fl::event_y()<<endl;
+
     attach (fvp);
 	mousePosGlobal[0] = 0;
 	mousePosGlobal[1] = 0;
@@ -209,7 +211,7 @@ FLTK_event::FLTK_event (int FL_event,FLTK_draw_viewport * fvp):pt_event()
             state_ = iterate;
             
             mouseStart[0] = Fl::event_x();
-            mouseStart[1] = Fl::event_y();
+            mouseStart[1] = Fl::event_y(); //JK2
             break;
 
         case FL_ENTER:
@@ -253,7 +255,7 @@ FLTK_event::FLTK_event (int FL_event,FLTK_draw_viewport * fvp):pt_event()
         }
 
     mousePos[0]=Fl::event_x();
-    mousePos[1]=Fl::event_y();
+    mousePos[1]=Fl::event_y(); //JK2
     wheelDelta = Fl::event_dy();
     }
 
