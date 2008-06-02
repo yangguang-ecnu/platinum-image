@@ -98,7 +98,6 @@ class FLTK_VTK_viewport : public Fl_Overlay_Window
 
 class FLTK_Event_viewport : public Fl_Widget
 {
-    friend class FLTK_draw_viewport;
 public:
     FLTK_Event_viewport(int X,int Y,int W,int H);  //constructor
     int handle(int event);
@@ -106,18 +105,18 @@ public:
 };
 
 
-class FLTK_draw_viewport : public Fl_Overlay_Window
+class FLTKpane : public Fl_Overlay_Window
 {
 	    friend class viewport;
         friend class FLTKviewport;
-//        friend class viewporttool;
-        friend class threshold_overlay;
+	    friend class FLTK_Event_viewport; //allows acces to e.g. callback_event
+		friend class threshold_overlay;
+		//friend class viewporttool;
         friend class histo2D_tool;
-	    friend class FLTK_Event_viewport;
 
 public:
-	    FLTK_draw_viewport(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
-        ~FLTK_draw_viewport();
+	    FLTKpane(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
+        ~FLTKpane();
 		void draw_overlay();
 	    void draw(unsigned char *rgbimage); //joel
                                             //our "active" draw method - will redraw directly whenever it is called
@@ -144,7 +143,7 @@ private:
 	    int wheel_y;            //mouse wheel rotation
 	    int callback_action;    //which action to perform during click or drag processed by callback
         viewport_event callback_event;
-	    int resize_w;	        //if FLTK_draw_viewport is resized --> viewport->needsReRendering = true;
+	    int resize_w;
 	    int resize_h;
         };
 
@@ -171,8 +170,9 @@ public:
     FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_parent, int buttonheight=20, int buttonwidth=70);
     virtual ~FLTKviewport();
 
-    FLTK_draw_viewport *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
+    FLTKpane *viewport_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
 //    FLTK_VTK_viewport *viewport_widget;    
+	int h_pane();
 
 	void viewport_callback(Fl_Widget *callingwidget);                               //Callback that handles events always redraws (pt_event::draw/resize)
     static void viewport_callback(Fl_Widget *callingwidget, void *thisviewport);    //FLTK callback wrapper
@@ -182,14 +182,14 @@ public:
     static void set_blendmode_callback(Fl_Widget *callingwidget, void *params);
 	void set_direction_button_label(preset_direction direction);
 	
-    bool render_if_needed(FLTK_draw_viewport *f);
+    bool render_if_needed(FLTKpane *fp);
         
     // *** refresh methods ***
     //called when any update of the visual parts of viewport is affected, i.e. image and/or menu of images
     void refresh_menus();
     void refresh_overlay();                     //calls the redraw_overlay on the original FLTK_Overlay class... which schedules the redrawing... 
     
-//    void update_fbstring (FLTK_draw_viewport* f);   //refresh values in number-at-pointer string
+//    void update_fbstring(FLTKpane *fp);   //refresh values in number-at-pointer string
 };
 
 #endif

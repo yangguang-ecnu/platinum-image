@@ -21,7 +21,7 @@
 
 #include "FLTKviewport.h"
 #include <FL/Fl.H>
-
+/*
 std::string FLTK_event::eventnames[] =
     {
     //array allows event names to be printed to strings and whatnot
@@ -50,6 +50,7 @@ std::string FLTK_event::eventnames[] =
     "FL_DND_LEAVE", 	//22
     "FL_DND_RELEASE",	//23
     };
+*/
 
 // *** pt_event ***
 
@@ -175,18 +176,18 @@ void FLTK_event::set_type ()
 		{ type_ = rotate; }
 }
 
-FLTK_event::FLTK_event (FLTK_draw_viewport * fvp) : pt_event ()
+FLTK_event::FLTK_event (FLTKpane *fp) : pt_event ()
 { 
-    attach (fvp);
+    attach(fp);
 	mousePosGlobal[0] = 0;
 	mousePosGlobal[1] = 0;
 }
 
-FLTK_event::FLTK_event(int FL_event,FLTK_draw_viewport * fvp):pt_event()
+FLTK_event::FLTK_event(int FL_event, FLTKpane *fp):pt_event()
     {
-	cout<<"x,y="<<Fl::event_x()<<","<<Fl::event_y()<<endl;
+//	cout<<"FLTK_event("<<FL_event<<"x,y="<<Fl::event_x()<<","<<Fl::event_y()<<endl;
 
-    attach (fvp);
+    attach(fp);
 	mousePosGlobal[0] = 0;
 	mousePosGlobal[1] = 0;
     
@@ -293,28 +294,28 @@ int* FLTK_event::mouse_pos_global()
 
 // *** viewport_event ***
 
-viewport_event::viewport_event (int FL_event, FLTK_draw_viewport * fvp):FLTK_event(FL_event, fvp)
+viewport_event::viewport_event (int FL_event, FLTKpane *fp):FLTK_event(FL_event, fp)
 {
     //at this point the parent classes have digested the event from FLTK down to a Platinum description
 }
 
-viewport_event::viewport_event (pt_event_type t, FLTK_draw_viewport * fvp):FLTK_event(fvp)
+viewport_event::viewport_event (pt_event_type t, FLTKpane *fp):FLTK_event(fp)
 {
     type_ = t;
     state_ = idle;
 }
 
-FLTK_draw_viewport * viewport_event::get_FLTK_viewport()
+FLTKpane* viewport_event::get_FLTK_viewport()
 {
-    return dynamic_cast<FLTK_draw_viewport *> (myWidget);
+    return dynamic_cast<FLTKpane*> (myWidget);
 }
 
 void viewport_event::resize_point (int &x,int &y)
 {
     int oldSize [2];
-    FLTK_draw_viewport * fvp = get_FLTK_viewport();
+    FLTKpane *fp = get_FLTK_viewport();
     
-    oldSize[0] = fvp->w(); oldSize[1] = fvp->h();
+    oldSize[0] = fp->w(); oldSize[1] = fp->h();
     
     float scaling = std::max(resizeDim[0],resizeDim[1])/std::max(oldSize[0],oldSize[1]);
     

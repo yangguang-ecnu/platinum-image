@@ -208,7 +208,7 @@ std::vector<int> rendermanager::geometries_by_direction ( const int geometryID, 
 
 std::vector<int> rendermanager::geometries_by_direction ( const int geometryID )
 {
-	cout<<"hej..."<<endl;
+//	cout<<"hej..."<<endl;
 	std::vector<int> geometryIDs;
 	
 	for ( std::vector<rendergeometry *>::const_iterator itr = geometries.begin(); itr != geometries.end(); itr++ )

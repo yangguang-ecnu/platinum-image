@@ -223,11 +223,11 @@ void transfer_brightnesscontrast<ELEMTYPE >::update(string slider_label)
 template <class ELEMTYPE >
 void transfer_brightnesscontrast<ELEMTYPE >::slider_cb(Fl_Widget *w, void *data)
 {
-	cout<<"slider_cb"<<endl;
+//	cout<<"slider_cb"<<endl;
 	transfer_brightnesscontrast<ELEMTYPE>* tf = (transfer_brightnesscontrast<ELEMTYPE>*)data;
 
 	if(w == tf->min_ctrl){
-		cout<<"w == tf->min_ctrl"<<endl;
+//		cout<<"w == tf->min_ctrl"<<endl;
 		tf->update("Min");				//Update "min" "max" and controls....
 		tf->pane->do_callback();		//Redraw transfer function source image...
 	}else if( w == tf->max_ctrl){

@@ -157,7 +157,7 @@ public:
     
     virtual void connect_image(int rID) = 0;
 
-	virtual void paint_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h)=0;
+	virtual void paint_overlay(int vp_w, int vp_h_pane)=0;
 };
 
 #endif

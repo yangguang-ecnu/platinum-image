@@ -569,7 +569,7 @@ void image_storage<ELEMTYPE >::get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &m
 		typename image_storage<ELEMTYPE>::iterator itr = this->begin();
 		while (itr != this->end())
 		{
-			val=*itr;						//If you crash here... the image was likely not loaded correctly...
+			val=*itr;						//****If you crash here... the image was likely not loaded correctly...
 			minimum = min (val, minimum);
 			maximum = max (val, maximum);
 			++itr;

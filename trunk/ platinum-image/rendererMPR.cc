@@ -51,14 +51,13 @@ void rendererMPR::connect_image(int vHandlerID)
     imagestorender->add_data(vHandlerID);
 	}
 
-void rendererMPR::paint_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h)
+void rendererMPR::paint_overlay(int vp_w, int vp_h_pane)
 {
-//	cout<<"rendererMPR::refesh_overlay.."<<endl;
-	paint_slice_locators_to_overlay(0, 0,  vp_w, vp_h, wheretorender, imagestorender); //JK --> changed to 0,0 when windows are used...
-//	paint_slice_locators_to_overlay(vp_offset_x, vp_offset_y,  vp_w, vp_h, wheretorender, imagestorender);
+//	cout<<"rendererMPR::paint_overlay..("<<vp_w<<" "<<vp_h_pane<<") where_id="<<wheretorender->get_id()<<endl;
+	paint_slice_locators_to_overlay(vp_w, vp_h_pane, wheretorender, imagestorender); //JK --> changed to 0,0 when windows are used... //JK4
 }
 
-Vector3D rendererMPR::view_to_world(int vx, int vy,int sx,int sy) const
+Vector3D rendererMPR::view_to_world(int vx, int vy, int sx, int sy) const
 {
     Vector3D viewCentered,world;
     vector<float> v;
@@ -708,8 +707,10 @@ void rendererMPR::draw_slice_locators ( uchar *pixels, int sx, int sy, rendergeo
 	}
 }
 
-void rendererMPR::paint_slice_locators_to_overlay(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, rendergeometry * where, rendercombination * what)
+void rendererMPR::paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rendergeometry * where, rendercombination * what)
 {
+//	cout<<"paint_slice_locators_to_overlay("<<vp_w<<" "<<vp_h_pane<<"...)"<<endl;
+
 	std::vector<rendergeometry *> geoms = rendermanagement.geometries_by_image_and_direction( what->get_id() );	// get geometries that holds at least one of the images in the input combination
 
 //	cout<<"geoms.size()="<<geoms.size()<<endl;
@@ -717,8 +718,8 @@ void rendererMPR::paint_slice_locators_to_overlay(int vp_offset_x, int vp_offset
 	if(geoms.size()>0){
 		renderer_base *renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(where->get_id()) );	//because class/function is static
 
-		int smin = std::min(vp_w, vp_h);
-		Vector3D vmin = renderer->view_to_world(smin, 0, vp_w, vp_h) - renderer->view_to_world(0, 0, vp_w, vp_h);
+		int smin = std::min(vp_w, vp_h_pane);
+		Vector3D vmin = renderer->view_to_world(smin, 0, vp_w, vp_h_pane) - renderer->view_to_world(0, 0, vp_w, vp_h_pane);
 		//vmin contains the length of the smallest vp direction in world coordinates...
 
 		line3D phys_line;
@@ -726,12 +727,15 @@ void rendererMPR::paint_slice_locators_to_overlay(int vp_offset_x, int vp_offset
 
 		for(int i=0; i<geoms.size();i++){
 			phys_line = where->get_physical_line_of_intersection(geoms[i]);
-			std::vector<int> view1 = world_to_view(where, vp_w, vp_h, phys_line.get_point());
-			std::vector<float> dir_loc = world_dir_to_view_dir (where,vp_w, vp_h,phys_line.get_direction());
+			std::vector<int> view1 = world_to_view(where, vp_w, vp_h_pane, phys_line.get_point());
+//			std::vector<int> view1 = world_to_view(where, vp_w, vp_h, phys_line.get_point());
+//			cout<<"line->view1="<<view1[0]<<","<<view1[1]<<endl;
+			std::vector<float> dir_loc = world_dir_to_view_dir (where,vp_w, vp_h_pane, phys_line.get_direction());
 			local_vp_line.set_point(view1[0],view1[1]);
 			local_vp_line.set_direction(dir_loc[0],dir_loc[1]);
 
-			paint_overlay_line(vp_offset_x, vp_offset_y, vp_w, vp_h, local_vp_line);
+//			paint_overlay_line(vp_w, vp_h, local_vp_line);
+			paint_overlay_line(vp_w, vp_h_pane, local_vp_line);  //JK3 crazy test
 		}//for
 
 //		fl_rect( vp_offset_x+1, vp_offset_y+1, vp_w-2, vp_h-2, FL_YELLOW);
@@ -740,7 +744,7 @@ void rendererMPR::paint_slice_locators_to_overlay(int vp_offset_x, int vp_offset
 }
 
 
-void rendererMPR::paint_overlay_line(int vp_offset_x, int vp_offset_y, int vp_w, int vp_h, line2D local_vp_line)
+void rendererMPR::paint_overlay_line(int vp_w, int vp_h_pane, line2D local_vp_line)
 {
 //	cout<<"paint_overlay_line..."<<endl;
 //	cout<<"local_vp_line="<<local_vp_line.get_point()<<" "<<local_vp_line.get_direction()<<endl;
@@ -760,9 +764,9 @@ void rendererMPR::paint_overlay_line(int vp_offset_x, int vp_offset_y, int vp_w,
 		x = p[0];
 		y = 0;
 		x2 = x;
-		y2 = vp_h;
+		y2 = vp_h_pane;
 		if(x>=0 && x<=vp_w){ //make sure no drawing is made outside current vp... 
-			fl_line(vp_offset_x+x, vp_offset_y+y, vp_offset_x+x2, vp_offset_y+y2);
+			fl_line(x, y, x2, y2);
 		}
 	}else{
 		x = 0;
@@ -780,18 +784,18 @@ void rendererMPR::paint_overlay_line(int vp_offset_x, int vp_offset_y, int vp_w,
 			x2 = p[0] - dxdy*p[1];
 			y2 = 0;
 		}
-		if(y>vp_h){
-			x = p[0] + dxdy*(vp_h-p[1]);
-			y = vp_h-1;
+		if(y>vp_h_pane){
+			x = p[0] + dxdy*(vp_h_pane-p[1]);
+			y = vp_h_pane-1;
 		}
-		if(y2>vp_h){
-			x2 = p[0] + dxdy*(vp_h-p[1]);
-			y2 = vp_h-1;
+		if(y2>vp_h_pane){
+			x2 = p[0] + dxdy*(vp_h_pane-p[1]);
+			y2 = vp_h_pane-1;
 		}
 
 //		cout<<"("<<x<<","<<y<<")   ("<<x2<<","<<y2<<")"<<endl;
 
-		fl_line(vp_offset_x+x, vp_offset_y+y, vp_offset_x+x2, vp_offset_y+y2);
+		fl_line(x, y, x2, y2);
 	}
 }
 

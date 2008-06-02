@@ -44,7 +44,7 @@ struct menu_callback_params
     viewport *vport;			//for preset direction callback    
     preset_direction direction;	//for preset direction callback    
 };
-/*
+
 string eventnames[] =
     {
     //array allows event names to be printed to strings and whatnot
@@ -73,7 +73,7 @@ string eventnames[] =
     "FL_DND_LEAVE", 	//22
     "FL_DND_RELEASE",	//23
     };
-*/
+
 
 FLTK_VTK_viewport::FLTK_VTK_viewport(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
 {
@@ -134,10 +134,13 @@ FLTK_Event_viewport::FLTK_Event_viewport(int X,int Y,int W,int H) : Fl_Widget(X,
 {}
 
 int FLTK_Event_viewport::handle(int event){
-//	cout<<"FLTK_Event_viewport::handle("<<event<<")"<<endl;
+//	cout<<"FLTK_Event_viewport::handle("<<eventnames[event]<<") ";
 
-	FLTK_draw_viewport *fvp = (FLTK_draw_viewport*)this->parent();
-	fvp->callback_event = viewport_event(event,fvp);
+	FLTKpane *fp = (FLTKpane*)this->parent();
+
+//	if(event != 4){
+		fp->callback_event = viewport_event(event,fp);
+//	}
 
     switch (event)
         {
@@ -150,11 +153,11 @@ int FLTK_Event_viewport::handle(int event){
             //which is shown/hidden with these events
             //with mouse-over focus however, this can be annoying
             
-            fvp->callback_event.grab();
+            fp->callback_event.grab();
             break;
         }
     
-   fvp->do_callback();
+   fp->do_callback();
 
 /*
     if(callback_event.handled()){
@@ -177,49 +180,40 @@ void FLTK_Event_viewport::draw()
 
 
 
-//FLTK_draw_viewport::FLTK_draw_viewport(int X,int Y,int W,int H) : Fl_Window(X,Y,W,H)
-FLTK_draw_viewport::FLTK_draw_viewport(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
-//FLTK_draw_viewport::FLTK_draw_viewport(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
+FLTKpane::FLTKpane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
 {
-	//cout<<"FLTK_draw_viewport::FLTK_draw_viewport "<<X<<" "<<Y<<" "<<W<<" "<<H<<endl;
-
+	//cout<<"FLTKpane::FLTKpane "<<X<<" "<<Y<<" "<<W<<" "<<H<<endl;
 	viewport_parent = vp_parent;
-//	event_widget = new FLTK_Event_viewport(X,Y,W,H);
 	event_widget = new FLTK_Event_viewport(0,0,W,H);
 
 	this->resizable(event_widget); //JK3 make sure thes is resized too...
-
 	viewport_parent->needs_rerendering();
 	callback_action=CB_ACTION_NONE;
 }
 
-FLTK_draw_viewport::~FLTK_draw_viewport()
+FLTKpane::~FLTKpane()
 {}
 	
-void FLTK_draw_viewport::draw_overlay()
+void FLTKpane::draw_overlay()
 {
 	this->viewport_parent->paint_overlay();
 }
 
 
-
-
-void FLTK_draw_viewport::draw()
+void FLTKpane::draw()
 {
     //The draw() virtual method is called when FLTK wants you to redraw your widget.
     //It will be called if and only if damage()  is non-zero, and damage() will be cleared to zero after it returns
-//	cout<<"FLTK_draw_viewport::draw()..."<<endl;
-    callback_event = viewport_event (pt_event::draw,this);
+	//cout<<"FLTKpane::draw()..."<<endl;
+    callback_event = viewport_event(pt_event::draw,this);
     //callback_event.FLTK_event::attach (this);
-
-	//viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_draw_viewport) handles the callbacks
-
-   do_callback(CB_ACTION_DRAW); //JK2
+	//viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKpane) handles the callbacks
+	do_callback(CB_ACTION_DRAW); //JK2
 }
 
-void FLTK_draw_viewport::draw(unsigned char *rgbimage)
+void FLTKpane::draw(unsigned char *rgbimage)
 {
-//	cout<<"FLTK_draw_viewport::draw(unsigned char *rgbimage)..."<<endl;
+//	cout<<"FLTKpane::draw(unsigned char *rgbimage)..."<<endl;
 //	cout<<"("<<x()<<" "<<y()<<" "<<w()<<" "<<h()<<")"<<endl;
     const int D=RGBpixmap_bytesperpixel;
 
@@ -248,8 +242,8 @@ void FLTK_draw_viewport::draw(unsigned char *rgbimage)
 }
 
 
-void FLTK_draw_viewport::resize(int new_in_x,int new_in_y, int new_in_w,int new_in_h){
-//	cout<<"FLTK_draw_viewport::resize..."<<endl;
+void FLTKpane::resize(int new_in_x,int new_in_y, int new_in_w,int new_in_h){
+//	cout<<"FLTKpane::resize..."<<endl;
 
     //store new size so CB_ACTION_RESIZE will know about it (via callback)
     resize_w=new_in_w; resize_h=new_in_h;
@@ -265,12 +259,12 @@ void FLTK_draw_viewport::resize(int new_in_x,int new_in_y, int new_in_w,int new_
     resize_w=w(); resize_h=h();
 }
 
-void FLTK_draw_viewport::needs_rerendering()
+void FLTKpane::needs_rerendering()
 {
 	viewport_parent->needs_rerendering();
 }
 
-void FLTK_draw_viewport::do_callback (callbackAction action)
+void FLTKpane::do_callback (callbackAction action)
 {
     callback_action=action;
     Fl_Widget::do_callback();
@@ -360,16 +354,12 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 	//------ styling --------------
     blendmenu_button->box(FL_THIN_UP_BOX);
     blendmenu_button->labelsize(FLTK_SMALL_LABEL);
-    
     renderermenu_button->box(FL_THIN_UP_BOX);
     renderermenu_button->labelsize(FLTK_SMALL_LABEL);
-    
     directionmenu_button->box(FL_THIN_UP_BOX);
     directionmenu_button->labelsize(FLTK_SMALL_LABEL);
-    
     datamenu_button->box(FL_THIN_UP_BOX);
     datamenu_button->labelsize(FLTK_SMALL_LABEL);
-
 	//------ styling --------------
     
     viewport_buttons->end();
@@ -377,11 +367,12 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 
 
 //	Fl_Group::current(NULL); //JK-ööö
-//  viewport_widget = new FLTK_draw_viewport(xpos,ypos+buttonheight,width,height-buttonheight);
+//  viewport_widget = new FLTKpane(xpos,ypos+buttonheight,width,height-buttonheight);
 
-    viewport_widget = new FLTK_draw_viewport(0,0+buttonheight,width,height-buttonheight, vp_parent); //JK2 change this constr. to take a FLTKvp as input...
-//    viewport_widget = new FLTK_VTK_viewport(xpos,ypos+buttonheight,width,height-buttonheight, this);
-    viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_draw_viewport) handles the callbacks
+	viewport_widget = new FLTKpane(0,0+buttonheight,width,height-buttonheight, vp_parent); //JK2 change this constr. to take a FLTKvp as input...
+	viewport_widget->callback(viewport_callback, this); //viewport (_not_ FLTKpane) handles the callbacks
+
+//	viewport_widget = new FLTK_VTK_viewport(0,0+buttonheight,width,height-buttonheight, vp_parent);
 
 	this->resizable(viewport_widget);
     this->end();
@@ -401,6 +392,11 @@ FLTKviewport::~FLTKviewport()
 			fl_menu_userdata_delete (renderermenu_button->menu()); 
 		}
 	}
+}
+
+int FLTKviewport::h_pane()
+{
+	return viewport_widget->h();
 }
 
 void FLTKviewport::refresh_menus()
@@ -623,37 +619,37 @@ void FLTKviewport::viewport_callback(Fl_Widget *callingwidget, void *thisFLTKvie
 }
 
 void FLTKviewport::viewport_callback(Fl_Widget *callingwidget){
-    FLTK_draw_viewport* f = (FLTK_draw_viewport*)callingwidget;
+    FLTKpane *fp = (FLTKpane*)callingwidget;
     //f points to the same GUI toolkit-dependent widget instance as viewport_widget
 
-    if (f->callback_event.type() == pt_event::draw)
+    if (fp->callback_event.type() == pt_event::draw)
         {
-        f->callback_event.grab();
-		render_if_needed(f);
+        fp->callback_event.grab();
+		render_if_needed(fp);
 
-        f->damage(FL_DAMAGE_ALL);
+        fp->damage(FL_DAMAGE_ALL);
 //		cout<<"viewport::viewport_callback...draw(pxmap)"<<endl;//JK-ööö
-        f->draw(viewport_parent->rgbpixmap); //JK2-ööö, do this in FLTK_draw_vp...
-        f->damage(0);
+        fp->draw(viewport_parent->rgbpixmap); //JK2-ööö, do this in FLTK_draw_vp...
+        fp->damage(0);
         }
 
     if (viewport_parent->busyTool == NULL)
         { 
-        viewport_parent->busyTool = viewporttool::taste(f->callback_event,viewport_parent,rendermanagement.get_renderer(viewport_parent->rendererID));
+        viewport_parent->busyTool = viewporttool::taste(fp->callback_event,viewport_parent,rendermanagement.get_renderer(viewport_parent->rendererID));
         }
     
 		if (viewport_parent->busyTool != NULL) //might have been created earlier too
         {
-        viewport_parent->busyTool->handle(f->callback_event);
+        viewport_parent->busyTool->handle(fp->callback_event);
 
-        if (render_if_needed(f))
+        if (render_if_needed(fp))
             {
-				f->redraw(); 
+				fp->redraw(); 
 			}
         }
     
     //handle events "otherwise"
-    if (!f->callback_event.handled())
+    if (!fp->callback_event.handled())
         {
         //"default" behavior for the viewport goes here
         
@@ -661,29 +657,29 @@ void FLTKviewport::viewport_callback(Fl_Widget *callingwidget){
         }
     
     //handle events regardless of whether a tool caught them
-    switch (f->callback_event.type())
+    switch (fp->callback_event.type())
         {
         case pt_event::resize:
-            if ((f->resize_w != viewport_parent->rgbpixmap_size[0] || f->resize_h != viewport_parent->rgbpixmap_size[1]))
+            if ((fp->resize_w != viewport_parent->rgbpixmap_size[0] || fp->resize_h != viewport_parent->rgbpixmap_size[1]))
                 {
                 //resize: just update view size, re-render but don't redraw...yet
                 
-                const int * r = f->callback_event.get_resize();
+                const int *r = fp->callback_event.get_resize();
                 viewport_parent->update_viewsize(r[0] ,r[1]);
                 
-                f->needs_rerendering();
+                fp->needs_rerendering();
                 }
             break;
         }
 
 }
 
-bool FLTKviewport::render_if_needed(FLTK_draw_viewport * f)
+bool FLTKviewport::render_if_needed(FLTKpane *fp)
 {
-	return viewport_parent->render_if_needed(f);
+	return viewport_parent->render_if_needed(fp);
 }
 /*
-void FLTKviewport::update_fbstring (FLTK_draw_viewport* f)
+void FLTKviewport::update_fbstring (FLTKpane* fp)
 {
     std::map<std::string,float> values;
     ostringstream infostring;
@@ -691,7 +687,7 @@ void FLTKviewport::update_fbstring (FLTK_draw_viewport* f)
     //Draw values picked from data at mouse position
     //in later revisions this event and clicks may be relayed to the actual application
     
-    values=rendermanagement.get_values(viewport_parent->rendererIndex,f->mouse_pos[0]-f->x(),f->mouse_pos[1]-f->y(),viewport_parent->rgbpixmap_size[0],viewport_parent->rgbpixmap_size[1]);
+    values=rendermanagement.get_values(viewport_parent->rendererIndex,fp->mouse_pos[0]-fp->x(),fp->mouse_pos[1]-fp->y(),viewport_parent->rgbpixmap_size[0],viewport_parent->rgbpixmap_size[1]);
     
     for (std::map<std::string,float>::iterator itr = values.begin(); itr != values.end();itr++)
         {
@@ -702,6 +698,6 @@ void FLTKviewport::update_fbstring (FLTK_draw_viewport* f)
         infostring << itr->first << ": " << itr->second;
         }
     
-    f->feedback_string=infostring.str();
+    fp->feedback_string=infostring.str();
 }
 */

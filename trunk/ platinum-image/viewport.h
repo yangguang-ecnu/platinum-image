@@ -75,6 +75,7 @@ public:
 	int y();
 	int w();
 	int h();
+	int h_pane(); //height of the pane ( total height minus button height)
     
     int get_id() const ;
 	int get_renderer_id() const ;
@@ -88,7 +89,7 @@ public:
 //	void set_timer_delay(int delay = 0); // if zero, remove timer and always render directly
 	void enable_and_set_direction(preset_direction direction);
 
-    bool render_if_needed(FLTK_draw_viewport *f);
+    bool render_if_needed(FLTKpane *fp);
 
 
     // *** refresh methods ***
