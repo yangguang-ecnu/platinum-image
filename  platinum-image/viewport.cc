@@ -86,6 +86,10 @@ int viewport::h(){
 	return the_widget->h();
 }
 
+int viewport::h_pane(){
+	return the_widget->h_pane();
+}
+
 
 void viewport::clear_rgbpixmap()
 {
@@ -259,16 +263,12 @@ void viewport::enable_and_set_direction( preset_direction direction )
 //	}
 }
 
-bool viewport::render_if_needed (FLTK_draw_viewport * f)
+bool viewport::render_if_needed(FLTKpane *fp)  //JK3 TODO... remove... *fp
 {
-//    if (rendererIndex>=0 && f->needsReRendering)
     if (rendererIndex>=0 && needs_re_rendering)
         {
         rendermanagement.render(rendererIndex, rgbpixmap, rgbpixmap_size[0], rgbpixmap_size[1]);
-        
-//        f->needsReRendering = false;
         needs_re_rendering = false;
-        
         return true;
         }
     return false;
@@ -352,7 +352,11 @@ void viewport::refresh_overlay()
 
 void viewport::paint_overlay()
 {
-	rendermanagement.get_renderer(this->rendererID)->paint_overlay(0, 0, w(), h());
+//	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h());
+//	cout<<"***h()="<<h_pane()<<endl;
+
+	//here the height of the pane needs to be used since the height of the "viewport" includes the buttons...
+	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h_pane()); //h_pane is needed to compensate for button height... //JK4
 }
 
 

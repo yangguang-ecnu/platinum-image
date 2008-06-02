@@ -73,8 +73,7 @@ void close_program_callback(Fl_Widget *callingwidget, void *data)
 }
 
 void platinum_init ()
-
-    {
+{
     std::cout << "You are going Platinum, please stand by!" << std::endl;
 
 #if !defined(WIN32) && !defined(__APPLE__)

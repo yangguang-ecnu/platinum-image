@@ -491,6 +491,20 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolum
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolume_from_thresholded_region_3D(ELEMTYPE from_val, ELEMTYPE to_val)
+{
+	image_binary<3>* tmp_mask = this->threshold(from_val,to_val);
+	tmp_mask->data_has_changed();
+	int x1,y1,z1,x2,y2,z2;
+	tmp_mask->get_span_of_values_larger_than_3D(0,x1,y1,z1,x2,y2,z2);
+	delete tmp_mask;
+
+	cout<<"get_subvolume_from_thresholded_region_3D("<<x1<<" "<<y1<<" "<<z1<<" "<<x2<<" "<<y2<<" "<<z2<<")"<<endl;
+	return this->get_subvolume_from_region_3D(x1,y1,z1,x2,y2,z2);
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::crop_and_return_3D(image_binary<3> *mask)
 {
 	image_scalar<ELEMTYPE, IMAGEDIM>* res;

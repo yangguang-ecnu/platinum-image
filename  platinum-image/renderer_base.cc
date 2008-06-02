@@ -143,11 +143,11 @@ void renderer_base::move_voxels (int x,int y,int z)
     move(dir[0],dir[1],dir[2]);
 }
 
-std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,const Vector3D wpos)
+std::vector<int> renderer_base::world_to_view(rendergeometry *g, int sx, int sy, const Vector3D wpos)
 {
     std::vector<int> view;
     Vector3D toView = wpos;
-    int vmin = std::min (sx,sy);
+    int vmin = std::min(sx,sy);
     //float wtvCenterScale = renderer_base::display_scale/((float)vmin*g->zoom*2);
    
     Matrix3D world_to_view_matrix;
@@ -157,6 +157,8 @@ std::vector<int> renderer_base::world_to_view (rendergeometry * g,int sx,int sy,
     	
     view.push_back(round(toView[0]+sx/2.0));
     view.push_back(round(toView[1]+sy/2.0));
+
+//	cout<<"world_to_view(sx="<<sx<<" sy="<<sy<<" wpos="<<wpos<<") --"<<view[0]<<" "<<view[1]<<endl;
 
     return view;
 }

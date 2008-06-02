@@ -48,8 +48,8 @@ void landmark_tool::handle(viewport_event &event)
 
 	int point_collection_ID;
 	
-    FLTK_draw_viewport * fvp = event.get_FLTK_viewport();
-	Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
+    FLTKpane *fp = event.get_FLTK_viewport();
+	Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fp->w(), fp->h());
 
 	switch (event.type())
 	{	
@@ -174,7 +174,7 @@ void landmark_tool::handle(viewport_event &event)
 			
 			if ( event.handled() )
 			{
-				fvp->needs_rerendering();
+				fp->needs_rerendering();
 			}
 
 			if ( event.key_combo( pt_event::space_key + pt_event::shift_key ) )
@@ -200,7 +200,7 @@ void landmark_tool::handle(viewport_event &event)
 				
 				myRenderer->move_view(viewSize,0,0,event.scroll_delta()*wheel_factor);
 				
-				fvp->needs_rerendering();
+				fp->needs_rerendering();
 				refresh_by_image_and_direction();
 				viewmanagement.update_overlays();
 			}
@@ -215,7 +215,7 @@ void landmark_tool::handle(viewport_event &event)
 
 			event.grab();
 
-			Vector3D vpos = myRenderer->view_to_voxel(mouse2d[0], mouse2d[1],fvp->w(),fvp->h());
+			Vector3D vpos = myRenderer->view_to_voxel(mouse2d[0], mouse2d[1],fp->w(),fp->h());
 
 			if ( vpos[0] < 0 ) // negative coordinates signify outside of (positive and negative) bounds
 			{
@@ -223,7 +223,7 @@ void landmark_tool::handle(viewport_event &event)
 			}
 			else
 			{	// inside a non-empty viewport
-				Vector3D wpos = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fvp->w(), fvp->h());
+				Vector3D wpos = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fp->w(), fp->h());
 				
 				std::ostringstream oss;
 				oss.setf ( ios::fixed );

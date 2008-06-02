@@ -103,8 +103,6 @@ void horizresizeablescroll::resize (int newx, int newy, int neww, int newh)
 
 
 void horizresizeablescroll::widget_callback(Fl_Widget* callingwidget, void* test) {
-
-
 	std::cout << "widget_callback" << std::endl;
 }
 

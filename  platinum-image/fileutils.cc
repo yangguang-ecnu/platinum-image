@@ -211,6 +211,16 @@ string get_first_dicom_file_in_dir(string dir_path, bool full_path)
 	return "";
 }
 
+string get_second_dicom_file_in_dir(string dir_path, bool full_path)
+{
+	vector<string> v = get_dicom_files_in_dir(dir_path, full_path);
+//	cout<<"v.size()="<<v.size()<<endl;
+	if(v.size()>1){
+		return v[1];
+	}
+	return "";
+}
+
 vector<string> get_dicom_files_with_dcm_tag_value(vector<string> files, string dcm_tag, string tag_val)
 {
 	vector<string> v;
@@ -336,15 +346,15 @@ vector<string> list_dicom_tag_values_for_this_ref_tag_value(vector<string> files
 	return values_present;
 }
 
-vector<string> list_dicom_tag_values_in_subdirs(string dir_path, string dcm_tag, bool recursive_search)
+vector<string> list_dicom_tag_values_in_dir(string dir_path, string dcm_tag, bool recursive_search)
 {
-	cout<<"list_dicom_tag_values_in_subdirs("<<dir_path<<") "<<endl;
+	cout<<"list_dicom_tag_values_in_dir("<<dir_path<<") "<<endl;
 	vector<string> tags;
 	vector<string> tags2;
 	if(recursive_search){
 		vector<string> dirs = subdirs(dir_path);
 		for(int i=0;i<dirs.size();i++){
-			tags2 = list_dicom_tag_values_in_subdirs(dirs[i], dcm_tag, true);
+			tags2 = list_dicom_tag_values_in_dir(dirs[i], dcm_tag, true);
 			for(int j=0;j<tags2.size();j++){
 				add_to_string_vector_if_not_present(tags,tags2[j]);
 //				cout<<"tags.size()="<<tags.size()<<endl; 

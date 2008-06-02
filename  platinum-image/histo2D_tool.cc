@@ -64,7 +64,7 @@ void histo2D_tool::handle(viewport_event &event)
         last_global_y = mouse[1];
         }
 
-    FLTK_draw_viewport * fvp = event.get_FLTK_viewport();
+    FLTKpane *fp = event.get_FLTK_viewport();
 
     switch (event.type()) {
             case pt_event::adjust:
@@ -92,9 +92,9 @@ void histo2D_tool::handle(viewport_event &event)
                                 FLTK2Dregionofinterest::current_ROI = ROI;
                                 }
 
-                            ROI->drag(this->last_global_x,this->last_global_y,mouse[0]-this->last_global_x,mouse[1]-this->last_global_y,fvp);
+                            ROI->drag(this->last_global_x,this->last_global_y,mouse[0]-this->last_global_x,mouse[1]-this->last_global_y,fp);
                             }
-                        fvp->damage(FL_DAMAGE_ALL);
+                        fp->damage(FL_DAMAGE_ALL);
                         }
                     }
             break;
@@ -102,14 +102,14 @@ void histo2D_tool::handle(viewport_event &event)
         case pt_event::browse:
             {
                 event.grab();
-                ROI->resize (mouse[0]-this->last_global_x,mouse[1]-this->last_global_y,1,fvp);
+                ROI->resize (mouse[0]-this->last_global_x,mouse[1]-this->last_global_y,1,fp);
             }
             break;
             
         case pt_event::create:
             event.grab();
             
-            ROI->resize (0,0,1+this->last_global_y*zoom_factor,fvp);
+            ROI->resize (0,0,1+this->last_global_y*zoom_factor,fp);
                         
             //zooming invalidates ROI
             FLTK2Dregionofinterest::current_ROI = NULL;
@@ -121,24 +121,24 @@ void histo2D_tool::handle(viewport_event &event)
             
             ROI->attach_histograms(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
             
-            fvp->needs_rerendering();
+            fp->needs_rerendering();
             break;
             
         case pt_event::draw:
             event.grab();
             
             overlay->render();
-            overlay->FLTK_draw(); //overlay has fvp associated earlier, where drawing is done
+            overlay->FLTK_draw(); //overlay has fp associated earlier, where drawing is done
 
             fl_color(fl_rgb_color(0, 255, 255));
-            ROI->draw(fvp);
+            ROI->draw(fp);
             break;
             
         case pt_event::resize:
             event.grab();
             
             overlay->resize();
-            //ROI->resize (0,0,1,fvp); //"clear" hack ROI
+            //ROI->resize (0,0,1,fp); //"clear" hack ROI
             ROI->resize (event);
 
             break;
@@ -148,7 +148,7 @@ void histo2D_tool::handle(viewport_event &event)
         {
         event.grab();
         ROI->drag_end();
-        fvp->damage(FL_DAMAGE_ALL);
+        fp->damage(FL_DAMAGE_ALL);
         }
     
     if (FLTK2Dregionofinterest::current_ROI == ROI && (event.type() == pt_event::adjust ) ||event.type() ==pt_event::scroll )
@@ -165,8 +165,8 @@ void histo2D_tool::handle(viewport_event &event)
                                                                // - voxel coordinates for one apply to the other as well
             
             regionofinterest reg;
-            reg.start = rendermanagement.get_location (rendermanagement.find_renderer_index( myPort->get_renderer_id()),one_vol_ID,ROI->region_start_x,ROI->region_start_y,fvp->w(),fvp->h());
-            reg.size = rendermanagement.get_location (rendermanagement.find_renderer_index( myPort->get_renderer_id()),one_vol_ID,ROI->region_end_x,ROI->region_end_y,fvp->w(),fvp->h())-reg.start;
+            reg.start = rendermanagement.get_location (rendermanagement.find_renderer_index( myPort->get_renderer_id()),one_vol_ID,ROI->region_start_x,ROI->region_start_y,fp->w(),fp->h());
+            reg.size = rendermanagement.get_location (rendermanagement.find_renderer_index( myPort->get_renderer_id()),one_vol_ID,ROI->region_end_x,ROI->region_end_y,fp->w(),fp->h())-reg.start;
             //remove sign from size
             for (int d=0; d < 3 ; d++)
                 {reg.size[d]=fabs(reg.size[d]);}
@@ -185,9 +185,9 @@ void histo2D_tool::handle(viewport_event &event)
         }
 }
 
-void histo2D_tool::attach (viewport * vp, renderer_base * r)
+void histo2D_tool::attach (viewport *vp, renderer_base * r)
 {
-    //myWidget = fvp;
+    //myWidget = fp;
     myPort = vp;
     myRenderer = r;
     overlay->renderer_index(rendermanagement.find_renderer_index( myPort->get_renderer_id()));
