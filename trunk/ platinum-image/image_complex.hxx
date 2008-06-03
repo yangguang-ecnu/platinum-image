@@ -19,15 +19,24 @@
 #define __image_complex_hxx__
 
 #include "image_complex.h"
-#include "image_multi.hxx"
+//#include "image_multi.hxx"
 
-#ifdef _DEBUG
-template <int IMAGEDIM>
-void image_complex<IMAGEDIM>::silly_test ()
+
+
+template<class ELEMTYPE, int IMAGEDIM>
+void image_complex<ELEMTYPE,IMAGEDIM>::silly_test()
     {
 	cout<<"* This is a silly test , JK"<<endl;
 	}
-#endif
+
+
+template<class ELEMTYPE, int IMAGEDIM>
+float image_complex<ELEMTYPE,IMAGEDIM>::get_number_voxel(int x, int y, int z) const
+    {
+    return 0;
+    }
+
+
 
 
 #endif

@@ -37,7 +37,7 @@ class image_multi : public image_general <ELEMTYPE, IMAGEDIM>
     {
     //redundant declaration of constructor, since those cannot be inherited
     public:
-        image_multi ():image_general<ELEMTYPE, IMAGEDIM>() {}
+        image_multi():image_general<ELEMTYPE, IMAGEDIM>() {}
         
         template<class SOURCETYPE>
         image_multi(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_image, copyData)

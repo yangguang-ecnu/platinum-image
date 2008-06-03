@@ -1618,7 +1618,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, i
 template <class ELEMTYPE, int IMAGEDIM>
 float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
     {
-    return static_cast<float>(get_voxel (x, y, z));
+    return static_cast<float>(get_voxel(x, y, z));
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
