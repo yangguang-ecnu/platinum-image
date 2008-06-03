@@ -245,8 +245,7 @@ void nav_tool::handle(viewport_event &event)
 //		cout<<"***last_local="<<last_local_x<<" "<<last_local_y<<endl;
 
 		//Used in zoom function 	//Note: it is important to use local mouse coordinates when using world<-->view transformations...
-		physical_zoom_start_pos = myRenderer->view_to_world(last_local_x, last_local_y, fp->w(), fp->h()); //JK2- ev  (-20)
-//		physical_zoom_start_pos = myRenderer->view_to_world(last_local_x, last_local_y, fp->w(), fp->h()+fp->y()); //JK2- ev  (-20)
+		physical_zoom_start_pos = myRenderer->view_to_world(last_local_x, last_local_y, fp->w(), fp->h());
   //    cout<<"physical_zoom_start_pos="<<physical_zoom_start_pos<<endl;
 		local_zoom_start_pos = myRenderer->world_to_view(fp->w(),fp->h(),physical_zoom_start_pos);
 //		local_zoom_start_pos = myRenderer->world_to_view(fp->w(),fp->h()+fp->y(),physical_zoom_start_pos);
@@ -265,7 +264,6 @@ void nav_tool::handle(viewport_event &event)
 			// TODO: implement a drop-down menu for each viewport where the user can set which viewports it should connect with.
 
 			Vector3D mouse3d = myRenderer->view_to_world(event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h());
-//			Vector3D mouse3d = myRenderer->view_to_world(event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h()+fp->y()); //JK2
 			cout<<"mouse3d="<<mouse3d<<endl;
 			viewmanagement.show_point_by_combination ( mouse3d, myRenderer->combination_id() );
 			viewmanagement.refresh_overlays();
@@ -277,7 +275,6 @@ void nav_tool::handle(viewport_event &event)
 		std::cout << "Focus and center" << std::endl;
 //		std::vector<int> mouse2d = event.mouse_pos_local();
 		Vector3D mouse3d = myRenderer->view_to_world(event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h());
-//		Vector3D mouse3d = myRenderer->view_to_world(event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h()+fp->y()); //JK2
 		viewmanagement.show_point_by_combination(mouse3d, myRenderer->combination_id(), -1);		
 	}
 
@@ -316,7 +313,6 @@ void nav_tool::handle(viewport_event &event)
 
 					//move....
 					std::vector<int> new_pos = myRenderer->world_to_view(fp->w(),fp->h(),physical_zoom_start_pos);
-//					std::vector<int> new_pos = myRenderer->world_to_view(fp->w(),fp->h()+fp->y(),physical_zoom_start_pos); //JK2
 
 					int dx = new_pos[0]-local_zoom_start_pos[0];
 					int dy = new_pos[1]-local_zoom_start_pos[1];
@@ -365,7 +361,7 @@ void nav_tool::handle(viewport_event &event)
 						
 						//get values and update statusfield
 						
-						const std::map<std::string, float> values = myRenderer->get_values_view( event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h()); //JK2?
+						const std::map<std::string, float> values = myRenderer->get_values_view( event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h());
 
 						if (values.empty())
 						{
@@ -597,8 +593,7 @@ void cursor_tool::handle(viewport_event &event)
     if (event.type() == pt_event::create)
         {
         event.grab();
-//        Vector3D mouse3D = myRenderer->view_to_world(mouse[0],mouse[1],fp->w(),fp->h()+fp->y()); //JK2
-        Vector3D mouse3D = myRenderer->view_to_world(mouse[0],mouse[1],fp->w(),fp->h()); //JK2
+        Vector3D mouse3D = myRenderer->view_to_world(mouse[0],mouse[1],fp->w(),fp->h());
         
         switch (event.state())
             {
@@ -632,8 +627,7 @@ void cursor_tool::handle(viewport_event &event)
             const int chsize = 6;
             const int chmarg = chsize + 2;
             const int chlen = 8;
-//            std::vector<int> drawC = myRenderer->world_to_view (fp->w(),fp->h()+fp->y(),selection->get_origin()); //JK2
-            std::vector<int> drawC = myRenderer->world_to_view (fp->w(),fp->h(),selection->get_origin()); //JK2
+            std::vector<int> drawC = myRenderer->world_to_view (fp->w(),fp->h(),selection->get_origin());
 
             drawC[0] += fp->x();
             drawC[1] += fp->y();
@@ -674,8 +668,7 @@ void cursor_tool::handle(viewport_event &event)
                     numbers.str("");
                     //get coords and update statusfield
                     Vector3D pos;
-//                    pos = myRenderer->view_to_voxel(mouse[0], mouse[1],fp->w(),fp->h()+fp->y()); //JK2
-                    pos = myRenderer->view_to_voxel(mouse[0], mouse[1],fp->w(),fp->h()); //JK2
+                    pos = myRenderer->view_to_voxel(mouse[0], mouse[1],fp->w(),fp->h());
                     if (pos[0]<0) //negative coordinates signify outside of
                                   //(positive and negative) bounds
                         {

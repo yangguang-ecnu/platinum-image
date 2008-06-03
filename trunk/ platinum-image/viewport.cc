@@ -62,7 +62,6 @@ viewport::~viewport()
 void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
 {
     const int buttonheight=20; //JK2
-//    const int buttonheight=0; //JK2
     const int buttonwidth=70;
    
     update_viewsize(width, height - buttonheight);
@@ -369,6 +368,8 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
         {
 //        viewport_event e = viewport_event(0,viewport_widget);															//JK-ööö
 //        busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));		//JK-ööö
+		viewport_event e = viewport_event(0,the_widget->viewport_widget);															//JK-ööö
+        busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));		//JK-ööö
         }
     
     if (busyTool != NULL) //might have been created earlier too

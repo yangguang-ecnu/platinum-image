@@ -142,11 +142,12 @@ threshold_overlay::threshold_overlay(FLTKpane *fp, int r_index)
 
     threshold=NULL;
 
-    width=owner->w();
-    height=owner->h();
+//    width=owner->w();
+//    height=owner->h();
 
     overlay_image_data = NULL;
-    overlay_image_data = new unsigned char [width*height*RGBApixmap_bytesperpixel];
+//    overlay_image_data = new unsigned char [width*height*RGBApixmap_bytesperpixel];
+    overlay_image_data = new unsigned char [owner->w()*owner->h()*RGBApixmap_bytesperpixel];
 
     rendererIndex= r_index;
     }
@@ -166,7 +167,8 @@ void threshold_overlay::render (thresholdparvalue * t)
 
     if (threshold !=NULL)
         {
-        rendermanagement.render_threshold (rendererIndex, overlay_image_data, width, height, threshold);
+//        rendermanagement.render_threshold (rendererIndex, overlay_image_data, width, height, threshold);
+        rendermanagement.render_threshold (rendererIndex, overlay_image_data, owner->w(), owner->h(), threshold);
         //overlay_image->uncache();
 
         owner->damage (FL_DAMAGE_ALL);
@@ -183,9 +185,10 @@ void threshold_overlay::FLTK_draw()
     {    
     if (threshold !=NULL)
         {        
-        Fl_RGB_Image overlay_image (overlay_image_data, width, height, RGBApixmap_bytesperpixel, 0);
+        Fl_RGB_Image overlay_image (overlay_image_data, owner->w(), owner->h(), RGBApixmap_bytesperpixel, 0);
 
-        overlay_image.draw(owner->x(),owner->y());
+//        overlay_image.draw(owner->x(),owner->y());
+        overlay_image.draw(0,0); //JK2 //JK3 //JK4 is now drawn relative the "top" level window, which is FLTKpane..last
         }
     }
 

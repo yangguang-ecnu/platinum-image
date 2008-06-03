@@ -212,7 +212,7 @@ FLTK_event::FLTK_event(int FL_event, FLTKpane *fp):pt_event()
             state_ = iterate;
             
             mouseStart[0] = Fl::event_x();
-            mouseStart[1] = Fl::event_y(); //JK2
+            mouseStart[1] = Fl::event_y();
             break;
 
         case FL_ENTER:
@@ -256,7 +256,7 @@ FLTK_event::FLTK_event(int FL_event, FLTKpane *fp):pt_event()
         }
 
     mousePos[0]=Fl::event_x();
-    mousePos[1]=Fl::event_y(); //JK2
+    mousePos[1]=Fl::event_y();
     wheelDelta = Fl::event_dy();
     }
 
