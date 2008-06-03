@@ -137,10 +137,9 @@ int FLTK_Event_viewport::handle(int event){
 //	cout<<"FLTK_Event_viewport::handle("<<eventnames[event]<<") ";
 
 	FLTKpane *fp = (FLTKpane*)this->parent();
+	fp->callback_event = viewport_event(event,fp);
+//	cout<<"fp->w/h "<<fp->w()<<"/"<<fp->h()<<endl;
 
-//	if(event != 4){
-		fp->callback_event = viewport_event(event,fp);
-//	}
 
     switch (event)
         {

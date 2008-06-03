@@ -83,6 +83,9 @@ enum callbackAction {
     };
 
 
+
+
+
 class FLTK_VTK_viewport : public Fl_Overlay_Window
 {
 //		vtkFlRenderWindowInteractor *fl_vtk_window; //JK-ööö simple test...
@@ -96,6 +99,8 @@ class FLTK_VTK_viewport : public Fl_Overlay_Window
 
 
 
+
+
 class FLTK_Event_viewport : public Fl_Widget
 {
 public:
@@ -103,6 +108,10 @@ public:
     int handle(int event);
     void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 };
+
+
+
+
 
 
 class FLTKpane : public Fl_Overlay_Window

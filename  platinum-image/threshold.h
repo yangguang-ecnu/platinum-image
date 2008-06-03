@@ -65,7 +65,7 @@ class threshold_overlay
 protected:
     //Fl_RGB_Image * overlay_image;
     FLTKpane *owner;
-    int width, height;
+//    int width, height;
     int rendererIndex;                  //viewport's renderer
 
     thresholdparvalue * threshold;
