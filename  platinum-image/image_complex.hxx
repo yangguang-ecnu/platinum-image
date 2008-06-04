@@ -23,15 +23,16 @@
 
 
 
-template<class ELEMTYPE, int IMAGEDIM>
-void image_complex<ELEMTYPE,IMAGEDIM>::silly_test()
+template <class ELEMTYPE, int IMAGEDIM>
+//template<class ELEMTYPE, int IMAGEDIM>
+void image_complex<ELEMTYPE, IMAGEDIM>::silly_test()
     {
 	cout<<"* This is a silly test , JK"<<endl;
 	}
 
 
-template<class ELEMTYPE, int IMAGEDIM>
-float image_complex<ELEMTYPE,IMAGEDIM>::get_number_voxel(int x, int y, int z) const
+template <class ELEMTYPE, int IMAGEDIM>
+float image_complex<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
     {
     return 0;
     }

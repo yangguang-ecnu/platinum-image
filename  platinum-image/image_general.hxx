@@ -1611,15 +1611,17 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_in_physical_pos(Vector3D phys_
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z) const
     {
-    this->tfunction->get(get_voxel (x, y, z),val);
+    this->tfunction->get(get_voxel(x, y, z),val);
     //val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
     }
 
+//JK - I have not managed to specialize this function for "complex<ELEMTYPE>" - I think the whole class needs to be rewritten for "complex<ELEMTYPE>"
 template <class ELEMTYPE, int IMAGEDIM>
 float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
     {
-    return static_cast<float>(get_voxel(x, y, z));
+    return static_cast<float>(get_voxel(x, y, z)); //JK4
     }
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 histogram_1D<ELEMTYPE>* image_general<ELEMTYPE, IMAGEDIM>::get_histogram_from_masked_region_3D(image_binary<3>* mask, int num_buckets)

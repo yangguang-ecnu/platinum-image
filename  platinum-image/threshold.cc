@@ -106,7 +106,7 @@ int thresholdparvalue::make_threshold_image ()
             {
             for (short x = 0; x < size[0];x++)
                 {
-                float rightey;
+//                float rightey;
                 bool value=true;
                 float t_value [THRESHOLDMAXCHANNELS];
 
@@ -125,8 +125,7 @@ int thresholdparvalue::make_threshold_image ()
                     }
 
                 the_result->set_voxel(x,y,z,value ? 1 : 0);
-                rightey = the_result->get_number_voxel(x,y,z);
-                rightey = the_result->get_number_voxel(x,y,z);
+//                rightey = the_result->get_number_voxel(x,y,z); //JK - to what use???
                 }
             }
         }
