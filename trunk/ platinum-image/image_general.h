@@ -93,9 +93,9 @@ class image_general : public image_storage <ELEMTYPE >
 		image_general(const string filepath, const string name="");
 
 
-        void set_parameters ();                                                     //reset & calculate parameters
-        void set_parameters (itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
-        void calc_transforms (); //used by set_parameters(...), cached transform(s) recalculations
+        void set_parameters();                                                     //reset & calculate parameters
+        void set_parameters(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
+        void calc_transforms(); //used by set_parameters(...), cached transform(s) recalculations
 		Vector3D get_phys_pos_of_corner(int corner_id); //return physical position of corner 0...7 (for simple iteration over all corners)
 
     public:     
@@ -151,6 +151,7 @@ class image_general : public image_storage <ELEMTYPE >
         // *** element access methods ***
         ELEMTYPE get_voxel(int x, int y, int z=0) const;
         ELEMTYPE get_voxel(Vector3Dint vox_pos) const;
+//ööö        float get_voxel(int x, int y, int z=0) const;
         ELEMTYPE get_voxel_in_physical_pos(Vector3D phys_pos);  
         ELEMTYPE get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos);  
 		ELEMTYPE get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1, float w2, float w3, float w4);
@@ -166,7 +167,7 @@ class image_general : public image_storage <ELEMTYPE >
         ELEMTYPE get_voxel_by_dir(int u, int v, int w, int direction=2);
 
         //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
-        float get_number_voxel(int x, int y, int z) const;
+        virtual float get_number_voxel(int x, int y, int z) const;  //the use of virtual makes for example "complex<>" class work...
 
         histogram_1D<ELEMTYPE>* get_histogram_from_masked_region_3D(image_binary<3>* mask, int num_buckets=500);
 

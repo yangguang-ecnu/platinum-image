@@ -54,10 +54,9 @@ protected:
 //    void set_parameters (image_scalar<ELEMTYPE, IMAGEDIM> * from_image);         //clone parameters from another image
 
 public:
-    image_scalar (): image_general<ELEMTYPE, IMAGEDIM>()
-        {};
+    image_scalar(): image_general<ELEMTYPE, IMAGEDIM>(){};
     image_scalar(int w, int h, int d, ELEMTYPE *ptr = NULL):image_general<ELEMTYPE, IMAGEDIM>(w, h, d, ptr) {};
-    image_scalar (itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i):image_general<ELEMTYPE, IMAGEDIM>(i) {}
+    image_scalar(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i):image_general<ELEMTYPE, IMAGEDIM>(i) {}
     //copy constructor
     template<class SOURCETYPE>
         image_scalar(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_image, copyData)

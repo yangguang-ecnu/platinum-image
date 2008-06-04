@@ -177,6 +177,7 @@ ELEMTYPE image_storage<ELEMTYPE >::get_min() const
     {
     return stats->min();
     }
+
 /*
 template <> // image_complex testing
 float image_storage<std::complex<float> >::get_max_float()
@@ -184,10 +185,12 @@ float image_storage<std::complex<float> >::get_max_float()
     return abs(maxvalue);
     }
 */
+
+//JK - I have not managed to specialize this function for "complex<ELEMTYPE>" - I think the whole class needs to be rewritten for "complex<ELEMTYPE>"
 template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_max_float() const
     {
-		return abs(float(stats->max()));
+		return abs(float(stats->max())); //JK4
     }
 
 

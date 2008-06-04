@@ -2,9 +2,18 @@
 //
 //   Image_multi $Revision$
 ///
-///  Abstract image class for data types with multiple values per voxel,
-///  such as vector, complex and RGB
-///
+///  Abstract image class for data types with multiple values per voxel, such as vector/complex/RGB/timeseries images
+///  Class-Structure Plan
+///  *image_multi_scalar
+///    Stores a vector of image_scalars (all with the same spatial properties...)
+///    Implements functions as FCM, multi-dim-histograms etc.
+///    *image_multi_time_series (for example a time series over a contrast injection...)
+///    *image_complex_re_im (uses two image_scalars)
+///    *image_complex_mag_pha
+///      *image_complex_inout_phase
+///    *image_multi_complex (handles a vector of image_complex..)
+///  *image_multi_integer (if this type of class is needed...)
+///      
 //   $LastChangedBy$
 //
 
@@ -28,22 +37,22 @@
 #ifndef __image_multi__
 #define __image_multi__
 
-#include "image_general.h"
-
-//#include <complex>
+//#include "image_general.h"
+#include "image_scalar.h"
 
 template<class ELEMTYPE, int IMAGEDIM = 3>
-class image_multi : public image_general <ELEMTYPE, IMAGEDIM>
+class image_multi : public image_general<ELEMTYPE, IMAGEDIM>
     {
+	private:
+		vector<image_scalar<ELEMTYPE, IMAGEDIM>*> image_vector;
+
     //redundant declaration of constructor, since those cannot be inherited
     public:
-        image_multi():image_general<ELEMTYPE, IMAGEDIM>() {}
-        
-        template<class SOURCETYPE>
-        image_multi(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_image, copyData)
-        {} //copy constructor
-        
-        image_multi (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
+		image_multi(std::vector<std::string> file_names);
+
+		virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
+        virtual float get_number_voxel(int x, int y, int z) const;  //the use of virtual makes for example "complex<>" class work...
+
     };
 
 #endif

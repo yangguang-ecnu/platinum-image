@@ -29,15 +29,17 @@
 
 #include "image_multi.h"
 #include <complex>
+#include <typeinfo> //typeid
 
+//template <int IMAGEDIM = 3>
 template <class ELEMTYPE, int IMAGEDIM = 3>
-//class image_complex : public image_multi<complex<ELEMTYPE> , IMAGEDIM>
-class image_complex : public image_multi<ELEMTYPE, IMAGEDIM>
+class image_complex : public image_general<complex<ELEMTYPE> , IMAGEDIM>
+//class image_complex : public image_multi<ELEMTYPE, IMAGEDIM>
 {
     //redundant declaration of constructor, since those cannot be inherited
 public:
-//    image_complex():image_multi<complex<ELEMTYPE>, IMAGEDIM>(){}
-    image_complex():image_multi<ELEMTYPE, IMAGEDIM>(){}
+    image_complex():image_general<complex<ELEMTYPE>, IMAGEDIM>(){cout<<"a is: "<<typeid(complex<ELEMTYPE>).name()<<'\n';}
+//    image_complex():image_multi<ELEMTYPE, IMAGEDIM>(){}
 /*    
     template<class SOURCETYPE>
     image_complex(image_multi<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_multi<complex<float> , IMAGEDIM>(old_image, copyData)
@@ -48,7 +50,7 @@ public:
 */
 	void silly_test();
 
-	float get_number_voxel(int x, int y, int z) const;
+	virtual float get_number_voxel(int x, int y, int z) const;
 };
 
 
