@@ -51,6 +51,8 @@ public:
 	void silly_test();
 
 	virtual float get_number_voxel(int x, int y, int z) const;
+    virtual float get_max_float() const;
+
 };
 
 

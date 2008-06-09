@@ -189,9 +189,9 @@ float image_storage<std::complex<float> >::get_max_float()
 //JK - I have not managed to specialize this function for "complex<ELEMTYPE>" - I think the whole class needs to be rewritten for "complex<ELEMTYPE>"
 template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_max_float() const
-    {
-		return abs(float(stats->max())); //JK4
-    }
+{
+	return abs(float(stats->max())); //JK4
+}
 
 
 template <class ELEMTYPE >
@@ -293,6 +293,9 @@ void image_storage<ELEMTYPE >::erase()
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::fill(ELEMTYPE value)
 	{
+	//JK4 - Try if this saves time....
+	//memset(imagepointer(), 0, sizeof(ELEMTYPE) * num_elements);
+
 	typename image_storage<ELEMTYPE>::iterator i = this->begin();
 	while (i != this->end())
 		{
