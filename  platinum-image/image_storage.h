@@ -43,7 +43,7 @@ class image_storage : public image_base
 
     private:
         void set_parameters ();
-        
+ 
     protected:
         image_storage();
         template<class SOURCETYPE>
@@ -61,7 +61,7 @@ class image_storage : public image_base
         void set_stats_histogram(histogram_1D<ELEMTYPE > * h);
 
         // *** Image data pointer ***
-        ELEMTYPE *dataptr;
+        ELEMTYPE *dataptr;			//no forced access via function for speedup...
         ELEMTYPE *imagepointer();
 		void imagepointer(ELEMTYPE * new_value);
         void deallocate ();
@@ -72,7 +72,7 @@ class image_storage : public image_base
     public:
         virtual ~image_storage();
 
-        float get_max_float() const;
+        virtual float get_max_float() const;
 //        float get_min_float() const;
         ELEMTYPE get_max() const;
         ELEMTYPE get_min() const;

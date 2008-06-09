@@ -1615,12 +1615,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, i
     //val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
     }
 
-//JK - I have not managed to specialize this function for "complex<ELEMTYPE>" - I think the whole class needs to be rewritten for "complex<ELEMTYPE>"
-template <class ELEMTYPE, int IMAGEDIM>
-float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
-    {
-    return static_cast<float>(get_voxel(x, y, z)); //JK4
-    }
 
 
 template <class ELEMTYPE, int IMAGEDIM>

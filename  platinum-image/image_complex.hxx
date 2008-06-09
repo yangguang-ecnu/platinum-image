@@ -26,17 +26,25 @@
 template <class ELEMTYPE, int IMAGEDIM>
 //template<class ELEMTYPE, int IMAGEDIM>
 void image_complex<ELEMTYPE, IMAGEDIM>::silly_test()
-    {
+{
 	cout<<"* This is a silly test , JK"<<endl;
-	}
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
 float image_complex<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
-    {
+{
     return 0;
-    }
+}
 
+//JK - I have not managed to specialize this function for "complex<ELEMTYPE>" - I think the whole class needs to be rewritten for "complex<ELEMTYPE>"
+template <class ELEMTYPE, int IMAGEDIM>
+float image_complex<ELEMTYPE, IMAGEDIM>::get_max_float() const
+{
+	//calculate the complex max value "in some sense"... magnitude?
+	float max=255;
+	return max; //JK4
+}
 
 
 

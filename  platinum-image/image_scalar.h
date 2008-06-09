@@ -68,6 +68,10 @@ public:
     image_scalar(const string filepath, const string name=""):image_general<ELEMTYPE, IMAGEDIM>(filepath, name){}
 
 
+    //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
+    virtual float get_number_voxel(int x, int y, int z) const;  //the use of virtual makes for example "complex<>" class work...
+
+
 	//------------------------- Interpolations -------------------------
 	//Implementation "inspired" by "ResampleImageFilter7" example in the ITK documentation
 	void interpolate_spline_ITK_3D(image_scalar<ELEMTYPE, IMAGEDIM > *ref_im, int spline_order=3); 

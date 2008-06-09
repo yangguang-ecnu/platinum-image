@@ -27,6 +27,13 @@
 extern userIOmanager userIOmanagement;
 extern datamanager datamanagement;
 
+//JK - I have not managed to specialize this function for "complex<ELEMTYPE>" - I think the whole class needs to be rewritten for "complex<ELEMTYPE>"
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
+{
+    return static_cast<float>(get_voxel(x, y, z)); //JK4
+}
+
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -219,7 +226,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM >::interpolate_trilinear_3D_vxl(image_scala
 
 				rvoxpos[0]=i;	rvoxpos[1]=j;	rvoxpos[2]=k;
 				svox = a + b*rvoxpos;
-				this->set_voxel(i,j,k,mil3d_safe_trilin_interp_3d<ELEMTYPE>(svox[0], svox[1], svox[2], src_im->dataptr, nx, ny, nz, xstep, ystep, zstep,dx,dy,dz,norm_dxdydz));
+				this->set_voxel(i,j,k,mil3d_safe_trilin_interp_3d<ELEMTYPE>(svox[0], svox[1], svox[2], src_im->imagepointer(), nx, ny, nz, xstep, ystep, zstep,dx,dy,dz,norm_dxdydz));
 			}
 		}
 	}
