@@ -27,17 +27,21 @@
 #include "viewmanager.h"
 #include "datamanager.h"
 
-rendermanager rendermanagement;
+listedfactory<renderer_base> rendermanager::renderer_factory; //= listedfactory<renderer_base>(); //JK2
+//listedfactory<viewport*> rendermanager::renderer_factory; //= listedfactory<renderer_base>(); //JK2
 
+rendermanager rendermanagement;
 extern datamanager datamanagement;
 extern viewmanager viewmanagement;
 
 using namespace std;
 
-rendermanager::rendermanager ()
+rendermanager::rendermanager()
 {
-    //renderer_base::renderer_factory.Register<rendererMPR>();//JK-Ugly solution
-    //renderer_base::renderer_factory.Register<rendererMIP>();
+    renderer_factory.Register<rendererMPR>();	//JK2
+//    renderer_factory.Register<rendererMIP>();	//JK2  //MIP renderer not created yet...
+
+//    renderer_factory.Register<FLTK_Pt_pane>("The FLTK_Pt_pane");	//JK2
 }
 
 rendermanager::~rendermanager()
@@ -234,10 +238,12 @@ std::vector<int> rendermanager::geometryIDs_by_image_and_direction ( const int c
 
 std::vector<rendergeometry *> rendermanager::geometries_by_image_and_direction ( const int combinationID )
 {
-	std::vector<int> geomIDs = rendermanagement.geometryIDs_by_image_and_direction(combinationID);
+//	std::vector<int> geomIDs = rendermanagement.geometryIDs_by_image_and_direction(combinationID);
+	std::vector<int> geomIDs = this->geometryIDs_by_image_and_direction(combinationID); //Jk2
 	std::vector<rendergeometry *> geom;
 	for(int i=0;i<geomIDs.size();i++){
-		geom.push_back( rendermanagement.get_geometry(geomIDs[i]) );		
+//		geom.push_back( rendermanagement.get_geometry(geomIDs[i]) );		
+		geom.push_back( this->get_geometry(geomIDs[i]) );		//JK2
 	}
 	return geom;
 }
@@ -431,7 +437,8 @@ void rendermanager::data_has_changed(int ID)
 
     for (vector<int>::iterator c = combos.begin();c != combos.end(); c++)
         {
-        rendermanagement.combination_update_callback(*c);
+//        rendermanagement.combination_update_callback(*c);
+        this->combination_update_callback(*c); //JK2
         }
     }
 
@@ -545,7 +552,8 @@ void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
 
 void rendermanager::center3d_and_fit( const int imageID )
 {
-	std::vector<int> rendererIDs = rendermanagement.renderers_from_data( imageID );
+//	std::vector<int> rendererIDs = rendermanagement.renderers_from_data( imageID );
+	std::vector<int> rendererIDs = this->renderers_from_data( imageID ); //JK2
 	
 	for ( std::vector<int>::iterator itr = rendererIDs.begin(); itr != rendererIDs.end(); itr++ )
 	{

@@ -28,6 +28,11 @@
 
 #include "rendererVTK.h"
 
+class rendererMIP : public renderer_base
+{
+};
+
+/*
 class rendererMIP : public rendererVTK
     {
 public:
@@ -38,5 +43,6 @@ public:
         virtual std::string find_typekey() const
             {return typekey();}
     };
+*/
 
 #endif

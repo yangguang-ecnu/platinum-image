@@ -22,9 +22,8 @@
 int renderer_base::maxrendererID = 0;
 const float renderer_base::display_scale = 50;  //! number of mm:s to display
                                                 //!across a viewport at zoom 1
-
 using namespace std;
-listedfactory<renderer_base> renderer_base::renderer_factory;
+
 
 renderer_base::renderer_base()
     {
@@ -37,11 +36,13 @@ renderer_base::renderer_base()
     wheretorender=NULL;
     wheretorender_id=0;
     }
+
 void renderer_base::connect_geometry (rendergeometry * g)
     {
     wheretorender= g;
     wheretorender_id=g->get_id();
     }
+	
 void renderer_base::connect_combination (rendercombination * c)
     {
     imagestorender=c;
@@ -184,7 +185,7 @@ std::vector<int> renderer_base::world_to_view (int sx,int sy,const Vector3D wpos
     return world_to_view(wheretorender,sx,sy,wpos);
 }
 
-std::map<std::string,float> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const //JK3
+std::map<std::string,float> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const 
 {
     //virtual function, MSVC gets hickups without namespace spec however :(
     return renderer_base::get_values_world(view_to_world(vx,vy,sx,sy));

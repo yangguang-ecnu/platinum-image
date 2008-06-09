@@ -42,16 +42,15 @@ protected:
     int num_items;
     static const std::string tfunction_names [];
 public:
-        transferfactory ();
-    
-    ~transferfactory();
+	transferfactory ();
+	~transferfactory();
     
     class tf_menu_params {
-        image_base * image;
-        std::string type;
-public:
-        tf_menu_params (const std::string t,image_base * i);
-        void switch_tf();
+			image_base * image;
+			std::string type;
+		public:
+			tf_menu_params (const std::string t,image_base * i);
+			void switch_tf();
     };
     
     template <class ELEMTYPE >

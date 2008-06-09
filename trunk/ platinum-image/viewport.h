@@ -48,9 +48,11 @@ private:
     friend class FLTKviewport;	//allow access to for example "rendererIndex"...
     friend class viewporttool;
 
-    FLTKviewport *the_widget;	//JK2 (Fl_Window)
+    FLTKviewport *the_widget;	//Fl_Window
 
 	int ID;						//viewport ID
+	VIEWPORT_TYPE vp_type;		//{PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
+
     static int maxviewportID;	//keeps track of how many has been created...
 	int rendererID;				//this guy will render for us (each renderer instance contains an unique ID)
 	int rendererIndex;			//direct look up to vector array, //DEPRECATED: use either rendererID or - for fast access - pointer to renderer
@@ -67,10 +69,10 @@ private:
 	void set_renderer_direction(preset_direction direction); 
 	
 public:
-    viewport();
+    viewport(VIEWPORT_TYPE vpt=PT_MPR);
     virtual ~viewport();
 
-	void initialize_viewport(int xpos, int ypos, int width, int height); 
+	void initialize_viewport(int xpos, int ypos, int width, int height, VIEWPORT_TYPE vpt=PT_MPR);  //VTK_EXAMPLE
 	int x();	
 	int y();
 	int w();
@@ -89,7 +91,7 @@ public:
 //	void set_timer_delay(int delay = 0); // if zero, remove timer and always render directly
 	void enable_and_set_direction(preset_direction direction);
 
-    bool render_if_needed(FLTKpane *fp);
+    bool render_if_needed();
 
 
     // *** refresh methods ***

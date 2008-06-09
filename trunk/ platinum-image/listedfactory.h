@@ -48,11 +48,13 @@ typedef std::string factoryIdType;
 //Shape *shape1 = shape_factory.Create("triangle", 10);
 //Shape *shape2 = shape_factory.Create("square", 20);
 
+
 template<typename BaseClassType, typename ClassType>
 BaseClassType *CreateObject()
 {
     return new ClassType;
 }
+
 
 template<typename BaseClassType>
 class listedfactory
@@ -64,90 +66,80 @@ protected:
     std::map<factoryIdType, CreateObjectFunc> m_object_creator;
     
 public:
+	listedfactory()
+	{
+	    cout<<"listedfactory..."<<endl;
+	    m_object_creator = std::map<factoryIdType, CreateObjectFunc>();
+	}
+
     typedef typename std::map<factoryIdType, CreateObjectFunc>::const_iterator ConstIterator;
     typedef typename std::map<factoryIdType, CreateObjectFunc>::iterator Iterator;
     
     class lf_menu_params
-        {
-public:
-            void * receiver;
-            factoryIdType type;
+    {
+	public:
+		void * receiver;
+        factoryIdType type;
             
-            lf_menu_params(void * r,factoryIdType t)
-                {
-                receiver = r;
-                type = t;
-                }
-            BaseClassType *Create()
-                {
-                return listedfactory::Create(type);
-                }
-        };
+        lf_menu_params(void * r,factoryIdType t)
+        {
+			receiver = r;
+            type = t;
+		}
+        BaseClassType *Create()
+        {
+			return listedfactory::Create(type);
+        }
+	};
     
     template<typename ClassType>
-        bool Register(factoryIdType unique_id = "")
-        {
-            if (unique_id == "")
-                { unique_id = ClassType::typekey(); }
-                
-            if (m_object_creator.find(unique_id) != m_object_creator.end())
-                return false;
+    bool Register(factoryIdType unique_id = "")
+    {
+		if (unique_id == "")
+			{ unique_id = ClassType::typekey(); }
+
+//		cout<<unique_id + "-->m_object_creator.size()="<<endl;
+		
+		if (m_object_creator.find(unique_id) != m_object_creator.end())
+			return false;
             
-            m_object_creator[unique_id] = &CreateObject<BaseClassType, ClassType>;
-            
-            return true;
-        }
+		m_object_creator[unique_id] = &CreateObject<BaseClassType, ClassType>;
+        return true;
+	}
     
     bool Unregister(factoryIdType unique_id)
-        {
+	{
         return (m_object_creator.erase(unique_id) == 1);
-        }
+	}
     
     BaseClassType *Create(factoryIdType unique_id)
-        {
+    {
         Iterator iter = m_object_creator.find(unique_id);
         
         if (iter == m_object_creator.end())
             return NULL;
         
         return ((*iter).second)();
-        }
+    }
     
-    ConstIterator begin() const
-        {
-            return m_object_creator.begin();
-        }
-    
-    Iterator begin()
-        {
-        return m_object_creator.begin();
-        }
-    
-    ConstIterator end() const
-        {
-            return m_object_creator.end();
-        }
-    
-    Iterator end()
-        {
-        return m_object_creator.end();
-        }
-    
-    //typename Iterator::SizeType num_items ()
-    typename std::map<factoryIdType, CreateObjectFunc>::size_type num_items ()
+    ConstIterator begin() const{return m_object_creator.begin();}
+    Iterator begin(){return m_object_creator.begin();}
+    ConstIterator end() const{return m_object_creator.end();}
+    Iterator end(){return m_object_creator.end();}
 
-        {
+
+    //typename Iterator::SizeType num_items ()
+    typename std::map<factoryIdType, CreateObjectFunc>::size_type num_items()
+	{
         return m_object_creator.size();
-        }
+    }
     
+
     Fl_Menu_Item * menu (Fl_Callback * cb, void * receiver)
-        {    
+    {    
         Fl_Menu_Item * fmenu;
-        
         int num_items = m_object_creator.size(); 
-        
         fmenu = new Fl_Menu_Item [num_items+1];
-        
         int m = 0;
         
         for (ConstIterator i = m_object_creator.begin();i != m_object_creator.end();i++)
@@ -163,7 +155,6 @@ public:
             }
         
         fmenu[num_items].label(NULL);
-        
         return fmenu;
         }
     
@@ -172,7 +163,6 @@ public:
         int buttonSize  = horizontal? box->h():box->w();
         int x = box->x();
         int y = box->y();
-        
         box->begin();
 
         for (ConstIterator i = m_object_creator.begin();i != m_object_creator.end();i++)
@@ -198,5 +188,13 @@ public:
         box->end();
     }
 };
+
+/*
+template<viewport>
+class viewportfactory
+{
+
+};
+*/
 
 #endif

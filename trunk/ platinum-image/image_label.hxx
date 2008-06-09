@@ -65,7 +65,7 @@ transfer_function();
 template <int IMAGEDIM>
 image_label<IMAGEDIM>::image_label(vector< image_binary<IMAGEDIM>* > images, const string name):image_integer<IMGLABELTYPE, IMAGEDIM>(images[0]->nx(),images[0]->ny(),images[0]->nz())
 {
-	this->fill(0); //JK2 erase will likely save some time...
+	this->fill(0); //JK erase will likely save some time...
 	this->set_parameters(images[0]);
 	for(int i=0;i<images.size();i++){
 		this->fill_region_of_mask_3D(images[i],i+1);

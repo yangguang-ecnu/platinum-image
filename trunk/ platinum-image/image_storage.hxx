@@ -293,8 +293,8 @@ void image_storage<ELEMTYPE >::erase()
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::fill(ELEMTYPE value)
 	{
-	//JK4 - Try if this saves time....
-	//memset(imagepointer(), 0, sizeof(ELEMTYPE) * num_elements);
+	//JK3 - Try if this saves time....
+	//memset(imagepointer(), value, sizeof(ELEMTYPE) * num_elements);
 
 	typename image_storage<ELEMTYPE>::iterator i = this->begin();
 	while (i != this->end())
