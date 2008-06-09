@@ -42,7 +42,9 @@
 #include "itkImageSeriesWriter.h"
 #include "itkDICOMImageIO2.h"
 #include "itkDICOMSeriesFileNames.h"
+#include "itkNumericSeriesFileNames.h"
 #include "itkVTKImageIO.h"
+#include "itkRawImageIO.h"
 #include "itkImageSliceIteratorWithIndex.h"
 #include "itkStatisticsImageFilter.h"
 
@@ -59,11 +61,13 @@ using namespace std;
 //#define theImageType itk::Image<ELEMTYPE,IMAGEDIM>
 #define theImageType2 itk::Image<ELEMTYPE,IMAGEDIM>
 #define theImageType itk::OrientedImage<ELEMTYPE,IMAGEDIM>
+#define theImageType2D itk::OrientedImage<ELEMTYPE,2>
 #define theOrientedImageType itk::OrientedImage<ELEMTYPE,IMAGEDIM>
 #define theImageToOrientedCastFilterType itk::CastImageFilter< theImageType, theOrientedImageType>
 #define theImagePointer theImageType::Pointer
 #define theIteratorType itk::ImageRegionIterator<theImageType >
 #define theSeriesReaderType itk::ImageSeriesReader<theImageType >
+#define theSeriesWriterType itk::ImageSeriesWriter<theImageType >
 #define theReaderType itk::ImageFileReader<theImageType >
 #define	theWriterType itk::ImageFileWriter<theImageType >
 #define	theOrientedWriterType itk::ImageFileWriter<theOrientedImageType >
