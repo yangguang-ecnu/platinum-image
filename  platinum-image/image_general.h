@@ -64,7 +64,7 @@ template<class ELEMTYPE, int IMAGEDIM>
 //#include "itkRigid3DTransform.h"				//used in image_scalar --> spline interpolation
 #include "itkMatrixOffsetTransformBase.h"		//used in image_scalar --> spline interpolation
 
-#include <itksys/SystemTools.hxx>  //JK2
+#include <itksys/SystemTools.hxx>  //JK -- allows for example creation of new folder...
 
 #include "image_storage.h"
 #include "global.h"

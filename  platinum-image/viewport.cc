@@ -34,9 +34,11 @@ int viewport::maxviewportID = 0;
 //bool viewport::renderermenu_built=false;
 
 
-viewport::viewport()
+viewport::viewport(VIEWPORT_TYPE vpt)
 {
     ID = ++maxviewportID;
+    VIEWPORT_TYPE vp_type = vpt;
+
   
     rendererID=NO_RENDERER_ID;
     rendererIndex=-1;
@@ -59,17 +61,18 @@ viewport::~viewport()
 }
 
 
-void viewport::initialize_viewport(int xpos, int ypos, int width, int height)
+void viewport::initialize_viewport(int xpos, int ypos, int width, int height, VIEWPORT_TYPE vpt)
 {
-    const int buttonheight=20; //JK2
+	vp_type = vpt;
+    const int buttonheight=20;
     const int buttonwidth=70;
    
     update_viewsize(width, height - buttonheight);
     
-	the_widget = new FLTKviewport(xpos,ypos,width,height,this,buttonheight,buttonwidth); //JK2
+	the_widget = new FLTKviewport(xpos,ypos,width,height,this,buttonheight,buttonwidth); //JK2 -  specify vp_type...
 
     //attach MPR renderer - so that all viewports can be populated for additional views
-    viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR)); //JK2
+    viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR)); //JK2- do this in vp_class
 }
 
 int viewport::x(){
@@ -198,7 +201,7 @@ int viewport::get_renderer_id () const
 void viewport::connect_renderer(int rID)
 {
     rendererID = rID;               //this is the unique renderer ID within the class, NOT the vector array index!!!
-    //viewport_widget->needs_rerendering();
+    //pane_widget->needs_rerendering();
 	needs_re_rendering = true;
     refresh();
 }
@@ -251,18 +254,10 @@ void viewport::update_viewsize(int des_width, int des_height)
 
 void viewport::enable_and_set_direction( preset_direction direction )
 {
-	set_renderer_direction( direction ); //JK2 - changed in connection major make_over
-//	the_widget->set_direction_button_label(direction); 
-
-//  if ( directionmenu_button != NULL )
-//	{
-//      Fl_Menu_Item * directionmenu = (Fl_Menu_Item *) directionmenu_button->menu();
-//		directionmenu[direction].setonly();
-//		set_renderer_direction( direction );
-//	}
+	set_renderer_direction( direction );
 }
 
-bool viewport::render_if_needed(FLTKpane *fp)  //JK3 TODO... remove... *fp
+bool viewport::render_if_needed()
 {
     if (rendererIndex>=0 && needs_re_rendering)
         {
@@ -333,13 +328,13 @@ void viewport::refresh()
 			the_widget->refresh_menus();
             needs_re_rendering=true;
 
-			the_widget->viewport_widget->damage(FL_DAMAGE_ALL); //JK2-check if needed...
+			the_widget->pane_widget->damage(FL_DAMAGE_ALL); //JK2-check if needed...
             }
         
-        //viewport_widget->damage(FL_DAMAGE_ALL);
-		//the_widget->damage(FL_DAMAGE_ALL); //JK2-check if needed...
-//		if(the_widget->viewport_widget !=NULL){
-//			the_widget->viewport_widget->damage(FL_DAMAGE_ALL); //JK2-check if needed...
+        //pane_widget->damage(FL_DAMAGE_ALL);
+		//the_widget->damage(FL_DAMAGE_ALL); 
+//		if(the_widget->pane_widget !=NULL){
+//			the_widget->pane_widget->damage(FL_DAMAGE_ALL); 
 //		}
     }
 }
@@ -355,7 +350,7 @@ void viewport::paint_overlay()
 //	cout<<"***h()="<<h_pane()<<endl;
 
 	//here the height of the pane needs to be used since the height of the "viewport" includes the buttons...
-	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h_pane()); //h_pane is needed to compensate for button height... //JK4
+	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h_pane()); //h_pane is needed to compensate for button height... 
 }
 
 
@@ -366,9 +361,9 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
     //2D histogram should only allow this call when the uim tool is selected
     if (busyTool == NULL)
         {
-//        viewport_event e = viewport_event(0,viewport_widget);															//JK-ööö
+//        viewport_event e = viewport_event(0,pane_widget);															//JK-ööö
 //        busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));		//JK-ööö
-		viewport_event e = viewport_event(0,the_widget->viewport_widget);															//JK-ööö
+		viewport_event e = viewport_event(0, (FLTK_Pt_pane*)the_widget->pane_widget);															//JK-ööö
         busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));		//JK-ööö
         }
     

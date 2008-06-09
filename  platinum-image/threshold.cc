@@ -135,7 +135,7 @@ int thresholdparvalue::make_threshold_image ()
     return result_vol_ID;
     }
 
-threshold_overlay::threshold_overlay(FLTKpane *fp, int r_index)
+threshold_overlay::threshold_overlay(FLTK_Pt_pane *fp, int r_index)
     {
     owner=fp;
 
@@ -187,7 +187,7 @@ void threshold_overlay::FLTK_draw()
         Fl_RGB_Image overlay_image (overlay_image_data, owner->w(), owner->h(), RGBApixmap_bytesperpixel, 0);
 
 //        overlay_image.draw(owner->x(),owner->y());
-        overlay_image.draw(0,0); //JK2 //JK3 //JK4 is now drawn relative the "top" level window, which is FLTKpane..last
+        overlay_image.draw(0,0); //JK2 - is now drawn relative the "top" level window, which is FLTK_Pt_pane..last
         }
     }
 

@@ -53,6 +53,9 @@ class rendermanager
     public:
         rendermanager ();
         ~rendermanager();
+
+		static listedfactory<renderer_base> renderer_factory;
+//		static listedfactory<viewport*> renderer_factory;
         
         void listrenderers();
         int create_renderer(RENDERER_TYPES rendertype);

@@ -66,7 +66,7 @@ public:
 	renderer_base();
     virtual ~renderer_base() {}
     
-    static listedfactory<renderer_base> renderer_factory;
+    //static listedfactory<renderer_base> renderer_factory;
     
     // renderer_base(const renderer_base &k) { *this=k; ::renderer_base(); }
     
@@ -150,7 +150,7 @@ public:
     int get_id()
         { return identitet; }
     
-    virtual std::string find_typekey() const = 0;
+    virtual std::string find_typekey() const = 0; //gives name in GUI-lists 
     
     virtual bool supports_mode (int m)
         {return false;}

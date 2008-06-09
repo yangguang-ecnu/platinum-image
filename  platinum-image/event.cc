@@ -176,14 +176,14 @@ void FLTK_event::set_type ()
 		{ type_ = rotate; }
 }
 
-FLTK_event::FLTK_event (FLTKpane *fp) : pt_event ()
+FLTK_event::FLTK_event (FLTK_Pt_pane *fp) : pt_event ()
 { 
     attach(fp);
 	mousePosGlobal[0] = 0;
 	mousePosGlobal[1] = 0;
 }
 
-FLTK_event::FLTK_event(int FL_event, FLTKpane *fp):pt_event()
+FLTK_event::FLTK_event(int FL_event, FLTK_Pt_pane *fp):pt_event()
     {
 //	cout<<"FLTK_event("<<FL_event<<"x,y="<<Fl::event_x()<<","<<Fl::event_y()<<endl;
 
@@ -294,26 +294,26 @@ int* FLTK_event::mouse_pos_global()
 
 // *** viewport_event ***
 
-viewport_event::viewport_event (int FL_event, FLTKpane *fp):FLTK_event(FL_event, fp)
+viewport_event::viewport_event (int FL_event, FLTK_Pt_pane *fp):FLTK_event(FL_event, fp)
 {
     //at this point the parent classes have digested the event from FLTK down to a Platinum description
 }
 
-viewport_event::viewport_event (pt_event_type t, FLTKpane *fp):FLTK_event(fp)
+viewport_event::viewport_event (pt_event_type t, FLTK_Pt_pane *fp):FLTK_event(fp)
 {
     type_ = t;
     state_ = idle;
 }
 
-FLTKpane* viewport_event::get_FLTK_viewport()
+FLTK_Pt_pane* viewport_event::get_FLTK_viewport()
 {
-    return dynamic_cast<FLTKpane*> (myWidget);
+    return dynamic_cast<FLTK_Pt_pane*> (myWidget);
 }
 
 void viewport_event::resize_point (int &x,int &y)
 {
     int oldSize [2];
-    FLTKpane *fp = get_FLTK_viewport();
+    FLTK_Pt_pane *fp = get_FLTK_viewport();
     
     oldSize[0] = fp->w(); oldSize[1] = fp->h();
     

@@ -232,7 +232,7 @@ void nav_tool::init()
 
 void nav_tool::handle(viewport_event &event)
 {
-	FLTKpane *fp = event.get_FLTK_viewport();
+	FLTK_Pt_pane *fp = event.get_FLTK_viewport();
 
     if ( event.state() == pt_event::begin )
 	{
@@ -588,7 +588,7 @@ void cursor_tool::handle(viewport_event &event)
 //    std::vector<int> mouse = event.mouse_pos_local();
     int *mouse = event.mouse_pos_local();
     
-    FLTKpane *fp = event.get_FLTK_viewport();
+    FLTK_Pt_pane *fp = event.get_FLTK_viewport();
 
     if (event.type() == pt_event::create)
         {

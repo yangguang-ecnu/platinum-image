@@ -27,7 +27,6 @@
 #include "rendererMPR.h"
 #include "viewmanager.h"
 #include "rendermanager.h"
-//#include "image_scalar.h"
 
 #define MAXRENDERVOLUMES 50
 
@@ -54,7 +53,7 @@ void rendererMPR::connect_image(int vHandlerID)
 void rendererMPR::paint_overlay(int vp_w, int vp_h_pane)
 {
 //	cout<<"rendererMPR::paint_overlay..("<<vp_w<<" "<<vp_h_pane<<") where_id="<<wheretorender->get_id()<<endl;
-	paint_slice_locators_to_overlay(vp_w, vp_h_pane, wheretorender, imagestorender); //JK --> changed to 0,0 when windows are used... //JK4
+	paint_slice_locators_to_overlay(vp_w, vp_h_pane, wheretorender, imagestorender);
 }
 
 Vector3D rendererMPR::view_to_world(int vx, int vy, int sx, int sy) const
@@ -735,7 +734,7 @@ void rendererMPR::paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rende
 			local_vp_line.set_direction(dir_loc[0],dir_loc[1]);
 
 //			paint_overlay_line(vp_w, vp_h, local_vp_line);
-			paint_overlay_line(vp_w, vp_h_pane, local_vp_line);  //JK3 crazy test
+			paint_overlay_line(vp_w, vp_h_pane, local_vp_line); //It is important that the right pane_height is given...
 		}//for
 
 //		fl_rect( vp_offset_x+1, vp_offset_y+1, vp_w-2, vp_h-2, FL_YELLOW);

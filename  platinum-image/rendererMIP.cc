@@ -19,10 +19,12 @@
 
 #include "rendererMIP.h"
 
+/*
 rendererMIP::rendererMIP():rendererVTK ()
 {
     //create rendered objects from selected images/points
-    /*vtkRenderer *ren1 = vtkRenderer::New();
-    ren1‑>AddActor(actor);*/
+    //vtkRenderer *ren1 = vtkRenderer::New();
+    //ren1‑>AddActor(actor);
     
 }
+*/
