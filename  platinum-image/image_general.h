@@ -64,6 +64,8 @@ template<class ELEMTYPE, int IMAGEDIM>
 //#include "itkRigid3DTransform.h"				//used in image_scalar --> spline interpolation
 #include "itkMatrixOffsetTransformBase.h"		//used in image_scalar --> spline interpolation
 
+#include <itksys/SystemTools.hxx>  //JK2
+
 #include "image_storage.h"
 #include "global.h"
 #include "color.h"
@@ -198,7 +200,7 @@ class image_general : public image_storage <ELEMTYPE >
         Vector3D get_physical_size() const;
         Vector3D get_physical_center() const;
         
-        const Vector3D get_voxel_size () const;       //return voxel size
+        const Vector3D get_voxel_size() const;       //return voxel size
 		void set_voxel_size(const Vector3D v);
         Matrix3D get_voxel_resize () const;           //return voxel size as matrix
 		void rotate_geometry_around_center_voxel(int fi_z_deg, int fi_y_deg, int fi_x_deg);
@@ -268,6 +270,8 @@ class image_general : public image_storage <ELEMTYPE >
         void save_to_file(const std::string file_path, const bool useCompression = true, const bool anonymize = true); //enterprits file name ending...
         void save_to_VTK_file(const std::string file_path, const bool useCompression = true);
         void save_to_DCM_file(const std::string file_path, const bool useCompression = true, const bool anonymize = true);
+        void save_to_DCM_file_series(const std::string file_path, const bool useCompression = true, const bool anonymize = true);
+		void save_to_raw_file(const std::string file_path, bool save_image_info_txt_file=false);
         void save_to_NIFTI_file(const std::string file_path); //JK test
         void save_to_TIF_file_series_3D(const std::string file_path_base, int dir=2, int from_slice=-1, int to_slice=-1);
 		void save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice);

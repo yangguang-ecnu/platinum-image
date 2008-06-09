@@ -637,7 +637,7 @@ image_base *dicomloader::read()
 	
 	clear_files_vector_from_already_loaded();
 
-	((image_integer<float>*)result)->print_geometry();
+//	((image_integer<float>*)result)->print_geometry();
 
 	return result;
 }

@@ -602,6 +602,220 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_
 	//--------------------------------------------------------
 }
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file_series(const std::string file_path, const bool useCompression, const bool anonymize)
+    {
+//	cout<<"save_to_DCM_file..."<<endl;    //port image to ITK image and save it as DCM file
+
+	//--------------------------------------------------------
+	//--- If dicom image has tag "DCM_IMAGE_ORIENTATION_PATIENT" a/b/c/d/e/f
+	//--- This is read as 
+	//		a d j
+	//		b e	k
+	//		c f l
+	//--- GDCMImageIO saves the direcional conines transposed compared to the ITK use....
+	//--- Idea - Transpose rotation matrix before saving... and again after...
+
+	//--------------------------------------------------------
+//	this->orientation = this->orientation.GetTranspose();
+	//--------------------------------------------------------
+
+
+//  typename theSeriesWriterType::Pointer writer = theSeriesWriterType::New();
+	typename theImageType::Pointer image = get_image_as_itk_output();
+
+	//--------------------------
+/*	cout<<"get_image_as_itk_output..."<<endl;
+
+	typedef itk::ImportImageFilter<ELEMTYPE, IMAGEDIM> filterType;
+	typename filterType::Pointer ITKimportfilter = filterType::New();
+	ITKimportfilter->SetRegion(this->get_region_itk());
+	ITKimportfilter->SetOrigin(this->get_origin_itk());
+	ITKimportfilter->SetSpacing(this->get_voxel_size_itk());
+	ITKimportfilter->SetDirection(this->get_orientation_itk()); //JK - Very important to remember ;-)
+
+    ITKimportfilter->SetImportPointer(this->imagepointer(), this->num_elements, false);
+	ITKimportfilter->Update();
+	typename theImageType2::Pointer image = ITKimportfilter->GetOutput();
+*/
+	//--------------------------
+/*
+    typename theWriterType::Pointer writer = theWriterType::New();   //default file type is VTK
+    writer->SetFileName( file_path + "test.vtk" );
+    writer->SetInput(image);
+
+	if(useCompression){
+		writer->UseCompressionOn();
+	}
+    try{
+        writer->Update();
+        }
+    catch (itk::ExceptionObject &ex){
+        pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
+		std::cout<<ex<<std::endl;
+        }
+*/
+
+
+	cout<<"dir="<<endl<<image->GetDirection()<<endl;
+//---------------------------------------------------
+//---------------------------------------------------
+//---------------------------------------------------
+//---------------------------------------------------
+
+
+  typedef itk::GDCMImageIO                        ImageIOType;
+  ImageIOType::Pointer gdcmIO = ImageIOType::New();
+
+  const char * outputDirectory = file_path.c_str();
+  itksys::SystemTools::MakeDirectory( outputDirectory );
+
+  itk::MetaDataDictionary & dict = gdcmIO->GetMetaDataDictionary();
+  std::string tagkey, value;
+  tagkey = "0008|0060"; // Modality
+  value = "MR";
+  itk::EncapsulateMetaData<std::string>(dict, tagkey, value );
+  tagkey = "0008|0008"; // Image Type
+  value = "DERIVED\\SECONDARY";
+  itk::EncapsulateMetaData<std::string>(dict, tagkey, value);
+  tagkey = "0008|0064"; // Conversion Type
+  value = "DV";
+  itk::EncapsulateMetaData<std::string>(dict, tagkey, value);
+
+
+  typedef itk::ImageSeriesWriter< theImageType , theImageType2D >  SeriesWriterType;
+  SeriesWriterType::Pointer seriesWriter = SeriesWriterType::New();
+  seriesWriter->SetInput( image );
+  seriesWriter->SetImageIO( gdcmIO );
+
+  theImageType2::RegionType region = image->GetLargestPossibleRegion();
+  theImageType2::IndexType start = region.GetIndex();
+  theImageType2::SizeType  size  = region.GetSize();
+
+  typedef itk::NumericSeriesFileNames             NamesGeneratorType;
+  NamesGeneratorType::Pointer namesGenerator = NamesGeneratorType::New();
+
+  std::string format = outputDirectory;
+  format += "/image%03d.dcm";
+  namesGenerator->SetSeriesFormat( format.c_str() );
+
+  namesGenerator->SetStartIndex( start[2] );
+  namesGenerator->SetEndIndex( start[2] + size[2] - 1 );
+  namesGenerator->SetIncrementIndex( 1 );
+
+  seriesWriter->SetFileNames( namesGenerator->GetFileNames() );
+  
+  try
+    {
+    seriesWriter->Update();
+    }
+  catch( itk::ExceptionObject & excp )
+    {
+    std::cerr << "Exception thrown while writing the series " << std::endl;
+    std::cerr << excp << std::endl;
+//    return EXIT_FAILURE;
+    }
+
+
+//---------------------------------------------------
+//---------------------------------------------------
+//---------------------------------------------------
+//---------------------------------------------------
+
+
+//    writer->SetFileName( file_path.c_str() );
+ //   writer->SetInput(image);
+
+/*
+	if(useCompression){
+		writer->UseCompressionOn();
+	}
+
+	if(anonymize){
+		typedef itk::GDCMImageIO ImageIOType;
+		ImageIOType::Pointer gdcmImageIO = ImageIOType::New();
+		writer->SetImageIO( gdcmImageIO );
+		typedef itk::MetaDataDictionary   DictionaryType;
+		DictionaryType & dictionary = image->GetMetaDataDictionary();
+
+		//TODO - make sure all interesting data in "metadata-object" is saves....
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_NAME, "Anonymized" );
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_ID, "Anonymized" );
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_BIRTH_DATE, "Anonymized" );
+		// The two lines below don't work... 
+		// The brutal rotation of the orientation matrix was used before and after saving instead...
+		//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_POSITION_PATIENT, "1\\2\\3" );
+		//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_ORIENTATION_PATIENT, this->get_orientation_as_dcm_string() );
+	}
+
+    try{
+        writer->Update();
+    }catch (itk::ExceptionObject &ex){
+        pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
+		std::cout<<ex<<std::endl;
+    }
+*/
+	//--------------------------------------------------------
+//	this->orientation = this->orientation.GetTranspose(); //transpose again  "=back"
+	//--------------------------------------------------------
+
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::save_to_raw_file(const std::string file_path, bool save_image_info_txt_file)
+{
+	itk::RawImageIO<ELEMTYPE,IMAGEDIM>::Pointer io = itk::RawImageIO<ELEMTYPE,IMAGEDIM>::New();
+		//  io->SetFileTypeToASCII();
+//		io->SetByteOrderToBigEndian();
+		io->SetByteOrderToLittleEndian();
+
+		// Write out the image
+		itk::ImageFileWriter<theImageType>::Pointer writer = itk::ImageFileWriter<theImageType>::New();
+		writer->SetInput(get_image_as_itk_output());
+		writer->SetFileName(file_path.c_str());
+		writer->SetImageIO(io);
+
+		try{
+			writer->Update();
+		}
+		catch( itk::ExceptionObject & excp ){
+			std::cerr << "Error while writing the raw image "<< std::endl;
+			std::cerr << excp << std::endl;
+		}
+
+		if(save_image_info_txt_file){
+		    ofstream myfile;
+			string fname = file_path;
+			remove_file_lastname(fname);
+			fname = fname + ".info";
+			myfile.open(fname.c_str());
+
+			//--------- Special format that is used in segmentation a projects ----------
+			//Width 256
+			//Height 256
+			//Depth 16
+			//WidthDim 1.6769
+			//HeightDim 1.6769
+			//DepthDim 12
+			//MinVal 0
+			//MaxVal 255
+			//BitsUsed 16
+			myfile<<"Width "<<this->nx()<<"\n";
+			myfile<<"Height "<<this->ny()<<"\n";
+			myfile<<"Depth "<<this->nz()<<"\n";
+			myfile<<"WidthDim "<<this->get_voxel_size()[0]<<"\n";
+			myfile<<"HeightDim "<<this->get_voxel_size()[1]<<"\n";
+			myfile<<"DepthDim "<<this->get_voxel_size()[2]<<"\n";
+			myfile<<"MinVal "<<this->get_min()<<"\n";
+			myfile<<"MaxVal "<<this->get_max()<<"\n";
+			myfile<<"BitsUsed 16\n";
+			myfile.close();
+		}
+}
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_to_NIFTI_file(const std::string file_path)
 {
