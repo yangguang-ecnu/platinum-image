@@ -297,6 +297,7 @@ datawidget<image_base>::datawidget(image_base* im, std::string n): datawidget_ba
             
             tfunction_submenu [i] = tfunctions[fmenuindex];
             
+			//attach "transfer_menu_parameters" (= image_base* and a transfer_type string)
             tfunction_submenu [i].user_data(new transferfactory::tf_menu_params (transferfactory::tf_name(fmenuindex), im ));
             }
         tfunction_submenu[subMenuSize].label(NULL);

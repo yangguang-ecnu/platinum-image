@@ -300,7 +300,8 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
     
     renderermenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight,"Renderer");
 	//The factory below returnsconnects the  
-	renderermenu_button->copy(rendermanager::renderer_factory.menu(cb_renderer_select,(void*)this));
+//	renderermenu_button->copy(rendermanager::renderer_factory.menu(cb_renderer_select,(void*)this)); 
+	renderermenu_button->copy(viewport_parent->pfactory.get_FLTK_menu(cb_renderer_select2)); //JK2
     renderermenu_button->user_data(NULL);
     
     //direction menu is constant for each viewport
@@ -444,9 +445,9 @@ void FLTKviewport::rebuild_renderer_menu ()
 			
 			for (int m = 0; m < numItems;m++)
 				{
-				listedfactory<renderer_base>::lf_menu_params * p = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params * > (renderermenu[m].user_data());
-				if (p->type == this_renderer_type)
-					{ renderermenu[m].setonly(); }
+//JK2				listedfactory<renderer_base>::lf_menu_params * p = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params * > (renderermenu[m].user_data());
+//				if (p->type == this_renderer_type)
+//					{ renderermenu[m].setonly(); }
 				}
 			}
 						
@@ -563,6 +564,17 @@ void FLTKviewport::cb_renderer_select (Fl_Widget * o, void * v)
     //par->Create(); //the new renderer
     
     const_cast<Fl_Menu_Item *>(item)->setonly();
+}
+
+void FLTKviewport::cb_renderer_select2 (Fl_Widget * o, void * v)
+{
+//    listedfactory<renderer_base>::lf_menu_params * par = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params *>(v);
+//    const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
+    
+    //par->receiver; //the viewport
+    //par->Create(); //the new renderer
+    
+//    const_cast<Fl_Menu_Item *>(item)->setonly();
 }
 
 void FLTKviewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
