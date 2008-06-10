@@ -32,6 +32,7 @@ using namespace std;
 
 int viewport::maxviewportID = 0;
 //bool viewport::renderermenu_built=false;
+panefactory viewport::pfactory = panefactory();
 
 
 viewport::viewport(VIEWPORT_TYPE vpt)

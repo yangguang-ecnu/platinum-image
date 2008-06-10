@@ -32,8 +32,8 @@
 
 #include <FL/Fl_Menu.h>
 #include <FL/Fl_Button.h>
-
 #include <map>
+#include "FLTKutilities.h"
 
 typedef std::string factoryIdType;
 
@@ -68,7 +68,7 @@ protected:
 public:
 	listedfactory()
 	{
-	    cout<<"listedfactory..."<<endl;
+	    //cout<<"listedfactory..."<<endl;
 	    m_object_creator = std::map<factoryIdType, CreateObjectFunc>();
 	}
 
@@ -189,12 +189,69 @@ public:
     }
 };
 
-/*
-template<viewport>
-class viewportfactory
-{
 
+/*
+class viewportfactory:listedfactory<FLTKpane>
+{
+    typedef FLTK_pane *(*CreatePaneFunc)(int,int,int,int);
+
+	CreatePaneFunc f = &MPRPane;
+	(CreatePaneFunc*)(1,2,3,4);
 };
 */
+
+
+class panefactory //! transfer gets its own object factory type because constructors for templated classes cannot be stored
+{
+protected:
+    int num_items;
+    static const std::string pane_names[];
+
+public:
+	panefactory()
+	{
+    num_items = 0;
+    while  (pane_names[num_items] != "")
+        { num_items++; }
+    }
+
+	~panefactory(){}
+ /*   
+    class tf_menu_params {
+			image_base * image;
+			std::string type;
+		public:
+			tf_menu_params (const std::string t,image_base * i);
+			void switch_tf();
+    };
+    
+    template <class ELEMTYPE >
+        transfer_base<ELEMTYPE > * Create(factoryIdType unique_id, image_storage<ELEMTYPE >* s);
+ */   
+    Fl_Menu_Item* get_FLTK_menu(Fl_Callback *cb)
+    {
+    Fl_Menu_Item * fmenu;
+    fmenu = new Fl_Menu_Item [num_items+1];
+
+    for (int m=0; m < num_items; m++)
+        {
+        init_fl_menu_item(fmenu[m]);
+
+        fmenu[m].label(pane_names[m].c_str());
+        fmenu[m].callback(cb);
+        //fmenu[m].argument(m);
+        fmenu[m].flags = FL_MENU_RADIO;
+        }
+
+    fmenu[num_items].label(NULL);
+
+    return fmenu;
+	}
+
+    
+//    static const std::string tf_name(int);
+
+};
+
 
 #endif

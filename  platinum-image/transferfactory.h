@@ -56,7 +56,7 @@ public:
     template <class ELEMTYPE >
         transfer_base<ELEMTYPE > * Create(factoryIdType unique_id, image_storage<ELEMTYPE >* s);
     
-    Fl_Menu_Item * function_menu (Fl_Callback * cb);
+    Fl_Menu_Item* function_menu(Fl_Callback *cb);
     
     static const std::string tf_name(int);
 };
