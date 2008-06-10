@@ -37,6 +37,11 @@ const std::string transferfactory::tfunction_names[] =
     "Spline",
     "" };
 
+const std::string panefactory::pane_names[] =
+    {"Pt_MPR",
+    "VTK_MIP",
+    "" };
+
 transferfactory transfer_manufactured::factory = transferfactory();
 
 transferfactory::transferfactory ()

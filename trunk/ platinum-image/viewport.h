@@ -33,6 +33,7 @@
 #include "FLTKviewport.h"
 #include "viewporttool.h"
 #include "global.h"
+#include "listedfactory.h"
 
 class threshold_overlay;
 class thresholdparvalue;
@@ -49,6 +50,7 @@ private:
     friend class viewporttool;
 
     FLTKviewport *the_widget;	//Fl_Window
+    static panefactory pfactory; //instatiated in transferfactory.cc
 
 	int ID;						//viewport ID
 	VIEWPORT_TYPE vp_type;		//{PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
