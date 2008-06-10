@@ -61,8 +61,6 @@ class listedfactory
 {
 protected:
     typedef BaseClassType *(*CreateObjectFunc)();
-    
-protected:
     std::map<factoryIdType, CreateObjectFunc> m_object_creator;
     
 public:
@@ -190,17 +188,44 @@ public:
 };
 
 
+//---------------------------------
+//---------------------------------
 /*
-class viewportfactory:listedfactory<FLTKpane>
-{
-    typedef FLTK_pane *(*CreatePaneFunc)(int,int,int,int);
+class FLTKpane; //(int,int,int,int);
 
-	CreatePaneFunc f = &MPRPane;
-	(CreatePaneFunc*)(1,2,3,4);
+class viewportfactory:listedfactory<FLTKpane,FLTKpane *(*CreatePaneFunc)(int,int,int,int)>
+{
+
+protected:
+	//typedef FLTKpane *(*CreatePaneFunc)(int,int,int,int);
+    
+public:
+
+	FLTKpane *Create(factoryIdType unique_id, int x, int y, int w, int h)
+    {
+        Iterator iter = m_object_creator.find(unique_id);
+        
+        if (iter == m_object_creator.end())
+            return NULL;
+        
+//        return ((*iter).second)(int,int,int,int);
+        return ((*iter).second)(x,y,w,h);
+//        return ((*iter).second(x,y,w,h))();
+//        return ((*iter).second)();				//JK2
+    }
+
+
+//	CreatePaneFunc f = &MPRPane;
+//	(CreatePaneFunc*)(1,2,3,4);
 };
 */
 
 
+
+
+
+//---------------------------------
+//---------------------------------
 class panefactory //! transfer gets its own object factory type because constructors for templated classes cannot be stored
 {
 protected:
