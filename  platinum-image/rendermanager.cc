@@ -28,6 +28,7 @@
 #include "datamanager.h"
 
 listedfactory<renderer_base> rendermanager::renderer_factory; //= listedfactory<renderer_base>(); //JK2
+listedfactory<FLTKpane> rendermanager::renderer_factory2; //= listedfactory<renderer_base>(); //JK2
 //listedfactory<viewport*> rendermanager::renderer_factory; //= listedfactory<renderer_base>(); //JK2
 
 rendermanager rendermanagement;
@@ -42,6 +43,9 @@ rendermanager::rendermanager()
 //    renderer_factory.Register<rendererMIP>();	//JK2  //MIP renderer not created yet...
 
 //    renderer_factory.Register<FLTK_Pt_pane>("The FLTK_Pt_pane");	//JK2
+    renderer_factory2.Register<FLTK_Pt_pane>("Pt");	//JK2
+    renderer_factory2.Register<FLTK_VTK_pane>("VTK");	//JK2
+	
 }
 
 rendermanager::~rendermanager()

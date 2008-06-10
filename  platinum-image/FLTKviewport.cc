@@ -75,6 +75,9 @@ string eventnames[] =
     };
 
 
+FLTKpane::FLTKpane() : Fl_Overlay_Window(0,0,100,100)
+{}
+
 FLTKpane::FLTKpane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
 {}
 
@@ -83,6 +86,10 @@ void FLTKpane::needs_rerendering()
 {
 	viewport_parent->needs_rerendering();
 }
+
+
+FLTK_VTK_pane::FLTK_VTK_pane() : FLTKpane(0,0,100,100,NULL)
+{}
 
 
 //FLTK_VTK_pane::FLTK_VTK_pane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
@@ -189,6 +196,8 @@ void FLTK_Event_pane::draw()
 
 
 
+FLTK_Pt_pane::FLTK_Pt_pane() : FLTKpane(0,0,100,100,NULL)
+{}
 
 //FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
 FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent) : FLTKpane(X,Y,W,H,vp_parent)
@@ -198,7 +207,9 @@ FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent) : FLTKp
 	event_pane = new FLTK_Event_pane(0,0,W,H);
 
 	this->resizable(event_pane);			//Make sure thes is resized too...
-	viewport_parent->needs_rerendering();
+	if(viewport_parent!=NULL){
+		viewport_parent->needs_rerendering();
+	}
 	callback_action=CB_ACTION_NONE;
 }
 
@@ -301,7 +312,8 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
     renderermenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight,"Renderer");
 	//The factory below returnsconnects the  
 //	renderermenu_button->copy(rendermanager::renderer_factory.menu(cb_renderer_select,(void*)this)); 
-	renderermenu_button->copy(viewport_parent->pfactory.get_FLTK_menu(cb_renderer_select2)); //JK2
+	renderermenu_button->copy(rendermanager::renderer_factory2.menu(cb_renderer_select3,(void*)this)); 
+//	renderermenu_button->copy(viewport_parent->pfactory.get_FLTK_menu(cb_renderer_select2)); //JK2
     renderermenu_button->user_data(NULL);
     
     //direction menu is constant for each viewport
@@ -576,6 +588,39 @@ void FLTKviewport::cb_renderer_select2 (Fl_Widget * o, void * v)
     
 //    const_cast<Fl_Menu_Item *>(item)->setonly();
 }
+
+void FLTKviewport::cb_renderer_select3 (Fl_Widget * o, void * v)
+{
+    listedfactory<FLTKpane>::lf_menu_params *par = reinterpret_cast<listedfactory<FLTKpane>::lf_menu_params *>(v);
+    const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
+    
+	cout<<"cb_renderer_select3-->id="<<((FLTKviewport*)par->receiver)->viewport_parent->get_id()<<endl;
+//	((FLTKviewport*)par->receiver)->cb_renderer_select3b(par->Create());
+    par->receiver; //the viewport
+    //par->Create(); //the new renderer
+    
+    const_cast<Fl_Menu_Item *>(item)->setonly();
+}
+/*
+void FLTKviewport::cb_renderer_select3b(FLTKpane* new_pane)
+{
+	cout<<"x="<<this->x()<<endl;
+	cout<<"id="<<this->viewport_parent->get_id()<<endl;
+	
+	int x = this->pane_widget->x();
+	int y = this->pane_widget->y();
+	int w = this->pane_widget->w();
+	int h = this->pane_widget->h();
+	
+	delete this->pane_widget;
+	this->pane_widget = new_pane;
+
+	this->pane_widget->x(x);
+	this->pane_widget->y(y);
+	this->pane_widget->w(w);
+	this->pane_widget->h(h);
+}
+*/
 
 void FLTKviewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
 {

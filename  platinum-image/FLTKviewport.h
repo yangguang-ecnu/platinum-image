@@ -87,13 +87,18 @@ enum callbackAction
 //---------------------------------------------
 class FLTKpane : public Fl_Overlay_Window
 {
+	friend class FLTKviewport;
+
 	private:
 		viewport *viewport_parent;
 		virtual void draw_overlay(){};		//FLTK_Pt_pane implements this....
 
 	public:
+	    FLTKpane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
 	    FLTKpane(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
 		void needs_rerendering();			//passes this on to the "viewport_parent"...
+
+
 };
 
 
@@ -106,9 +111,15 @@ class FLTK_VTK_pane : public FLTKpane
 	private:
 		viewport *viewport_parent;
 		void draw_overlay(){};
+
 	public:
+	    FLTK_VTK_pane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
 	    FLTK_VTK_pane(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
 		void needs_rerendering();			//passes this on to the "viewport_parent"...
+
+		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
+            {return "FLTK_VTK_pane";}
+
 };
 
 
@@ -138,6 +149,7 @@ class FLTK_Pt_pane : public FLTKpane
 	friend class histo2D_tool;
 
 	public:
+	    FLTK_Pt_pane();    //JK2 - Default constructor, needed for the listedfactory "Create()" function...
 	    FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
         ~FLTK_Pt_pane();
 		void draw_overlay();
@@ -150,8 +162,7 @@ class FLTK_Pt_pane : public FLTKpane
         void needs_rerendering();
 
         static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
-            {return "Pt_MPR";}
-
+            {return "undef";}
 
         
 	private:
@@ -193,6 +204,8 @@ private:
     void rebuild_renderer_menu();//update checkmark for current renderer type
     static void cb_renderer_select(Fl_Widget * o, void * v);
     static void cb_renderer_select2(Fl_Widget * o, void * v); //JK2
+    static void cb_renderer_select3(Fl_Widget * o, void * v); //JK2
+//    void cb_renderer_select3b(FLTKpane* new_pane); //JK2
     void rebuild_blendmode_menu();//update checkmark for current blend mode
 	
 	

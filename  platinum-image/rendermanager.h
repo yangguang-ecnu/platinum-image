@@ -34,9 +34,8 @@
 #include "rendercombination.h"
 #include "rendergeometry.h"
 #include "renderer_base.h"
-
-
 #include "global.h"
+#include "FLTKviewport.h"
 
 //-1 is used as empty status value (when the renderer could not be found),
 //so these values are chosen to be separate from that
@@ -55,6 +54,7 @@ class rendermanager
         ~rendermanager();
 
 		static listedfactory<renderer_base> renderer_factory;
+		static listedfactory<FLTKpane> renderer_factory2;
 //		static listedfactory<viewport*> renderer_factory;
         
         void listrenderers();
