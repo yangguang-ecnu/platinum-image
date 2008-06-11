@@ -76,18 +76,18 @@ public:
     class lf_menu_params
     {
 	public:
-		void * receiver;
+		void *receiver;
         factoryIdType type;
             
-        lf_menu_params(void * r,factoryIdType t)
+        lf_menu_params(void *r,factoryIdType t)
         {
 			receiver = r;
             type = t;
 		}
-        BaseClassType *Create()
-        {
-			return listedfactory::Create(type);
-        }
+//        BaseClassType *Create()  //JK2 - Could not make this work... "could not call a non-static function" 
+//        {
+//			return listedfactory::Create(type);
+//        }
 	};
     
     template<typename ClassType>
@@ -111,6 +111,7 @@ public:
 	}
     
     BaseClassType *Create(factoryIdType unique_id)
+//    static BaseClassType *Create(factoryIdType unique_id)
     {
         Iterator iter = m_object_creator.find(unique_id);
         

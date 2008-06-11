@@ -74,7 +74,7 @@ public:
     viewport(VIEWPORT_TYPE vpt=PT_MPR);
     virtual ~viewport();
 
-	void initialize_viewport(int xpos, int ypos, int width, int height, VIEWPORT_TYPE vpt=PT_MPR);  //VTK_EXAMPLE
+	void initialize_viewport(int xpos, int ypos, int width, int height, VIEWPORT_TYPE vpt=PT_MPR);  //enum VIEWPORT_TYPE {PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
 	int x();	
 	int y();
 	int w();

@@ -85,20 +85,18 @@ enum callbackAction
 
 //---------------------------------------------
 //---------------------------------------------
-class FLTKpane : public Fl_Overlay_Window
+class FLTKpane : public Fl_Overlay_Window //JK2
+//class FLTKpane : public Fl_Window
 {
 	friend class FLTKviewport;
 
 	private:
-		viewport *viewport_parent;
 		virtual void draw_overlay(){};		//FLTK_Pt_pane implements this....
 
 	public:
 	    FLTKpane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
-	    FLTKpane(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
+	    FLTKpane(int X,int Y,int W,int H);  //constructor
 		void needs_rerendering();			//passes this on to the "viewport_parent"...
-
-
 };
 
 
@@ -109,18 +107,16 @@ class FLTK_VTK_pane : public FLTKpane
 {
 //		vtkFlRenderWindowInteractor *fl_vtk_window; //JK-ööö simple test...
 	private:
-		viewport *viewport_parent;
-		void draw_overlay(){};
 
 	public:
 	    FLTK_VTK_pane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
-	    FLTK_VTK_pane(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
-		void needs_rerendering();			//passes this on to the "viewport_parent"...
+	    FLTK_VTK_pane(int X,int Y,int W,int H);  //constructor
 
 		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
             {return "FLTK_VTK_pane";}
-
 };
+
+
 
 
 //---------------------------------------------
@@ -132,9 +128,6 @@ class FLTK_Event_pane : public Fl_Widget
 		int handle(int event);
 		void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 };
-
-
-
 
 //---------------------------------------------
 //---------------------------------------------
@@ -150,26 +143,25 @@ class FLTK_Pt_pane : public FLTKpane
 
 	public:
 	    FLTK_Pt_pane();    //JK2 - Default constructor, needed for the listedfactory "Create()" function...
-	    FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent);  //constructor
+	    FLTK_Pt_pane(int X,int Y,int W,int H);  //constructor
         ~FLTK_Pt_pane();
 		void draw_overlay();
-	    void draw(unsigned char *rgbimage); //joel
-                                            //our "active" draw method - will redraw directly whenever it is called
+	    void draw(unsigned char *rgbimage); //JK
+											//our "active" draw method - will redraw directly whenever it is called
                                             //this method draws the argument rgbimage AND
                                             //feedback (coordinates, cursor)
 	    void resize (int new_x,int new_y,int new_w,int new_h);
 //	    int handle(int event);
-        void needs_rerendering();
 
         static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
             {return "undef";}
 
-        
+  
 	private:
-		viewport *viewport_parent;
 		FLTK_Event_pane *event_pane; //used to catch events in the viewport...
 
         void draw();                //FLTK draw call - called when FLTK wants the viewport updated
+
 	    void draw_feedback();       //draws the cursor
 	   
         std::string feedback_string;      //info (coordinates and such)
@@ -191,6 +183,9 @@ class FLTK_Pt_pane : public FLTKpane
 //---------------------------------------------
 class FLTKviewport : public Fl_Window   //handles the FLTK part of the viewport class
 {
+	friend class FLTKpane;
+	friend class FLTK_Pt_pane;
+
 private:
 	viewport *viewport_parent;
 
@@ -202,10 +197,10 @@ private:
 
     void update_data_menu();   //set rendering status for images from rendercombination for this viewport's renderer
     void rebuild_renderer_menu();//update checkmark for current renderer type
-    static void cb_renderer_select(Fl_Widget * o, void * v);
-    static void cb_renderer_select2(Fl_Widget * o, void * v); //JK2
-    static void cb_renderer_select3(Fl_Widget * o, void * v); //JK2
-//    void cb_renderer_select3b(FLTKpane* new_pane); //JK2
+    static void cb_renderer_select(Fl_Widget *o, void *v);
+    static void cb_renderer_select2(Fl_Widget *o, void *v); //JK2
+    static void cb_renderer_select3(Fl_Widget *o, void *v); //JK2
+    void cb_renderer_select3b(FLTK_Pt_pane* new_pane); //JK2
     void rebuild_blendmode_menu();//update checkmark for current blend mode
 	
 	
