@@ -75,37 +75,40 @@ string eventnames[] =
     };
 
 
-FLTKpane::FLTKpane() : Fl_Overlay_Window(0,0,100,100)
-{}
+FLTKpane::FLTKpane():Fl_Overlay_Window(0,0,100,100)
+{
+	//FLTKpane(0,0,100,100);
+	this->end();
+}
 
-FLTKpane::FLTKpane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
-{}
+FLTKpane::FLTKpane(int X,int Y,int W,int H) : Fl_Overlay_Window(X,Y,W,H)
+//FLTKpane::FLTKpane(int X,int Y,int W,int H) : Fl_Window(X,Y,W,H)
+{
+//	this->end();
+}
 
 
 void FLTKpane::needs_rerendering()
 {
-	viewport_parent->needs_rerendering();
+//	cout<<"FLTKpane::needs_rerendering()..."<<endl;
+	((FLTKviewport*)this->parent())->viewport_parent->needs_rerendering();
 }
 
 
-FLTK_VTK_pane::FLTK_VTK_pane() : FLTKpane(0,0,100,100,NULL)
-{}
+FLTK_VTK_pane::FLTK_VTK_pane()
+{
+	FLTK_VTK_pane(0,0,100,100);
+}
 
 
 //FLTK_VTK_pane::FLTK_VTK_pane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
-FLTK_VTK_pane::FLTK_VTK_pane(int X,int Y,int W,int H, viewport *vp_parent) : FLTKpane(X,Y,W,H,vp_parent)
+FLTK_VTK_pane::FLTK_VTK_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 {
-	viewport_parent = vp_parent;
-		
-	vtkFlRenderWindowInteractor *fl_vtk_window = NULL;
-	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,W,H,"");
+	cout<<"FLTK_VTK_pane..."<<endl;
+	vtkFlRenderWindowInteractor *fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,W,H,"");
     
-	this->end();
-	this->resizable(fl_vtk_window);
-
 	//--------------------------------------------------
-  
-	vtkRenderWindow *renWindow = vtkRenderWindow::New();
+  	vtkRenderWindow *renWindow = vtkRenderWindow::New();
 	vtkRenderer *ren = vtkRenderer::New();
 	ren->SetBackground(0.1,0.1,0.1);
 	renWindow->AddRenderer(ren);
@@ -140,12 +143,12 @@ FLTK_VTK_pane::FLTK_VTK_pane(int X,int Y,int W,int H, viewport *vp_parent) : FLT
 	cone->Delete();
 	coneMapper->Delete();
 	coneActor->Delete();
+	//--------------------------------------------------
+
+	this->resizable(fl_vtk_window);
+	this->end();
 }
 
-void FLTK_VTK_pane::needs_rerendering()
-{
-	viewport_parent->needs_rerendering();
-}
 
 
 FLTK_Event_pane::FLTK_Event_pane(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
@@ -157,7 +160,6 @@ int FLTK_Event_pane::handle(int event){
 	FLTK_Pt_pane *fp = (FLTK_Pt_pane*)this->parent();
 	fp->callback_event = viewport_event(event,fp);
 //	cout<<"fp->w/h "<<fp->w()<<"/"<<fp->h()<<endl;
-
 
     switch (event)
         {
@@ -196,29 +198,58 @@ void FLTK_Event_pane::draw()
 
 
 
-FLTK_Pt_pane::FLTK_Pt_pane() : FLTKpane(0,0,100,100,NULL)
-{}
+
+FLTK_Pt_pane::FLTK_Pt_pane()
+{
+	FLTK_Pt_pane(0,0,100,100);
+}
+
+/*
+FLTK_Pt_pane::FLTK_Pt_pane() : FLTKpane(0,0,1000,1000)
+{
+	cout<<"FLTK_Pt_pane..."<<endl;
+	//cout<<"FLTK_Pt_pane::FLTK_Pt_pane "<<X<<" "<<Y<<" "<<W<<" "<<H<<endl;
+	event_pane = new FLTK_Event_pane(0,0,100,100);
+
+	Fl_Button *b = new Fl_Button(10,10,500,500, "pt_pane()_button");
+	b->color(FL_BLUE);
+
+	callback_action=CB_ACTION_NONE;
+	this->resizable(event_pane);			//Make sure thes is resized too...
+	this->end();
+    this->box(FL_BORDER_BOX);
+    this->align(FL_ALIGN_CLIP);
+}
+*/
 
 //FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
-FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent) : FLTKpane(X,Y,W,H,vp_parent)
+FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 {
-	//cout<<"FLTK_Pt_pane::FLTK_Pt_pane "<<X<<" "<<Y<<" "<<W<<" "<<H<<endl;
-	viewport_parent = vp_parent;
-	event_pane = new FLTK_Event_pane(0,0,W,H);
+	cout<<"FLTK_Pt_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
+//	Fl_Group::current(this); //jk2
 
-	this->resizable(event_pane);			//Make sure thes is resized too...
-	if(viewport_parent!=NULL){
-		viewport_parent->needs_rerendering();
-	}
+	//cout<<"FLTK_Pt_pane::FLTK_Pt_pane "<<X<<" "<<Y<<" "<<W<<" "<<H<<endl;
+	event_pane = new FLTK_Event_pane(0,0,W,H);
+//	event_pane->color(FL_BLUE);
+  //  event_pane->box(FL_UP_BOX);
+	Fl_Button *b = new Fl_Button(10,10,200,50, "pt_pane(xywh)_button");
+	b->color(FL_RED);
+
 	callback_action=CB_ACTION_NONE;
+    this->box(FL_BORDER_BOX);
+    this->align(FL_ALIGN_CLIP);
+	this->resizable(event_pane);			//Make sure thes is resized too...
+	this->end();
 }
 
 FLTK_Pt_pane::~FLTK_Pt_pane()
-{}
+{
+	delete event_pane;
+}
 	
 void FLTK_Pt_pane::draw_overlay()
 {
-	this->viewport_parent->paint_overlay();
+	((FLTKviewport*)this->parent())->viewport_parent->paint_overlay();
 }
 
 
@@ -232,6 +263,7 @@ void FLTK_Pt_pane::draw()
 	//pane_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
 	do_callback(CB_ACTION_DRAW); //JK2
 }
+
 
 void FLTK_Pt_pane::draw(unsigned char *rgbimage)
 {
@@ -281,11 +313,6 @@ void FLTK_Pt_pane::resize(int new_in_x,int new_in_y, int new_in_w,int new_in_h){
     resize_w=w(); resize_h=h();
 }
 
-void FLTK_Pt_pane::needs_rerendering()
-{
-	viewport_parent->needs_rerendering();
-}
-
 void FLTK_Pt_pane::do_callback (callbackAction action)
 {
     callback_action=action;
@@ -324,7 +351,7 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
         {
         menu_callback_params * cbp=new menu_callback_params;
         cbp->direction=(preset_direction)m;
-        cbp->vport=vp_parent;
+        cbp->vport=viewport_parent;
         
         init_fl_menu_item(dir_menu_items[m]);
         
@@ -358,7 +385,7 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 
         menu_callback_params * cbp=new menu_callback_params;
         cbp->mode=(blendmode)m;
-        cbp->rend_index=vp_parent->rendererIndex;
+        cbp->rend_index=viewport_parent->rendererIndex;
         
         init_fl_menu_item(blend_menu_items[m]);
         
@@ -395,9 +422,10 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 //  pane_widget = new FLTK_Pt_pane(xpos,ypos+buttonheight,width,height-buttonheight);
 
 	if(viewport_parent->vp_type == PT_MPR){
-		pane_widget = new FLTK_Pt_pane(0,0+buttonheight,width,height-buttonheight, vp_parent);
+		pane_widget = new FLTK_Pt_pane(0,0+buttonheight,width,height-buttonheight);
+//		pane_widget = new FLTK_Pt_pane();
 	}else{
-		pane_widget = new FLTK_VTK_pane(0,0+buttonheight,width,height-buttonheight, vp_parent);
+		pane_widget = new FLTK_VTK_pane(0,0+buttonheight,width,height-buttonheight);
 	}
 
 	pane_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
@@ -567,7 +595,7 @@ void FLTKviewport::update_data_menu()
 }
 
 
-void FLTKviewport::cb_renderer_select (Fl_Widget * o, void * v)
+void FLTKviewport::cb_renderer_select(Fl_Widget *o, void *v)
 {
     listedfactory<renderer_base>::lf_menu_params * par = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params *>(v);
     const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
@@ -578,7 +606,7 @@ void FLTKviewport::cb_renderer_select (Fl_Widget * o, void * v)
     const_cast<Fl_Menu_Item *>(item)->setonly();
 }
 
-void FLTKviewport::cb_renderer_select2 (Fl_Widget * o, void * v)
+void FLTKviewport::cb_renderer_select2(Fl_Widget *o, void *v)
 {
 //    listedfactory<renderer_base>::lf_menu_params * par = reinterpret_cast<listedfactory<renderer_base>::lf_menu_params *>(v);
 //    const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
@@ -589,38 +617,55 @@ void FLTKviewport::cb_renderer_select2 (Fl_Widget * o, void * v)
 //    const_cast<Fl_Menu_Item *>(item)->setonly();
 }
 
-void FLTKviewport::cb_renderer_select3 (Fl_Widget * o, void * v)
+void FLTKviewport::cb_renderer_select3(Fl_Widget *o, void *v)
 {
     listedfactory<FLTKpane>::lf_menu_params *par = reinterpret_cast<listedfactory<FLTKpane>::lf_menu_params *>(v);
+    //par->receiver; //the viewport
+    //par->Create(); //the new renderer
     const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
     
 	cout<<"cb_renderer_select3-->id="<<((FLTKviewport*)par->receiver)->viewport_parent->get_id()<<endl;
-//	((FLTKviewport*)par->receiver)->cb_renderer_select3b(par->Create());
-    par->receiver; //the viewport
-    //par->Create(); //the new renderer
+	FLTKpane* new_pane = rendermanager::renderer_factory2.Create(par->type);
+
+	((FLTKviewport*)par->receiver)->cb_renderer_select3b( (FLTK_Pt_pane*)new_pane );
     
     const_cast<Fl_Menu_Item *>(item)->setonly();
 }
-/*
-void FLTKviewport::cb_renderer_select3b(FLTKpane* new_pane)
+
+void FLTKviewport::cb_renderer_select3b(FLTK_Pt_pane* new_pane)
 {
-	cout<<"x="<<this->x()<<endl;
+	Fl_Group::current(this);
+
 	cout<<"id="<<this->viewport_parent->get_id()<<endl;
-	
+
 	int x = this->pane_widget->x();
 	int y = this->pane_widget->y();
 	int w = this->pane_widget->w();
 	int h = this->pane_widget->h();
-	
-	delete this->pane_widget;
-	this->pane_widget = new_pane;
+	cout<<"x,y,w,h "<<this->x()<<","<<this->y()<<","<<this->w()<<","<<this->h()<<endl;
 
-	this->pane_widget->x(x);
-	this->pane_widget->y(y);
-	this->pane_widget->w(w);
-	this->pane_widget->h(h);
+	delete this->pane_widget;
+
+
+//	this->pane_widget = new FLTK_Pt_pane(x, y, w, h);
+	this->pane_widget = new FLTK_VTK_pane(x, y, w, h);
+//	this->pane_widget = new_pane; //JK2 memory leak...
+	this->add(this->pane_widget);
+
+//	this->pane_widget->x(0);
+//	this->pane_widget->y(25);
+//	this->pane_widget->w(w);
+//	this->pane_widget->h(h-25);
+
+//	this->pane_widget->show();
+
+	this->resizable(pane_widget);
+	this->end();
+
+//	this->pane_widget->redraw(); //JK2
+//	this->pane_widget->needs_rerendering();
 }
-*/
+
 
 void FLTKviewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
 {

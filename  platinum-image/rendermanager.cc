@@ -42,9 +42,8 @@ rendermanager::rendermanager()
     renderer_factory.Register<rendererMPR>();	//JK2
 //    renderer_factory.Register<rendererMIP>();	//JK2  //MIP renderer not created yet...
 
-//    renderer_factory.Register<FLTK_Pt_pane>("The FLTK_Pt_pane");	//JK2
-    renderer_factory2.Register<FLTK_Pt_pane>("Pt");	//JK2
-    renderer_factory2.Register<FLTK_VTK_pane>("VTK");	//JK2
+//    renderer_factory2.Register<FLTK_Pt_pane>("Pt");	//JK2
+//    renderer_factory2.Register<FLTK_VTK_pane>("VTK");	//JK2
 	
 }
 

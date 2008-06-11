@@ -209,6 +209,7 @@ void viewport::connect_renderer(int rID)
 
 void viewport::needs_rerendering()
 {
+//	cout<<"viewport::needs_rerendering()... (id="<<ID<<")"<<endl;
 	needs_re_rendering = true;
 }
 
