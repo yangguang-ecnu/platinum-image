@@ -162,6 +162,11 @@ bool dir_exists (string file_path)
     return false;
 }
 
+void create_dir(string dir_path)
+{
+	itksys::SystemTools::MakeDirectory( dir_path.c_str() );
+}
+
 void add_to_string_vector_if_not_present(vector<string> &v, string s)
 {
 	if(s!=""){
@@ -425,11 +430,14 @@ string replace_last_substring(string s, string val, string replacement){
 	return a+b+c;
 }
 
-vector<string> subdirs (string dir_path)
+vector<string> subdirs(string dir_path, bool fullpath)
     {
     trailing_slash(dir_path);
 
-    vector<string> result = get_dir_entries (dir_path);
+    vector<string> result = get_dir_entries(dir_path,fullpath);
+	for(int i=0;i<result.size();i++){
+		cout<<"res="<<result[i]<<endl;
+	}
 
     vector<string>::iterator dirs = result.begin();
 
@@ -437,13 +445,16 @@ vector<string> subdirs (string dir_path)
         {
         //sort out items which are not directories
         //or circular references
-        if (*dirs == "." || *dirs == ".." || !dir_exists(dir_path + *dirs) )
+
+	       if (*dirs == "." || *dirs == ".." || !dir_exists(dir_path + *dirs) )
             {
             result.erase(dirs);
             }
         else
             {
-            (*dirs).insert(0,dir_path);
+				if(fullpath){
+					(*dirs).insert(0,dir_path);
+				}
             trailing_slash(*dirs);
 
             ++dirs; 

@@ -77,11 +77,12 @@ void FLTKuserIOparameter_base::par_update_callback (Fl_Widget *callingwidget, vo
 
 
 
-#pragma mark *** FLTKuserIOpar_filepath ***
+#pragma mark *** FLTKuserIOpar_path ***
 
-FLTKuserIOpar_filepath::FLTKuserIOpar_filepath(const std::string name, const std::string default_path) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
+FLTKuserIOpar_path::FLTKuserIOpar_path(const std::string name, bool filepath, const std::string default_path) : FLTKuserIOparameter_base(INITPARWIDGETWIDTH,STDPARWIDGETHEIGHT, name)
 	{
 		int butt_width = 30;	// ;-)
+		file_path = filepath;
 
 		browse_button = new Fl_Button(x()+w()-butt_width,y(),butt_width,PARTITLEMARGIN,"Browse");
 		browse_button->callback(browse_button_cb);
@@ -94,37 +95,47 @@ FLTKuserIOpar_filepath::FLTKuserIOpar_filepath(const std::string name, const std
 		end();
 	}
 
-const std::string FLTKuserIOpar_filepath::type_name ()
+const std::string FLTKuserIOpar_path::type_name ()
 	{
-		return "filepath_chooser";
+		return "path_chooser";
 	}
 
-void FLTKuserIOpar_filepath::par_value (std::string &v)
+void FLTKuserIOpar_path::par_value (std::string &v)
     {
     v = string(control->value());
     }
 
-void FLTKuserIOpar_filepath::browse_button_cb(Fl_Widget *callingwidget, void *)
+void FLTKuserIOpar_path::browse_button_cb(Fl_Widget *callingwidget, void *)
 {
 //	cout<<"browse_button_cb..."<<endl;
 
 	string last_path = pt_config::read<std::string>("latest_path");
-	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::CREATE,"Choose file");
-//	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
-    fc.show();
-    while(fc.shown())
-        { Fl::wait(); }
-
-    if(fc.value() == NULL)
-        {
-        pt_error::error("FLTKuserIOpar_filepath-Image load dialog cancel",pt_error::notice);
-        return;
-        }
-	
 	//the callingwidget will always be the load_button
-	FLTKuserIOpar_filepath* fp = (FLTKuserIOpar_filepath*)callingwidget->parent();
-	fp->control->value(fc.value());
-	pt_config::write("latest_path",path_parent(fc.value()));
+	FLTKuserIOpar_path* fp = (FLTKuserIOpar_path*)callingwidget->parent();
+	char *path;
+
+	//----------------------------------
+	if(fp->file_path){
+		Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::CREATE,"Choose file");
+	//	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
+		fc.show();
+		while(fc.shown())
+			{ Fl::wait(); }
+
+	//----------------------------------
+	}else{ //folder path
+		path = fl_dir_chooser("Choose a directory", last_path.c_str(), 0);
+	}
+	//----------------------------------
+
+	if(path == NULL){
+		pt_error::error("FLTKuserIOpar_path loading cancelled",pt_error::notice);
+		return;
+	}
+
+	cout<<"path="<<path<<endl; 
+	fp->control->value(path);
+	pt_config::write("latest_path",path_parent(path));
 }
 
 

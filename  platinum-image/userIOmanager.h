@@ -80,6 +80,7 @@ class userIOmanager
 
         //add parameter to userIO block, return parameter number
 		int add_par_filepath(int userIO_ID, const std::string name, const std::string default_path="");
+		int add_par_folderpath(int userIO_ID, const std::string name, const std::string default_path="");
 		int add_par_coordinate3Ddisplay(int userIO_ID, std::string coord_name, std::string coord_type_name, Vector3D v);
 		int add_par_landmarks ( int userIO_ID, const std::string name );
 //		int add_par_landmarks(int userIO_ID, const std::string name,  const std::vector<std::string> & landmark_names, const std::vector<std::string> & option_names, int landmarks_id);

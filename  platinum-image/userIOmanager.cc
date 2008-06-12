@@ -146,7 +146,13 @@ userIO * userIOmanager::block_from_ID(int IOblockID)
 
 int userIOmanager::add_par_filepath(int userIO_ID, const std::string name, const std::string default_path)
     {
-    FLTKuserIOparameter_base * par=new FLTKuserIOpar_filepath(name, default_path);
+    FLTKuserIOparameter_base * par=new FLTKuserIOpar_path(name, 1, default_path);
+    return block_from_ID(userIO_ID)->add_par(par);
+    }
+
+int userIOmanager::add_par_folderpath(int userIO_ID, const std::string name, const std::string default_path)
+    {
+    FLTKuserIOparameter_base * par=new FLTKuserIOpar_path(name, 0, default_path);
     return block_from_ID(userIO_ID)->add_par(par);
     }
 
