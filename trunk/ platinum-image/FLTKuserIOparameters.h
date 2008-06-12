@@ -217,13 +217,14 @@ public:
     };
 
 //For simple input of file paths...
-class FLTKuserIOpar_filepath : public FLTKuserIOparameter_base    
+class FLTKuserIOpar_path : public FLTKuserIOparameter_base    
     {
     protected:
         Fl_Button *browse_button;
+		bool file_path; //or directory_path
 
 	public:
-        FLTKuserIOpar_filepath(const std::string name, const std::string default_path="");
+        FLTKuserIOpar_path(const std::string name, bool filepath=true, const std::string default_path="");
         Fl_Input *control;	//public for simple access of static callback...
         const std::string type_name();
 		void par_value(std::string &v);

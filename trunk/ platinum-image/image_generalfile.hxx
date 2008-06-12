@@ -669,7 +669,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file_series(const std::strin
   ImageIOType::Pointer gdcmIO = ImageIOType::New();
 
   const char * outputDirectory = file_path.c_str();
-  itksys::SystemTools::MakeDirectory( outputDirectory );
+  create_dir(outputDirectory);
+//  itksys::SystemTools::MakeDirectory( outputDirectory );
 
   itk::MetaDataDictionary & dict = gdcmIO->GetMetaDataDictionary();
   std::string tagkey, value;
