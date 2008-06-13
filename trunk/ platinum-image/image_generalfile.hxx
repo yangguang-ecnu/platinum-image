@@ -451,7 +451,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_these_DICOM_files(vect
 //	cout<<"..."<<endl;
 	this->name( this->meta.get_name() );
 	this->read_geometry_from_dicom_file ( fileNames[0].c_str() );			// use the first file name in the vector
-	this->print_geometry();
+//	this->print_geometry();
 }
 
 
@@ -670,7 +670,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file_series(const std::strin
 
   const char * outputDirectory = file_path.c_str();
   create_dir(outputDirectory);
-//  itksys::SystemTools::MakeDirectory( outputDirectory );
 
   itk::MetaDataDictionary & dict = gdcmIO->GetMetaDataDictionary();
   std::string tagkey, value;
