@@ -435,9 +435,9 @@ vector<string> subdirs(string dir_path, bool fullpath)
     trailing_slash(dir_path);
 
     vector<string> result = get_dir_entries(dir_path,fullpath);
-	for(int i=0;i<result.size();i++){
-		cout<<"res="<<result[i]<<endl;
-	}
+//	for(int i=0;i<result.size();i++){
+//		cout<<"res="<<result[i]<<endl;
+//	}
 
     vector<string>::iterator dirs = result.begin();
 
