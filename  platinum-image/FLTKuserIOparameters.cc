@@ -112,30 +112,41 @@ void FLTKuserIOpar_path::browse_button_cb(Fl_Widget *callingwidget, void *)
 	string last_path = pt_config::read<std::string>("latest_path");
 	//the callingwidget will always be the load_button
 	FLTKuserIOpar_path* fp = (FLTKuserIOpar_path*)callingwidget->parent();
-	char *path;
+	char *path = NULL;
+
+	string default_path="";
+	fp->par_value(default_path);
+	if(default_path!=""){
+		last_path = default_path;		//if default path is set... use that in first case
+	}
 
 	//----------------------------------
 	if(fp->file_path){
-		Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::CREATE,"Choose file");
-	//	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
+
+	//	Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::CREATE,"Choose file");
+		Fl_File_Chooser fc(last_path.c_str(),"Any file(*)",Fl_File_Chooser::SINGLE,"Choose file");
 		fc.show();
 		while(fc.shown())
 			{ Fl::wait(); }
 
+		cout<<"fc.value(1)="<<fc.value(1)<<endl; 
+		fp->control->value(fc.value(1));
+		pt_config::write("latest_path",fc.value(1));
+		
+
 	//----------------------------------
 	}else{ //folder path
+
 		path = fl_dir_chooser("Choose a directory", last_path.c_str(), 0);
+		fp->control->value(path);
+		cout<<"path="<<path<<endl; 
+		if(path == NULL){
+			pt_error::error("FLTKuserIOpar_path loading cancelled",pt_error::notice);
+			return;
+		}
+		pt_config::write("latest_path",path_parent(path));
 	}
-	//----------------------------------
 
-	if(path == NULL){
-		pt_error::error("FLTKuserIOpar_path loading cancelled",pt_error::notice);
-		return;
-	}
-
-	cout<<"path="<<path<<endl; 
-	fp->control->value(path);
-	pt_config::write("latest_path",path_parent(path));
 }
 
 
