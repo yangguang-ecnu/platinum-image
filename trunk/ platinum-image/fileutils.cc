@@ -242,7 +242,7 @@ int get_number_of_dicom_files_in_dir(string dir_path)
 return get_dicom_files_in_dir(dir_path).size();
 }
 
-string get_dicom_tag_value(string file_path, string dcm_tag, bool remove_garbage_tag)
+string get_dicom_tag_value(string file_path, string dcm_tag, bool remove_garbage_char)
 {
 //	cout<<"get_dicom_tag_value...("<<file_path<<","<<dcm_tag<<")"<<endl;
 	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
@@ -253,7 +253,7 @@ string get_dicom_tag_value(string file_path, string dcm_tag, bool remove_garbage
 		dicomIO->SetFileName(file_path.c_str());
 		dicomIO->ReadImageInformation();		//get basic DICOM header
 		dicomIO->GetValueFromTag(dcm_tag,dcmdata);
-		if(remove_garbage_tag){
+		if(remove_garbage_char){
 			remove_string_ending(dcmdata, " ");
 		}
 //		cout<<"CanReadFile... (dcmdata="<<dcmdata<<")"<<endl;	
@@ -351,7 +351,7 @@ vector<string> list_dicom_tag_values_for_this_ref_tag_value(vector<string> files
 	return values_present;
 }
 
-vector<string> list_dicom_tag_values_in_dir(string dir_path, string dcm_tag, bool recursive_search)
+vector<string> list_dicom_tag_values_in_dir(string dir_path, string dcm_tag, bool recursive_search, bool exclusive_values)
 {
 	cout<<"list_dicom_tag_values_in_dir("<<dir_path<<") "<<endl;
 	vector<string> tags;
@@ -359,9 +359,13 @@ vector<string> list_dicom_tag_values_in_dir(string dir_path, string dcm_tag, boo
 	if(recursive_search){
 		vector<string> dirs = subdirs(dir_path);
 		for(int i=0;i<dirs.size();i++){
-			tags2 = list_dicom_tag_values_in_dir(dirs[i], dcm_tag, true);
+			tags2 = list_dicom_tag_values_in_dir(dirs[i], dcm_tag, recursive_search, exclusive_values);
 			for(int j=0;j<tags2.size();j++){
-				add_to_string_vector_if_not_present(tags,tags2[j]);
+				if(exclusive_values){
+					add_to_string_vector_if_not_present(tags,tags2[j]);
+				}else{
+					tags.push_back(tags2[j]);
+				}
 //				cout<<"tags.size()="<<tags.size()<<endl; 
 			}
 		}
@@ -372,9 +376,40 @@ vector<string> list_dicom_tag_values_in_dir(string dir_path, string dcm_tag, boo
 	for(int i=0;i<files.size();i++){
 		tmp = get_dicom_tag_value(files[i], dcm_tag);
 //		cout<<"tmp="<<tmp<<endl;
-		add_to_string_vector_if_not_present(tags,tmp);
+		if(exclusive_values){
+			add_to_string_vector_if_not_present(tags,tmp);
+		}else{
+			tags.push_back(tmp);
+		}
 	}
 	return tags;
+}
+
+bool does_dicom_file_tag_contain(string file_path, string dcm_tag, string content)
+{
+	string tag = get_dicom_tag_value(file_path, dcm_tag, true);
+	int pos = tag.find(content);
+	cout<<file_path<<" "<<dcm_tag<<" "<<tag<<" "<<content<<" "<<pos<<" "<<tag.size()<<endl;
+	if( pos>=0 && pos<tag.size() ){
+		return true;
+	}
+	return false;
+}
+
+
+bool is_dicom_file_magnitude_image(string file_path)
+{
+	return does_dicom_file_tag_contain(file_path, DCM_IMAGE_TYPE, DCM_MAGNITUDE_SUBSTRING);
+}
+
+bool is_dicom_file_real_image(string file_path)
+{
+	return does_dicom_file_tag_contain(file_path, DCM_IMAGE_TYPE, DCM_REAL_SUBSTRING);
+}
+
+bool is_dicom_file_imaginary_image(string file_path)
+{
+	return does_dicom_file_tag_contain(file_path, DCM_IMAGE_TYPE, DCM_IMAGINARY_SUBSTRING);
 }
 
 

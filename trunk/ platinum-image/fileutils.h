@@ -33,6 +33,7 @@
 
 #include "itkGDCMImageIO.h"
 #include <itksys/SystemTools.hxx>  //JK -- allows for example creation of new folder...
+#include "global.h"
 
 using namespace std;
 
@@ -71,14 +72,16 @@ string			get_first_dicom_file_in_dir(string dir_path, bool full_path=false);
 string			get_second_dicom_file_in_dir(string dir_path, bool full_path=false); //can for example be used for loading image 2 in dual echo sequences...
 vector<string>	get_dicom_files_with_dcm_tag_value(vector<string> files, string dcm_tag, string tag_val);
 int				get_number_of_dicom_files_in_dir(string dir_path);
-string			get_dicom_tag_value(string file_path, string dcm_tag, bool remove_garbage_tag=true);
+string			get_dicom_tag_value(string file_path, string dcm_tag, bool remove_garbage_char=true);
 bool			does_dir_contain_dcmfile_with_tag_value(string dir_path, string dcm_tag, string tag_val, bool recursive_search=false);
 string			find_first_sub_dir_containing_dcm_file_with_tag_value(string dir_path, string dcm_tag, string tag_val, bool recursive_search=false);
 vector<string>	list_dicom_tag_values_for_this_ref_tag_value(vector<string> files, string dcm_tag, string dcm_tag_val, string dcm_ref_tag);
-vector<string>	list_dicom_tag_values_in_dir(string dir_path, string dcm_tag, bool recursive_search=false);
+vector<string>	list_dicom_tag_values_in_dir(string dir_path, string dcm_tag, bool recursive_search=false, bool exclusive_values=false);
 
-//not implemented yet...
-
+bool			does_dicom_file_tag_contain(string file_path, string tag, string content);
+bool			is_dicom_file_magnitude_image(string file_path);
+bool			is_dicom_file_real_image(string file_path);
+bool			is_dicom_file_imaginary_image(string file_path);
 
 //------------- String handling functions ----------------------
 

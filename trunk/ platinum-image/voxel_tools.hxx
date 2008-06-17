@@ -266,6 +266,21 @@ double voxel_set<ELEMTYPE>::get_accumulated_mean()
 }
 */
 
+template<class ELEMTYPE>
+voxel<ELEMTYPE>* voxel_set<ELEMTYPE>::get_median_voxel()
+{
+	if(this->size()>0){
+		voxel<ELEMTYPE>* median;
+		set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it = this->begin();
+		for(int i=0;i<this->size()/2;i++){
+			it++;
+		}
+		median = *it;
+		return median;
+	}
+	return NULL;
+}
+
 
 template<class ELEMTYPE>
 void voxel_set<ELEMTYPE>::set_values_to_voxels_in_this_set_using_image_data(image_general<ELEMTYPE,3> *im)

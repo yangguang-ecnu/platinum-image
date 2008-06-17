@@ -72,6 +72,7 @@ enum VIEWPORT_TYPE {PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
 //More DICOM tag definitions can be found at:  http://medical.nema.org/dicom/2007/07_06pu.pdf
 //Note that it is important to use "lower case letters" for the gdcm package...
 
+
 #define DCM_CREATION_DATE "0008|0012" //20050114	//string
 #define DCM_CREATION_TIME "0008|0013" //082633.000	//string
 #define DCM_STUDY_DATE "0008|0020"					//string
@@ -132,6 +133,11 @@ enum VIEWPORT_TYPE {PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
 #define DCM_SCALE_SLOPE "0029|1053"					//float
 #define DCM_SCALE_INTERCEPT2 "2005|100d"			//float (0.0)
 #define DCM_SCALE_SLOPE2 "2005|100e"				//float (0.0037668764)
+
+
+#define DCM_MAGNITUDE_SUBSTRING "\\M\\"				//Part of the "DCM_IMAGE_TYPE" charateristic for magnitude data...
+#define DCM_REAL_SUBSTRING "\\R\\"					//Part of the "DCM_IMAGE_TYPE" charateristic for real data...
+#define DCM_IMAGINARY_SUBSTRING "\\I\\"				//Part of the "DCM_IMAGE_TYPE" charateristic for imaginary data...
 
 /*
 string FLTK_eventnames[] =
