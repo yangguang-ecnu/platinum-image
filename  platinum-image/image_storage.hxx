@@ -108,7 +108,7 @@ return (dataptr);
 }
 
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::imagepointer(ELEMTYPE * new_value)
+void image_storage<ELEMTYPE >::set_imagepointer(ELEMTYPE * new_value)
 {
 	dataptr = new_value;
 }

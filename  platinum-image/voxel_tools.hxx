@@ -272,9 +272,12 @@ voxel<ELEMTYPE>* voxel_set<ELEMTYPE>::get_median_voxel()
 	if(this->size()>0){
 		voxel<ELEMTYPE>* median;
 		set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it = this->begin();
+
+//		it++(this->size()/2);
 		for(int i=0;i<this->size()/2;i++){
 			it++;
 		}
+
 		median = *it;
 		return median;
 	}

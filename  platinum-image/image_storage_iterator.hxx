@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////////
 //
-//  image_generaliterator.hxx
+//  image_storage_iterator.hxx
 //
-//  Iterators for image_general and derived classes
+//  Iterators for image_storage and derived classes
 //
 //
 
@@ -28,6 +28,10 @@ image_storage<ELEMTYPE >::iterator::iterator(ELEMTYPE* i)
 {
     ptr = i;
 }
+
+template<class ELEMTYPE >
+image_storage<ELEMTYPE >::iterator::~iterator()
+{}
 
 template<class ELEMTYPE >
 typename image_storage<ELEMTYPE >::iterator& image_storage<ELEMTYPE >::iterator::operator=(const typename image_storage<ELEMTYPE >::iterator& other)
