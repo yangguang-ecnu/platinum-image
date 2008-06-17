@@ -2228,3 +2228,4 @@ float image_binary<IMAGEDIM>::mutual_overlap_3D(image_binary<IMAGEDIM>* second_i
 	else
 		return 0;
 }
+

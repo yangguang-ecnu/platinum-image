@@ -152,7 +152,8 @@ class image_general : public image_storage <ELEMTYPE >
         // *** element access methods ***
         ELEMTYPE get_voxel(int x, int y, int z=0) const;
         ELEMTYPE get_voxel(Vector3Dint vox_pos) const;
-//ööö        float get_voxel(int x, int y, int z=0) const;
+        ELEMTYPE* get_voxel_pointer(int x, int y, int z=0); //cannot be const
+        ELEMTYPE* get_voxel_pointer(Vector3Dint vox_pos); //cannot be const
         ELEMTYPE get_voxel_in_physical_pos(Vector3D phys_pos);  
         ELEMTYPE get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos);  
 		ELEMTYPE get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1, float w2, float w3, float w4);
@@ -290,6 +291,43 @@ class image_general : public image_storage <ELEMTYPE >
 		double get_num_diff_3rdorder_central_diff_3D(int x, int y, int z, int direction1, int direction2, int direction3); //voxel based (i.e. no real dimensions included)
 
 //		void filter_image_slw_mean_4NB_3D();
+
+
+		//JK TODO - write == != operators for image_general class...
+
+
+        // *** iterator ***        
+        class spiral_2d_iterator : public std::iterator<std::forward_iterator_tag, ELEMTYPE>
+            {
+            private:
+				image_general<ELEMTYPE, IMAGEDIM> *the_image;
+				Vector3Dint seed_pos;
+				Vector3Dint current_pos;
+				int current_radius; //in pixels
+				int current_direction; //0(x) 1(-y) 2(-x) 3(y)
+				int current_dist; //the distance traversed along each line segment....
+				bool first_line_segment; //the distance traversed along each line segment....
+//                ELEMTYPE* ptr;
+
+			public:
+				spiral_2d_iterator(image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint seed);               
+				~spiral_2d_iterator();// {}
+				spiral_2d_iterator& operator=(const spiral_2d_iterator& other);                
+				bool operator==(const spiral_2d_iterator& other);                
+				bool operator!=(const spiral_2d_iterator& other);                
+				ELEMTYPE& operator*();                
+				spiral_2d_iterator& operator++();                
+				void print_all();
+/*				spiral_2d_iterator& operator++(int);                
+				ELEMTYPE* operator->();
+                ELEMTYPE* pointer();
+				spiral_2d_iterator& operator--();             
+				spiral_2d_iterator operator+(unsigned long n);
+*/           };
+
+//        iterator begin();        
+//        iterator end();   
+
 };
 
 

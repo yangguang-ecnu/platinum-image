@@ -63,8 +63,8 @@ class image_storage : public image_base
         // *** Image data pointer ***
         ELEMTYPE *dataptr;			//no forced access via function for speedup...
         ELEMTYPE *imagepointer();
-		void imagepointer(ELEMTYPE * new_value);
-        void deallocate ();
+		void set_imagepointer(ELEMTYPE *new_value);
+        void deallocate();
 
 		unsigned long num_elements;        //image size in # pixels/voxels
 
@@ -107,6 +107,7 @@ class image_storage : public image_base
 
 		void print_stats();
 
+
         // *** iterator ***        
         class iterator : public std::iterator<std::forward_iterator_tag, ELEMTYPE>
             {
@@ -114,7 +115,7 @@ class image_storage : public image_base
                 ELEMTYPE* ptr;
 			public:
 				iterator(ELEMTYPE* i);               
-				~iterator() {}
+				~iterator();// {}
 				iterator& operator=(const iterator& other);                
 				bool operator==(const iterator& other);                
 				bool operator!=(const iterator& other);                

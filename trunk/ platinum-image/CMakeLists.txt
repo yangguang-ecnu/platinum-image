@@ -161,6 +161,7 @@ image_binary.hxx
 image_binaryprocess.hxx 
 image_complex.hxx 
 image_general.hxx 
+image_general_iterator.hxx 
 image_generalfile.hxx 
 image_storage_iterator.hxx 
 image_integer.hxx 
@@ -316,7 +317,6 @@ datamanager.h
 data_base.h 
 image_base.h 
 image_general.h 
-image_storage_iterator.h 
 image_storage.h 
 metadata.h 
 point.h 
@@ -329,6 +329,7 @@ datamanager.cc
 data_base.cc 
 image_base.cc 
 image_general.hxx 
+image_general_iterator.hxx 
 image_generalfile.hxx 
 image_storage_iterator.hxx 
 image_storage.hxx 

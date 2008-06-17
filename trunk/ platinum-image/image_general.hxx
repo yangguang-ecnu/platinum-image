@@ -82,6 +82,7 @@ using namespace std;
 #include "image_general.h"
 #include "image_storage.hxx"
 #include "image_generalfile.hxx"
+#include "image_general_iterator.hxx"
 
 template <class NEWELEM, class TRYELEM, int DIM, template <class, int> class requestedClass >
 requestedClass<NEWELEM, DIM> * try_general (image_base* input) //! Helper function to guaranteed_cast
@@ -297,7 +298,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
 //		cout<<"initialize_dataset--> ... pointer was already NULL..."<<endl;
 	}
 
-    this->imagepointer( new ELEMTYPE[this->num_elements] );
+    this->set_imagepointer( new ELEMTYPE[this->num_elements] );
 
     if (ptr!=NULL) //memcpy is bad karma! Use copy_data(in, out) whenever you know your (input) datatype!
         {
@@ -1464,6 +1465,22 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(Vector3Dint vox_pos) const
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE* image_general<ELEMTYPE, IMAGEDIM>::get_voxel_pointer(int x, int y, int z)
+{
+	unsigned long steps = x + datasize[0]*y + datasize[0]*datasize[1]*z;
+	return (this->imagepointer() + steps);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE* image_general<ELEMTYPE, IMAGEDIM>::get_voxel_pointer(Vector3Dint vox_pos)
+{
+	unsigned long steps = vox_pos[0] + datasize[0]*vox_pos[1] + datasize[0]*datasize[1]*vox_pos[2];
+	return (this->imagepointer() + steps);
+}
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos(Vector3D phys_pos)
     {
 	Vector3D v = this->world_to_voxel(phys_pos);
@@ -1983,5 +2000,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::print_physical_corner_coords()
 	std::cout<<" "<<	get_physical_pos_for_voxel(datasize[0]-1,	datasize[1]-1,	0);
 	std::cout<<std::endl;
 }
+
 
 #endif
