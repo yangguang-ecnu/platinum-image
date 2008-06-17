@@ -93,7 +93,7 @@ class voxel_set : public set<voxel<ELEMTYPE>*, voxel_comparator<ELEMTYPE> >
 
     public:
         voxel_set();
-		void insert_voxel(voxel<ELEMTYPE>*v, bool update_accumulated_mean=true);
+		void insert_voxel(voxel<ELEMTYPE> *v, bool update_accumulated_mean=true);
 		void insert_these(voxel_set<ELEMTYPE> &vs);
 //		void erase(voxel<ELEMTYPE> v);
 		void erase_these(voxel_set<ELEMTYPE> &vs);
@@ -105,6 +105,7 @@ class voxel_set : public set<voxel<ELEMTYPE>*, voxel_comparator<ELEMTYPE> >
 		void erase_all(); //removes pointers from vector without calling theri constructors...
 		double get_calculated_mean();
 //		double get_accumulated_mean();
+		voxel<ELEMTYPE>* get_median_voxel();
 
 		void set_values_to_voxels_in_this_set_using_image_data(image_general<ELEMTYPE,3> *im);
 

@@ -164,6 +164,7 @@ public:
 
 	image_scalar<ELEMTYPE, IMAGEDIM>* correct_inclined_object_slicewise_after_cg_line(int dir, line3D cg_line, SPACE_TYPE type = VOXEL_SPACE);
 
+
 	//------------------- Filter functions ----------------------
 	image_scalar<ELEMTYPE, IMAGEDIM>* get_gradmagn_filter3D_image_3D(Vector3D from, Vector3D to, GRAD_MAG_TYPE type = XY);
 
@@ -202,6 +203,11 @@ public:
 
 
 	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----
+
+	//------------------- Functions using voxel_set class ----------------------
+	voxel_set<ELEMTYPE> get_voxel_set_from_image_data_3D();
+	voxel_set<ELEMTYPE> get_voxel_set_from_image_data_3D(ELEMTYPE exclude_value);
+//	voxel get_median_voxel_3D(ELEMTYPE *exclude_value=NULL);
 
 	voxel_set<ELEMTYPE> set_val_to_voxel_that_has_no_neighbour_with_val_in_vox_radius(int radius, Vector3Dint pos, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val);
 	voxel_set<ELEMTYPE> set_val_to_voxel_that_has_some_neighbour_with_val_in_vox_radius(int radius, Vector3Dint pos, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val);

@@ -2083,6 +2083,10 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::correct_incl
 }
 
 
+
+	
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3D(int dir, PROJECTION_MODE PROJ)
 { //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 

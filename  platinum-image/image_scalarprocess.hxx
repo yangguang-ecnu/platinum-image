@@ -23,7 +23,52 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+template <class ELEMTYPE, int IMAGEDIM>
+voxel_set<ELEMTYPE> image_scalar<ELEMTYPE, IMAGEDIM>::get_voxel_set_from_image_data_3D()
+{	
+	cout<<"get_voxel_set_from_image_data_3D..."<<endl;
+	voxel_set<ELEMTYPE> vs;
 
+	for(int z=0; z<this->datasize[2]; z++){		
+		for(int y=0; y<this->datasize[1]; y++){
+			for(int x=0; x<this->datasize[0]; x++){
+				vs.insert_voxel(new voxel<ELEMTYPE>(create_Vector3Dint(x,y,z),this->get_voxel(x,y,z)));
+			}
+		}
+	}
+
+	return vs;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+voxel_set<ELEMTYPE> image_scalar<ELEMTYPE, IMAGEDIM>::get_voxel_set_from_image_data_3D(ELEMTYPE exclude_value)
+{	
+	cout<<"get_voxel_set_from_image_data_3D..."<<endl;
+	voxel_set<ELEMTYPE> vs;
+	ELEMTYPE val=0;
+
+	for(int z=0; z<this->datasize[2]; z++){		
+		for(int y=0; y<this->datasize[1]; y++){
+			for(int x=0; x<this->datasize[0]; x++){
+				val = this->get_voxel(x,y,z);
+				if(val != exclude_value){
+					vs.insert_voxel(new voxel<ELEMTYPE>(create_Vector3Dint(x,y,z),val));
+				}
+			}
+		}
+	}
+
+	return vs;
+}
+	 
+/*
+template <class ELEMTYPE, int IMAGEDIM>
+voxel image_scalar<ELEMTYPE, IMAGEDIM>::get_median_voxel_3D(ELEMTYPE *exclude_value)
+{
+	voxel_set vs = get_voxel_set_from_image_data_3D(
+	vs.get_median_voxel();
+}
+*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 voxel_set<ELEMTYPE> image_scalar<ELEMTYPE, IMAGEDIM>::set_val_to_voxel_that_has_no_neighbour_with_val_in_vox_radius(int radius, Vector3Dint pos, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val)
