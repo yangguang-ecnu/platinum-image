@@ -303,7 +303,7 @@ string find_first_sub_dir_containing_dcm_file_with_tag_value(string dir_path, st
 	string result="";
 
 	for(int i=0;i<dirs.size();i++){
-//		cout<<"dirs[i]="<<dirs[i]<<endl;
+		cout<<"dirs[i]="<<dirs[i]<<endl;
 		if(recursive_search){
 			result = find_first_sub_dir_containing_dcm_file_with_tag_value(dirs[i], dcm_tag, tag_val, recursive_search);
 			if(result != ""){
@@ -469,10 +469,10 @@ vector<string> subdirs(string dir_path, bool fullpath)
     {
     trailing_slash(dir_path);
 
-    vector<string> result = get_dir_entries(dir_path,fullpath);
-//	for(int i=0;i<result.size();i++){
-//		cout<<"res="<<result[i]<<endl;
-//	}
+    vector<string> result = get_dir_entries(dir_path,false);
+	for(int i=0;i<result.size();i++){
+		cout<<"res="<<result[i]<<endl;
+	}
 
     vector<string>::iterator dirs = result.begin();
 
@@ -480,8 +480,9 @@ vector<string> subdirs(string dir_path, bool fullpath)
         {
         //sort out items which are not directories
         //or circular references
+		cout<<"*dirs="<<*dirs<<endl;
 
-	       if (*dirs == "." || *dirs == ".." || !dir_exists(dir_path + *dirs) )
+	    if (*dirs == "." || *dirs == ".." || !dir_exists(dir_path + *dirs) )
             {
             result.erase(dirs);
             }
