@@ -303,11 +303,10 @@ class image_general : public image_storage <ELEMTYPE >
 				image_general<ELEMTYPE, IMAGEDIM> *the_image;
 				Vector3Dint seed_pos;
 				Vector3Dint current_pos;
-				int current_radius; //in pixels
 				int current_direction; //0(x) 1(-y) 2(-x) 3(y)
 				int current_dist; //the distance traversed along each line segment....
+				int line_length; //the distance traversed along each line segment....
 				bool first_line_segment; //the distance traversed along each line segment....
-//                ELEMTYPE* ptr;
 
 			public:
 				spiral_2d_iterator(image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint seed);               
@@ -318,6 +317,7 @@ class image_general : public image_storage <ELEMTYPE >
 				ELEMTYPE& operator*();                
 				spiral_2d_iterator& operator++();                
 				void print_all();
+				void print_all_small();
 /*				spiral_2d_iterator& operator++(int);                
 				ELEMTYPE* operator->();
                 ELEMTYPE* pointer();
