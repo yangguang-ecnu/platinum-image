@@ -30,9 +30,9 @@ image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator::spiral_2d_iterator(image_
 	the_image = im;
 	seed_pos = seed;
 	current_pos = seed_pos;
-	current_radius=1;
 	current_direction=0;
 	current_dist=0;
+	line_length=1;
 	first_line_segment=true;
 }
 
@@ -70,12 +70,6 @@ ELEMTYPE& image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator::operator*()
 template <class ELEMTYPE, int IMAGEDIM>
 typename image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator& image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator::operator++()
 {
-//    ptr++;
-	//JK do the spiral logic...
-	//current_pos;
-	//current_radius=1;
-	//current_direction=0;
-	//current_dist=0;
 	
     switch(current_direction){
 		case 0:
@@ -93,21 +87,19 @@ typename image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator& image_general<EL
 	}
 
 	current_dist++;
-
-
-	if(current_dist==2*current_radius-1){
+	
+	if( current_dist==line_length ){
 		current_dist=0;
 
 		current_direction++;
 		current_direction = current_direction%4;
 
-		if(first_line_segment){			//change radius after traversing two line segments...
+		if(first_line_segment){
 			first_line_segment=false;
 		}else{
-			current_radius++;
+			line_length++;				//increase every second iteration
 			first_line_segment=true;
 		}
-
 	}
 
     return *this;
@@ -117,11 +109,16 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator::print_all()
 {
 	cout<<"--------------"<<endl;
-	//the_image = im;
 	cout<<"seed_pos="<<seed_pos<<endl;
 	cout<<"current_pos="<<current_pos<<endl;
-	cout<<"current_radius="<<current_radius<<endl;
+	cout<<"current_direction="<<current_direction<<endl;
 	cout<<"current_dist="<<current_dist<<endl;
 	cout<<"first_line_segment="<<first_line_segment<<endl;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator::print_all_small()
+{
+	cout<<seed_pos<<" "<<current_pos<<" "<<current_direction<<" "<<current_dist<<" ";
+	cout<<line_length<<" "<<first_line_segment<<endl;
+}
