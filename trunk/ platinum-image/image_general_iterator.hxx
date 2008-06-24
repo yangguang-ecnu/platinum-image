@@ -34,6 +34,8 @@ image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator::spiral_2d_iterator(image_
 	current_dist=0;
 	line_length=1;
 	first_line_segment=true;
+	num_elements_visited=1;
+	num_elements_max = the_image->get_size_by_dim(0)*the_image->get_size_by_dim(1);
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -101,9 +103,36 @@ typename image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator& image_general<EL
 			first_line_segment=true;
 		}
 	}
+	if( !the_image->is_voxelpos_within_image_3D(current_pos) ){
+
+		cout<<"*****out******"; print_all_small();
+
+		operator++();
+//		this++; //JK - TODO - when to stop...
+	}else{
+		num_elements_visited++;
+	}
 
     return *this;
 }
+
+
+
+//num_elements_max
+
+template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE* image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator::begin()
+{
+   return *the_image->get_voxel_pointer(seed_pos[0],seed_pos[1],seed_pos[2]);
+//    return(iterator(imagepointer()));
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator::end()
+{
+    return(num_elements_visited>=num_elements_max);
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator::print_all()
@@ -120,5 +149,5 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::spiral_2d_iterator::print_all_small()
 {
 	cout<<seed_pos<<" "<<current_pos<<" "<<current_direction<<" "<<current_dist<<" ";
-	cout<<line_length<<" "<<first_line_segment<<endl;
+	cout<<line_length<<" "<<first_line_segment<<" "<<num_elements_visited<<" ("<<num_elements_max<<")"<<endl;
 }

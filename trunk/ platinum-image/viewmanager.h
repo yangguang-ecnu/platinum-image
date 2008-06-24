@@ -59,7 +59,7 @@ class viewmanager
         void erase_all_connections();
         void connect_views_viewports();
         void manipulate_views_setup();
-        void listviewports();
+        void list_viewports();
         int create_viewport();
         int find_viewport_no_renderer();
         int find_viewport_not_in_view(); // returns -1 if none found

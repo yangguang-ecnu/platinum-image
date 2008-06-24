@@ -43,7 +43,7 @@ viewport::viewport(VIEWPORT_TYPE vpt)
   
     rendererID=NO_RENDERER_ID;
     rendererIndex=-1;
-	needs_re_rendering=true;
+	needs_re_rendering = true;
 
     busyTool = NULL;
 
@@ -263,6 +263,7 @@ bool viewport::render_if_needed()
 {
     if (rendererIndex>=0 && needs_re_rendering)
         {
+		cout<<"viewport::render_if_needed --> viewport_ID="<<ID<<" rendererIndex="<<rendererIndex<<endl;
         rendermanagement.render(rendererIndex, rgbpixmap, rgbpixmap_size[0], rgbpixmap_size[1]);
         needs_re_rendering = false;
         return true;
@@ -328,7 +329,7 @@ void viewport::refresh()
 				}
             
 			the_widget->refresh_menus();
-            needs_re_rendering=true;
+            needs_re_rendering = true;
 
 			the_widget->pane_widget->damage(FL_DAMAGE_ALL); //JK2-check if needed...
             }

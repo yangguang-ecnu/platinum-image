@@ -254,6 +254,7 @@ void vtkFlRenderWindowInteractor::resize( int x, int y, int w, int h ) {
     // resize the FLTK window by calling ancestor method
     Fl_Gl_Window::resize( x, y, w, h ); 
 }
+
 //---------------------------------------------------------------------------
 // main FLTK event handler
 int vtkFlRenderWindowInteractor::handle( int event ) {

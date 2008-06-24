@@ -1395,7 +1395,7 @@ bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D(int vp_x, in
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
-bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D( Vector3D vp )
+bool image_general<ELEMTYPE, IMAGEDIM>::is_voxelpos_within_image_3D( Vector3Dint vp )
 	{
 	return is_voxelpos_within_image_3D(vp[0],vp[1],vp[2]);
 	}

@@ -50,7 +50,7 @@ extern rendermanager rendermanagement;
 extern userIOmanager userIOmanagement;
 viewmanager viewmanagement;
 
-void viewmanager::listviewports()
+void viewmanager::list_viewports()
 {
 	std::cout << "# of viewports: " << viewports.size() << std::endl;
 	for (unsigned int i=0; i < viewports.size(); i++) { std::cout << viewports[i] << std::endl; } 

@@ -78,12 +78,16 @@ string eventnames[] =
 FLTKpane::FLTKpane():Fl_Overlay_Window(0,0,100,100)
 {
 	//FLTKpane(0,0,100,100);
-	this->end();
+	Fl_Button *b = new Fl_Button(10,10,80,80, "FLTKpane()_button");
+	b->color(FL_RED);
+//	this->end();
 }
 
 FLTKpane::FLTKpane(int X,int Y,int W,int H) : Fl_Overlay_Window(X,Y,W,H)
 //FLTKpane::FLTKpane(int X,int Y,int W,int H) : Fl_Window(X,Y,W,H)
 {
+	Fl_Button *b = new Fl_Button(10,10,80,80, "FLTKpane(xywh)_button");
+	b->color(FL_RED);
 //	this->end();
 }
 
@@ -94,19 +98,71 @@ void FLTKpane::needs_rerendering()
 	((FLTKviewport*)this->parent())->viewport_parent->needs_rerendering();
 }
 
+void FLTKpane::resize_content(int w,int h)
+{}
 
-FLTK_VTK_pane::FLTK_VTK_pane()
+
+
+
+FLTK_VTK_pane::FLTK_VTK_pane(): FLTKpane(0,0,100,100)
 {
-	FLTK_VTK_pane(0,0,100,100);
+	cout<<"FLTK_VTK_pane..."<<endl;
+//	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,100,100,"");
+//	this->initialize_vtkRenderWindow();
+//	this->resizable(fl_vtk_window);
+//	this->end();
 }
 
-
-//FLTK_VTK_pane::FLTK_VTK_pane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
 FLTK_VTK_pane::FLTK_VTK_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 {
 	cout<<"FLTK_VTK_pane..."<<endl;
-	vtkFlRenderWindowInteractor *fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,W,H,"");
-    
+//	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,W,H,"");
+//	this->initialize_vtkRenderWindow();
+//	this->resizable(fl_vtk_window);
+//	this->end();
+}
+FLTK_VTK_pane::~FLTK_VTK_pane()
+{
+	delete fl_vtk_window;
+}
+
+void FLTK_VTK_pane::resize_content(int w,int h)
+{
+	cout<<"FLTK_VTK_pane::resize_content("<<w<<","<<h<<")"<<endl;
+	fl_vtk_window->resize(0,0,w,h);
+}
+
+
+void FLTK_VTK_pane::initialize_vtkRenderWindow()
+{}
+
+
+
+//----------------------------------------------------------------
+//----------------------------------------------------------------
+FLTK_VTK_Cone_pane::FLTK_VTK_Cone_pane(): FLTK_VTK_pane(0,0,100,100)
+{
+	cout<<"FLTK_VTK_Cone_pane..."<<endl;
+	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,100,100,"");
+	this->initialize_vtkRenderWindow();
+	this->resizable(fl_vtk_window);
+	this->end();
+}
+
+FLTK_VTK_Cone_pane::FLTK_VTK_Cone_pane(int X,int Y,int W,int H) : FLTK_VTK_pane(X,Y,W,H)
+{
+	cout<<"FLTK_VTK_Cone_pane..."<<endl;
+	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,W,H,"");
+	this->initialize_vtkRenderWindow();
+	this->resizable(fl_vtk_window);
+	this->end();
+}
+
+FLTK_VTK_Cone_pane::~FLTK_VTK_Cone_pane()
+{}
+
+void FLTK_VTK_Cone_pane::initialize_vtkRenderWindow()
+{
 	//--------------------------------------------------
   	vtkRenderWindow *renWindow = vtkRenderWindow::New();
 	vtkRenderer *ren = vtkRenderer::New();
@@ -144,15 +200,197 @@ FLTK_VTK_pane::FLTK_VTK_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 	coneMapper->Delete();
 	coneActor->Delete();
 	//--------------------------------------------------
+}
 
+//----------------------------------------------------------------
+//----------------------------------------------------------------
+
+FLTK_VTK_MIP_pane::FLTK_VTK_MIP_pane(): FLTK_VTK_pane(0,0,100,100)
+{
+	cout<<"FLTK_VTK_MIP_pane..."<<endl;
+	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,100,100,"");
+	this->initialize_vtkRenderWindow();
 	this->resizable(fl_vtk_window);
 	this->end();
 }
 
+FLTK_VTK_MIP_pane::FLTK_VTK_MIP_pane(int X,int Y,int W,int H) : FLTK_VTK_pane(X,Y,W,H)
+{
+	cout<<"FLTK_VTK_MIP_pane..."<<endl;
+	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,W,H,"");
+	this->initialize_vtkRenderWindow();
+	this->resizable(fl_vtk_window);
+	this->end();
+}
+
+FLTK_VTK_MIP_pane::~FLTK_VTK_MIP_pane()
+{}
+
+void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
+{
+	//---------------------------------------------
+	//---------------------------------------------
+	//---------------------------------------------
+
+	vtkRenderer *ren = vtkRenderer::New();  
+	vtkRenderWindow *renWin = vtkRenderWindow::New();
+	renWin->AddRenderer(ren);
+
+  	// uncomment the statement below if things aren't rendering 100% on your
+	// configuration; the debug output could give you clues as to why
+	//renWindow->DebugOn();
+	   
+	// Here we treat the vtkFlRenderWindowInteractor just like any other old vtkRenderWindowInteractor
+	fl_vtk_window->SetRenderWindow(renWin);
+
+	// just like with any other vtkRenderWindowInteractor(), you HAVE to call
+	// Initialize() before the interactor will function.  See the docs in vtkRenderWindowInteractor.h
+	fl_vtk_window->Initialize();
+
+
+
+	// Read the data from a vtk file
+	vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
+	reader->SetFileName("D:/Joel/TMP/750001_WML01.vtk");
+	reader->Update();
+
+	// Create a transfer function mapping scalar value to opacity
+//	vtkPiecewiseFunction *oTFun2 = vtkPiecewiseFunction::New();
+//	oTFun2->AddSegment(  0, 0.0, 128, 1.0);
+//	oTFun2->AddSegment(128, 1.0, 255, 0.0);
+
+	// Create a transfer function mapping scalar value to color (grey)
+//	vtkPiecewiseFunction *gTFun = vtkPiecewiseFunction::New();
+//	gTFun->AddSegment(0, 1.0, 255, 1.0);
+   
+//	vtkPiecewiseFunction *tfun = vtkPiecewiseFunction::New();
+//	tfun->AddPoint(70.0, 0.0);
+//	tfun->AddPoint(599.0, 0);
+//	tfun->AddPoint(600.0, 0);
+//	tfun->AddPoint(1195.0, 0);
+//	tfun->AddPoint(1200, .2);
+//	tfun->AddPoint(1300, .3);
+//	tfun->AddPoint(2000, .3);
+//	tfun->AddPoint(4095.0, 1.0);
+
+	// Create a transfer function mapping scalar value to color (color)
+//	vtkColorTransferFunction *cTFun = vtkColorTransferFunction::New();
+//	cTFun->AddRGBPoint(   0, 1.0, 0.0, 0.0 ); //xrgb
+//	cTFun->AddRGBPoint(  64, 1.0, 1.0, 0.0 );
+//	cTFun->AddRGBPoint( 128, 0.0, 1.0, 0.0 );
+//	cTFun->AddRGBPoint( 192, 0.0, 1.0, 1.0 );
+//	cTFun->AddRGBPoint( 255, 0.0, 0.0, 1.0 );
+  
+ 
+	//Transfer functions from http://noodle.med.yale.edu/~papad/seminar/html/lecture5_files/v3_document.htm :
+	//....................................................
+	// Create transfer mapping scalar value to opacity
+	vtkPiecewiseFunction *opacityTF = vtkPiecewiseFunction::New();
+	opacityTF->AddSegment(0, 0.1, 600, 0.9);
+
+	// Create transfer mapping scalar value to color
+//	vtkColorTransferFunction *colorTF = vtkColorTransferFunction::New();
+//  colorTF->AddRGBPoint(0.0, 0.0, 0.0, 0.0);
+//  colorTF->AddRGBPoint(255.0, 1.0, 1.0, 1.0);
+
+	// Create a transfer function mapping scalar value to color (grey)
+	vtkPiecewiseFunction *grayTransferFunction = vtkPiecewiseFunction::New();
+    grayTransferFunction->AddSegment( 0 , 0.0 , 600 , 1.0 );
+	//....................................................
+
+
+  
+	// Create mip ray functions
+//	vtkVolumeRayCastMIPFunction *MIPFunction1 = vtkVolumeRayCastMIPFunction::New();
+//	MIPFunction1->SetMaximizeMethodToScalarValue();
+
+
+  
+	vtkVolume *volumeMIP = vtkVolume::New();
+
+	// Create mip properties
+	vtkVolumeProperty *mipprop = vtkVolumeProperty::New();
+	mipprop->SetScalarOpacity(opacityTF); // oTFun2/opacityTF/tFun
+	mipprop->SetInterpolationTypeToLinear(); // alt ToLinear/ToNearest
+	mipprop->SetColor(grayTransferFunction); // gTFun/cTFun/colorTF/grayTransferFunction
+
+	volumeMIP->SetProperty(mipprop);
+	volumeMIP->AddPosition(10,20,30);
+	ren->AddViewProp(volumeMIP);
+
+	vtkFiniteDifferenceGradientEstimator *gradest = vtkFiniteDifferenceGradientEstimator::New();
+	vtkVolumeRayCastMIPFunction *MIPFunction2 = vtkVolumeRayCastMIPFunction::New();
+	MIPFunction2->SetMaximizeMethodToOpacity(); //verkar vid första anblick bättre för oss..
+
+	vtkVolumeRayCastMapper *raycastMapperMIP = vtkVolumeRayCastMapper::New();
+    raycastMapperMIP->SetInputConnection(reader->GetOutputPort());
+    raycastMapperMIP->SetGradientEstimator(gradest);
+	raycastMapperMIP->SetVolumeRayCastFunction(MIPFunction2);  // MIPFunction1/2 
+
+	volumeMIP->SetMapper(raycastMapperMIP);
+
+   // Create a text mapper and actor to display the results of picking.
+
+
+	ren->ResetCamera();
+//	ren->GetActiveCamera()->Zoom(1.5);
+  
+//	renWin->SetSize(710,500);
+//	renWin->Render();
+
+	// Interact with the data at 3 frames per second
+//	fl_vtk_window->SetDesiredUpdateRate(3.0);
+//	fl_vtk_window->SetStillUpdateRate(0.001);
+
+	fl_vtk_window->Initialize();
+//	fl_vtk_window->Start();
+
+
+	// Clean up
+	reader->Delete();
+//	oTFun2->Delete();
+//	cTFun->Delete();
+//	tfun->Delete();
+//	gTFun->Delete();
+	opacityTF->Delete();
+	mipprop->Delete();
+//	MIPFunction1->Delete();
+	MIPFunction2->Delete();
+	gradest->Delete();
+	volumeMIP->Delete();
+	raycastMapperMIP->Delete();
+	ren->Delete();
+//	fl_vtk_window->Delete();
+	renWin->Delete();
+}
+
+
+
+/*
+FLTKpane2::FLTKpane2(): FLTKpane(0,0,100,100)
+{
+	cout<<"FLTKpane2()..."<<endl;
+	Fl_Button *b = new Fl_Button(10,10,80,80, "FLTKpane2()_button");
+	b->color(FL_YELLOW);
+
+	this->end();
+}
+
+FLTKpane2::FLTKpane2(int X,int Y,int W,int H): FLTKpane(X,Y,W,H)
+{
+	cout<<"FLTKpane2(xywh)..."<<endl;
+	Fl_Button *b = new Fl_Button(10,10,80,80, "FLTKpane2(xywh)_button");
+	b->color(FL_YELLOW);
+	this->end();
+}
+*/
+
 
 
 FLTK_Event_pane::FLTK_Event_pane(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
-{}
+{
+	cout<<"FLTK_Event_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
+}
 
 int FLTK_Event_pane::handle(int event){
 //	cout<<"FLTK_Event_pane::handle("<<eventnames[event]<<") ";
@@ -193,51 +431,39 @@ return 1;//	return Fl_Widget::handle(event);
 }
 
 
-void FLTK_Event_pane::draw()
-{}
+void FLTK_Event_pane::draw(){}
 
 
 
 
-FLTK_Pt_pane::FLTK_Pt_pane()
+FLTK_Pt_pane::FLTK_Pt_pane():FLTKpane(0,0,100,100)
 {
-	FLTK_Pt_pane(0,0,100,100);
-}
-
-/*
-FLTK_Pt_pane::FLTK_Pt_pane() : FLTKpane(0,0,1000,1000)
-{
-	cout<<"FLTK_Pt_pane..."<<endl;
-	//cout<<"FLTK_Pt_pane::FLTK_Pt_pane "<<X<<" "<<Y<<" "<<W<<" "<<H<<endl;
+	cout<<"FLTK_Pt_pane()"<<endl;
 	event_pane = new FLTK_Event_pane(0,0,100,100);
 
-	Fl_Button *b = new Fl_Button(10,10,500,500, "pt_pane()_button");
+	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane()_button");
 	b->color(FL_BLUE);
 
 	callback_action=CB_ACTION_NONE;
+ //   this->box(FL_BORDER_BOX);
+//    this->align(FL_ALIGN_CLIP);
 	this->resizable(event_pane);			//Make sure thes is resized too...
 	this->end();
-    this->box(FL_BORDER_BOX);
-    this->align(FL_ALIGN_CLIP);
 }
-*/
+
 
 //FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
 FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 {
 	cout<<"FLTK_Pt_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
-//	Fl_Group::current(this); //jk2
+	event_pane = new FLTK_Event_pane(X,Y,W,H);
 
-	//cout<<"FLTK_Pt_pane::FLTK_Pt_pane "<<X<<" "<<Y<<" "<<W<<" "<<H<<endl;
-	event_pane = new FLTK_Event_pane(0,0,W,H);
-//	event_pane->color(FL_BLUE);
-  //  event_pane->box(FL_UP_BOX);
-	Fl_Button *b = new Fl_Button(10,10,200,50, "pt_pane(xywh)_button");
-	b->color(FL_RED);
+	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane(xywh)_button");
+	b->color(FL_BLUE);
 
 	callback_action=CB_ACTION_NONE;
-    this->box(FL_BORDER_BOX);
-    this->align(FL_ALIGN_CLIP);
+//    this->box(FL_BORDER_BOX);
+//    this->align(FL_ALIGN_CLIP);
 	this->resizable(event_pane);			//Make sure thes is resized too...
 	this->end();
 }
@@ -257,7 +483,7 @@ void FLTK_Pt_pane::draw()
 {
     //The draw() virtual method is called when FLTK wants you to redraw your widget.
     //It will be called if and only if damage()  is non-zero, and damage() will be cleared to zero after it returns
-	//cout<<"FLTK_Pt_pane::draw()..."<<endl;
+	cout<<"FLTK_Pt_pane::draw()..."<<endl;
     callback_event = viewport_event(pt_event::draw,this);
     //callback_event.FLTK_event::attach (this);
 	//pane_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
@@ -267,8 +493,8 @@ void FLTK_Pt_pane::draw()
 
 void FLTK_Pt_pane::draw(unsigned char *rgbimage)
 {
-//	cout<<"FLTK_Pt_pane::draw(unsigned char *rgbimage)..."<<endl;
-//	cout<<"("<<x()<<" "<<y()<<" "<<w()<<" "<<h()<<")"<<endl;
+	cout<<"FLTK_Pt_pane::draw(unsigned char *rgbimage)..."<<endl;
+	cout<<"("<<x()<<" "<<y()<<" "<<w()<<" "<<h()<<")"<<endl;
     const int D=RGBpixmap_bytesperpixel;
 
     //damage (FL_DAMAGE_ALL);
@@ -278,6 +504,7 @@ void FLTK_Pt_pane::draw(unsigned char *rgbimage)
         // do not redraw zero-sized viewport, fl_draw_image will break down
 		
 		fl_draw_image(rgbimage,0,0,w(),h());
+
 
 /*		This code is probably not needed anymore:
 
@@ -313,6 +540,12 @@ void FLTK_Pt_pane::resize(int new_in_x,int new_in_y, int new_in_w,int new_in_h){
     resize_w=w(); resize_h=h();
 }
 
+void FLTK_Pt_pane::resize_content(int w,int h)
+{
+	cout<<"FLTK_Pt_pane::resize_content("<<w<<","<<h<<")"<<endl;
+	event_pane->resize(0,0,w,h);
+}
+
 void FLTK_Pt_pane::do_callback (callbackAction action)
 {
     callback_action=action;
@@ -338,9 +571,7 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
     
     renderermenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight,"Renderer");
 	//The factory below returnsconnects the  
-//	renderermenu_button->copy(rendermanager::renderer_factory.menu(cb_renderer_select,(void*)this)); 
-	renderermenu_button->copy(rendermanager::renderer_factory2.menu(cb_renderer_select3,(void*)this)); 
-//	renderermenu_button->copy(viewport_parent->pfactory.get_FLTK_menu(cb_renderer_select2)); //JK2
+	renderermenu_button->copy(rendermanager::renderer_factory.menu(cb_renderer_select3,(void*)this)); 
     renderermenu_button->user_data(NULL);
     
     //direction menu is constant for each viewport
@@ -417,19 +648,16 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
     viewport_buttons->end();
     
 
-
-//	Fl_Group::current(NULL); //JK-ööö
-//  pane_widget = new FLTK_Pt_pane(xpos,ypos+buttonheight,width,height-buttonheight);
+	// -------------- pane_widget -------------------
 
 	if(viewport_parent->vp_type == PT_MPR){
 		pane_widget = new FLTK_Pt_pane(0,0+buttonheight,width,height-buttonheight);
-//		pane_widget = new FLTK_Pt_pane();
 	}else{
-		pane_widget = new FLTK_VTK_pane(0,0+buttonheight,width,height-buttonheight);
+		pane_widget = new FLTK_VTK_Cone_pane(0,0+buttonheight,width,height-buttonheight);
 	}
-
 	pane_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
 
+	// -------------- pane_widget -------------------
 
 	this->resizable(pane_widget);
     this->end();
@@ -620,21 +848,72 @@ void FLTKviewport::cb_renderer_select2(Fl_Widget *o, void *v)
 void FLTKviewport::cb_renderer_select3(Fl_Widget *o, void *v)
 {
     listedfactory<FLTKpane>::lf_menu_params *par = reinterpret_cast<listedfactory<FLTKpane>::lf_menu_params *>(v);
+	FLTKviewport *owner_FLTKviewport = (FLTKviewport*)par->receiver;
     //par->receiver; //the viewport
     //par->Create(); //the new renderer
     const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
-    
-	cout<<"cb_renderer_select3-->id="<<((FLTKviewport*)par->receiver)->viewport_parent->get_id()<<endl;
-	FLTKpane* new_pane = rendermanager::renderer_factory2.Create(par->type);
+   
+	//cout<<"Fl_Group::current()="<<Fl_Group::current()<<endl;
+	Fl_Group::current(owner_FLTKviewport);
+	//cout<<"Fl_Group::current()="<<Fl_Group::current()<<endl;
+	//Fl_Group::current(NULL);
 
-	((FLTKviewport*)par->receiver)->cb_renderer_select3b( (FLTK_Pt_pane*)new_pane );
+	int x = owner_FLTKviewport->pane_widget->x();
+	int y = owner_FLTKviewport->pane_widget->y();
+	int w = owner_FLTKviewport->pane_widget->w();
+	int h = owner_FLTKviewport->pane_widget->h();
+	//cout<<"child="<<owner_FLTKviewport->children()<<endl;
+	owner_FLTKviewport->pane_widget->parent()->remove(owner_FLTKviewport->pane_widget);
+	//cout<<"child="<<owner_FLTKviewport->children()<<endl;
+//	this->remove(pane_widget);
+
+	delete owner_FLTKviewport->pane_widget;
+
+	//cout<<"child="<<owner_FLTKviewport->children()<<endl;
+	
+//	FLTKpane *new_pane=;
+
+	//cout<<"Fl_Group::current()="<<Fl_Group::current()<<endl;
+	Fl_Group::current(owner_FLTKviewport);
+	//cout<<"Fl_Group::current()="<<Fl_Group::current()<<endl;
+
+//	owner_FLTKviewport->pane_widget = new FLTK_Pt_pane(x,y,w,h);
+//	owner_FLTKviewport->pane_widget = new FLTK_VTK_Cone_pane();
+	owner_FLTKviewport->pane_widget = rendermanager::renderer_factory.Create(par->type);
+
+	owner_FLTKviewport->pane_widget->x(x);
+	owner_FLTKviewport->pane_widget->y(y);
+	owner_FLTKviewport->pane_widget->w(w);
+	owner_FLTKviewport->pane_widget->h(h);
+	owner_FLTKviewport->pane_widget->resize_content(w,h);
+
+	owner_FLTKviewport->pane_widget->callback(viewport_callback, owner_FLTKviewport); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
+
+	
+//	((FLTK_Pt_pane*)owner_FLTKviewport->pane_widget)->needs_rerendering();
+//	owner_FLTKviewport->viewport_parent->render_if_needed();
+//	owner_FLTKviewport->end();
+
+//	owner_FLTKviewport->add(owner_FLTKviewport->pane_widget);
+	//cout<<"child="<<owner_FLTKviewport->children()<<endl;
+	cout<<"shown()"<<owner_FLTKviewport->pane_widget->shown()<<endl;
+	owner_FLTKviewport->pane_widget->show();
+	cout<<"shown()"<<owner_FLTKviewport->pane_widget->shown()<<endl;
+
+	viewmanagement.list_viewports();
+
+//	owner_FLTKviewport->pane_widget->damage(FL_DAMAGE_ALL);
+//	owner_FLTKviewport->pane_widget->redraw();
+
+//	owner_FLTKviewport->cb_renderer_select3b( (FLTKpane*)new_pane );
+//	owner_FLTKviewport->cb_renderer_select3b( new_pane );
+//	owner_FLTKviewport->cb_renderer_select3b( NULL );
     
     const_cast<Fl_Menu_Item *>(item)->setonly();
 }
 
-void FLTKviewport::cb_renderer_select3b(FLTK_Pt_pane* new_pane)
+void FLTKviewport::cb_renderer_select3b(FLTKpane* new_pane)
 {
-	Fl_Group::current(this);
 
 	cout<<"id="<<this->viewport_parent->get_id()<<endl;
 
@@ -644,13 +923,19 @@ void FLTKviewport::cb_renderer_select3b(FLTK_Pt_pane* new_pane)
 	int h = this->pane_widget->h();
 	cout<<"x,y,w,h "<<this->x()<<","<<this->y()<<","<<this->w()<<","<<this->h()<<endl;
 
+	cout<<"child="<<this->children()<<endl;
+	pane_widget->parent()->remove(pane_widget);
+	cout<<"child="<<this->children()<<endl;
+//	this->remove(pane_widget);
 	delete this->pane_widget;
+	cout<<"child="<<this->children()<<endl;
 
 
 //	this->pane_widget = new FLTK_Pt_pane(x, y, w, h);
-	this->pane_widget = new FLTK_VTK_pane(x, y, w, h);
+
 //	this->pane_widget = new_pane; //JK2 memory leak...
-	this->add(this->pane_widget);
+//	this->add(this->pane_widget);
+//	this->pane_widget->show();
 
 //	this->pane_widget->x(0);
 //	this->pane_widget->y(25);
