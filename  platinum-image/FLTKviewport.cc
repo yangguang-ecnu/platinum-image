@@ -228,10 +228,6 @@ FLTK_VTK_MIP_pane::~FLTK_VTK_MIP_pane()
 
 void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 {
-	//---------------------------------------------
-	//---------------------------------------------
-	//---------------------------------------------
-
 	vtkRenderer *ren = vtkRenderer::New();  
 	vtkRenderWindow *renWin = vtkRenderWindow::New();
 	renWin->AddRenderer(ren);
@@ -248,64 +244,23 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	fl_vtk_window->Initialize();
 
 
+	//--------------------------------------------
 
 	// Read the data from a vtk file
 	vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
-	reader->SetFileName("D:/Joel/TMP/750001_WML01.vtk");
+//	reader->SetFileName("D:/Joel/TMP/750001_WML01.vtk");
+	reader->SetFileName("D:/Joel/TMP/brain.vtk");
 	reader->Update();
-
-	// Create a transfer function mapping scalar value to opacity
-//	vtkPiecewiseFunction *oTFun2 = vtkPiecewiseFunction::New();
-//	oTFun2->AddSegment(  0, 0.0, 128, 1.0);
-//	oTFun2->AddSegment(128, 1.0, 255, 0.0);
-
-	// Create a transfer function mapping scalar value to color (grey)
-//	vtkPiecewiseFunction *gTFun = vtkPiecewiseFunction::New();
-//	gTFun->AddSegment(0, 1.0, 255, 1.0);
-   
-//	vtkPiecewiseFunction *tfun = vtkPiecewiseFunction::New();
-//	tfun->AddPoint(70.0, 0.0);
-//	tfun->AddPoint(599.0, 0);
-//	tfun->AddPoint(600.0, 0);
-//	tfun->AddPoint(1195.0, 0);
-//	tfun->AddPoint(1200, .2);
-//	tfun->AddPoint(1300, .3);
-//	tfun->AddPoint(2000, .3);
-//	tfun->AddPoint(4095.0, 1.0);
-
-	// Create a transfer function mapping scalar value to color (color)
-//	vtkColorTransferFunction *cTFun = vtkColorTransferFunction::New();
-//	cTFun->AddRGBPoint(   0, 1.0, 0.0, 0.0 ); //xrgb
-//	cTFun->AddRGBPoint(  64, 1.0, 1.0, 0.0 );
-//	cTFun->AddRGBPoint( 128, 0.0, 1.0, 0.0 );
-//	cTFun->AddRGBPoint( 192, 0.0, 1.0, 1.0 );
-//	cTFun->AddRGBPoint( 255, 0.0, 0.0, 1.0 );
   
- 
-	//Transfer functions from http://noodle.med.yale.edu/~papad/seminar/html/lecture5_files/v3_document.htm :
-	//....................................................
 	// Create transfer mapping scalar value to opacity
 	vtkPiecewiseFunction *opacityTF = vtkPiecewiseFunction::New();
 	opacityTF->AddSegment(0, 0.1, 600, 0.9);
 
-	// Create transfer mapping scalar value to color
-//	vtkColorTransferFunction *colorTF = vtkColorTransferFunction::New();
-//  colorTF->AddRGBPoint(0.0, 0.0, 0.0, 0.0);
-//  colorTF->AddRGBPoint(255.0, 1.0, 1.0, 1.0);
-
 	// Create a transfer function mapping scalar value to color (grey)
 	vtkPiecewiseFunction *grayTransferFunction = vtkPiecewiseFunction::New();
     grayTransferFunction->AddSegment( 0 , 0.0 , 600 , 1.0 );
-	//....................................................
-
-
   
-	// Create mip ray functions
-//	vtkVolumeRayCastMIPFunction *MIPFunction1 = vtkVolumeRayCastMIPFunction::New();
-//	MIPFunction1->SetMaximizeMethodToScalarValue();
 
-
-  
 	vtkVolume *volumeMIP = vtkVolume::New();
 
 	// Create mip properties
@@ -316,51 +271,34 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 
 	volumeMIP->SetProperty(mipprop);
 	volumeMIP->AddPosition(10,20,30);
-	ren->AddViewProp(volumeMIP);
 
-	vtkFiniteDifferenceGradientEstimator *gradest = vtkFiniteDifferenceGradientEstimator::New();
-	vtkVolumeRayCastMIPFunction *MIPFunction2 = vtkVolumeRayCastMIPFunction::New();
-	MIPFunction2->SetMaximizeMethodToOpacity(); //verkar vid första anblick bättre för oss..
+	vtkVolumeRayCastMIPFunction *MIPFunction = vtkVolumeRayCastMIPFunction::New();
+//	MIPFunction->SetMaximizeMethodToOpacity(); //verkar vid första anblick bättre för oss..
+	MIPFunction->SetMaximizeMethodToScalarValue();
 
 	vtkVolumeRayCastMapper *raycastMapperMIP = vtkVolumeRayCastMapper::New();
     raycastMapperMIP->SetInputConnection(reader->GetOutputPort());
-    raycastMapperMIP->SetGradientEstimator(gradest);
-	raycastMapperMIP->SetVolumeRayCastFunction(MIPFunction2);  // MIPFunction1/2 
+	//raycastMapperMIP->SetGradientEstimator(gradest);
+	raycastMapperMIP->SetVolumeRayCastFunction(MIPFunction);  // MIPFunction1/2 
 
 	volumeMIP->SetMapper(raycastMapperMIP);
-
-   // Create a text mapper and actor to display the results of picking.
-
+	ren->AddViewProp(volumeMIP);
 
 	ren->ResetCamera();
-//	ren->GetActiveCamera()->Zoom(1.5);
-  
-//	renWin->SetSize(710,500);
-//	renWin->Render();
-
-	// Interact with the data at 3 frames per second
-//	fl_vtk_window->SetDesiredUpdateRate(3.0);
+	
+	fl_vtk_window->SetDesiredUpdateRate(3.0);
 //	fl_vtk_window->SetStillUpdateRate(0.001);
-
 	fl_vtk_window->Initialize();
 //	fl_vtk_window->Start();
 
-
 	// Clean up
 	reader->Delete();
-//	oTFun2->Delete();
-//	cTFun->Delete();
-//	tfun->Delete();
-//	gTFun->Delete();
 	opacityTF->Delete();
 	mipprop->Delete();
-//	MIPFunction1->Delete();
-	MIPFunction2->Delete();
-	gradest->Delete();
+	MIPFunction->Delete();
 	volumeMIP->Delete();
 	raycastMapperMIP->Delete();
 	ren->Delete();
-//	fl_vtk_window->Delete();
 	renWin->Delete();
 }
 

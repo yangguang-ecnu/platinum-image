@@ -63,7 +63,9 @@
 //Test - vtkFlRenderWindowInteractor -  here we have all the usual VTK stuff that we need for our pipeline
 
 #include "Utilities/vtkFl/vtkFlRenderWindowInteractor.h"
-//#include "Utilities/vtkFl/vtkFlRenderWindowInteractor.cxx"
+
+//------------------------------------
+//FLTK_VTK_Cone_pane
 
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -73,29 +75,19 @@
 #include <vtkProperty.h>
 #include <vtkActor.h>
 
-//--888---
-#include "vtkFiniteDifferenceGradientEstimator.h"
+//------------------------------------
+//FLTK_VTK_MIP_pane
+
 #include "vtkPiecewiseFunction.h"
-#include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-//#include "vtkVolumeRayCastIsosurfaceFunction.h"
 #include "vtkVolumeRayCastMIPFunction.h"
 #include "vtkVolumeRayCastMapper.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkImageShiftScale.h"
 #include "vtkVolumeMapper.h"
-#include "vtkVolumeRayCastMapper.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkVolume16Reader.h"
-#include "vtkActor.h"
 #include "vtkDataSetMapper.h"
-#include "vtkProperty.h"
-#include "vtkTextMapper.h"
-#include "vtkTextProperty.h"
-#include "vtkActor2D.h"
-//--888---
 
 //------------------------------------
 
