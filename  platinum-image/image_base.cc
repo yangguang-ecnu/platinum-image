@@ -566,6 +566,10 @@ image_base *dicomloader::read()
 									result = new image_integer<unsigned char>();
 									((image_integer<unsigned char>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
 									break;
+								case itk::ImageIOBase::CHAR:
+									result = new image_integer<char>();
+									((image_integer<char>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
+									break;
 								case itk::ImageIOBase::USHORT:
 									result = new image_integer<unsigned short>();
 									((image_integer<unsigned short>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
@@ -573,6 +577,14 @@ image_base *dicomloader::read()
 								case itk::ImageIOBase::SHORT:
 									result = new image_integer<short>();
 									((image_integer<short>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
+									break;
+								case itk::ImageIOBase::UINT:
+									result = new image_integer<unsigned int>();
+									((image_integer<unsigned int>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
+									break;
+								case itk::ImageIOBase::INT:
+									result = new image_integer<int>();
+									((image_integer<int>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
 									break;
 								case itk::ImageIOBase::FLOAT:
 									result = new image_integer<float>();

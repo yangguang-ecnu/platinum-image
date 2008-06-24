@@ -142,7 +142,7 @@ class image_general : public image_storage <ELEMTYPE >
 		float get_num_voxels_per_dm3();
 
 		bool is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z);  
-		bool is_voxelpos_within_image_3D(Vector3D vp);  
+		bool is_voxelpos_within_image_3D(Vector3Dint vp);  
 		bool is_voxelpos_inside_image_border_3D(int vp_x, int vp_y, int vp_z, int dist=1);
 		bool is_voxelpos_inside_image_border_3D(Vector3D vp, int dist=1);  
 		bool is_physical_pos_within_image_3D(Vector3D phys_pos);
@@ -307,6 +307,8 @@ class image_general : public image_storage <ELEMTYPE >
 				int current_dist; //the distance traversed along each line segment....
 				int line_length; //the distance traversed along each line segment....
 				bool first_line_segment; //the distance traversed along each line segment....
+				unsigned long num_elements_visited;
+				unsigned long num_elements_max;
 
 			public:
 				spiral_2d_iterator(image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint seed);               
@@ -316,6 +318,10 @@ class image_general : public image_storage <ELEMTYPE >
 				bool operator!=(const spiral_2d_iterator& other);                
 				ELEMTYPE& operator*();                
 				spiral_2d_iterator& operator++();                
+
+				ELEMTYPE* begin();        
+				bool end();
+
 				void print_all();
 				void print_all_small();
 /*				spiral_2d_iterator& operator++(int);                

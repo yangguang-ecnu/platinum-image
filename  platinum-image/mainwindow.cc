@@ -164,7 +164,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
 
     viewmanagement.setup_views(0, view_w, view_h); // 0...antal som anv‰nds-1
 
-    //viewmanagement.listviewports();
+    //viewmanagement.list_viewports();
     
 #pragma mark *** Create tool area ***
     

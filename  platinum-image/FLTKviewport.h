@@ -5,6 +5,16 @@
 //  FLTK implementation of the central pane of each viewport that
 //  displays the rendered image and can be clicked/dragged in.
 //
+//	Class structure:
+//	FLTKviewport
+//		FL_widgets
+//		FLTKpane
+//			FLTK_Pt_pane
+//				FLTK_Event_pane		//Catches mouse events
+//			FLTK_VTK_pane
+//				FLTK_VTK_Cone_pane	//Displays an example cone...
+//				FLTK_VTK_MIP_pane	//Volume-Renders (MIP) the top image... (Not implemented yet...)
+//
 //
 
 // This file is part of the Platinum library.
@@ -62,6 +72,31 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkActor.h>
+
+//--888---
+#include "vtkFiniteDifferenceGradientEstimator.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkStructuredPoints.h"
+#include "vtkStructuredPointsReader.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
+//#include "vtkVolumeRayCastIsosurfaceFunction.h"
+#include "vtkVolumeRayCastMIPFunction.h"
+#include "vtkVolumeRayCastMapper.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkImageShiftScale.h"
+#include "vtkVolumeMapper.h"
+#include "vtkVolumeRayCastMapper.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkVolume16Reader.h"
+#include "vtkActor.h"
+#include "vtkDataSetMapper.h"
+#include "vtkProperty.h"
+#include "vtkTextMapper.h"
+#include "vtkTextProperty.h"
+#include "vtkActor2D.h"
+//--888---
+
 //------------------------------------
 
 
@@ -93,10 +128,15 @@ class FLTKpane : public Fl_Overlay_Window //JK2
 	private:
 		virtual void draw_overlay(){};		//FLTK_Pt_pane implements this....
 
+
 	public:
 	    FLTKpane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
 	    FLTKpane(int X,int Y,int W,int H);  //constructor
 		void needs_rerendering();			//passes this on to the "viewport_parent"...
+	    virtual void resize_content(int w,int h);
+		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
+            {return "base_key";}
+
 };
 
 
@@ -105,19 +145,58 @@ class FLTKpane : public Fl_Overlay_Window //JK2
 //class FLTK_VTK_pane : public Fl_Overlay_Window
 class FLTK_VTK_pane : public FLTKpane
 {
-//		vtkFlRenderWindowInteractor *fl_vtk_window; //JK-ööö simple test...
 	private:
+
+	protected:
+		vtkFlRenderWindowInteractor *fl_vtk_window;
+		virtual void initialize_vtkRenderWindow();
 
 	public:
 	    FLTK_VTK_pane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
 	    FLTK_VTK_pane(int X,int Y,int W,int H);  //constructor
+	    ~FLTK_VTK_pane();
+	    void resize_content(int w,int h);
 
 		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
             {return "FLTK_VTK_pane";}
 };
 
+class FLTK_VTK_Cone_pane : public FLTK_VTK_pane
+{
+	private:
+		void initialize_vtkRenderWindow();
 
+	public:
+	    FLTK_VTK_Cone_pane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
+	    FLTK_VTK_Cone_pane(int X,int Y,int W,int H);  //constructor
+	    ~FLTK_VTK_Cone_pane();
 
+		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
+            {return "FLTK_VTK_Cone_pane";}
+};
+
+class FLTK_VTK_MIP_pane : public FLTK_VTK_pane
+{
+	private:
+		void initialize_vtkRenderWindow();
+
+	public:
+	    FLTK_VTK_MIP_pane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
+	    FLTK_VTK_MIP_pane(int X,int Y,int W,int H);  //constructor
+	    ~FLTK_VTK_MIP_pane();
+
+		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
+            {return "FLTK_VTK_MIP_pane";}
+};
+
+/*
+class FLTKpane2 : public FLTKpane
+{
+	public:
+	    FLTKpane2();
+	    FLTKpane2(int X,int Y,int W,int H);
+};
+*/
 
 //---------------------------------------------
 //---------------------------------------------
@@ -150,8 +229,10 @@ class FLTK_Pt_pane : public FLTKpane
 											//our "active" draw method - will redraw directly whenever it is called
                                             //this method draws the argument rgbimage AND
                                             //feedback (coordinates, cursor)
-	    void resize (int new_x,int new_y,int new_w,int new_h);
+	    void resize(int new_x,int new_y,int new_w,int new_h);
 //	    int handle(int event);
+	    void resize_content(int w,int h);
+
 
         static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
             {return "undef";}
@@ -162,7 +243,7 @@ class FLTK_Pt_pane : public FLTKpane
 
         void draw();                //FLTK draw call - called when FLTK wants the viewport updated
 
-	    void draw_feedback();       //draws the cursor
+//	    void draw_feedback();       //draws the cursor
 	   
         std::string feedback_string;      //info (coordinates and such)
 		void do_callback (callbackAction action = CB_ACTION_NONE);  //do callback with specified action
@@ -200,7 +281,7 @@ private:
     static void cb_renderer_select(Fl_Widget *o, void *v);
     static void cb_renderer_select2(Fl_Widget *o, void *v); //JK2
     static void cb_renderer_select3(Fl_Widget *o, void *v); //JK2
-    void cb_renderer_select3b(FLTK_Pt_pane* new_pane); //JK2
+    void cb_renderer_select3b(FLTKpane* new_pane); //JK2
     void rebuild_blendmode_menu();//update checkmark for current blend mode
 	
 	

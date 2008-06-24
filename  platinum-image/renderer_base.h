@@ -66,7 +66,6 @@ public:
 	renderer_base();
     virtual ~renderer_base() {}
     
-    //static listedfactory<renderer_base> renderer_factory;
     
     // renderer_base(const renderer_base &k) { *this=k; ::renderer_base(); }
     

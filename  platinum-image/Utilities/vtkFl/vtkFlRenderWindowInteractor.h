@@ -36,7 +36,6 @@ class vtkFlRenderWindowInteractor : public Fl_Gl_Window, public vtkRenderWindowI
    // Fl_Gl_Window overrides
    void flush(void);
    void draw( void );
-   void resize( int x, int y, int w, int h );
    int  handle( int event );
 
  public:
@@ -59,6 +58,9 @@ class vtkFlRenderWindowInteractor : public Fl_Gl_Window, public vtkRenderWindowI
    int DestroyTimer();
    void OnTimer(void);
    void TerminateApp();
+
+   void resize( int x, int y, int w, int h ); //JK - was previously protected...
+
   };
 
 #endif

@@ -60,7 +60,8 @@ template<typename BaseClassType>
 class listedfactory
 {
 protected:
-    typedef BaseClassType *(*CreateObjectFunc)();
+    typedef BaseClassType *(*CreateObjectFunc)(); //JK
+//    typedef BaseClassType *(*CreateObjectFunc)(int x,int y,int w,int h);
     std::map<factoryIdType, CreateObjectFunc> m_object_creator;
     
 public:
@@ -110,8 +111,9 @@ public:
         return (m_object_creator.erase(unique_id) == 1);
 	}
     
-    BaseClassType *Create(factoryIdType unique_id)
 //    static BaseClassType *Create(factoryIdType unique_id)
+    BaseClassType *Create(factoryIdType unique_id)
+//    BaseClassType *Create(factoryIdType unique_id, int x, int y, int w, int h)
     {
         Iterator iter = m_object_creator.find(unique_id);
         
@@ -119,6 +121,7 @@ public:
             return NULL;
         
         return ((*iter).second)();
+//        return ((*iter).second)(x, y, w, h);
     }
     
     ConstIterator begin() const{return m_object_creator.begin();}
