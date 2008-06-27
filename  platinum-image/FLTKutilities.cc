@@ -230,7 +230,7 @@ FLTK_Editable_Slider::FLTK_Editable_Slider(int x, int y, int w, int h, const cha
     }
 
 float FLTK_Editable_Slider::value() 
-	{ return slider->value(); }
+	{ return atof(input->value()); }
 
 void FLTK_Editable_Slider::value(float val) 
 	{ slider->value(val); Slider_CB2(); }

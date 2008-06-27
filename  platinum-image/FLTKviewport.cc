@@ -106,7 +106,7 @@ void FLTKpane::resize_content(int w,int h)
 
 FLTK_VTK_pane::FLTK_VTK_pane(): FLTKpane(0,0,100,100)
 {
-	cout<<"FLTK_VTK_pane..."<<endl;
+//	cout<<"FLTK_VTK_pane..."<<endl;
 //	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,100,100,"");
 //	this->initialize_vtkRenderWindow();
 //	this->resizable(fl_vtk_window);
@@ -115,7 +115,7 @@ FLTK_VTK_pane::FLTK_VTK_pane(): FLTKpane(0,0,100,100)
 
 FLTK_VTK_pane::FLTK_VTK_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 {
-	cout<<"FLTK_VTK_pane..."<<endl;
+//	cout<<"FLTK_VTK_pane..."<<endl;
 //	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,W,H,"");
 //	this->initialize_vtkRenderWindow();
 //	this->resizable(fl_vtk_window);
@@ -142,7 +142,7 @@ void FLTK_VTK_pane::initialize_vtkRenderWindow()
 //----------------------------------------------------------------
 FLTK_VTK_Cone_pane::FLTK_VTK_Cone_pane(): FLTK_VTK_pane(0,0,100,100)
 {
-	cout<<"FLTK_VTK_Cone_pane..."<<endl;
+//	cout<<"FLTK_VTK_Cone_pane..."<<endl;
 	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,100,100,"");
 	this->initialize_vtkRenderWindow();
 	this->resizable(fl_vtk_window);
@@ -151,7 +151,7 @@ FLTK_VTK_Cone_pane::FLTK_VTK_Cone_pane(): FLTK_VTK_pane(0,0,100,100)
 
 FLTK_VTK_Cone_pane::FLTK_VTK_Cone_pane(int X,int Y,int W,int H) : FLTK_VTK_pane(X,Y,W,H)
 {
-	cout<<"FLTK_VTK_Cone_pane..."<<endl;
+//	cout<<"FLTK_VTK_Cone_pane..."<<endl;
 	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,W,H,"");
 	this->initialize_vtkRenderWindow();
 	this->resizable(fl_vtk_window);
@@ -207,7 +207,7 @@ void FLTK_VTK_Cone_pane::initialize_vtkRenderWindow()
 
 FLTK_VTK_MIP_pane::FLTK_VTK_MIP_pane(): FLTK_VTK_pane(0,0,100,100)
 {
-	cout<<"FLTK_VTK_MIP_pane..."<<endl;
+//	cout<<"FLTK_VTK_MIP_pane..."<<endl;
 	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,100,100,"");
 	this->initialize_vtkRenderWindow();
 	this->resizable(fl_vtk_window);
@@ -216,7 +216,7 @@ FLTK_VTK_MIP_pane::FLTK_VTK_MIP_pane(): FLTK_VTK_pane(0,0,100,100)
 
 FLTK_VTK_MIP_pane::FLTK_VTK_MIP_pane(int X,int Y,int W,int H) : FLTK_VTK_pane(X,Y,W,H)
 {
-	cout<<"FLTK_VTK_MIP_pane..."<<endl;
+//	cout<<"FLTK_VTK_MIP_pane..."<<endl;
 	fl_vtk_window = new vtkFlRenderWindowInteractor(0,0,W,H,"");
 	this->initialize_vtkRenderWindow();
 	this->resizable(fl_vtk_window);
@@ -327,7 +327,7 @@ FLTKpane2::FLTKpane2(int X,int Y,int W,int H): FLTKpane(X,Y,W,H)
 
 FLTK_Event_pane::FLTK_Event_pane(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
 {
-	cout<<"FLTK_Event_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
+//	cout<<"FLTK_Event_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
 }
 
 int FLTK_Event_pane::handle(int event){
@@ -376,7 +376,7 @@ void FLTK_Event_pane::draw(){}
 
 FLTK_Pt_pane::FLTK_Pt_pane():FLTKpane(0,0,100,100)
 {
-	cout<<"FLTK_Pt_pane()"<<endl;
+//	cout<<"FLTK_Pt_pane()"<<endl;
 	event_pane = new FLTK_Event_pane(0,0,100,100);
 
 	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane()_button");
@@ -393,7 +393,7 @@ FLTK_Pt_pane::FLTK_Pt_pane():FLTKpane(0,0,100,100)
 //FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
 FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 {
-	cout<<"FLTK_Pt_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
+//	cout<<"FLTK_Pt_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
 	event_pane = new FLTK_Event_pane(X,Y,W,H);
 
 	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane(xywh)_button");
@@ -421,7 +421,7 @@ void FLTK_Pt_pane::draw()
 {
     //The draw() virtual method is called when FLTK wants you to redraw your widget.
     //It will be called if and only if damage()  is non-zero, and damage() will be cleared to zero after it returns
-	cout<<"FLTK_Pt_pane::draw()..."<<endl;
+//	cout<<"FLTK_Pt_pane::draw()..."<<endl;
     callback_event = viewport_event(pt_event::draw,this);
     //callback_event.FLTK_event::attach (this);
 	//pane_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
@@ -431,8 +431,8 @@ void FLTK_Pt_pane::draw()
 
 void FLTK_Pt_pane::draw(unsigned char *rgbimage)
 {
-	cout<<"FLTK_Pt_pane::draw(unsigned char *rgbimage)..."<<endl;
-	cout<<"("<<x()<<" "<<y()<<" "<<w()<<" "<<h()<<")"<<endl;
+//	cout<<"FLTK_Pt_pane::draw(unsigned char *rgbimage)..."<<endl;
+//	cout<<"("<<x()<<" "<<y()<<" "<<w()<<" "<<h()<<")"<<endl;
     const int D=RGBpixmap_bytesperpixel;
 
     //damage (FL_DAMAGE_ALL);

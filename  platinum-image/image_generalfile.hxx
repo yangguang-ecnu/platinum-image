@@ -405,11 +405,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_fileAF(std::stri
 	std::cout<<"Number of files in series..."<<fileNames.size()<<std::endl;
 
 	//********** remove multiple echoes *************
-	vector<string> echotimes = list_dicom_tag_values_for_this_ref_tag_value(fileNames, DCM_SERIES_ID, seriesIdentifier, DCM_TE);
-	std::cout<<"Number of TE:s..."<<echotimes.size()<<std::endl;
-	if(echotimes.size()>1){//delelect all other echo times but the one int the file clicked...
-		fileNames = get_dicom_files_with_dcm_tag_value(fileNames, DCM_TE, get_dicom_tag_value(file_path,DCM_TE));
-	}
+	//JK - This is temporary excluded for speedup --> dual echo iamging sequenses will be loaded in the "same volume"
+//	vector<string> echotimes = list_dicom_tag_values_for_this_ref_tag_value(fileNames, DCM_SERIES_ID, seriesIdentifier, DCM_TE);
+//	std::cout<<"Number of TE:s..."<<echotimes.size()<<std::endl;
+//	if(echotimes.size()>1){//delelect all other echo times but the one int the file clicked...
+//		fileNames = get_dicom_files_with_dcm_tag_value(fileNames, DCM_TE, get_dicom_tag_value(file_path,DCM_TE));
+//	}
 
 	load_dataset_from_these_DICOM_files(fileNames);
 }
