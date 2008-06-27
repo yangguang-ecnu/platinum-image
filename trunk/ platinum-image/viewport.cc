@@ -263,7 +263,7 @@ bool viewport::render_if_needed()
 {
     if (rendererIndex>=0 && needs_re_rendering)
         {
-		cout<<"viewport::render_if_needed --> viewport_ID="<<ID<<" rendererIndex="<<rendererIndex<<endl;
+//		cout<<"viewport::render_if_needed --> viewport_ID="<<ID<<" rendererIndex="<<rendererIndex<<endl;
         rendermanagement.render(rendererIndex, rgbpixmap, rgbpixmap_size[0], rgbpixmap_size[1]);
         needs_re_rendering = false;
         return true;

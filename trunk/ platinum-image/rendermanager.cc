@@ -39,8 +39,8 @@ using namespace std;
 rendermanager::rendermanager()
 {
     renderer_factory.Register<FLTK_Pt_pane>("MPR");			//JK2
-//    renderer_factory.Register<FLTK_VTK_Cone_pane>("VTK-Cone");	//JK2
-//    renderer_factory.Register<FLTK_VTK_MIP_pane>("VTK-MIP");	//JK2
+    renderer_factory.Register<FLTK_VTK_Cone_pane>("VTK-Cone");	//JK2
+    renderer_factory.Register<FLTK_VTK_MIP_pane>("VTK-MIP");	//JK2
 
 	//---- Old version ---
 //    renderer_factory.Register<rendererMPR>();	//JK2
