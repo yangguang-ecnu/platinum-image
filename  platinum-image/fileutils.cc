@@ -454,14 +454,17 @@ bool remove_string_ending(string &s, string ending)
 
 string replace_last_substring(string s, string val, string replacement){
 //	cout<<"replace_last_substring..."<<endl;
+	cout<<"s="<<s<<endl;
 	int last = s.find_last_of(val);
+	string s2 = s;
 	string a = s.substr(0,last-val.size()+1);
 	string b = replacement;
-	string c = s.substr(last+1,s.size()-1);
-//	cout<<"last="<<last<<endl;
-//	cout<<"a="<<a<<endl;
-//	cout<<"b="<<b<<endl;
-//	cout<<"c="<<c<<endl;
+	cout<<"s2="<<s2<<endl;
+	string c = s2.substr(last+1,s2.size()-1-last);
+	cout<<"last="<<last<<endl;
+	cout<<"a="<<a<<endl;
+	cout<<"b="<<b<<endl;
+	cout<<"c="<<c<<endl;
 	return a+b+c;
 }
 

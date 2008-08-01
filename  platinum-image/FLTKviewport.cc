@@ -249,7 +249,8 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	// Read the data from a vtk file
 	vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
 //	reader->SetFileName("D:/Joel/TMP/750001_WML01.vtk");
-	reader->SetFileName("D:/Joel/TMP/brain.vtk");
+	//reader->SetFileName("D:/Joel/TMP/brain.vtk");
+	reader->SetFileName("C:/Sandra/Data/FLAIR.vtk");
 	reader->Update();
   
 	// Create transfer mapping scalar value to opacity
