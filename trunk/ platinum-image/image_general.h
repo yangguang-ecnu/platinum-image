@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 //
 //   Image_general $Revision$
 ///
@@ -73,6 +73,11 @@ template<class ELEMTYPE, int IMAGEDIM>
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_general : public image_storage <ELEMTYPE >
     {
+
+	friend void meta_load_function (int userIO_ID,int par_num); //so
+	friend image_scalar<short,3> * create_whole_body_diff(char *path); //so
+	friend image_scalar<short,3> * load_whole_body_diff (char *path); //so
+	
     protected:
         image_general<ELEMTYPE, IMAGEDIM>(int w, int h, int d, ELEMTYPE *ptr = NULL);
 
