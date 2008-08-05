@@ -188,6 +188,11 @@ void datamanager::datawidgets_setup()
     Fl_Box * datalabel = new Fl_Box(xpos,ypos,width,LISTHEADERHEIGHT,"Data");
     datalabel->labelfont(FL_HELVETICA_BOLD);
 
+    Fl_Button *clear_data_list_button = new Fl_Button(xpos+width-50,ypos+5,45,BUTTONHEIGHT-10,"Clear All");
+    clear_data_list_button->labelfont(FL_HELVETICA);
+	clear_data_list_button->labelsize(8);
+    clear_data_list_button->callback(clear_data_list_button_callback,this);
+
     //we should create a bitmap here (i.e. the "animage"), and fill it with
     //color gradient or solid color depending on image type
 
@@ -319,6 +324,14 @@ void datamanager::delete_data (int id)
 		}
 }
 
+void datamanager::delete_all()
+{
+    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
+        {
+            delete *itr; //the data_base destructor calls remove_data() to remove it from dataItems 
+        }
+}
+
 // Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allocated memory is removed)
 void datamanager::remove_data (int id)
 {
@@ -392,6 +405,11 @@ void datamanager::loadimage_callback(Fl_Widget *callingwidget, void *thisdataman
     {
     ((datamanager*)thisdatamanager)->loadimages();	
     }
+
+void datamanager::clear_data_list_button_callback(Fl_Widget *callingwidget, void *thisdatamanager)
+	{
+	((datamanager*)thisdatamanager)->delete_all();
+	}
 
 void datamanager::loadimages() // argument must tell us which instance, if multiple
     {
