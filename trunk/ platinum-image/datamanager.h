@@ -101,6 +101,7 @@ class datamanager
         const Fl_Menu_Item * FLTK_point_menu() const;
         
         static void loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager);
+        static void clear_data_list_button_callback(Fl_Widget *callingwidget, void *thisdatamanager);
         static void dcm_import_callback(Fl_Widget *callingwidget, void *thisdatamanager);
 		
         void loadimages();
@@ -119,6 +120,7 @@ class datamanager
         
         void delete_data (int id);          //delete data object and remove it
         void delete_data (data_base * d);   //from vector
+        void delete_all ();
         
         void data_has_changed (int image_ID, bool recalibrate = false);   
         //signal that contents of a image has changed,

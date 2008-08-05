@@ -542,6 +542,14 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_included_num_pix_from_lower_in
 	return bucketpos_to_intensity(this->num_buckets-1);
 }
 
+template <class ELEMTYPE>
+bool histogram_1D<ELEMTYPE>::is_central_histogram_bimodal(int min_mode_sep, double valley_factor, ELEMTYPE peak_min, int speedup) //looks in the central 50% of intensities
+{
+	int start = get_intensity_at_histogram_lower_percentile(0.25, true);
+	int end = get_intensity_at_histogram_lower_percentile(0.75, true);
+
+	return is_histogram_bimodal(start, end, min_mode_sep, valley_factor, peak_min, speedup);
+}
 		 
 template <class ELEMTYPE>
 bool histogram_1D<ELEMTYPE>::is_histogram_bimodal(int start_bucket, int end_bucket, int min_mode_sep, double valley_factor, ELEMTYPE peak_min, int speedup){
@@ -592,8 +600,9 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 
 	gaussian g(amp,center,sigma);
 	g.amplitude = float(get_max_value_in_bucket_range(from_bucket,to_bucket));
-	g.center = get_mean_intensity_in_bucket_range(from_bucket,to_bucket);
-	g.sigma = sqrt(get_variance_in_bucket_range(from_bucket,to_bucket));
+//	g.center = get_mean_intensity_in_bucket_range(from_bucket,to_bucket);
+	g.center = get_max_value_in_bucket_range(from_bucket,to_bucket);
+	g.sigma = sqrt(get_variance_in_bucket_range(from_bucket,to_bucket)); //intensity variance...
 	int dyn_from_bucket = std::max(from_bucket, intensity_to_bucketpos(g.center-1.5*g.sigma));
 	int dyn_to_bucket = std::min(to_bucket, intensity_to_bucketpos(g.center+1.5*g.sigma));
 
@@ -617,7 +626,7 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 		g.center = find_better_center(g,dyn_from_bucket,dyn_to_bucket,0.8,1.2,10+i);
 		g.sigma = find_better_sigma(g,dyn_from_bucket,dyn_to_bucket,0.8,1.2,10+i);
 		
-		//consider shape of gaussian bu dont go outside given limits...
+		//consider shape of gaussian but dont go outside given limits...
 		tmp = std::max(float(from),float(g.center-1.5*g.sigma)); //limits intensity range...
 		dyn_from_bucket = std::max(from_bucket, intensity_to_bucketpos(tmp)); //limits bucket range...
 		dyn_to_bucket = std::min(to_bucket, intensity_to_bucketpos(g.center+1.5*g.sigma));
@@ -806,11 +815,10 @@ float histogram_1D<ELEMTYPE>::get_variance_in_bucket_range(int from, int to)
 	float mean = get_mean_intensity_in_bucket_range(from,to);
 	float sum = 0;
 	float num_values = 0;
-	float intensity=0;
+	float diff=0;
 	for(int i=from; i<=to; i++){
-		intensity = bucketpos_to_intensity(i);
-		//this number of pixels with this (mean-intensity-difference)^2...
-		sum += float(this->buckets[i])*(mean-intensity)*(mean-intensity);
+		diff = mean-bucketpos_to_intensity(i);
+		sum += float(this->buckets[i])*diff*diff; //this number of pixels with this (mean_intensity_diff)^2...
 		num_values += this->buckets[i];
 	}
 	return sum/num_values;
