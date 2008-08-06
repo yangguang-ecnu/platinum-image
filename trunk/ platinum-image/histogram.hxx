@@ -31,6 +31,84 @@ histogram_typed<ELEMTYPE>::histogram_typed()
     min_value = std::numeric_limits<ELEMTYPE>::min();
 }
 
+template <class ELEMTYPE>
+void histogram_typed<ELEMTYPE>::fill(ELEMTYPE val)
+{
+	for(unsigned short i=0; i<this->num_buckets; i++)
+	{
+		this->buckets[i] = val;
+	}
+}
+
+template <class ELEMTYPE>
+void histogram_typed<ELEMTYPE>::calc_bucket_max(bool ignore_zero_and_one)
+{
+	this->bucket_max=0;
+
+	if(ignore_zero_and_one){
+		for(unsigned short i=0; i<this->num_buckets; i++)
+		{
+			if(this->buckets[i] != 0 && this->buckets[i] != 1){ //! feature: ignore 0 and true to get more sensible display scaling
+				this->bucket_max = std::max(this->buckets[i], this->bucket_max);
+			}
+		}
+	}else{
+		for(unsigned short i=0; i<this->num_buckets; i++)
+		{
+			this->bucket_max = std::max(this->buckets[i], this->bucket_max);
+		}
+	}
+}
+
+
+template <class ELEMTYPE>
+void histogram_typed<ELEMTYPE>::calc_bucket_mean()
+{
+	this->bucket_mean=0;
+	for(unsigned short i=0; i<this->num_buckets; i++)
+	{
+		this->bucket_mean += this->buckets[i]/(this->num_buckets);
+	}
+}
+
+template <class ELEMTYPE>
+void histogram_typed<ELEMTYPE>::calc_num_distinct_values()
+{
+	this->num_distinct_values=0;
+	for(unsigned short i=0; i<this->num_buckets; i++)
+	{
+		if(this->buckets[i] != 0)
+		{
+			this->num_distinct_values++;
+		}
+	}
+}
+
+template <class ELEMTYPE>
+void histogram_typed<ELEMTYPE>::calc_num_elements_in_hist()
+{
+	this->num_elements_in_hist=0;
+	for(unsigned short i=0; i<this->num_buckets; i++)
+	{
+		this->num_elements_in_hist += this->buckets[i];
+	}
+}
+
+
+
+
+template <class ELEMTYPE>
+void histogram_typed<ELEMTYPE>::data_has_changed()
+{
+	calc_bucket_max();
+	calc_bucket_mean();
+	calc_num_distinct_values();
+	calc_num_elements_in_hist();
+}
+
+
+
+
 // *** histogram_1D ***
 
 /*template <class ELEMTYPE>
@@ -38,7 +116,7 @@ void histogram_1D<ELEMTYPE >::image (int vol)
 {
     this->threshold.id[0]=vol;
     
-    calculate();
+    calculate_from_image_data();
 }*/
 
 template <class ELEMTYPE>
@@ -56,7 +134,7 @@ void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
     this->buckets = new unsigned long [this->num_buckets];
 
 	//resize() is called from the constructor
-    calculate(this->num_buckets);	 //the new number of buckets needs to be sent as argument
+    calculate_from_image_data(this->num_buckets);	 //the new number of buckets needs to be sent as argument
 }
 
 
@@ -112,8 +190,6 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 	}else{
 		pt_error::error("histogram_1D - constructor(masked) - num_buckets=strange...",pt_error::debug);
 	}
-	this->num_distinct_values = 0;
-	this->bucket_max=0;
 
 	//get pointer to source data
 	if (this->i_start == NULL)
@@ -128,11 +204,7 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 	{
 		//reset buckets
 
-		for (unsigned short i = 0; i < this->num_buckets; i++)
-		{
-			this->buckets[i]=0;
-		}
-
+		this->fill(0);
 
 		ELEMTYPE *v; //voxel
 		ELEMTYPE v_min = std::numeric_limits<ELEMTYPE>::max();
@@ -149,48 +221,18 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 				}
 			}
 		}
-//		cout<<"masked hist v_min="<<v_min<<endl;
-//		cout<<"masked hist v_max="<<v_max<<endl;
 		this->min(v_min);
 		this->max(v_max);
 
 		unsigned short bucketpos;
 
-		this->num_elements_in_hist=0;
-
 		for( v = this->i_start, v_bin = image_bin_mask->begin().pointer(); (v != this->i_end) && (v_bin != image_bin_mask->end().pointer()); ++v, ++v_bin){
 			if(*v_bin>0){
 				bucketpos = intensity_to_bucketpos(*v);
-				this->num_elements_in_hist++;
 				
-
 				//NOT VERY good to write outside allocated memory
 				if(bucketpos>=0 && bucketpos<this->num_buckets){	
-
-
-					//---------------------------------------
-					//------------ PRINT --------------------
-					//---------------------------------------
-//					cout<<endl;
-//					for (unsigned short i = 0; i < this->num_buckets; i++){
-//						cout<<this->buckets[i]<<" ";
-//					}
-//					cout<<endl;
-					//---------------------------------------
-					//------------ PRINT --------------------
-					//---------------------------------------
-
-					//calculate distinct value count
-					if (this->buckets[bucketpos] == 0)
-					{this->num_distinct_values++;}
-
-					//increment bucket 
 					this->buckets[bucketpos]++;
-
-					//update bucket_max
-					if (*v != 0 &&  *v != 1) //! feature: ignore 0 and true to get more sensible display scaling
-					{ this->bucket_max=std::max(this->buckets[bucketpos],this->bucket_max); }
-
 				}else{
 					pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
 					cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
@@ -198,16 +240,7 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 			}
 		}
 
-
-		this->bucket_mean=0;
-		for (unsigned short i = 0; i < this->num_buckets; i++)
-		{
-			this->bucket_mean+=this->buckets[i]/(this->num_buckets);
-		}
-
-		//if # buckets are less than # values, distinct value count will be incorrect
-		if (this->num_buckets < std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())
-		{this->num_distinct_values = 0;}
+		data_has_changed();
 	}
 	
 	else
@@ -223,12 +256,10 @@ histogram_1D<ELEMTYPE >::~histogram_1D ()
 {}
 
 template <class ELEMTYPE>
-void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
-    {
+void histogram_1D<ELEMTYPE >::calculate_from_image_data(int new_num_buckets)
+{
+
 	//if new_num_buckets == 0 --> keep the current resolution...
-
-	//cout<<"---histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)---"<<endl;
-
 	if (new_num_buckets !=0 || this->buckets==NULL){
         //resize(...) isn't used here because this function is called from resize,
         //however the above condition will be false in that case
@@ -236,51 +267,35 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 		if (new_num_buckets !=0){    //change #buckets
             this->num_buckets=new_num_buckets;
 		}
-
 		delete []this->buckets;  
 		this->buckets = NULL;
         this->buckets=new unsigned long [this->num_buckets];
 	}
 
-    this->num_distinct_values = 0;
-    this->bucket_max=0;
 
     //get pointer to source data
-
-//    if (this->i_start == NULL) //Always re-read the pointers... they might be lost after some ITK-process for example
-  //      {
-        // retrieve pointers to image data, iterating pointers are generally a bad idea
-        //but this way histograms can be made straight from data pointers when
-        //there is not yet an image, such as during load of raw files
-        this->i_start = this->images[0]->begin().pointer();
-        this->i_end = this->images[0]->end().pointer();
-    //    }
+	//if (this->i_start == NULL) //Always re-read the pointers... they might be lost after some ITK-process for example
+	//retrieve pointers to image data, iterating pointers are generally a bad idea
+    //but this way histograms can be made straight from data pointers when
+    //there is not yet an image, such as during load of raw files
+    this->i_start = this->images[0]->begin().pointer();
+    this->i_end = this->images[0]->end().pointer();
 
     this->readytorender=(this->i_start != NULL);
 
     if (this->readytorender)
         {
-        //reset buckets
-
-        for (unsigned short i = 0; i < this->num_buckets; i++)
-            {
-            this->buckets[i]=0;
-            }
+        this->fill(0);//reset buckets
 
         //ready to calculate, actually
 
-//        float typeMax = std::numeric_limits<ELEMTYPE>::max();
-  //      float typeMin = std::numeric_limits<ELEMTYPE>::min();
-
-
         unsigned short bucketpos;
-        ELEMTYPE * voxel;
-		this->num_elements_in_hist=0;
+        ELEMTYPE *voxel;
 
-		//calculate min/max
 	    this->max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
 		this->min_value = std::numeric_limits<ELEMTYPE>::max();
-		for (voxel = this->i_start;voxel != this->i_end;++voxel)
+
+		for (voxel = this->i_start;voxel != this->i_end;++voxel) //Currently, this needs do be done prior to the filling of the buckets...
 		{
 			this->min_value = std::min (this->min_value,*voxel);
 			this->max_value = std::max (this->max_value,*voxel);
@@ -289,51 +304,28 @@ void histogram_1D<ELEMTYPE >::calculate(int new_num_buckets)
 		for (voxel = this->i_start;voxel != this->i_end;++voxel)
 		{
 			bucketpos = intensity_to_bucketpos(*voxel);
-			this->num_elements_in_hist++;
-
-			//NOT VERY good to write outside allocated memory
-			if(bucketpos>=0 && bucketpos<this->num_buckets){	
-
-				//calculate distinct value count
-				if (this->buckets[bucketpos] == 0)
-				{this->num_distinct_values++;}
-
-				//increment bucket 
+			if(bucketpos>=0 && bucketpos<this->num_buckets){				//NOT VERY good to write outside allocated memory
 				this->buckets[bucketpos]++;
-
-				//update bucket_max
-				if (*voxel != 0 &&  *voxel != 1) //! feature: ignore 0 and true to get more sensible display scaling
-				{ this->bucket_max=std::max(this->buckets[bucketpos],this->bucket_max); }
-
 			}else{
 				pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
 				cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
 			}
 		}
 
-
-
-        this->bucket_mean=0;
-        for (unsigned short i = 0; i < this->num_buckets; i++)
-            {
-            this->bucket_mean+=this->buckets[i]/(this->num_buckets);
-            }
-
-        //if # buckets are less than # values, distinct value count will be incorrect
-        if (this->num_buckets < std::numeric_limits<ELEMTYPE>::max()+std::numeric_limits<ELEMTYPE>::min())
-            {this->num_distinct_values = 0;}
-        }
-    else
+		data_has_changed();
+		}
+	else
         {
         //no calculation was done, set sensible values
         this->max_value = std::numeric_limits<ELEMTYPE>::max(); 
         this->min_value = std::numeric_limits<ELEMTYPE>::min();
         }
-    }
+}
+
 
 
 template <class ELEMTYPE>
-void histogram_1D<ELEMTYPE>::render (unsigned char * image, unsigned int width, unsigned int height)
+void histogram_1D<ELEMTYPE>::render(unsigned char * image, unsigned int width, unsigned int height)
 {
     //about FLTK pixel types:  // http://www.fltk.org/articles.php?L466
 	typedef IMGELEMCOMPTYPE RGBpixel[RGBpixmap_bytesperpixel];
@@ -374,11 +366,8 @@ void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bo
 
 		if(reload_hist_from_image){
 			this->images[0]->min_max_refresh(); //make sure to update image min and max before calling calculate() 
-			calculate(); //update histogram statistics...
+			calculate_from_image_data(); //update histogram statistics...
 		}
-
-        float typeMin = std::numeric_limits<ELEMTYPE>::min();
-		float typeMax = std::numeric_limits<ELEMTYPE>::max();
 
 		ofstream myfile;
 		myfile.open(filepath.c_str());
@@ -386,11 +375,13 @@ void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bo
 		myfile<<"min_value"<<separator<<this->min()<<"\n";
 		myfile<<"max_value"<<separator<<this->max()<<"\n";
 		myfile<<"num_distinct_values"<<separator<<this->num_distinct_values<<"\n";
-		myfile<<"bucket_mean"<<separator<<this->bucket_mean<<"\n";
+		myfile<<"num_elements_in_hist"<<separator<<this->num_elements_in_hist<<"\n";
 		myfile<<"bucket_max"<<separator<<this->bucket_max<<"\n";
+		myfile<<"bucket_mean"<<separator<<this->bucket_mean<<"\n";
 		myfile<<"readytorender"<<separator<<this->readytorender<<"\n";
-		myfile<<"typeMin"<<separator<<typeMin<<"\n";
-		myfile<<"typeMax"<<separator<<typeMax<<"\n";
+		myfile<<"typeMin"<<separator<<std::numeric_limits<ELEMTYPE>::min()<<"\n";
+		myfile<<"typeMax"<<separator<<std::numeric_limits<ELEMTYPE>::max()<<"\n";
+		myfile<<"p_log_p cost"<<separator<<get_norm_p_log_p_cost()<<"\n";
 		myfile<<"\n";
 
 		if(g!=NULL){
@@ -401,14 +392,21 @@ void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bo
 			cout<<"g->evaluate_at(0.1)="<<g->evaluate_at(0.1)<<endl;
 		}
 
+
 		myfile<<"bucket"<<separator<<"intensity"<<separator<<"bucketvalue\n";
 		for(unsigned short i=0; i<this->num_buckets; i++){
+
 			myfile<<i<<separator<<bucketpos_to_intensity(i)<<separator<<this->buckets[i];
+
+			myfile<<separator<<get_norm_frequency_in_bucket(i)<<separator<<get_norm_p_log_p_frequency_in_bucket(i);
+			myfile<<separator<<get_norm_p_log_p_gradient(i);
+			
 			if(g!=NULL){
 				myfile<<separator<<g->evaluate_at(bucketpos_to_intensity(i));
 			}
 			myfile<<"\n";
-        }
+
+		}
 
 		myfile.close();
 	}
@@ -430,12 +428,38 @@ int histogram_1D<ELEMTYPE>::intensity_to_bucketpos(ELEMTYPE intensity){
 	return (intensity - this->min())/get_scalefactor();
 }
 
-/*
+template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::set_sum_of_bucket_contents_to_value(double value){ //often requires the ELEMTYPEs float or double.
+	double scale_factor = value / double(num_elements_in_hist);
+	for(int i=0;i<this->num_buckets;i++){
+		this->buckets[i] *= scale_factor;
+	}
+}
+
+template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::logarithm(int zero_handling)
+{
+	// zero_handling=0: non-positive voxels are left unchanged
+	// zero_handling=1: non-positive voxels are set to zero
+	// zero_handling=2: non-positive voxels are set to std::numeric_limits<ELEMTYPE>::min()
+	if (zero_handling<0 || zero_handling>2)
+	{zero_handling=0;}
+
+	for(int i=0;i<this->num_buckets;i++){
+		if (this->buckets[i]>0)
+			{this->buckets[i] = log(double(buckets[i]));}
+		else if (zero_handling==1) 
+			{this->buckets[i] = 0;}
+		else if (zero_handling==2) 
+			{this->buckets[i] = std::numeric_limits<ELEMTYPE>::min();}
+	}
+
+}
+
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times){
-	smooth_mean(nr_of_neighbours, nr_of_times, 0, int to);
+	smooth_mean(nr_of_neighbours, nr_of_times, 0, num_buckets-1);
 }
-*/
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, int from_bucket, int to_bucket){
@@ -493,17 +517,79 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 }
 
 template <class ELEMTYPE>
-ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity)
+float histogram_1D<ELEMTYPE>::get_norm_frequency_in_bucket(int bucket)
 {
-    cout<<"get_intensity_at_histogram_lower_percentile("<<percentile<<")"<<endl;
+	return float(this->buckets[bucket])/float(num_elements_in_hist);
+}
 
+template <class ELEMTYPE>
+float histogram_1D<ELEMTYPE>::get_norm_frequency_for_intensity(ELEMTYPE intensity)
+{
+	return float(this->buckets[this->intensity_to_bucketpos(intensity)])/float(num_elements_in_hist);
+}
+
+template <class ELEMTYPE>
+float histogram_1D<ELEMTYPE>::get_norm_p_log_p_frequency_in_bucket(int bucket, ZERO_HANDLING_TYPE zht)
+{
+	float p = get_norm_frequency_in_bucket(bucket);
+	return p*pt_log<ELEMTYPE>(p,zht);
+}
+
+template <class ELEMTYPE>
+float histogram_1D<ELEMTYPE>::get_norm_p_log_p_frequency_for_intensity(ELEMTYPE intensity, ZERO_HANDLING_TYPE zht)
+{
+	float p = get_norm_frequency_for_intensity(intensity);
+	return p*pt_log<ELEMTYPE>(p,zht);
+}
+
+template <class ELEMTYPE>
+float histogram_1D<ELEMTYPE>::get_norm_p_log_p_cost(ZERO_HANDLING_TYPE zht)
+{
+	float cost=0;
+	for(unsigned short i=0; i<this->num_buckets; i++)
+	{
+		cost += get_norm_p_log_p_frequency_in_bucket(i,zht);
+	}
+	return cost;
+}
+
+
+template <class ELEMTYPE>
+float histogram_1D<ELEMTYPE>::get_norm_p_log_p_gradient(int bucket, ZERO_HANDLING_TYPE zht)
+{
+	//corresponds to 1D sobel filter  (-0.5*a + 0*b +0.5*c)
+	if(bucket>0 && bucket<this->num_buckets-1)
+	{
+		return 0.5*get_norm_p_log_p_frequency_in_bucket(bucket+1,zht) - 0.5*get_norm_p_log_p_frequency_in_bucket(bucket-1,zht) ;
+	}
+	return 0;
+}
+
+template <class ELEMTYPE>
+float histogram_1D<ELEMTYPE>::get_norm_p_log_p_gradient_for_intensity(ELEMTYPE intensity, ZERO_HANDLING_TYPE zht=ZERO_HANDLING_SET_ZERO)
+{
+	//corresponds to 1D sobel filter  (-0.5*a + 0*b +0.5*c)
+	if(bucket>0 && bucket<this->num_buckets-1)
+	{
+		return 0.5*get_norm_p_log_p_frequency_in_bucket(bucket+1,zht) - 0.5*get_norm_p_log_p_frequency_in_bucket(bucket-1,zht) ;
+	}
+	return 0;
+}
+
+
+template <class ELEMTYPE>
+ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity)
+{
+    cout<<"get_bucket_at_histogram_lower_percentile("<<percentile<<")"<<endl;
 	//if histogram comes from masked region... following line wont work....
-//	float num_elem_limit = float(this->images[0]->get_num_elements())*percentile;
+	//float num_elem_limit = float(this->images[0]->get_num_elements())*percentile;
 
 	unsigned short the_zero_bucket = this->intensity_to_bucketpos(0);
 	float num_elem_limit;
 
-	if (ignore_zero_intensity) {num_elem_limit = float(this->num_elements_in_hist-this->buckets[the_zero_bucket])*percentile;}
+	if (ignore_zero_intensity) {
+		num_elem_limit = float(this->num_elements_in_hist-this->buckets[the_zero_bucket])*percentile;
+	}
 	else {num_elem_limit = float(this->num_elements_in_hist)*percentile;}
 
 	float sum_elements=0;
@@ -515,13 +601,21 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(flo
 		if (!ignore_zero_intensity || i!=the_zero_bucket) {
 			sum_elements += this->buckets[i];
 			if(sum_elements>=num_elem_limit){
-				return bucketpos_to_intensity(i);
+				return i;
 			}
 		}
 	}
 
-	return bucketpos_to_intensity(this->num_buckets-1);
+	return this->num_buckets-1;
 }
+
+template <class ELEMTYPE>
+ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity)
+{
+    cout<<"get_intensity_at_histogram_lower_percentile("<<percentile<<")"<<endl;
+	return bucketpos_to_intensity( get_bucket_at_histogram_lower_percentile(percentile,ignore_zero_intensity) );
+}
+
 
 template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_included_num_pix_from_lower_int(ELEMTYPE lower_int, float num_pix)
@@ -545,8 +639,8 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_included_num_pix_from_lower_in
 template <class ELEMTYPE>
 bool histogram_1D<ELEMTYPE>::is_central_histogram_bimodal(int min_mode_sep, double valley_factor, ELEMTYPE peak_min, int speedup) //looks in the central 50% of intensities
 {
-	int start = get_intensity_at_histogram_lower_percentile(0.25, true);
-	int end = get_intensity_at_histogram_lower_percentile(0.75, true);
+	int start = get_bucket_at_histogram_lower_percentile(0.25, true);
+	int end = get_bucket_at_histogram_lower_percentile(0.75, true);
 
 	return is_histogram_bimodal(start, end, min_mode_sep, valley_factor, peak_min, speedup);
 }
@@ -760,16 +854,16 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_min_value_in_bucket_range(int from, int to)
 template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::get_min_value_in_bucket_range(int from, int to, int &min_val_bucket_pos)
 {
-	ELEMTYPE min_value = std::numeric_limits<ELEMTYPE>::max();
+	ELEMTYPE min_v = std::numeric_limits<ELEMTYPE>::max();
 
 	for(int i=from; i<=to; i++){
-		if(this->buckets[i]<max_value){
+		if(this->buckets[i]<min_v){
+			min_v = this->buckets[i];
 			min_val_bucket_pos = i;
-			min_value = this->buckets[i];
 		}
 	}
 
-	return min_value;
+	return min_v;
 }
 
 

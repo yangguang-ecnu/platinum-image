@@ -47,7 +47,7 @@ struct regionofinterest
 class histogram_base
     {
     protected:
-        unsigned long * buckets ;
+        unsigned long *buckets;         //histogram "frequency"
         unsigned long num_distinct_values;
         
         unsigned short num_buckets;     //buckets per dimension, ie. actual #buckets = num_buckets^2 for 2D histogram
@@ -62,39 +62,39 @@ class histogram_base
         thresholdparvalue threshold;
 
         histogram_base();
-    public:
+
+	public:
         virtual ~histogram_base();
-        void render(unsigned char * image, unsigned int width,unsigned int height)   //use calculated data to
-                                                                                     //render the histogram image
+        void render(unsigned char * image, unsigned int width,unsigned int height)   //use calculated data to render the histogram image
             {
             clear_pixmap (image, width, height);
             render_(image, width, height);
             }
           
-        virtual void calculate(int number_of_buckets=0) {}      //do variance, max, choose number of
-                                                                //buckets and the like 
-                                                                //omitting the num_buckets
-                                                                //parameter uses current stored resolution 
+		//do variance, max, choose number of buckets and the like... omitting the num_buckets parameter uses current stored resolution 
+		virtual void calculate_from_image_data(int number_of_buckets=0) {}      
+		virtual void data_has_changed(){}; //Updates statistics from the *buckets data //öööö
 
-    virtual void render_threshold (unsigned char * image, unsigned int w,unsigned int h) {}; 
+		virtual void render_threshold (unsigned char * image, unsigned int w,unsigned int h) {}; 
 
-    virtual thresholdparvalue get_threshold ()
-        {return threshold;}
-    virtual bool ready ();                                  //whether histogram has two valid (and compatible)
-                                                                //images, and can render
-       
-    int image_ID (int axis);      //return current image ID, axis 0=h, 1= v and so forth
+		virtual thresholdparvalue get_threshold ()
+			{return threshold;}
+		virtual bool ready ();                                  //whether histogram has two valid (and compatible)
+																	//images, and can render
+	       
+		int image_ID (int axis);      //return current image ID, axis 0=h, 1= v and so forth
 
-    unsigned long num_values ()
-        {return num_distinct_values;}
+		unsigned long num_values ()
+			{return num_distinct_values;}
     };
+
 
 template <class ELEMTYPE>
 class histogram_typed : public histogram_base //!features common to histograms of different type pertaining to data type
     {
     protected:
         image_storage<ELEMTYPE> * images [THRESHOLDMAXCHANNELS];
-        ELEMTYPE * i_start, *i_end;		//needs modification when > 1D histograms are handled
+        ELEMTYPE *i_start, *i_end;		//needs modification when > 1D histograms are handled
         ELEMTYPE max_value, min_value;
     public:
         histogram_typed();
@@ -103,10 +103,18 @@ class histogram_typed : public histogram_base //!features common to histograms o
             {return min_value;}
         void min (ELEMTYPE new_min)			
             {min_value=new_min;}
-        ELEMTYPE max ()							//returns histogram (and also image) "intensity max"
+        ELEMTYPE max()							//returns histogram (and also image) "intensity max"
             {return max_value;}
         void max (ELEMTYPE new_max)			
             {max_value=new_max;}
+
+		void fill(ELEMTYPE val);
+		void calc_bucket_max(bool ignore_zero_and_one=true);
+		void calc_bucket_mean();
+		void calc_num_distinct_values();
+		void calc_num_elements_in_hist();
+
+		virtual void data_has_changed(); //Updates statistics from the *buckets data //öööö
     };
 
 template <class ELEMTYPE>
@@ -130,7 +138,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 
 	    //void image (int vol);
 
-		void calculate(int number_of_buckets=0);
+		void calculate_from_image_data(int number_of_buckets=0);
 		void print_histogram_content();
 		//thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
 		virtual bool ready ()
@@ -144,9 +152,21 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		ELEMTYPE bucketpos_to_intensity(int bucketpos);
 		int intensity_to_bucketpos(ELEMTYPE intensity);
 
-//		void smooth_mean(int nr_of_neighbours=3, int nr_of_times=1);
+		//------------ scaling filtering -------------------------
+		void set_sum_of_bucket_contents_to_value(double value=1); //often requires the ELEMTYPEs float or double.
+		void logarithm(int zero_handling);
+		void smooth_mean(int nr_of_neighbours, int nr_of_times);
 		void smooth_mean(int nr_of_neighbours, int nr_of_times, int from_bucket, int to_bucket);
+//		float get_histogram_gradient_in_bucket(int bucket);
+		float get_norm_frequency_in_bucket(int bucket);
+		float get_norm_frequency_for_intensity(ELEMTYPE intensity);
+		float get_norm_p_log_p_frequency_in_bucket(int bucket, ZERO_HANDLING_TYPE zht=ZERO_HANDLING_SET_ZERO);
+		float get_norm_p_log_p_frequency_for_intensity(ELEMTYPE intensity, ZERO_HANDLING_TYPE zht=ZERO_HANDLING_SET_ZERO);
+		float get_norm_p_log_p_cost(ZERO_HANDLING_TYPE zht=ZERO_HANDLING_SET_ZERO);
+		float get_norm_p_log_p_gradient(int bucket, ZERO_HANDLING_TYPE zht=ZERO_HANDLING_SET_ZERO);
 
+
+		ELEMTYPE get_bucket_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity);
 		ELEMTYPE get_intensity_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity);
 		ELEMTYPE get_intensity_at_included_num_pix_from_lower_int(ELEMTYPE lower_int, float num_pix);
 
@@ -161,6 +181,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		double get_least_square_diff(gaussian g, int from_bucket, int to_bucket);
 		double get_least_square_diff_ignore_zeros(gaussian g, int from_bucket, int to_bucket);
 
+		//------------ min max variance -------------------------
 		ELEMTYPE get_min_value_in_bucket_range(int from, int to);
 		ELEMTYPE get_min_value_in_bucket_range(int from, int to, int &min_val_bucket_pos);
 		ELEMTYPE get_max_value_in_bucket_range(int from, int to);
@@ -195,7 +216,7 @@ class histogram_2D_plot : public histogram_base  //TEST: histographic plot
         void render_(unsigned char * image, unsigned int w,unsigned int h);
     public:
         void images (int image_hor,int image_vert);
-        void calculate(int number_of_buckets=0);
+        void calculate_from_image_data(int number_of_buckets=0);
 
         bool ready ();
     };
@@ -214,7 +235,7 @@ class histogram_2D : public histogram_base
         histogram_2D ();
         ~histogram_2D ();
         void images (int image_hor,int image_vert);
-        void calculate(int number_of_buckets=0);
+        void calculate_from_image_data(int number_of_buckets=0);
         thresholdparvalue histogram_2D::get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
         void highlight (regionofinterest * region); //highlight histogram values for supplied
                                                     //region of interest
@@ -242,7 +263,7 @@ class histogram_2Dimage : public histogram_base
         histogram_2Dimage(image_scalar<ELEMTYPE,IMAGEDIM>* im1, image_scalar<ELEMTYPE,IMAGEDIM>* im2);
         ~histogram_2Dimage();
 //        void images (int image_hor,int image_vert);
-//        void calculate(int number_of_buckets=0);
+//        void calculate_from_image_data(int number_of_buckets=0);
 //        thresholdparvalue histogram_2D::get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
 //        void highlight (regionofinterest * region); //highlight histogram values for supplied
                                                     //region of interest

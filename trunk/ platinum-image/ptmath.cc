@@ -630,6 +630,8 @@ void print_datatype_numerical_limits()
 	std::cout<<"bool: \t";			print_type_limits<bool>();
 }
 
+
+
 double get_random_number_in_span(double min, double max)
 {
 	return min + (max-min)*(double(rand())/double(RAND_MAX));
@@ -668,6 +670,7 @@ Vector2Dint create_Vector2Dint(int x, int y)
 	v[1] = y;
 	return v;
 }
+
 
 Matrix3D outer_product(const Vector3D a, const Vector3D b)
 {

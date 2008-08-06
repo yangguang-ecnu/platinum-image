@@ -68,7 +68,7 @@ void histogram_2D_plot::images (int image_hor,int image_vert)
     threshold.id[0]=image_hor;
     threshold.id[1]=image_vert;
 
-    calculate();
+    calculate_from_image_data();
     }
 
 bool histogram_2D_plot::ready ()
@@ -76,7 +76,7 @@ bool histogram_2D_plot::ready ()
     return (datamanagement.get_image(threshold.id[0]) != NULL && datamanagement.get_image(threshold.id[1]) != NULL );
     }
 
-void histogram_2D_plot::calculate(int foo)
+void histogram_2D_plot::calculate_from_image_data(int foo)
     {
     image_base * vol_v= datamanagement.get_image(threshold.id[1]);
     image_base * vol_h= datamanagement.get_image(threshold.id[0]);
@@ -143,7 +143,7 @@ void histogram_2D::images (int image_hor,int image_vert)
     threshold.id[0]=image_hor;
     threshold.id[1]=image_vert;
 
-    calculate();
+    calculate_from_image_data();
     }
 
 bool histogram_2D::ready ()
@@ -182,7 +182,7 @@ thresholdparvalue histogram_2D::get_threshold (float h_min,float h_max, float v_
     return threshold;
     }
 
-void histogram_2D::calculate(int new_num_buckets)
+void histogram_2D::calculate_from_image_data(int new_num_buckets)
     {
     if (new_num_buckets !=0 || buckets==NULL)
         {
@@ -289,7 +289,7 @@ void histogram_2D::calculate(int new_num_buckets)
         image_base * vol_h= datamanagement.get_image(threshold.id[0]);
 
         if (readytorender!=true)
-            {calculate();}
+            {calculate_from_image_data();}
 
         //if images matched, etc, histogram is ready to be highlighted
         if (readytorender==true)

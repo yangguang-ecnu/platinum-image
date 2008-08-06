@@ -1577,7 +1577,7 @@ int FLTK_histogram_2D::handle(int event)
                     //change histogram resolution
                     int resolution=std::min(std::max(h()*(1-drag_point_y),(float)1),(float)h());
 
-                    histogram->calculate(resolution);
+                    histogram->calculate_from_image_data(resolution);
 
                     /*refresh();*/
 

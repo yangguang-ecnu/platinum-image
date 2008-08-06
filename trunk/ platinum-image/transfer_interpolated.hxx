@@ -50,7 +50,7 @@ void transfer_interpolated<ELEMTYPE >::transferchart::calc_lookup_params (int ne
     //ELEMTYPE old_max = histogram->max();
     //ELEMTYPE old_min = histogram->min();
     
-    histogram->calculate(); //do NOT call this directly elsewhere, instead, call calc_lookup_params()
+    histogram->calculate_from_image_data(); //do NOT call this directly elsewhere, instead, call calc_lookup_params()
                             //when there is reason to recalculate histogram since all the stuff below
                             //has to be recalculated as well
     
