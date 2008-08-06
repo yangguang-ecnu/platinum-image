@@ -835,3 +835,4 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 	feat1_corr->name("Corrected feature 1"); datamanagement.add(feat1_corr);
 	feat2_corr->name("Corrected feature 2"); datamanagement.add(feat2_corr);
 }
+

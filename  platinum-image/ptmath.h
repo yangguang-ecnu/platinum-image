@@ -333,12 +333,35 @@ void print_type_limits()
 	std::cout<<std::numeric_limits<T>::digits<<std::endl;
 }
 
+template <class ELEMTYPE>
+float pt_log(float x, ZERO_HANDLING_TYPE zht)
+{
+	if(x>0){
+		return x*log(x);
+	}
+
+	if(zht==ZERO_HANDLING_LEAVE){
+		return x*log(x);
+	}
+	else if (zht==ZERO_HANDLING_SET_ZERO) {
+		return 0;
+	}
+	else if (zht==ZERO_HANDLING_SET_MIN) {
+		return std::numeric_limits<ELEMTYPE>::min();
+	}
+
+	return 0;
+}
+
+
 void print_datatype_numerical_limits();
 double get_random_number_in_span(double min, double max);
 Vector3D create_Vector3D(float x, float y, float z);
 Vector3Dint create_Vector3Dint(int x, int y, int z);
 Vector2D create_Vector2D(float x, float y);
 Vector2Dint create_Vector2Dint(int x, int y);
+
+
 
 Matrix3D outer_product(const Vector3D a, const Vector3D b);
 
