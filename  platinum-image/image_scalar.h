@@ -243,7 +243,7 @@ public:
 	void appl_wb_normalize_features_slicewise_by_global_mean_on_this_float (image_scalar<float, 3>* second_feature, image_scalar<float, 3>* sum=NULL, image_binary<3>* body_lung_mask=NULL);
 	void appl_wb_SIM_bias_correction_on_this_float(image_scalar<float, 3>* second_feature, int num_iterations=1, float iteration_strength=0.02, float map_x_smoothing_std_dev=60, float map_y_smoothing_std_dev=15, float map_z_smoothing_std_dev=60, float feat1_smoothing_std_dev=30, float feat2_smoothing_std_dev=30, image_binary<3>* body_lung_mask=NULL, int num_buckets_feat1=200, int num_buckets_feat2=200, bool save_corrected_images_each_iteration=false, bool save_histogram_each_iteration=false, bool save_field_each_iteration=false);
 
-//	void appl_1D_SIM_bias_correction(int num_iterations=1, float iteration_strength=0.02, float map_smoothing_std_dev=60, float feat1_smoothing_std_dev=30, image_binary<3>* mask=NULL, int num_buckets_feat1=200, bool save_corrected_images_each_iteration=false, bool save_histogram_each_iteration=false, bool save_field_each_iteration=false);
+	void appl_1D_SIM_bias_correction(image_binary<3>* mask, int num_iterations=1, float iteration_strength=0.02, float map_x_smoothing_std_dev=60, float map_y_smoothing_std_dev=60, float map_z_smoothing_std_dev=6, float feat1_smoothing_std_dev=30, int num_buckets_feat1=200, bool save_corrected_images_each_iteration=false, bool save_histogram_each_iteration=false, bool save_field_each_iteration=false);
 
 
 	//JK move to private later...

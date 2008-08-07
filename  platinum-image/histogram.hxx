@@ -517,34 +517,29 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 }
 
 template <class ELEMTYPE>
-float histogram_1D<ELEMTYPE>::get_norm_frequency_in_bucket(int bucket)
-{
+float histogram_1D<ELEMTYPE>::get_norm_frequency_in_bucket(int bucket){
 	return float(this->buckets[bucket])/float(num_elements_in_hist);
 }
 
 template <class ELEMTYPE>
-float histogram_1D<ELEMTYPE>::get_norm_frequency_for_intensity(ELEMTYPE intensity)
-{
+float histogram_1D<ELEMTYPE>::get_norm_frequency_for_intensity(ELEMTYPE intensity){
 	return float(this->buckets[this->intensity_to_bucketpos(intensity)])/float(num_elements_in_hist);
 }
 
 template <class ELEMTYPE>
-float histogram_1D<ELEMTYPE>::get_norm_p_log_p_frequency_in_bucket(int bucket, ZERO_HANDLING_TYPE zht)
-{
+float histogram_1D<ELEMTYPE>::get_norm_p_log_p_frequency_in_bucket(int bucket, ZERO_HANDLING_TYPE zht){
 	float p = get_norm_frequency_in_bucket(bucket);
 	return p*pt_log<ELEMTYPE>(p,zht);
 }
 
 template <class ELEMTYPE>
-float histogram_1D<ELEMTYPE>::get_norm_p_log_p_frequency_for_intensity(ELEMTYPE intensity, ZERO_HANDLING_TYPE zht)
-{
+float histogram_1D<ELEMTYPE>::get_norm_p_log_p_frequency_for_intensity(ELEMTYPE intensity, ZERO_HANDLING_TYPE zht){
 	float p = get_norm_frequency_for_intensity(intensity);
 	return p*pt_log<ELEMTYPE>(p,zht);
 }
 
 template <class ELEMTYPE>
-float histogram_1D<ELEMTYPE>::get_norm_p_log_p_cost(ZERO_HANDLING_TYPE zht)
-{
+float histogram_1D<ELEMTYPE>::get_norm_p_log_p_cost(ZERO_HANDLING_TYPE zht){
 	float cost=0;
 	for(unsigned short i=0; i<this->num_buckets; i++)
 	{
@@ -555,8 +550,7 @@ float histogram_1D<ELEMTYPE>::get_norm_p_log_p_cost(ZERO_HANDLING_TYPE zht)
 
 
 template <class ELEMTYPE>
-float histogram_1D<ELEMTYPE>::get_norm_p_log_p_gradient(int bucket, ZERO_HANDLING_TYPE zht)
-{
+float histogram_1D<ELEMTYPE>::get_norm_p_log_p_gradient(int bucket, ZERO_HANDLING_TYPE zht){
 	//corresponds to 1D sobel filter  (-0.5*a + 0*b +0.5*c)
 	if(bucket>0 && bucket<this->num_buckets-1)
 	{
@@ -565,16 +559,13 @@ float histogram_1D<ELEMTYPE>::get_norm_p_log_p_gradient(int bucket, ZERO_HANDLIN
 	return 0;
 }
 
+
 template <class ELEMTYPE>
-float histogram_1D<ELEMTYPE>::get_norm_p_log_p_gradient_for_intensity(ELEMTYPE intensity, ZERO_HANDLING_TYPE zht=ZERO_HANDLING_SET_ZERO)
-{
-	//corresponds to 1D sobel filter  (-0.5*a + 0*b +0.5*c)
-	if(bucket>0 && bucket<this->num_buckets-1)
-	{
-		return 0.5*get_norm_p_log_p_frequency_in_bucket(bucket+1,zht) - 0.5*get_norm_p_log_p_frequency_in_bucket(bucket-1,zht) ;
-	}
-	return 0;
+float histogram_1D<ELEMTYPE>::get_norm_p_log_p_gradient_for_intensity(ELEMTYPE intensity, ZERO_HANDLING_TYPE zht){
+	return get_norm_p_log_p_gradient(this->intensity_to_bucketpos(intensity),zht);
 }
+
+
 
 
 template <class ELEMTYPE>
@@ -754,8 +745,8 @@ float histogram_1D<ELEMTYPE>::find_better_amplitude(gaussian g, int from_bucket,
 	double error_min = 100000000000000000.0;
 
 	for(g.amplitude=start; g.amplitude<=end; g.amplitude+=step){
-//		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
-		error_sum = get_least_square_diff_ignore_zeros(g, from_bucket, to_bucket);
+//		error_sum = get_sum_square_diff_between_buckets(g, from_bucket, to_bucket);
+		error_sum = get_sum_square_diff_between_buckets_ignore_zeros(g, from_bucket, to_bucket);
 		if(error_sum<error_min){
 			error_min = error_sum;
 			best = g.amplitude;
@@ -775,8 +766,8 @@ float histogram_1D<ELEMTYPE>::find_better_center(gaussian g, int from_bucket, in
 	double error_min = 100000000000000000.0;
 
 	for(g.center=start; g.center<=end; g.center+=step){
-//		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
-		error_sum = get_least_square_diff_ignore_zeros(g, from_bucket, to_bucket);
+//		error_sum = get_sum_square_diff_between_buckets(g, from_bucket, to_bucket);
+		error_sum = get_sum_square_diff_between_buckets_ignore_zeros(g, from_bucket, to_bucket);
 		if(error_sum<error_min){
 			error_min = error_sum;
 			best = g.center;
@@ -796,8 +787,8 @@ float histogram_1D<ELEMTYPE>::find_better_sigma(gaussian g, int from_bucket, int
 	double error_min = 100000000000000000.0;
 
 	for(g.sigma=start; g.sigma<=end; g.sigma+=step){
-//		error_sum = get_least_square_diff(g, from_bucket, to_bucket);
-		error_sum = get_least_square_diff_ignore_zeros(g, from_bucket, to_bucket);
+//		error_sum = get_sum_square_diff_between_buckets(g, from_bucket, to_bucket);
+		error_sum = get_sum_square_diff_between_buckets_ignore_zeros(g, from_bucket, to_bucket);
 		if(error_sum<error_min){
 			error_min = error_sum;
 			best = g.sigma;
@@ -807,7 +798,7 @@ float histogram_1D<ELEMTYPE>::find_better_sigma(gaussian g, int from_bucket, int
 }
 
 template <class ELEMTYPE>
-double histogram_1D<ELEMTYPE>::get_least_square_diff(gaussian g, int from_bucket, int to_bucket){
+double histogram_1D<ELEMTYPE>::get_sum_square_diff_between_buckets(gaussian g, int from_bucket, int to_bucket){
 //	cout<<"getError...."<<endl;
 	double error = 0;
 	float val=0;
@@ -824,7 +815,7 @@ double histogram_1D<ELEMTYPE>::get_least_square_diff(gaussian g, int from_bucket
 }
 
 template <class ELEMTYPE>
-double histogram_1D<ELEMTYPE>::get_least_square_diff_ignore_zeros(gaussian g, int from_bucket, int to_bucket){
+double histogram_1D<ELEMTYPE>::get_sum_square_diff_between_buckets_ignore_zeros(gaussian g, int from_bucket, int to_bucket){
 //	cout<<"getError...."<<endl;
 	double error = 0;
 	float val=0;

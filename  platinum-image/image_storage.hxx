@@ -378,6 +378,11 @@ void image_storage<ELEMTYPE >::map_values(ELEMTYPE map_from, ELEMTYPE map_to, EL
 		}
 	}
 
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::map_negative_values(ELEMTYPE to_value)
+	{
+	map_values(std::numeric_limits<ELEMTYPE>::min(), 0, to_value);
+	}
 
 template <class ELEMTYPE >
 int image_storage<ELEMTYPE >::get_number_of_voxels_with_value(ELEMTYPE val)
