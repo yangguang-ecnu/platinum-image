@@ -164,6 +164,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		float get_norm_p_log_p_frequency_for_intensity(ELEMTYPE intensity, ZERO_HANDLING_TYPE zht=ZERO_HANDLING_SET_ZERO);
 		float get_norm_p_log_p_cost(ZERO_HANDLING_TYPE zht=ZERO_HANDLING_SET_ZERO);
 		float get_norm_p_log_p_gradient(int bucket, ZERO_HANDLING_TYPE zht=ZERO_HANDLING_SET_ZERO);
+		float get_norm_p_log_p_gradient_for_intensity(ELEMTYPE intensity, ZERO_HANDLING_TYPE zht=ZERO_HANDLING_SET_ZERO);
 
 
 		ELEMTYPE get_bucket_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity);
@@ -178,8 +179,8 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		float find_better_amplitude(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		float find_better_center(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		float find_better_sigma(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
-		double get_least_square_diff(gaussian g, int from_bucket, int to_bucket);
-		double get_least_square_diff_ignore_zeros(gaussian g, int from_bucket, int to_bucket);
+		double get_sum_square_diff_between_buckets(gaussian g, int from_bucket, int to_bucket);
+		double get_sum_square_diff_between_buckets_ignore_zeros(gaussian g, int from_bucket, int to_bucket);
 
 		//------------ min max variance -------------------------
 		ELEMTYPE get_min_value_in_bucket_range(int from, int to);
