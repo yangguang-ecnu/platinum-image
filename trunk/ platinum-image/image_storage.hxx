@@ -642,18 +642,5 @@ void image_storage<ELEMTYPE >::set_sum_of_voxels_to_value(double value)
 	this->scale_by_factor(factor);
 }
 
-/*
-template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::save_histogram_to_txt_file(std::string filepath, std::string separator)
-	{
-		cout<<"save_histogram_to_txt_file..."<<endl;
-		cout<<this->stats<<endl;
-//		this->min_max_refresh();
-//		this->stats->calculate();
-//		this->stats->print_histogram_content();
-		pt_error::error_if_null(this->stats,"image_storage<ELEMTYPE >::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
-		this->stats->save_histogram_to_txt_file(filepath,separator);
-	}
-*/
 
 #endif

@@ -1455,10 +1455,10 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 			amr=initvalue;
 			aur=initvalue;
 			alr=initvalue;
-			lm=(v<max_v-1)? output->get_voxel(u,v+1,w) : initvalue;
-			aum=(v>0 && w<max_w-1)? output->get_voxel(u,v-1,w+1) : initvalue;
-			amm=(w<max_w-1)? output->get_voxel(u,v,w+1) : initvalue;
-			alm=(v<max_v && w<max_w-1)? output->get_voxel(u,v+1,w+1) : initvalue;
+			lm=(v<max_v-2)? output->get_voxel(u,v+1,w) : initvalue;						//third bugfix --> the check need to check for v<v_max-2...
+			aum=(v>0 && w<max_w-2)? output->get_voxel(u,v-1,w+1) : initvalue;
+			amm=(w<max_w-2)? output->get_voxel(u,v,w+1) : initvalue;
+			alm=(v<max_v-2 && w<max_w-2)? output->get_voxel(u,v+1,w+1) : initvalue;
 
 			for(u=max_u-1; u>=0; u--){
 				p=this->get_voxel(u,v,w);

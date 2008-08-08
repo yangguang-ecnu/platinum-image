@@ -997,31 +997,19 @@ ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_intensity_at_lower_percentile(flo
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, const std::string separator)
-	{
-		cout<<"save_histogram_to_txt_file..."<<endl;
-		cout<<this->stats<<endl;
-		pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
-		this->stats->save_histogram_to_txt_file(filename, separator);
-	}
+{
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, bool reload_hist_from_image, gaussian *g, const std::string separator)
-	{
-		cout<<"save_histogram_to_txt_file..."<<endl;
-		cout<<this->stats<<endl;
-		pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
-		this->stats->save_histogram_to_txt_file(filename, reload_hist_from_image, g, separator);
-	}
-/*
-template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file2(const std::string filename, bool reload_hist_from_image, const std::string separator)
-	{
-		cout<<"save_histogram_to_txt_file..."<<endl;
-		cout<<this->stats<<endl;
-		pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file2 - stats==NULL",pt_error::debug);
-		this->stats->save_histogram_to_txt_file2(filename, reload_hist_from_image, separator);
-	}
-*/
+void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, gaussian *g, bool reload_hist_from_image, const std::string separator)
+{
+	cout<<"save_histogram_to_txt_file..."<<endl;
+	cout<<this->stats<<endl;
+	pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
+	this->stats->save_histogram_to_txt_file(filename, g, reload_hist_from_image, separator);
+}
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<unsigned short, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity, int num_buckets_a, int num_buckets_b, image_binary<IMAGEDIM>* mask)
 {
