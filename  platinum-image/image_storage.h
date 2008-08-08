@@ -50,8 +50,8 @@ class image_storage : public image_base
         image_storage(image_storage<SOURCETYPE> * const s);
 //        image_storage(const string filepath);
 
-        transfer_base<ELEMTYPE> * tfunction;
-        histogram_1D<ELEMTYPE> * stats;
+        transfer_base<ELEMTYPE> *tfunction;
+        histogram_1D<ELEMTYPE> *stats;
 
         virtual void transfer_function(transfer_base<ELEMTYPE> * t = NULL);
         //allows subclasses to set a different default transfer function, and
@@ -90,7 +90,6 @@ class image_storage : public image_base
         void get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &maximum);
 		double get_sum_of_voxels(ELEMTYPE lower_limit = std::numeric_limits<ELEMTYPE>::min(), bool calc_scalar_abs_value=false, image_storage<IMGBINARYTYPE>* mask=NULL);
 		void set_sum_of_voxels_to_value(double value);
-//		void save_histogram_to_txt_file(std::string filepath, std::string separator=";");
 
         void erase();
 		void fill(ELEMTYPE value);

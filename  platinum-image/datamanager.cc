@@ -164,7 +164,7 @@ void datamanager::save_hist_callback(Fl_Widget *callingwidget, void * thisdatama
         return;
     }
 
-    ((datamanager*)thisdatamanager)->dataItems[image_index]->save_histogram_to_txt_file(chooser.value(1));
+//    ((datamanager*)thisdatamanager)->dataItems[image_index]->save_histogram_to_txt_file(chooser.value(1));
 	pt_config::write("latest_path",path_parent(chooser.value(1)));
     }
 

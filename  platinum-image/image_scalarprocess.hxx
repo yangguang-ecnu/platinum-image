@@ -442,7 +442,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 //	cout<<"Result-sigma="<<sigma<<endl;
 
 //	gaussian *g = new gaussian(amp,center,sigma);
-//	h->save_histogram_to_txt_file(base+"__c04c_masked_Lung_histogram.txt",false,g); //for threshold determination
+//	h->save_histogram_to_txt_file(base+"__c04c_masked_Lung_histogram.txt",g,false); //for threshold determination
 
 //	int lung_tresh = center - 3*sigma;
 //	cout<<"my_lung_thres="<<lung_tresh<<endl;

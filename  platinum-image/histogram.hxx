@@ -356,13 +356,17 @@ image_storage<ELEMTYPE> * histogram_1D<ELEMTYPE>::image ()
     }
 
 template <class ELEMTYPE>
-void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, std::string separator)	{
-	save_histogram_to_txt_file(filepath, false, NULL, separator);
+void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, gaussian *g, bool reload_hist_from_image, std::string separator){
+	vector<gaussian> v;
+	if(g!=NULL){
+		v.push_back(*g);
+	}
+	save_histogram_to_txt_file(filepath, v, reload_hist_from_image, separator);
 	}
 
 template <class ELEMTYPE>
-void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bool reload_hist_from_image, gaussian *g, std::string separator)	{
-		cout<<"save_histogram_to_txt_file(std::string file)..."<<endl;
+void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, vector<gaussian> v, bool reload_hist_from_image, std::string separator){
+		cout<<"save_histogram_to_txt_file(std::string file...)"<<endl;
 
 		if(reload_hist_from_image){
 			this->images[0]->min_max_refresh(); //make sure to update image min and max before calling calculate() 
@@ -384,28 +388,21 @@ void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, bo
 		myfile<<"p_log_p cost"<<separator<<get_norm_p_log_p_cost()<<"\n";
 		myfile<<"\n";
 
-		if(g!=NULL){
-			myfile<<"g->amplitude="<<separator<<g->amplitude<<"\n";
-			myfile<<"g->center="<<separator<<g->center<<"\n";
-			myfile<<"g->sigma="<<separator<<g->sigma<<"\n";
-			cout<<"g->evaluate_at(0)="<<g->evaluate_at(0)<<endl;
-			cout<<"g->evaluate_at(0.1)="<<g->evaluate_at(0.1)<<endl;
+		for(int i=0;i<v.size();i++){
+			myfile<<"v[i].amplitude="<<separator<<v[i].amplitude<<"\n";
+			myfile<<"v[i].center="<<separator<<v[i].center<<"\n";
+			myfile<<"v[i].sigma="<<separator<<v[i].sigma<<"\n";
 		}
-
 
 		myfile<<"bucket"<<separator<<"intensity"<<separator<<"bucketvalue\n";
 		for(unsigned short i=0; i<this->num_buckets; i++){
-
 			myfile<<i<<separator<<bucketpos_to_intensity(i)<<separator<<this->buckets[i];
-
-			myfile<<separator<<get_norm_frequency_in_bucket(i)<<separator<<get_norm_p_log_p_frequency_in_bucket(i);
-			myfile<<separator<<get_norm_p_log_p_gradient(i);
-			
-			if(g!=NULL){
-				myfile<<separator<<g->evaluate_at(bucketpos_to_intensity(i));
+			//myfile<<separator<<get_norm_frequency_in_bucket(i)<<separator<<get_norm_p_log_p_frequency_in_bucket(i);
+			//myfile<<separator<<get_norm_p_log_p_gradient(i);
+			for(int g=0;g<v.size();g++){
+				myfile<<separator<<v[g].evaluate_at(bucketpos_to_intensity(i));
 			}
 			myfile<<"\n";
-
 		}
 
 		myfile.close();
@@ -745,8 +742,7 @@ float histogram_1D<ELEMTYPE>::find_better_amplitude(gaussian g, int from_bucket,
 	double error_min = 100000000000000000.0;
 
 	for(g.amplitude=start; g.amplitude<=end; g.amplitude+=step){
-//		error_sum = get_sum_square_diff_between_buckets(g, from_bucket, to_bucket);
-		error_sum = get_sum_square_diff_between_buckets_ignore_zeros(g, from_bucket, to_bucket);
+		error_sum = get_sum_square_diff_between_buckets(g, from_bucket, to_bucket);
 		if(error_sum<error_min){
 			error_min = error_sum;
 			best = g.amplitude;
@@ -766,8 +762,7 @@ float histogram_1D<ELEMTYPE>::find_better_center(gaussian g, int from_bucket, in
 	double error_min = 100000000000000000.0;
 
 	for(g.center=start; g.center<=end; g.center+=step){
-//		error_sum = get_sum_square_diff_between_buckets(g, from_bucket, to_bucket);
-		error_sum = get_sum_square_diff_between_buckets_ignore_zeros(g, from_bucket, to_bucket);
+		error_sum = get_sum_square_diff_between_buckets(g, from_bucket, to_bucket);
 		if(error_sum<error_min){
 			error_min = error_sum;
 			best = g.center;
@@ -787,8 +782,7 @@ float histogram_1D<ELEMTYPE>::find_better_sigma(gaussian g, int from_bucket, int
 	double error_min = 100000000000000000.0;
 
 	for(g.sigma=start; g.sigma<=end; g.sigma+=step){
-//		error_sum = get_sum_square_diff_between_buckets(g, from_bucket, to_bucket);
-		error_sum = get_sum_square_diff_between_buckets_ignore_zeros(g, from_bucket, to_bucket);
+		error_sum = get_sum_square_diff_between_buckets(g, from_bucket, to_bucket);
 		if(error_sum<error_min){
 			error_min = error_sum;
 			best = g.sigma;
@@ -798,41 +792,107 @@ float histogram_1D<ELEMTYPE>::find_better_sigma(gaussian g, int from_bucket, int
 }
 
 template <class ELEMTYPE>
-double histogram_1D<ELEMTYPE>::get_sum_square_diff_between_buckets(gaussian g, int from_bucket, int to_bucket){
-//	cout<<"getError...."<<endl;
+double histogram_1D<ELEMTYPE>::get_sum_square_diff_between_buckets(vector<gaussian> v, int from_bucket, int to_bucket, bool ignore_zeros){
 	double error = 0;
 	float val=0;
+	int zero_intensity_bucket = intensity_to_bucketpos(0);
+
 	for(int j=from_bucket;j<=to_bucket;j++){
 		//it is very important to use the intensity, and not the bucket position...
-		val = g.evaluate_at(bucketpos_to_intensity(j));	
-		if(j<0){
-			error += pow(val - 0, 2);
-		}else{
-			error += pow(val - float(this->buckets[j]), 2);
+
+		if(this->buckets[j]>0 || !ignore_zeros){
+			if(j != zero_intensity_bucket){ //dont include the commonly seen peak at zero intensity
+
+				val=0;
+				ELEMTYPE intensity = bucketpos_to_intensity(j);
+				for(int i=0;i<v.size();i++){
+					val += v[i].evaluate_at(intensity);	
+				}
+
+				if(j<0){
+					error += pow(val - 0, 2);
+				}else{
+					error += pow(val - float(this->buckets[j]), 2);
+				}
+			}
+
 		}
 	}
 	return error;
+}
+
+
+template <class ELEMTYPE>
+double histogram_1D<ELEMTYPE>::get_sum_square_diff_between_buckets(gaussian g, int from_bucket, int to_bucket, bool ignore_zeros){
+	vector<gaussian> v;
+	v.push_back(g);
+	return get_sum_square_diff_between_buckets(v,from_bucket,to_bucket);
 }
 
 template <class ELEMTYPE>
-double histogram_1D<ELEMTYPE>::get_sum_square_diff_between_buckets_ignore_zeros(gaussian g, int from_bucket, int to_bucket){
-//	cout<<"getError...."<<endl;
-	double error = 0;
-	float val=0;
-	for(int j=from_bucket;j<=to_bucket;j++){
-		//it is very important to use the intensity, and not the bucket position...
-
-		val = g.evaluate_at(bucketpos_to_intensity(j));	
-		if(this->buckets[j]>0){
-			if(j<0){
-				error += pow(val - 0, 2);
-			}else{
-				error += pow(val - float(this->buckets[j]), 2);
-			}
-		}
-	}
-	return error;
+double histogram_1D<ELEMTYPE>::get_sum_square_diff(vector<gaussian> v, bool ignore_zeros){
+	return get_sum_square_diff_between_buckets(v,0,this->num_buckets-1, ignore_zeros);
 }
+
+template <class ELEMTYPE>
+double histogram_1D<ELEMTYPE>::get_sum_square_diff(gaussian g, bool ignore_zeros){
+	vector<gaussian> v;
+	v.push_back(g);
+	return get_sum_square_diff_between_buckets(v,0,this->num_buckets-1,ignore_zeros);
+}
+
+template <class ELEMTYPE>
+vnl_vector<double> histogram_1D<ELEMTYPE>::get_vnl_vector_with_start_guess_of_num_gaussians(int num_gaussians){
+	vnl_vector<double> x(3*num_gaussians);
+
+	int from_bucket=1;
+	int to_bucket=0;
+	for(int i=0;i<num_gaussians;i++){
+		to_bucket = this->get_bucket_at_histogram_lower_percentile( float(i+1)/float(num_gaussians), true);
+		cout<<from_bucket<<" -->"<<to_bucket<<endl;
+		//height
+		//center (intensity)
+		//SD (int)
+		x[i*3+0] = this->get_max_value_in_bucket_range(from_bucket,to_bucket);
+		x[i*3+1] = this->bucketpos_to_intensity( this->get_bucket_at_histogram_lower_percentile( float(i+0.5)/float(num_gaussians), true) );
+		x[i*3+2] = sqrt(this->get_variance_in_bucket_range(from_bucket,to_bucket));
+
+		from_bucket = to_bucket;
+	}
+	return x;
+}
+
+
+template <class ELEMTYPE>
+ELEMTYPE histogram_1D<ELEMTYPE>::fit_two_gaussians_to_histogram_and_return_threshold(string save_histogram_file_path)
+{
+	fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE> cost(this,2);
+	vnl_amoeba amoeba_optimizer = vnl_amoeba(cost);
+	amoeba_optimizer.verbose = true;
+	amoeba_optimizer.set_x_tolerance(1); //öööö JK test this...
+//	amoeba_optimizer.set_relative_diameter(0.10);
+//	amoeba_optimizer.set_max_iterations(10);
+//	amoeba_optimizer.set_f_tolerance(1);
+
+	vnl_vector<double> x = this->get_vnl_vector_with_start_guess_of_num_gaussians(2);
+	cout<<"x="<<x<<endl;
+	amoeba_optimizer.minimize(cost,x);
+	cout<<"x="<<x<<endl;
+	cout<<"amoeba_optimizer.maxiter="<<amoeba_optimizer.maxiter<<endl;
+	cout<<"amoeba_optimizer.F_tolerance="<<amoeba_optimizer.F_tolerance<<endl;
+	cout<<"amoeba_optimizer.X_tolerance="<<amoeba_optimizer.X_tolerance<<endl;
+
+	if(save_histogram_file_path != ""){
+		gaussian g = gaussian(x[0],x[1],x[2]);
+		gaussian g2 = gaussian(x[3],x[4],x[5]);
+		vector<gaussian> v; v.push_back(g); v.push_back(g2);
+		this->save_histogram_to_txt_file(save_histogram_file_path,v);
+	}
+
+
+	return x[1] + 2*x[2]; //pos + 2*SD
+}
+
 
 
 template <class ELEMTYPE>
@@ -933,7 +993,24 @@ int histogram_1D<ELEMTYPE>::get_bucket_pos_with_largest_value_in_intensity_range
 	return pos;
 }
 
+template<class ELEMTYPE>
+fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::fit_gaussians_to_histogram_1D_cost_function(histogram_1D<ELEMTYPE> *h, int num):vnl_cost_function(num*3)
+{
+	the_hist = h;
+	num_gaussians = num;
+}
 
+template<class ELEMTYPE>
+double fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::f(vnl_vector<double> const &x)
+{
+	vector<gaussian> v;
+	for(int i=0;i<num_gaussians;i++){
+		v.push_back( gaussian(x[i*3+0],x[i*3+1],x[i*3+2]) );
+	}
+	double res = the_hist->get_sum_square_diff(v);
+	cout<<x<<"-->"<<res<<endl;
+	return res;
+}
 
 
 /*

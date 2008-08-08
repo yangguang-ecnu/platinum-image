@@ -28,6 +28,8 @@
 
 #include "ptmath.h"
 #include "threshold.h"
+#include "global.h"
+#include <vnl/vnl_cost_function.h>
 
 template <class ELEMTYPE>
     class image_storage;
@@ -35,7 +37,6 @@ template <class ELEMTYPE>
 //template <class IMAGEDIM>
 //    class image_binary;
 
-#include "global.h"
 
 struct regionofinterest
     {
@@ -145,8 +146,8 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 			{return this->readytorender;}   
 		image_storage<ELEMTYPE> * image ();
 
-		void save_histogram_to_txt_file(std::string filepath, std::string separator="\t");
-		void save_histogram_to_txt_file(std::string filepath, bool reload_hist_from_image, gaussian *g=NULL, std::string separator="\t");
+		void save_histogram_to_txt_file(std::string filepath, gaussian *g=NULL, bool reload_hist_from_image=false, std::string separator="\t");
+		void save_histogram_to_txt_file(std::string filepath, vector<gaussian> v, bool reload_hist_from_image=false, std::string separator="\t");
 		
 		float get_scalefactor();
 		ELEMTYPE bucketpos_to_intensity(int bucketpos);
@@ -179,8 +180,13 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		float find_better_amplitude(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		float find_better_center(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		float find_better_sigma(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
-		double get_sum_square_diff_between_buckets(gaussian g, int from_bucket, int to_bucket);
-		double get_sum_square_diff_between_buckets_ignore_zeros(gaussian g, int from_bucket, int to_bucket);
+		double get_sum_square_diff_between_buckets(vector<gaussian> v, int from_bucket, int to_bucket, bool ignore_zeros=true);
+		double get_sum_square_diff_between_buckets(gaussian g, int from_bucket, int to_bucket, bool ignore_zeros=true);
+		double get_sum_square_diff(vector<gaussian> v, bool ignore_zeros=true);
+		double get_sum_square_diff(gaussian g, bool ignore_zeros=true);
+		vnl_vector<double> get_vnl_vector_with_start_guess_of_num_gaussians(int num_gaussians);
+		ELEMTYPE fit_two_gaussians_to_histogram_and_return_threshold(string save_histogram_file_path = "");
+
 
 		//------------ min max variance -------------------------
 		ELEMTYPE get_min_value_in_bucket_range(int from, int to);
@@ -194,6 +200,18 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		int get_bucket_pos_with_largest_value_in_intensity_range(ELEMTYPE from, ELEMTYPE to);
 
     };
+
+
+template<class ELEMTYPE>
+class fit_gaussians_to_histogram_1D_cost_function : public vnl_cost_function
+{
+	histogram_1D<ELEMTYPE> *the_hist;
+	int num_gaussians;
+
+public:
+	fit_gaussians_to_histogram_1D_cost_function(histogram_1D<ELEMTYPE> *h, int num);
+	double f(vnl_vector<double> const &x);
+};
 
 
 // This class extends histogram_1D<class ELEMTYPE> just to implement one function
