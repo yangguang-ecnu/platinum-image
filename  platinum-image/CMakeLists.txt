@@ -104,6 +104,7 @@ image_scalar.h
 image_storage.h 
 landmark_tool.h 
 listedfactory.h 
+meta_tool.h 
 metadata.h 
 platinumprogram.h 
 point_collection.h 
@@ -172,6 +173,7 @@ image_scalarprocess.hxx
 image_storage.hxx 
 landmark_tool.cc 
 mainwindow.cc 
+meta_tool.cc
 metadata.cc 
 point.cc 
 point_collection.cc 
@@ -378,6 +380,7 @@ userIO.h
 FLTKuserIOparameters.h 
 histo2D_tool.h 
 landmark_tool.h 
+meta_tool.h 
 transferfactory.h 
 transferfactory.hxx 
 userIOmanager.h 
@@ -388,6 +391,7 @@ userIO.cc
 FLTKuserIOparameters.cc 
 histo2D_tool.cc 
 landmark_tool.cc 
+meta_tool.cc
 statusarea.h 
 transferfactory.cc 
 userIOmanager.cc 
