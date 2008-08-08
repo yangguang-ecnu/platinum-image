@@ -49,3 +49,5 @@ class meta_tool : public nav_tool
 //		static void register_userIO_ID(int ID);
 //		static void register_point_collection_ID(int ID);
 };
+
+#endif

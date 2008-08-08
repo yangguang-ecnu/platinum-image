@@ -24,6 +24,7 @@
 #include "rendermanager.h"
 #include "userIOmanager.h"
 #include "landmark_tool.h"
+#include "meta_tool.h"
 
 
 extern viewmanager viewmanagement;
@@ -68,6 +69,7 @@ void viewporttool::init (int posX, int posY,statusarea * s)
     viewporttool::Register<cursor_tool>();
     viewporttool::Register<histo2D_tool>();
 	viewporttool::Register<landmark_tool>();
+	viewporttool::Register<meta_tool>();
     
     selected = "Navigation";
     
