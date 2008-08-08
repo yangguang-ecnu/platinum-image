@@ -33,36 +33,37 @@ extern rendermanager rendermanagement;
 extern viewmanager viewmanagement;
 extern userIOmanager userIOmanagement;
 
-/*
-int landmark_tool::userIO_ID = -1;
+
+//int landmark_tool::userIO_ID = -1;
 //int landmark_tool::point_collection_ID = -1;
 
-landmark_tool::landmark_tool(viewport_event & event) : nav_tool(event)
+meta_tool::meta_tool(viewport_event & event) : nav_tool(event)
 {
-	if (event.type() == pt_event::create || event.type() == pt_event::hover || event.type() == pt_event::hover || event.type() == pt_event::key )
-	{
-        event.grab();
-	}
+//	if (event.type() == pt_event::create || event.type() == pt_event::hover || event.type() == pt_event::hover || event.type() == pt_event::key )
+//	{
+//        event.grab();
+//	}
 }
 
-landmark_tool::~landmark_tool()
-{
-}
-
-const std::string landmark_tool::name()
-{
-	return "Landmark";
-}
-
-void landmark_tool::init()
+meta_tool::~meta_tool()
 {
 }
 
-void landmark_tool::handle(viewport_event &event)
+const std::string meta_tool::name()
+{
+	return "Metastasis analysis tool";
+}
+
+void meta_tool::init()
+{
+}
+
+void meta_tool::handle(viewport_event &event)
 {
 //	std::vector<int> mouse2d = event.mouse_pos_local();
     const int * mouse2d = event.mouse_pos_local();
 
+	/*
 
 	int point_collection_ID;
 	
@@ -255,15 +256,16 @@ void landmark_tool::handle(viewport_event &event)
 			
 	}
 
-
-	
 	nav_tool::handle(event);
+
+	*/
+
 }
 
-void landmark_tool::register_userIO_ID(int id)
-{
-	userIO_ID = id;
-}
+//void landmark_tool::register_userIO_ID(int id)
+//{
+//	userIO_ID = id;
+//}
 
 //void landmark_tool::register_point_collection_ID (int id)
 //{
@@ -273,8 +275,3 @@ void landmark_tool::register_userIO_ID(int id)
 
 
 
-
-
-
-
-*/
