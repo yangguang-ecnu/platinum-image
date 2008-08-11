@@ -789,7 +789,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::rotate_geometry_around_center_voxel(int 
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, ELEMTYPE value)
+image_base* image_general<ELEMTYPE, IMAGEDIM>::expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, ELEMTYPE value)
 {
 	cout<<"expanding image borders..."<<endl;
 	int old_size_x=this->get_size_by_dim(0);
@@ -809,6 +809,57 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::expand_bor
 	res->set_origin(this->get_physical_pos_for_voxel(-dx,-dy,-dz));
 	return res;
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_base* image_general<ELEMTYPE, IMAGEDIM>::expand_borders2D_by_dir(int dir, unsigned int dr, ELEMTYPE value)
+{
+	image_scalar<ELEMTYPE, IMAGEDIM>* res;
+	if(dir==2){
+		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( expand_borders(dr,dr,0,value) );
+	}else if(dir==1){
+		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( expand_borders(dr,0,dr,value) );
+	}else{
+		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( expand_borders(0,dr,dr,value) );
+	}
+	return res;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_base* image_general<ELEMTYPE, IMAGEDIM>::contract_borders(unsigned int dx, unsigned int dy, unsigned int dz)
+{
+	cout<<"contracting image borders..."<<endl;
+	int old_size_x=this->get_size_by_dim(0);
+	int old_size_y=this->get_size_by_dim(1);
+	int old_size_z=this->get_size_by_dim(2);
+	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(old_size_x-2*dx, old_size_y-2*dy, old_size_z-2*dz);
+	res->set_parameters(this);
+
+	for (int z=0; z<res->nz(); z++){
+		for (int y=0; y<res->nz(); y++){
+			for (int x=0; x<res->nx(); x++){
+				res->set_voxel(x,y,z, this->get_voxel(x+dx,y+dy,z+dz));
+			}
+		}
+	}
+	res->set_origin(this->get_physical_pos_for_voxel(0+dx,0+dy,0+dz));
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_base* image_general<ELEMTYPE, IMAGEDIM>::contract_borders2D_by_dir(int dir, unsigned int dr)
+{
+	image_scalar<ELEMTYPE, IMAGEDIM>* res;
+	if(dir==2){
+		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( contract_borders(dr,dr,0) );
+	}else if(dir==1){
+		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( contract_borders(dr,0,dr) );
+	}else{
+		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( contract_borders(0,dr,dr) );
+	}
+	return res;
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 unsigned long image_general<ELEMTYPE, IMAGEDIM>::get_number_of_voxels_with_value_in_slice_2D(int slice, int dir, ELEMTYPE value)

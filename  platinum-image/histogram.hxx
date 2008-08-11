@@ -868,7 +868,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::fit_two_gaussians_to_histogram_and_return_thres
 {
 	fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE> cost(this,2);
 	vnl_amoeba amoeba_optimizer = vnl_amoeba(cost);
-	amoeba_optimizer.verbose = true;
+	amoeba_optimizer.verbose = false;
 	amoeba_optimizer.set_x_tolerance(1); //öööö JK test this...
 //	amoeba_optimizer.set_relative_diameter(0.10);
 //	amoeba_optimizer.set_max_iterations(10);
@@ -888,7 +888,6 @@ ELEMTYPE histogram_1D<ELEMTYPE>::fit_two_gaussians_to_histogram_and_return_thres
 		vector<gaussian> v; v.push_back(g); v.push_back(g2);
 		this->save_histogram_to_txt_file(save_histogram_file_path,v);
 	}
-
 
 	return x[1] + 2*x[2]; //pos + 2*SD
 }

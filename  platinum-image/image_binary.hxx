@@ -333,6 +333,79 @@ void image_binary<IMAGEDIM>::invert()
 	//this->image_has_changed();
     } 
 
+template <int IMAGEDIM>
+image_base* image_binary<IMAGEDIM>::expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value)
+{
+	cout<<"expanding image borders (image_binary)..."<<endl;
+	int old_size_x=this->get_size_by_dim(0);
+	int old_size_y=this->get_size_by_dim(1);
+	int old_size_z=this->get_size_by_dim(2);
+	image_binary<IMAGEDIM>* res = new image_binary<IMAGEDIM>(old_size_x+2*dx, old_size_y+2*dy, old_size_z+2*dz);
+	res->fill(value);
+	res->set_parameters(this);
+
+	for (int z=0; z<old_size_z; z++){
+		for (int y=0; y<old_size_y; y++){
+			for (int x=0; x<old_size_x; x++){
+				res->set_voxel(x+dx,y+dy,z+dz, this->get_voxel(x,y,z));
+			}
+		}
+	}
+	res->set_origin(this->get_physical_pos_for_voxel(-dx,-dy,-dz));
+	return res;
+}
+
+template <int IMAGEDIM>
+image_base* image_binary<IMAGEDIM>::expand_borders2D_by_dir(int dir, unsigned int dr, IMGBINARYTYPE value)
+{
+	image_binary<IMAGEDIM>* res;
+	if(dir==2){
+		res = binary_copycast<IMAGEDIM>( expand_borders(dr,dr,0,value) );
+	}else if(dir==1){
+		res = binary_copycast<IMAGEDIM>( expand_borders(dr,0,dr,value) );
+	}else{
+		res = binary_copycast<IMAGEDIM>( expand_borders(0,dr,dr,value) );
+	}
+	return res;
+}
+
+template <int IMAGEDIM>
+image_base* image_binary<IMAGEDIM>::contract_borders(unsigned int dx, unsigned int dy, unsigned int dz)
+{
+	cout<<"contracting image borders (image_binary)..."<<endl;
+	int old_size_x=this->get_size_by_dim(0);
+	int old_size_y=this->get_size_by_dim(1);
+	int old_size_z=this->get_size_by_dim(2);
+	image_binary<IMAGEDIM>* res = new image_binary<IMAGEDIM>(old_size_x-2*dx, old_size_y-2*dy, old_size_z-2*dz);
+	res->set_parameters(this);
+
+	for (int z=0; z<res->nz(); z++){
+		for (int y=0; y<res->ny(); y++){
+			for (int x=0; x<res->nx(); x++){
+				res->set_voxel(x,y,z, this->get_voxel(x+dx,y+dy,z+dz));
+			}
+		}
+	}
+	res->set_origin(this->get_physical_pos_for_voxel(0+dx,0+dy,0+dz));
+	return res;
+}
+
+template <int IMAGEDIM>
+image_base* image_binary<IMAGEDIM>::contract_borders2D_by_dir(int dir, unsigned int dr)
+{
+	image_binary<IMAGEDIM>* res;
+	if(dir==2){
+		res = binary_copycast<IMAGEDIM>( contract_borders(dr,dr,0) );
+	}else if(dir==1){
+		res = binary_copycast<IMAGEDIM>( contract_borders(dr,0,dr) );
+	}else{
+		res = binary_copycast<IMAGEDIM>( contract_borders(0,dr,dr) );
+	}
+	return res;
+}
+
+
+
 template <int DIM>
 image_binary<DIM>* binary_copycast (image_base* input) 
 {

@@ -64,6 +64,12 @@ class image_binary : public image_label <IMAGEDIM>
     image_binary<IMAGEDIM> * logical_and_prev_or_next(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A OR (PrevSlice AND NextSlice) operation
     void invert(); ///Perform a voxelwise inversion
 
+
+	virtual image_base* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value=0);	
+	virtual image_base* expand_borders2D_by_dir(int dir, unsigned int dr=1, IMGBINARYTYPE value=0);	
+	virtual image_base* contract_borders(unsigned int dx, unsigned int dy, unsigned int dz);	
+	virtual image_base* contract_borders2D_by_dir(int dir, unsigned int dr=1);	
+
     // *** applications ***
 
     // ----------- 2D operations in image_binaryprocess ---------------

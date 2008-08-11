@@ -2,7 +2,7 @@
 //
 //  Image_base $Revision $
 //
-//  Untemplated base class for image storage, including images
+//  Untemplated abstract base class for image storage, including images
 //  contains 3D position and orientation information
 //
 //  $LastChangedBy $
@@ -147,7 +147,7 @@ class image_base : public data_base
 
 		virtual float get_phys_span_in_dir(Vector3D dir) = 0; //needed for example when setting upp view_ports "center3d_and_fit"
 
-		virtual void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
+//		virtual void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
 
     };
 

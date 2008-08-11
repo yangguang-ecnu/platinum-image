@@ -105,6 +105,7 @@ class image_storage : public image_base
 		bool same_size(image_storage<ELEMTYPE> *const image2); //checks the data size only... (not the dimension)
 		void combine(image_storage<ELEMTYPE> *const image2, COMBINE_MODE mode);
 
+
 		void print_stats();
 
 

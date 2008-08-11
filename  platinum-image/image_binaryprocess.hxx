@@ -152,7 +152,7 @@ void image_binary<IMAGEDIM>::convex_hull_objectwise_in_slice_2D(image_label<3>* 
 }
 
 template <int IMAGEDIM>
-void image_binary<IMAGEDIM>::fill_holes_2D(int direction, IMGBINARYTYPE object_value)
+void image_binary<IMAGEDIM>::fill_holes_2D(int direction, IMGBINARYTYPE object_value) //assumes object not connected to borders... (use "expand_borders")
 	{
 	int u,v,w;
 	int max_u, max_v, max_w;
@@ -257,6 +257,7 @@ void image_binary<IMAGEDIM>::fill_holes_2D(int direction, IMGBINARYTYPE object_v
 		}	
 
 	//this->image_has_changed();
+	//label_image->save_to_file("D:/Joel/TMP/SIM_0b_binary_body_label_image.vtk");
 	delete label_image;
 	}
 	
