@@ -210,7 +210,10 @@ class image_general : public image_storage <ELEMTYPE >
         Matrix3D get_voxel_resize () const;           //return voxel size as matrix
 		void rotate_geometry_around_center_voxel(int fi_z_deg, int fi_y_deg, int fi_x_deg);
 
-		image_general<ELEMTYPE, IMAGEDIM>* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, ELEMTYPE value=0);	
+		virtual image_base* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, ELEMTYPE value=0);	
+		virtual image_base* expand_borders2D_by_dir(int dir, unsigned int dr=1, ELEMTYPE value=0);	
+		virtual image_base* contract_borders(unsigned int dx, unsigned int dy, unsigned int dz);	
+		virtual image_base* contract_borders2D_by_dir(int dir, unsigned int dr=1);	
 
 		//****** Sub volume operations - regions ********
 		unsigned long get_number_of_voxels_with_value_in_slice_2D(int slice, int dir=2, ELEMTYPE value=1);

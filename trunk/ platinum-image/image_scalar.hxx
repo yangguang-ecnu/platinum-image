@@ -994,11 +994,12 @@ ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_intensity_at_lower_percentile(flo
 {
 	return this->stats->get_intensity_at_histogram_lower_percentile(percentile, ignore_zero_intensity);
 }
-
+/*
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, const std::string separator)
 {
 }
+*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, gaussian *g, bool reload_hist_from_image, const std::string separator)

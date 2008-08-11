@@ -842,6 +842,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_1D_SIM_bias_correction(image_binary<
 {
 	// corrected images:
 	image_scalar<float,3> *feat1_corr = new image_scalar<float,3>(this, "feat1_corr"); //Note... Used as the starting value...
+	cout<<"feat1_corr->get_min()="<<feat1_corr->get_min()<<endl;
+	cout<<"feat1_corr->get_max()="<<feat1_corr->get_max()<<endl;
 
 	// bias correction field:
 	image_scalar<float,3> *field = new image_scalar<float,3>(feat1_corr, "field");
