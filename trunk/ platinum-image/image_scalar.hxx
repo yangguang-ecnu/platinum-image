@@ -1142,7 +1142,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1
 
 	vnl_vector<float> alpha(N);		//flip angles...
 	for( int i=0;i<N;i++){
-		alpha(i) = v[i]->meta.get_flip()*PI/180.0;
+		alpha(i) = v[i]->meta.get_flip()*pt_PI/180.0;
 	}
 	cout<<"alpha="<<alpha<<endl;
 
@@ -1247,9 +1247,9 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 		float limit = 100;
 		float num_counted = 0;
 
-		cout<<"k=";
+//		cout<<"k=";
 		for(int k=r[2]; k < this->datasize[2]-r[2]; k++){
-			cout<<k<<",";
+//			cout<<k<<",";
 			for(int j=r[1]; j < this->datasize[1]-r[1]; j++){
 				for(int i=r[0]; i < this->datasize[0]-r[0]; i++){
 
@@ -2787,7 +2787,7 @@ image_scalar<float, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_
 	
 	float r=0;
 	for(int k=from_pos[2];k<=to_pos[2];k++){
-		cout<<"k="<<k<<endl;
+//		cout<<"k="<<k<<endl;
 		for(int j=from_pos[1];j<=to_pos[1];j++){
 			for(int i=from_pos[0];i<=to_pos[0];i++){
 				r = this->get_mean_least_square_difference_to_template_3D(create_Vector3D(i,j,k),small_template);

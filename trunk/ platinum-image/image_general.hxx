@@ -1269,6 +1269,28 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMA
 	delete res;		// ->deallocate();		//÷÷÷ - JK WARNING MEMORY LEAK???
 }
 
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_collage2D_from3D_volume(int num_cols, int num_rows)
+{
+	image_scalar<ELEMTYPE, IMAGEDIM> *res = new image_scalar<ELEMTYPE, IMAGEDIM>(num_cols*this->nx(),num_rows*this->ny(),1);
+	res->fill(0);
+	int slice=0;
+	Vector3Dint from_size = create_Vector3Dint(this->nx(),this->ny(),1);
+	for(int j=0;j<num_rows;j++){
+		for(int i=0;i<num_cols;i++){
+			//fill_region_3D_with_subvolume_image(Vector3Dint to_pos, image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint from_pos, Vector3Dint from_size); //based on given voxel coords
+			Vector3Dint to_pos = create_Vector3Dint(i*this->nx(), j*this->ny(),0);
+			Vector3Dint from_pos = create_Vector3Dint(0,0,slice);
+			res->fill_region_3D_with_subvolume_image(to_pos, this, from_pos, from_size);
+			slice++;
+		}
+	}
+	return res;	
+}
+ 
+
 template <class ELEMTYPE, int IMAGEDIM>
 //void image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int no_dynamics, int no_contrasts)
 vector< image_scalar<ELEMTYPE, IMAGEDIM>* > image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int no_dynamics, int no_contrasts)
@@ -1812,6 +1834,26 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(imag
 				this->set_voxel(x-this_begin[0],y-this_begin[1],z-this_begin[2], subvolume->get_voxel(x,y,z));
 			}
 		}
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(Vector3Dint to_pos, image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint from_pos, Vector3Dint from_size)
+{
+	int xx;
+	int yy;
+	int zz = to_pos[2];
+	for(int z=from_pos[2]; z< (from_pos[2] + from_size[2]); z++){
+		yy = to_pos[1];
+		for(int y=from_pos[1]; y< (from_pos[1] + from_size[1]); y++){
+			xx = to_pos[0];
+			for(int x=from_pos[0]; x< (from_pos[0] + from_size[0]); x++){
+				this->set_voxel(xx,yy,zz, im->get_voxel(x,y,z));
+				xx++;
+			}
+			yy++;
+		}
+		zz++;
 	}
 }
 

@@ -121,7 +121,7 @@ void image_base::rotate_orientation(int fi_x_deg, int fi_y_deg, int fi_z_deg)
 {
 //    matrix_generator mg;
 //    orientation = mg.get_rot_matrix_3D(fi_z_deg,fi_y_deg,fi_x_deg)*orientation;
-    orientation = create_rot_matrix_3D(fi_x_deg*PI/180.0, fi_y_deg*PI/180.0, fi_z_deg*PI/180.0)*orientation;
+    orientation = create_rot_matrix_3D(fi_x_deg*pt_PI/180.0, fi_y_deg*pt_PI/180.0, fi_z_deg*pt_PI/180.0)*orientation;
 }
 
 void image_base::rotate_orientation(float fi_x_rad, float fi_y_rad, float fi_z_rad)

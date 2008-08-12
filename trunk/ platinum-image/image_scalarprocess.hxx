@@ -148,8 +148,8 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1
 
 		t1map = new image_scalar<ELEMTYPE, IMAGEDIM>(this);
 
-		float alpha_l = PI*fa1/180.0;
-		float alpha_s = PI*fa2/180.0;
+		float alpha_l = pt_PI*fa1/180.0;
+		float alpha_s = pt_PI*fa2/180.0;
 		float sin_ratio = sin(alpha_l)/sin(alpha_s);
 		float A=0;
 		float t1=0;
