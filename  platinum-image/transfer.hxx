@@ -118,8 +118,8 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	contrast_ctrl->type(FL_HOR_SLIDER);
 	contrast_ctrl->align(FL_ALIGN_LEFT);
     contrast_ctrl->value(atan(1.0));
-    contrast_ctrl->bounds(0,PI/2.0);
-	contrast_ctrl->step((PI/2.0)/100.0);
+    contrast_ctrl->bounds(0,pt_PI/2.0);
+	contrast_ctrl->step((pt_PI/2.0)/100.0);
 	contrast_ctrl->precision(2);
 	contrast_ctrl->callback(slider_cb,this);
 	contrast_ctrl->labelsize(12);

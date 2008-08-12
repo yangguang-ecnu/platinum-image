@@ -155,7 +155,7 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::gauss_fit2()
 		double mean2=sum2/n2;
 		double std1=sqrt((sum1_2-n1*mean1*mean1)/(n1-1));
 		double std2=sqrt((sum2_2-n2*mean2*mean2)/(n2-1));
-		double sqrt2pi=sqrt(2*PI);
+		double sqrt2pi=sqrt(2*pt_PI);
 		double sumGauss1=0;
 		double sumGauss2=0;
 		for(j=min_val; j<=max_val; j++)

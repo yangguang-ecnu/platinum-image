@@ -28,7 +28,7 @@
 #ifndef __image_general__
 #define __image_general__
 
-#define PI 3.1415926536
+//#define pt_PI 3.1415926536
 
 //forward declarations, needed with GCC for unknown reasons
 template<class ELEMTYPE, int IMAGEDIM>
@@ -182,7 +182,8 @@ class image_general : public image_storage <ELEMTYPE >
 		void fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
 		void fill_region_3D(int dir, int start_index, int end_index, ELEMTYPE value);
 		void fill_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size, ELEMTYPE value);
-		void fill_region_3D_with_subvolume_image(image_general<ELEMTYPE, IMAGEDIM> *subvolume); //based on physical coordinates
+		void fill_region_3D_with_subvolume_image(image_general<ELEMTYPE, IMAGEDIM> *subvolume); //based on physical coords
+		void fill_region_3D_with_subvolume_image(Vector3Dint to_pos, image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint from_pos, Vector3Dint from_size); //based on given voxel coords
 		void fill_region_of_mask_3D(image_binary<IMAGEDIM> *mask, ELEMTYPE value);
 		void fill_image_border_3D(ELEMTYPE value, int border_thickness=1);
 
@@ -235,6 +236,7 @@ class image_general : public image_storage <ELEMTYPE >
 		void add_volume_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int add_dir=2);
 		void add_volume_3D(image_label<IMAGEDIM> *src, int add_dir=2);
 		void add_slice_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no=0, int slice_dir=2);
+		image_general<ELEMTYPE, IMAGEDIM>* get_collage2D_from3D_volume(int num_cols, int num_rows);
 
 		// slice reorganization function that sorts slices from many dynamic scans
 		// first used for slice sorting from DICOM export from "COMBI-acquisition" on Philips 1.5T MRI. 
@@ -282,7 +284,7 @@ class image_general : public image_storage <ELEMTYPE >
 		void save_to_raw_file(const std::string file_path, bool save_image_info_txt_file=false);
         void save_to_NIFTI_file(const std::string file_path); //JK test
         void save_to_TIF_file_series_3D(const std::string file_path_base, int dir=2, int from_slice=-1, int to_slice=-1);
-		void save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice);
+		void save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice="0");
 
 		void set_geometry(float ox,float oy,float oz,float dx,float dy,float dz,float fi_x,float fi_y,float fi_z);
         bool read_geometry_from_dicom_file(std::string dcm_file);

@@ -25,7 +25,7 @@
 #ifndef __ptmath__
 #define __ptmath__
 
-#define PI 3.1415926536
+#define pt_PI 3.1415926536
 
 #include <limits>	//for example...  numeric_limits<float>
 #include <set>

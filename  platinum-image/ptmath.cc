@@ -494,7 +494,7 @@ Matrix3D matrix_generator::get_rot_z_matrix_3D(float fi)			//fi in radians
 // Note that order of the angles are z, y and x!
 Matrix3D matrix_generator::get_rot_matrix_3D(int fi_z, int fi_y, int fi_x)	//fi_z/y/x in radians
 {
-    return get_rot_z_matrix_3D(float(fi_z)*PI/180.0)*get_rot_y_matrix_3D(float(fi_y)*PI/180.0)*get_rot_x_matrix_3D(float(fi_x)*PI/180.0);
+    return get_rot_z_matrix_3D(float(fi_z)*pt_PI/180.0)*get_rot_y_matrix_3D(float(fi_y)*pt_PI/180.0)*get_rot_x_matrix_3D(float(fi_x)*pt_PI/180.0);
 }
 
 // Note that order of the angles are z, y and x!
@@ -805,7 +805,7 @@ double logGamma(double x)
 	for ( int i = 1; i <= 6; i++ )
 		{ sum += c[i] / (x + i); }
 
-	return log((sqrt(2 * PI) / x) * (c[0] + sum)) + (x + 0.5) * log(x + 5.5) - (x + 5.5);
+	return log((sqrt(2 * pt_PI) / x) * (c[0] + sum)) + (x + 0.5) * log(x + 5.5) - (x + 5.5);
 }
 
 
