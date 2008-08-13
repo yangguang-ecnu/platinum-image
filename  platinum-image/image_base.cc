@@ -284,7 +284,7 @@ image_base *vtkloader::read()
 {    
     image_base *result = NULL;
 
-	for(vector<string>::iterator it = files->begin(); it != files->end() && result == NULL; it++){ // Repeat until one image has been read
+	for(vector<string>::iterator it = files->begin(); it != files->end() && result == NULL; ){ // Repeat until one image has been read
 	string file_path = *it;
 
 	if(vtkIO->CanReadFile(file_path.c_str())){   //Assumption: File contains image data
@@ -354,8 +354,11 @@ image_base *vtkloader::read()
             }
 
 		    //file was read - remove from list
-	        files->erase(it);
+	        it = files->erase(it);
         }//can read
+	else{
+		it++;
+	}
 	}//for
     return result;
 }
@@ -682,10 +685,12 @@ void dicomloader::clear_files_vector_from_already_loaded()
 	}
 */
 	bool file_found=false;
-	for(vector<string>::iterator it = files->begin(); it!=files->end()&&!file_found; it++){
+	for(vector<string>::iterator it = files->begin(); it!=files->end()&&!file_found;){
 		if(is_file_already_loaded(*it)){
 			file_found=true;
-			files->erase(it);
+			it = files->erase(it);
+		}else{
+			it++;
 		}
 	}
 

@@ -3,7 +3,7 @@
 //   Image_general $Revision$
 ///
 ///  Abstract base class for the various image classes, templated over
-///  dimension and voxel data type
+///  dimension and voxel data typeplatinumlib
 ///
 //   $LastChangedBy$
 //

@@ -19,14 +19,14 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "platinumprogram.h"
+#include "../../platinumprogram.h"
 
 #include <cstdio>
 #include <iostream>
 
-#include "global.h"
+#include "../../global.h"
 
-#include "image_integer.hxx"
+#include "../../image_binary.hxx"
 
 //retrieve command-line arguments
 int visid = -1;
