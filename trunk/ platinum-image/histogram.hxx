@@ -841,6 +841,89 @@ double histogram_1D<ELEMTYPE>::get_sum_square_diff(gaussian g, bool ignore_zeros
 	return get_sum_square_diff_between_buckets(v,0,this->num_buckets-1,ignore_zeros);
 }
 
+
+template <class ELEMTYPE>
+double histogram_1D<ELEMTYPE>::get_gaussian_area(gaussian g, int from_bucket, int to_bucket)
+{
+	double area=0;
+	for(int i=from_bucket;i<=to_bucket;i++){
+		area += g.evaluate_at(bucketpos_to_intensity(i));
+	}
+	return area;
+}
+
+template <class ELEMTYPE>
+double histogram_1D<ELEMTYPE>::get_gaussian_area(gaussian g)
+{
+	return get_gaussian_area(g,0,this->num_buckets-1);
+}
+
+template <class ELEMTYPE>
+vector<double> histogram_1D<ELEMTYPE>::get_gaussian_areas(vector<gaussian> v)
+{
+	vector<double> v2;
+	for(int i=0;i<v.size();i++){
+		v2.push_back(this->get_gaussian_area(v[i]));
+	}
+	return v2;
+}
+
+template <class ELEMTYPE>
+double histogram_1D<ELEMTYPE>::get_sum_square_gaussian_overlap(vector<gaussian> v, int from_bucket, int to_bucket)
+{
+	double sum=0;
+	double min_val=10000;
+	for(int i=from_bucket;i<=to_bucket;i++){
+		for(int j=0;j<v.size();j++){
+			min_val = std::min( min_val, double(v[j].evaluate_at(bucketpos_to_intensity(i))) );
+		}
+		sum += min_val*min_val;
+		min_val=10000;
+	}
+	return sum;
+}
+
+template <class ELEMTYPE>
+double histogram_1D<ELEMTYPE>::get_sum_square_gaussian_overlap(vector<gaussian> v)
+{
+	return get_sum_square_gaussian_overlap(v,0,this->num_buckets-1);
+}
+
+template <class ELEMTYPE>
+vector<double> histogram_1D<ELEMTYPE>::get_overlaps_in_percent(vector<gaussian> v)
+{
+	vector<double> areas = this->get_gaussian_areas(v);
+	vector<double> overlap_percent;
+
+	//for each g, for each bucket, max_of_others, min(my_height,max_of_others);
+	double my_val;
+	double moa_val; //max_of_others
+	double sum_overlap;
+
+	for(int j=0;j<v.size();j++){
+		sum_overlap=0;
+		for(int i=0;i<this->num_buckets;i++){
+			my_val = v[j].evaluate_at(bucketpos_to_intensity(i));
+			moa_val=0;
+			for(int k=0;k<v.size();k++){
+				if(k=!j){
+					moa_val = std::max( moa_val, double(v[k].evaluate_at(bucketpos_to_intensity(i))) );
+				}
+			}
+
+			sum_overlap += std::min(my_val,moa_val);
+		}
+
+		overlap_percent.push_back( sum_overlap/areas[j] );
+		cout<<"overlap_percent="<<overlap_percent[j]<<endl;
+	}
+
+	return overlap_percent;
+}
+
+
+
+
 template <class ELEMTYPE>
 vnl_vector<double> histogram_1D<ELEMTYPE>::get_vnl_vector_with_start_guess_of_num_gaussians(int num_gaussians){
 	vnl_vector<double> x(3*num_gaussians);
@@ -866,7 +949,7 @@ vnl_vector<double> histogram_1D<ELEMTYPE>::get_vnl_vector_with_start_guess_of_nu
 template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::fit_two_gaussians_to_histogram_and_return_threshold(string save_histogram_file_path)
 {
-	fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE> cost(this,2);
+	fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE> cost(this,2, true, true);
 	vnl_amoeba amoeba_optimizer = vnl_amoeba(cost);
 	amoeba_optimizer.verbose = false;
 	amoeba_optimizer.set_x_tolerance(1); //öööö JK test this...
@@ -889,7 +972,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::fit_two_gaussians_to_histogram_and_return_thres
 		this->save_histogram_to_txt_file(save_histogram_file_path,v);
 	}
 
-	return x[1] + 2*x[2]; //pos + 2*SD
+	return x[1] + 3*x[2]; //pos + 2*SD
 }
 
 
@@ -993,10 +1076,12 @@ int histogram_1D<ELEMTYPE>::get_bucket_pos_with_largest_value_in_intensity_range
 }
 
 template<class ELEMTYPE>
-fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::fit_gaussians_to_histogram_1D_cost_function(histogram_1D<ELEMTYPE> *h, int num):vnl_cost_function(num*3)
+fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::fit_gaussians_to_histogram_1D_cost_function(histogram_1D<ELEMTYPE> *h, int num, bool punish_overl, bool punish_large_area_diffs):vnl_cost_function(num*3)
 {
 	the_hist = h;
 	num_gaussians = num;
+	punish_overlap = punish_overl;
+	punish_large_area_differences = punish_large_area_diffs;
 }
 
 template<class ELEMTYPE>
@@ -1008,6 +1093,40 @@ double fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::f(vnl_vector<doubl
 	}
 	double res = the_hist->get_sum_square_diff(v);
 	cout<<x<<"-->"<<res<<endl;
+	
+	if(punish_overlap){
+//		double sum = the_hist->get_sum_square_gaussian_overlap(v);
+
+		vector<double> overlaps = the_hist->get_overlaps_in_percent(v);
+		double mean_ = mean<double>(overlaps);
+		cout<<"mean_="<<mean_<<endl;
+		res = res*(1+0.2*mean_);
+	}
+
+	if(punish_large_area_differences){
+
+		vector<double> areas = the_hist->get_gaussian_areas(v);
+		
+		double mean_area=0;
+		for(int i=0;i<areas.size();i++){
+			cout<<"areas[i]="<<areas[i]<<endl;
+			mean_area += areas[i];
+		}
+		mean_area = mean_area/areas.size();
+		cout<<"mean_area="<<mean_area<<endl;
+
+		double mean_diff_percent=0;
+		for(int i=0;i<areas.size();i++){
+			mean_diff_percent += abs(mean_area - areas[i])/mean_area;
+			cout<<"mean_diff_percent="<<mean_diff_percent<<endl;
+		}
+		mean_diff_percent = mean_diff_percent/areas.size();
+
+		cout<<"*mean_diff_percent="<<mean_diff_percent<<endl;
+
+		res = res*(1+0.2*mean_diff_percent);
+	}
+
 	return res;
 }
 

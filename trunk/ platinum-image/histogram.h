@@ -184,6 +184,12 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		double get_sum_square_diff_between_buckets(gaussian g, int from_bucket, int to_bucket, bool ignore_zeros=true);
 		double get_sum_square_diff(vector<gaussian> v, bool ignore_zeros=true);
 		double get_sum_square_diff(gaussian g, bool ignore_zeros=true);
+		double get_gaussian_area(gaussian g, int from_bucket, int to_bucket);
+		double get_gaussian_area(gaussian g);
+		vector<double> get_gaussian_areas(vector<gaussian> v);
+		double get_sum_square_gaussian_overlap(vector<gaussian> v, int from_bucket, int to_bucket);
+		double get_sum_square_gaussian_overlap(vector<gaussian> v);
+		vector<double> get_overlaps_in_percent(vector<gaussian> v);
 		vnl_vector<double> get_vnl_vector_with_start_guess_of_num_gaussians(int num_gaussians);
 		ELEMTYPE fit_two_gaussians_to_histogram_and_return_threshold(string save_histogram_file_path = "");
 
@@ -207,9 +213,11 @@ class fit_gaussians_to_histogram_1D_cost_function : public vnl_cost_function
 {
 	histogram_1D<ELEMTYPE> *the_hist;
 	int num_gaussians;
+	bool punish_overlap;
+	bool punish_large_area_differences;
 
 public:
-	fit_gaussians_to_histogram_1D_cost_function(histogram_1D<ELEMTYPE> *h, int num);
+	fit_gaussians_to_histogram_1D_cost_function(histogram_1D<ELEMTYPE> *h, int num, bool punish_overlap=false, bool punish_large_area_differences=false);
 	double f(vnl_vector<double> const &x);
 };
 
