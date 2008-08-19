@@ -6,16 +6,30 @@
 //  displays the rendered image and can be clicked/dragged in.
 //
 //	Class structure:
+//	viewport
+//		rgb_pixmap
+//		bool needs_rerendering
+//		FLTKviewport* the_widget
+//
 //	FLTKviewport
-//		FL_widgets
-//		FLTKpane
-//			FLTK_Pt_pane
-//				FLTK_Event_pane		//Catches mouse events
+//		FL_widgets //buttons
+//		FLTKpane (Fl_Double_Window)
+//			FLTK_Pt_pane 
+//				FLTK_Event_pane *event_pane		//Catches mouse events
+//				FLTK_Pt_MPR_pane?
+//				FLTK_Pt_MIP_pane?
 //			FLTK_VTK_pane
 //				FLTK_VTK_Cone_pane	//Displays an example cone...
 //				FLTK_VTK_MIP_pane	//Volume-Renders (MIP) the top image... (Not implemented yet...)
+//				FLTK_VTK_MPR_pane	//
+//				FLTK_VTK_ISO_pane	//
+//				FLTK_VTK_COMBO_pane	//
 //
-//
+//	* FLTK_VTK_pane / FLTK_VTK_pane need to enterpret update/refresh differently
+//	* FLTK_VTK_pane will need reformatting from data_base objects to VTK-pointers
+//	* Ev läs in all data, buffra vid "start"
+//	* Transfer functions Pt <-- --> VTK
+//	* "Reason-argument" might be needed for data_has_changed()? --> save formatting time...
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.

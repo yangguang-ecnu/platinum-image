@@ -337,20 +337,20 @@ template <int IMAGEDIM>
 image_base* image_binary<IMAGEDIM>::expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value)
 {
 	cout<<"expanding image borders (image_binary)..."<<endl;
-	int old_size_x=this->get_size_by_dim(0);
-	int old_size_y=this->get_size_by_dim(1);
-	int old_size_z=this->get_size_by_dim(2);
-	image_binary<IMAGEDIM>* res = new image_binary<IMAGEDIM>(old_size_x+2*dx, old_size_y+2*dy, old_size_z+2*dz);
+	image_binary<IMAGEDIM>* res = new image_binary<IMAGEDIM>(this->nx()+2*dx, this->ny()+2*dy, this->nz()+2*dz);
 	res->fill(value);
 	res->set_parameters(this);
 
-	for (int z=0; z<old_size_z; z++){
-		for (int y=0; y<old_size_y; y++){
-			for (int x=0; x<old_size_x; x++){
+	res->fill_region_3D_with_subvolume_image( create_Vector3Dint(dx,dy,dz),this,create_Vector3Dint(0,0,0),create_Vector3Dint(this->nx(),this->nx(),this->nx()) ); //based on given voxel coords
+
+/*	for (int z=0; z<this->nz(); z++){
+		for (int y=0; y<this->ny(); y++){
+			for (int x=0; x<this->nx(); x++){
 				res->set_voxel(x+dx,y+dy,z+dz, this->get_voxel(x,y,z));
 			}
 		}
 	}
+*/
 	res->set_origin(this->get_physical_pos_for_voxel(-dx,-dy,-dz));
 	return res;
 }
