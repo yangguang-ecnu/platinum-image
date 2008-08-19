@@ -397,6 +397,7 @@ double sd(const std::vector<T> & v)
 	return sqrt(var(v)); 
 }
 
+float magnitude(const Vector3D v);
 Vector3D mean(const std::vector<Vector3D> & x);
 Matrix3D var(const std::vector<Vector3D> & x);
 Matrix3D pooled_cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y);

@@ -179,6 +179,8 @@ void landmark_tool::handle(viewport_event &event)
 
 			if ( event.key_combo( pt_event::space_key + pt_event::shift_key ) )
 			{
+				cout << "Space + shift keys" << endl;
+				cout << event.state() << endl;
 				event.grab();
 				center3d_and_fit();
 			}
@@ -186,6 +188,8 @@ void landmark_tool::handle(viewport_event &event)
 			if ( event.key_combo( pt_event::space_key ) )
 			{			
 				event.grab();
+				cout << "- - - SPACE KEY - - -" << endl;
+				cout << event.state() << endl;
 				center2d();
 			}
 

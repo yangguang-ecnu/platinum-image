@@ -70,6 +70,11 @@ class viewmanager
         void setup_demo_tiles();   //setup an (irregular) demo tile pattern
         
         void setup_regular_tiles(int t_h=2, int t_v=2, int t_vv=1);
+		void setup_irregular_tiles_h(vector<int> num_vert_in_these_columns, int t_vv=1);
+
+		void setup_irregular_tiles_h(int v0=1, int v1=3, int v2=1, int v3=1); 
+		//each v is an horisontal tile, the value is the number of vertikal tiles for each horisontal
+
 
         void connect_renderer_to_viewport(int viewportID, int rendererID);
         void data_vector_has_changed();
@@ -93,9 +98,10 @@ class viewmanager
 		viewport * get_viewport( int viewportID );	// return a viewport
 		
 		// if the margin is set to -1 the point will always be centered
-		void viewmanager::show_point_by_combination ( const Vector3D & point, const int combinationID,  const int margin = 5 );	// show this point in all viewports that has at least on of ids in combinationIDs active
-		void viewmanager::show_point_by_data ( const Vector3D & point, const int dataID, const int margin = 5 );				// show this point in all viewports that has the dataID active
-																									
+		void show_point_by_combination ( const Vector3D & point, const int combinationID,  const int margin = 5 );	// show this point in all viewports that has at least on of ids in combinationIDs active
+		void show_point_by_data ( const Vector3D & point, const int dataID, const int margin = 5 );// show this point in all viewports that has the dataID active
+		void zoom_specific_vp(int vp_id, Vector3D worldCenter, float zoom); //SO - zoom in different viewport than working in
+
     };
 
 #endif

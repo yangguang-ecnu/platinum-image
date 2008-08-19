@@ -34,15 +34,12 @@ extern viewmanager viewmanagement;
 extern userIOmanager userIOmanagement;
 
 
-//int landmark_tool::userIO_ID = -1;
-//int landmark_tool::point_collection_ID = -1;
-
 meta_tool::meta_tool(viewport_event & event) : nav_tool(event)
 {
-//	if (event.type() == pt_event::create || event.type() == pt_event::hover || event.type() == pt_event::hover || event.type() == pt_event::key )
-//	{
-//        event.grab();
-//	}
+	if (event.type() == pt_event::hover || event.type() == pt_event::key)
+	{
+        event.grab();
+	}
 }
 
 meta_tool::~meta_tool()
@@ -60,218 +57,91 @@ void meta_tool::init()
 
 void meta_tool::handle(viewport_event &event)
 {
-//	std::vector<int> mouse2d = event.mouse_pos_local();
     const int * mouse2d = event.mouse_pos_local();
-
-	/*
-
-	int point_collection_ID;
-	
     FLTK_Pt_pane *fp = event.get_FLTK_viewport();
-	Vector3D mouse3d = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fp->w(), fp->h());
+
+//	cout<<"event(type,state)=("<<event.type()<<","<<event.state()<<")";
+//	cout<<"(x,y,w,h) ("<<myPort->ROI_rectangle_x<<",";
+//	cout<<myPort->ROI_rectangle_y<<",";
+//	cout<<myPort->ROI_rectangle_w<<",";
+//	cout<<myPort->ROI_rectangle_h<<") -->"<<myPort->ROI_rect_is_changing<<endl;
+
+	if(event.state() == pt_event::end && myPort->ROI_rect_is_changing && event.type() != pt_event::hover)
+       {
+		//hover is excluded since this event.type is thown when mouse is first clicked
+		cout << "************" << endl;
+		int center_x = myPort->ROI_rectangle_x + myPort->ROI_rectangle_w/2;
+		int center_y = myPort->ROI_rectangle_y + myPort->ROI_rectangle_h/2;
+		Vector3D center_world = myRenderer->view_to_world(center_x,center_y, fp->w(), fp->h());
+
+		Vector3D corner1_world = myRenderer->view_to_world(myPort->ROI_rectangle_x,							myPort->ROI_rectangle_y, fp->w(), fp->h());
+		Vector3D corner2_world = myRenderer->view_to_world(myPort->ROI_rectangle_x+myPort->ROI_rectangle_w, myPort->ROI_rectangle_y, fp->w(), fp->h());
+		Vector3D corner3_world = myRenderer->view_to_world(myPort->ROI_rectangle_x,							myPort->ROI_rectangle_y + myPort->ROI_rectangle_h, fp->w(), fp->h());
+		Vector3D w_world = corner2_world - corner1_world;
+		Vector3D h_world = corner2_world - corner1_world;
+		float width = magnitude(w_world);
+		float height = magnitude(h_world);
+
+		//"zoom" and "ZOOM_CONSTANT" are defined so that "zoom 1 gives 50 mm"
+		viewmanagement.zoom_specific_vp(2, center_world, ZOOM_CONSTANT/max(width, height) );
+		viewmanagement.zoom_specific_vp(3, center_world, ZOOM_CONSTANT/max(width, height) );
+		viewmanagement.zoom_specific_vp(4, center_world, ZOOM_CONSTANT/max(width, height) );
+
+		cout << "center_x,center_y " << center_x << "," << center_y << " (world)(" << center_world << ")" << endl;
+
+		//zoom in other vp...
+		myPort->ROI_rectangle_x = -1;
+		myPort->ROI_rectangle_y = -1;
+		myPort->ROI_rectangle_w = -1;
+		myPort->ROI_rectangle_h = -1;
+		myPort->ROI_rect_is_changing = false;
+		myPort->refresh_overlay();
+        }
+
 
 	switch (event.type())
-	{	
-		case pt_event::create:
-		
-//			if (point_collection_ID == -1)
-//			{
-//				std::cout << "point_collection_ID is not registered in landmark_tool" << std::endl;
-//				return;
-//			}
-			
-			if (userIO_ID == -1)
-			{
-				std::cout << "userIO_ID is not registered in landmark_tool" << std::endl;
-				return;	
-			}
-			
-			// the get_id() of the top image could be implemented as a get_top_image_id() in renderer_base
-			// image_base * top = rendermanagement.get_combination(myRenderer->combination_id())->top_image();
-			image_base * top;
-			if ( !(top = rendermanagement.get_combination(myRenderer->combination_id())->top_image()) )
-			{
-				// TODO: use pt_error
-				std::cout << "No image in current viewport" << std::endl;
-				return; 
-			}
-			
-			if ( userIOmanagement.get_parameter<imageIDtype>(userIO_ID, 0) !=  top->get_id() )
-			{
-				// TODO: use pt_error
-				std::cout << "The id of the selected image and the top image are not the same" << std::endl;
-				return;
-			}
+	{
+		case pt_event::key:  
 
-			event.grab();
-			
-			point_collection_ID = userIOmanagement.get_landmarksID(userIO_ID);
-						
-			if (event.state() == pt_event::begin)
-			{				
-				if ( datamanagement.find_data_index(point_collection_ID) == -1 )
-				{	// not found
-					// TODO: use pt_error
-					std::cout << "The point_collection is not found in the datamanager" << std::endl;
-					return;
-				}
-				
-				point_collection * points = dynamic_cast<point_collection *>(datamanagement.get_data(point_collection_ID));
-						
-				int index_of_active = points->get_active();
-												
-				if (index_of_active < 1)
+			if (event.key_combo(pt_event::space_key)) 
 				{
-					// TODO: use pt_error
-					std::cout << "No landmark is active" << std::endl;		
-					return;
+				cout << "< SPACE KEY PRESSED >" << endl;
+				fl_cursor(FL_CURSOR_CROSS, FL_BLACK, FL_WHITE); 	
+				event.grab();
+				}	
+
+			if (event.key_combo(pt_event::space_key + pt_event::shift_key)) //ok
+				{
+				event.grab();	
+				}
+		//break;
+
+		  case pt_event::adjust:
+		//case (pt_event::adjust && pt_event::space_key):
+
+			last_local_x = mouse2d[0];
+			last_local_y = mouse2d[1];
+			//cout << endl << "last_local_x: " << last_local_x << ", last_local_y: " << last_local_y << endl;
+					
+			if(myPort->ROI_rectangle_x == -1)
+				{
+				myPort->ROI_rectangle_x = last_local_x;
+				myPort->ROI_rectangle_y = last_local_y;
+				myPort->ROI_rect_is_changing = true;
 				}
 
-
-
-//				image_scalar<unsigned short, 3> * img = dynamic_cast< image_scalar<unsigned short, 3> * > ( top );
-//
-//				Vector3D radius;
-////				radius.Fill(50);
-//				radius[0] = 50;
-//				radius[1] = 0;
-//				radius[2] = 0;
-//				
-//				// TODO: använd myGeometry->dir för att rotera radius korrekt och bestäm sedan även vilken typ som ska
-//				// användas. tex MAX_GRAD_MAG_X och MAX_GRAD_MAG_Y eller MAX_GRAD_MAG_Y och MAX_GRAD_MAG_Z osv
-//				rendergeometry * myGeometry = myRenderer->wheretorender;
-//				std::cout << "radius " << radius << std::endl;				
-//				radius[0] = abs( radius[0] );
-//				radius[1] = abs( radius[1] );
-//				radius[2] = abs( radius[2] );
-//				std::cout << "radius after " << radius << std::endl << std::endl;
-//
-//				// TODO: change this later to use get_pos_of_type_in_region_world() with world coord (mouse3d) and radius in millimeters
-//				// and remove the voxel_to_world()
-//
-//				Vector3D voxel_pos = img->get_pos_of_type_in_region_voxel( img->world_to_voxel( mouse3d ), radius, MAX_GRAD_MAG_X );
-//				Vector3D world_pos = img->voxel_to_world( voxel_pos );
-//		
-//				// REMOVE THIS ROW!!! ONLY TEMPORARY!!
-//				mouse3d = world_pos;
-
-
-
-
-				points->add_pair( index_of_active, mouse3d );
-				
-				
-				userIOmanagement.data_vector_has_changed();
-				
-				
-				viewmanagement.show_point_by_data ( mouse3d, point_collection_ID );
-
-			}
-		break;	// end of pt_event::create
-		
-		// Remove this to enable rotation (the event is then handled by nav_tool)
-		case pt_event::rotate:
-			if ( event.state() == pt_event::iterate )
-			{ 
-				event.grab();
-				std::cout << "Rotation is currently disabled in landmark tool." << std::endl;
-			}
+			else{
+				myPort->ROI_rectangle_w = last_local_x - myPort->ROI_rectangle_x;
+				myPort->ROI_rectangle_h = last_local_y - myPort->ROI_rectangle_y; //bara visar rektangeln
+				}
+	
 		break;
+ 
 		
-		case pt_event::key:		
-			if ( event.key_combo(pt_event::pageup_key) )
-			{
-				event.grab();
-				move_voxels( 0, 0, -1 );				
-			}
-
-			if ( event.key_combo(pt_event::pagedown_key) )
-			{
-				event.grab();
-				move_voxels( 0, 0, 1 );
-			}
-			
-			if ( event.handled() )
-			{
-				fp->needs_rerendering();
-			}
-
-			if ( event.key_combo( pt_event::space_key + pt_event::shift_key ) )
-			{
-				event.grab();
-				center3d_and_fit();
-			}
-			
-			if ( event.key_combo( pt_event::space_key ) )
-			{			
-				event.grab();
-				center2d();
-			}
-
-		// NOTE: no break, update hovering also (scroll is ignored because there is no iterate event)
-		
-		case pt_event::scroll:
-			if ( event.state() == pt_event::iterate)
-			{
-				event.grab();
-				const int * pms = myPort->pixmap_size();
-				int viewSize = std::min(pms[0],pms[1]);
-				
-				myRenderer->move_view(viewSize,0,0,event.scroll_delta()*wheel_factor);
-				
-				fp->needs_rerendering();
-				refresh_by_image_and_direction();
-				viewmanagement.update_overlays();
-			}
-		//NOTE: no break, update hovering also
-
-		case pt_event::hover:
-					
-			if ( event.state() == pt_event::begin ) 
-				{ fl_cursor(FL_CURSOR_CROSS, FL_BLACK, FL_WHITE); }
-			else if ( event.state() == pt_event::end )
-				{ fl_cursor(FL_CURSOR_DEFAULT, FL_BLACK, FL_WHITE); }
-
-			event.grab();
-
-			Vector3D vpos = myRenderer->view_to_voxel(mouse2d[0], mouse2d[1],fp->w(),fp->h());
-
-			if ( vpos[0] < 0 ) // negative coordinates signify outside of (positive and negative) bounds
-			{
-				userIOmanagement.interactive_message();
-			}
-			else
-			{	// inside a non-empty viewport
-				Vector3D wpos = myRenderer->view_to_world(mouse2d[0], mouse2d[1], fp->w(), fp->h());
-				
-				std::ostringstream oss;
-				oss.setf ( ios::fixed );
-
-				oss << "World " << setprecision(1) << wpos;
-
-				userIOmanagement.interactive_message( oss.str() );
-			}
 		break;
-		
-			
+
 	}
-
+		// NOTE: no break, update hovering also (scroll is ignored because there is no iterate event)
 	nav_tool::handle(event);
-
-	*/
-
+	//}
 }
-
-//void landmark_tool::register_userIO_ID(int id)
-//{
-//	userIO_ID = id;
-//}
-
-//void landmark_tool::register_point_collection_ID (int id)
-//{
-//	point_collection_ID = id;
-//}
-
-
-
-

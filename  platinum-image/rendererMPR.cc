@@ -60,7 +60,7 @@ Vector3D rendererMPR::view_to_world(int vx, int vy, int sx, int sy) const
 {
     Vector3D viewCentered,world;
     vector<float> v;
-    float viewmin = std::min (sx,sy);
+    float viewmin = std::min (sx,sy); //777
     
     viewCentered[0]=vx-sx/2;
     viewCentered[1]=vy-sy/2;
@@ -510,7 +510,60 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 		}
 	
 	}//point rendering loop
-	
+
+
+	//JK set grey border around rendered area...
+	/*
+	for(int x=0; x<rgb_sx; x++){
+		pixels[RGBpixmap_bytesperpixel * (x+rgb_sx*0)] += 125;
+		pixels[RGBpixmap_bytesperpixel * (x+rgb_sx*0) + 1] += 125;
+        pixels[RGBpixmap_bytesperpixel * (x+rgb_sx*0) + 2] += 125;
+	}
+	*/
+
+	/*
+		for(int y=0; y<rgb_sy; y++){
+		pixels[RGBpixmap_bytesperpixel * (y+rgb_sy*0)] += 125;
+		pixels[RGBpixmap_bytesperpixel * (y+rgb_sy*0) + 1] += 125;
+        pixels[RGBpixmap_bytesperpixel * (y+rgb_sy*0) + 2] += 125;
+	}
+	*/
+
+
+//	fill_y_start=0; fill_y_start < rgb_sy; fill_y_start++)
+  //              {
+    //            fill_y_end=fill_y_start+1;
+      //          vox=start+slope_y*(float)fill_y_start;
+                
+        //        for ( fill_x_start=0; fill_x_start < rgb_sx; fill_x_start++)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }//render_ function
 

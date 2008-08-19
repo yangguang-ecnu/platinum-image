@@ -157,9 +157,85 @@ void viewmanager::setup_regular_tiles(int t_h, int t_v, int t_vv)
         }
     }
 
+void viewmanager::setup_irregular_tiles_h(vector<int> num_vert_in_these_columns, int t_vv)
+    {
+
+	//TODO - range checking
+    
+    irregular_tiles = true;
+    
+	int t_h = num_vert_in_these_columns.size();
+	int t_v = 0;
+    for(int vv=0; vv<t_vv; vv++)
+		{
+		noofhorizontaltiles[vv] = t_h;
+        
+        for(int h=0; h<t_h; h++)
+            {
+            noofverticaltiles[vv][h] = num_vert_in_these_columns[h];
+            tilewidthpercent[vv][h] = 1.0/t_h;
+            
+			t_v = num_vert_in_these_columns[h];
+            for(int v=0; v<t_v; v++)
+                {
+                tileheightpercent[vv][h][v] = 1.0/t_v; 
+                }
+            }
+        }
+    }
+
+void viewmanager::setup_irregular_tiles_h(int v0, int v1, int v2, int v3)
+{
+	vector<int> v;
+	v.push_back(v0);
+	v.push_back(v1);
+	v.push_back(v2);
+	v.push_back(v3);
+	setup_irregular_tiles_h(v);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Vilken av de N vyerna ska vi visa (vi kan bara titta pÂ en Ât gÂngen)?
-//
 void viewmanager::setup_views(int virtualview, int areawidth, int areaheight) // 0...antal som anv‰nds-1
     {
     // storage for all tiles et.c. generated in the loop (not really needed)
@@ -554,3 +630,15 @@ void viewmanager::show_point_by_data ( const Vector3D & point, const int dataID,
 	std::vector<int> rendererIDs = rendermanagement.renderers_from_data ( dataID );		// return any renderer connected to this data id
 	show_point_by_renderers ( point, rendererIDs, margin );
 }
+
+void viewmanager::zoom_specific_vp(int vp_id, Vector3D worldCenter, float zoom) //SO 0814
+{
+	this->get_viewport(vp_id)->set_look_at_and_zoom(worldCenter,zoom);
+	this->get_viewport(vp_id)->refresh();
+}
+
+
+
+
+
+
