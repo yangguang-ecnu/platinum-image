@@ -380,8 +380,8 @@ FLTK_Pt_pane::FLTK_Pt_pane():FLTKpane(0,0,100,100)
 //	cout<<"FLTK_Pt_pane()"<<endl;
 	event_pane = new FLTK_Event_pane(0,0,100,100);
 
-	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane()_button");
-	b->color(FL_BLUE);
+//	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane()_button");
+//	b->color(FL_BLUE);
 
 	callback_action=CB_ACTION_NONE;
  //   this->box(FL_BORDER_BOX);
@@ -395,10 +395,11 @@ FLTK_Pt_pane::FLTK_Pt_pane():FLTKpane(0,0,100,100)
 FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 {
 //	cout<<"FLTK_Pt_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
-	event_pane = new FLTK_Event_pane(X,Y,W,H);
+//	event_pane = new FLTK_Event_pane(X,Y,W,H);
+	event_pane = new FLTK_Event_pane(0,0,W,H); //FLTKPane is a "Fl_Window" --->
 
-	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane(xywh)_button");
-	b->color(FL_BLUE);
+//	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane(xywh)_button");
+//	b->color(FL_BLUE);
 
 	callback_action=CB_ACTION_NONE;
 //    this->box(FL_BORDER_BOX);
