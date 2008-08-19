@@ -50,6 +50,13 @@ viewport::viewport(VIEWPORT_TYPE vpt)
     rgbpixmap = NULL;
     rgbpixmap_size[0] = 0;
     rgbpixmap_size[1] = 0;
+
+	ROI_rectangle_x = -1;
+	ROI_rectangle_y = -1;
+	ROI_rectangle_w = -1;
+	ROI_rectangle_h = -1;
+
+	ROI_rect_is_changing = false;
 }
 
 viewport::~viewport()
@@ -354,6 +361,20 @@ void viewport::paint_overlay()
 
 	//here the height of the pane needs to be used since the height of the "viewport" includes the buttons...
 	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h_pane()); //h_pane is needed to compensate for button height... 
+
+	fl_color(FL_GRAY);
+	fl_rect(0, 0, w(), h()); //SO - framing the viewports 888
+	
+
+	if(ROI_rectangle_x >-1 ){
+		fl_color(FL_RED);
+		//fl_line_style(FL_DOT, 2, 0); //fl_line_style(int style, int width=0, char* dashes=0)
+		fl_rect(ROI_rectangle_x,ROI_rectangle_y,ROI_rectangle_w,ROI_rectangle_h);
+		//fl_line_style(0); //reset line style
+	
+	
+
+	}
 }
 
 
@@ -381,4 +402,10 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
         }
     
     return NULL;
+}
+
+
+void viewport::set_look_at_and_zoom(Vector3D pos, float zoom)
+{
+	rendermanagement.get_renderer(rendererID)->look_at(pos[0],pos[1],pos[2],zoom);
 }

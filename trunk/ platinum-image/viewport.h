@@ -69,6 +69,7 @@ private:
 	Matrix3D get_renderer_direction();
 	void set_renderer_direction(const Matrix3D &dir);
 	void set_renderer_direction(preset_direction direction); 
+
 	
 public:
     viewport(VIEWPORT_TYPE vpt=PT_MPR);
@@ -108,7 +109,6 @@ public:
     
     threshold_overlay * get_threshold_overlay (thresholdparvalue *);
 
-
     #pragma mark *** operators ***
 	// virtual const viewport &operator=(const viewport &k) { return k; }
 	bool virtual operator<<(const viewport &k) { return ID==k.ID; }
@@ -119,6 +119,14 @@ public:
 	bool virtual operator>(const viewport &k) { return ID>k.ID; }
 	friend std::istream &operator>>(std::istream &in, viewport &k) { in >> k.ID; return in; }
 	friend std::ostream &operator<<(std::ostream &ut, const viewport &k) { ut << "[viewport. ID= " << k.ID << " rendererID: " << k.rendererID << " rendererIndex:  " << k.rendererIndex << "] "; return ut; }
+
+	int ROI_rectangle_x;	//SO - Region of interest drawn (using FL_Overlay) when zooming a region
+	int ROI_rectangle_y;
+	int ROI_rectangle_w;
+	int ROI_rectangle_h;
+	bool ROI_rect_is_changing;
+
+	void set_look_at_and_zoom(Vector3D pos, float zoom);
 };
 
 #endif

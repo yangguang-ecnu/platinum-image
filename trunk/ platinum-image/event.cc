@@ -185,7 +185,7 @@ FLTK_event::FLTK_event (FLTK_Pt_pane *fp) : pt_event ()
 
 FLTK_event::FLTK_event(int FL_event, FLTK_Pt_pane *fp):pt_event()
     {
-//	cout<<"FLTK_event("<<FL_event<<"x,y="<<Fl::event_x()<<","<<Fl::event_y()<<endl;
+	cout<<"FLTK_event("<<FL_event<<"x,y="<<Fl::event_x()<<","<<Fl::event_y()<<endl;
 
     attach(fp);
 	mousePosGlobal[0] = 0;

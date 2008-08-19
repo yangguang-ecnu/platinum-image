@@ -546,7 +546,7 @@ void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
 //	cout<<"span_x="<<span_x<<endl;
 //	cout<<"span_y="<<span_y<<endl;
 	Vector3D center = center_of_image(imageID);
-	set_geometry(rendererID, center, renderer_base::display_scale/std::max(span_x,span_y) );
+	set_geometry(rendererID, center, renderer_base::display_scale/std::max(span_x,span_y));
 
 //	Vector3D size = image->get_physical_size();
 //	float maxsize = max_norm(size);

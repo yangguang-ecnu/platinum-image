@@ -57,6 +57,9 @@
 
 #define IMGLABELMAX 19
 
+#define ZOOM_CONSTANT 50.0  // physical display size (mm) at zoom 1 - previously denoted "display_scale"
+
+
 enum ROImode {ROI_RECT, ROI_CIRCLE};
 enum COMBINE_MODE {COMB_ADD, COMB_SUB, COMB_MULT, COMB_DIV, COMB_MAX, COMB_MIN, COMB_MEAN_NON_ZERO, COMB_MAGN}; //and, xor, mask...
 enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
