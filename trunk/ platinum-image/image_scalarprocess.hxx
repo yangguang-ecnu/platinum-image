@@ -310,23 +310,28 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_fr
 
 	image_binary<3> *rough_lung = this->appl_wb_segment_rough_lung_from_sum_image(right_thorax_body_mask, lung_volume_in_litres);
 	rough_lung->name("rough_lung");
+	rough_lung->save_to_file("c:/Joel/TMP/combi_1_rough_lung.vtk");
 
 	image_integer<short,3> *dist = rough_lung->distance_345_3D();
 	dist->name("dist");
+	dist->save_to_file("c:/Joel/TMP/combi_2_dist.vtk");
 
-	image_binary<3> *seeds = new image_binary<3>(rough_lung);
-	seeds->name("seeds");
-	seeds->erode_3D_26Nbh();
-	seeds->erode_3D_26Nbh();
-	seeds->erode_3D_26Nbh();
+	image_binary<3> *seeds = dist->threshold(15);
+//	image_binary<3> *seeds = new image_binary<3>(rough_lung);
+//	seeds->name("seeds");
+//	seeds->erode_3D_26Nbh();
+//	seeds->erode_3D_26Nbh();
+//	seeds->erode_3D_26Nbh();
 	seeds->largest_object_3D();
 
 	image_binary<3> *res = dist->region_grow_3D_if_lower_intensity(seeds);
 	res->name("res");
 	res->dilate_3D_26Nbh();
 	res->dilate_3D_26Nbh();
+	res->save_to_file("c:/Joel/TMP/combi_3_res.vtk");
 
 	histogram_1D<ELEMTYPE> *h2 = this->get_histogram_from_masked_region_3D(res);
+	h2->save_histogram_to_txt_file("c:/Joel/TMP/combi_4_hist.txt");
 
 	float a;
 	float c;
