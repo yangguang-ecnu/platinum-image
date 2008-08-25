@@ -99,4 +99,10 @@ public:
 	filter_mean(int nx, int ny=1, int nz=1, int xcenter=-1001, int ycenter=-1001, int zcenter=-1001);
 };
 
+class filter_square_wave_1d : public filter_linear
+{
+public:
+	filter_square_wave_1d(int num_high1, int num_low, int num_high2);
+};
+
 #endif

@@ -182,9 +182,16 @@ filter_central_difference_magn_2d::filter_central_difference_magn_2d(int dir)
 {
 	data = vnl_matrix<float>(4,4); //4 coordinates and 4 different values (x,y,z,w)...
 	if(dir==0){
-		
+		//x					//y					//z				//w
+		data.put(0,0,0); data.put(0,1,0);	data.put(0,2,-1); data.put(0,3,-1);	//neg z-dir
+		data.put(1,0,0); data.put(1,1,0);	data.put(1,2,+1); data.put(1,3,+1);	//pos z-dir
+		data.put(2,0,0); data.put(2,1,-1);	data.put(2,2,0);  data.put(2,3,-1);	//neg y-dir
+		data.put(3,0,0); data.put(3,1,+1);	data.put(3,2,0);  data.put(3,3,+1);	//pos y-dir
 	}else if(dir==1){
-		
+		data.put(0,0,0); data.put(0,1,0);	data.put(0,2,-1); data.put(0,3,-1);	//neg z-dir
+		data.put(1,0,0); data.put(1,1,0);	data.put(1,2,+1); data.put(1,3,+1);	//pos z-dir
+		data.put(2,0,-1);data.put(2,1,0);	data.put(2,2,0);  data.put(2,3,-1);	//neg x-dir
+		data.put(3,0,+1);data.put(3,1,0);	data.put(3,2,0);  data.put(3,3,+1);	//pos x-dir
 	}else{
 		data.put(0,0,-1); data.put(0,1,0);	data.put(0,2,0); data.put(0,3,-1);	//neg x-dir
 		data.put(1,0,+1); data.put(1,1,0);	data.put(1,2,0); data.put(1,3,+1);	//pos x-dir
