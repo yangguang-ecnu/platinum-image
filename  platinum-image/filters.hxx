@@ -53,6 +53,51 @@ float filter_median::apply(float* neighbourhood)
 	return neighbourhood[(size-undefined)/ 2];
 }
 
+
+
+filter_central_difference_magn_2d::filter_central_difference_magn_2d(int dir) 
+{
+	data = vnl_matrix<float>(4,4); //4 coordinates and 4 different values (x,y,z,w)...
+	if(dir==0){
+		//x					//y					//z				//w
+		data.put(0,0,0); data.put(0,1,0);	data.put(0,2,-1); data.put(0,3,-1);	//neg z-dir
+		data.put(1,0,0); data.put(1,1,0);	data.put(1,2,+1); data.put(1,3,+1);	//pos z-dir
+		data.put(2,0,0); data.put(2,1,-1);	data.put(2,2,0);  data.put(2,3,-1);	//neg y-dir
+		data.put(3,0,0); data.put(3,1,+1);	data.put(3,2,0);  data.put(3,3,+1);	//pos y-dir
+	}else if(dir==1){
+		data.put(0,0,0); data.put(0,1,0);	data.put(0,2,-1); data.put(0,3,-1);	//neg z-dir
+		data.put(1,0,0); data.put(1,1,0);	data.put(1,2,+1); data.put(1,3,+1);	//pos z-dir
+		data.put(2,0,-1);data.put(2,1,0);	data.put(2,2,0);  data.put(2,3,-1);	//neg x-dir
+		data.put(3,0,+1);data.put(3,1,0);	data.put(3,2,0);  data.put(3,3,+1);	//pos x-dir
+	}else{
+		data.put(0,0,-1); data.put(0,1,0);	data.put(0,2,0); data.put(0,3,-1);	//neg x-dir
+		data.put(1,0,+1); data.put(1,1,0);	data.put(1,2,0); data.put(1,3,+1);	//pos x-dir
+		data.put(2,0,0);  data.put(2,1,-1);	data.put(2,2,0); data.put(2,3,-1);	//neg y-dir
+		data.put(3,0,0);  data.put(3,1,+1);	data.put(3,2,0); data.put(3,3,+1);	//pos y-dir
+	}
+}
+
+float filter_central_difference_magn_2d::apply(float* neighbourhood)
+{
+	//pixels outside boundary are set to "std::numeric_limits<float>::max()"...
+	//undo this here to prevent overflow...
+	for(int i=0;i<4;i++){
+		if(neighbourhood[i] == std::numeric_limits<float>::max()){
+			neighbourhood[i] = 0;
+		}
+	}
+
+	float du = neighbourhood[1]-neighbourhood[0];
+	float dv = neighbourhood[3]-neighbourhood[2];
+	//note that the weights are never used...
+	return sqrt(du*du+dv*dv);
+}
+
+
+//----------------------------------------------------------------------
+//----------------------------------------------------------------------
+
+
 void filter_linear::set_data_from_floats(float* w, int nx, int ny, int nz, int xcenter, int ycenter, int zcenter) 
 {
 	data = vnl_matrix<float>(nx*ny*nz,4);
@@ -175,46 +220,65 @@ filter_central_difference::filter_central_difference(int dir)
 	cout << "Created 1d central difference filter" << endl;
 }
 
-//----------------------------------------------------------------------
-//----------------------------------------------------------------------
-
-filter_central_difference_magn_2d::filter_central_difference_magn_2d(int dir) 
+filter_central_difference_plane::filter_central_difference_plane(int dir)
 {
-	data = vnl_matrix<float>(4,4); //4 coordinates and 4 different values (x,y,z,w)...
-	if(dir==0){
-		//x					//y					//z				//w
-		data.put(0,0,0); data.put(0,1,0);	data.put(0,2,-1); data.put(0,3,-1);	//neg z-dir
-		data.put(1,0,0); data.put(1,1,0);	data.put(1,2,+1); data.put(1,3,+1);	//pos z-dir
-		data.put(2,0,0); data.put(2,1,-1);	data.put(2,2,0);  data.put(2,3,-1);	//neg y-dir
-		data.put(3,0,0); data.put(3,1,+1);	data.put(3,2,0);  data.put(3,3,+1);	//pos y-dir
-	}else if(dir==1){
-		data.put(0,0,0); data.put(0,1,0);	data.put(0,2,-1); data.put(0,3,-1);	//neg z-dir
-		data.put(1,0,0); data.put(1,1,0);	data.put(1,2,+1); data.put(1,3,+1);	//pos z-dir
-		data.put(2,0,-1);data.put(2,1,0);	data.put(2,2,0);  data.put(2,3,-1);	//neg x-dir
-		data.put(3,0,+1);data.put(3,1,0);	data.put(3,2,0);  data.put(3,3,+1);	//pos x-dir
-	}else{
-		data.put(0,0,-1); data.put(0,1,0);	data.put(0,2,0); data.put(0,3,-1);	//neg x-dir
-		data.put(1,0,+1); data.put(1,1,0);	data.put(1,2,0); data.put(1,3,+1);	//pos x-dir
-		data.put(2,0,0);  data.put(2,1,-1);	data.put(2,2,0); data.put(2,3,-1);	//neg y-dir
-		data.put(3,0,0);  data.put(3,1,+1);	data.put(3,2,0); data.put(3,3,+1);	//pos y-dir
-	}
-}
-
-float filter_central_difference_magn_2d::apply(float* neighbourhood)
-{
-	//pixels outside boundary are set to "std::numeric_limits<float>::max()"...
-	//undo this here to prevent overflow...
-	for(int i=0;i<4;i++){
-		if(neighbourhood[i] == std::numeric_limits<float>::max()){
-			neighbourhood[i] = 0;
-		}
+	int *w = new int[3];
+	w[0]=-1;
+	w[1]= 0;
+	w[2]= 1;
+	
+	if (dir==0) {
+		this->set_data_from_ints(w,3,1,1,1,0,0);
 	}
 
-	float du = neighbourhood[1]-neighbourhood[0];
-	float dv = neighbourhood[3]-neighbourhood[2];
-	//note that the weights are never used...
-	return sqrt(du*du+dv*dv);
+	else if (dir==1) {
+		this->set_data_from_ints(w,1,3,1,0,1,0); //JK-öööö TODO
+		this->set_data_from_ints(w,1,3,1,-1,1,-1);
+		this->set_data_from_ints(w,1,3,1,-1,1,+1);
+		this->set_data_from_ints(w,1,3,1,+1,1,-1);
+		this->set_data_from_ints(w,1,3,1,+1,1,+1);
+	}
+	else {
+		this->set_data_from_ints(w,1,1,3,0,0,1);
+	}
+
+	delete w;
+	cout << "Created 1d central difference filter" << endl;
 }
+
+
+filter_second_derivative_1d::filter_second_derivative_1d(int dir)
+{
+	int *w = new int[3];
+	w[0]= 1;
+	w[1]= -2;
+	w[2]= 1;
+	
+	if (dir==0) {this->set_data_from_ints(w,3,1,1,1,0,0);}
+	else if (dir==1) {this->set_data_from_ints(w,1,3,1,0,1,0);}
+	else {this->set_data_from_ints(w,1,1,3,0,0,1);}
+
+	delete w;
+	cout << "Created 1d second derivative filter" << endl;
+}
+
+filter_LoG_1d::filter_LoG_1d(int dir, float sigma_in_pixels, unsigned int num_elem)
+{
+	float *w = new float[num_elem];
+	float center_elem = float(num_elem-1)/2.0;
+	for(int i=0;i<num_elem;i++){
+		w[i] = pt_LoG( float(i)-center_elem, sigma_in_pixels); // sigma is the distance from the center to the zero crossing
+		cout<<"w[i]="<<w[i]<<endl;
+	}
+	
+	if (dir==0) {this->set_data_from_floats(w,num_elem,1,1,center_elem,0,0);}
+	else if (dir==1) {this->set_data_from_floats(w,1,num_elem,1,0,center_elem,0);}
+	else {this->set_data_from_floats(w,1,1,num_elem,0,0,center_elem);}
+
+	delete w;
+	cout << "Created filter_LoG_1d" << endl;
+}
+
 
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
@@ -255,5 +319,38 @@ filter_mean::filter_mean(int nx, int ny, int nz, int xcenter, int ycenter, int z
 	delete w;
 	cout << "Created mean " << nx << "x" << ny << "x" << nz << " filter." << endl;
 }
+
+
+filter_square_wave_1d::filter_square_wave_1d(int dir, int num_high1, int num_low, int num_high2)
+{
+	int num = num_high1 + num_low + num_high2;
+	float scale = float(num_high1 + num_high2)/float(num_low);
+
+	float *w = new float[num];
+	for (int i=0; i<num; i++) {
+		if(i<num_high1){
+			w[i]=1.0;
+		}
+		else if(i >= num_high1 && i < num_high1+num_low){
+			w[i]=-1.0*scale;
+		}
+		else if(i >= (num_high1+num_low)){
+			w[i]=1.0;
+		}
+		cout<<"w[i]="<<w[i]<<endl;
+	}
+
+	if(dir==0){
+		set_data_from_floats(w,num,1,1,num/2.0,0,0);
+	}
+	else if(dir==1){
+		set_data_from_floats(w,1,num,1,0,num/2.0,0);
+	}
+	else{
+		set_data_from_floats(w,1,1,num,0,0,num/2.0);
+	}
+}
+
+
 
 #endif

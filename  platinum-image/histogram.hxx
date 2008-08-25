@@ -906,7 +906,8 @@ vector<double> histogram_1D<ELEMTYPE>::get_overlaps_in_percent(vector<gaussian> 
 			my_val = v[j].evaluate_at(bucketpos_to_intensity(i));
 			moa_val=0;
 			for(int k=0;k<v.size();k++){
-				if(k=!j){
+				//cout<<"j,i,k-"<<j<<","<<i<<","<<k<<endl;
+				if(k != j){
 					moa_val = std::max( moa_val, double(v[k].evaluate_at(bucketpos_to_intensity(i))) );
 				}
 			}
@@ -1093,26 +1094,44 @@ double fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::f(vnl_vector<doubl
 	}
 	double res = the_hist->get_sum_square_diff(v);
 	cout<<x<<"-->"<<res<<endl;
+
+	//-------------------------------
+	//-------------------------------
+	//if(punish_variance_differences){
+	double mean_sigma=0;
+	double mean_sigma_diff=0;
+	for(int i=0;i<v.size();i++){
+		mean_sigma += v[i].sigma;
+	}
+	mean_sigma = mean_sigma/v.size();
+
+	for(int i=0;i<v.size();i++){
+		mean_sigma_diff += abs(v[i].sigma-mean_sigma)/mean_sigma;
+	}
+	mean_sigma_diff = mean_sigma_diff/v.size();
+	res = res*(1+0.2*mean_sigma_diff);
+
+	//-------------------------------
+	//-------------------------------
+
+
+
+
 	
 	if(punish_overlap){
-//		double sum = the_hist->get_sum_square_gaussian_overlap(v);
-
 		vector<double> overlaps = the_hist->get_overlaps_in_percent(v);
 		double mean_ = mean<double>(overlaps);
 		cout<<"mean_="<<mean_<<endl;
-		res = res*(1+0.2*mean_);
+		res = res*(1+mean_);
+
+		res += the_hist->get_sum_square_gaussian_overlap(v);
 	}
 
 	if(punish_large_area_differences){
 
 		vector<double> areas = the_hist->get_gaussian_areas(v);
 		
-		double mean_area=0;
-		for(int i=0;i<areas.size();i++){
-			cout<<"areas[i]="<<areas[i]<<endl;
-			mean_area += areas[i];
-		}
-		mean_area = mean_area/areas.size();
+		double mean_area = mean<double>(areas);
 		cout<<"mean_area="<<mean_area<<endl;
 
 		double mean_diff_percent=0;

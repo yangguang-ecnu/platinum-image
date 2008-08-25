@@ -611,6 +611,15 @@ const int A_tricubic[64][64] = {
 { 8,-8,-8, 8,-8, 8, 8,-8, 4, 4,-4,-4,-4,-4, 4, 4, 4,-4, 4,-4,-4, 4,-4, 4, 4,-4,-4, 4, 4,-4,-4, 4, 2, 2, 2, 2,-2,-2,-2,-2, 2, 2,-2,-2, 2, 2,-2,-2, 2,-2, 2,-2, 2,-2, 2,-2, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 
+
+float pt_LoG(float x, float sigma)
+{
+	float x2 = x*x;
+	float sigma2 = sigma*sigma;
+	return -(x2-sigma2)/(sigma2*sigma2)*exp( -(x2/(2*sigma2)) );
+}
+
+
 void print_datatype_numerical_limits()
 {
 	std::cout<<"Data Type: \t min \t\t max \t\t digits"<<std::endl;
