@@ -191,6 +191,7 @@ public:
 	float get_mean_from_slice_3d(int dir, int slice, image_binary<IMAGEDIM>* mask=NULL);
 
 	void logarithm_3d(int zero_handling=0);
+	void abs_3d();
 
 	double calculate_entropy_2d();
 

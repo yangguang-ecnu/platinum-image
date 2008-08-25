@@ -65,10 +65,14 @@ class image_binary : public image_label <IMAGEDIM>
     void invert(); ///Perform a voxelwise inversion
 
 
-	virtual image_base* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value=0);	
-	virtual image_base* expand_borders2D_by_dir(int dir, unsigned int dr=1, IMGBINARYTYPE value=0);	
-	virtual image_base* contract_borders(unsigned int dx, unsigned int dy, unsigned int dz);	
-	virtual image_base* contract_borders2D_by_dir(int dir, unsigned int dr=1);	
+	image_binary<IMAGEDIM>* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value=0);	
+	image_binary<IMAGEDIM>* expand_borders2D_by_dir(int dir, unsigned int dr=1, IMGBINARYTYPE value=0);	
+//	virtual image_base* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value=0);	
+//	virtual image_base* expand_borders2D_by_dir(int dir, unsigned int dr=1, IMGBINARYTYPE value=0);	
+	image_binary<IMAGEDIM>* contract_borders(unsigned int dx, unsigned int dy, unsigned int dz);
+	image_binary<IMAGEDIM>* contract_borders2D_by_dir(int dir, unsigned int dr=1);
+//	virtual image_base* contract_borders(unsigned int dx, unsigned int dy, unsigned int dz);	
+//	virtual image_base* contract_borders2D_by_dir(int dir, unsigned int dr=1);	
 
     // *** applications ***
 

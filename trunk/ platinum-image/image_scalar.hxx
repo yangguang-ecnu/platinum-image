@@ -2394,6 +2394,19 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::logarithm_3d(int zero_handling)
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::abs_3d()
+{
+	for (int x=0; x<this->get_size_by_dim(0); x++) {
+		for (int y=0; y<this->get_size_by_dim(1); y++) {
+			for (int z=0; z<this->get_size_by_dim(2); z++) {
+				this->set_voxel( x,y,z,abs(this->get_voxel(x,y,z)) );
+			}
+		}
+	}
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 double image_scalar<ELEMTYPE, IMAGEDIM>::calculate_entropy_2d() 
 {
 	image_scalar<ELEMTYPE,IMAGEDIM> *copy = new image_scalar<ELEMTYPE,IMAGEDIM>(this);

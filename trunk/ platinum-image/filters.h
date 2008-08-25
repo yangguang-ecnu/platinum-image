@@ -45,6 +45,15 @@ public:
 	float apply(float* neighbourhood);
 };
 
+class filter_central_difference_magn_2d: public filter_base
+{
+public:
+	filter_central_difference_magn_2d(int dir=2);
+	float apply(float *neighbourhood);
+};
+
+
+
 class filter_linear : public filter_base
 {
 public:
@@ -80,11 +89,22 @@ public:
 	filter_central_difference(int dir=2);
 };
 
-class filter_central_difference_magn_2d: public filter_base
+class filter_central_difference_plane: public filter_linear
 {
 public:
-	filter_central_difference_magn_2d(int dir=2);
-	float apply(float *neighbourhood);
+	filter_central_difference_plane(int dir=2);
+};
+
+class filter_second_derivative_1d: public filter_linear
+{
+public:
+	filter_second_derivative_1d(int dir=2);
+};
+
+class filter_LoG_1d: public filter_linear	//Laplacian of Gaussian
+{
+public:
+	filter_LoG_1d(int dir=2, float sigma_in_pixels=1, unsigned int num_elem=3);
 };
 
 class filter_gaussian : public filter_linear
@@ -102,7 +122,7 @@ public:
 class filter_square_wave_1d : public filter_linear
 {
 public:
-	filter_square_wave_1d(int num_high1, int num_low, int num_high2);
+	filter_square_wave_1d(int dir=2, int num_high1=2, int num_low=2, int num_high2=2);
 };
 
 #endif

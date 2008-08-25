@@ -353,6 +353,8 @@ float pt_log(float x, ZERO_HANDLING_TYPE zht)
 	return 0;
 }
 
+float pt_LoG(float x, float sigma);
+
 
 void print_datatype_numerical_limits();
 double get_random_number_in_span(double min, double max);
