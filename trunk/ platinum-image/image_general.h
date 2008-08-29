@@ -64,6 +64,10 @@ template<class ELEMTYPE, int IMAGEDIM>
 //#include "itkRigid3DTransform.h"				//used in image_scalar --> spline interpolation
 #include "itkMatrixOffsetTransformBase.h"		//used in image_scalar --> spline interpolation
 
+//#include "itkHessianRecursiveGaussianImageFilter.h"
+//#include "itkHessian3DToVesselnessMeasureImageFilter.h"
+//#include "itkSymmetricSecondRankTensor.h"
+
 
 #include "image_storage.h"
 #include "global.h"
@@ -177,6 +181,8 @@ class image_general : public image_storage <ELEMTYPE >
         histogram_1D<ELEMTYPE>* get_histogram_from_masked_region_3D(image_binary<3>* mask, int num_buckets=500);
 
         void set_voxel(int x, int y, int z, ELEMTYPE voxelvalue);
+        void set_voxel(Vector3D coord_pos, ELEMTYPE voxelvalue);
+        void set_voxels(vector<Vector3D> coords, ELEMTYPE voxelvalue);
         void set_voxel_in_physical_pos(Vector3D phys_pos, ELEMTYPE voxelvalue);
 		void set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction=2);
 		void fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);

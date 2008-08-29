@@ -63,7 +63,7 @@ using namespace std;
 #define theImageType itk::OrientedImage<ELEMTYPE,IMAGEDIM>
 #define theImageType2D itk::OrientedImage<ELEMTYPE,2>
 #define theOrientedImageType itk::OrientedImage<ELEMTYPE,IMAGEDIM>
-#define theImageToOrientedCastFilterType itk::CastImageFilter< theImageType, theOrientedImageType>
+#define theImageToOrientedCastFilterType itk::CastImageFilter< theImageType, theOrientedImageType >
 #define theImagePointer theImageType::Pointer
 #define theIteratorType itk::ImageRegionIterator<theImageType >
 #define theSeriesReaderType itk::ImageSeriesReader<theImageType >
@@ -74,10 +74,16 @@ using namespace std;
 #define theSizeType theImageType::RegionType::SizeType
 #define theStatsFilterType itk::StatisticsImageFilter<theImageType >
 #define theStatsFilterPointerType theStatsFilterType::Pointer
-#define theMeanFilterType itk::MeanImageFilter<theImageType,theImageType>
+#define theMeanFilterType itk::MeanImageFilter<theImageType,theImageType >
 #define theRegionType theImageType::RegionType
 #define theIndexType theImageType::IndexType
-#define theIteratorWithIndexType itk::ImageRegionIteratorWithIndex<theImageType>
+#define theIteratorWithIndexType itk::ImageRegionIteratorWithIndex<theImageType >
+
+//#define HessianFilterType itk::HessianRecursiveGaussianImageFilter<theImageType >
+//#define HessianFilterPointerType HessianFilterType::Pointer
+//#define VesselnessMeasureFilterType itk::Hessian3DToVesselnessMeasureImageFilter<theImageType >
+//#define VesselnessMeasureFilterPointerType VesselnessMeasureFilterType::Pointer
+
 
 #include "image_general.h"
 #include "image_storage.hxx"
@@ -1340,7 +1346,7 @@ vector< image_scalar<ELEMTYPE, IMAGEDIM>* > image_general<ELEMTYPE, IMAGEDIM>::s
 	for (int c=0; c<nc; c++){		//No contrasts
 	    sprintf(s,"%i",c);
 		vec[c]->data_has_changed(true);		//do not forget this part...
-		vec[c]->save_to_VTK_file("c:\\Joel\\TMP\\_reorg_"+string(s)+".vtk");
+		vec[c]->save_to_VTK_file("c:/Joel/TMP/_reorg_"+string(s)+".vtk");
 	}
 	return vec;
 }
@@ -1693,6 +1699,21 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE 
 
     this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
     }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(Vector3D coord_pos, ELEMTYPE voxelvalue)
+    {
+		this->set_voxel(coord_pos[0],coord_pos[1],coord_pos[2],voxelvalue);
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::set_voxels(vector<Vector3D> coords, ELEMTYPE voxelvalue)
+    {
+		for(int i=0;i<coords.size();i++){
+			this->set_voxel(coords[i][0],coords[i][1],coords[i][2],voxelvalue);
+		}
+    }
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_in_physical_pos(Vector3D phys_pos, ELEMTYPE voxelvalue)

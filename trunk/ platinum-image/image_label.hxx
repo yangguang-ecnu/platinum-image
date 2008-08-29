@@ -177,6 +177,53 @@ image_label<IMAGEDIM>* image_label<IMAGEDIM>::get_subvolume_from_region_3D(int x
 	return res;
 }
 
+template <int IMAGEDIM>
+int image_label<IMAGEDIM>::get_label_with_largest_span_in_dir_3D(int dir)
+{
+	cout<<"image_label-get_label_with_largest_span_in_dir_3D("<<dir<<")"<<endl;
+
+	int m = this->get_max();
+//	cout<<"m="<<int(m)<<endl;
+//	std::vector<int> lmin = std::vector<int>(m);
+//	std::vector<int> lmax = std::vector<int>(m);
+	int *lmin = new int[m];
+	int *lmax = new int[m];
+	for (int i=0; i<m; i++){
+		lmin[i]=this->get_size_by_dim(dir)+1;
+		lmax[i]=-1;
+	}
+
+	int val;
+	for (int z=0; z<this->nz(); z++){
+		for (int y=0; y<this->ny(); y++){
+			for (int x=0; x<this->nx(); x++){
+				val = this->get_voxel(x,y,z);
+				if(val>0){
+					lmin[val] = min( lmin[val], get_coord_from_dir(x,y,z,dir) );
+					lmax[val] = max( lmax[val], get_coord_from_dir(x,y,z,dir) );
+				}
+			}
+		}
+	}
+
+//	cout<<"i, min, max"<<endl;
+	int largest_span = -1;
+	int largest_span_label = -1;
+	for (int i=0; i<m; i++){
+//		cout<<i<<", "<<lmin[i]<<", "<<lmax[i]<<endl;
+		if(lmax[i]-lmin[i]+1 > largest_span){
+			largest_span = lmax[i]-lmin[i]+1;
+			largest_span_label = i;
+		}
+	}
+	cout<<"largest_span="<<largest_span<<endl;
+	cout<<"largest_span_label="<<largest_span_label<<endl;
+//	lmin.clear();
+//	lmax.clear();
+//	delete lmin;
+//	delete lmax;
+	return largest_span_label;
+}
 
 
 

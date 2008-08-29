@@ -1755,10 +1755,10 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_in_slice_3D(image_bina
 //
 //	cout<<"region_grow_robust_3D --> Done..."<<endl;
 ////	cout<<"s.size()="<<s.size()<<endl;
-////	res->save_to_VTK_file("c:\\Joel\\TMP\\region_grow.vtk");
+////	res->save_to_VTK_file("c:/Joel/TMP/region_grow.vtk");
 //
 //
-////	neighb->save_to_VTK_file("c:\\Joel\\TMP\\region_grow_nr_acc.vtk");
+////	neighb->save_to_VTK_file("c:/Joel/TMP/region_grow_nr_acc.vtk");
 //	delete neighb;
 //
 ////	copy_data(res,this);
