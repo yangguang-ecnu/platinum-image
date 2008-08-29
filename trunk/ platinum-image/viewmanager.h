@@ -102,6 +102,10 @@ class viewmanager
 		void show_point_by_data ( const Vector3D & point, const int dataID, const int margin = 5 );// show this point in all viewports that has the dataID active
 		void zoom_specific_vp(int vp_id, Vector3D worldCenter, float zoom); //SO - zoom in different viewport than working in
 
+//		void set_vp_data(int vp_id, int data_id);
+		void set_vp_direction(int vp_id, preset_direction dir);
+		void set_vp_renderer(int vp_id, string renderer_type);
+		void set_vp_blend_mode(int vp_id, blendmode bm);
     };
 
 #endif

@@ -266,6 +266,22 @@ void viewport::enable_and_set_direction( preset_direction direction )
 	set_renderer_direction( direction );
 }
 
+void viewport::set_renderer(string renderer_type)
+{
+	the_widget->switch_pane(renderer_type);
+	the_widget->set_renderer_button_label(renderer_type);
+}
+
+void viewport::set_blend_mode(blendmode bm)
+{
+	int rend_index = rendermanagement.find_renderer_index(this->get_renderer_id());
+	rendermanagement.set_blendmode(rend_index, bm);
+
+//	the_widget->set_blend_mode(bm);
+//	the_widget->set_blend_button_label(bm);
+}
+
+
 bool viewport::render_if_needed()
 {
     if (rendererIndex>=0 && needs_re_rendering)

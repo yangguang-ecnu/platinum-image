@@ -34,6 +34,8 @@
 #include "viewporttool.h"
 #include "global.h"
 #include "listedfactory.h"
+#include "rendercombination.h"
+
 
 class threshold_overlay;
 class thresholdparvalue;
@@ -93,6 +95,8 @@ public:
 
 //	void set_timer_delay(int delay = 0); // if zero, remove timer and always render directly
 	void enable_and_set_direction(preset_direction direction);
+	void set_renderer(string renderer_type);
+	void set_blend_mode(blendmode bm);
 
     bool render_if_needed();
 

@@ -35,7 +35,8 @@
 #include <map>
 #include "FLTKutilities.h"
 
-typedef std::string factoryIdType;
+typedef std::string factoryIdType; //JK
+
 
 //The syntax for using this final implementation of the object factory looks like this:
 //

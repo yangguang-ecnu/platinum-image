@@ -54,7 +54,7 @@ class rendermanager
         ~rendermanager();
 
 //		static listedfactory<renderer_base> renderer_factory;
-		static listedfactory<FLTKpane> renderer_factory;
+		static listedfactory<FLTKpane> pane_factory;
         
         void listrenderers();
         int create_renderer(RENDERER_TYPES rendertype);
