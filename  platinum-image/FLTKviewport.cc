@@ -247,12 +247,38 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	//--------------------------------------------
 
 	// Read the data from a vtk file
+
 	vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
 //	reader->SetFileName("D:/Joel/TMP/750001_WML01.vtk");
 	reader->SetFileName("D:/Joel/TMP/brain.vtk");
 //	reader->SetFileName("C:/Sandra/Data/FLAIR.vtk");
 	reader->Update();
-  
+
+//---------------------------
+
+//	vtkImageReader *reader = vtkImageReader::New();
+//	reader->SetFileName("D:/Joel/TMP/brain.vtk");
+//	reader->Update();
+
+//	itkImageToVTKImageFilter *filter = itkImageToVTKImageFilter::New();
+//  vtkITKImageToImageFilter *filter = vtkITKImageToImageFilter::New();
+
+//  typedef itk::CastImageFilter<theImageType2, theImageType> castType;
+//	castType::Pointer caster = castType::New();
+//	caster->SetInput(vesselnessFilter->GetOutput());
+//	caster->Update();
+
+// vtkImageCast filter casts the input type to match the output type in
+// the image processing pipeline.  The filter does nothing if the input
+// already has the correct type.  To specify the "CastTo" type,
+// use "SetOutputScalarType" method.
+
+//	vtkImageCast *caster = vtkImageCast::New();
+//	caster->SetOutputScalarTypeToUnsignedShort();
+//	caster->SetInput( reader->GetOutputDataObject(1) );
+
+//---------------------------
+
 	// Create transfer mapping scalar value to opacity
 	vtkPiecewiseFunction *opacityTF = vtkPiecewiseFunction::New();
 	opacityTF->AddSegment(0, 0.1, 600, 0.9);
@@ -278,7 +304,10 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	MIPFunction->SetMaximizeMethodToScalarValue();
 
 	vtkVolumeRayCastMapper *raycastMapperMIP = vtkVolumeRayCastMapper::New();
-    raycastMapperMIP->SetInputConnection(reader->GetOutputPort());
+    
+	raycastMapperMIP->SetInputConnection(reader->GetOutputPort());
+//	raycastMapperMIP->SetInputConnection(caster->GetOutputPort());					//JK
+
 	//raycastMapperMIP->SetGradientEstimator(gradest);
 	raycastMapperMIP->SetVolumeRayCastFunction(MIPFunction);  // MIPFunction1/2 
 

@@ -105,6 +105,15 @@
 #include "vtkVolume16Reader.h"
 #include "vtkDataSetMapper.h"
 
+#include "vtkImageReader.h"
+//#include "itkImageToImageFilter.h"
+//#include "itkVTKImageImport.h"
+//#include "itkVTKImageExport.h"
+
+//#include "Utilities/itkImageToVTKImageFilter.h"
+//#include "Utilities/vtkITKImageToImageFilter.h"
+//#include "vtkImageCast.h"
+
 //------------------------------------
 
 
