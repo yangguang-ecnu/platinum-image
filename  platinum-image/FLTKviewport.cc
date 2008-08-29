@@ -249,8 +249,8 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	// Read the data from a vtk file
 	vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
 //	reader->SetFileName("D:/Joel/TMP/750001_WML01.vtk");
-	//reader->SetFileName("D:/Joel/TMP/brain.vtk");
-	reader->SetFileName("C:/Sandra/Data/FLAIR.vtk");
+	reader->SetFileName("D:/Joel/TMP/brain.vtk");
+//	reader->SetFileName("C:/Sandra/Data/FLAIR.vtk");
 	reader->Update();
   
 	// Create transfer mapping scalar value to opacity
@@ -511,7 +511,7 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
     
     renderermenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight,"Renderer");
 	//The factory below returnsconnects the  
-	renderermenu_button->copy(rendermanager::renderer_factory.menu(cb_renderer_select3,(void*)this)); 
+	renderermenu_button->copy(rendermanager::pane_factory.menu(cb_renderer_select3,(void*)this)); 
     renderermenu_button->user_data(NULL);
     
     //direction menu is constant for each viewport
@@ -787,14 +787,23 @@ void FLTKviewport::cb_renderer_select2(Fl_Widget *o, void *v)
 
 void FLTKviewport::cb_renderer_select3(Fl_Widget *o, void *v)
 {
+	// --- Set radion button ---
+
+	const Fl_Menu_Item *item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
+    const_cast<Fl_Menu_Item*>(item)->setonly();
+
+
     listedfactory<FLTKpane>::lf_menu_params *par = reinterpret_cast<listedfactory<FLTKpane>::lf_menu_params *>(v);
-	FLTKviewport *owner_FLTKviewport = (FLTKviewport*)par->receiver;
     //par->receiver; //the viewport
-    //par->Create(); //the new renderer
-    const Fl_Menu_Item * item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
+    //par->type; //the new renderer type
+	
+	FLTKviewport *owner_FLTKviewport = (FLTKviewport*)par->receiver;
    
+	owner_FLTKviewport->switch_pane(par->type);
+
+/*
 	//cout<<"Fl_Group::current()="<<Fl_Group::current()<<endl;
-	Fl_Group::current(owner_FLTKviewport);
+//	Fl_Group::current(owner_FLTKviewport);
 	//cout<<"Fl_Group::current()="<<Fl_Group::current()<<endl;
 	//Fl_Group::current(NULL);
 
@@ -819,7 +828,7 @@ void FLTKviewport::cb_renderer_select3(Fl_Widget *o, void *v)
 
 //	owner_FLTKviewport->pane_widget = new FLTK_Pt_pane(x,y,w,h);
 //	owner_FLTKviewport->pane_widget = new FLTK_VTK_Cone_pane();
-	owner_FLTKviewport->pane_widget = rendermanager::renderer_factory.Create(par->type);
+	owner_FLTKviewport->pane_widget = rendermanager::pane_factory.Create(par->type);
 
 	owner_FLTKviewport->pane_widget->x(x);
 	owner_FLTKviewport->pane_widget->y(y);
@@ -848,9 +857,12 @@ void FLTKviewport::cb_renderer_select3(Fl_Widget *o, void *v)
 //	owner_FLTKviewport->cb_renderer_select3b( (FLTKpane*)new_pane );
 //	owner_FLTKviewport->cb_renderer_select3b( new_pane );
 //	owner_FLTKviewport->cb_renderer_select3b( NULL );
-    
-    const_cast<Fl_Menu_Item *>(item)->setonly();
+*/
+
 }
+
+
+
 /*
 void FLTKviewport::cb_renderer_select3b(FLTKpane* new_pane)
 {
@@ -956,6 +968,48 @@ void FLTKviewport::set_direction_button_label(preset_direction direction)
 	directionmenu_button->label( preset_direction_labels[direction] );
 	( (Fl_Menu_Item*)directionmenu_button->menu() )[direction].setonly(); 	//also activate the right radio-button...
 }
+
+void FLTKviewport::switch_pane(factoryIdType type)
+{
+	int x = this->pane_widget->x();
+	int y = this->pane_widget->y();
+	int w = this->pane_widget->w();
+	int h = this->pane_widget->h();
+	this->pane_widget->parent()->remove(this->pane_widget);
+	delete this->pane_widget;
+
+	Fl_Group::current(this);
+
+	this->pane_widget = rendermanager::pane_factory.Create(type);
+
+	this->pane_widget->x(x);
+	this->pane_widget->y(y);
+	this->pane_widget->w(w);
+	this->pane_widget->h(h);
+	this->pane_widget->resize_content(w,h);
+
+	this->pane_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
+
+	cout<<"shown()"<<this->pane_widget->shown()<<endl;
+	this->pane_widget->show();
+	cout<<"shown()"<<this->pane_widget->shown()<<endl;
+
+	viewmanagement.list_viewports();
+}
+
+void FLTKviewport::set_renderer_button_label(factoryIdType type)
+{
+//	renderermenu_button->label( type.c_str() ); //always keep the "Renderer" label
+
+	Fl_Menu_Item *item = (Fl_Menu_Item*)directionmenu_button->menu();
+	for(int i=0;i<item->size();i++){
+		if( item[i].label() == type.c_str() ){
+			item[i].setonly(); 	//also change the right radio-button...
+		}
+	}
+}
+
+
 
 void FLTKviewport::viewport_callback(Fl_Widget *callingwidget, void *thisFLTKviewport)
 {

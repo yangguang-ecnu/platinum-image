@@ -638,7 +638,17 @@ void viewmanager::zoom_specific_vp(int vp_id, Vector3D worldCenter, float zoom) 
 }
 
 
+void viewmanager::set_vp_direction(int vp_id, preset_direction dir)
+{
+	this->get_viewport(vp_id)->enable_and_set_direction(dir);
+}
 
+void viewmanager::set_vp_renderer(int vp_id, string renderer_type)
+{
+	this->get_viewport(vp_id)->set_renderer(renderer_type);
+}
 
-
-
+void viewmanager::set_vp_blend_mode(int vp_id, blendmode bm)
+{
+	this->get_viewport(vp_id)->set_blend_mode(bm);
+}

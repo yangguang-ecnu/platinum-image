@@ -26,6 +26,8 @@
 #define __global_h__
 #include "string.h"
 
+
+
 #define PLATINUM_MAJOR_VER 0
 #define PLATINUM_MINOR_VER 1
 
@@ -52,11 +54,8 @@
 #define AADDR 3
 
 #define FILEPOSTYPE char
-
 #define VOLUMEMAXDIMENSION 3
-
 #define IMGLABELMAX 19
-
 #define ZOOM_CONSTANT 50.0  // physical display size (mm) at zoom 1 - previously denoted "display_scale"
 
 

@@ -72,6 +72,8 @@
 #include "histo2D_tool.h"
 #include "event.h"
 
+#include "listedfactory.h" 
+
 
 //------------------------------------
 //Test - vtkFlRenderWindowInteractor -  here we have all the usual VTK stuff that we need for our pipeline
@@ -308,6 +310,8 @@ public:
     static void set_direction_callback(Fl_Widget *callingwidget, void *params);
     static void set_blendmode_callback(Fl_Widget *callingwidget, void *params);
 	void set_direction_button_label(preset_direction direction);
+    void switch_pane(factoryIdType type); //JK2
+	void set_renderer_button_label(factoryIdType type); //JK2
 	
     bool render_if_needed();
         
