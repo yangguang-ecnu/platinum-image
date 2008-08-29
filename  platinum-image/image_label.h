@@ -31,6 +31,10 @@
 
 #include "image_integer.h"
 
+//forward declaration
+template<int IMAGEDIM>
+class image_binary;
+
 template<int IMAGEDIM = 3>
 class image_label : public image_integer <IMGLABELTYPE, IMAGEDIM>
 {
@@ -59,6 +63,8 @@ public:
 	image_label<IMAGEDIM>* get_subvolume_from_slice_3D(int slice, int dir=2);
 	image_label<IMAGEDIM>* get_subvolume_from_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size);
 	image_label<IMAGEDIM>* get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2);
+
+	int get_label_with_largest_span_in_dir_3D(int dir);
 
 };
 

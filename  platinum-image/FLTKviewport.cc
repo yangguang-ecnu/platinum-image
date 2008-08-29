@@ -851,7 +851,7 @@ void FLTKviewport::cb_renderer_select3(Fl_Widget *o, void *v)
     
     const_cast<Fl_Menu_Item *>(item)->setonly();
 }
-
+/*
 void FLTKviewport::cb_renderer_select3b(FLTKpane* new_pane)
 {
 
@@ -890,7 +890,7 @@ void FLTKviewport::cb_renderer_select3b(FLTKpane* new_pane)
 //	this->pane_widget->redraw(); //JK2
 //	this->pane_widget->needs_rerendering();
 }
-
+*/
 
 void FLTKviewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
 {
@@ -955,7 +955,6 @@ void FLTKviewport::set_direction_button_label(preset_direction direction)
 {
 	directionmenu_button->label( preset_direction_labels[direction] );
 	( (Fl_Menu_Item*)directionmenu_button->menu() )[direction].setonly(); 	//also activate the right radio-button...
-
 }
 
 void FLTKviewport::viewport_callback(Fl_Widget *callingwidget, void *thisFLTKviewport)

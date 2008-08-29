@@ -362,7 +362,7 @@ Vector3D create_Vector3D(float x, float y, float z);
 Vector3Dint create_Vector3Dint(int x, int y, int z);
 Vector2D create_Vector2D(float x, float y);
 Vector2Dint create_Vector2Dint(int x, int y);
-
+int get_coord_from_dir(int x, int y, int z, int dir);
 
 
 Matrix3D outer_product(const Vector3D a, const Vector3D b);

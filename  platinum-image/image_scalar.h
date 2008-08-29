@@ -235,7 +235,7 @@ public:
 	float appl_wb_correct_inclination(image_scalar<ELEMTYPE, IMAGEDIM>*fat, image_scalar<ELEMTYPE, IMAGEDIM>*water);
 	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres=3000);
 	image_binary<3>* appl_wb_segment_rough_lung_from_sum_image(image_binary<3> *mask, float lung_volume_in_litres=2.5);
-	image_binary<3>* appl_wb_segment_right_lung_from_sum_image(image_binary<3> *right_thorax_body_mask, float lung_volume_in_litres=2.5, int low_threshold=50);
+	image_binary<3>* appl_wb_segment_one_lung_from_sum_image(image_binary<3> *thorax_body_mask, float lung_volume_in_litres=2.5, int low_threshold=50);
 	image_binary<3>* appl_wb_segment_both_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres=2.5, int low_threshold=50);
 //	image_binary<3>* appl_wb_segment_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres=5);
 	void appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres=950);
@@ -250,6 +250,8 @@ public:
 	float get_mean_least_square_difference_to_template_3D(Vector3D pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template);
 	image_scalar<float, IMAGEDIM>* get_mean_least_square_difference_image_3D(Vector3D from_center_pos, Vector3D to_center_pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template); //least square fit small template to region (center voxel template coordinates...)
 
+	//ITK vesselness functions
+	void vesselness_test(double hessian_sigma=5, double vessel_alpha1=0.5, double vessel_alpha2=0.5);
 };
 
 #endif

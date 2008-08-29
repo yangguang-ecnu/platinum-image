@@ -305,16 +305,16 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_rough_lung_fr
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_from_sum_image(image_binary<3> *right_thorax_body_mask, float lung_volume_in_litres, int low_threshold)
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from_sum_image(image_binary<3> *thorax_body_mask, float lung_volume_in_litres, int low_threshold)
 {
 
-	image_binary<3> *rough_lung = this->appl_wb_segment_rough_lung_from_sum_image(right_thorax_body_mask, lung_volume_in_litres);
+	image_binary<3> *rough_lung = this->appl_wb_segment_rough_lung_from_sum_image(thorax_body_mask, lung_volume_in_litres);
 	rough_lung->name("rough_lung");
-	rough_lung->save_to_file("c:/Joel/TMP/combi_1_rough_lung.vtk");
+//	rough_lung->save_to_file("c:/Joel/TMP/combi_1_rough_lung.vtk");
 
 	image_integer<short,3> *dist = rough_lung->distance_345_3D();
 	dist->name("dist");
-	dist->save_to_file("c:/Joel/TMP/combi_2_dist.vtk");
+//	dist->save_to_file("c:/Joel/TMP/combi_2_dist.vtk");
 
 	image_binary<3> *seeds = dist->threshold(15);
 //	image_binary<3> *seeds = new image_binary<3>(rough_lung);
@@ -328,10 +328,10 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_right_lung_fr
 	res->name("res");
 	res->dilate_3D_26Nbh();
 	res->dilate_3D_26Nbh();
-	res->save_to_file("c:/Joel/TMP/combi_3_res.vtk");
+//	res->save_to_file("c:/Joel/TMP/combi_3_res.vtk");
 
 	histogram_1D<ELEMTYPE> *h2 = this->get_histogram_from_masked_region_3D(res);
-	h2->save_histogram_to_txt_file("c:/Joel/TMP/combi_4_hist.txt");
+//	h2->save_histogram_to_txt_file("c:/Joel/TMP/combi_4_hist.txt");
 
 	float a;
 	float c;
@@ -381,14 +381,16 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_fr
 
 
 	// ---- Segment RIGHT Lung -----
+	cout<<"***Right Lung***"<<endl;
 	image_binary<3> *right_mask = new image_binary<3>(thorax_mask);
 	right_mask->fill_region_3D(0,cg[0]+2,body_mask->get_size_by_dim(0)-1,0);
-	image_binary<3> *r_lung = this->appl_wb_segment_right_lung_from_sum_image(right_mask,lung_volume_in_litres, low_threshold);
+	image_binary<3> *r_lung = this->appl_wb_segment_one_lung_from_sum_image(right_mask,lung_volume_in_litres, low_threshold);
 	r_lung->name("r_lung");
 
 
 
 	// ---- Segment LEFT Lung -----
+	cout<<"***Left Lung***"<<endl;
 	int x1,y1,z1,x2,y2,z2;
 	r_lung->get_span_of_value_3D(1,x1,y1,z1,x2,y2,z2);
 
@@ -396,7 +398,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_fr
 	left_mask->fill_region_3D(0,0,cg[0]-2,0);
 	left_mask->fill_region_3D(1,0,y1,0);
 	left_mask->fill_region_3D(1,y2,left_mask->ny()-1,0);
-	image_binary<3> *l_lung = this->appl_wb_segment_right_lung_from_sum_image(left_mask,lung_volume_in_litres, low_threshold);
+	image_binary<3> *l_lung = this->appl_wb_segment_one_lung_from_sum_image(left_mask,lung_volume_in_litres, low_threshold);
 	l_lung->name("l_lung");
 
 
@@ -934,4 +936,30 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_1D_SIM_bias_correction(image_binary<
 	feat1_corr->scale(this->get_min(),this->get_max()); //sets the old intensity range!
 	copy_data(feat1_corr,this);
 	delete feat1_corr;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::vesselness_test(double hessian_sigma, double vessel_alpha1, double vessel_alpha2)
+{
+	typedef itk::HessianRecursiveGaussianImageFilter< theImageType > HessianFilterType;
+	HessianFilterType::Pointer hessianFilter = HessianFilterType::New();
+	hessianFilter->SetInput( this->get_image_as_itk_output() );
+	hessianFilter->SetSigma( hessian_sigma );
+
+	typedef itk::Hessian3DToVesselnessMeasureImageFilter< ELEMTYPE > VesselnessMeasureFilterType;
+	VesselnessMeasureFilterType::Pointer vesselnessFilter = VesselnessMeasureFilterType::New();
+	vesselnessFilter->SetInput( hessianFilter->GetOutput() );
+	vesselnessFilter->SetAlpha1( vessel_alpha1 );
+	vesselnessFilter->SetAlpha2( vessel_alpha2 );
+	vesselnessFilter->Update();
+	
+//	theImageToOrientedCastFilterType::Pointe
+    typedef itk::CastImageFilter<theImageType2, theImageType> castType;
+	castType::Pointer caster = castType::New();
+	caster->SetInput(vesselnessFilter->GetOutput());
+	caster->Update();
+
+	//JK - TODO - Copy the rotation info separately....
+	replicate_itk_to_image(caster->GetOutput());
 }

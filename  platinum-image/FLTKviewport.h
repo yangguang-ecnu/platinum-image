@@ -287,7 +287,7 @@ private:
     static void cb_renderer_select(Fl_Widget *o, void *v);
     static void cb_renderer_select2(Fl_Widget *o, void *v); //JK2
     static void cb_renderer_select3(Fl_Widget *o, void *v); //JK2
-    void cb_renderer_select3b(FLTKpane* new_pane); //JK2
+//    void cb_renderer_select3b(FLTKpane* new_pane); //JK2
     void rebuild_blendmode_menu();//update checkmark for current blend mode
 	
 	

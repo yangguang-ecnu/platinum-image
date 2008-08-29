@@ -680,6 +680,17 @@ Vector2Dint create_Vector2Dint(int x, int y)
 	return v;
 }
 
+int get_coord_from_dir(int x, int y, int z, int dir)
+{
+	if(dir==0){
+		return x;
+	}else if(dir==1){
+		return y;
+	}
+	return z;
+}
+
+
 
 Matrix3D outer_product(const Vector3D a, const Vector3D b)
 {
