@@ -149,9 +149,9 @@ void tif_save_function (int userIO_ID,int par_num)
 {
 	if (par_num == USERIO_CB_OK)
 	{
-		string path = "c:\\Joel\\TMP\\M\\_F5\\";
-		//		string path = "c:\\Joel\\TMP\\M\\_FRANCISCO3fix_plus_rest\\";
-		//	string path = "G:\\Joel\\Data-Backup\\_MALTIDSTUDIEN\\_FRANCISCO_Liver_Segm\\";
+		string path = "c:/Joel/TMP/M/_F5/";
+		//		string path = "c:/Joel/TMP/M/_FRANCISCO3fix_plus_rest/";
+		//	string path = "G:/Joel/Data-Backup/_MALTIDSTUDIEN/_FRANCISCO_Liver_Segm/";
 		//		vector<string> files = get_dir_entries_ending_with(path,".vtk");
 		vector<string> files;
 		//		files.push_back("10472f_15slc.vtk");
@@ -164,7 +164,7 @@ void tif_save_function (int userIO_ID,int par_num)
 		{
 			image_scalar<unsigned short,3> *im = new image_scalar<unsigned short,3>();
 			im->load_dataset_from_VTK_file(path+files[i]);
-			//		s = path + "Tif\\" + files[i].substr(0,files[i].size()-4);
+			//		s = path + "Tif/" + files[i].substr(0,files[i].size()-4);
 			//		im->save_to_TIF_file_series_3D(s);
 			im->flip_voxel_data_3D(2);
 			im->save_to_VTK_file(path+"_"+files[i]);
@@ -181,12 +181,12 @@ void smooth_function(int userIO_ID,int par_num)
 	if (par_num == USERIO_CB_OK)
 	{
 		image_scalar<short,3> *psi = new image_scalar<short,3>();
-		psi->load_dataset_from_VTK_file("c:\\Joel\\TMP\\psi100slc.vtk");
+		psi->load_dataset_from_VTK_file("c:/Joel/TMP/psi100slc.vtk");
 		Vector3D radius;
 		radius.Fill(2);
 		//		psi->smooth_ITK(radius);
 		psi->smooth_3D(radius);
-		psi->save_to_VTK_file("c:\\Joel\\TMP\\psi100slc2_3D.vtk");
+		psi->save_to_VTK_file("c:/Joel/TMP/psi100slc2_3D.vtk");
 	}
 }
 
@@ -249,7 +249,7 @@ void hist_function(int userIO_ID,int par_num)
 	if (par_num == USERIO_CB_OK)
 	{
 		image_scalar<unsigned short,3> *f1 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,0)));
-		f1->save_histogram_to_txt_file("C:\\Joel\\TMP\\hist\\hist01.txt");
+		f1->save_histogram_to_txt_file("C:/Joel/TMP/hist/hist01.txt");
 	}
 }
 
@@ -260,19 +260,19 @@ void test_function(int userIO_ID,int par_num)
 	if (par_num == USERIO_CB_OK)
 	{
 
-		string path = "C:\\Joel\\TMP\\";
+		string path = "C:/Joel/TMP/";
 		image_scalar<unsigned short,3> *f = new image_scalar<unsigned short,3>(path + "femur_model.vtk");
 		f->name("f");
 		datamanagement.add(f);
 
-		path = "C:\\Joel\\TMP\\Pivus75\\PD\\";
+		path = "C:/Joel/TMP/Pivus75/PD/";
 		image_scalar<unsigned short,3> *t1 = new image_scalar<unsigned short,3>(path + "00000001");
 		t1->name("t1");
 		datamanagement.add(t1);
 
 		//Calculation of T1map from QMED concentrations...
 /*
-		string path = "C:\\Joel\\Data\\QMed-Rat\\QMEDTEST_T1Map_tests_of_diff_consentrations\\20071107\\crop\\";
+		string path = "C:/Joel/Data/QMed-Rat/QMEDTEST_T1Map_tests_of_diff_consentrations/20071107/crop/";
 		image_scalar<unsigned short,3> *q1 = new image_scalar<unsigned short,3>();
 		image_scalar<unsigned short,3> *q2 = new image_scalar<unsigned short,3>();
 		image_scalar<unsigned short,3> *q3 = new image_scalar<unsigned short,3>();
@@ -327,7 +327,7 @@ void test_function(int userIO_ID,int par_num)
 /*
 
 
-		string path = "C:\\Joel\\TMP\\COMBI_30\\";
+		string path = "C:/Joel/TMP/COMBI_30/";
 		image_scalar<float,3> *f_re = new image_scalar<float,3>();
 		image_scalar<float,3> *f_im = new image_scalar<float,3>();
 		image_scalar<float,3> *w_re = new image_scalar<float,3>();
@@ -379,9 +379,9 @@ void test_function(int userIO_ID,int par_num)
 		ff->save_to_VTK_file(path + "COMBI_30b_FF_idea.vtk");
 */
 
-		//		string path = "C:\\Joel\\Data\\COMBI\\COMBI - All_DIXON_DATA_2007_10_15\\";
+		//		string path = "C:/Joel/Data/COMBI/COMBI - All_DIXON_DATA_2007_10_15/";
 
-//		string path = "C:\\Joel\\TMP\\";
+//		string path = "C:/Joel/TMP/";
 /*
 		image_scalar<unsigned short,3> *water = new image_scalar<unsigned short,3>();
 		water->load_dataset_from_VTK_file(path + "ME10liver.vtk");
@@ -511,20 +511,20 @@ void test_function(int userIO_ID,int par_num)
 
 
 		/*
-		string path = "C:\\Joel\\TMP\\COMBI_EL\\";
+		string path = "C:/Joel/TMP/COMBI_EL/";
 		image_integer<unsigned short,3> *f1 = new image_integer<unsigned short,3>();
-		f1->load_dataset_from_VTK_file("C:\\Joel\\TMP\\COMBI_EL\\7_EL_Flip20.vtk");
+		f1->load_dataset_from_VTK_file("C:/Joel/TMP/COMBI_EL/7_EL_Flip20.vtk");
 		datamanagement.add(f1);
 		*/
 		/*
-		string path = "C:\\Joel\\Data\\COMBI\\COMBI - All_DIXON_DATA_2007_09_19\\";
+		string path = "C:/Joel/Data/COMBI/COMBI - All_DIXON_DATA_2007_09_19/";
 
 		image_scalar<unsigned short,3> *f1 = new image_scalar<unsigned short,3>();
 		//		image_scalar<unsigned short,3> *f2 = new image_scalar<unsigned short,3>();
 		f1->load_dataset_from_VTK_file(path + "COMBI0_6_1716_96_380_76_32bit_Fat.vtk");
 		//		f2->load_dataset_from_VTK_file(path + "COMBI0_6_1716_96_380_76_32bit_Water.vtk");
 		image_scalar<unsigned short,3> *f2 = new image_scalar<unsigned short,3>(f1);
-		f2->save_histogram_to_txt_file("c:\\Joel\\TMP\\COMBI0_6_constructor_copied_hist.txt");
+		f2->save_histogram_to_txt_file("c:/Joel/TMP/COMBI0_6_constructor_copied_hist.txt");
 		*/
 
 		//		point_collection p();
@@ -536,16 +536,16 @@ void test_function(int userIO_ID,int par_num)
 		//Multistack...
 
 
-		//		string path = "C:\\Joel\\TMP\\\COMBI_11\\";
+		//		string path = "C:/Joel/TMP/\COMBI_11/";
 		//7_T1Map_Multistack_Flip10_05_TR205_TE095_1.vtk
 
-		//		string path = "C:\\Joel\\TMP\\T1Map3DMultistack\\";
-		//		string path = "C:\\Joel\\TMP\\COMBI_EL\\";
+		//		string path = "C:/Joel/TMP/T1Map3DMultistack/";
+		//		string path = "C:/Joel/TMP/COMBI_EL/";
 
-		//		string path = "C:\\Joel\\TMP\\COMBI - 3 T1Map Test EL BE\\VTK_DATA\\";
-		//		string path = "C:\\Joel\\TMP\\COMBI_13_ACS_T1maptest\\T1MAPTES\\20071008\\";
-		//		string path = "C:\\Joel\\TMP\\COMBI_16\\VTK\\";
-		string path = "C:\\Joel\\TMP\\COMBI_17_COMBI_Mst_comparison_MT\\VTK\\";
+		//		string path = "C:/Joel/TMP/COMBI - 3 T1Map Test EL BE/VTK_DATA/";
+		//		string path = "C:/Joel/TMP/COMBI_13_ACS_T1maptest/T1MAPTES/20071008/";
+		//		string path = "C:/Joel/TMP/COMBI_16/VTK/";
+		string path = "C:/Joel/TMP/COMBI_17_COMBI_Mst_comparison_MT/VTK/";
 
 		image_scalar<unsigned short,3> *f1 = new image_scalar<unsigned short,3>();
 		image_scalar<unsigned short,3> *f2 = new image_scalar<unsigned short,3>();
@@ -557,7 +557,7 @@ void test_function(int userIO_ID,int par_num)
 		f3->load_dataset_from_VTK_file(path + "9_T1Map_Multistation_TR5_Flip7_4_Stack3.vtk");
 		f4->load_dataset_from_VTK_file(path + "9_T1Map_Multistation_TR5_Flip7_4_Stack4.vtk");
 
-		//		f1->load_dataset_from_all_DICOM_files_in_dir(path + "MR801\\");
+		//		f1->load_dataset_from_all_DICOM_files_in_dir(path + "MR801/");
 
 		//		f1->save_to_VTK_file(path+"201.vtk");
 
@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
 
 
 	//	image_scalar<unsigned short,3> *tmp;
-	//	tmp->load_dataset_from_VTK_file("C:\\Joel\\TMP\\Pivus75\\750077_MR301_TE100.vtk");
+	//	tmp->load_dataset_from_VTK_file("C:/Joel/TMP/Pivus75/750077_MR301_TE100.vtk");
 	//	datamanagement.add(tmp);
 
 	// *** begin userIO control definitions ***
@@ -703,11 +703,11 @@ int main(int argc, char *argv[])
 	userIOmanagement.add_par_float_box(t1_mapping_ID,"TR (Overrides dcm info, if not 0)",5000,0);
 	userIOmanagement.add_par_float_box(t1_mapping_ID,"TE (Overrides dcm info, if not 0)",5000,0);
 	userIOmanagement.add_par_longint_box(t1_mapping_ID,"Flip angle (0-180)",180,0);
-	userIOmanagement.add_par_string(t1_mapping_ID,"Large - Dcm file (leave empty if not needed)","C:\\Joel\\flip80.dcm");
+	userIOmanagement.add_par_string(t1_mapping_ID,"Large - Dcm file (leave empty if not needed)","C:/Joel/flip80.dcm");
 
 	userIOmanagement.add_par_image(t1_mapping_ID,"Small flip volume");
 	userIOmanagement.add_par_longint_box(t1_mapping_ID,"Flip angle (0-180)",180,0);
-	userIOmanagement.add_par_string(t1_mapping_ID,"Small - Dcm file (leave empty if not needed)","C:\\Joel\\flip30.dcm");
+	userIOmanagement.add_par_string(t1_mapping_ID,"Small - Dcm file (leave empty if not needed)","C:/Joel/flip30.dcm");
 	userIOmanagement.finish_userIO(t1_mapping_ID);
 
 
