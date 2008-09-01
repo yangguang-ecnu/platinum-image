@@ -114,6 +114,18 @@ void image_label<IMAGEDIM >:: transfer_function(transfer_base<IMGLABELTYPE > * c
     }
 
 template <int IMAGEDIM>
+string image_label<IMAGEDIM>::resolve_tooltip()
+{
+	return "image_label\n" + resolve_tooltip_image_label();
+}
+
+template <int IMAGEDIM>
+string image_label<IMAGEDIM>::resolve_tooltip_image_label()
+{
+	return resolve_tooltip_image_integer();
+}
+
+template <int IMAGEDIM>
 image_label<IMAGEDIM>* image_label<IMAGEDIM>::get_subvolume_from_slice_3D(int slice, int dir)
 {
 	cout<<"get_subvolume_from_region_3D..."<<endl;

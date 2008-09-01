@@ -48,6 +48,17 @@ image_binary<IMAGEDIM>::image_binary(const string filepath, const string name):i
 {}
 
 
+template <int IMAGEDIM>
+string image_binary<IMAGEDIM>::resolve_tooltip()
+{
+	return "image_binary\n" + resolve_tooltip_image_binary();
+}
+
+template <int IMAGEDIM>
+string image_binary<IMAGEDIM>::resolve_tooltip_image_binary()
+{
+	return resolve_tooltip_image_label();
+}
 
 
 template <int IMAGEDIM>

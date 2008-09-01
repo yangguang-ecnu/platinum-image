@@ -238,6 +238,13 @@ void datawidget_base::show_hide_edit_geometry()
 	geom_widget->parent()->parent()->parent()->parent()->redraw();
 }
 
+void datawidget_base::set_tooltip(string s)
+{
+	cout<<"datawidget_base::set_tooltip... "<<s<<endl;
+	datanamebutton->tooltip(strdup(s.c_str()));
+	cout<<"datawidget_base::get_tooltip... "<<datanamebutton->tooltip()<<endl;
+}
+
 
 #pragma mark datawidget<image_base>
 
@@ -413,6 +420,9 @@ void datawidget<image_base>::cb_show_hide_tfunction(Fl_Widget* callingwidget, vo
     
     the_datawidget->parent()->parent()->redraw();
 }
+
+
+
 
 
 
@@ -641,3 +651,4 @@ void FLTKgeom_image::rotation_update_cb ( Fl_Widget * w, void * )
 
 
 //	static void orient_update_cb(Fl_Widget *w, void*);
+

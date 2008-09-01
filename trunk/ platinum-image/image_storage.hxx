@@ -532,6 +532,31 @@ void image_storage<ELEMTYPE >::print_stats()
 }
 
 template <class ELEMTYPE >
+string image_storage<ELEMTYPE >::resolve_tooltip()
+{
+	return resolve_tooltip_image_storage();
+}
+
+template <class ELEMTYPE >
+string image_storage<ELEMTYPE >::resolve_tooltip_image_storage()
+{
+//	return resolve_tooltip_image_base() + "num_elem="+int2str(num_elements)+" (size=resolve_size())\n";
+//	return resolve_tooltip_image_base() + "num_elem="+int2str(num_elements)+" datatype=" + string(typeid(ELEMTYPE).name()) + " (size=resolve_size())\n";
+	string s = resolve_tooltip_image_base() + "datatype=" + string(typeid(ELEMTYPE).name()) + "\n" ;
+	s += "min=" + float2str(get_min()) + " max=" + float2str(get_max()) + "\n";
+	s += "size=" + resolve_datasize_in_kb()+"kb num_elem=" + int2str(num_elements) + "\n";
+	return s;
+}
+
+template <class ELEMTYPE >
+string image_storage<ELEMTYPE >::resolve_datasize_in_kb()
+{
+	float f = float(num_elements)*float(numeric_limits<ELEMTYPE>::digits) * 0.001/8;
+	return float2str(f);
+}
+
+
+template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::stats_refresh(bool min_max_refresh)
     {
 	if(min_max_refresh){
