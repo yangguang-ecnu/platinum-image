@@ -159,7 +159,18 @@ void data_base::save_histogram_to_txt_file(const std::string filename, const std
     }
 */
 
-string data_base::get_tooltip()
+	
+string data_base::resolve_tooltip()
 {
-	return widget->name()+" ("+int2str(ID)+")\nfrom_file="+bool2str(from_file());
+	return resolve_tooltip_data_base();
+}
+
+string data_base::resolve_tooltip_data_base()
+{
+	return "name=\"" + widget->name() + "\" (id="+int2str(ID)+")\nfrom_file="+bool2str(from_file())+"\n";
+}
+
+void data_base::set_tooltip(string s)
+{
+	widget->set_tooltip(s);
 }

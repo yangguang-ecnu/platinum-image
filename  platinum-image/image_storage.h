@@ -27,14 +27,17 @@
 #ifndef __image_storage__
 #define __image_storage__
 
+#include <typeinfo>
+
+#include "image_base.h"
+#include "histogram.h"
+#include "transfer.h"
+
 #define IMGLABELTYPE unsigned char
 #define IMGBINARYTYPE IMGLABELTYPE
 
 class image_base;
 
-#include "image_base.h"
-#include "histogram.h"
-#include "transfer.h"
 
 template<class ELEMTYPE>
 class image_storage : public image_base
@@ -105,8 +108,11 @@ class image_storage : public image_base
 		bool same_size(image_storage<ELEMTYPE> *const image2); //checks the data size only... (not the dimension)
 		void combine(image_storage<ELEMTYPE> *const image2, COMBINE_MODE mode);
 
-
 		void print_stats();
+
+		virtual string resolve_tooltip();		//combines tooltip data of this class with data from other classes
+		string resolve_tooltip_image_storage(); //resolves tooltip data typical for this class
+		string resolve_datasize_in_kb();
 
 
         // *** iterator ***        

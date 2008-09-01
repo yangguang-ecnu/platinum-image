@@ -245,10 +245,14 @@ Vector3D image_base::world_to_voxel( const Vector3D & wpos ) const
 	return vpos;
 }
 
-string image_base::get_tooltip()
+string image_base::resolve_tooltip()
 {
-	string s = "origin="+Vector3D2str(origin);//+"\n"+"orientation="+orientation;
-	return s;
+	return resolve_tooltip_image_base();
+}
+
+string image_base::resolve_tooltip_image_base()
+{
+	return resolve_tooltip_data_base() + "origin="+Vector3D2str(origin)+"\n";  //+"\n"+"orientation="+orientation;
 }
 
 

@@ -33,20 +33,23 @@
 template<int IMAGEDIM = 3>
 class image_binary : public image_label <IMAGEDIM>
     {
-    public:
-        image_binary(int w, int h, int d, IMGBINARYTYPE *ptr = NULL);
+public:
+	image_binary(int w, int h, int d, IMGBINARYTYPE *ptr = NULL);
 
-	    template<class SOURCETYPE>
-        image_binary(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true) : image_label<IMAGEDIM>(old_image, copyData)//!copy constructor
-		{}
+	template<class SOURCETYPE>
+    image_binary(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true) : image_label<IMAGEDIM>(old_image, copyData)//!copy constructor
+	{}
 
-		image_binary(std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_label<IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
-		{}
+	image_binary(std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_label<IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) 
+	{}
 
-	    image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i);
-		image_binary(const string filepath, const string name="");
-//		image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i):image_label<IMAGEDIM>(i){}
-//		image_binary(const string filepath, const string name=""):image_label<IMAGEDIM>(filepath, name){}
+	image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i);
+	image_binary(const string filepath, const string name="");
+//	image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i):image_label<IMAGEDIM>(i){}
+//	image_binary(const string filepath, const string name=""):image_label<IMAGEDIM>(filepath, name){}
+
+	virtual string resolve_tooltip();		//combines tooltip data of this class with data from other classes
+	string resolve_tooltip_image_binary(); //resolves tooltip data typical for this class
 
 	image_binary<IMAGEDIM>* get_subvolume_from_slice_3D(int slice, int dir=2);
 

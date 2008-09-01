@@ -386,6 +386,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::data_has_changed(bool stat_refresh)
  //   if (ITKimportimage.IsNotNull())
  //       {ITKimportimage->Delete();}
 
+	this->set_tooltip(this->resolve_tooltip());
     this->redraw();
     }
 
@@ -770,6 +771,29 @@ template <class ELEMTYPE, int IMAGEDIM>
 float image_general<ELEMTYPE, IMAGEDIM>::get_num_voxels_per_dm3()
 {
 	return 1.0/get_voxel_volume_in_dm3();
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+string image_general<ELEMTYPE, IMAGEDIM>::resolve_tooltip()
+{
+	return resolve_tooltip_image_general();
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+string image_general<ELEMTYPE, IMAGEDIM>::resolve_tooltip_image_general()
+{
+	return resolve_tooltip_image_storage() + int2str(IMAGEDIM)+"D --> datasize="+resolve_datasize()+"\n";
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+string image_general<ELEMTYPE, IMAGEDIM>::resolve_datasize()
+{
+	string s=int2str(datasize[0]);
+    for (unsigned short i = 1; i < IMAGEDIM; i++){
+        s += "," + int2str(datasize[i]);
+	}
+
+	return s;
 }
 
 

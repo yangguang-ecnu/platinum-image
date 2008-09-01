@@ -2401,6 +2401,18 @@ ELEMTYPE image_integer<ELEMTYPE, IMAGEDIM>::getSeedLevel(int m, int* par_node, b
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
+string image_integer<ELEMTYPE, IMAGEDIM>::resolve_tooltip()
+{
+	return "image_integer\n" + resolve_tooltip_image_integer();
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+string image_integer<ELEMTYPE, IMAGEDIM>::resolve_tooltip_image_integer()
+{
+	return resolve_tooltip_image_scalar();
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 std::vector<HistoPair> image_integer<ELEMTYPE, IMAGEDIM>::get_distribution()
 	{
 	this->min_max_refresh();

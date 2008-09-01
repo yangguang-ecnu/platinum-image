@@ -71,6 +71,9 @@ public:
     //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
     virtual float get_number_voxel(int x, int y, int z) const;  //the use of virtual makes for example "complex<>" class work...
 
+	virtual string resolve_tooltip();		//combines tooltip data of this class with data from other classes
+	string resolve_tooltip_image_scalar(); //resolves tooltip data typical for this class
+
 
 	//------------------------- Interpolations -------------------------
 	//Implementation "inspired" by "ResampleImageFilter7" example in the ITK documentation

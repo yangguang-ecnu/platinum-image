@@ -106,6 +106,8 @@ public:
     bool from_file() const;
 
 	void show_hide_edit_geometry();
+
+	void set_tooltip(string s);
     };
 
 template <class DATATYPE>

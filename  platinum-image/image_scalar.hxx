@@ -35,6 +35,18 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) co
 }
 
 
+template <class ELEMTYPE, int IMAGEDIM>
+string image_scalar<ELEMTYPE, IMAGEDIM>::resolve_tooltip()
+{
+	return "image_scalar\n" + resolve_tooltip_image_scalar();
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+string image_scalar<ELEMTYPE, IMAGEDIM>::resolve_tooltip_image_scalar()
+{
+	return resolve_tooltip_image_general() + "\n";
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<double,3>* image_scalar<ELEMTYPE, IMAGEDIM>::get_num_diff_image_1storder_central_diff_3D(int direction)

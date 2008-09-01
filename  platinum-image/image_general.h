@@ -150,6 +150,11 @@ class image_general : public image_storage <ELEMTYPE >
 		float get_voxel_volume_in_dm3();
 		float get_num_voxels_per_dm3();
 
+		virtual string resolve_tooltip();		//combines tooltip data of this class with data from other classes
+		string resolve_tooltip_image_general(); //resolves tooltip data typical for this class
+		string resolve_datasize(); 
+
+
 		bool is_voxelpos_within_image_3D(int vp_x, int vp_y, int vp_z);  
 		bool is_voxelpos_within_image_3D(Vector3Dint vp);  
 		bool is_voxelpos_inside_image_border_3D(int vp_x, int vp_y, int vp_z, int dist=1);

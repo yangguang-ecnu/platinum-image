@@ -49,7 +49,10 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
         image_integer (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_scalar<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
 	    image_integer(const string filepath, const string name=""):image_scalar<ELEMTYPE, IMAGEDIM>(filepath, name){}
 
-        std::vector<HistoPair> get_distribution();
+		virtual string resolve_tooltip();		//combines tooltip data of this class with data from other classes
+		string resolve_tooltip_image_integer(); //resolves tooltip data typical for this class
+
+		std::vector<HistoPair> get_distribution();
 
         // *** processing ***
 		vector<ELEMTYPE> get_distinct_values_in_slice_2D(int slice, int direction=2, bool ignore_zeroes=false);
