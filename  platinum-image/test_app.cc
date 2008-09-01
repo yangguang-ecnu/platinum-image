@@ -25,7 +25,6 @@
 #include <iostream>
 
 #include "../../global.h"
-
 #include "../../image_binary.hxx"
 
 //retrieve command-line arguments
@@ -52,6 +51,21 @@ void add_demo_image (int userIO_ID,int par_num)
         }
 }
 
+//Example function that creates a new image_binary, fills it with 1, and runs a function on it.
+
+void expand_function(int userIO_ID,int par_num)
+{
+    if (par_num == USERIO_CB_OK)
+        {
+        image_binary<3>* bin = new image_binary<3>(20,20,20);
+		bin->fill(1);
+		image_binary<3>* bin2 = dynamic_cast<image_binary<3>*>( bin->expand_borders(2,2,2) );
+        
+		delete bin;
+        datamanagement.add(bin2);
+        }
+}
+
 int main(int argc, char *argv[])
 {
     //start up Platinum
@@ -70,13 +84,20 @@ int main(int argc, char *argv[])
 	//userIOmanagement.add_par_voxelseed(create_vol_demo_ID,"voxelseed");
 //	userIOmanagement.add_par_float_box(create_vol_demo_ID,"float_box",50,0);
     userIOmanagement.finish_userIO(create_vol_demo_ID);
-    
+
+    int expand_ID=userIOmanagement.add_userIO("expanding test",expand_function,"Run");
+    userIOmanagement.finish_userIO(expand_ID);
+
     // *** end userIO control definitions ***
     
     //finish the window creation
     window.end();
-    
     window.show(argc, argv);
+
+	//preset viewport configuration 
+//	viewmanagement.set_vp_direction(1,X_DIR);
+//	viewmanagement.set_vp_blend_mode(1,BLEND_AVG);
+//	viewmanagement.set_vp_renderer(2,"VTK-MIP");
     
     return Fl::run();
 }
