@@ -364,6 +364,8 @@ Vector2D create_Vector2D(float x, float y);
 Vector2Dint create_Vector2Dint(int x, int y);
 int get_coord_from_dir(int x, int y, int z, int dir);
 
+string Vector3D2str(Vector3D v);
+string bool2str(bool b);
 
 Matrix3D outer_product(const Vector3D a, const Vector3D b);
 

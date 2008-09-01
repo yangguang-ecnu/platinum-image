@@ -96,6 +96,7 @@ class data_base
         virtual void save_to_DCM_file(const std::string, const bool useCompression = true, const bool anonymize = true) = 0;
         virtual void save_to_VTK_file(const std::string, const bool useCompression = true) = 0;
 //        virtual void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
+		virtual string get_tooltip();
     };
 
 #endif

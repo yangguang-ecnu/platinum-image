@@ -53,6 +53,7 @@ void transferfactory::tf_menu_params::switch_tf()
 // *** begin FLUID ***
 
 void datawidget_base::cb_filenamebutton_i(Fl_Input*, void*) {
+	cout<<"cb_filenamebutton_i..."<<endl;
   datamanagement.set_image_name(data_id,string(datanamebutton->value()));
 }
 void datawidget_base::cb_filenamebutton(Fl_Input* o, void* v) {
@@ -115,6 +116,7 @@ datawidget_base::datawidget_base(data_base * d, std::string n):Fl_Pack(0,0,270,1
             o->callback((Fl_Callback*)cb_filenamebutton, (void*)(this));
             o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
             Fl_Group::current()->resizable(o);
+//			o->tooltip( datamanagement.get_data(data_id)->get_tooltip().c_str() ); //widget created before data is fully loaded...
             }
             { Fl_Menu_Button* o = featuremenu = new Fl_Menu_Button(240, 0, 30, 25);
             o->box(FL_THIN_UP_BOX);
