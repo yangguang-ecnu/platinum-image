@@ -690,6 +690,16 @@ int get_coord_from_dir(int x, int y, int z, int dir)
 	return z;
 }
 
+string Vector3D2str(Vector3D v)
+{
+	return "("+float2str(v[0])+","+float2str(v[1])+","+float2str(v[2])+")";
+}
+
+string bool2str(bool b)
+{
+	return b ? "true":"false";
+}
+
 
 
 Matrix3D outer_product(const Vector3D a, const Vector3D b)

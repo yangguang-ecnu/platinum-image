@@ -245,6 +245,12 @@ Vector3D image_base::world_to_voxel( const Vector3D & wpos ) const
 	return vpos;
 }
 
+string image_base::get_tooltip()
+{
+	string s = "origin="+Vector3D2str(origin);//+"\n"+"orientation="+orientation;
+	return s;
+}
+
 
 imageloader::imageloader(std::vector<std::string> * f)
 {

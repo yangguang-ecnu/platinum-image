@@ -64,7 +64,7 @@ protected:
     std::string _name;
     
     Fl_Pack *hpacker;
-    Fl_Input *datanamebutton;
+    Fl_Input *datanamebutton; //JK set tooltip on this 
     void cb_filenamebutton_i(Fl_Input*, void*);
     static void cb_filenamebutton(Fl_Input*, void*);
 	static void edit_geometry_callback(Fl_Widget *callingwidget, void *);
