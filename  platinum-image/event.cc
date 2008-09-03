@@ -89,17 +89,6 @@ bool pt_event::handled ()
     return handled_;
 }
 
-/*
-const int * pt_event::mouse_pos_global()
-{
-//   int res[2];					//JK ööö Warning
-//   res[0] = mousePos[0] + myWidget->x()
-//   res[1] = mousePos[1] + myWidget->y()
-//   return res;
-   return mousePos;
-}
-*/
-
 
 const int pt_event::scroll_delta()
 {
@@ -270,19 +259,6 @@ int* FLTK_event::mouse_pos_local()
 	return mousePos;
 }
 
-/*
-std::vector<int> FLTK_event::mouse_pos_local()
-{
-
-    std::vector<int> result;
-//	result.push_back(mousePos[0]-myWidget->x());
-//  result.push_back(mousePos[1]-myWidget->y());
-    result.push_back(mousePos[0]);
-    result.push_back(mousePos[1]);	//JK-ööö window --> now returns local coords
-    
-    return result;
-}
-*/
 
 int* FLTK_event::mouse_pos_global()
 {

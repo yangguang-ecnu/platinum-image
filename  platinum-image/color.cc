@@ -111,7 +111,7 @@ colornode::colornode():RGBvalue()
 }
 
 /*
-//TODO: ööö: FAN: 2 overloads have no legal conversion for 'this' pointer...
+//TODO: ööö: 2 overloads have no legal conversion for 'this' pointer...
 colornode::colornode(colornode const &c)//:RGBvalue(c.r(),c.g(),c.b()) 
 {
 	const IMGELEMCOMPTYPE rr = c.r();

@@ -306,9 +306,7 @@ public:
     FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_parent, int buttonheight=20, int buttonwidth=70);
     virtual ~FLTKviewport();
 
-    FLTKpane *pane_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
-//    FLTK_Pt_pane *pane_widget;      //the frame ("viewport") displaying a rendered image //JK ööö TMP
-//    FLTK_VTK_pane *pane_widget;    
+    FLTKpane *pane_widget;      //the frame ("viewport-image-area") displaying a rendered image 
 
 	int h_pane();
 

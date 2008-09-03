@@ -74,7 +74,7 @@ class histogram_base
           
 		//do variance, max, choose number of buckets and the like... omitting the num_buckets parameter uses current stored resolution 
 		virtual void calculate_from_image_data(int number_of_buckets=0) {}      
-		virtual void data_has_changed(){}; //Updates statistics from the *buckets data //öööö
+		virtual void data_has_changed(){}; //Updates statistics from the *buckets data
 
 		virtual void render_threshold (unsigned char * image, unsigned int w,unsigned int h) {}; 
 
@@ -115,7 +115,7 @@ class histogram_typed : public histogram_base //!features common to histograms o
 		void calc_num_distinct_values();
 		void calc_num_elements_in_hist();
 
-		virtual void data_has_changed(); //Updates statistics from the *buckets data //öööö
+		virtual void data_has_changed(); //Updates statistics from the *buckets data
     };
 
 template <class ELEMTYPE>

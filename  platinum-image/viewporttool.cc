@@ -467,7 +467,7 @@ void nav_tool::move_voxels( int x, int y, int z )
 	if ( rendermanagement.renderer_empty(myRenderer->get_id()) == RENDERER_NOT_EMPTY )
 	{ 
 		myRenderer->move_voxels( x, y, z);
-		refresh_by_image_and_direction(); //TODO - use fl_overlays for speedup JK ööö 
+		refresh_by_image_and_direction();
 	}
 }
 
