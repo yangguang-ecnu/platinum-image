@@ -9,7 +9,7 @@
     * [http://www.fltk.org/software.php FLTK 1.1.7]
     * [http://www.itk.org/HTML/Download.php ITK 3.4.0] - you'll have to fill in the questionnaire
     * [http://www.vtk.org/get-software.php#latest VTK 5.0.3]
-  # Get yourself an [http://subversion.tigris.org/links.html#clients SVN client] like for example [http://tortoisesvn.tigris.org/ TortoiseSVN]. *Mac:* the [http://www.codingmonkeys.de/mbo/articles/tag/subversion base command-line package] together with Xcode's built in SVN-support (see below) and [http://www.lachoseinteractive.net/en/community/subversion/svnx/features/ svnX] is recommended. (optionally, there is also a plugin for Finder similar to TortoiseSVN called [http://scplugin.tigris.org/ SCPlugin])
+  # Get yourself an [http://subversion.tigris.org/links.html#clients SVN client] like for example [http://tortoisesvn.tigris.org/ TortoiseSVN]. *Mac:* If you use XCode 3 or later, there is a built-in SVN client. Otherwise, the [http://www.codingmonkeys.de/mbo/articles/tag/subversion base command-line package] together with Xcode's built in SVN-support (see below) and [http://www.lachoseinteractive.net/en/community/subversion/svnx/features/ svnX] is recommended. (optionally, there is also a plugin for Finder similar to TortoiseSVN called [http://scplugin.tigris.org/ SCPlugin])
 =2. Install=
 
   * CMake
