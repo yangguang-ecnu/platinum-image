@@ -401,10 +401,9 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
     //2D histogram should only allow this call when the uim tool is selected
     if (busyTool == NULL)
         {
-//        viewport_event e = viewport_event(0,pane_widget);															//JK-ööö
-//        busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));		//JK-ööö
-		viewport_event e = viewport_event(0, (FLTK_Pt_pane*)the_widget->pane_widget);															//JK-ööö
-        busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));		//JK-ööö
+//        viewport_event e = viewport_event(0,pane_widget);
+		viewport_event e = viewport_event(0, (FLTK_Pt_pane*)the_widget->pane_widget);
+        busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));
         }
     
     if (busyTool != NULL) //might have been created earlier too

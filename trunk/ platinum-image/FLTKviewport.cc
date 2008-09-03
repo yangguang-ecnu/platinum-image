@@ -1055,7 +1055,6 @@ void FLTKviewport::viewport_callback(Fl_Widget *callingwidget){
 		render_if_needed();
 
         fp->damage(FL_DAMAGE_ALL);
-//		cout<<"viewport::viewport_callback...draw(pxmap)"<<endl;//JK-ööö
         fp->draw(viewport_parent->rgbpixmap); //JK2-ööö, do this in FLTK_draw_vp???
         fp->damage(0);
         }

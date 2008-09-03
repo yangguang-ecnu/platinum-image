@@ -53,15 +53,6 @@ image_base::image_base(image_base* const s):data_base(s)
     name ("Copy of " + s->name());
     }
 
-/*
-image_base::image_base(const string filepath):data_base()
-	{
-		//ööö
-		set_parameters();
-		this->load_file_to_this(filepath);
-		//this->load(v); //load one volume and set it to "this"
-	}
-*/
 
 void image_base::set_parameters ()    
     {

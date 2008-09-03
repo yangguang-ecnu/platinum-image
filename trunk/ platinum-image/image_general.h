@@ -172,6 +172,7 @@ class image_general : public image_storage <ELEMTYPE >
         ELEMTYPE get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos);  
 		ELEMTYPE get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1, float w2, float w3, float w4);
         //ELEMTYPE get_voxel(unsigned long offset); //deprecated: use iterator!
+		float get_number_voxel(int x, int y, int z) const;
 
 		Vector3D get_physical_pos_for_voxel(int x, int y, int z);
 		float get_physical_distance_between_voxels(int x1, int y1, int z1, int x2, int y2, int z2);
@@ -197,6 +198,8 @@ class image_general : public image_storage <ELEMTYPE >
 		void fill_region_3D_with_subvolume_image(Vector3Dint to_pos, image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint from_pos, Vector3Dint from_size); //based on given voxel coords
 		void fill_region_of_mask_3D(image_binary<IMAGEDIM> *mask, ELEMTYPE value);
 		void fill_image_border_3D(ELEMTYPE value, int border_thickness=1);
+		void translate_subvolume_3D(Vector3Dint pos, Vector3Dint size, Vector3Dint T, ELEMTYPE empty_value=0);
+		void translate_slice_3D(int dir, int slice, int du, int dv, ELEMTYPE empty_value=0);
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();

@@ -44,15 +44,6 @@ bias_base::bias_base(bias_base* const b):data_base(b)
     }
 */
 
-/*
-bias_base::bias_base(const string filepath):data_base()
-	{
-		//ööö
-		set_parameters();
-		this->load_file_to_this(filepath);
-		//this->load(v); //load one volume and set it to "this"
-	}
-*/
 
 
 void bias_base::redraw()

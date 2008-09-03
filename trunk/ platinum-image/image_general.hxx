@@ -1675,6 +1675,12 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weigh
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
+{
+    return static_cast<float>(get_voxel(x, y, z)); //JK4
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, int y, int z)
 {
 	Vector3D vox_pos = create_Vector3D( x, y, z );
@@ -1979,6 +1985,45 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_image_border_3D(ELEMTYPE value, int
 		this->fill_region_3D(dim,datasize[dim]-2-border_thickness,datasize[dim]-1, value);	//high x/y/z-values
 	}
 }
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::translate_subvolume_3D(Vector3Dint pos, Vector3Dint size, Vector3Dint T, ELEMTYPE empty_value)
+{
+	image_general<ELEMTYPE, IMAGEDIM> *tmp = new image_general<ELEMTYPE, IMAGEDIM>(this);
+	tmp->fill_region_3D(pos, size, empty_value);
+
+	int xx,yy,zz;
+	for(int z=pos[2]; z<pos[2]+size[2]; z++){
+		for(int y=pos[1]; y<pos[1]+size[1]; y++){
+			for(int x=pos[0]; x<pos[0]+size[0]; x++){
+				if(this->is_voxelpos_within_image_3D(x,y,z)){
+					xx=x+T[0];
+					yy=y+T[1];
+					zz=z+T[2];
+					if(tmp->is_voxelpos_within_image_3D(xx,yy,zz)){
+						tmp->set_voxel(xx,yy,zz, this->get_voxel(x,y,z));
+					}
+
+				}
+
+			}
+		}
+	}
+	copy_data(tmp,this);
+	delete tmp;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::translate_slice_3D(int dir, int slice, int du, int dv, ELEMTYPE empty_value)
+{
+	if(dir==0){
+		this->translate_subvolume_3D( create_Vector3Dint(slice,0,0), create_Vector3Dint(1,this->ny(),this->nz()), create_Vector3Dint(0,du,dv));
+	}else if(dir==1){
+		this->translate_subvolume_3D( create_Vector3Dint(0,slice,0), create_Vector3Dint(this->nx(),1,this->nz()), create_Vector3Dint(du,0,dv));
+	}else{
+		this->translate_subvolume_3D( create_Vector3Dint(0,0,slice), create_Vector3Dint(this->nx(),this->ny(),1), create_Vector3Dint(du,dv,0));
+	}
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::testpattern()

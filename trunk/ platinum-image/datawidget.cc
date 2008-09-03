@@ -240,9 +240,7 @@ void datawidget_base::show_hide_edit_geometry()
 
 void datawidget_base::set_tooltip(string s)
 {
-	cout<<"datawidget_base::set_tooltip... "<<s<<endl;
 	datanamebutton->tooltip(strdup(s.c_str()));
-	cout<<"datawidget_base::get_tooltip... "<<datanamebutton->tooltip()<<endl;
 }
 
 

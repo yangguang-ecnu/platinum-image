@@ -510,16 +510,21 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolum
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(image_binary<3> *mask, IMGBINARYTYPE object_value)
+{
+	int x1,y1,z1,x2,y2,z2;
+	mask->get_span_of_value_3D(object_value,x1,y1,z1,x2,y2,z2);
+	return this->get_subvolume_from_region_3D(x1,y1,z1,x2,y2,z2);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolume_from_thresholded_region_3D(ELEMTYPE from_val, ELEMTYPE to_val)
 {
 	image_binary<3>* tmp_mask = this->threshold(from_val,to_val);
 	tmp_mask->data_has_changed();
-	int x1,y1,z1,x2,y2,z2;
-	tmp_mask->get_span_of_values_larger_than_3D(0,x1,y1,z1,x2,y2,z2);
+	image_scalar<ELEMTYPE, IMAGEDIM> *im = this->get_subvolume_from_region_3D(tmp_mask);
 	delete tmp_mask;
-
-	cout<<"get_subvolume_from_thresholded_region_3D("<<x1<<" "<<y1<<" "<<z1<<" "<<x2<<" "<<y2<<" "<<z2<<")"<<endl;
-	return this->get_subvolume_from_region_3D(x1,y1,z1,x2,y2,z2);
+	return im;
 }
 
 
@@ -529,9 +534,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::crop_and_ret
 	image_scalar<ELEMTYPE, IMAGEDIM>* res;
 	if(this->same_size(mask)){
 		//jk-ööö... implement here... //if a return value is given in a similar function... also implement in all image_classes...
-		int x1,y1,z1,x2,y2,z2;
-		mask->get_span_of_value_3D(1,x1,y1,z1,x2,y2,z2);
-		res = this->get_subvolume_from_region_3D(x1,y1,z1,x2,y2,z2); //JK-ööö-update origin accordingly...
+		res = this->get_subvolume_from_region_3D(mask);
 	}else{
 		pt_error::error("crop_and_return_3D(image_binary<3> *mask)--> NOT same size...",pt_error::debug);
 	}
@@ -543,8 +546,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::crop_3D(image_binary<3> *mask)
 {
 	if(this->same_size(mask)){
-		//jk-ööö... implement here... 
-		//if a return value is given in a similar function... also implement in all image_classes...
+		//jk-ööö... implement here... if a return value is given in a similar function... also implement in all image_classes...
 		image_scalar<ELEMTYPE, IMAGEDIM>* res = this->crop_and_return_3D(mask);
 	    this->initialize_dataset(res->nx(), res->ny(), res->nz(), NULL); //deallocate is done in initialize_dataset, if needed...
 		copy_data(res,this);
@@ -2090,7 +2092,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::correct_incl
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3D(int dir, PROJECTION_MODE PROJ)
-{ //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX}; 
+{ //enum PROJECTION_MODE {PROJ_MEAN, PROJ_MAX, PROJ_MIN}; 
 
 	image_scalar<ELEMTYPE, 3>* res = new image_scalar<ELEMTYPE, 3>(); 
 	res->set_parameters(this); //copy rotation and size infor to tmp image first...
@@ -2103,6 +2105,7 @@ image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3
 
 	float line_max=0;
 	float line_sum=0;
+	float line_min=0;
 
 
 	switch(dir){
@@ -2112,11 +2115,25 @@ image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3
 		for(int z=0; z<this->datasize[2]; z++){		
 			for(int y=0; y<this->datasize[1]; y++){
 				if(PROJ==PROJ_MAX){
-					line_max=0;
+					line_max=std::numeric_limits<ELEMTYPE>::min();
 					for(int x=0; x<this->datasize[0]; x++){
 						line_max = std::max(line_max,float(this->get_voxel(x,y,z)));
 					}
 					res->set_voxel(z,y,0,line_max);
+				}
+				else if(PROJ==PROJ_MEAN){
+					line_sum=0;
+					for(int x=0; x<this->datasize[0]; x++){
+						line_sum += float( this->get_voxel(x,y,z) );
+					}
+					res->set_voxel(z,y,0,line_sum /float(this->datasize[0]));
+				}
+				else if(PROJ==PROJ_MIN){
+					line_min=std::numeric_limits<ELEMTYPE>::max();
+					for(int x=0; x<this->datasize[0]; x++){
+						line_min = std::min(line_min,float(this->get_voxel(x,y,z)));
+					}
+					res->set_voxel(z,y,0,line_min);
 				}
 			}
 		}
@@ -2127,11 +2144,25 @@ image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3
 		for(int z=0; z<this->datasize[2]; z++){		
 			for(int x=0; x<this->datasize[0]; x++){
 				if(PROJ==PROJ_MAX){
-					line_max=0;
+					line_max=std::numeric_limits<ELEMTYPE>::min();
 					for(int y=0; y<this->datasize[1]; y++){
 						line_max = std::max(line_max,float(this->get_voxel(x,y,z)));
 					}
 					res->set_voxel(x,z,0,line_max);
+				}
+				else if(PROJ==PROJ_MEAN){
+					line_sum=0;
+					for(int y=0; y<this->datasize[1]; y++){
+						line_sum += float( this->get_voxel(x,y,z) );
+					}
+					res->set_voxel(x,z,0,line_sum /float(this->datasize[1]));
+				}
+				if(PROJ==PROJ_MIN){
+					line_min=std::numeric_limits<ELEMTYPE>::max();
+					for(int y=0; y<this->datasize[1]; y++){
+						line_min = std::min(line_min,float(this->get_voxel(x,y,z)));
+					}
+					res->set_voxel(x,z,0,line_min);
 				}
 			}
 		}
@@ -2142,11 +2173,25 @@ image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3
 		for(int y=0; y<this->datasize[1]; y++){		
 			for(int x=0; x<this->datasize[0]; x++){
 				if(PROJ==PROJ_MAX){
-					line_max=0;
+					line_max=std::numeric_limits<ELEMTYPE>::min();
 					for(int z=0; z<this->datasize[2]; z++){
 						line_max = std::max(line_max,float(this->get_voxel(x,y,z)));
 					}
 					res->set_voxel(x,y,0,line_max);
+				}
+				else if(PROJ==PROJ_MEAN){
+					line_sum=0;
+					for(int z=0; z<this->datasize[2]; z++){
+						line_sum += float( this->get_voxel(x,y,z) );
+					}
+					res->set_voxel(x,y,0,line_sum /float(this->datasize[2]));
+				}
+				if(PROJ==PROJ_MIN){
+					line_min=std::numeric_limits<ELEMTYPE>::max();
+					for(int z=0; z<this->datasize[2]; z++){
+						line_min = std::min(line_min,float(this->get_voxel(x,y,z)));
+					}
+					res->set_voxel(x,y,0,line_min);
 				}
 			}
 		}
