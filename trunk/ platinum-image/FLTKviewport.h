@@ -104,6 +104,10 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkVolume16Reader.h"
 #include "vtkDataSetMapper.h"
+#include "vtkCamera.h" //SO
+#include "vtkInteractorStyleSwitch.h" //SO
+
+
 
 #include "vtkImageReader.h"
 //#include "itkImageToImageFilter.h"
