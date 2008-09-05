@@ -345,7 +345,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from
 //	gaussian *g = new gaussian(a,c,s);
 //	h2->save_histogram_to_txt_file(base + "__c08_lung hist.txt",false,g);
 
-	//thresholda pÂ c + 2*s...
+	//thresholda pÂ¬ c + 2*s...
 
 	image_binary<3> *right_lung = this->threshold(0,c+2*s);
 	right_lung->name("right_lung");
@@ -777,7 +777,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 
 		// field[i] = field[i-1] + iteration_strength*(force / mean(abs(force)))
 		inh_map->mask_out(body_lung_mask);
-		inh_map->scale_by_factor(iteration_strength/((inh_map->get_sum_of_voxels(true, body_lung_mask))/bodysize)); // oklart varfˆr
+		inh_map->scale_by_factor(iteration_strength/((inh_map->get_sum_of_voxels(true, body_lung_mask))/bodysize)); // oklart varfÃ r
 		field->combine(inh_map, COMB_ADD);
 		field->data_has_changed();
 			
@@ -789,7 +789,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 		}
 		delete inh_map;
 	
-		//Ber‰kna ekv (7) i SIM-paper
+		//BerÃ¢kna ekv (7) i SIM-paper
 		//feat1_corr->fill(0); feat2_corr->fill(0);
 		feat1_corr->fill(1); feat2_corr->fill(1);
 		feat1_corr->combine(field, COMB_ADD); feat2_corr->combine(field, COMB_ADD);
@@ -913,7 +913,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_1D_SIM_bias_correction(image_binary<
 		// field[i] = field[i-1] + iteration_strength*(force / mean(abs(force)))
 		tmp_field->mask_out(mask);
 		float sum = tmp_field->get_sum_of_voxels(std::numeric_limits<float>::min(), true, mask);
-		tmp_field->scale_by_factor( iteration_strength/(sum/bodysize) ); // oklart varför
+		tmp_field->scale_by_factor( iteration_strength/(sum/bodysize) ); // oklart varfË†r
 		tmp_field->save_to_file( "D:/Joel/TMP/SIM_fields_" + int2str(iter) + "_smooth_scale.vtk" );
 		field->combine(tmp_field, COMB_ADD);
 		field->data_has_changed();
@@ -943,12 +943,12 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::vesselness_test(double hessian_sigma, double vessel_alpha1, double vessel_alpha2)
 {
 	typedef itk::HessianRecursiveGaussianImageFilter< theImageType > HessianFilterType;
-	HessianFilterType::Pointer hessianFilter = HessianFilterType::New();
+	typename HessianFilterType::Pointer hessianFilter = HessianFilterType::New();
 	hessianFilter->SetInput( this->get_image_as_itk_output() );
 	hessianFilter->SetSigma( hessian_sigma );
 
 	typedef itk::Hessian3DToVesselnessMeasureImageFilter< ELEMTYPE > VesselnessMeasureFilterType;
-	VesselnessMeasureFilterType::Pointer vesselnessFilter = VesselnessMeasureFilterType::New();
+	typename VesselnessMeasureFilterType::Pointer vesselnessFilter = VesselnessMeasureFilterType::New();
 	vesselnessFilter->SetInput( hessianFilter->GetOutput() );
 	vesselnessFilter->SetAlpha1( vessel_alpha1 );
 	vesselnessFilter->SetAlpha2( vessel_alpha2 );
@@ -956,7 +956,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::vesselness_test(double hessian_sigma, dou
 	
 //	theImageToOrientedCastFilterType::Pointe
     typedef itk::CastImageFilter<theImageType2, theImageType> castType;
-	castType::Pointer caster = castType::New();
+	typename castType::Pointer caster = castType::New();
 	caster->SetInput(vesselnessFilter->GetOutput());
 	caster->Update();
 

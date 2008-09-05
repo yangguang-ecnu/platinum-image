@@ -686,13 +686,13 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file_series(const std::strin
 
 
   typedef itk::ImageSeriesWriter< theImageType , theImageType2D >  SeriesWriterType;
-  SeriesWriterType::Pointer seriesWriter = SeriesWriterType::New();
+  typename SeriesWriterType::Pointer seriesWriter = SeriesWriterType::New();
   seriesWriter->SetInput( image );
   seriesWriter->SetImageIO( gdcmIO );
 
-  theImageType2::RegionType region = image->GetLargestPossibleRegion();
-  theImageType2::IndexType start = region.GetIndex();
-  theImageType2::SizeType  size  = region.GetSize();
+  typename theImageType2::RegionType region = image->GetLargestPossibleRegion();
+  typename theImageType2::IndexType start = region.GetIndex();
+  typename theImageType2::SizeType  size  = region.GetSize();
 
   typedef itk::NumericSeriesFileNames             NamesGeneratorType;
   NamesGeneratorType::Pointer namesGenerator = NamesGeneratorType::New();
@@ -767,13 +767,13 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file_series(const std::strin
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::save_to_raw_file(const std::string file_path, bool save_image_info_txt_file)
 {
-	itk::RawImageIO<ELEMTYPE,IMAGEDIM>::Pointer io = itk::RawImageIO<ELEMTYPE,IMAGEDIM>::New();
+	typename itk::RawImageIO<ELEMTYPE,IMAGEDIM>::Pointer io = itk::RawImageIO<ELEMTYPE,IMAGEDIM>::New();
 		//  io->SetFileTypeToASCII();
 //		io->SetByteOrderToBigEndian();
 		io->SetByteOrderToLittleEndian();
 
 		// Write out the image
-		itk::ImageFileWriter<theImageType>::Pointer writer = itk::ImageFileWriter<theImageType>::New();
+		typename itk::ImageFileWriter<theImageType>::Pointer writer = itk::ImageFileWriter<theImageType>::New();
 		writer->SetInput(get_image_as_itk_output());
 		writer->SetFileName(file_path.c_str());
 		writer->SetImageIO(io);

@@ -240,7 +240,7 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 			}
 		}
 
-		data_has_changed();
+		this->data_has_changed();
 	}
 	
 	else
@@ -312,7 +312,7 @@ void histogram_1D<ELEMTYPE >::calculate_from_image_data(int new_num_buckets)
 			}
 		}
 
-		data_has_changed();
+		this->data_has_changed();
 		}
 	else
         {
@@ -427,7 +427,7 @@ int histogram_1D<ELEMTYPE>::intensity_to_bucketpos(ELEMTYPE intensity){
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::set_sum_of_bucket_contents_to_value(double value){ //often requires the ELEMTYPEs float or double.
-	double scale_factor = value / double(num_elements_in_hist);
+	double scale_factor = value / double(this->num_elements_in_hist);
 	for(int i=0;i<this->num_buckets;i++){
 		this->buckets[i] *= scale_factor;
 	}
@@ -444,7 +444,7 @@ void histogram_1D<ELEMTYPE>::logarithm(int zero_handling)
 
 	for(int i=0;i<this->num_buckets;i++){
 		if (this->buckets[i]>0)
-			{this->buckets[i] = log(double(buckets[i]));}
+			{this->buckets[i] = log(double(this->buckets[i]));}
 		else if (zero_handling==1) 
 			{this->buckets[i] = 0;}
 		else if (zero_handling==2) 
@@ -455,7 +455,7 @@ void histogram_1D<ELEMTYPE>::logarithm(int zero_handling)
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times){
-	smooth_mean(nr_of_neighbours, nr_of_times, 0, num_buckets-1);
+	smooth_mean(nr_of_neighbours, nr_of_times, 0, this->num_buckets-1);
 }
 
 template <class ELEMTYPE>
@@ -515,12 +515,12 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 
 template <class ELEMTYPE>
 float histogram_1D<ELEMTYPE>::get_norm_frequency_in_bucket(int bucket){
-	return float(this->buckets[bucket])/float(num_elements_in_hist);
+	return float(this->buckets[bucket])/float(this->num_elements_in_hist);
 }
 
 template <class ELEMTYPE>
 float histogram_1D<ELEMTYPE>::get_norm_frequency_for_intensity(ELEMTYPE intensity){
-	return float(this->buckets[this->intensity_to_bucketpos(intensity)])/float(num_elements_in_hist);
+	return float(this->buckets[this->intensity_to_bucketpos(intensity)])/float(this->num_elements_in_hist);
 }
 
 template <class ELEMTYPE>

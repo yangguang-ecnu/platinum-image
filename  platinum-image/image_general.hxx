@@ -782,7 +782,7 @@ string image_general<ELEMTYPE, IMAGEDIM>::resolve_tooltip()
 template <class ELEMTYPE, int IMAGEDIM>
 string image_general<ELEMTYPE, IMAGEDIM>::resolve_tooltip_image_general()
 {
-	return resolve_tooltip_image_storage() + int2str(IMAGEDIM)+"D --> datasize="+resolve_datasize()+"\n";
+	return this->resolve_tooltip_image_storage() + int2str(IMAGEDIM)+"D --> datasize="+resolve_datasize()+"\n";
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
