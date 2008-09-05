@@ -35,7 +35,7 @@
 using namespace std;
 
 
-// --------------------------- "Voxel class" för various algorithms... --------------------
+// --------------------------- "Voxel class" fË†r various algorithms... --------------------
 template <class ELEMTYPE>
 class voxel{
 public:
@@ -58,7 +58,7 @@ public:
 	bool operator>(const voxel<ELEMTYPE> &v)
 		{ return value>v.value; }
 
-	friend std::ostream &operator<<(std::ostream &ut, const voxel<ELEMTYPE> &V)
+	friend std::ostream &operator<<(std::ostream &ut, const voxel<ELEMTYPE> &v)
 		{
         ut<<v.position<<" "<<v.value;
         return ut;
@@ -97,7 +97,7 @@ class voxel_set : public set<voxel<ELEMTYPE>*, voxel_comparator<ELEMTYPE> >
 		void insert_these(voxel_set<ELEMTYPE> &vs);
 //		void erase(voxel<ELEMTYPE> v);
 		void erase_these(voxel_set<ELEMTYPE> &vs);
-		void and(voxel_set<ELEMTYPE> &vs);
+		void combine_and(voxel_set<ELEMTYPE> &vs);
 		void move_lowest_to(voxel_set<ELEMTYPE> &vs);
 		void move_highest_to(voxel_set<ELEMTYPE> &vs);
 		voxel<ELEMTYPE>* erase_lowest(); //first

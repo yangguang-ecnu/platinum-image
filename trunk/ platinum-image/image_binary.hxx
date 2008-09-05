@@ -40,7 +40,7 @@ image_binary<IMAGEDIM>::image_binary(std::vector<std::string> files, long width,
 
 */
 template <int IMAGEDIM>
-image_binary<IMAGEDIM>::image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i):image_label<IMAGEDIM>(i)
+image_binary<IMAGEDIM>::image_binary(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i):image_label<IMAGEDIM>(i)
 {}
 
 template <int IMAGEDIM>
@@ -57,7 +57,7 @@ string image_binary<IMAGEDIM>::resolve_tooltip()
 template <int IMAGEDIM>
 string image_binary<IMAGEDIM>::resolve_tooltip_image_binary()
 {
-	return resolve_tooltip_image_label();
+	return this->resolve_tooltip_image_label();
 }
 
 

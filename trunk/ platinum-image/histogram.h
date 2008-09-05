@@ -30,6 +30,7 @@
 #include "threshold.h"
 #include "global.h"
 #include <vnl/vnl_cost_function.h>
+#include <vnl/algo/vnl_amoeba.h>
 
 template <class ELEMTYPE>
     class image_storage;

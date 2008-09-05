@@ -64,8 +64,8 @@ template<class ELEMTYPE, int IMAGEDIM>
 //#include "itkRigid3DTransform.h"				//used in image_scalar --> spline interpolation
 #include "itkMatrixOffsetTransformBase.h"		//used in image_scalar --> spline interpolation
 
-//#include "itkHessianRecursiveGaussianImageFilter.h"
-//#include "itkHessian3DToVesselnessMeasureImageFilter.h"
+#include "itkHessianRecursiveGaussianImageFilter.h"
+#include "itkHessian3DToVesselnessMeasureImageFilter.h"
 //#include "itkSymmetricSecondRankTensor.h"
 
 

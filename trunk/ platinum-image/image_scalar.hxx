@@ -31,7 +31,7 @@ extern datamanager datamanagement;
 template <class ELEMTYPE, int IMAGEDIM>
 float image_scalar<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
 {
-    return static_cast<float>(get_voxel(x, y, z)); //JK4
+    return static_cast<float>(this->get_voxel(x, y, z)); //JK4
 }
 
 
@@ -44,7 +44,7 @@ string image_scalar<ELEMTYPE, IMAGEDIM>::resolve_tooltip()
 template <class ELEMTYPE, int IMAGEDIM>
 string image_scalar<ELEMTYPE, IMAGEDIM>::resolve_tooltip_image_scalar()
 {
-	return resolve_tooltip_image_general() + "\n";
+	return this->resolve_tooltip_image_general() + "\n";
 }
 
 
@@ -1306,19 +1306,19 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_corners_3D(ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max())
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_corners_3D(ELEMTYPE min_intensity, ELEMTYPE max_intensity)
 {
 	queue<Vector3D> s;
 
-	s.push(create_Vector3D(0,				0,				0));
-	s.push(create_Vector3D(datasize[0]-1,	0,				0));
-	s.push(create_Vector3D(0,				datasize[1]-1,	0));
-	s.push(create_Vector3D(datasize[0]-1,	datasize[1]-1,	0));
+	s.push(create_Vector3D(0,					0,						0));
+	s.push(create_Vector3D(this->datasize[0]-1,	0,						0));
+	s.push(create_Vector3D(0,					this->datasize[1]-1,	0));
+	s.push(create_Vector3D(this->datasize[0]-1,	this->datasize[1]-1,	0));
 
-	s.push(create_Vector3D(0,				0,				datasize[2]-1));
-	s.push(create_Vector3D(datasize[0]-1,	0,				datasize[2]-1));
-	s.push(create_Vector3D(0,				datasize[1]-1,	datasize[2]-1));
-	s.push(create_Vector3D(datasize[0]-1,	datasize[1]-1,	datasize[2]-1));
+	s.push(create_Vector3D(0,					0,						this->datasize[2]-1));
+	s.push(create_Vector3D(this->datasize[0]-1,	0,						this->datasize[2]-1));
+	s.push(create_Vector3D(0,					this->datasize[1]-1,	this->datasize[2]-1));
+	s.push(create_Vector3D(this->datasize[0]-1,	this->datasize[1]-1,	this->datasize[2]-1));
 
 	return region_grow_3D(s, min_intensity, max_intensity);
 }
@@ -2009,9 +2009,9 @@ Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_highest_value_in_region(in
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_highest_value_in_region(Vector3D pos, Vector3D size, ELEMTYPE upper_limit)
+Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_highest_value_in_region(Vector3D from_pos, Vector3D to_pos, ELEMTYPE upper_limit)
 {
-	return get_pos_of_highest_value_in_region(pos[0],pos[1],pos[2],to_pos[0],to_pos[1],to_pos[2], upper_limit);
+	return get_pos_of_highest_value_in_region(from_pos[0],from_pos[1],from_pos[2],to_pos[0],to_pos[1],to_pos[2], upper_limit);
 }
 
 template <class ELEMTYPE, int IMAGEDIM>

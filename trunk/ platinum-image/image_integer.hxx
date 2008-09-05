@@ -2409,7 +2409,7 @@ string image_integer<ELEMTYPE, IMAGEDIM>::resolve_tooltip()
 template <class ELEMTYPE, int IMAGEDIM>
 string image_integer<ELEMTYPE, IMAGEDIM>::resolve_tooltip_image_integer()
 {
-	return resolve_tooltip_image_scalar();
+	return this->resolve_tooltip_image_scalar();
 }
 
 template <class ELEMTYPE, int IMAGEDIM>

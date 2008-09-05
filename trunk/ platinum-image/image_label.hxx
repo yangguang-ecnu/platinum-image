@@ -122,7 +122,7 @@ string image_label<IMAGEDIM>::resolve_tooltip()
 template <int IMAGEDIM>
 string image_label<IMAGEDIM>::resolve_tooltip_image_label()
 {
-	return resolve_tooltip_image_integer();
+	return this->resolve_tooltip_image_integer();
 }
 
 template <int IMAGEDIM>
