@@ -102,8 +102,6 @@ void FLTKpane::resize_content(int w,int h)
 {}
 
 
-
-
 FLTK_VTK_pane::FLTK_VTK_pane(): FLTKpane(0,0,100,100)
 {
 //	cout<<"FLTK_VTK_pane..."<<endl;
@@ -235,23 +233,16 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
   	// uncomment the statement below if things aren't rendering 100% on your
 	// configuration; the debug output could give you clues as to why
 	//renWindow->DebugOn();
-	   
-	// Here we treat the vtkFlRenderWindowInteractor just like any other old vtkRenderWindowInteractor
-	fl_vtk_window->SetRenderWindow(renWin);
 
+	fl_vtk_window->SetRenderWindow(renWin);
 	// just like with any other vtkRenderWindowInteractor(), you HAVE to call
-	// Initialize() before the interactor will function.  See the docs in vtkRenderWindowInteractor.h
 	fl_vtk_window->Initialize();
 
-
-	//--------------------------------------------
-
 	// Read the data from a vtk file
-
 	vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
+	reader->SetFileName("C:/Sandra/Data/MTEA01_anon2/whole_body_diff.vtk"); //C:/Sandra/Data/MTEA01_anon2/whole_body_diff.vtk C:/Sandra/Data/FLAIR.vtk
 //	reader->SetFileName("D:/Joel/TMP/750001_WML01.vtk");
-	reader->SetFileName("D:/Joel/TMP/brain.vtk");
-//	reader->SetFileName("C:/Sandra/Data/FLAIR.vtk");
+//	reader->SetFileName("D:/Joel/TMP/brain.vtk");
 	reader->Update();
 
 //---------------------------
@@ -286,9 +277,6 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	// Create a transfer function mapping scalar value to color (grey)
 	vtkPiecewiseFunction *grayTransferFunction = vtkPiecewiseFunction::New();
     grayTransferFunction->AddSegment( 0 , 0.0 , 600 , 1.0 );
-  
-
-	vtkVolume *volumeMIP = vtkVolume::New();
 
 	// Create mip properties
 	vtkVolumeProperty *mipprop = vtkVolumeProperty::New();
@@ -296,30 +284,31 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	mipprop->SetInterpolationTypeToLinear(); // alt ToLinear/ToNearest
 	mipprop->SetColor(grayTransferFunction); // gTFun/cTFun/colorTF/grayTransferFunction
 
+  vtkVolume *volumeMIP = vtkVolume::New();
 	volumeMIP->SetProperty(mipprop);
 	volumeMIP->AddPosition(10,20,30);
 
 	vtkVolumeRayCastMIPFunction *MIPFunction = vtkVolumeRayCastMIPFunction::New();
-//	MIPFunction->SetMaximizeMethodToOpacity(); //verkar vid första anblick bättre för oss..
 	MIPFunction->SetMaximizeMethodToScalarValue();
 
-	vtkVolumeRayCastMapper *raycastMapperMIP = vtkVolumeRayCastMapper::New();
-    
+   vtkVolumeRayCastMapper *raycastMapperMIP = vtkVolumeRayCastMapper::New();
 	raycastMapperMIP->SetInputConnection(reader->GetOutputPort());
+  //raycastMapperMIP->SetGradientEstimator(gradest); 
 //	raycastMapperMIP->SetInputConnection(caster->GetOutputPort());					//JK
-
-	//raycastMapperMIP->SetGradientEstimator(gradest);
 	raycastMapperMIP->SetVolumeRayCastFunction(MIPFunction);  // MIPFunction1/2 
-
 	volumeMIP->SetMapper(raycastMapperMIP);
 	ren->AddViewProp(volumeMIP);
 
 	ren->ResetCamera();
-	
+	ren->GetActiveCamera()->Elevation(-90);
+	ren->GetActiveCamera()->SetViewUp( 0, 1, 0); //SO
+
+   vtkInteractorStyleSwitch *intStyle = vtkInteractorStyleSwitch::New();
+    intStyle->SetCurrentStyleToTrackballCamera();
+    fl_vtk_window->SetInteractorStyle(intStyle);
+
 	fl_vtk_window->SetDesiredUpdateRate(3.0);
-//	fl_vtk_window->SetStillUpdateRate(0.001);
 	fl_vtk_window->Initialize();
-//	fl_vtk_window->Start();
 
 	// Clean up
 	reader->Delete();
@@ -331,7 +320,6 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	ren->Delete();
 	renWin->Delete();
 }
-
 
 
 /*
