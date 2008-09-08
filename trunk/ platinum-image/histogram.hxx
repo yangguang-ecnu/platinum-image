@@ -304,7 +304,7 @@ void histogram_1D<ELEMTYPE >::calculate_from_image_data(int new_num_buckets)
 		for (voxel = this->i_start;voxel != this->i_end;++voxel)
 		{
 			bucketpos = intensity_to_bucketpos(*voxel);
-			if(bucketpos>=0 && bucketpos<this->num_buckets){				//NOT VERY good to write outside allocated memory
+			if(bucketpos<this->num_buckets){				//NOT VERY good to write outside allocated memory
 				this->buckets[bucketpos]++;
 			}else{
 				pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
