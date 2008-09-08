@@ -44,7 +44,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_multi<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z) const
 {
 //		cout<<"image_multi...get_display_voxel"<<endl;
-		val.r( IMGELEMCOMPTYPE(image_vector[0]->get_voxel(x, y, z)) ); //JK4 - involve transfer functions later....
+		val.r( (IMGELEMCOMPTYPE)(image_vector[0]->get_voxel(x, y, z)) ); //JK4 - involve transfer functions later....
 //    this->tfunction->get(get_voxel(x, y, z),val);
     //val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
 }

@@ -136,7 +136,7 @@ void voxel_set<ELEMTYPE>::erase_these(voxel_set<ELEMTYPE> &vs)
 {
 	cout<<"voxel_set<ELEMTYPE>::erase_these(voxel_set<ELEMTYPE> &vs)"<<endl;
 
-	set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator res_it_end;
+	typename set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator res_it_end;
 	voxel_set<ELEMTYPE> res;
 	int max_num = std::max(this->size(),vs.size());
 	for(int i=0;i<max_num;i++){
@@ -148,7 +148,7 @@ void voxel_set<ELEMTYPE>::erase_these(voxel_set<ELEMTYPE> &vs)
 
 	this->clear();
 //	voxel<ELEMTYPE>* v;
-	set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it = res.begin();
+	typename set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it = res.begin();
 	while(it != res_it_end){
 //		v = *it;
 //		v->print();
@@ -159,11 +159,11 @@ void voxel_set<ELEMTYPE>::erase_these(voxel_set<ELEMTYPE> &vs)
 }
 
 template<class ELEMTYPE>
-void voxel_set<ELEMTYPE>::and(voxel_set<ELEMTYPE> &vs)
+void voxel_set<ELEMTYPE>::combine_and(voxel_set<ELEMTYPE> &vs)
 {
-	cout<<"voxel_set<ELEMTYPE>::and(voxel_set<ELEMTYPE> &vs)"<<endl;
+	cout<<"voxel_set<ELEMTYPE>::combine_and(voxel_set<ELEMTYPE> &vs)"<<endl;
 
-	set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator res_it_end;
+	typename set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator res_it_end;
 	voxel_set<ELEMTYPE> res;
 	int max_num = std::min(this->size(),vs.size());
 	for(int i=0;i<max_num;i++){
@@ -174,7 +174,7 @@ void voxel_set<ELEMTYPE>::and(voxel_set<ELEMTYPE> &vs)
 //	res_it_end = set_difference(this->begin(), this->end(), vs.begin(), vs.end(), res.begin(), voxel_compare_func<ELEMTYPE>);
 
 	this->clear();
-	set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it = res.begin();
+	typename set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it = res.begin();
 	while(it != res_it_end){
 		this->insert(*it);
 		it++;
@@ -224,7 +224,7 @@ voxel<ELEMTYPE>* voxel_set<ELEMTYPE>::erase_highest()
 	voxel<ELEMTYPE>* tmp = NULL;
 
 	if(this->size()>0){
-		set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it = this->end();
+		typename set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it = this->end();
 		it--;
 		tmp = *it;
 		this->erase(it);
@@ -249,7 +249,7 @@ double voxel_set<ELEMTYPE>::get_calculated_mean()
 //	cout<<"voxel_set<ELEMTYPE>::get_calculated_mean()"<<endl;
 	double sum=0;
 
-	set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it;
+	typename set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it;
 	voxel<ELEMTYPE>* tmp;
 	for(it = this->begin(); it!=this->end(); it++ ) {
 		tmp = *it;
@@ -271,7 +271,7 @@ voxel<ELEMTYPE>* voxel_set<ELEMTYPE>::get_median_voxel()
 {
 	if(this->size()>0){
 		voxel<ELEMTYPE>* median;
-		set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it = this->begin();
+		typename set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it = this->begin();
 
 //		it++(this->size()/2);
 		for(int i=0;i<this->size()/2;i++){
@@ -288,7 +288,7 @@ voxel<ELEMTYPE>* voxel_set<ELEMTYPE>::get_median_voxel()
 template<class ELEMTYPE>
 void voxel_set<ELEMTYPE>::set_values_to_voxels_in_this_set_using_image_data(image_general<ELEMTYPE,3> *im)
 {
-	set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it;
+	typename set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it;
 	voxel<ELEMTYPE>* tmp;
 	for(it = this->begin(); it!=this->end(); it++ ) {
 		tmp = *it;
@@ -302,7 +302,7 @@ template<class ELEMTYPE>
 void voxel_set<ELEMTYPE>::print_all()
 {
 	cout<<"voxel_set<ELEMTYPE>::print()  (n="<<this->size()<<")"<<endl;
-	set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it;
+	typename set<voxel<ELEMTYPE>*,voxel_comparator<ELEMTYPE> >::iterator it;
 	voxel<ELEMTYPE>* tmp;
 	for(it = this->begin(); it!=this->end(); it++ ) {
 		tmp = *it;
