@@ -1391,51 +1391,58 @@ void image_binary<IMAGEDIM>::fill_holes_3D(IMGBINARYTYPE object_value)
 	delete[] lut;
 	delete label_image;				
 	}	
-	
 
-	template <int IMAGEDIM>
-image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool edge_is_object, IMGBINARYTYPE object_value)
-	{
-	image_integer<short, IMAGEDIM>* output = new image_integer<short,IMAGEDIM> (this,false);
+template <int IMAGEDIM>
+image_scalar<float, IMAGEDIM>* image_binary<IMAGEDIM>::distance_3D(bool edge_is_object, IMGBINARYTYPE object_value)
+{
+	image_scalar<float, IMAGEDIM>* output = new image_scalar<float,IMAGEDIM> (this,false);
+	float u_dist = output->get_physical_distance_between_voxels(0,0,0,1,0,0);
+	float v_dist = output->get_physical_distance_between_voxels(0,0,0,0,1,0);
+	float w_dist = output->get_physical_distance_between_voxels(0,0,0,0,0,1);
+	float uv_dist = output->get_physical_distance_between_voxels(0,0,0,1,1,0);
+	float uw_dist = output->get_physical_distance_between_voxels(0,0,0,1,0,1);
+	float vw_dist = output->get_physical_distance_between_voxels(0,0,0,0,1,1);
+	float uvw_dist = output->get_physical_distance_between_voxels(0,0,0,1,1,1);
+
 	int u,v,w;
 	int max_u=this->get_size_by_dim(0);
 	int max_v=this->get_size_by_dim(1);
 	int max_w=this->get_size_by_dim(2);
-	int veryhigh = (std::max(max_w,std::max(max_u,max_v))*5); //5 times the largest voxel direction... //std::numeric_limits<int>::max()-11;
-	int initvalue = (edge_is_object)?veryhigh:0;
+	float veryhigh = (std::max(max_w,std::max(max_u,max_v))*uvw_dist); // veryhigh must be hihgher than any final calculated distance value in image
+	float initvalue = (edge_is_object)?veryhigh:0;
 	IMGBINARYTYPE p;//pixel value
-	int d,ul,um,ur,ml,mr,ll,lm,lr,aul,aum,aur,aml,amm,amr,all,alm,alr;//neighbour labels 
+	float mmm,mul,mum,mur,mml,mmr,mll,mlm,mlr,aul,aum,aur,aml,amm,amr,all,alm,alr,bul,bum,bur,bml,bmm,bmr,bll,blm,blr;//neighbour labels: First letter: above/middle/below (w-direction). Second letter: upper/middle/lower (v-direction). Third letter: left/middle/right (u-direction).
+	
 	//Forward pass
-
 	for(w=0; w<max_w; w++){
 		for(v=0; v<max_v; v++){
 			u=0;
-			ml=initvalue;
-			ul=initvalue;
+			mml=initvalue;
+			mul=initvalue;
 			aml=initvalue;
 			aul=initvalue;
 			all=initvalue;
-			um=(v>0)? output->get_voxel(u,v-1,w) : initvalue;
+			mum=(v>0)? output->get_voxel(u,v-1,w) : initvalue;
 			aum=(v>0 && w>0)? output->get_voxel(u,v-1,w-1) : initvalue;
 			amm=(w>0)? output->get_voxel(u,v,w-1) : initvalue;
-			alm=(v<max_v && w>0)? output->get_voxel(u,v+1,w-1) : initvalue;
+			alm=(v<max_v-1 && w>0)? output->get_voxel(u,v+1,w-1) : initvalue;
 			for(u=0; u<max_u; u++){
 				p=this->get_voxel(u,v,w);
-				ur=(u<max_u-1 && v>0)? output->get_voxel(u+1,v-1,w) : initvalue;
+				mur=(u<max_u-1 && v>0)? output->get_voxel(u+1,v-1,w) : initvalue;
 				aur=(u<max_u-1 && v>0 && w>0)? output->get_voxel(u+1,v-1,w-1) : initvalue;
 				amr=(u<max_u-1 && w>0)? output->get_voxel(u+1,v,w-1) : initvalue;
 				alr=(u<max_u-1 && v<max_v-1 && w>0)? output->get_voxel(u+1,v+1,w-1) : initvalue;
-				d=(p==object_value)?std::min(
+				mmm=(p==object_value)?std::min(
 											std::min(
-												std::min( std::min(5+aul,4+aum),std::min(5+aur,4+aml) ),
-                                                std::min( std::min(3+amm,4+amr),std::min(5+all,4+alm) )
+												std::min( std::min(uvw_dist+aul,vw_dist+aum),std::min(uvw_dist+aur,uw_dist+aml) ),
+                                                std::min( std::min(w_dist+amm,uw_dist+amr),std::min(uvw_dist+all,vw_dist+alm) )
 												),
-											std::min( std::min( std::min(5+alr,4+ul),std::min(3+um,4+ur) ), 3+ml )
+											std::min( std::min( std::min(uvw_dist+alr,uv_dist+mul),std::min(v_dist+mum,uv_dist+mur) ), u_dist+mml )
 											):0;
-				output->set_voxel(u,v,w,d);
-				ml=d; //??? d is calculated...			//traverse the information minimie "get_voxel" calls...
-				ul=um;
-				um=ur;
+				output->set_voxel(u,v,w,mmm);
+				mml=mmm; //traverse the information minimie "get_voxel" calls...
+				mul=mum;
+				mum=mur;
 				aul=aum;
 				aum=aur;
 				aml=amm;
@@ -1450,44 +1457,145 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 	for(w=max_w-1; w>=0; w--){
 		for(v=max_v-1; v>=0; v--){
 			u=max_u-1;
-			mr=initvalue;
-//			ur=initvalue; //bug --> ur-->lr		//another bug was fixed by setting all "w-1" --> "w+1"
-			lr=initvalue;
-			amr=initvalue;
-			aur=initvalue;
-			alr=initvalue;
-			lm=(v<max_v-2)? output->get_voxel(u,v+1,w) : initvalue;						//third bugfix --> the check need to check for v<v_max-2...
-			aum=(v>0 && w<max_w-2)? output->get_voxel(u,v-1,w+1) : initvalue;
-			amm=(w<max_w-2)? output->get_voxel(u,v,w+1) : initvalue;
-			alm=(v<max_v-2 && w<max_w-2)? output->get_voxel(u,v+1,w+1) : initvalue;
+			mmr=initvalue;
+			mlr=initvalue;
+			bmr=initvalue;
+			bur=initvalue;
+			blr=initvalue;
+			mlm=(v<max_v-1)? output->get_voxel(u,v+1,w) : initvalue;
+			bum=(v>0 && w<max_w-1)? output->get_voxel(u,v-1,w+1) : initvalue;
+			bmm=(w<max_w-1)? output->get_voxel(u,v,w+1) : initvalue;
+			blm=(v<max_v-1 && w<max_w-1)? output->get_voxel(u,v+1,w+1) : initvalue;
 
 			for(u=max_u-1; u>=0; u--){
 				p=this->get_voxel(u,v,w);
-				d=output->get_voxel(u,v,w);
-				ll=(u>0 && v<max_v-1)? output->get_voxel(u-1,v+1,w) : initvalue;
-				aul=(u>0 && v>0 && w<max_w-1)? output->get_voxel(u-1,v-1,w+1) : initvalue;
-				aml=(u>0 && w<max_w-1)? output->get_voxel(u-1,v,w+1) : initvalue;
-				all=(u>0 && v<max_v-1 && w<max_w-1)? output->get_voxel(u-1,v+1,w+1) : initvalue;
-				d=(p==object_value)?std::min(
+				mmm=output->get_voxel(u,v,w);
+				mll=(u>0 && v<max_v-1)? output->get_voxel(u-1,v+1,w) : initvalue;
+				bul=(u>0 && v>0 && w<max_w-1)? output->get_voxel(u-1,v-1,w+1) : initvalue;
+				bml=(u>0 && w<max_w-1)? output->get_voxel(u-1,v,w+1) : initvalue;
+				bll=(u>0 && v<max_v-1 && w<max_w-1)? output->get_voxel(u-1,v+1,w+1) : initvalue;
+				mmm=(p==object_value)?std::min(
                                             std::min(
+												std::min( std::min(uvw_dist+bul,vw_dist+bum),std::min(uvw_dist+bur,uw_dist+bml) ),
+                                                std::min( std::min(w_dist+bmm,uw_dist+bmr),std::min(uvw_dist+bll,vw_dist+blm) )
+												),
+											std::min( 
+												std::min(std::min(uvw_dist+blr,uv_dist+mll),std::min(v_dist+mlm,uv_dist+mlr) ),
+                                                std::min(mmm,u_dist+mmr)
+												)
+											):0;
+				output->set_voxel(u,v,w,mmm);
+				mmr=mmm;
+				mlr=mlm;
+				mlm=mll;
+				bur=bum;
+				bum=bul;
+				bmr=bmm;
+				bmm=bml;
+				blr=blm;
+				blm=bll;
+				}
+			}
+		}
+
+	return output;
+	}
+
+template <int IMAGEDIM>
+image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool edge_is_object, IMGBINARYTYPE object_value)
+	{
+	image_integer<short, IMAGEDIM>* output = new image_integer<short,IMAGEDIM> (this,false);
+	int u,v,w;
+	int max_u=this->get_size_by_dim(0);
+	int max_v=this->get_size_by_dim(1);
+	int max_w=this->get_size_by_dim(2);
+	int veryhigh = (std::max(max_w,std::max(max_u,max_v))*5); //5 times the largest voxel direction... //std::numeric_limits<int>::max()-11;
+	int initvalue = (edge_is_object)?veryhigh:0;
+	IMGBINARYTYPE p;//pixel value
+	int mmm,mul,mum,mur,mml,mmr,mll,mlm,mlr,aul,aum,aur,aml,amm,amr,all,alm,alr,bul,bum,bur,bml,bmm,bmr,bll,blm,blr;//neighbour labels: First letter: above/middle/below (w-direction). Second letter: upper/middle/lower (v-direction). Third letter: left/middle/right (u-direction).
+	
+	//Forward pass
+	for(w=0; w<max_w; w++){
+		for(v=0; v<max_v; v++){
+			u=0;
+			mml=initvalue;
+			mul=initvalue;
+			aml=initvalue;
+			aul=initvalue;
+			all=initvalue;
+			mum=(v>0)? output->get_voxel(u,v-1,w) : initvalue;
+			aum=(v>0 && w>0)? output->get_voxel(u,v-1,w-1) : initvalue;
+			amm=(w>0)? output->get_voxel(u,v,w-1) : initvalue;
+			alm=(v<max_v-1 && w>0)? output->get_voxel(u,v+1,w-1) : initvalue;
+			for(u=0; u<max_u; u++){
+				p=this->get_voxel(u,v,w);
+				mur=(u<max_u-1 && v>0)? output->get_voxel(u+1,v-1,w) : initvalue;
+				aur=(u<max_u-1 && v>0 && w>0)? output->get_voxel(u+1,v-1,w-1) : initvalue;
+				amr=(u<max_u-1 && w>0)? output->get_voxel(u+1,v,w-1) : initvalue;
+				alr=(u<max_u-1 && v<max_v-1 && w>0)? output->get_voxel(u+1,v+1,w-1) : initvalue;
+				mmm=(p==object_value)?std::min(
+											std::min(
 												std::min( std::min(5+aul,4+aum),std::min(5+aur,4+aml) ),
                                                 std::min( std::min(3+amm,4+amr),std::min(5+all,4+alm) )
 												),
+											std::min( std::min( std::min(5+alr,4+mul),std::min(3+mum,4+mur) ), 3+mml )
+											):0;
+				output->set_voxel(u,v,w,mmm);
+				mml=mmm; //traverse the information minimie "get_voxel" calls...
+				mul=mum;
+				mum=mur;
+				aul=aum;
+				aum=aur;
+				aml=amm;
+				amm=amr;
+				all=alm;
+				alm=alr;
+				}
+			}
+		}
+
+	//Backward pass
+	for(w=max_w-1; w>=0; w--){
+		for(v=max_v-1; v>=0; v--){
+			u=max_u-1;
+			mmr=initvalue;
+//			mur=initvalue; //bug --> mur-->mlr		//another bug was fixed by setting all "w-1" --> "w+1"
+			mlr=initvalue;
+			bmr=initvalue;
+			bur=initvalue;
+			blr=initvalue;
+			mlm=(v<max_v-1)? output->get_voxel(u,v+1,w) : initvalue;
+			bum=(v>0 && w<max_w-1)? output->get_voxel(u,v-1,w+1) : initvalue;
+			bmm=(w<max_w-1)? output->get_voxel(u,v,w+1) : initvalue;
+			blm=(v<max_v-1 && w<max_w-1)? output->get_voxel(u,v+1,w+1) : initvalue;
+
+			for(u=max_u-1; u>=0; u--){
+				p=this->get_voxel(u,v,w);
+				mmm=output->get_voxel(u,v,w);
+				mll=(u>0 && v<max_v-1)? output->get_voxel(u-1,v+1,w) : initvalue;
+				bul=(u>0 && v>0 && w<max_w-1)? output->get_voxel(u-1,v-1,w+1) : initvalue;
+				bml=(u>0 && w<max_w-1)? output->get_voxel(u-1,v,w+1) : initvalue;
+				bll=(u>0 && v<max_v-1 && w<max_w-1)? output->get_voxel(u-1,v+1,w+1) : initvalue;
+				mmm=(p==object_value)?std::min(
+                                            std::min(
+												std::min( std::min(5+bul,4+bum),std::min(5+bur,4+bml) ),
+                                                std::min( std::min(3+bmm,4+bmr),std::min(5+bll,4+blm) )
+												),
 											std::min( 
-												std::min(std::min(5+alr,4+ll),std::min(3+lm,4+lr) ),
-                                                std::min(d,3+mr)
+												std::min(std::min(5+blr,4+mll),std::min(3+mlm,4+mlr) ),
+                                                std::min(mmm,3+mmr)
 												)
 											):0;
-				output->set_voxel(u,v,w,d);
-				mr=d;
-				lr=lm;
-				lm=ll;
-				aur=aum;
-				aum=aul;
-				amr=amm;
-				amm=aml;
-				alr=alm;
-				alm=all;
+				output->set_voxel(u,v,w,mmm);
+				mmr=mmm;
+				mlr=mlm;
+				mlm=mll;
+				bur=bum;
+				bum=bul;
+				bmr=bmm;
+				bmm=bml;
+				blr=blm;
+				blm=bll;
 				}
 			}
 		}

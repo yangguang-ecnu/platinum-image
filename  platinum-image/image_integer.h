@@ -55,9 +55,10 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
 		std::vector<HistoPair> get_distribution();
 
         // *** processing ***
+		image_integer<short, 3>* watershed(); // Watershed implementation, Vincent and Soille 1991
 		vector<ELEMTYPE> get_distinct_values_in_slice_2D(int slice, int direction=2, bool ignore_zeroes=false);
         ELEMTYPE gauss_fit2(); ///Compute optimal threshold value by fitting two gaussian distributions to the histogram.
-        ELEMTYPE otsu(); ///Compute optimal threshold value by Otsu¥s method.
+        ELEMTYPE otsu(image_binary<IMAGEDIM>* mask=NULL); ///Compute optimal threshold value by Otsu¥s method.
 		std::vector<ELEMTYPE> k_means(int n_means);
 
         ELEMTYPE components_hist_3D(); ///Compute optimal threshold value by computing a number of components histogram.

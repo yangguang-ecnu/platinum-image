@@ -217,6 +217,11 @@ float metadata::get_flip()
 	return get_data_float(DCM_FLIP);
 }
 
+float metadata::get_te()
+{
+	return get_data_float(DCM_TE);
+ }
+
 std::string metadata::get_name()
 {
 	std::vector<std::string> name;

@@ -344,6 +344,28 @@ void image_binary<IMAGEDIM>::invert()
 	//this->image_has_changed();
     } 
 
+template<int IMAGEDIM>
+void image_binary<IMAGEDIM>::fit_ellipsoid3D_to_this_image3D(ellipsoid3D *e, vector<double> min_constraints, vector<double> max_constraints, double non_object_cost, double object_cost) // Will only converge with initial parameters of ellipsoid_3D close to optimal
+{
+	fit_ellipsoid3D_cost_function<IMAGEDIM> *f = new fit_ellipsoid3D_cost_function<IMAGEDIM>(this,e,min_constraints, max_constraints, non_object_cost, object_cost);
+	vnl_powell powell = vnl_powell(f);
+	
+	vnl_vector<double> x(8);
+	Vector3D centrum = e->get_centrum();
+	Vector3D radii = e->get_radii();
+	x[0]=centrum[0];
+	x[1]=centrum[1];
+	x[2]=centrum[2];
+	x[3]=radii[0];
+	x[4]=radii[1];
+	x[5]=radii[2];
+	x[6]=e->get_azimuth()*50; // to get same order of size of variables
+	x[7]=e->get_elevation()*50;
+	cout<<"Initial x="<<x<<endl;
+	powell.minimize(x);
+	cout<<"Final x="<<x<<endl;
+}
+
 template <int IMAGEDIM>
 //image_base* image_binary<IMAGEDIM>::expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value)
 image_binary<IMAGEDIM>* image_binary<IMAGEDIM>::expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value)
@@ -464,6 +486,65 @@ image_binary<DIM>* binary_copycast (image_base* input)
 
     return output;
     }
+
+template<int IMAGEDIM>
+fit_ellipsoid3D_cost_function<IMAGEDIM>::fit_ellipsoid3D_cost_function(image_binary<IMAGEDIM> *im, ellipsoid3D *e, vector<double> min_constraints, vector<double> max_constraints, double non_object_cost, double object_cost):vnl_cost_function(8) // cost function used by fit_ellipsoid_3D_to_this_image_3D
+{
+	the_image = im;
+	the_ellipsoid = e;
+	_min_constraints=min_constraints;
+	_max_constraints=max_constraints;
+	_non_object_cost=non_object_cost;
+	_object_cost=object_cost;
+	xsize = im->get_size_by_dim(0);
+	ysize = im->get_size_by_dim(1);
+	zsize = im->get_size_by_dim(2);
+}
+
+template<int IMAGEDIM>
+double fit_ellipsoid3D_cost_function<IMAGEDIM>::f(vnl_vector<double> const &x) 
+{
+	//x contains the variables of the ellipsoid_3D
+	the_ellipsoid->set_centrum(x[0], x[1], x[2]);
+	the_ellipsoid->set_radii(x[3], x[4], x[5]);
+	the_ellipsoid->set_azimuth(x[6]/50);
+	the_ellipsoid->set_elevation(x[7]/50);
+	
+	cout<<"x="<<x<<endl;
+	
+	if (_min_constraints.size()==8) {
+		for (int k=0; k<6; k++)
+			if (x[k]<_min_constraints[k])
+				return std::numeric_limits<double>::max();
+		for (int k=6; k<8; k++)
+			if (x[k]<_min_constraints[k]*50)
+				return std::numeric_limits<double>::max();
+	}
+	if (_max_constraints.size()==8) {
+		for (int k=0; k<6; k++)
+			if (x[k]>_max_constraints[k])
+				return std::numeric_limits<double>::max();
+		for (int k=6; k<8; k++)
+			if (x[k]>_max_constraints[k]*50)
+				return std::numeric_limits<double>::max();
+	}
+	
+	double num_object_voxels=0;
+	double num_non_object_voxels=0;
+	for (int xx=0; xx<xsize; xx++)
+		for (int yy=0; yy<ysize; yy++)
+			for (int zz=0; zz<zsize; zz++)
+				if (the_ellipsoid->is_point_inside_ellipsoid(xx,yy,zz))
+				{
+					if (the_image->get_voxel(xx,yy,zz))
+						num_object_voxels++;
+					else
+						num_non_object_voxels++;
+				}
+	
+	return _non_object_cost*num_non_object_voxels + _object_cost*num_object_voxels;
+}
+
 
 #include "image_binaryprocess.hxx"
 

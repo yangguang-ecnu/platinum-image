@@ -306,6 +306,19 @@ void image_storage<ELEMTYPE >::fill(ELEMTYPE value)
 	}
 
 template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::invert()
+	{
+	ELEMTYPE max = this->get_max();
+	ELEMTYPE min = this->get_min();
+	typename image_storage<ELEMTYPE>::iterator i = this->begin();
+	while (i != this->end())
+		{
+		*i = min + max - *i;
+		++i;
+		}
+	}
+
+template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::add_value_to_all_voxels(ELEMTYPE value, image_storage<IMGBINARYTYPE>* mask)
 {
 	typename image_storage<ELEMTYPE>::iterator itr = this->begin();

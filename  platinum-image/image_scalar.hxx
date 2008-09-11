@@ -2085,10 +2085,23 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::correct_incl
 	return res;
 }
 
-
-
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::fit_gaussian_2D_to_this_image_2D(gaussian_2d* g) // Will only converge with initial parameters of gaussian_2d close to optimal
+{
+	fit_gaussian_2d_cost_function<ELEMTYPE,IMAGEDIM> f = fit_gaussian_2d_cost_function<ELEMTYPE,IMAGEDIM>(this,g);
+	vnl_levenberg_marquardt vlm = vnl_levenberg_marquardt(f);
 	
-
+	vnl_vector<double> x(6);
+	x[0]=g->amplitude;
+	x[1]=g->center_x;
+	x[2]=g->center_y;
+	x[3]=g->sigma_u;
+	x[4]=g->sigma_v;
+	x[5]=g->phi;
+	cout<<"Initial x="<<x<<endl;
+	vlm.minimize_without_gradient(x);
+	cout<<"Final x="<<x<<endl;
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create_projection_3D(int dir, PROJECTION_MODE PROJ)
@@ -2868,7 +2881,43 @@ image_scalar<float, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_
 	return res;
 }
 	 
+template<class ELEMTYPE, int IMAGEDIM>
+fit_gaussian_2d_cost_function<ELEMTYPE,IMAGEDIM>::fit_gaussian_2d_cost_function(image_scalar<ELEMTYPE, IMAGEDIM> *im, gaussian_2d *g):vnl_least_squares_function(6,im->get_size_by_dim(0)*im->get_size_by_dim(1)+9,vnl_least_squares_function::no_gradient) // cost function used by fit_gaussian_2D_to_this_image_2D
+{
+	the_image = im;
+	the_gaussian = g;
+	xsize = im->get_size_by_dim(0);
+	ysize = im->get_size_by_dim(1);
+}
 
+template<class ELEMTYPE, int IMAGEDIM>
+void fit_gaussian_2d_cost_function<ELEMTYPE,IMAGEDIM>::f(vnl_vector<double> const &x, vnl_vector<double> &fx) 
+{
+	//x contains the variables of the gaussian_2d
+	//the same order is used... amp, cent_x, cent_y, sig_u, sig_v, angle
+	the_gaussian->amplitude = x[0];
+	the_gaussian->center_x = x[1];
+	the_gaussian->center_y = x[2];
+	the_gaussian->sigma_u = x[3];
+	the_gaussian->sigma_v = x[4];
+	the_gaussian->phi = x[5];
+	
+	cout<<"x="<<x<<endl;
+	
+	for (int xx=0; xx<xsize; xx++)
+		for (int yy=0; yy<ysize; yy++)
+			fx[xx+xsize*yy] = the_gaussian->evaluate_at(xx,yy)-the_image->get_voxel(xx,yy);
+	
+	fx[xsize*ysize + 0] = (x[0]<0)*std::numeric_limits<double>::max();
+	fx[xsize*ysize + 1] = (x[1]<0)*std::numeric_limits<double>::max();
+	fx[xsize*ysize + 2] = (x[2]<0)*std::numeric_limits<double>::max();
+	fx[xsize*ysize + 3] = (x[3]<0)*std::numeric_limits<double>::max();
+	fx[xsize*ysize + 4] = (x[4]<0)*std::numeric_limits<double>::max();
+	fx[xsize*ysize + 5] = (x[5]<0)*std::numeric_limits<double>::max();
+	fx[xsize*ysize + 6] = (x[1]>xsize-1)*std::numeric_limits<double>::max();
+	fx[xsize*ysize + 7] = (x[2]>ysize-1)*std::numeric_limits<double>::max();
+	fx[xsize*ysize + 8] = (x[5]>pt_PI/2)*std::numeric_limits<double>::max();
+}
 
 #include "image_scalarprocess.hxx"
 

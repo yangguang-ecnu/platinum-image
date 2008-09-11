@@ -127,6 +127,7 @@ public:
 
 //	float get_dx(); //already stored in image_base (voxel_size)
 	float get_flip();
+	float get_te();
 	
 	void print_all();
 	

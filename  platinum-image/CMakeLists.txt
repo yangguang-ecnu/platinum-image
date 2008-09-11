@@ -91,6 +91,7 @@ FLTKuserIOparameters.h
 FLTKutilities.h 
 FLTKviewport.h 
 global.h 
+graph.hxx
 histo2D_tool.h 
 histogram.h 
 image_base.h 
@@ -428,6 +429,7 @@ fcm.cc
 fileutils.cc 
 filters.hxx
 FLTKutilities.cc 
+graph.hxx
 histogram.cc 
 histogram.hxx 
 ptconfig.cc
