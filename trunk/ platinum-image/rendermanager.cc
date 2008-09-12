@@ -511,6 +511,13 @@ rendercombination* rendermanager::get_combination (int ID)
     return get_renderer(ID)->imagestorender;
 }
 
+image_base* rendermanager::get_top_image_from_renderer(int r_id)
+{
+	int cid = this->get_renderer(r_id)->combination_id();
+	return this->get_combination(cid)->top_image();
+}
+
+
 void rendermanager::set_blendmode(int renderer_index,blendmode mode)
     {
     renderers[renderer_index]->imagestorender->blend_mode(mode);

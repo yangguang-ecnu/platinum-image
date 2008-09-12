@@ -259,7 +259,7 @@ IF(UNIX)
   #TARGET_LINK_LIBRARIES(platinumlib GLU GL m  Xext X11  supc++)
 ENDIF(UNIX)
 
-TARGET_LINK_LIBRARIES(platinumlib ITKCommon ITKIO ${FLTK_LIBRARIES})
+TARGET_LINK_LIBRARIES(platinumlib ITKCommon ITKIO ITKBasicFilters ${FLTK_LIBRARIES})		#ITKBasicFilters --> ITK --> VTK filters...
 TARGET_LINK_LIBRARIES(platinumlib vtkRendering vtkVolumeRendering vtkIO)
 
 #test program for quick compile cycles

@@ -373,7 +373,7 @@ void viewport::refresh_overlay()
 void viewport::paint_overlay()
 {
 //	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h());
-//	cout<<"***h()="<<h_pane()<<endl;
+//	cout<<"***h()="<<h_pane()<<" id="<<this->get_id()<<endl;
 
 	//here the height of the pane needs to be used since the height of the "viewport" includes the buttons...
 	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h_pane()); //h_pane is needed to compensate for button height... 

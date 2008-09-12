@@ -193,6 +193,12 @@ float image_storage<ELEMTYPE >::get_max_float() const
 	return abs(float(stats->max())); //JK4
 }
 
+template <class ELEMTYPE >
+float image_storage<ELEMTYPE >::get_min_float() const
+{
+	return abs(float(stats->min())); //JK4
+}
+
 
 template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_max() const
@@ -286,24 +292,23 @@ histogram_1D<ELEMTYPE> *image_storage<ELEMTYPE >::get_histogram_new_with_same_nu
 
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::erase()
-    {
-    memset (imagepointer(), 0, sizeof(ELEMTYPE) * num_elements);
-    }
+{
+    memset(imagepointer(), 0, sizeof(ELEMTYPE) * num_elements);
+}
 
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::fill(ELEMTYPE value)
-	{
+{
 	//JK3 - Try and see how much time this saves...
-	memset(imagepointer(), value, sizeof(ELEMTYPE) * num_elements);
-/*
+//	memset(imagepointer(), value, sizeof(ELEMTYPE) * num_elements);		//was found to occationally give strange values
+
 	typename image_storage<ELEMTYPE>::iterator i = this->begin();
 	while (i != this->end())
 		{
 		*i = value;
 		++i;
 		}
-*/
-	}
+}
 
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::invert()

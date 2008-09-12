@@ -76,7 +76,7 @@ class image_storage : public image_base
         virtual ~image_storage();
 
         virtual float get_max_float() const;
-//        float get_min_float() const;
+		virtual float get_min_float() const;
         ELEMTYPE get_max() const;
         ELEMTYPE get_min() const;
 		float get_mean(image_storage<IMGBINARYTYPE>* mask=NULL);

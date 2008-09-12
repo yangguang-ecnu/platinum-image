@@ -31,7 +31,8 @@
 #include "string.h"
 #include <vector>
 #include "global.h"
-#include "image_integer.hxx"
+#include "image_binary.h"
+//#include "image_integer.hxx"
 #include <vnl/vnl_matrix.h>
 #include <vnl/vnl_vector.h>
 

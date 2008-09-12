@@ -46,6 +46,262 @@ string image_scalar<ELEMTYPE, IMAGEDIM>::resolve_tooltip_image_scalar()
 {
 	return this->resolve_tooltip_image_general() + "\n";
 }
+/*
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::getVTKImagePointer()
+{
+	typename theImageType::Pointer image = get_image_as_itk_output();
+	cout<<"dir="<<endl<<image->GetDirection()<<endl;
+
+	//------------------------------
+	//------------------------------
+
+	try {
+//    typedef itk::RGBPixel< unsigned char > PixelType;
+    typedef itk::Image< unsigned char, 3 > ImageType;
+    typedef itk::ImageFileReader< ImageType > ReaderType;
+
+    ReaderType::Pointer reader  = ReaderType::New();
+	reader->SetFileName( "D:/Joel/TMP/brain8bit.vtk" );
+    reader->Update();
+
+    typedef itk::VTKImageExport< ImageType > ExportFilterType;
+    ExportFilterType::Pointer itkExporter = ExportFilterType::New();
+
+    itkExporter->SetInput( reader->GetOutput() );
+
+    // Create the vtkImageImport and connect it to the
+    // itk::VTKImageExport instance.
+    vtkImageImport* vtkImporter = vtkImageImport::New();  
+    ConnectPipelines(itkExporter, vtkImporter);
+    
+
+    // Just for double checking export it from VTK back into ITK 
+    // and save it into a file.
+    typedef itk::VTKImageImport< ImageType > ImportFilterType;
+    ImportFilterType::Pointer itkImporter = ImportFilterType::New();
+
+
+    vtkImageExport* vtkExporter = vtkImageExport::New();  
+    ConnectPipelines(vtkExporter, itkImporter);
+    
+    vtkExporter->SetInput( vtkImporter->GetOutput() );
+    
+    typedef itk::ImageFileWriter< ImageType > WriterType;
+    WriterType::Pointer itkWriter = WriterType::New();
+    itkWriter->SetInput( itkImporter->GetOutput() );
+    
+     std::cout << "Writing file... " << std::endl;
+	 itkWriter->SetFileName( "D:/Joel/TMP/brain8bit2.vtk" );
+     itkWriter->Update();
+
+    //------------------------------------------------------------------------
+    // VTK pipeline.
+    //------------------------------------------------------------------------
+    
+    // Create a vtkImageActor to help render the image.  Connect it to
+    // the vtkImporter instance.
+    vtkImageActor* actor = vtkImageActor::New();
+    actor->SetInput(vtkImporter->GetOutput());
+    
+    vtkInteractorStyleImage * interactorStyle = vtkInteractorStyleImage::New();
+
+    // Create a renderer, render window, and render window interactor to
+    // display the results.
+    vtkRenderer* renderer = vtkRenderer::New();
+    vtkRenderWindow* renWin = vtkRenderWindow::New();
+    vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+    
+    renWin->SetSize(500, 500);
+    renWin->AddRenderer(renderer);
+    iren->SetRenderWindow(renWin);
+    iren->SetInteractorStyle( interactorStyle );
+    
+    // Add the vtkImageActor to the renderer for display.
+    renderer->AddActor(actor);
+    renderer->SetBackground(0.4392, 0.5020, 0.5647);
+
+    // Bring up the render window and begin interaction.
+    renWin->Render();
+    iren->Start();
+
+    // Release all VTK components
+    actor->Delete();
+    interactorStyle->Delete(); 
+    vtkImporter->Delete();
+    vtkExporter->Delete();
+    renWin->Delete();
+    renderer->Delete();
+    iren->Delete();
+
+    }
+  catch( itk::ExceptionObject & e )
+    {
+    std::cerr << "Exception catched !! " << e << std::endl;
+    }
+
+}
+
+*/
+
+template <class ELEMTYPE, int IMAGEDIM>
+vtkImageData* image_scalar<ELEMTYPE, IMAGEDIM>::getVTKImagePointer()
+{
+	typename theImageType::Pointer image = get_image_as_itk_output();
+	cout<<"dir="<<endl<<image->GetDirection()<<endl;
+
+	//------------------------------
+	//------------------------------
+    // Create the vtkImageImport and connect it to the itk::VTKImageExport instance.
+    vtkImageImport* vtkImporter = vtkImageImport::New();  
+
+//	try {
+
+    typedef itk::VTKImageExport< theImageType > ExportFilterType;
+    ExportFilterType::Pointer itkExporter = ExportFilterType::New();
+    itkExporter->SetInput( image );
+
+//    ConnectPipelines(itkExporter, vtkImporter);
+	vtkImporter->SetUpdateInformationCallback(itkExporter->GetUpdateInformationCallback());
+	vtkImporter->SetPipelineModifiedCallback(itkExporter->GetPipelineModifiedCallback());
+	vtkImporter->SetWholeExtentCallback(itkExporter->GetWholeExtentCallback());
+	vtkImporter->SetSpacingCallback(itkExporter->GetSpacingCallback());
+	vtkImporter->SetOriginCallback(itkExporter->GetOriginCallback());
+	vtkImporter->SetScalarTypeCallback(itkExporter->GetScalarTypeCallback());
+	vtkImporter->SetNumberOfComponentsCallback(itkExporter->GetNumberOfComponentsCallback());
+	vtkImporter->SetPropagateUpdateExtentCallback(itkExporter->GetPropagateUpdateExtentCallback());
+	vtkImporter->SetUpdateDataCallback(itkExporter->GetUpdateDataCallback());
+	vtkImporter->SetDataExtentCallback(itkExporter->GetDataExtentCallback());
+	vtkImporter->SetBufferPointerCallback(itkExporter->GetBufferPointerCallback());
+	vtkImporter->SetCallbackUserData(itkExporter->GetCallbackUserData());
+
+
+/*    // Just for double checking export it from VTK back into ITK 
+    // and save it into a file.
+    typedef itk::VTKImageImport< theImageType > ImportFilterType;
+    ImportFilterType::Pointer itkImporter = ImportFilterType::New();
+
+    vtkImageExport* vtkExporter = vtkImageExport::New();  
+    ConnectPipelines(vtkExporter, itkImporter);
+    
+    vtkExporter->SetInput( vtkImporter->GetOutput() );
+    
+    typedef itk::ImageFileWriter< theImageType > WriterType;
+    WriterType::Pointer itkWriter = WriterType::New();
+    itkWriter->SetInput( itkImporter->GetOutput() );
+    
+     std::cout << "Writing file... " << std::endl;
+	 itkWriter->SetFileName( "D:/Joel/TMP/brain8bit5.vtk" );
+     itkWriter->Update();
+
+    //------------------------------------------------------------------------
+    // VTK pipeline.
+    //------------------------------------------------------------------------
+    
+    // Create a vtkImageActor to help render the image.  Connect it to
+    // the vtkImporter instance.
+    vtkImageActor* actor = vtkImageActor::New();
+    actor->SetInput(vtkImporter->GetOutput());
+    
+    vtkInteractorStyleImage * interactorStyle = vtkInteractorStyleImage::New();
+
+    // Create a renderer, render window, and render window interactor to
+    // display the results.
+    vtkRenderer* renderer = vtkRenderer::New();
+    vtkRenderWindow* renWin = vtkRenderWindow::New();
+    vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+    
+    renWin->SetSize(500, 500);
+    renWin->AddRenderer(renderer);
+    iren->SetRenderWindow(renWin);
+    iren->SetInteractorStyle( interactorStyle );
+    
+    // Add the vtkImageActor to the renderer for display.
+    renderer->AddActor(actor);
+    renderer->SetBackground(0.4392, 0.5020, 0.5647);
+
+    // Bring up the render window and begin interaction.
+    renWin->Render();
+    iren->Start();
+
+    // Release all VTK components
+    actor->Delete();
+    interactorStyle->Delete(); 
+    vtkImporter->Delete();
+    vtkExporter->Delete();
+    renWin->Delete();
+    renderer->Delete();
+    iren->Delete();
+*/
+
+
+
+//    }catch( itk::ExceptionObject & e ){
+//    std::cerr << "Exception catched !! " << e << std::endl;
+//    }
+
+
+
+//		vtkImporter->Delete();
+//		vtkExporter->Delete();
+
+	vtkImporter->Update();
+
+//---------------------------------------------
+
+//---------------------------------------------
+
+//	this->writeVTKImagePointer(vtkImporter->GetOutput());
+//	vtkImporter->GetOutputPort(
+	return vtkImporter->GetOutput();
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::writeVTKImagePointer(vtkImageData *im)
+{	
+			vtkImageExport* vtkExporter = vtkImageExport::New();  
+//			vtkExporter->SetInput( vtkImporter->GetOutput() );
+//			vtkExporter->SetInput( f->getVTKImagePointer() );
+//			vtkImageData *im = f->getVTKImagePointer();
+			vtkExporter->SetInput( im );
+
+	
+			typedef itk::VTKImageImport< itk::OrientedImage<unsigned char,3> > ImportFilterType;
+			ImportFilterType::Pointer itkImporter = ImportFilterType::New();
+
+//			ConnectPipelines(vtkExporter, itkImporter);
+			itkImporter->SetUpdateInformationCallback(vtkExporter->GetUpdateInformationCallback());
+			itkImporter->SetPipelineModifiedCallback(vtkExporter->GetPipelineModifiedCallback());
+			itkImporter->SetWholeExtentCallback(vtkExporter->GetWholeExtentCallback());
+			itkImporter->SetSpacingCallback(vtkExporter->GetSpacingCallback());
+			itkImporter->SetOriginCallback(vtkExporter->GetOriginCallback());
+			itkImporter->SetScalarTypeCallback(vtkExporter->GetScalarTypeCallback());
+			itkImporter->SetNumberOfComponentsCallback(vtkExporter->GetNumberOfComponentsCallback());
+			itkImporter->SetPropagateUpdateExtentCallback(vtkExporter->GetPropagateUpdateExtentCallback());
+			itkImporter->SetUpdateDataCallback(vtkExporter->GetUpdateDataCallback());
+			itkImporter->SetDataExtentCallback(vtkExporter->GetDataExtentCallback());
+			itkImporter->SetBufferPointerCallback(vtkExporter->GetBufferPointerCallback());
+			itkImporter->SetCallbackUserData(vtkExporter->GetCallbackUserData());
+
+				    
+			typedef itk::ImageFileWriter< itk::OrientedImage<unsigned char,3> > WriterType;
+			WriterType::Pointer itkWriter = WriterType::New();
+			itkWriter->SetInput( itkImporter->GetOutput() );
+			std::cout << "Writing file... " << std::endl;
+			itkWriter->SetFileName( "D:/Joel/TMP/brain8bit55.vtk" );
+			itkWriter->Update();
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+vtkAlgorithmOutput* image_scalar<ELEMTYPE, IMAGEDIM>::getvtkStructuredPoints()
+{	
+	this->save_to_file("tmp_getvtkStructuredPoints.vtk");
+	vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
+	reader->SetFileName("tmp_getvtkStructuredPoints.vtk");
+	reader->Update();
+	return reader->GetOutputPort();
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -2088,6 +2344,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::correct_incl
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::fit_gaussian_2D_to_this_image_2D(gaussian_2d* g) // Will only converge with initial parameters of gaussian_2d close to optimal
 {
+/*
 	fit_gaussian_2d_cost_function<ELEMTYPE,IMAGEDIM> f = fit_gaussian_2d_cost_function<ELEMTYPE,IMAGEDIM>(this,g);
 	vnl_levenberg_marquardt vlm = vnl_levenberg_marquardt(f);
 	
@@ -2101,6 +2358,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::fit_gaussian_2D_to_this_image_2D(gaussian
 	cout<<"Initial x="<<x<<endl;
 	vlm.minimize_without_gradient(x);
 	cout<<"Final x="<<x<<endl;
+	*/
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -2880,7 +3138,7 @@ image_scalar<float, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_
 	}
 	return res;
 }
-	 
+	 /*
 template<class ELEMTYPE, int IMAGEDIM>
 fit_gaussian_2d_cost_function<ELEMTYPE,IMAGEDIM>::fit_gaussian_2d_cost_function(image_scalar<ELEMTYPE, IMAGEDIM> *im, gaussian_2d *g):vnl_least_squares_function(6,im->get_size_by_dim(0)*im->get_size_by_dim(1)+9,vnl_least_squares_function::no_gradient) // cost function used by fit_gaussian_2D_to_this_image_2D
 {
@@ -2918,6 +3176,7 @@ void fit_gaussian_2d_cost_function<ELEMTYPE,IMAGEDIM>::f(vnl_vector<double> cons
 	fx[xsize*ysize + 7] = (x[2]>ysize-1)*std::numeric_limits<double>::max();
 	fx[xsize*ysize + 8] = (x[5]>pt_PI/2)*std::numeric_limits<double>::max();
 }
+*/
 
 #include "image_scalarprocess.hxx"
 

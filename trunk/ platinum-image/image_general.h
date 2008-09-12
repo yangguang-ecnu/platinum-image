@@ -180,6 +180,8 @@ class image_general : public image_storage <ELEMTYPE >
 
         RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>) const;
         virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
+        virtual float get_display_min_float() const;
+        virtual float get_display_max_float() const;
 
         ELEMTYPE get_voxel_by_dir(int u, int v, int w, int direction=2);
 
@@ -195,11 +197,12 @@ class image_general : public image_storage <ELEMTYPE >
 		void fill_region_3D(int dir, int start_index, int end_index, ELEMTYPE value);
 		void fill_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size, ELEMTYPE value);
 		void fill_region_3D_with_subvolume_image(image_general<ELEMTYPE, IMAGEDIM> *subvolume); //based on physical coords
-		void fill_region_3D_with_subvolume_image(Vector3Dint to_pos, image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint from_pos, Vector3Dint from_size); //based on given voxel coords
+		void fill_region_3D_with_subvolume_image(Vector3Dint to_pos, image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint from_pos, Vector3Dint from_size, ELEMTYPE empty_value=0); //based on given voxel coords
 		void fill_region_of_mask_3D(image_binary<IMAGEDIM> *mask, ELEMTYPE value);
 		void fill_image_border_3D(ELEMTYPE value, int border_thickness=1);
 		void translate_subvolume_3D(Vector3Dint pos, Vector3Dint size, Vector3Dint T, ELEMTYPE empty_value=0);
 		void translate_slice_3D(int dir, int slice, int du, int dv, ELEMTYPE empty_value=0);
+		void translate_slices_to_align_coordinates_3D(vector<Vector3D> coords, int dir, ELEMTYPE empty_value=0);
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();

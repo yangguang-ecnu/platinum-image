@@ -174,3 +174,8 @@ void data_base::set_tooltip(string s)
 {
 	widget->set_tooltip(s);
 }
+
+vtkAlgorithmOutput* data_base::getvtkStructuredPoints()
+{
+	return NULL;
+}

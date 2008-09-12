@@ -1760,6 +1760,21 @@ void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, i
     //val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
     }
 
+template <class ELEMTYPE, int IMAGEDIM>
+float image_general<ELEMTYPE, IMAGEDIM>::get_display_min_float() const
+{
+	RGBvalue val;
+    this->tfunction->get(get_min_float(),val);
+	return float(val.mono());
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_general<ELEMTYPE, IMAGEDIM>::get_display_max_float() const
+{
+	RGBvalue val;
+    this->tfunction->get(get_max_float(),val);
+	return float(val.mono());
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -1889,7 +1904,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(imag
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(Vector3Dint to_pos, image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint from_pos, Vector3Dint from_size)
+void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(Vector3Dint to_pos, image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint from_pos, Vector3Dint from_size, ELEMTYPE empty_value)
 {
 	int xx;
 	int yy;
@@ -1899,7 +1914,13 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(Vect
 		for(int y=from_pos[1]; y< (from_pos[1] + from_size[1]); y++){
 			xx = to_pos[0];
 			for(int x=from_pos[0]; x< (from_pos[0] + from_size[0]); x++){
-				this->set_voxel(xx,yy,zz, im->get_voxel(x,y,z));
+				if(this->is_voxelpos_within_image_3D(xx,yy,zz)){
+					if(im->is_voxelpos_within_image_3D(x,y,z)){
+						this->set_voxel( xx,yy,zz, im->get_voxel(x,y,z) );
+					}else{
+						this->set_voxel( xx,yy,zz, empty_value );
+					}
+				}
 				xx++;
 			}
 			yy++;
@@ -1991,7 +2012,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::translate_subvolume_3D(Vector3Dint pos, 
 	image_general<ELEMTYPE, IMAGEDIM> *tmp = new image_general<ELEMTYPE, IMAGEDIM>(this);
 	tmp->fill_region_3D(pos, size, empty_value);
 
-	int xx,yy,zz;
+	tmp->fill_region_3D_with_subvolume_image(pos+T, this, pos, size, empty_value); //based on given voxel coords
+/*	int xx,yy,zz;
 	for(int z=pos[2]; z<pos[2]+size[2]; z++){
 		for(int y=pos[1]; y<pos[1]+size[1]; y++){
 			for(int x=pos[0]; x<pos[0]+size[0]; x++){
@@ -2008,6 +2030,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::translate_subvolume_3D(Vector3Dint pos, 
 			}
 		}
 	}
+*/
 	copy_data(tmp,this);
 	delete tmp;
 }
@@ -2022,6 +2045,53 @@ void image_general<ELEMTYPE, IMAGEDIM>::translate_slice_3D(int dir, int slice, i
 	}else{
 		this->translate_subvolume_3D( create_Vector3Dint(0,0,slice), create_Vector3Dint(this->nx(),this->ny(),1), create_Vector3Dint(du,dv,0));
 	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::translate_slices_to_align_coordinates_3D(vector<Vector3D> coords, int dir, ELEMTYPE empty_value)
+{
+	image_general<ELEMTYPE, IMAGEDIM> *tmp = new image_general<ELEMTYPE, IMAGEDIM>(this,0);
+	tmp->fill(empty_value);
+
+	//uses the first coordinate in vector as reference and aligns all the other coordinates...		
+	Vector3D mean_coord = create_Vector3D(0,0,0);
+	for(int i=0;i<coords.size();i++){
+		mean_coord += coords[i];
+	}
+	mean_coord = mean_coord/float(coords.size());
+	mean_coord[0] = int(mean_coord[0]);
+	mean_coord[1] = int(mean_coord[1]);
+	mean_coord[2] = int(mean_coord[2]);
+
+	int du;
+	int dv;
+	int slice;
+
+	if(dir==0){
+		for(int i=1;i<coords.size();i++){
+			du = coords[i][1]-mean_coord[1];
+			dv = coords[i][2]-mean_coord[2];
+			slice = coords[i][0];
+			tmp->fill_region_3D_with_subvolume_image( create_Vector3Dint(slice,0-du,0-dv), this, create_Vector3Dint(slice,0,0), create_Vector3Dint(1,this->ny(),this->nz()), empty_value );
+		}
+	}else if(dir==1){
+		for(int i=1;i<coords.size();i++){
+			du = coords[i][0]-mean_coord[0];
+			dv = coords[i][2]-mean_coord[2];
+			slice = coords[i][1];
+			tmp->fill_region_3D_with_subvolume_image( create_Vector3Dint(0-du,slice,0-dv), this, create_Vector3Dint(0,slice,0), create_Vector3Dint(this->nx(),1,this->nz()), empty_value );
+		}
+	}else{
+		for(int i=1;i<coords.size();i++){
+			du = coords[i][0]-mean_coord[0];
+			dv = coords[i][1]-mean_coord[1];
+			slice = coords[i][2];
+			tmp->fill_region_3D_with_subvolume_image( create_Vector3Dint(0-du,0-dv,slice), this, create_Vector3Dint(0,0,slice), create_Vector3Dint(this->nx(),this->ny(),1), empty_value );
+		}
+	}
+
+	copy_data(tmp,this);
+	delete tmp;
 }
 
 

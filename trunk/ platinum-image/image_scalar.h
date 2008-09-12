@@ -38,6 +38,28 @@
 //#include "Utilities/tricubic1.0.0/libtricubic/tricubic.h" (//http://www.lekien.com/~francois/software/tricubic/)
 //#include "fcm.h"
 
+//--------------------------------
+#include "itkCommand.h"
+#include "itkImage.h"
+#include "itkVTKImageExport.h"
+#include "itkVTKImageImport.h"
+#include "itkCurvatureFlowImageFilter.h"
+#include "itkCastImageFilter.h"
+#include "itkRGBPixel.h"
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
+#include "vtkImageData.h"
+
+#include "vtkImageImport.h"
+#include "vtkImageExport.h"
+#include "vtkImageActor.h"		//JK remove
+#include "vtkRenderer.h"	
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkInteractorStyleImage.h" 
+
+#include "vtkStructuredPointsReader.h"
+//--------------------------------
 #include <vnl/algo/vnl_levenberg_marquardt.h>
 #include <vnl/vnl_least_squares_function.h>
 
@@ -76,6 +98,11 @@ public:
 
 	virtual string resolve_tooltip();		//combines tooltip data of this class with data from other classes
 	string resolve_tooltip_image_scalar(); //resolves tooltip data typical for this class
+
+	//	void getVTKImagePointer();
+	vtkImageData* getVTKImagePointer();
+	void writeVTKImagePointer(vtkImageData *im);
+	vtkAlgorithmOutput* getvtkStructuredPoints();
 
 
 	//------------------------- Interpolations -------------------------
