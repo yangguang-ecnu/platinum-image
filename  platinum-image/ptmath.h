@@ -393,7 +393,7 @@ Vector2Dint create_Vector2Dint(int x, int y);
 void save_Vector3D_to_file(Vector3D v,string filepath);
 Vector3D load_Vector3D_from_file(string filepath);
 int get_coord_from_dir(int x, int y, int z, int dir);
-
+Vector3D get_mean_Vector3D(vector<Vector3D> v);
 string Vector3D2str(Vector3D v);
 string bool2str(bool b);
 

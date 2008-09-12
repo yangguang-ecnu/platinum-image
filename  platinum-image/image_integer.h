@@ -73,6 +73,7 @@ class image_integer : public image_scalar <ELEMTYPE, IMAGEDIM>
 		bool is_value_in_slice_3D(ELEMTYPE value, int slice, int dir=2);
 
 
+
 	private:
 		int findNode(int e, int* par_node); ///Support function to narrowest_passage_3D
 		int mergeNodes(int e1, int e2, int* par_node); ///Support function to narrowest_passage_3D

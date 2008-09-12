@@ -1725,7 +1725,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE 
     {
 	//JK - uncomment these rows to detect writing outside allocated memory...
 	if(x<0||x>=datasize[0] || y<0||y>=datasize[1] || z<0||z>=datasize[2])
-		{cout<<"set_voxel--> strange index... x="<<x<<" y="<<y<<" z="<<z<<"... datasize=("<<datasize<<")"<<endl;}
+		{cout<<"set_voxel--> strange index... x="<<x<<" y="<<y<<" z="<<z<<"... datasize=("<<datasize[0]<<","<<datasize[1]<<","<<datasize[2]<<")"<<endl;}
 
     this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] = voxelvalue;
     }

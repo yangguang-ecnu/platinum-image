@@ -2482,6 +2482,7 @@ bool image_integer<ELEMTYPE, IMAGEDIM>::is_value_in_slice_3D(ELEMTYPE value, int
 	return false;
 }
 
+
 template <class ELEMTYPE, int IMAGEDIM>
 int image_integer<ELEMTYPE, IMAGEDIM>::findNode(int e, int* par_node)
 	{

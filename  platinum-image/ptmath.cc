@@ -852,6 +852,19 @@ int get_coord_from_dir(int x, int y, int z, int dir)
 	return z;
 }
 
+Vector3D get_mean_Vector3D(vector<Vector3D> v)
+{
+	Vector3D mean = create_Vector3D(0,0,0);
+	for(int i=0;i<v.size();i++){
+		mean += v[i];
+	}
+	mean = mean/float(v.size());
+	cout<<"mean[0]="<<mean[0]<<endl;
+	cout<<"mean[1]="<<mean[1]<<endl;
+	cout<<"mean[2]="<<mean[2]<<endl;
+	return mean;
+}
+
 string Vector3D2str(Vector3D v)
 {
 	return "("+float2str(v[0])+","+float2str(v[1])+","+float2str(v[2])+")";
