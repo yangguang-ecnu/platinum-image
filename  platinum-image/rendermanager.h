@@ -45,9 +45,9 @@
 class rendermanager
     {
     private:
-        std::vector<rendergeometry *> geometries;
-        std::vector<rendercombination *> combinations;
-        std::vector<renderer_base*> renderers;
+        std::vector<rendergeometry*>	geometries;
+        std::vector<rendercombination*> combinations;
+        std::vector<renderer_base*>		renderers;
         
     public:
         rendermanager ();
@@ -90,6 +90,8 @@ class rendermanager
                                                                 //renderer rendererIndex
 
         rendercombination * get_combination (int ID);
+
+		image_base* get_top_image_from_renderer(int r_id);
 
         int get_geometry_id(int rendererIndex);                 //get id of geometry object associated with
                                                                 //renderer rendererIndex

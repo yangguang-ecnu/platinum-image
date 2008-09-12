@@ -101,6 +101,10 @@ void FLTKpane::needs_rerendering()
 void FLTKpane::resize_content(int w,int h)
 {}
 
+int FLTKpane::get_renderer_id()
+{
+	return ( (FLTKviewport*)this->parent())->get_renderer_id();
+}
 
 FLTK_VTK_pane::FLTK_VTK_pane(): FLTKpane(0,0,100,100)
 {
@@ -134,6 +138,10 @@ void FLTK_VTK_pane::resize_content(int w,int h)
 void FLTK_VTK_pane::initialize_vtkRenderWindow()
 {}
 
+void FLTK_VTK_pane::draw_overlay()
+{
+	((FLTKviewport*)this->parent())->viewport_parent->paint_overlay();
+}
 
 
 //----------------------------------------------------------------
@@ -226,6 +234,10 @@ FLTK_VTK_MIP_pane::~FLTK_VTK_MIP_pane()
 
 void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 {
+	//JK TODO - rewrite in object oriented style...
+	image_base *top_image;
+	if( top_image = rendermanagement.get_top_image_from_renderer(this->get_renderer_id()) )
+	{
 	vtkRenderer *ren = vtkRenderer::New();  
 	vtkRenderWindow *renWin = vtkRenderWindow::New();
 	renWin->AddRenderer(ren);
@@ -239,12 +251,70 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	fl_vtk_window->Initialize();
 
 	// Read the data from a vtk file
+/*
 	vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
-	reader->SetFileName("C:/Sandra/Data/MTEA01_anon2/whole_body_diff.vtk"); //C:/Sandra/Data/MTEA01_anon2/whole_body_diff.vtk C:/Sandra/Data/FLAIR.vtk
+//	reader->SetFileName("C:/Sandra/Data/MTEA01_anon2/whole_body_diff.vtk"); //C:/Sandra/Data/MTEA01_anon2/whole_body_diff.vtk C:/Sandra/Data/FLAIR.vtk
 //	reader->SetFileName("D:/Joel/TMP/750001_WML01.vtk");
 //	reader->SetFileName("D:/Joel/TMP/brain.vtk");
+	reader->SetFileName("D:/Joel/TMP/brain8bit.vtk");
 	reader->Update();
+//	reader->GetOutput()
+*/
 
+	cout<<"hej"<<endl;
+//	top = datamanagement.get_image(1);
+//	image_integer<unsigned short,3> *f = dynamic_cast<image_integer<unsigned short,3>* >(top);
+
+//--------------------------------------------------------
+	/*
+//	image_scalar<unsigned char,3> *f = new image_scalar<unsigned char,3>("D:/Joel/TMP/brain8bit.vtk");
+
+//	typename theImageType::Pointer image = f->get_image_as_itk_output();
+//	cout<<"dir="<<endl<<image->GetDirection()<<endl;
+    vtkImageImport* vtkImporter = vtkImageImport::New();  
+
+	typedef itk::VTKImageExport< itk::OrientedImage<unsigned short,3> > ExportFilterType;
+    ExportFilterType::Pointer itkExporter = ExportFilterType::New();
+    itkExporter->SetInput( f->get_image_as_itk_output() );
+
+	vtkImporter->SetUpdateInformationCallback(itkExporter->GetUpdateInformationCallback());
+	vtkImporter->SetPipelineModifiedCallback(itkExporter->GetPipelineModifiedCallback());
+	vtkImporter->SetWholeExtentCallback(itkExporter->GetWholeExtentCallback());
+	vtkImporter->SetSpacingCallback(itkExporter->GetSpacingCallback());
+	vtkImporter->SetOriginCallback(itkExporter->GetOriginCallback());
+	vtkImporter->SetScalarTypeCallback(itkExporter->GetScalarTypeCallback());
+	vtkImporter->SetNumberOfComponentsCallback(itkExporter->GetNumberOfComponentsCallback());
+	vtkImporter->SetPropagateUpdateExtentCallback(itkExporter->GetPropagateUpdateExtentCallback());
+	vtkImporter->SetUpdateDataCallback(itkExporter->GetUpdateDataCallback());
+	vtkImporter->SetDataExtentCallback(itkExporter->GetDataExtentCallback());
+	vtkImporter->SetBufferPointerCallback(itkExporter->GetBufferPointerCallback());
+	vtkImporter->SetCallbackUserData(itkExporter->GetCallbackUserData());
+	
+	vtkImporter->Update();
+*/
+	//---------------------------------------------------------
+
+/*
+	vtkImageReader *reader2 = vtkImageReader::New();
+//	reader2->SetFileName("C:/Sandra/Data/MTEA01_anon2/whole_body_diff.vtk"); //C:/Sandra/Data/MTEA01_anon2/whole_body_diff.vtk C:/Sandra/Data/FLAIR.vtk
+	reader2->SetFileName("D:/Joel/TMP/brain8bit.vtk");
+	reader2->Update();
+
+//	vtkImageCast *caster = vtkImageCast::New();
+//	caster->SetInput( reader2->GetOutput() );
+//	caster->SetOutputScalarTypeToUnsignedShort();
+	
+	vtkImageToStructuredPoints *cast2 = vtkImageToStructuredPoints::New();
+	cast2->SetInput( reader2->GetOutput() );
+//	cast2->SetInput( caster->GetOutput() );
+//	cast2->SetOutputScalarTypeToUnsignedShort();
+*/
+/*
+	typedef vtk::itk::CastImageFilter<theImageType2, theImageType> castType;
+	castType::Pointer caster = castType::New();
+	caster->SetInput(vesselnessFilter->GetOutput());
+	caster->Update();
+*/
 //---------------------------
 
 //	vtkImageReader *reader = vtkImageReader::New();
@@ -272,36 +342,55 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 
 	// Create transfer mapping scalar value to opacity
 	vtkPiecewiseFunction *opacityTF = vtkPiecewiseFunction::New();
-	opacityTF->AddSegment(0, 0.1, 600, 0.9);
+	opacityTF->AddSegment(0, 0.1, 200, 0.9);
 
 	// Create a transfer function mapping scalar value to color (grey)
 	vtkPiecewiseFunction *grayTransferFunction = vtkPiecewiseFunction::New();
-    grayTransferFunction->AddSegment( 0 , 0.0 , 600 , 1.0 );
+    grayTransferFunction->AddSegment( top_image->get_min_float() , 0.0 , top_image->get_max_float() , 1.0 );
 
 	// Create mip properties
 	vtkVolumeProperty *mipprop = vtkVolumeProperty::New();
-	mipprop->SetScalarOpacity(opacityTF); // oTFun2/opacityTF/tFun
+//	mipprop->SetScalarOpacity(opacityTF); // oTFun2/opacityTF/tFun
 	mipprop->SetInterpolationTypeToLinear(); // alt ToLinear/ToNearest
 	mipprop->SetColor(grayTransferFunction); // gTFun/cTFun/colorTF/grayTransferFunction
 
   vtkVolume *volumeMIP = vtkVolume::New();
 	volumeMIP->SetProperty(mipprop);
-	volumeMIP->AddPosition(10,20,30);
+//	volumeMIP->AddPosition(10,20,30);
 
 	vtkVolumeRayCastMIPFunction *MIPFunction = vtkVolumeRayCastMIPFunction::New();
 	MIPFunction->SetMaximizeMethodToScalarValue();
 
+
    vtkVolumeRayCastMapper *raycastMapperMIP = vtkVolumeRayCastMapper::New();
-	raycastMapperMIP->SetInputConnection(reader->GetOutputPort());
+//   vtkFixedPointVolumeRayCastMapper *raycastMapperMIP = vtkFixedPointVolumeRayCastMapper::New();
+
+   
+
+
+	raycastMapperMIP->SetInputConnection(top_image->getvtkStructuredPoints());
+//	raycastMapperMIP->SetInput(reader->GetOutput());
+//	raycastMapperMIP->SetInput(caster->GetOutput());
+//	raycastMapperMIP->SetInputConnection(cast2->GetOutputPort());
+//	raycastMapperMIP->SetInputConnection(reader2->GetOutputPort());
+//	raycastMapperMIP->SetInput(reader2->GetOutput());								//JK
+//	raycastMapperMIP->SetInput(vtkImporter->GetOutput());							//JK
+//	raycastMapperMIP->SetInputConnection(vtkImporter->GetOutputPort());				//JK
+//	raycastMapperMIP->SetInputConnection(reader->GetOutputPort());
+
+
   //raycastMapperMIP->SetGradientEstimator(gradest); 
-//	raycastMapperMIP->SetInputConnection(caster->GetOutputPort());					//JK
+
 	raycastMapperMIP->SetVolumeRayCastFunction(MIPFunction);  // MIPFunction1/2 
+
 	volumeMIP->SetMapper(raycastMapperMIP);
 	ren->AddViewProp(volumeMIP);
 
 	ren->ResetCamera();
 	ren->GetActiveCamera()->Elevation(-90);
 	ren->GetActiveCamera()->SetViewUp( 0, 1, 0); //SO
+//	ren->SetBackground(0.4392, 0.5020, 0.5647);
+	ren->SetBackground(0.1, 0.1, 0.1);
 
    vtkInteractorStyleSwitch *intStyle = vtkInteractorStyleSwitch::New();
     intStyle->SetCurrentStyleToTrackballCamera();
@@ -311,7 +400,7 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	fl_vtk_window->Initialize();
 
 	// Clean up
-	reader->Delete();
+//	reader->Delete();
 	opacityTF->Delete();
 	mipprop->Delete();
 	MIPFunction->Delete();
@@ -319,6 +408,8 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	raycastMapperMIP->Delete();
 	ren->Delete();
 	renWin->Delete();
+
+	} 
 }
 
 
@@ -920,6 +1011,13 @@ void FLTKviewport::cb_renderer_select3b(FLTKpane* new_pane)
 //	this->pane_widget->needs_rerendering();
 }
 */
+
+
+int FLTKviewport::get_renderer_id()
+{
+	return this->viewport_parent->get_renderer_id();
+}
+
 
 void FLTKviewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
 {

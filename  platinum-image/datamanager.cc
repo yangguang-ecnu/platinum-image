@@ -223,50 +223,37 @@ void datamanager::datawidgets_setup()
     outergroup->end();
     }
 
-void datamanager::add(image_base * v)
+void datamanager::add(image_base * v, string name)
 {
-    if (v != NULL)
-        {
-        if (dataItems.size() < IMAGEVECTORMAX)
-            {
+    if(v != NULL){
+        if(dataItems.size() < IMAGEVECTORMAX){
             int the_image_id= v->get_id();
-            
-            if (find_data_index(the_image_id) == -1)
-                {
+            if(find_data_index(the_image_id) == -1){
                 dataItems.push_back(v);
                 v->activate();
-                
                 int freeViewportID=viewmanagement.find_viewport_no_images();
-                
-                if (freeViewportID != NOT_FOUND_ID)
-                    {
+                if(freeViewportID != NOT_FOUND_ID){
                     int rendererID = viewmanagement.get_renderer_id(freeViewportID);
-                    
-                    if (rendermanagement.renderer_empty(rendererID))
-                        {
-							rendermanagement.center3d_and_fit( rendererID, the_image_id );
-                        }
-                    
+                    if(rendermanagement.renderer_empty(rendererID)){
+						rendermanagement.center3d_and_fit( rendererID, the_image_id );
+					}
                     rendermanagement.connect_data_renderer(rendererID,the_image_id);
-                    }
-                
+				}
                 data_vector_has_changed();
                 data_has_changed(the_image_id);
-                }
-            else
-                {
+
+				if(name!=""){
+					v->name(name);
+				}
+			}else{
                 pt_error::error("Trying to re-add image ID ",pt_error::warning);
-                }
-            }
-        else
-            {
+			}
+		}else{
             //This error condition should really never happen, if it does there is
-            //reason to rethink the dependency on a fixed image capacity the way 
-            //IMAGEVECTORMAX works
-            
+            //reason to rethink the dependency on a fixed image capacity the way IMAGEVECTORMAX works
             pt_error::error("Error when adding image: number of data items in datamanager exceeds IMAGEVECTORMAX",pt_error::fatal);
-            }
         }
+	}
 }
 
 /*

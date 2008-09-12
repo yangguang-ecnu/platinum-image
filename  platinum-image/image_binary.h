@@ -28,7 +28,7 @@
 #ifndef __image_binary__
 #define __image_binary__
 
-#include "image_integer.h"
+#include "image_label.h"
 
 #include <vnl/algo/vnl_powell.h>
 #include <vnl/vnl_cost_function.h>

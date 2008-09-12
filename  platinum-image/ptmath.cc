@@ -790,6 +790,57 @@ Vector2Dint create_Vector2Dint(int x, int y)
 	v[1] = y;
 	return v;
 }
+void save_Vector3D_to_file(Vector3D v,string filepath)
+{
+	ofstream myfile;
+	myfile.open(filepath.c_str());
+	myfile<<v[0]<<";"<<v[1]<<";"<<v[2]<<";";
+	myfile.close();
+}
+
+Vector3D load_Vector3D_from_file(string filepath)
+{
+	Vector3D v;
+	ifstream myfile(filepath.c_str());
+
+	if(myfile.is_open()){
+		char buffer[10000];
+		string s;
+		string word;
+
+		int ind1=0;
+		int ind2=0;
+		vector<string> row;
+
+		while(!myfile.eof()){
+			myfile.getline(buffer,10000);
+			s=string(buffer);
+			ind1=0;
+			ind2=0;
+			row = vector<string>();
+
+			while(ind2>=0){
+				ind2 = s.find_first_of(";",ind1);
+				word = s.substr(ind1,ind2-ind1);
+				cout<<ind1<<" "<<ind2<<"  "<<word.c_str()<<"  ("<<s.c_str()<<")"<<endl;
+				ind1 = ind2+1;
+				if(ind2>=0){			 //the row is set to end with an ";"
+					row.push_back(word);
+					cout<<"word="<<word<<endl;
+				}
+			}
+			cout<<"row[0].c_str()="<<row[0].c_str()<<endl;
+			cout<<"row[1].c_str()="<<row[1].c_str()<<endl;
+			cout<<"row[2].c_str()="<<row[2].c_str()<<endl;
+			v[0] = atof(row[0].c_str());
+			v[1] = atof(row[1].c_str());
+			v[2] = atof(row[2].c_str());
+		}
+		myfile.close();
+	}
+
+	return v;
+}
 
 int get_coord_from_dir(int x, int y, int z, int dir)
 {

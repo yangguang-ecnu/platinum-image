@@ -28,7 +28,7 @@
 #ifndef __data_base__
 #define __data_base__
 
-//#include <iostream>
+#include "vtkAlgorithmOutput.h"
 
 #include "ptmath.h"
 
@@ -99,6 +99,7 @@ class data_base
 		virtual string resolve_tooltip();			//combines tooltip data of this class with data from other classes
 		string resolve_tooltip_data_base(); //resolves tooltip data typical for this class
 		void set_tooltip(string s);
+		virtual vtkAlgorithmOutput* getvtkStructuredPoints(); //allows porting to VTK for MIP-rendering
     };
 
 #endif

@@ -114,9 +114,29 @@
 
 //#include "Utilities/itkImageToVTKImageFilter.h"
 //#include "Utilities/vtkITKImageToImageFilter.h"
-//#include "vtkImageCast.h"
 
 //------------------------------------
+#include "itkVTKImageImport.h"
+#include "itkVTKImageExport.h"
+#include "vtkImageImport.h"
+#include "vtkImageExport.h"
+#include "image_scalar.hxx" //JK TODO remove...
+#include "vtkImageCast.h"
+#include "vtkImageToStructuredPoints.h"
+#include "vtkFixedPointVolumeRayCastMapper.h"
+/*
+#include "itkCommand.h"
+#include "itkImage.h"
+#include "itkCurvatureFlowImageFilter.h"
+#include "itkCastImageFilter.h"
+#include "itkRGBPixel.h"
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
+#include "vtkImageData.h"
+
+#include "vtkImageImport.h"
+#include "vtkImageExport.h"
+*/
 
 
 //Callback action identifiers.
@@ -155,6 +175,7 @@ class FLTKpane : public Fl_Overlay_Window //JK2
 	    virtual void resize_content(int w,int h);
 		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
             {return "base_key";}
+		int get_renderer_id();
 
 };
 
@@ -175,6 +196,7 @@ class FLTK_VTK_pane : public FLTKpane
 	    FLTK_VTK_pane(int X,int Y,int W,int H);  //constructor
 	    ~FLTK_VTK_pane();
 	    void resize_content(int w,int h);
+		void draw_overlay();
 
 		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
             {return "FLTK_VTK_pane";}
@@ -285,6 +307,8 @@ class FLTKviewport : public Fl_Window   //handles the FLTK part of the viewport 
 {
 	friend class FLTKpane;
 	friend class FLTK_Pt_pane;
+	friend class FLTK_VTK_pane;
+	friend class FLTK_VTK_MIP_pane;
 
 private:
 	viewport *viewport_parent;
@@ -302,6 +326,7 @@ private:
     static void cb_renderer_select3(Fl_Widget *o, void *v); //JK2
 //    void cb_renderer_select3b(FLTKpane* new_pane); //JK2
     void rebuild_blendmode_menu();//update checkmark for current blend mode
+	int get_renderer_id();
 	
 	
 public:

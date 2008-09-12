@@ -390,6 +390,8 @@ Vector3D create_Vector3D(float x, float y, float z);
 Vector3Dint create_Vector3Dint(int x, int y, int z);
 Vector2D create_Vector2D(float x, float y);
 Vector2Dint create_Vector2Dint(int x, int y);
+void save_Vector3D_to_file(Vector3D v,string filepath);
+Vector3D load_Vector3D_from_file(string filepath);
 int get_coord_from_dir(int x, int y, int z, int dir);
 
 string Vector3D2str(Vector3D v);
@@ -446,8 +448,6 @@ double incompleteBetaCF(const double a, const double b, const double x);	// Cont
 // Rigid 3D landmark based alignment
 // Three non-collinear landmarks is sufficient to guarantee a solution
 // fixedToMoving usage: fixedToMoving[index_of_fixed] = index_of_moving
-bool fit_points(const std::vector<Vector3D> & fixed, std::vector<Vector3D> & moving, 
-	const std::map<int,int> & fixedToMoving);
-
+bool fit_points(const std::vector<Vector3D> & fixed, std::vector<Vector3D> & moving, const std::map<int,int> & fixedToMoving);
 
 #endif	//__ptmath.h__
