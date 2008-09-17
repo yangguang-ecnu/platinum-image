@@ -310,11 +310,11 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from
 
 	image_binary<3> *rough_lung = this->appl_wb_segment_rough_lung_from_sum_image(thorax_body_mask, lung_volume_in_litres);
 	rough_lung->name("rough_lung");
-//	rough_lung->save_to_file("c:/Joel/TMP/combi_1_rough_lung.vtk");
+	rough_lung->save_to_file("c:/Joel/TMP/combi_1_rough_lung.vtk");
 
 	image_integer<short,3> *dist = rough_lung->distance_345_3D();
 	dist->name("dist");
-//	dist->save_to_file("c:/Joel/TMP/combi_2_dist.vtk");
+	dist->save_to_file("c:/Joel/TMP/combi_2_dist.vtk");
 
 	image_binary<3> *seeds = dist->threshold(15);
 //	image_binary<3> *seeds = new image_binary<3>(rough_lung);
@@ -328,10 +328,10 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from
 	res->name("res");
 	res->dilate_3D_26Nbh();
 	res->dilate_3D_26Nbh();
-//	res->save_to_file("c:/Joel/TMP/combi_3_res.vtk");
+	res->save_to_file("c:/Joel/TMP/combi_3_res.vtk");
 
 	histogram_1D<ELEMTYPE> *h2 = this->get_histogram_from_masked_region_3D(res);
-//	h2->save_histogram_to_txt_file("c:/Joel/TMP/combi_4_hist.txt");
+	h2->save_histogram_to_txt_file("c:/Joel/TMP/combi_4_hist.txt");
 
 	float a;
 	float c;
@@ -565,6 +565,9 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 	image_scalar<ELEMTYPE, IMAGEDIM> *abd = new image_scalar<ELEMTYPE, IMAGEDIM>(this);
 	abd->mask_out(body_mini);
 	image_binary<> *vat_mask = abd->threshold(500);
+	if(base!=""){
+		vat_mask->save_to_VTK_file(base + "__g00b_convex_hull.vtk");
+	}
 	vat_mask->largest_object_3D();
 	vat_mask->convex_hull_line_filling_3D(0);
 	vat_mask->convex_hull_line_filling_3D(2);
