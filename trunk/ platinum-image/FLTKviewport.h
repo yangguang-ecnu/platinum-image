@@ -197,6 +197,7 @@ class FLTK_VTK_pane : public FLTKpane
 	    ~FLTK_VTK_pane();
 	    void resize_content(int w,int h);
 		void draw_overlay();
+		int handle(int e);
 
 		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
             {return "FLTK_VTK_pane";}

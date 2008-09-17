@@ -143,6 +143,23 @@ void FLTK_VTK_pane::draw_overlay()
 	((FLTKviewport*)this->parent())->viewport_parent->paint_overlay();
 }
 
+int FLTK_VTK_pane::handle(int event)
+{
+	int ret = 0;
+	
+	if ( event == FL_KEYDOWN )
+	{				
+		cout<<"key..."<<endl;
+		if ( Fl::event_key() == FL_Delete )
+		{			
+			cout<<"delete_key-..."<<endl;
+			ret = 1;
+		}
+	}
+
+	return ( FLTKpane::handle(event) ? 1 : ret );
+}
+
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
