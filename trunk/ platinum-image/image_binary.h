@@ -33,8 +33,6 @@
 #include <vnl/algo/vnl_powell.h>
 #include <vnl/vnl_cost_function.h>
 
-enum DISTANCE_MODE {DIST_345, DIST_EUCL};
-
 template<int IMAGEDIM = 3>
 class image_binary : public image_label <IMAGEDIM>
     {
@@ -71,7 +69,7 @@ public:
     image_binary<IMAGEDIM> * logical_or_prev_and_next(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A OR (PrevSlice AND NextSlice) operation
     image_binary<IMAGEDIM> * logical_and_prev_or_next(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Perform a voxelwise logical A OR (PrevSlice AND NextSlice) operation
     void invert(); ///Perform a voxelwise inversion
-
+	void get_smallest_box_containing_entire_object_3D(int& x_0, int& y_0, int& z_0, int& x_1, int& y_1, int& z_1, IMGBINARYTYPE object_value=true); //Get coordinates constituting the smallest possible box contatining all object voxels
 
 	image_binary<IMAGEDIM>* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value=0);	
 	image_binary<IMAGEDIM>* expand_borders2D_by_dir(int dir, unsigned int dr=1, IMGBINARYTYPE value=0);	
@@ -80,7 +78,7 @@ public:
 	image_binary<IMAGEDIM>* contract_borders(unsigned int dx, unsigned int dy, unsigned int dz);
 	image_binary<IMAGEDIM>* contract_borders2D_by_dir(int dir, unsigned int dr=1);
 //	virtual image_base* contract_borders(unsigned int dx, unsigned int dy, unsigned int dz);	
-//	virtual image_base* contract_borders2D_by_dir(int dir, unsigned int dr=1);	
+//	virtual image_base* contract_borders2D_by_dir(int dir, unsigned int dr=1);
 
     // *** applications ***
 	
@@ -115,8 +113,10 @@ public:
 	void largest_object_3D(IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value).
 	void largest_objects_3D(int num_objects=2, IMGBINARYTYPE object_value=TRUE); ///Keep the x largest objects (defined by object_value).
 	void erode_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE);///Morphological erode up to distance value=thickness.
+	void erode_euclidean_3D(float thickness, IMGBINARYTYPE object_value=TRUE); // Morphological erode up to physical euclidean distance value=thickness in mm.
 	//JK - there is a bug in dilate3D... An in-slice line (with 2 segments...) is sometimes seen....
 	void dilate_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE); ///Morphological dilate up to distance value=thickness.
+	void dilate_euclidean_3D(float thickness, IMGBINARYTYPE object_value=TRUE); // Morphological dilate up to physical euclidean distance value=thickness in mm.
 	void outline_3D(int thickness=3, IMGBINARYTYPE object_value=TRUE); ///Morphological outline up to distance value=thickness.
     image_scalar<float, IMAGEDIM>* distance_3D(bool edge_is_object=false, IMGBINARYTYPE object_value=TRUE); ///Compute distance map where distances are additively computed as physical euclidean distance from voxels in the 26-neighbourhood. If edge_is_object=true then everything outside the image is regarded to be object voxels.
 	image_integer<short, IMAGEDIM> * distance_345_3D(bool edge_is_object=false, IMGBINARYTYPE object_value=TRUE); ///Compute 345 chamfer distance map. If edge_is_object=true then everything outside the image is regarded to be object voxels.
