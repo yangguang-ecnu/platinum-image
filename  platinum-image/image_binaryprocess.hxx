@@ -1995,6 +1995,17 @@ void image_binary<IMAGEDIM>::erode_3D(int thickness, IMGBINARYTYPE object_value)
 	}
 
 template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::erode_euclidean_3D(float thickness, IMGBINARYTYPE object_value)
+{		
+	bool edge_is_object=false;
+    image_scalar<float, IMAGEDIM> * distance_image = distance_3D(edge_is_object, object_value);
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(thickness+0.000001, std::numeric_limits<float>::max(), object_value);
+	delete distance_image;
+	copy_data(threshold_image,this);
+	delete threshold_image;
+}
+
+template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::dilate_3D(int thickness, IMGBINARYTYPE object_value)
 	{		
 	bool edge_is_object=true;
@@ -2004,6 +2015,17 @@ void image_binary<IMAGEDIM>::dilate_3D(int thickness, IMGBINARYTYPE object_value
 	copy_data(threshold_image,this);
 	delete threshold_image;
 	}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::dilate_euclidean_3D(float thickness, IMGBINARYTYPE object_value)
+{		
+	bool edge_is_object=true;
+    image_scalar<float, IMAGEDIM> * distance_image = distance_3D(edge_is_object, !object_value);
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(0, thickness, object_value);
+	delete distance_image;
+	copy_data(threshold_image,this);
+	delete threshold_image;
+}
 
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::outline_3D(int thickness, IMGBINARYTYPE object_value)

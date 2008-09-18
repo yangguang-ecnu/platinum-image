@@ -344,6 +344,50 @@ void image_binary<IMAGEDIM>::invert()
 	//this->image_has_changed();
     } 
 
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::get_smallest_box_containing_entire_object_3D(int& x_0, int& y_0, int& z_0, int& x_1, int& y_1, int& z_1, IMGBINARYTYPE object_value)
+{
+	int xsize = this->get_size_by_dim(0);
+	int ysize = this->get_size_by_dim(1);
+	int zsize = this->get_size_by_dim(2);
+	bool found=false;
+	for (int x=0; x<xsize && !found; x++)
+		for (int y=0; y<ysize && !found; y++)
+			for (int z=0; z<zsize && !found; z++)
+				if (this->get_voxel(x,y,z)==object_value)
+					x_0=x; found=true;
+	found=false;
+	for (int x=xsize-1; x>=0 && !found; x--)
+		for (int y=0; y<ysize && !found; y++)
+			for (int z=0; z<zsize && !found; z++)
+				if (this->get_voxel(x,y,z)==object_value)
+					x_1=x; found=true;
+	found=false;
+	for (int y=0; y<ysize && !found; y++)
+		for (int x=0; x<xsize && !found; x++)
+			for (int z=0; z<zsize && !found; z++)
+				if (this->get_voxel(x,y,z)==object_value)
+					y_0=y; found=true;
+	found=false;
+	for (int y=ysize-1; y>=0 && !found; y--)
+		for (int x=0; x<xsize && !found; x++)
+			for (int z=0; z<zsize && !found; z++)
+				if (this->get_voxel(x,y,z)==object_value)
+					y_1=y; found=true;
+	found=false;
+	for (int z=0; z<zsize && !found; z++)
+		for (int y=0; y<ysize && !found; y++)
+			for (int x=0; x<xsize && !found; x++)
+				if (this->get_voxel(x,y,z)==object_value)
+					z_0=z; found=true;
+	found=false;
+	for (int z=zsize-1; z>=0 && !found; z--)
+		for (int y=0; y<ysize && !found; y++)
+			for (int x=0; x<xsize && !found; x++)
+				if (this->get_voxel(x,y,z)==object_value)
+					z_1=z; found=true;
+}
+
 template<int IMAGEDIM>
 void image_binary<IMAGEDIM>::fit_ellipsoid3D_to_this_image3D(ellipsoid3D *e, vector<double> min_constraints, vector<double> max_constraints, double non_object_cost, double object_cost) // Will only converge with initial parameters of ellipsoid_3D close to optimal
 {
@@ -375,7 +419,7 @@ image_binary<IMAGEDIM>* image_binary<IMAGEDIM>::expand_borders(unsigned int dx, 
 	res->fill(value);
 	res->set_parameters(this);
 
-	res->fill_region_3D_with_subvolume_image( create_Vector3Dint(dx,dy,dz),this,create_Vector3Dint(0,0,0),create_Vector3Dint(this->nx(),this->nx(),this->nx()) ); //based on given voxel coords
+	res->fill_region_3D_with_subvolume_image( create_Vector3Dint(dx,dy,dz),this,create_Vector3Dint(0,0,0),create_Vector3Dint(this->nx(),this->ny(),this->nz()) ); //based on given voxel coords
 
 /*	for (int z=0; z<this->nz(); z++){
 		for (int y=0; y<this->ny(); y++){
