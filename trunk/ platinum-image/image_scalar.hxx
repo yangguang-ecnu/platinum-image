@@ -300,7 +300,14 @@ vtkAlgorithmOutput* image_scalar<ELEMTYPE, IMAGEDIM>::getvtkStructuredPoints()
 	vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
 	reader->SetFileName("tmp_getvtkStructuredPoints.vtk");
 	reader->Update();
-	return reader->GetOutputPort();
+
+	vtkImageCast *imageCast = vtkImageCast::New();
+	//imageCast->SetInput(reader->GetOutput());  
+	imageCast->SetInputConnection(reader->GetOutputPort()); //SO
+	imageCast->SetOutputScalarTypeToUnsignedShort();
+
+	//return reader->GetOutputPort();
+	return imageCast->GetOutputPort();
 }
 
 

@@ -155,6 +155,26 @@ int FLTK_VTK_pane::handle(int event)
 			cout<<"delete_key-..."<<endl;
 			ret = 1;
 		}
+
+		if ( Fl::event_key() == FL_Right )
+		{			
+			cout<<"right arrow-..."<<endl;
+
+			vtkRenderWindowInteractor *iren = reinterpret_cast<vtkRenderWindowInteractor*>(this);
+			//vtkCamera *camera =( reinterpret_cast<vtkRendererCollection*>(iren->GetRenderWindow()->GetRenderers()) )->GetFirstRenderer()->GetActiveCamera();
+			
+			//fastnar vid innan vtkCamera m texten:
+			/* - - - Run-Time Check Failure #0 - - -
+			The value of ESP was not properly saved across a function call.  
+			This is usually a result of calling a function declared with one 
+			calling convention with a function pointer declared with a different 
+			calling convention. */
+
+			//camera->Azimuth(30);
+			//iren->GetRenderWindow()->Render();
+
+			ret = 1;
+		}
 	}
 
 	return ( FLTKpane::handle(event) ? 1 : ret );
@@ -214,6 +234,14 @@ void FLTK_VTK_Cone_pane::initialize_vtkRenderWindow()
 
 	ren->AddActor(coneActor);
 
+	//:: 080908 :: //testa vtkCallbackCOmmand
+	vtkPointPicker *picker = vtkPointPicker::New();
+	cout << "Picker set" << endl;
+	//w_picker = vtkWorldPointPicker::New();
+	PickPosCommand *PickObserver = PickPosCommand::New();
+	picker->AddObserver(vtkCommand::EndPickEvent, PickObserver);
+	//::		::
+
 	// We can now delete all our references to the VTK pipeline (except for
 	// our reference to the vtkFlRenderWindowInteractor) as the objects
 	// themselves will stick around until we dereference fl_vtk_window
@@ -248,6 +276,130 @@ FLTK_VTK_MIP_pane::FLTK_VTK_MIP_pane(int X,int Y,int W,int H) : FLTK_VTK_pane(X,
 
 FLTK_VTK_MIP_pane::~FLTK_VTK_MIP_pane()
 {}
+
+//--------------------------------------------------------
+//------------TILLFÄLLIG PLACERING-------------------/SO--
+//--------------------------------------------------------
+
+	PickPosCommand* PickPosCommand::New()
+	{ 
+		return new PickPosCommand; 
+	}
+
+	void PickPosCommand::Delete() 
+	{ 
+		delete this;
+	}
+
+	void PickPosCommand::Execute(vtkObject *caller, unsigned long eid, void *callData)
+	{
+		cout << "- INSIDE EXECUTE() -" << endl;
+		vtkPointPicker *picker = reinterpret_cast<vtkPointPicker*>(caller);
+		double PickPos[3];
+		
+		picker->GetPickPosition(PickPos);
+		
+		//TESTING***
+
+		Vector3D position;
+		position[0]=PickPos[0];
+		position[1]=PickPos[1];
+		position[2]=PickPos[2];
+
+		//send_position(position);
+		cout << "sending position to view port 2" << endl;
+		viewmanagement.zoom_specific_vp(2, position, 3);
+		//***
+
+		cout << ":: :: PickPosCommand: [" << PickPos[0] << ", " << PickPos[1] << ", " << PickPos[2] << "] :: ::" << endl;
+	}
+
+double Xcam2;
+double Ycam2; 
+double Zcam2;
+
+class MyCommand2 : public vtkCommand
+{
+public:
+ 	static MyCommand2 *New()
+	{
+		return new MyCommand2;
+	}
+
+	void Delete()
+	{ 
+		delete this;
+	}
+
+  virtual void Execute(vtkObject* caller, unsigned long eventId, void* callData)
+  {
+	 vtkRenderWindowInteractor *iren = reinterpret_cast<vtkRenderWindowInteractor*>(caller);
+
+	 cout << "INSIDE MyCommand Execute()." << endl;
+
+	//Sifferkoder: http://www.asciitable.com/ "Dec"
+
+	vtkCamera *camera =( reinterpret_cast<vtkRendererCollection*>(iren->GetRenderWindow()->GetRenderers()) )->GetFirstRenderer()->GetActiveCamera();
+		iren->GetRenderWindow()->Render();
+		cout << "Camera position 2 = [" << Xcam2 << ", " << Ycam2 << ", " << Zcam2 << "]" << endl;
+
+	 if(Fl::event_key()==101)
+	 {
+		cout << "'e' PRESSED" << endl;
+	 }
+
+	 else if(Fl::event_key()==32)
+	 {
+		cout << "SPACE PRESSED" << endl;	
+	 }	
+
+	 else if(Fl::event_key()==FL_Enter)
+	 {
+		cout << "ENTER PRESSED" << endl;	
+	 }	
+
+	 else if(Fl::event_key() == FL_Right)
+	 {
+		cout << "RIGHT ARROW PRESSED" << endl;	
+		camera->Azimuth(30);
+		iren->GetRenderWindow()->Render();
+	 }
+
+	 else if(Fl::event_key() == FL_Left)
+	 {
+		cout << "LEFT ARROW PRESSED" << endl;
+		camera->Azimuth(-30);
+		iren->GetRenderWindow()->Render();
+	 }
+
+	 else if(Fl::event_key() == FL_Up)
+	 {
+		cout << "UP ARROW PRESSED" << endl;	
+		camera->Elevation(30);
+		iren->GetRenderWindow()->Render();
+	 }
+
+	 else if(Fl::event_key() == FL_Down)
+	 {
+		cout << "DOWN ARROW PRESSED" << endl;
+		camera->Elevation(-30);
+		iren->GetRenderWindow()->Render();
+	 }
+
+	 else if(Fl::event_key() == 'r') //114="r"
+	 {
+		cout << "'r' PRESSED" << endl;
+		camera->SetPosition(Xcam2, Ycam2, Zcam2);
+		cout << "Camera position 3 = [" << Xcam2 << ", " << Ycam2 << ", " << Zcam2 << "]" << endl;
+		iren->GetRenderWindow()->Render();
+	 }
+
+  } 
+};
+
+//--------------------------------------------------------
+//--------------------------------------------------------
+//--------------------------------------------------------
 
 void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 {
@@ -405,19 +557,34 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 
 	ren->ResetCamera();
 	ren->GetActiveCamera()->Elevation(-90);
-	ren->GetActiveCamera()->SetViewUp( 0, 1, 0); //SO
+	//ren->GetActiveCamera()->SetViewUp( 0, 1, 0); //SO
+	ren->GetActiveCamera()->GetPosition(Xcam2, Ycam2, Zcam2);
 //	ren->SetBackground(0.4392, 0.5020, 0.5647);
 	ren->SetBackground(0.1, 0.1, 0.1);
+
+	//:: 080908 :: //testa vtkCallbackCOmmand
+	vtkPointPicker *picker = vtkPointPicker::New();
+	cout << "Picker set" << endl;
+	//w_picker = vtkWorldPointPicker::New();
+	PickPosCommand *PickObserver = PickPosCommand::New();
+	picker->AddObserver(vtkCommand::EndPickEvent, PickObserver);
+	//::		::
 
    vtkInteractorStyleSwitch *intStyle = vtkInteractorStyleSwitch::New();
     intStyle->SetCurrentStyleToTrackballCamera();
     fl_vtk_window->SetInteractorStyle(intStyle);
+	fl_vtk_window->SetPicker(picker);
+	//fl_vtk_window->AddObserver(vtkCommand::KeyPressEvent //999
+	
 
 	fl_vtk_window->SetDesiredUpdateRate(3.0);
 	fl_vtk_window->Initialize();
 
 	// Clean up
 //	reader->Delete();
+	picker->RemoveObserver(PickObserver);
+	picker->Delete();
+
 	opacityTF->Delete();
 	mipprop->Delete();
 	MIPFunction->Delete();
