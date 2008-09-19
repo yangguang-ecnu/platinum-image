@@ -205,6 +205,12 @@ void line3D::least_square_fit_line_to_points_in_3D(vector<Vector3D> points, int 
 	this->set_direction_to_point_cloud_variations_given_one_dir(dir, points);
 }
 
+std::ostream &operator<<(std::ostream &ut, const line3D &l)
+{
+	ut<<"line3D -point"<<l.point<<" -direction"<<l.direction;
+	return ut;
+}
+
 void line3D::set_point_to_center_of_gravity_from_points_in_3D(vector<Vector3D> points)
 {
 	for(int p=0;p<points.size();p++){
@@ -347,6 +353,12 @@ line2D plane3D::get_projected_line(line3D line)
 	line2D res = line2D(a[0],a[1],a[0]+b[0],a[1]+b[1]);
 	cout<<"-->"<<res.get_point()<<" "<<res.get_direction()<<endl;
 	return res;
+}
+
+std::ostream &operator<<(std::ostream &ut, const plane3D &p)
+{
+	ut<<"plane3D -point"<<p.point<<" -normal"<<p.normal;
+	return ut;
 }
 
 ellipsoid3D::ellipsoid3D()
@@ -766,6 +778,7 @@ Vector3D create_Vector3D(float x, float y, float z)
 	return v;
 }
 
+
 Vector3Dint create_Vector3Dint( int x, int y, int z )
 {
 	Vector3Dint v;
@@ -840,6 +853,16 @@ Vector3D load_Vector3D_from_file(string filepath)
 	}
 
 	return v;
+}
+
+bool is_defined(float f)
+{
+	return (f>=0||f<0)? true:false;
+}
+
+bool is_defined(Vector3D v)
+{
+	return ( is_defined(v[0])&&is_defined(v[1])&&is_defined(v[2]) )?true:false;
 }
 
 int get_coord_from_dir(int x, int y, int z, int dir)

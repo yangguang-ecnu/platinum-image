@@ -889,6 +889,34 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::draw_line_2D(int x0, int y0, int x1, int 
 	//this->image_has_changed();
 	}
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::draw_line_3D(Vector3Dint from_vox, Vector3Dint to_vox, ELEMTYPE value)
+{
+	float n = max( max(this->nx(),this->ny()), this->nz() );
+	Vector3Dint diff = (to_vox - from_vox);
+	Vector3D delta;
+	delta[0] = float(diff[0])/(n+1.0);
+	delta[1] = float(diff[1])/(n+1.0);
+	delta[2] = float(diff[2])/(n+1.0);
+	for(float i=0;i<n+1;i++){
+		this->set_voxel( from_vox[0]+delta[0]*i, from_vox[1]+delta[1]*i, from_vox[2]+delta[2]*i, value);
+	}
+}
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::draw_line_3D(line3D line, ELEMTYPE value)
+{
+	Vector3Dint v1;
+	Vector3Dint v2;
+	this->get_line_intersection_voxels(line, v1, v2);
+	cout<<"v1="<<v1<<endl;
+	cout<<"v2="<<v2<<endl;
+	if(v2[0]>=0){
+		this->draw_line_3D(v1,v2,value);
+	}
+}
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 bool image_scalar<ELEMTYPE, IMAGEDIM>::row_sum_threshold(int* res, ELEMTYPE low_thr, ELEMTYPE high_thr, int row_direction, int z_direction, int first_slice, int last_slice)
 	{
