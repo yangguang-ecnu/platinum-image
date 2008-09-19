@@ -118,6 +118,9 @@ public:
 
 	void least_square_fit_line_to_points_in_3D(vector<Vector3D> points, int dir);
 
+	friend std::ostream &operator<<(std::ostream &ut, const line3D &l);
+
+
 protected:
 	Vector3D point;
 	Vector3D direction;
@@ -144,6 +147,8 @@ public:
 	Vector3D get_point_of_intersection(line3D line);
 	line3D get_line_of_intersection(plane3D plane);
 	line2D get_projected_line(line3D line);
+
+	friend std::ostream &operator<<(std::ostream &ut, const plane3D &p);
 
 protected:
 	Vector3D point;
@@ -392,6 +397,9 @@ Vector2D create_Vector2D(float x, float y);
 Vector2Dint create_Vector2Dint(int x, int y);
 void save_Vector3D_to_file(Vector3D v,string filepath);
 Vector3D load_Vector3D_from_file(string filepath);
+bool is_defined(float f);
+bool is_defined(Vector3D v);
+
 int get_coord_from_dir(int x, int y, int z, int dir);
 Vector3D get_mean_Vector3D(vector<Vector3D> v);
 string Vector3D2str(Vector3D v);

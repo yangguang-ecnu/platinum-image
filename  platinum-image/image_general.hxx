@@ -812,10 +812,13 @@ template <class ELEMTYPE, int IMAGEDIM>
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::rotate_geometry_around_center_voxel(int fi_z_deg, int fi_y_deg, int fi_x_deg)
+void image_general<ELEMTYPE, IMAGEDIM>::rotate_geometry_around_center_voxel(int fi_x_deg, int fi_y_deg, int fi_z_deg)
 {
-	cout<<"rotate_geometry_around_center_voxel..."<<endl;
-
+	cout<<"rotate_geometry_around_center_voxel...TODO"<<endl;
+	Vector3D old_phys_center = this->get_physical_center();
+	this->rotate_orientation(fi_x_deg,fi_y_deg,fi_z_deg);
+	Vector3D new_phys_center = this->get_physical_center();
+	this->set_origin( this->get_origin()-(new_phys_center-old_phys_center) );
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -1556,6 +1559,96 @@ Vector3Dint image_general<ELEMTYPE, IMAGEDIM>::get_voxelpos_integers_from_physic
 	}
 
 template <class ELEMTYPE, int IMAGEDIM>
+plane3D image_general<ELEMTYPE, IMAGEDIM>::get_plane_spanning_volume3D(int plane_id)
+{
+	plane3D p;
+	if(plane_id==0 || plane_id==1 || plane_id==2){
+		p = plane3D(this->get_origin(),-this->get_phys_dir_from_axis_dir(plane_id));
+	}else{
+		p = plane3D(this->get_phys_pos_of_corner(6),this->get_phys_dir_from_axis_dir(plane_id-3));
+	}
+
+	return p;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3Dint image_general<ELEMTYPE, IMAGEDIM>::get_line_intersection_with_plane_spanning_volume3D(line3D l, int plane_id)
+{
+	Vector3Dint res = create_Vector3Dint(-1,-1,-1);
+
+	plane3D plane = this->get_plane_spanning_volume3D(plane_id);
+	Vector3D intersect = plane.get_point_of_intersection(l);
+//	cout<<"intersect="<<intersect<<endl;
+	if(is_defined(intersect)){
+//		cout<<"defined...."<<endl;
+		Vector3D corner1 = this->get_origin();
+		Vector3D corner2 = this->get_phys_pos_of_corner(6);
+		Vector3D dir_1;
+		Vector3D dir_2;
+		if(plane_id==0||plane_id==3){
+			dir_1 = this->get_phys_dir_from_axis_dir(1);
+			dir_2 = this->get_phys_dir_from_axis_dir(2);
+		}
+		else if(plane_id==1||plane_id==4){
+			dir_1 = this->get_phys_dir_from_axis_dir(0);
+			dir_2 = this->get_phys_dir_from_axis_dir(2);
+		}
+		else{//(plane_id==2||plane_id==5){
+			dir_1 = this->get_phys_dir_from_axis_dir(0);
+			dir_2 = this->get_phys_dir_from_axis_dir(1);
+		}
+		
+		float a = (intersect-corner1)*dir_1;
+		float b = (intersect-corner1)*dir_2;
+		float c = (intersect-corner2)*(-dir_1);
+		float d = (intersect-corner2)*(-dir_2);
+//		cout<<"a="<<a<<endl;
+//		cout<<"b="<<b<<endl;
+//		cout<<"c="<<c<<endl;
+//		cout<<"d="<<d<<endl;
+		if(a>0 && b>0 && c>0 && d>0){
+//			this->print_geometry();
+			res = this->world_to_voxel(intersect);
+		}
+	}
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::get_line_intersection_voxels(line3D l, Vector3Dint &v1, Vector3Dint &v2)
+{
+	Vector3Dint vox;
+	bool v1_set=false;
+	bool v2_set=false;
+
+	for(int i=0;i<6;i++){
+		if(!v2_set){
+			vox = this->get_line_intersection_with_plane_spanning_volume3D(l,i);
+			if(vox[0]>=0){
+				if(!v1_set){
+					v1 = vox;
+					v1_set=true;
+				}else{ // We already know that v2_set is not set "here"!
+					v2 = vox;
+					v2_set=true;
+				}
+			}
+		}
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+vector<plane3D> image_general<ELEMTYPE, IMAGEDIM>::get_planes_spanning_volume3D()
+{
+	vector<plane3D> v;
+	Matrix3D m = this->get_orientation();
+//	plane3D p = plane3D(this->get_origin(),this->get_orientation()* //JK TODO
+	return v;
+}
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel(int x, int y, int z) const
     {
     return this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z];
@@ -1719,6 +1812,19 @@ float image_general<ELEMTYPE, IMAGEDIM>::get_phys_span_in_dir(Vector3D dir)
 	return max_dist-min_dist;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_phys_dir_from_axis_dir(int dir)
+{
+	Vector3D phys;
+	if(dir==0){
+		phys = this->get_orientation()*create_Vector3D(1,0,0);
+	}else if(dir==1){
+		phys = this->get_orientation()*create_Vector3D(0,1,0);
+	}else if(dir==2){
+		phys = this->get_orientation()*create_Vector3D(0,0,1);
+	}
+	return phys;
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel(int x, int y, int z, ELEMTYPE voxelvalue)

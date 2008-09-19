@@ -146,6 +146,8 @@ public:
 
     image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high=std::numeric_limits<ELEMTYPE>::max(), IMGBINARYTYPE true_inside_threshold=true); ///Return a image_binary where all voxels with values between low and high gets the value true_inside_threshold.
 	void draw_line_2D(int x0, int y0, int x1, int y1, int z, ELEMTYPE value, int direction=2); ///Draw a line between (x0,y0) and (x1,y1) in plane z using color described by value. The coordinates are given on the plane orthogonal to the axis given by direction.
+	void draw_line_3D(Vector3Dint from_vox, Vector3Dint to_vox, ELEMTYPE value); 
+	void draw_line_3D(line3D line, ELEMTYPE value); 
 	bool row_sum_threshold(int* res, ELEMTYPE low_thr, ELEMTYPE high_thr, int row_direction=0, int z_direction=2, int first_slice=-1, int last_slice=-1); ///Compute optimal split level for each slice
     void mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value=TRUE, ELEMTYPE blank=0); ///All voxels in the current image where the corresponding mask voxels != object_value are set to blank.
     void mask_out(int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, ELEMTYPE blank=0); ///All voxels within the given sub-volume are set to blank.
@@ -242,7 +244,7 @@ public:
 	//------------------- Functions using voxel_set class ----------------------
 	voxel_set<ELEMTYPE> get_voxel_set_from_image_data_3D();
 	voxel_set<ELEMTYPE> get_voxel_set_from_image_data_3D(ELEMTYPE exclude_value);
-//	voxel get_median_voxel_3D(ELEMTYPE *exclude_value=NULL);
+	ELEMTYPE get_median_voxel_value_3D(ELEMTYPE exclude_value);
 
 	voxel_set<ELEMTYPE> set_val_to_voxel_that_has_no_neighbour_with_val_in_vox_radius(int radius, Vector3Dint pos, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val);
 	voxel_set<ELEMTYPE> set_val_to_voxel_that_has_some_neighbour_with_val_in_vox_radius(int radius, Vector3Dint pos, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val);

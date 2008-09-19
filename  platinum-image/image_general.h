@@ -161,6 +161,10 @@ class image_general : public image_storage <ELEMTYPE >
 		bool is_voxelpos_inside_image_border_3D(Vector3D vp, int dist=1);  
 		bool is_physical_pos_within_image_3D(Vector3D phys_pos);
 		Vector3Dint get_voxelpos_integers_from_physical_pos_3D(Vector3D phys_pos);	//truncation is performed in this function.
+		plane3D get_plane_spanning_volume3D(int plane_id);
+		Vector3Dint get_line_intersection_with_plane_spanning_volume3D(line3D l, int plane_id);
+		void get_line_intersection_voxels(line3D l, Vector3Dint &v1, Vector3Dint &v2);
+		vector<plane3D> get_planes_spanning_volume3D();	//normals point outwards...
 
 
         // *** element access methods ***
@@ -177,6 +181,7 @@ class image_general : public image_storage <ELEMTYPE >
 		Vector3D get_physical_pos_for_voxel(int x, int y, int z);
 		float get_physical_distance_between_voxels(int x1, int y1, int z1, int x2, int y2, int z2);
 		float get_phys_span_in_dir(Vector3D dir); //return the largest physical image span in dir...
+		Vector3D get_phys_dir_from_axis_dir(int dir); //return the physical direction of x/y/z axis...
 
         RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>) const;
         virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
@@ -226,7 +231,7 @@ class image_general : public image_storage <ELEMTYPE >
         const Vector3D get_voxel_size() const;       //return voxel size
 		void set_voxel_size(const Vector3D v);
         Matrix3D get_voxel_resize () const;           //return voxel size as matrix
-		void rotate_geometry_around_center_voxel(int fi_z_deg, int fi_y_deg, int fi_x_deg);
+		void rotate_geometry_around_center_voxel(int fi_x_deg, int fi_y_deg, int fi_z_deg);
 
 		virtual image_base* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, ELEMTYPE value=0);	
 		virtual image_base* expand_borders2D_by_dir(int dir, unsigned int dr=1, ELEMTYPE value=0);	

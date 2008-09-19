@@ -61,14 +61,16 @@ voxel_set<ELEMTYPE> image_scalar<ELEMTYPE, IMAGEDIM>::get_voxel_set_from_image_d
 	return vs;
 }
 	 
-/*
+
 template <class ELEMTYPE, int IMAGEDIM>
-voxel image_scalar<ELEMTYPE, IMAGEDIM>::get_median_voxel_3D(ELEMTYPE *exclude_value)
+ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_median_voxel_value_3D(ELEMTYPE exclude_value)
 {
-	voxel_set vs = get_voxel_set_from_image_data_3D(
-	vs.get_median_voxel();
+	voxel_set<ELEMTYPE> vs = this->get_voxel_set_from_image_data_3D(exclude_value);
+	cout<<"num_voxels_in_median_calculation..."<<vs.size()<<endl;
+	return vs.get_median_voxel()->value;
+//	return -1;
 }
-*/
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 voxel_set<ELEMTYPE> image_scalar<ELEMTYPE, IMAGEDIM>::set_val_to_voxel_that_has_no_neighbour_with_val_in_vox_radius(int radius, Vector3Dint pos, ELEMTYPE from_val, ELEMTYPE to_val, ELEMTYPE nb_val)
