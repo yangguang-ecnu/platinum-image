@@ -900,8 +900,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::draw_line_2D(int x0, int y0, int x1, int 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::draw_line_3D(Vector3Dint from_vox, Vector3Dint to_vox, ELEMTYPE value)
 {
-	float n = max( max(this->nx(),this->ny()), this->nz() );
 	Vector3Dint diff = (to_vox - from_vox);
+	float n = max( max(diff[0],diff[1]), diff[2] );
 	Vector3D delta;
 	delta[0] = float(diff[0])/(n+1.0);
 	delta[1] = float(diff[1])/(n+1.0);
@@ -910,6 +910,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::draw_line_3D(Vector3Dint from_vox, Vector
 		this->set_voxel( from_vox[0]+delta[0]*i, from_vox[1]+delta[1]*i, from_vox[2]+delta[2]*i, value);
 	}
 }
+
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::draw_line_3D(line3D line, ELEMTYPE value)
 {

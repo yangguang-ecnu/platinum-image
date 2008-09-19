@@ -160,8 +160,13 @@ int FLTK_VTK_pane::handle(int event)
 		{			
 			cout<<"right arrow-..."<<endl;
 
-			vtkRenderWindowInteractor *iren = reinterpret_cast<vtkRenderWindowInteractor*>(this);
-			//vtkCamera *camera =( reinterpret_cast<vtkRendererCollection*>(iren->GetRenderWindow()->GetRenderers()) )->GetFirstRenderer()->GetActiveCamera();
+//			vtkRenderWindowInteractor *iren = reinterpret_cast<vtkRenderWindowInteractor*>(fl_vtk_window);
+			cout<<"right arrow-..."<<fl_vtk_window->GetMTime()<<endl;
+			vtkRenderer *ren = ( reinterpret_cast<vtkRendererCollection*>(fl_vtk_window->GetRenderWindow()->GetRenderers()) )->GetFirstRenderer();
+			vtkCamera *camera = ren->GetActiveCamera();
+
+
+//			vtkCamera *camera =( reinterpret_cast<vtkRendererCollection*>(iren->GetRenderWindow()->GetRenderers()) )->GetFirstRenderer()->GetActiveCamera();
 			
 			//fastnar vid innan vtkCamera m texten:
 			/* - - - Run-Time Check Failure #0 - - -
@@ -170,8 +175,42 @@ int FLTK_VTK_pane::handle(int event)
 			calling convention with a function pointer declared with a different 
 			calling convention. */
 
-			//camera->Azimuth(30);
-			//iren->GetRenderWindow()->Render();
+//			camera->Azimuth(30);
+//			fl_vtk_window->GetRenderWindow()->Render();
+
+			int eventPos[2];
+			fl_vtk_window->GetEventPosition(eventPos[0], eventPos[1]); //view coordinates
+			cout << "fl_vtk_window->GetEventPosition = [" << eventPos[0] << ", " << eventPos[1] << "]" << endl;
+
+			double displayPos[3];
+			displayPos[0] = eventPos[0];
+			displayPos[1] = eventPos[1];
+			displayPos[2] = 0;
+
+			//display2world
+			ren->SetDisplayPoint(displayPos);
+			double worldP_2[4];
+			ren->DisplayToWorld();
+			ren->GetWorldPoint(worldP_2);
+			cout << "ren worldP_2 (display) = [" << worldP_2[0] << ", " << worldP_2[1] << ", " << worldP_2[2] << ", " << worldP_2[3] << "]" << endl;
+
+			double direction[3];
+			camera->GetDirectionOfProjection(direction);
+
+
+			image_base *im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
+			image_scalar<unsigned short,3> *im2 = dynamic_cast<image_scalar<unsigned short,3>* >(im);
+
+			if(im2!=NULL){
+				cout<<"jippie"<<endl;
+				line3D line = line3D(worldP_2[0],worldP_2[1],worldP_2[2],direction[0],direction[1],direction[2]);
+				Vector3D max_pos = im2->get_phys_pos_of_max_intensity_along(line);
+				cout<<"max_pos="<<max_pos<<endl;
+				im2->draw_line_3D(line,500);
+
+				viewmanagement.zoom_specific_vp(5, max_pos, ZOOM_CONSTANT/50 );
+			}
+
 
 			ret = 1;
 		}

@@ -1646,6 +1646,46 @@ vector<plane3D> image_general<ELEMTYPE, IMAGEDIM>::get_planes_spanning_volume3D(
 	return v;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_phys_pos_of_max_intensity_between(Vector3Dint from_vox, Vector3Dint to_vox)
+{
+	Vector3Dint diff = (to_vox - from_vox);
+	float n = max( max(diff[0],diff[1]), diff[2] );
+	Vector3D delta;
+	delta[0] = float(diff[0])/(n+1.0);
+	delta[1] = float(diff[1])/(n+1.0);
+	delta[2] = float(diff[2])/(n+1.0);
+
+	Vector3D max_pos;
+	ELEMTYPE max_intensity = std::numeric_limits<ELEMTYPE>::min();
+	ELEMTYPE tmp;
+	for(float i=0;i<n+1;i++){
+		tmp = this->get_voxel( from_vox[0]+delta[0]*i, from_vox[1]+delta[1]*i, from_vox[2]+delta[2]*i);
+		if(tmp>max_intensity){
+			max_intensity = tmp;
+			max_pos = this->voxel_to_world( create_Vector3D(from_vox[0]+delta[0]*i, from_vox[1]+delta[1]*i, from_vox[2]+delta[2]*i) );
+		}
+	}
+
+	return max_pos;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_phys_pos_of_max_intensity_along(line3D line)
+{
+	Vector3D pos;
+
+	Vector3Dint v1;
+	Vector3Dint v2;
+	this->get_line_intersection_voxels(line, v1, v2);
+	cout<<"v1="<<v1<<endl;
+	cout<<"v2="<<v2<<endl;
+	if(v2[0]>=0){
+		pos = this->get_phys_pos_of_max_intensity_between(v1,v2);
+	}
+
+	return pos;
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
