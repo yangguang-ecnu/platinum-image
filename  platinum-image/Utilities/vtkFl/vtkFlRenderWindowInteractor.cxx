@@ -281,6 +281,7 @@ int vtkFlRenderWindowInteractor::handle( int event ) {
         this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);        
         this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
         this->InvokeEvent(vtkCommand::CharEvent, NULL);
+
 #else
         // old style
 	InteractorStyle->OnChar(Fl::event_state( FL_CTRL ), Fl::event_state( FL_SHIFT ), Fl::event_key(), 1);

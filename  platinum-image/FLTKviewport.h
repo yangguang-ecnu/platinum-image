@@ -106,12 +106,15 @@
 #include "vtkDataSetMapper.h"
 #include "vtkCamera.h" //SO
 #include "vtkInteractorStyleSwitch.h" //SO
+#include "vtkPointPicker.h" //SO
+#include "vtkCommand.h" //SO
+#include "vtkRendererCollection.h" //SO
 
 #include "vtkImageReader.h"
+
 //#include "itkImageToImageFilter.h"
 //#include "itkVTKImageImport.h"
 //#include "itkVTKImageExport.h"
-
 //#include "Utilities/itkImageToVTKImageFilter.h"
 //#include "Utilities/vtkITKImageToImageFilter.h"
 
@@ -230,6 +233,26 @@ class FLTK_VTK_MIP_pane : public FLTK_VTK_pane
 		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
             {return "FLTK_VTK_MIP_pane";}
 };
+
+//--------------------------------------------------------
+//------------TILLFÄLLIG PLACERING-------------------/SO--
+//--------------------------------------------------------
+//vtkWorldPointPicker *w_picker;
+
+
+class PickPosCommand : public vtkCommand
+{
+public:
+	static PickPosCommand *New(); //static
+	void Delete(); 
+	virtual void Execute(vtkObject *caller, unsigned long eid, void *callData);
+
+};
+
+//--------------------------------------------------------
+//--------------------------------------------------------
+//--------------------------------------------------------
+
 
 /*
 class FLTKpane2 : public FLTKpane
