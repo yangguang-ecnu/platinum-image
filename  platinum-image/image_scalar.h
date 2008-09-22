@@ -145,7 +145,10 @@ public:
 	image_scalar<ELEMTYPE, IMAGEDIM>* crop_and_return_3D(image_binary<3> *mask);
 	//... get_sub_region(...)
 
-    image_binary<IMAGEDIM> * threshold(ELEMTYPE low, ELEMTYPE high=std::numeric_limits<ELEMTYPE>::max(), IMGBINARYTYPE true_inside_threshold=true); ///Return a image_binary where all voxels with values between low and high gets the value true_inside_threshold.
+	ELEMTYPE get_max_in_slice3D(int slice, int dir=2);
+
+    image_binary<IMAGEDIM> *threshold(ELEMTYPE low, ELEMTYPE high=std::numeric_limits<ELEMTYPE>::max(), IMGBINARYTYPE true_inside_threshold=true); ///Return a image_binary where all voxels with values between low and high gets the value true_inside_threshold.
+    image_binary<IMAGEDIM> *threshold_slice_wise_with_slice_max_offsets(ELEMTYPE thres_min, ELEMTYPE max_offset=-1, int dir=2, IMGBINARYTYPE true_inside_threshold=true, ELEMTYPE high=std::numeric_limits<ELEMTYPE>::max()); ///Return a image_binary where slice-voxels with values between "max(low ,val+offset)" and high gets the value true_inside_threshold.
 	void draw_line_2D(int x0, int y0, int x1, int y1, int z, ELEMTYPE value, int direction=2); ///Draw a line between (x0,y0) and (x1,y1) in plane z using color described by value. The coordinates are given on the plane orthogonal to the axis given by direction.
 	void draw_line_3D(Vector3Dint from_vox, Vector3Dint to_vox, ELEMTYPE value); 
 	void draw_line_3D(line3D line, ELEMTYPE value); 
@@ -188,6 +191,10 @@ public:
 	void region_grow_robust_in_slice_3D(image_binary<3>* result, stack<Vector2Dint> seeds, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=8, int radius=1, int slice=0, int dir=2);
 	image_binary<IMAGEDIM>* region_grow_robust_3D(Vector3Dint seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
 
+	//JK2
+	void region_grow_declining_in_slice_3D(image_binary<3>* result, image_binary<3>* seed_image, ELEMTYPE min_intensity, int slice, int dir=2);
+	void region_grow_declining_in_slice_3D(image_binary<3>* result, stack<Vector2Dint> seeds, ELEMTYPE min_intensity, int slice, int dir=2);
+
 	Vector3D get_center_of_gravity(ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(),  SPACE_TYPE type = VOXEL_SPACE);
 	Vector3D get_in_slice_center_of_gravity_in_dir(int dir, int slice, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(),  SPACE_TYPE type = VOXEL_SPACE);
 	vector<Vector3D> get_in_slice_center_of_gravities_in_dir(int dir, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(), SPACE_TYPE type = VOXEL_SPACE);
@@ -197,6 +204,9 @@ public:
 	Vector3D get_pos_of_lowest_value_in_region(int x1, int y1, int z1, int x2, int y2, int z2, ELEMTYPE lower_limit=std::numeric_limits<ELEMTYPE>::min());
 	Vector3D get_pos_of_lowest_value_in_region(Vector3D from_pos, Vector3D to_pos, ELEMTYPE lower_limit=std::numeric_limits<ELEMTYPE>::min());
 	Vector3D get_pos_of_lowest_value(ELEMTYPE lower_limit=std::numeric_limits<ELEMTYPE>::min());
+
+	vector<Vector3Dint> get_voxel_positions_from_values_greater_than_3D(ELEMTYPE val=0);
+	vector<Vector3Dint> get_voxel_positions_in_slice_from_values_greater_than_3D(int slice, int dir=2, ELEMTYPE val=0);
 
 	image_scalar<ELEMTYPE, IMAGEDIM>* correct_inclined_object_slicewise_after_cg_line(int dir, line3D cg_line, SPACE_TYPE type = VOXEL_SPACE);
 

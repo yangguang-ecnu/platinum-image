@@ -2360,3 +2360,43 @@ float image_binary<IMAGEDIM>::mutual_overlap_3D(image_binary<IMAGEDIM>* second_i
 		return 0;
 }
 
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::appl_crude_abdominal_artifact_removal()
+{
+	cout<<"appl_crude_abdominal_artifact_removal..."<<endl;
+	image_integer<short,3> *dist = this->distance_345_3D();
+	dist->data_has_changed();
+
+	image_binary<3>* seed = dist->threshold_slice_wise_with_slice_max_offsets(1,-1,1);
+	seed->data_has_changed();
+	seed->name("seed");
+
+	image_binary<3> *res = new image_binary<3>(this,0);
+	res->fill(false);
+
+	for(int y=0; y<res->ny(); y++){
+		dist->region_grow_declining_in_slice_3D(res,seed,0,y,1);
+	}
+
+	res->dilate_3D();
+	res->erode_3D();
+	res->erode_3D();
+	res->dilate_3D();
+	res->dilate_3D();
+	res->dilate_3D();
+	res->convex_hull_line_filling_3D(0);
+	res->convex_hull_line_filling_3D(2);
+
+	res->name("res");
+	res->data_has_changed();
+
+//	datamanagement.add(dist,"dist");
+//	datamanagement.add(seed,"seed");
+//	datamanagement.add(res,"res");
+
+	copy_data(res,this);
+	delete dist;
+	delete seed;
+	delete res;
+}

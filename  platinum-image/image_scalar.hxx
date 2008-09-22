@@ -806,6 +806,39 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::crop_and_ret
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_max_in_slice3D(int slice, int dir)
+{
+	ELEMTYPE max = std::numeric_limits<ELEMTYPE>::min();
+
+	if(dir==2){			
+		for(int y=0; y<this->ny(); y++){
+			for(int x=0; x<this->nx(); x++){
+				if(this->get_voxel(x,y,slice)>max){
+					max = this->get_voxel(x,y,slice);
+				}
+			}
+		}
+	}else if(dir ==1){
+		for(int z=0; z<this->nz(); z++){
+			for(int x=0; x<this->nx(); x++){
+				if(this->get_voxel(x,slice,z)>max){
+					max = this->get_voxel(x,slice,z);
+				}
+			}
+		}
+	}else{
+		for(int z=0; z<this->nz(); z++){
+			for(int y=0; y<this->ny(); y++){
+				if(this->get_voxel(slice,y,z)>max){
+					max = this->get_voxel(slice,y,z);
+				}
+			}
+		}
+	}
+	 return max;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::crop_3D(image_binary<3> *mask)
 {
 	if(this->same_size(mask)){
@@ -826,9 +859,9 @@ image_binary<IMAGEDIM> * image_scalar<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE lo
 	{
     image_binary<IMAGEDIM> * output = new image_binary<IMAGEDIM> (this,false);
         
-    typename image_storage<ELEMTYPE >::iterator i = this->begin();
-    typename image_binary<IMAGEDIM>::iterator o = output->begin();
-    
+	typename image_storage<ELEMTYPE>::iterator i = this->begin();
+	typename image_binary<IMAGEDIM>::iterator o = output->begin();
+
     while (i != this->end()) //images are same size and should necessarily end at the same time
         {
         if(*i>=low && *i<=high)
@@ -842,6 +875,32 @@ image_binary<IMAGEDIM> * image_scalar<ELEMTYPE, IMAGEDIM>::threshold(ELEMTYPE lo
 	output->set_parameters(this);
     return output;
 	}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::threshold_slice_wise_with_slice_max_offsets(ELEMTYPE thres_min, ELEMTYPE max_offset, int dir, IMGBINARYTYPE true_inside_threshold, ELEMTYPE high)
+{
+    image_binary<IMAGEDIM> *output = new image_binary<IMAGEDIM>(this,false);
+	ELEMTYPE val;
+	ELEMTYPE slice_max;
+	ELEMTYPE slice_thres;
+	for(int w=0; w<this->get_size_by_dim_and_dir(2,dir); w++){
+		slice_max = this->get_max_in_slice3D(w,dir);
+		slice_thres = std::max<ELEMTYPE>(ELEMTYPE(slice_max+max_offset),thres_min);
+
+		for(int v=0; v<this->get_size_by_dim_and_dir(1,dir); v++){
+			for(int u=0; u<this->get_size_by_dim_and_dir(0,dir); u++){
+				val = this->get_voxel_by_dir(u,v,w,dir);
+				if( (val>=slice_thres) && (val<=high) ){
+					output->set_voxel_by_dir(u, v, w, true_inside_threshold, dir);
+				}else{
+					output->set_voxel_by_dir(u, v, w, !true_inside_threshold, dir);
+				}
+			}
+		}
+	}
+	return output;
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>	
 void image_scalar<ELEMTYPE, IMAGEDIM>::draw_line_2D(int x0, int y0, int x1, int y1, int z, ELEMTYPE value, int direction)
@@ -2072,6 +2131,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_in_slice_3D(image_bina
 //	return res;
 //}
 
+
+
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(Vector3Dint seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity, int nr_accepted_neighbours, int radius)
 {
@@ -2132,6 +2193,64 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(
 	cout<<"DONE"<<endl;
 	delete neighb;
 	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_declining_in_slice_3D(image_binary<3>* result, image_binary<3>* seed_image, ELEMTYPE min_intensity, int slice, int dir)
+{
+	stack<Vector2Dint> s;
+
+	for(int u=0; u<seed_image->get_size_by_dim_and_dir(0,dir); u++){
+		for(int v=0; v<seed_image->get_size_by_dim_and_dir(1,dir); v++){
+			if(seed_image->get_voxel_by_dir(u,v,slice,dir)){
+				s.push(create_Vector2Dint(u,v));
+			}
+		}
+	}
+	return region_grow_declining_in_slice_3D(result, s, min_intensity, slice, dir);
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_declining_in_slice_3D(image_binary<3>* result, stack<Vector2Dint> seeds, ELEMTYPE min_intensity, int slice, int dir)
+{
+	pt_error::error_if_false(this->same_size(result), "res must be same size as this in region_grow_declining_in_slice_3D", pt_error::debug);
+//	cout<<"region_grow_declining_in_slice_3D...slice " << slice << "...";
+	
+	int su = this->get_size_by_dim_and_dir(0,dir);
+	int sv = this->get_size_by_dim_and_dir(1,dir);
+	
+	ELEMTYPE val;
+	ELEMTYPE current_val;
+
+	result->fill_region_3D(dir,slice,slice,false);
+	stack<Vector2Dint> seeds2;
+	Vector2Dint pos;
+	Vector2Dint pos2;
+	while(seeds.size()>0){
+		pos = seeds.top();
+		seeds.pop();
+		result->set_voxel_by_dir(pos[0],pos[1],slice,true,dir); 
+		seeds2.push(pos);
+	}
+
+	while(seeds2.size()>0){
+		pos = seeds2.top();
+		seeds2.pop();
+		current_val = this->get_voxel_by_dir(pos[0],pos[1],slice,dir);
+		for(int u=std::max(0,pos[0]-1); u<=std::min(pos[0]+1,su-1); u++){
+			for(int v=std::max(0,pos[1]-1); v<=std::min(pos[1]+1,sv-1); v++){
+				val = this->get_voxel_by_dir(u,v,slice,dir);
+				if(result->get_voxel_by_dir(u,v,slice,dir)==false && val>=min_intensity && val<current_val){
+					pos2[0]=u; pos2[1]=v;
+					seeds2.push(pos2);
+					result->set_voxel_by_dir(u,v,slice,true,dir);	
+				}
+			}//v
+		}//u
+	}//end while
+
+//	cout<<"DONE"<<endl;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -2346,8 +2465,56 @@ Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_lowest_value(ELEMTYPE lowe
 	return get_pos_of_lowest_value_in_region(0,0,0,this->nx()-1,this->ny()-1,this->nz()-1,lower_limit);
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+vector<Vector3Dint> image_scalar<ELEMTYPE, IMAGEDIM>::get_voxel_positions_from_values_greater_than_3D(ELEMTYPE val)
+{
+	vector<Vector3Dint> v;
 
+	for(int x=0; x<this->nx(); x++){
+		for(int y=0; y<this->ny(); y++){
+			for(int z=0; z<this->nz(); z++){
+				if(this->get_voxel(x,y,z)>val){
+					v.push_back(create_Vector3Dint(x,y,z));
+				}
+			}
+		}
+	}
 
+	return v;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+vector<Vector3Dint> image_scalar<ELEMTYPE, IMAGEDIM>::get_voxel_positions_in_slice_from_values_greater_than_3D(int slice, int dir, ELEMTYPE val)
+{
+	vector<Vector3Dint> v;
+	if(dir==2){
+		for(int y=0; y<this->ny(); y++){
+			for(int x=0; x<this->nx(); x++){
+				if(this->get_voxel(x,y,slice)>val){
+					v.push_back(create_Vector3Dint(x,y,slice));
+				}
+			}
+		}
+	}else if(dir==1){
+		for(int z=0; z<this->nz(); z++){
+			for(int x=0; x<this->nx(); x++){
+				if(this->get_voxel(x,slice,z)>val){
+					v.push_back(create_Vector3Dint(x,slice,z));
+				}
+			}
+		}
+	}else{
+		for(int z=0; z<this->nz(); z++){
+			for(int y=0; y<this->ny(); y++){
+				if(this->get_voxel(slice,y,z)>val){
+					v.push_back(create_Vector3Dint(slice,y,z));
+				}
+			}
+		}
+	}
+
+	return v;
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
