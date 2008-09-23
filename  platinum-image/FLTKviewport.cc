@@ -206,7 +206,7 @@ int FLTK_VTK_pane::handle(int event)
 		
 
 			//image_scalar<unsigned short,3> *im2 = dynamic_cast<image_scalar<unsigned short,3>* >(im);
-			image_scalar<signed short,3> *im2 = dynamic_cast<image_scalar<signed short,3>* >(im);
+			image_scalar<unsigned char,3> *im2 = dynamic_cast<image_scalar<unsigned char,3>* >(im);
 			cout << "Image pointer created?" << endl;
 			//cout << "im2 maxvalue (if created) : " << im2->get_max() << endl;
 
@@ -226,19 +226,18 @@ int FLTK_VTK_pane::handle(int event)
 				leta upp bild -> position -> färglägg -> spara
 				*/
 		
-				image_scalar<signed short,3> *testImage = dynamic_cast<image_scalar<signed short,3>* >( rendermanagement.get_top_image_from_renderer(2) );
+//				image_scalar<signed short,3> *testImage = dynamic_cast<image_scalar<signed short,3>* >( rendermanagement.get_top_image_from_renderer(2) );
 				//sätt max_pos i bilden till lämplig intensistet
 				//max_pos är världskoord -> voxel!
 				//max_pos
-				Vector3Dint vox_coord;
-				vox_coord = testImage->get_voxelpos_integers_from_physical_pos_3D(max_pos);
+				Vector3Dint vox_coord = im2->get_voxelpos_integers_from_physical_pos_3D(max_pos);
 				
 				cout << "Setting new voxel values to vox_coord = [" << vox_coord[0] << ", " << vox_coord[1] << ", " << vox_coord[2] << "]" << endl;
 				//for (int i=-5; i=5; i++)
 				//{
 				vox_coord[0]=vox_coord[0];
-				testImage->set_voxel(vox_coord, 1000);
-
+				im2->set_voxel(vox_coord, 255);
+/*
 				vox_coord[0]=vox_coord[0]+1;
 				testImage->set_voxel(vox_coord, 1000);
 
@@ -264,7 +263,7 @@ int FLTK_VTK_pane::handle(int event)
 
 				vox_coord[1]=vox_coord[1]+4;
 				testImage->set_voxel(vox_coord, 1000);
-
+*/
 				//}
 
 				//for (int n=-5; n=5; n++)
@@ -274,7 +273,7 @@ int FLTK_VTK_pane::handle(int event)
 				//testImage->set_voxel(vox_coord, 500);
 				//}
 
-				testImage->save_to_file("C:/Sandra/Data/testImage.vtk");
+//				testImage->save_to_file("C:/Sandra/Data/testImage.vtk");
 
 				//liknande för vp = viewmanagement.get_viewport(4); -bilden
 
@@ -282,11 +281,11 @@ int FLTK_VTK_pane::handle(int event)
 
 
 
-				viewmanagement.zoom_specific_vp(2, max_pos, 0.8 ); //ZOOM_CONSTANT/40
-				viewmanagement.zoom_specific_vp(3, max_pos, 1 );
-				viewmanagement.zoom_specific_vp(4, max_pos, 1 );
-				viewmanagement.zoom_specific_vp(5, max_pos, 0.8 );
-				viewmanagement.zoom_specific_vp(6, max_pos, 0.6 );
+				viewmanagement.zoom_specific_vp(2, max_pos, 0.2 ); //ZOOM_CONSTANT/40
+				viewmanagement.zoom_specific_vp(3, max_pos, 0.2 );
+//				viewmanagement.zoom_specific_vp(4, max_pos, 1 );
+//				viewmanagement.zoom_specific_vp(5, max_pos, 0.8 );
+//				viewmanagement.zoom_specific_vp(6, max_pos, 0.6 );
 				cout << "Should have zoomed by now..." << endl;
 			}
 
