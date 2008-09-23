@@ -149,25 +149,21 @@ int FLTK_VTK_pane::handle(int event)
 	
 	if ( event == FL_KEYDOWN )
 	{				
-		cout<<"key..."<<endl;
+		cout << "Any key press - entering handle()." << endl;
 		if ( Fl::event_key() == FL_Delete )
 		{			
-			cout<<"delete_key-..."<<endl;
+			cout << "Delete_key pressed..." << endl;
 			ret = 1;
 		}
 
 		if ( Fl::event_key() == FL_Right )
 		{			
-			cout<<"right arrow-..."<<endl;
+			cout << "Right arrow pressed..." << endl;
 
 //			vtkRenderWindowInteractor *iren = reinterpret_cast<vtkRenderWindowInteractor*>(fl_vtk_window);
-			cout<<"right arrow-..."<<fl_vtk_window->GetMTime()<<endl;
 			vtkRenderer *ren = ( reinterpret_cast<vtkRendererCollection*>(fl_vtk_window->GetRenderWindow()->GetRenderers()) )->GetFirstRenderer();
 			vtkCamera *camera = ren->GetActiveCamera();
 
-
-//			vtkCamera *camera =( reinterpret_cast<vtkRendererCollection*>(iren->GetRenderWindow()->GetRenderers()) )->GetFirstRenderer()->GetActiveCamera();
-			
 			//fastnar vid innan vtkCamera m texten:
 			/* - - - Run-Time Check Failure #0 - - -
 			The value of ESP was not properly saved across a function call.  
@@ -175,8 +171,12 @@ int FLTK_VTK_pane::handle(int event)
 			calling convention with a function pointer declared with a different 
 			calling convention. */
 
-//			camera->Azimuth(30);
-//			fl_vtk_window->GetRenderWindow()->Render();
+			//Testing - possible to interact?
+			//cout << "Rotating camera 30 degrees..." << endl;
+			//camera->OrthogonalizeViewUp();
+			//camera->Azimuth(30);
+			//fl_vtk_window->GetRenderWindow()->Render();
+			//-------------------------------
 
 			int eventPos[2];
 			fl_vtk_window->GetEventPosition(eventPos[0], eventPos[1]); //view coordinates
@@ -196,19 +196,98 @@ int FLTK_VTK_pane::handle(int event)
 
 			double direction[3];
 			camera->GetDirectionOfProjection(direction);
+			cout << "Direction of projection of the camera: [" << direction[0] << ", " 
+				<< direction[1] << ", " << direction[2] << "]" << endl;
 
-
+			
 			image_base *im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
-			image_scalar<unsigned short,3> *im2 = dynamic_cast<image_scalar<unsigned short,3>* >(im);
+			cout<<"name="<<im->name()<<endl;
+			cout << "im maxvalue (if created) : " << im->get_max_float() << endl;
+		
 
-			if(im2!=NULL){
+			//image_scalar<unsigned short,3> *im2 = dynamic_cast<image_scalar<unsigned short,3>* >(im);
+			image_scalar<signed short,3> *im2 = dynamic_cast<image_scalar<signed short,3>* >(im);
+			cout << "Image pointer created?" << endl;
+			//cout << "im2 maxvalue (if created) : " << im2->get_max() << endl;
+
+			if(im2!=NULL) 
+			{
 				cout<<"jippie"<<endl;
 				line3D line = line3D(worldP_2[0],worldP_2[1],worldP_2[2],direction[0],direction[1],direction[2]);
 				Vector3D max_pos = im2->get_phys_pos_of_max_intensity_along(line);
 				cout<<"max_pos="<<max_pos<<endl;
-				im2->draw_line_3D(line,500);
+				//im2->draw_line_3D(line,500);
 
-				viewmanagement.zoom_specific_vp(5, max_pos, ZOOM_CONSTANT/50 );
+
+
+				//::::::::::::::::::::::::::::::::::::::::::::::::::
+				//Fill voxels around world position:
+				/*
+				leta upp bild -> position -> färglägg -> spara
+				*/
+		
+				image_scalar<signed short,3> *testImage = dynamic_cast<image_scalar<signed short,3>* >( rendermanagement.get_top_image_from_renderer(2) );
+				//sätt max_pos i bilden till lämplig intensistet
+				//max_pos är världskoord -> voxel!
+				//max_pos
+				Vector3Dint vox_coord;
+				vox_coord = testImage->get_voxelpos_integers_from_physical_pos_3D(max_pos);
+				
+				cout << "Setting new voxel values to vox_coord = [" << vox_coord[0] << ", " << vox_coord[1] << ", " << vox_coord[2] << "]" << endl;
+				//for (int i=-5; i=5; i++)
+				//{
+				vox_coord[0]=vox_coord[0];
+				testImage->set_voxel(vox_coord, 1000);
+
+				vox_coord[0]=vox_coord[0]+1;
+				testImage->set_voxel(vox_coord, 1000);
+
+				vox_coord[0]=vox_coord[0]+2;
+				testImage->set_voxel(vox_coord, 1000);
+
+				vox_coord[0]=vox_coord[0]+3;
+				testImage->set_voxel(vox_coord, 1000);
+
+				vox_coord[0]=vox_coord[0]+4;
+				testImage->set_voxel(vox_coord, 1000);
+
+
+
+				vox_coord[1]=vox_coord[1]+1;
+				testImage->set_voxel(vox_coord, 1000);
+
+				vox_coord[1]=vox_coord[1]+2;
+				testImage->set_voxel(vox_coord, 1000);
+
+				vox_coord[1]=vox_coord[1]+3;
+				testImage->set_voxel(vox_coord, 1000);
+
+				vox_coord[1]=vox_coord[1]+4;
+				testImage->set_voxel(vox_coord, 1000);
+
+				//}
+
+				//for (int n=-5; n=5; n++)
+				//{
+				//vox_coord[1]=vox_coord[1]+n;
+				//testImage->set_voxel_in_physical_pos(max_pos, 500); //skriver utanför bilden...
+				//testImage->set_voxel(vox_coord, 500);
+				//}
+
+				testImage->save_to_file("C:/Sandra/Data/testImage.vtk");
+
+				//liknande för vp = viewmanagement.get_viewport(4); -bilden
+
+				//::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+
+				viewmanagement.zoom_specific_vp(2, max_pos, 0.8 ); //ZOOM_CONSTANT/40
+				viewmanagement.zoom_specific_vp(3, max_pos, 1 );
+				viewmanagement.zoom_specific_vp(4, max_pos, 1 );
+				viewmanagement.zoom_specific_vp(5, max_pos, 0.8 );
+				viewmanagement.zoom_specific_vp(6, max_pos, 0.6 );
+				cout << "Should have zoomed by now..." << endl;
 			}
 
 
@@ -1332,7 +1411,7 @@ void FLTKviewport::switch_pane(factoryIdType type)
 	this->pane_widget->show();
 	cout<<"shown()"<<this->pane_widget->shown()<<endl;
 
-	viewmanagement.list_viewports();
+	//viewmanagement.list_viewports();
 }
 
 void FLTKviewport::set_renderer_button_label(factoryIdType type)
