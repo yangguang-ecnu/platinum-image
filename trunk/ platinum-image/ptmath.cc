@@ -888,6 +888,16 @@ Vector3D get_mean_Vector3D(vector<Vector3D> v)
 	return mean;
 }
 
+Vector3Dint get_mean_Vector3Dint(vector<Vector3D> v)
+{
+	Vector3D mean = get_mean_Vector3D(v);
+	Vector3Dint mean_int;
+	mean_int[0] = int(mean[0]);
+	mean_int[1] = int(mean[1]);
+	mean_int[2] = int(mean[2]);
+	return mean_int;
+}
+
 string Vector3D2str(Vector3D v)
 {
 	return "("+float2str(v[0])+","+float2str(v[1])+","+float2str(v[2])+")";

@@ -960,7 +960,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::draw_line_3D(Vector3Dint from_vox, Vector3Dint to_vox, ELEMTYPE value)
 {
 	Vector3Dint diff = (to_vox - from_vox);
-	float n = max( max(diff[0],diff[1]), diff[2] );
+	float n = max( max(abs(diff[0]),abs(diff[1])), abs(diff[2]) );
 	Vector3D delta;
 	delta[0] = float(diff[0])/(n+1.0);
 	delta[1] = float(diff[1])/(n+1.0);
@@ -2043,147 +2043,56 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_in_slice_3D(image_bina
 	delete neighb;
 }
 
-//template <class ELEMTYPE, int IMAGEDIM>
-//image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity, int nr_accepted_neighbours, int radius)
-//{
-//	image_binary<IMAGEDIM> *res = new image_binary<IMAGEDIM>(this,0);
-//	res->fill(false);
-//	res->set_voxel(seed[0],seed[1],seed[2],true);
-//
-//	image_scalar<ELEMTYPE, IMAGEDIM> *neighb = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0);
-//	neighb->fill(0);
-//
-//	int sx = this->datasize[0];
-//	int sy = this->datasize[1];
-//	int sz = this->datasize[2];
-//	cout<<sx<<" "<<sy<<" "<<sz<<endl;
-//	int r = radius;
-//
-//	int* seed2 = new int[3];
-//	int* pos = new int[3];
-//	int* pos2 = new int[3];
-//	seed2[0] = int(seed[0]);
-//	seed2[1] = int(seed[1]);
-//	seed2[2] = int(seed[2]);
-//	stack<int*> s;
-//	s.push(seed2);
-//
-////	stack<Vector3D> s;
-////	s.push(seed);
-////	Vector3D pos;
-////	Vector3D pos2;
-//
-//	ELEMTYPE val;
-//	ELEMTYPE val2;
-//	int nr_acc=0;
-//
-//	while(s.size()>0){
-//		pos = s.top();
-//		s.pop();
-//		val = this->get_voxel(pos[0],pos[1],pos[2]);
-//
-//		if(val>=min_intensity && val<=max_intensity){
-//
-//			for(int x=std::max(0,int(pos[0]-1)); x<=std::min(int(pos[0]+1),sx-1); x++){
-//				for(int y=std::max(0,int(pos[1]-1)); y<=std::min(int(pos[1]+1),sy-1); y++){
-//					for(int z=std::max(0,int(pos[2]-1)); z<=std::min(int(pos[2]+1),sz-1); z++){
-//						val = this->get_voxel(x,y,z);
-//						if(val>=min_intensity && val<=max_intensity && res->get_voxel(x,y,z)==false){
-//
-//							//check number of accepted neighbours...
-//							nr_acc=0;
-//							for(int a=std::max(0,int(x-r)); a<=std::min(int(x+r),sx-1); a++){
-//								for(int b=std::max(0,int(y-r)); b<=std::min(int(y+r),sy-1); b++){
-//									for(int c=std::max(0,int(z-r)); c<=std::min(int(z+r),sz-1); c++){
-//										val2 = this->get_voxel(a,b,c);
-//										if(val2>=min_intensity && val2<=max_intensity){
-//											nr_acc++;
-//										}
-//									}
-//								}
-//							}
-//							neighb->set_voxel(x,y,z,nr_acc);
-//
-//							if(nr_acc>=nr_accepted_neighbours){
-//								pos2[0]=x; pos2[1]=y; pos2[2]=z;
-//								s.push(pos2);
-//								res->set_voxel(x,y,z,true);
-//							}
-//
-//						}//if
-//					}//z
-//				}//y
-//			}//x
-//
-//		}//if val...
-//	}//while
-//
-//	cout<<"region_grow_robust_3D --> Done..."<<endl;
-////	cout<<"s.size()="<<s.size()<<endl;
-////	res->save_to_VTK_file("c:/Joel/TMP/region_grow.vtk");
-//
-//
-////	neighb->save_to_VTK_file("c:/Joel/TMP/region_grow_nr_acc.vtk");
-//	delete neighb;
-//
-////	copy_data(res,this);
-//	//delete res;
-//	return res;
-//}
+
 
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(Vector3Dint seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity, int nr_accepted_neighbours, int radius)
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(stack<Vector3Dint> seeds, ELEMTYPE min_intensity, ELEMTYPE max_intensity, int nr_accepted_neighbours, int radius)
 {
-	cout<<"region_grow_robust_3D...";
 	image_binary<3> *res = new image_binary<3>(this,0); 
 	res->fill(false);
-	res->set_voxel(seed[0],seed[1],seed[2],true);
 
-	int sx = this->get_size_by_dim(0);
-	int sy = this->get_size_by_dim(1);
-	int sz = this->get_size_by_dim(2);
-	cout<<sx<<" "<<sy<<" "<<sz<<endl;
-	
-	ELEMTYPE val;
-
-	image_scalar<unsigned short, 3> *neighb = new image_scalar<unsigned short, 3>(this,0);	
-	neighb->fill(0);
-	for (int x=0; x<sx; x++) {
-		for (int y=0; y<sy; y++) {
-			for (int z=0; z<sz; z++) {
-				val = this->get_voxel(x,y,z);
-				if (val>=min_intensity && val<=max_intensity) {
-					for(int a=std::max(0,int(x-radius)); a<=std::min(int(x+radius),sx-1); a++){
-						for(int b=std::max(0,int(y-radius)); b<=std::min(int(y+radius),sy-1); b++){
-							for(int c=std::max(0,int(z-radius)); c<=std::min(int(z+radius),sz-1); c++){
-								neighb->set_voxel(a,b,c, neighb->get_voxel(a,b,c)+1);
-							}
-						}
-					}
-					neighb->set_voxel(x,y,z,neighb->get_voxel(x,y,z)-1);
-				}
-			}
-		}
-	}
-	
 	stack<Vector3Dint> s;
-	s.push(seed);
 	Vector3Dint pos;
 	Vector3Dint pos2;
+
+	while(seeds.size()>0){
+		pos = seeds.top();
+		seeds.pop();
+		res->set_voxel(pos[0],pos[1],pos[2],true);
+		s.push(pos);
+	}
+
+	int num_acc_nb=0;
+	ELEMTYPE val;
 
 	while(s.size()>0){
 		pos = s.top();
 		s.pop();
-		for(int x=std::max(0,pos[0]-1); x<=std::min(pos[0]+1,sx-1); x++){
-			for(int y=std::max(0,pos[1]-1); y<=std::min(pos[1]+1,sy-1); y++){
-				for(int z=std::max(0,pos[2]-1); z<=std::min(pos[2]+1,sz-1); z++){
+		for(int z=std::max(0,pos[2]-1); z<=std::min(pos[2]+1,this->nz()-1); z++){
+//			cout<<z<<"/"<<min(pos[2]+1,this->nz()-1)<<" ";
+			for(int y=std::max(0,pos[1]-1); y<=std::min(pos[1]+1,this->ny()-1); y++){
+				for(int x=std::max(0,pos[0]-1); x<=std::min(pos[0]+1,this->nx()-1); x++){
 					val = this->get_voxel(x,y,z);
-					if(res->get_voxel(x,y,z)==false && val>=min_intensity && val<=max_intensity && neighb->get_voxel(x,y,z)>=nr_accepted_neighbours){
-						pos2[0]=x; pos2[1]=y; pos2[2]=z;
-						s.push(pos2);
-						res->set_voxel(x,y,z,true);	
+					if(res->get_voxel(x,y,z)==false && val>=min_intensity && val<=max_intensity){
+
+						num_acc_nb=0;
+						for(int c=std::max(0,int(z-radius)); c<=std::min(int(z+radius),this->nz()-1); c++){
+							for(int b=std::max(0,int(y-radius)); b<=std::min(int(y+radius),this->ny()-1); b++){
+								for(int a=std::max(0,int(x-radius)); a<=std::min(int(x+radius),this->nx()-1); a++){
+									val = this->get_voxel(a,b,c);
+									if(val>=min_intensity && val<=max_intensity){
+										num_acc_nb++;
+									}
+								}
+							}
+						}
+						if(num_acc_nb >= nr_accepted_neighbours){
+							pos2[0]=x; pos2[1]=y; pos2[2]=z;
+							s.push(pos2);
+							res->set_voxel(x,y,z,true);	
+						}
 					}
 				}//z
 			}//y
@@ -2191,9 +2100,29 @@ image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(
 	}//end while
 
 	cout<<"DONE"<<endl;
-	delete neighb;
 	return res;
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(Vector3Dint seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity, int nr_accepted_neighbours, int radius)
+{
+	cout<<"region_grow_robust_3D...";
+	stack<Vector3Dint> s;
+	s.push(seed);
+
+	return region_grow_robust_3D(s, min_intensity, max_intensity, nr_accepted_neighbours, radius);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_robust_3D(image_binary<3>* seed_im, ELEMTYPE min_intensity, ELEMTYPE max_intensity, int nr_accepted_neighbours, int radius)
+{
+	cout<<"region_grow_robust_3D...";
+	stack<Vector3Dint> s = seed_im->get_voxel_positions_from_values_greater_than_3D_as_stack(0);
+
+	return region_grow_robust_3D(s, min_intensity, max_intensity, nr_accepted_neighbours, radius);
+}
+
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_declining_in_slice_3D(image_binary<3>* result, image_binary<3>* seed_image, ELEMTYPE min_intensity, int slice, int dir)
@@ -2481,6 +2410,23 @@ vector<Vector3Dint> image_scalar<ELEMTYPE, IMAGEDIM>::get_voxel_positions_from_v
 	}
 
 	return v;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+stack<Vector3Dint> image_scalar<ELEMTYPE, IMAGEDIM>::get_voxel_positions_from_values_greater_than_3D_as_stack(ELEMTYPE val)
+{
+	stack<Vector3Dint> s;
+	for(int x=0; x<this->nx(); x++){
+		for(int y=0; y<this->ny(); y++){
+			for(int z=0; z<this->nz(); z++){
+				if(this->get_voxel(x,y,z)>val){
+					s.push(create_Vector3Dint(x,y,z));
+				}
+			}
+		}
+	}
+	cout<<"s.size()="<<s.size()<<endl;
+	return s;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>

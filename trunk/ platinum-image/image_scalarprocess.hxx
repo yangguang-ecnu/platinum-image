@@ -559,14 +559,17 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 {
 	cout<<"Erode body_mini..."<<endl;
 	image_binary<> *body_mini = new image_binary<>(bin_body);
+	body_mini->name("body_mini");
 	body_mini->erode_3D_26Nbh();
 	body_mini->erode_3D_26Nbh();
 	body_mini->erode_3D_26Nbh();
 	
 	cout<<"Mask body mini,	Threshold, largest object, Convex Hull..."<<endl;
 	image_scalar<ELEMTYPE, IMAGEDIM> *abd = new image_scalar<ELEMTYPE, IMAGEDIM>(this);
+	abd->name("abd");
 	abd->mask_out(body_mini);
 	image_binary<> *vat_mask = abd->threshold(500);
+	vat_mask->name("vat_mask");
 	if(base!=""){
 		vat_mask->save_to_VTK_file(base + "__g00b_convex_hull.vtk");
 	}
@@ -583,11 +586,14 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 	}
 
 	image_binary<> *vat_mask_mini = new image_binary<>(vat_mask);
+	vat_mask_mini->name("vat_mask_mini");
 	vat_mask_mini->erode_2D(6,1);
 
 
 	image_binary<> *sat = abd->threshold(0,500);
+	sat->name("sat");
 	image_binary<> *sat_seed = new image_binary<>(sat);
+	sat_seed->name("sat_seed");
 	sat_seed->mask_out(vat_mask,0);
 	sat_seed->mask_out(bin_body);
 	int x1;

@@ -2052,6 +2052,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(imag
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::fill_region_3D_with_subvolume_image(Vector3Dint to_pos, image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint from_pos, Vector3Dint from_size, ELEMTYPE empty_value)
 {
+	//this->print_geometry();
 	int xx;
 	int yy;
 	int zz = to_pos[2];
@@ -2194,17 +2195,15 @@ void image_general<ELEMTYPE, IMAGEDIM>::translate_slice_3D(int dir, int slice, i
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::translate_slices_to_align_coordinates_3D(vector<Vector3D> coords, int dir, ELEMTYPE empty_value)
+void image_general<ELEMTYPE, IMAGEDIM>::translate_slices_to_align_coordinates_3D(vector<Vector3D> coords, int dir, ELEMTYPE empty_value, bool unalign)
 {
 	image_general<ELEMTYPE, IMAGEDIM> *tmp = new image_general<ELEMTYPE, IMAGEDIM>(this,0);
 	tmp->fill(empty_value);
 
 	//uses the first coordinate in vector as reference and aligns all the other coordinates...		
-	Vector3D mean_coord = create_Vector3D(0,0,0);
-	for(int i=0;i<coords.size();i++){
-		mean_coord += coords[i];
-	}
-	mean_coord = mean_coord/float(coords.size());
+	Vector3D mean_coord = get_mean_Vector3D(coords);
+	cout<<"mean_coord="<<mean_coord<<endl;
+
 	mean_coord[0] = int(mean_coord[0]);
 	mean_coord[1] = int(mean_coord[1]);
 	mean_coord[2] = int(mean_coord[2]);
@@ -2217,6 +2216,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::translate_slices_to_align_coordinates_3D
 		for(int i=1;i<coords.size();i++){
 			du = coords[i][1]-mean_coord[1];
 			dv = coords[i][2]-mean_coord[2];
+			if(unalign){
+				du = -du;
+				dv = -dv;
+			}
 			slice = coords[i][0];
 			tmp->fill_region_3D_with_subvolume_image( create_Vector3Dint(slice,0-du,0-dv), this, create_Vector3Dint(slice,0,0), create_Vector3Dint(1,this->ny(),this->nz()), empty_value );
 		}
@@ -2224,6 +2227,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::translate_slices_to_align_coordinates_3D
 		for(int i=1;i<coords.size();i++){
 			du = coords[i][0]-mean_coord[0];
 			dv = coords[i][2]-mean_coord[2];
+			if(unalign){
+				du = -du;
+				dv = -dv;
+			}
 			slice = coords[i][1];
 			tmp->fill_region_3D_with_subvolume_image( create_Vector3Dint(0-du,slice,0-dv), this, create_Vector3Dint(0,slice,0), create_Vector3Dint(this->nx(),1,this->nz()), empty_value );
 		}
@@ -2231,6 +2238,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::translate_slices_to_align_coordinates_3D
 		for(int i=1;i<coords.size();i++){
 			du = coords[i][0]-mean_coord[0];
 			dv = coords[i][1]-mean_coord[1];
+			if(unalign){
+				du = -du;
+				dv = -dv;
+			}
 			slice = coords[i][2];
 			tmp->fill_region_3D_with_subvolume_image( create_Vector3Dint(0-du,0-dv,slice), this, create_Vector3Dint(0,0,slice), create_Vector3Dint(this->nx(),this->ny(),1), empty_value );
 		}

@@ -2367,6 +2367,7 @@ void image_binary<IMAGEDIM>::appl_crude_abdominal_artifact_removal()
 	cout<<"appl_crude_abdominal_artifact_removal..."<<endl;
 	image_integer<short,3> *dist = this->distance_345_3D();
 	dist->data_has_changed();
+	dist->save_to_file("D:/Joel/TMP/res_dist.vtk"); //JK2
 
 	image_binary<3>* seed = dist->threshold_slice_wise_with_slice_max_offsets(1,-1,1);
 	seed->data_has_changed();
@@ -2379,24 +2380,26 @@ void image_binary<IMAGEDIM>::appl_crude_abdominal_artifact_removal()
 		dist->region_grow_declining_in_slice_3D(res,seed,0,y,1);
 	}
 
+	res->save_to_file("D:/Joel/TMP/res_grown.vtk"); //JK2
 	res->dilate_3D();
 	res->erode_3D();
 	res->erode_3D();
+	res->largest_object_3D();
 	res->dilate_3D();
 	res->dilate_3D();
 	res->dilate_3D();
-	res->convex_hull_line_filling_3D(0);
 	res->convex_hull_line_filling_3D(2);
+	res->convex_hull_line_filling_3D(0);
 
 	res->name("res");
 	res->data_has_changed();
 
-//	datamanagement.add(dist,"dist");
+	datamanagement.add(dist,"dist");
 //	datamanagement.add(seed,"seed");
-//	datamanagement.add(res,"res");
+	datamanagement.add(res,"res");
 
 	copy_data(res,this);
-	delete dist;
+//	delete dist;
 	delete seed;
-	delete res;
+//	delete res;
 }
