@@ -402,6 +402,7 @@ bool is_defined(Vector3D v);
 
 int get_coord_from_dir(int x, int y, int z, int dir);
 Vector3D get_mean_Vector3D(vector<Vector3D> v);
+Vector3Dint get_mean_Vector3Dint(vector<Vector3D> v);
 string Vector3D2str(Vector3D v);
 string bool2str(bool b);
 

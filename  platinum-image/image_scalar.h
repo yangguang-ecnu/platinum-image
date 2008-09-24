@@ -189,7 +189,9 @@ public:
 	void region_grow_robust_in_slice_3D(image_binary<3>* result, Vector2Dint seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=8, int radius=1, int slice=0, int dir=2);
 	void region_grow_robust_in_slice_3D(image_binary<3>* result, image_binary<3>* seed_image, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=8, int radius=1, int slice=0, int dir=2);
 	void region_grow_robust_in_slice_3D(image_binary<3>* result, stack<Vector2Dint> seeds, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=8, int radius=1, int slice=0, int dir=2);
+	image_binary<IMAGEDIM>* region_grow_robust_3D(stack<Vector3Dint> seeds, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
 	image_binary<IMAGEDIM>* region_grow_robust_3D(Vector3Dint seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
+	image_binary<IMAGEDIM>* region_grow_robust_3D(image_binary<3>* seed_im, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max(), int nr_accepted_neighbours=26, int radius=1);
 
 	//JK2
 	void region_grow_declining_in_slice_3D(image_binary<3>* result, image_binary<3>* seed_image, ELEMTYPE min_intensity, int slice, int dir=2);
@@ -206,6 +208,7 @@ public:
 	Vector3D get_pos_of_lowest_value(ELEMTYPE lower_limit=std::numeric_limits<ELEMTYPE>::min());
 
 	vector<Vector3Dint> get_voxel_positions_from_values_greater_than_3D(ELEMTYPE val=0);
+	stack<Vector3Dint> get_voxel_positions_from_values_greater_than_3D_as_stack(ELEMTYPE val=0);
 	vector<Vector3Dint> get_voxel_positions_in_slice_from_values_greater_than_3D(int slice, int dir=2, ELEMTYPE val=0);
 
 	image_scalar<ELEMTYPE, IMAGEDIM>* correct_inclined_object_slicewise_after_cg_line(int dir, line3D cg_line, SPACE_TYPE type = VOXEL_SPACE);
@@ -281,7 +284,7 @@ public:
 
 	//Function for localizing main axis of objects (via 2D center of gravities)... pixels are not weighted by their intensities...
 	float appl_wb_correct_inclination(image_scalar<ELEMTYPE, IMAGEDIM>*fat, image_scalar<ELEMTYPE, IMAGEDIM>*water);
-	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres=3000);
+	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres=30);
 	image_binary<3>* appl_wb_segment_rough_lung_from_sum_image(image_binary<3> *mask, float lung_volume_in_litres=2.5);
 	image_binary<3>* appl_wb_segment_one_lung_from_sum_image(image_binary<3> *thorax_body_mask, float lung_volume_in_litres=2.5, int low_threshold=50);
 	image_binary<3>* appl_wb_segment_both_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres=2.5, int low_threshold=50);

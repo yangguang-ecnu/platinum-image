@@ -1,4 +1,4 @@
-    //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 //
 //   Image_general $Revision$
 ///
@@ -210,7 +210,7 @@ class image_general : public image_storage <ELEMTYPE >
 		void fill_image_border_3D(ELEMTYPE value, int border_thickness=1);
 		void translate_subvolume_3D(Vector3Dint pos, Vector3Dint size, Vector3Dint T, ELEMTYPE empty_value=0);
 		void translate_slice_3D(int dir, int slice, int du, int dv, ELEMTYPE empty_value=0);
-		void translate_slices_to_align_coordinates_3D(vector<Vector3D> coords, int dir, ELEMTYPE empty_value=0);
+		void translate_slices_to_align_coordinates_3D(vector<Vector3D> coords, int dir, ELEMTYPE empty_value=0, bool unalign=false);
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();
