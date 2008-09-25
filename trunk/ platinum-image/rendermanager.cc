@@ -571,6 +571,43 @@ void rendermanager::center3d_and_fit( const int imageID )
 	}
 }
 
+void rendermanager::center3d_and_fill_vp(const int rendererID, const int imageID, const int vpID) //SO
+{
+	image_base * image = datamanagement.get_image(imageID);
+
+//	cout<<"center3d_and_fill_vp..."<<endl;
+    int r_ind = find_renderer_index(rendererID);
+//	cout<<"X="<<renderers[r_ind]->wheretorender->get_X()<<endl;
+//	cout<<"Y="<<renderers[r_ind]->wheretorender->get_Y()<<endl;
+	float phys_span_x = image->get_phys_span_in_dir(renderers[r_ind]->wheretorender->get_X());
+	float phys_span_y = image->get_phys_span_in_dir(renderers[r_ind]->wheretorender->get_Y());
+//	cout<<"phys_span_x="<<phys_span_x<<endl;
+//	cout<<"phys_span_y="<<phys_span_y<<endl;
+	Vector3D world_center = center_of_image(imageID);
+//	cout << "world_center = " << world_center << endl;
+	
+	viewport *vp = viewmanagement.get_viewport(vpID);
+//	cout << "vp width = " << vp->w() << endl;
+//	cout << "vp height = " << vp->h() << endl;
+
+	float rectangular_score;
+
+	if(vp->w()<vp->h())
+	{
+		rectangular_score = vp->h()/vp->w();
+	}
+
+	else
+	{
+		rectangular_score = vp->w()/vp->h();
+	}
+
+	float zoom_factor = ZOOM_CONSTANT/max(phys_span_x,phys_span_y)*rectangular_score;
+	//cout << "zoom_factor = " << zoom_factor << endl;
+
+	viewmanagement.zoom_specific_vp(vpID, world_center, zoom_factor);	
+}
+
 std::vector<int> rendermanager::images_from_combination ( const int combinationID ) 
 {
 	std::vector<int> imageIDs;
