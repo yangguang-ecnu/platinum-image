@@ -20,7 +20,7 @@
 #include "renderer_base.h"
 
 int renderer_base::maxrendererID = 0;
-const float renderer_base::display_scale = 50;  //! number of mm:s to display
+const float renderer_base::display_scale = 50;  //! number of mm:s to display 
                                                 //!across a viewport at zoom 1
 using namespace std;
 

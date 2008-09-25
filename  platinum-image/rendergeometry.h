@@ -48,8 +48,9 @@ class rendergeometry
         Matrix3D dir;               //view to composite image matrix
         //only direction (no scaling) = normal of slice plane
 
-        float zoom;                 //user-determined magnification, multiplied with scale to
-        //obtain the actual rendering scale
+        float zoom;  //user-determined magnification, multiplied with scale to obtain the actual rendering scale
+					//ZOOM_CONSTANT/max(phys_span_x,phys_span_y)*rectangular_score;
+					//rectangular_score = (vp_side_max/vp_side_min) and span = image span, from view direction
 
         Vector3D look_at;           //center viewpoint, this will be the middle of the
 									//rendering and pivot point for the slice direction.

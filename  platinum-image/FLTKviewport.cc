@@ -206,7 +206,7 @@ int FLTK_VTK_pane::handle(int event)
 		
 
 			//image_scalar<unsigned short,3> *im2 = dynamic_cast<image_scalar<unsigned short,3>* >(im);
-			image_scalar<unsigned char,3> *im2 = dynamic_cast<image_scalar<unsigned char,3>* >(im);
+			image_scalar<signed char,3> *im2 = dynamic_cast<image_scalar<signed char,3>* >(im);
 			cout << "Image pointer created?" << endl;
 			//cout << "im2 maxvalue (if created) : " << im2->get_max() << endl;
 
