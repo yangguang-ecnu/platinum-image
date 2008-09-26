@@ -540,7 +540,6 @@ void rendermanager::center2d(const int rendererID, const int imageID)
 
 void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
 {
-
 	image_base * image = datamanagement.get_image(imageID);
 
 //	cout<<"center3d_and_fit..."<<endl;
@@ -549,40 +548,33 @@ void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
 //	cout<<"Y="<<renderers[r_ind]->wheretorender->get_Y()<<endl;
 	float phys_span_x = image->get_phys_span_in_dir(renderers[r_ind]->wheretorender->get_X());
 	float phys_span_y = image->get_phys_span_in_dir(renderers[r_ind]->wheretorender->get_Y());
-//	cout<<"-------------------------------------"<<endl;
-//	cout<<"phys_span_x="<<phys_span_x<<endl;
-//	cout<<"phys_span_y="<<phys_span_y<<endl;
-	Vector3D world_center = center_of_image(imageID);
-//	cout << "world_center = " << world_center << endl;
 	
 	viewport *vp = viewmanagement.get_viewport(rendererID); //JK Warning rendererID and vp_ID might not be the same in the future....
-//	cout << "vp width = " << vp->w() << endl;
-//	cout << "vp height = " << vp->h_pane() << endl;
 
 	float zoom_factor=1;
-	float f=1;
-	float vp_ratio = float(vp->h_pane()) / float(vp->w());
 	float phys_ratio = phys_span_y/phys_span_x;
-//	cout<<"vp_ratio="<<vp_ratio<<endl;
+	float vp_ratio = float(vp->h_pane()) / float(vp->w());
+	float elongation_factor = phys_ratio/vp_ratio;
 //	cout<<"phys_ratio="<<phys_ratio<<endl;
+//	cout<<"vp_ratio="<<vp_ratio<<endl;
 
 	if(vp->h_pane() > vp->w()){
+//		cout<<"vp_high..."<<endl;
+		zoom_factor = ZOOM_CONSTANT/phys_span_x;	//if the viewport is "higher" than it is "wide" --> the physical image span in "x" direction will be limiting...
 		if( phys_ratio > vp_ratio ){
-			zoom_factor = ZOOM_CONSTANT/phys_span_x/phys_ratio*vp_ratio;
-		}
-		else{
-			zoom_factor = ZOOM_CONSTANT/phys_span_x;
+//			cout<<"***"<<endl;
+			zoom_factor /= elongation_factor;		//if the image is more elongated than the viewport... scale with the ration between the "elongated-ness-es"
 		}
 	}else{
-		if( phys_ratio > vp_ratio ){
-			zoom_factor = ZOOM_CONSTANT/phys_span_y;
-		}
-		else{
-			zoom_factor = ZOOM_CONSTANT/phys_span_y*phys_ratio/vp_ratio;
+//		cout<<"vp_wide..."<<endl;
+		zoom_factor = ZOOM_CONSTANT/phys_span_y;  //if the viewport is "wider" than it is "high" --> the physical image span in "y" direction will be limiting...
+		if( phys_ratio < vp_ratio ){
+//			cout<<"***"<<endl;
+			zoom_factor *= elongation_factor;	//if the image is more elongated than the viewport... scale with the ration between the "elongated-ness-es"	
 		}
 	}
 
-	set_geometry(rendererID, world_center, zoom_factor); //JK2
+	set_geometry(rendererID, center_of_image(imageID), zoom_factor); //JK2
 }
 
 void rendermanager::center3d_and_fit( const int imageID )
