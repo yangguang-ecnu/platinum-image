@@ -24,7 +24,9 @@ int rendergeometry::new_rg_ID=1;
 
 Matrix3D rendergeometry::view_to_world_matrix(int viewminsize)
     {
-    return dir*renderer_base::display_scale/(viewminsize*zoom);
+//    return dir*renderer_base::display_scale/(viewminsize*zoom);
+    return dir*ZOOM_CONSTANT/(viewminsize*zoom);
+	
     }
 
 rendergeometry::rendergeometry()
@@ -84,6 +86,7 @@ Vector3D rendergeometry::get_X()
 
 Vector3D rendergeometry::get_Y()
 {
+//	cout<<"get_Y--> dir="<<dir<<endl;
 	return dir * create_Vector3D(0, 1, 0);
 }
 

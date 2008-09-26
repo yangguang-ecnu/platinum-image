@@ -235,7 +235,7 @@ void datamanager::add(image_base * v, string name)
                 if(freeViewportID != NOT_FOUND_ID){
                     int rendererID = viewmanagement.get_renderer_id(freeViewportID);
                     if(rendermanagement.renderer_empty(rendererID)){
-						rendermanagement.center3d_and_fit( rendererID, the_image_id );
+						rendermanagement.center3d_and_fit( rendererID, the_image_id ); //JK
 					}
                     rendermanagement.connect_data_renderer(rendererID,the_image_id);
 				}

@@ -121,7 +121,7 @@ void viewport::set_renderer_direction( const Matrix3D & dir )
     Matrix3D * dir_p = new Matrix3D(dir);
 	
     rendermanagement.set_geometry( rendererIndex, dir_p );
-    
+//    cout<<"vp_id="<<this->ID<<" dir_p="<<dir_p<<endl;
     delete dir_p;
 	
 }
