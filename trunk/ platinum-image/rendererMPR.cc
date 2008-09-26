@@ -246,7 +246,8 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             for(int d=0; d<3; d++)
                 {data_size[d]=the_image_pointer->get_size_by_dim(d);}
             
-            const float scale = rgb_min_norm / display_scale; //constant = the number of mms that should fit inside a viewport at zoom 1
+//            const float scale = rgb_min_norm / display_scale; //constant = the number of mms that should fit inside a viewport at zoom 1
+            const float scale = rgb_min_norm / ZOOM_CONSTANT; //constant = the number of mms that should fit inside a viewport at zoom 1
             
             // *** loop variables common to scanline and orthogonal renderer ***
             

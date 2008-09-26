@@ -206,7 +206,9 @@ void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
 
 #pragma mark *** navigation tool ***
 
-const float nav_tool::wheel_factor=renderer_base::display_scale/10;
+//const float nav_tool::wheel_factor=renderer_base::display_scale/10;
+const float nav_tool::wheel_factor=ZOOM_CONSTANT/10;
+
 const float nav_tool::zoom_factor=0.005;
 
 nav_tool::nav_tool (viewport_event & event):viewporttool(event)

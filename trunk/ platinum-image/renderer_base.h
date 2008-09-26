@@ -51,7 +51,7 @@ const std::string renderer_labels[] = {"MPR renderer"};
 class renderer_base
 {
 public:
-    const static float display_scale;
+//    const static float display_scale;
 protected:
     int identitet;
     

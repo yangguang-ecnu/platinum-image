@@ -20,7 +20,7 @@
 #include "renderer_base.h"
 
 int renderer_base::maxrendererID = 0;
-const float renderer_base::display_scale = 50;  //! number of mm:s to display 
+//const float renderer_base::display_scale = 50;  //! number of mm:s to display 
                                                 //!across a viewport at zoom 1
 using namespace std;
 
@@ -114,8 +114,11 @@ void renderer_base::move_view (int vsize, int pan_x, int pan_y, int pan_z, float
     Vector3D pan;
 
     pan.Fill(0);
-    pan[0]=pan_x*renderer_base::display_scale/(float)(vsize * wheretorender->zoom);
-    pan[1]=pan_y*renderer_base::display_scale/(float)(vsize * wheretorender->zoom);
+	
+//    pan[0]=pan_x*renderer_base::display_scale/(float)(vsize * wheretorender->zoom);
+//    pan[1]=pan_y*renderer_base::display_scale/(float)(vsize * wheretorender->zoom);
+    pan[0]=pan_x*ZOOM_CONSTANT/(float)(vsize * wheretorender->zoom);
+    pan[1]=pan_y*ZOOM_CONSTANT/(float)(vsize * wheretorender->zoom);
     pan[2]=pan_z;
     
 //	cout<<"zoom="<<wheretorender->zoom<<"-->";
