@@ -283,7 +283,8 @@ histogram_1D<ELEMTYPE> * image_storage<ELEMTYPE >::get_histogram()
 template <class ELEMTYPE >
 histogram_1D<ELEMTYPE> *image_storage<ELEMTYPE >::get_histogram_new_with_same_num_buckets_as_intensities()
 {
-	ELEMTYPE minimum=1000, maximum=-1000;
+	ELEMTYPE minimum;
+	ELEMTYPE maximum;
 	this->get_min_max_values(minimum, maximum);
 	return new histogram_1D<ELEMTYPE>(this,int(maximum-minimum));
 }

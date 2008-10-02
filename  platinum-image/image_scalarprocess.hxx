@@ -893,10 +893,10 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_1D_SIM_bias_correction(image_binary<
 		hist = feat1_corr->get_histogram_from_masked_region_3D(mask, num_buckets_feat1);
 		
 		// Calculate force in each bucket: Smooth, normalize and log, then derivate in each direction with sobel filter
-		hist->save_histogram_to_txt_file("D:/Joel/TMP/SIM_hist_" + int2str(iter) + ".txt");
+		hist->save_histogram_to_txt_file("C:/Joel/TMP/SIM_hist_" + int2str(iter) + ".txt");
 		hist->smooth_mean(10,10);
 		hist->data_has_changed();
-		hist->save_histogram_to_txt_file("D:/Joel/TMP/SIM_hist_" + int2str(iter) + "_smooth.txt");
+		hist->save_histogram_to_txt_file("C:/Joel/TMP/SIM_hist_" + int2str(iter) + "_smooth.txt");
 
 		for(int z=0; z<zsize; z++){
 			for(int y=0; y<ysize; y++){
@@ -907,7 +907,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_1D_SIM_bias_correction(image_binary<
 				}
 			}
 		}
-		tmp_field->save_to_file( "D:/Joel/TMP/SIM_fields_" + int2str(iter) + ".vtk" );
+		tmp_field->save_to_file( "C:/Joel/TMP/SIM_fields_" + int2str(iter) + ".vtk" );
 
 
 		// Smooth in each direction
@@ -925,14 +925,14 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_1D_SIM_bias_correction(image_binary<
 		tmp_field->mask_out(mask);
 		float sum = tmp_field->get_sum_of_voxels(std::numeric_limits<float>::min(), true, mask);
 		tmp_field->scale_by_factor( iteration_strength/(sum/bodysize) ); // oklart varfˆr
-		tmp_field->save_to_file( "D:/Joel/TMP/SIM_fields_" + int2str(iter) + "_smooth_scale.vtk" );
+		tmp_field->save_to_file( "C:/Joel/TMP/SIM_fields_" + int2str(iter) + "_smooth_scale.vtk" );
 		field->combine(tmp_field, COMB_ADD);
 		field->data_has_changed();
-		field->save_to_file( "D:/Joel/TMP/SIM_field_sum_" + int2str(iter) + ".vtk" );
+		field->save_to_file( "C:/Joel/TMP/SIM_field_sum_" + int2str(iter) + ".vtk" );
 		field->add_value_to_all_voxels(1,mask);
 		feat1_corr->combine(field, COMB_MULT);
 		feat1_corr->map_negative_values(0);
-		feat1_corr->save_to_file( "D:/Joel/TMP/SIM_feat1_corr_" + int2str(iter) + ".vtk" );
+		feat1_corr->save_to_file( "C:/Joel/TMP/SIM_feat1_corr_" + int2str(iter) + ".vtk" );
 	}
 
 	if(hist!=NULL){
@@ -973,4 +973,17 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::vesselness_test(double hessian_sigma, dou
 
 	//JK - TODO - Copy the rotation info separately....
 	replicate_itk_to_image(caster->GetOutput());
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::appl_scale_outer_slices_using_mean(int dir)
+{
+	float mean0 = this->get_mean_from_slice_3d(dir,0);
+	float mean1 = this->get_mean_from_slice_3d(dir,1);
+	this->scale_slice_by_factor_3d(dir,mean1/mean0,0);
+
+	int nw = this->get_size_by_dim_and_dir(2,dir);
+	mean0 = this->get_mean_from_slice_3d(dir,nw-1);
+	mean1 = this->get_mean_from_slice_3d(dir,nw-2);
+	this->scale_slice_by_factor_3d(dir,mean1/mean0,nw-1);
 }

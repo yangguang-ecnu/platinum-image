@@ -331,7 +331,7 @@ void FLTK_VTK_Cone_pane::initialize_vtkRenderWindow()
 
 	// uncomment the statement below if things aren't rendering 100% on your
 	// configuration; the debug output could give you clues as to why
-	//renWindow->DebugOn();
+	renWindow->DebugOn();
 	   
 	// Here we treat the vtkFlRenderWindowInteractor just like any other old vtkRenderWindowInteractor
 	fl_vtk_window->SetRenderWindow(renWindow);
