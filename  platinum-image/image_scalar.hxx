@@ -1231,21 +1231,35 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out(int low_x, int high_x, int low_y
     }
 	
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(vector<plane3D> planes, ELEMTYPE blank)
+void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(vector<plane3D> planes, ELEMTYPE blank, bool outside_all_planes_needed)
 {
 	int num_planes=planes.size();
 	vector<float> d(num_planes);
 	for (int i=0; i<num_planes; i++) {
 		d[i]= planes[i].get_point()*planes[i].get_normal();
 	}
+	bool outside_all;
 	for (int x=0; x<this->get_size_by_dim(0); x++) {
 		for (int y=0; y<this->get_size_by_dim(1); y++) {
 			for (int z=0; z<this->get_size_by_dim(2); z++) {
-				for (int i=0; i<num_planes; i++) {
-					if (d[i] > create_Vector3D(x,y,z)*planes[i].get_normal()) {
+				if(outside_all_planes_needed){
+					outside_all=true;
+					for (int i=0; i<num_planes; i++) {
+						if (d[i] <= create_Vector3D(x,y,z)*planes[i].get_normal()) {
+							outside_all=false;
+							break;
+						}	
+					}
+					if(outside_all){
 						this->set_voxel(x,y,z,blank);
-						break;
-					}	
+					}
+				}else{
+					for (int i=0; i<num_planes; i++) {
+						if (d[i] > create_Vector3D(x,y,z)*planes[i].get_normal()) {
+							this->set_voxel(x,y,z,blank);
+							break;
+						}	
+					}
 				}
 			}
 		}
