@@ -96,12 +96,15 @@ public:
 	void largest_object_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
     void threshold_size_2D(int min_size, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep all objects (defined by object_value) > min_size voxels for each plane in 2D-planes orthogonal to the axis given by direction.
     void cog_inside_2D(image_binary<IMAGEDIM>* mask, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep all objects (defined by object_value) having their cog within mask in 2D-planes orthogonal to the axis given by direction.
-	void erode_2D(int thickness=3, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological erode up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
-	void dilate_2D(int thickness=3, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological dilate up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
+	void erode_2D(int thickness=3, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological erode up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction, using the 34 chamfer distance map.
+	void erode_euclidean_2D(float thickness, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological erode up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction, using the additative euclidean distance map.	
+	void dilate_2D(int thickness=3, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological dilate up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction, using the 34 chamfer distance map.
+	void dilate_euclidean_2D(float thickness, int direction=2, IMGBINARYTYPE object_value=TRUE)	; ///Morphological dilate up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction, using the additative euclidean distance map.
 	void outline_2D(int thickness=3, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Morphological outline up to distance value=thickness for each plane in 2D-planes orthogonal to the axis given by direction.
     void connect_outer_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Connect outer contour of objects (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
-    image_integer<short, IMAGEDIM> * distance_34_2D(bool edge_is_object=false, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Compute 34 chamfer distance map for each plane in 2D-planes orthogonal to the axis given by direction. If edge_is_object=true then everything outside the image is regarded to be object voxels.
-	
+	image_integer<short, IMAGEDIM> * distance_34_2D(bool edge_is_object=false, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Compute 34 chamfer distance map for each plane in 2D-planes orthogonal to the axis given by direction. If edge_is_object=true then everything outside the image is regarded to be object voxels.
+	image_scalar<float, IMAGEDIM>* distance_2D(bool edge_is_object=false, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Compute distance map where distances are additively computed as physical euclidean distance from voxels in the 26-neighbourhood. If edge_is_object=true then everything outside the image is regarded to be object voxels.
+
 	void get_num_neighbours_distribution_in_slice_2D_4Nbh(vector<int> &num_vox, int slice, int dir=2, IMGBINARYTYPE object_value=TRUE);
 	void get_num_neighbours_distribution_in_slice_2D_8Nbh(vector<int> &num_vox, int slice, int dir=2, IMGBINARYTYPE object_value=TRUE);
 

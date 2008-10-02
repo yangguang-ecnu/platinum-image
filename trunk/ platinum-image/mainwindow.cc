@@ -156,6 +156,7 @@ void platinum_setup (Fl_Window & window, int num_viewports_h, int num_viewports_
     // *** Ge viewmanager och datamanager l‰mpliga FLTK-pekare och initiera ***
 
     // viewmanagement.demo_setup_tiles(); // initialize tile layout; could as well load from file or ...
+
     viewmanagement.setup_regular_tiles (num_viewports_h, num_viewports_v);  //initialize regular tile layout
 //	viewmanagement.setup_irregular_tiles_h();
 

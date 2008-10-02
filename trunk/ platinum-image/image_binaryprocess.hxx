@@ -1146,6 +1146,74 @@ void image_binary<IMAGEDIM>::connect_outer_2D(int direction, IMGBINARYTYPE objec
 	}
 
 template <int IMAGEDIM>
+image_scalar<float, IMAGEDIM>* image_binary<IMAGEDIM>::distance_2D(bool edge_is_object, int direction, IMGBINARYTYPE object_value)
+{
+	image_scalar<float, IMAGEDIM>* output = new image_scalar<float,IMAGEDIM> (this,false);
+	float u_dist, v_dist, uv_dist;
+	if (direction==0) {
+		u_dist = output->get_physical_distance_between_voxels(0,0,0,0,1,0);
+		v_dist = output->get_physical_distance_between_voxels(0,0,0,0,0,1);
+		uv_dist = output->get_physical_distance_between_voxels(0,0,0,0,1,1);
+	} else 	if (direction==1) {
+		u_dist = output->get_physical_distance_between_voxels(0,0,0,0,0,1);
+		v_dist = output->get_physical_distance_between_voxels(0,0,0,1,0,0);
+		uv_dist = output->get_physical_distance_between_voxels(0,0,0,1,0,1);
+	} else {
+		u_dist = output->get_physical_distance_between_voxels(0,0,0,1,0,0);
+		v_dist = output->get_physical_distance_between_voxels(0,0,0,0,1,0);
+		uv_dist = output->get_physical_distance_between_voxels(0,0,0,1,1,0);
+	}
+	int u,v,w;
+	int max_u=this->get_size_by_dim_and_dir(0,direction);
+	int max_v=this->get_size_by_dim_and_dir(1,direction);
+	int max_w=this->get_size_by_dim_and_dir(2,direction);
+
+	float veryhigh = (std::max(max_u,max_v)*uv_dist); // veryhigh must be hihgher than any final calculated distance value in image
+	float initvalue = (edge_is_object)?veryhigh:0;
+	IMGBINARYTYPE p;//pixel value
+	float mm,ul,um,ur,ml,mr,ll,lm,lr;//neighbour labels: First letter: upper/middle/lower (v-direction). Second letter: left/middle/right (u-direction).
+	
+	//Forward pass
+	for(w=0; w<max_w; w++){
+		for(v=0; v<max_v; v++){
+			u=0;
+			ml=initvalue;
+			ul=initvalue;
+			um=(v>0)? output->get_voxel_by_dir(u,v-1,w,direction) : initvalue;
+			for(u=0; u<max_u; u++){
+				p=this->get_voxel_by_dir(u,v,w,direction);
+				ur=(u<max_u-1 && v>0)? output->get_voxel_by_dir(u+1,v-1,w,direction) : initvalue;
+				mm=(p==object_value)?std::min(std::min(uv_dist+ul, v_dist+um), std::min(uv_dist+ur, u_dist+ml)):0;
+				output->set_voxel_by_dir(u,v,w,mm,direction);
+				ml=mm; //traverse the information minimie "get_voxel" calls...
+				ul=um;
+				um=ur;
+			}
+		}
+			
+		//Backward pass
+		for(v=max_v-1; v>=0; v--){
+			u=max_u-1;
+			mr=initvalue;
+			lr=initvalue;
+			lm=(v<max_v-1)? output->get_voxel_by_dir(u,v+1,w,direction) : initvalue;
+			for(u=max_u-1; u>=0; u--){
+				mm=output->get_voxel_by_dir(u,v,w,direction);
+				ll=(u>0 && v<max_v-1)? output->get_voxel_by_dir(u-1,v+1,w,direction) : initvalue;
+				mm=std::min(mm,std::min(std::min(uv_dist+ll,v_dist+lm),std::min(uv_dist+lr,u_dist+mr)));
+				output->set_voxel_by_dir(u,v,w,mm,direction);
+				mr=mm;
+				lr=lm;
+				lm=ll;
+			}
+		}
+	}
+	
+	output->data_has_changed();
+	return output;
+}
+
+template <int IMAGEDIM>
 image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_34_2D(bool edge_is_object, int direction, IMGBINARYTYPE object_value)
 	{
 	image_integer<short, IMAGEDIM>* output = new image_integer<short,IMAGEDIM> (this,false);
@@ -1498,6 +1566,7 @@ image_scalar<float, IMAGEDIM>* image_binary<IMAGEDIM>::distance_3D(bool edge_is_
 			}
 		}
 
+	output->data_has_changed();
 	return output;
 	}
 
@@ -1962,15 +2031,37 @@ void image_binary<IMAGEDIM>::erode_2D(int thickness, int direction, IMGBINARYTYP
 	}
 
 template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::erode_euclidean_2D(float thickness, int direction, IMGBINARYTYPE object_value)
+{		
+	bool edge_is_object=false;
+    image_scalar<float, IMAGEDIM> * distance_image = distance_2D(edge_is_object, direction, object_value);
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(thickness+std::numeric_limits<float>::epsilon(), std::numeric_limits<float>::max(), object_value);
+	delete distance_image; 
+	copy_data(threshold_image,this);
+	delete threshold_image;
+}
+
+template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::dilate_2D(int thickness, int direction, IMGBINARYTYPE object_value)
-	{		
+{		
 	bool edge_is_object=true;
     image_integer<short, IMAGEDIM> * distance_image = distance_34_2D(edge_is_object, direction, !object_value);
 	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(0, thickness, object_value);
 	delete distance_image;
 	copy_data(threshold_image,this);
 	delete threshold_image;
-	}
+}
+
+template <int IMAGEDIM>
+void image_binary<IMAGEDIM>::dilate_euclidean_2D(float thickness, int direction, IMGBINARYTYPE object_value)
+{		
+	bool edge_is_object=true;
+    image_scalar<float, IMAGEDIM> * distance_image = distance_2D(edge_is_object, direction, !object_value);
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(0, thickness, object_value);
+	delete distance_image;
+	copy_data(threshold_image,this);
+	delete threshold_image;
+}
 
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::outline_2D(int thickness, int direction, IMGBINARYTYPE object_value)
@@ -1999,7 +2090,7 @@ void image_binary<IMAGEDIM>::erode_euclidean_3D(float thickness, IMGBINARYTYPE o
 {		
 	bool edge_is_object=false;
     image_scalar<float, IMAGEDIM> * distance_image = distance_3D(edge_is_object, object_value);
-	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(thickness+0.000001, std::numeric_limits<float>::max(), object_value);
+	image_binary <IMAGEDIM> * threshold_image = distance_image->threshold(thickness+std::numeric_limits<float>::epsilon(), std::numeric_limits<float>::max(), object_value);
 	delete distance_image;
 	copy_data(threshold_image,this);
 	delete threshold_image;
