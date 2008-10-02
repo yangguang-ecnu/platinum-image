@@ -155,7 +155,7 @@ public:
 	bool row_sum_threshold(int* res, ELEMTYPE low_thr, ELEMTYPE high_thr, int row_direction=0, int z_direction=2, int first_slice=-1, int last_slice=-1); ///Compute optimal split level for each slice
     void mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value=TRUE, ELEMTYPE blank=0); ///All voxels in the current image where the corresponding mask voxels != object_value are set to blank.
     void mask_out(int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, ELEMTYPE blank=0); ///All voxels within the given sub-volume are set to blank.
-    void mask_out_from_planes_3D(vector<plane3D> planes, ELEMTYPE blank=0);
+    void mask_out_from_planes_3D(vector<plane3D> planes, ELEMTYPE blank=0, bool outside_all_planes_needed=false);
 	void mask_out_from_planes_3D(plane3D plane1, plane3D plane2=plane3D(), plane3D plane3=plane3D(), plane3D plane4=plane3D(), plane3D plane5=plane3D(), ELEMTYPE blank=0);
 	std::vector<double> get_slice_sum(int direction=2);
 
@@ -170,6 +170,8 @@ public:
 	//the resulting histogram volume will have the intensities of first/second in the x/y directions.
 	//The z direction will gives the different 2D-histograms in the specified direction "hist_slc_dir"
 	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
+
+//	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
 
 	void smooth_ITK(Vector3D radius); 
 	void smooth_3D(Vector3D g); 

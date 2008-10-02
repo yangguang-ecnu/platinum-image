@@ -247,12 +247,12 @@ void datamanager::add(image_base * v, string name)
                 data_has_changed(the_image_id);
 
 			}else{
-                pt_error::error("Trying to re-add image ID ",pt_error::warning);
+				pt_error::error("Trying to re-add image ID ("+v->name()+")",pt_error::warning);
 			}
 		}else{
             //This error condition should really never happen, if it does there is
             //reason to rethink the dependency on a fixed image capacity the way IMAGEVECTORMAX works
-            pt_error::error("Error when adding image: number of data items in datamanager exceeds IMAGEVECTORMAX",pt_error::fatal);
+            pt_error::error("Error when adding image: number of data items in datamanager exceeds IMAGEVECTORMAX ("+v->name()+")",pt_error::fatal);
         }
 	}
 }
