@@ -147,7 +147,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::getVTKImagePointer()
 template <class ELEMTYPE, int IMAGEDIM>
 vtkImageData* image_scalar<ELEMTYPE, IMAGEDIM>::getVTKImagePointer()
 {
-	typename theImageType::Pointer image = get_image_as_itk_output();
+	typename theImageType::Pointer image = this->get_image_as_itk_output();
 	cout<<"dir="<<endl<<image->GetDirection()<<endl;
 
 	//------------------------------
@@ -158,7 +158,7 @@ vtkImageData* image_scalar<ELEMTYPE, IMAGEDIM>::getVTKImagePointer()
 //	try {
 
     typedef itk::VTKImageExport< theImageType > ExportFilterType;
-    ExportFilterType::Pointer itkExporter = ExportFilterType::New();
+    typename ExportFilterType::Pointer itkExporter = ExportFilterType::New();
     itkExporter->SetInput( image );
 
 //    ConnectPipelines(itkExporter, vtkImporter);

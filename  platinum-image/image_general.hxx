@@ -647,7 +647,7 @@ unsigned short image_general<ELEMTYPE, IMAGEDIM>::nz() const
 template <class ELEMTYPE, int IMAGEDIM>
 unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_size_by_dim_and_dir(int dim, int direction)
     {
-	return get_size_by_dim((dim+direction+1)%IMAGEDIM);
+		return get_size_by_dim((dim+direction+1)%IMAGEDIM);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -1383,84 +1383,112 @@ template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D(int rot_axis, int pos_neg_dir)
 { 
 	cout<<"rotate_voxeldata_3D("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")"<<endl;
-
+	
 	image_scalar<ELEMTYPE, 3>* res = new image_scalar<ELEMTYPE, 3>(); 
-
+	res->set_parameters(this);
+	
 	int sx = this->get_size_by_dim(0);
 	int sy = this->get_size_by_dim(1);
 	int sz = this->get_size_by_dim(2);
-
-	if(rot_axis == 0 && pos_neg_dir == +1){
-
-		res->initialize_dataset(sx,sz,sy);
-		for(int x=0; x<sx; x++){
-			for(int y=0; y<sy; y++){
-				for(int z=0; z<sz; z++){
-					res->set_voxel(x,sz-1-z,y,this->get_voxel(x,y,z));
+	Vector3D old_voxel_size = this->get_voxel_size();
+	Vector3D new_voxel_size;
+	Vector3D old_origin = this->get_origin();
+	Vector3D new_origin; 
+	Matrix3D old_orientation = this->get_orientation();
+	Matrix3D new_orientation;
+	
+	if(rot_axis>=0 && rot_axis<=2 && (pos_neg_dir==+1 || pos_neg_dir==-1)) {
+		
+		if(rot_axis == 0){
+			res->initialize_dataset(sx,sz,sy);
+			new_voxel_size = create_Vector3D(old_voxel_size[0], old_voxel_size[2], old_voxel_size[1]);
+			if (pos_neg_dir == +1)
+				new_origin = create_Vector3D(old_origin[0], sz-1-old_origin[2], old_origin[1]);
+			else if (pos_neg_dir == -1)
+				new_origin = create_Vector3D(old_origin[0], old_origin[2], sy-1-old_origin[1]);
+			new_orientation[0][0] = old_orientation[0][0];
+			new_orientation[0][1] = -pos_neg_dir*old_orientation[0][2];
+			new_orientation[0][2] = pos_neg_dir*old_orientation[0][1];
+			new_orientation[1][0] = -pos_neg_dir*old_orientation[2][0];
+			new_orientation[1][1] = old_orientation[2][2];
+			new_orientation[1][2] = -old_orientation[2][1];
+			new_orientation[2][0] = pos_neg_dir*old_orientation[1][0];
+			new_orientation[2][1] = -old_orientation[1][2];
+			new_orientation[2][2] = old_orientation[1][1];
+			for(int x=0; x<sx; x++){
+				for(int y=0; y<sy; y++){
+					for(int z=0; z<sz; z++){
+						if (pos_neg_dir == +1)
+							res->set_voxel(x,sz-1-z,y,this->get_voxel(x,y,z));
+						else if (pos_neg_dir == -1)
+							res->set_voxel(x,z,sy-1-y,this->get_voxel(x,y,z));
+					}
 				}
 			}
+		}
+		else if(rot_axis == 1){
+			res->initialize_dataset(sz,sy,sx);
+			new_voxel_size = create_Vector3D(old_voxel_size[2], old_voxel_size[1], old_voxel_size[0]);
+			if (pos_neg_dir == +1)
+				new_origin = create_Vector3D(old_origin[2], old_origin[1], sx-1-old_origin[0]);
+			else if (pos_neg_dir == -1)
+				new_origin = create_Vector3D(sz-1-old_origin[2], old_origin[1], old_origin[0]);
+			new_orientation[0][0] = old_orientation[2][2];
+			new_orientation[0][1] = pos_neg_dir*old_orientation[2][1];
+			new_orientation[0][2] = -old_orientation[2][0];
+			new_orientation[1][0] = pos_neg_dir*old_orientation[1][2];
+			new_orientation[1][1] = old_orientation[1][1];
+			new_orientation[1][2] = -pos_neg_dir*old_orientation[1][0];
+			new_orientation[2][0] = -old_orientation[0][2];
+			new_orientation[2][1] = -pos_neg_dir*old_orientation[0][1];
+			new_orientation[2][2] = old_orientation[0][0];
+			for(int x=0; x<sx; x++){
+				for(int y=0; y<sy; y++){
+					for(int z=0; z<sz; z++){
+						if (pos_neg_dir == +1)
+							res->set_voxel(z,y,sx-1-x,this->get_voxel(x,y,z));
+						else if (pos_neg_dir == -1)
+							res->set_voxel(sz-1-z,y,x,this->get_voxel(x,y,z));
+					}
+				}
+			}
+		}
+		else if(rot_axis == 2){
+			res->initialize_dataset(sy,sx,sz);
+			new_voxel_size = create_Vector3D(old_voxel_size[1], old_voxel_size[0], old_voxel_size[2]);
+			if (pos_neg_dir == +1)
+				new_origin = create_Vector3D(sy-1-old_origin[1], old_origin[0], old_origin[2]);
+			else if (pos_neg_dir == -1)
+				new_origin = create_Vector3D(old_origin[1], sx-1-old_origin[0], old_origin[2]);
+			new_orientation[0][0] = old_orientation[1][1];
+			new_orientation[0][1] = -old_orientation[1][0];
+			new_orientation[0][2] = -pos_neg_dir*old_orientation[1][2];
+			new_orientation[1][0] = -old_orientation[0][1];
+			new_orientation[1][1] = old_orientation[0][0];
+			new_orientation[1][2] = pos_neg_dir*old_orientation[0][2];
+			new_orientation[2][0] = -pos_neg_dir*old_orientation[2][1];
+			new_orientation[2][1] = pos_neg_dir*old_orientation[2][0];
+			new_orientation[2][2] = old_orientation[2][2];
+			for(int x=0; x<sx; x++){
+				for(int y=0; y<sy; y++){
+					for(int z=0; z<sz; z++){
+						if (pos_neg_dir == +1)
+							res->set_voxel(sy-1-y,x,z,this->get_voxel(x,y,z));
+						else if (pos_neg_dir == -1)
+							res->set_voxel(y,sx-1-x,z,this->get_voxel(x,y,z));
+					}
+				}
+			}
+			
 		}
 	}
-	else if(rot_axis == 0 && pos_neg_dir == -1){
-		//change orientation matrix
-		res->initialize_dataset(sx,sz,sy);
-		for(int x=0; x<sx; x++){
-			for(int y=0; y<sy; y++){
-				for(int z=0; z<sz; z++){
-					res->set_voxel(x,z,sy-1-y,this->get_voxel(x,y,z));
-				}
-			}
-		}
-
-	}else if(rot_axis == 1 && pos_neg_dir == +1){
-
-		res->initialize_dataset(sz,sy,sx);
-		for(int x=0; x<sx; x++){
-			for(int y=0; y<sy; y++){
-				for(int z=0; z<sz; z++){
-					res->set_voxel(z,y,sx-1-x,this->get_voxel(x,y,z));
-				}
-			}
-		}
-
-	}else if(rot_axis == 1 && pos_neg_dir == -1){
-
-		res->initialize_dataset(sz,sy,sx);
-		for(int x=0; x<sx; x++){
-			for(int y=0; y<sy; y++){
-				for(int z=0; z<sz; z++){
-					res->set_voxel(sz-1-z,y,x,this->get_voxel(x,y,z));
-				}
-			}
-		}
-
-	}else if(rot_axis == 2 && pos_neg_dir == +1){
-
-		res->initialize_dataset(sy,sx,sz);
-		for(int x=0; x<sx; x++){
-			for(int y=0; y<sy; y++){
-				for(int z=0; z<sz; z++){
-					res->set_voxel(sy-1-y,x,z,this->get_voxel(x,y,z));
-				}
-			}
-		}
-
-	}else if(rot_axis == 2 && pos_neg_dir == -1){
-
-		res->initialize_dataset(sy,sx,sz);
-		for(int x=0; x<sx; x++){
-			for(int y=0; y<sy; y++){
-				for(int z=0; z<sz; z++){
-					res->set_voxel(y,sx-1-x,z,this->get_voxel(x,y,z));
-				}
-			}
-		}
-
-	}else{
+	else
 		pt_error::error("rotate_voxeldata_3D-->parameters...("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")",pt_error::debug);
-	}
-
-	res->set_parameters(this); //copy rotation and size infor to tmp image first... //TODO: JK-perform appropriate geometry changes...
+	
+	res->set_voxel_size(new_voxel_size);
+	res->set_origin(new_origin);
+	res->set_orientation(new_orientation);
+	
 	return res;
 }
 
@@ -1910,7 +1938,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 float image_general<ELEMTYPE, IMAGEDIM>::get_display_min_float() const
 {
 	RGBvalue val;
-    this->tfunction->get(get_min_float(),val);
+    this->tfunction->get(this->get_min_float(),val);
 	return float(val.mono());
 }
 
@@ -1918,7 +1946,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 float image_general<ELEMTYPE, IMAGEDIM>::get_display_max_float() const
 {
 	RGBvalue val;
-    this->tfunction->get(get_max_float(),val);
+    this->tfunction->get(this->get_max_float(),val);
 	return float(val.mono());
 }
 
