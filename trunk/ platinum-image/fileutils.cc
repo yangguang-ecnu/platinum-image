@@ -474,7 +474,7 @@ vector<string> subdirs(string dir_path, bool fullpath)
 
     vector<string> result = get_dir_entries(dir_path,false);
 	for(int i=0;i<result.size();i++){
-		cout<<"res="<<result[i]<<endl;
+//		cout<<"res="<<result[i]<<endl;
 	}
 
     vector<string>::iterator dirs = result.begin();
@@ -483,7 +483,7 @@ vector<string> subdirs(string dir_path, bool fullpath)
         {
         //sort out items which are not directories
         //or circular references
-		cout<<"*dirs="<<*dirs<<endl;
+//		cout<<"*dirs="<<*dirs<<endl;
 
 	    if (*dirs == "." || *dirs == ".." || !dir_exists(dir_path + *dirs) )
             {
@@ -516,6 +516,24 @@ vector<string> subdirs_where_name_contains(string dir_path, string name_substrin
 		}
 	}
 	return sub2;
+}
+
+vector<string> get_files_in_dir_where_name_contains(string dir_path, string name_substring)
+{
+	vector<string> files = get_dir_entries(dir_path,false);
+	vector<string> files2;
+
+	for(int i=0;i<files.size();i++){
+//		cout<<"files[i]="<<dir_path+files[i]<<endl;
+		if(file_exists(dir_path+files[i])){
+//			cout<<"files[i].find(name_substring)="<<files[i].find(name_substring)<<endl;
+			if( files[i].find(name_substring) < files[i].size() ){
+//				cout<<"***"<<endl;
+				files2.push_back(files[i]);
+			}
+		}
+	}
+	return files2;
 }
 
 string int2str(int i){

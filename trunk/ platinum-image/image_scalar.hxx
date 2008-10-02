@@ -2815,10 +2815,21 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slic
 {
 	pt_error::error_if_false(dir>=0 && dir<=2, "Direction dir must be between 0 and 2 in get_mean_from_slice_3d", pt_error::debug);
 	pt_error::error_if_false(slice>=0 && slice<this->get_size_by_dim(dir), "Slice out of bounds in get_mean_from_slice_3d",pt_error::debug); 
-	pt_error::error_if_false(this->same_size(mask),"Image size does not match mask size in get_mean_from_slice_3d", pt_error::debug);
+	if(mask!=NULL){
+		pt_error::error_if_false(this->same_size(mask),"Image size does not match mask size in get_mean_from_slice_3d", pt_error::debug);
+	}
 	float sum=0;
-	int num_voxels=0;
+	float num_voxels=0;
 
+	for(int u=0; u<this->get_size_by_dim_and_dir(1,dir); u++){
+		for(int v=0; v<this->get_size_by_dim_and_dir(0,dir); v++){
+			if( mask==NULL || mask->get_voxel_by_dir(u,v,slice,dir) ) { //öööö
+				sum += this->get_voxel_by_dir(u,v,slice,dir);
+				num_voxels++;
+			}
+		}
+	}
+/*
 	if (dir==0)	{
 		for (int j=0; j < this->get_size_by_dim(1); j++){
 			for(int k=0; k < this->get_size_by_dim(2); k++){
@@ -2849,6 +2860,7 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slic
 			}
 		}
 	}
+	*/
 	return sum/num_voxels;
 }
 

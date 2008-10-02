@@ -151,7 +151,7 @@ class image_base : public data_base
 
 //		virtual void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
 
-		virtual string resolve_tooltip();
+		string resolve_tooltip();
 		string resolve_tooltip_image_base();
 
     };

@@ -51,7 +51,7 @@ public:
 //	image_binary<IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<IMGBINARYTYPE, IMAGEDIM > > &i):image_label<IMAGEDIM>(i){}
 //	image_binary(const string filepath, const string name=""):image_label<IMAGEDIM>(filepath, name){}
 
-	virtual string resolve_tooltip();		//combines tooltip data of this class with data from other classes
+	string resolve_tooltip();				//combines tooltip data of this class with data from other classes
 	string resolve_tooltip_image_binary(); //resolves tooltip data typical for this class
 
 	image_binary<IMAGEDIM>* get_subvolume_from_slice_3D(int slice, int dir=2);

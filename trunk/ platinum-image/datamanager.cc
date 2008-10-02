@@ -231,6 +231,10 @@ void datamanager::add(image_base * v, string name)
             if(find_data_index(the_image_id) == -1){
                 dataItems.push_back(v);
                 v->activate();
+				if(name!=""){
+					v->name(name);
+				}
+
                 int freeViewportID=viewmanagement.find_viewport_no_images();
                 if(freeViewportID != NOT_FOUND_ID){
                     int rendererID = viewmanagement.get_renderer_id(freeViewportID);
@@ -242,9 +246,6 @@ void datamanager::add(image_base * v, string name)
                 data_vector_has_changed();
                 data_has_changed(the_image_id);
 
-				if(name!=""){
-					v->name(name);
-				}
 			}else{
                 pt_error::error("Trying to re-add image ID ",pt_error::warning);
 			}

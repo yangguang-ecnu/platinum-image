@@ -87,6 +87,9 @@ class point_collection : public data_base
 		void info();
 
 		virtual	void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");		
+		string resolve_tooltip();			//combines tooltip data of this class with data from other classes
+		string resolve_tooltip_point_collection();	//resolves tooltip data typical for this class
+
 };
 	
 #endif

@@ -60,7 +60,7 @@ public:
 
     virtual void transfer_function(transfer_base<IMGLABELTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
 
-	virtual string resolve_tooltip();		//combines tooltip data of this class with data from other classes
+	string resolve_tooltip();		//combines tooltip data of this class with data from other classes
 	string resolve_tooltip_image_label(); //resolves tooltip data typical for this class
 
 	image_label<IMAGEDIM>* get_subvolume_from_slice_3D(int slice, int dir=2);

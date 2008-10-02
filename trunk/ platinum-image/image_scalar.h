@@ -97,7 +97,7 @@ public:
     //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
     virtual float get_number_voxel(int x, int y, int z) const;  //the use of virtual makes for example "complex<>" class work...
 
-	virtual string resolve_tooltip();		//combines tooltip data of this class with data from other classes
+	string resolve_tooltip();		//combines tooltip data of this class with data from other classes
 	string resolve_tooltip_image_scalar(); //resolves tooltip data typical for this class
 
 	//	void getVTKImagePointer();
@@ -296,13 +296,15 @@ public:
 
 	void appl_1D_SIM_bias_correction(image_binary<3>* mask, int num_iterations=1, float iteration_strength=0.02, float map_x_smoothing_std_dev=60, float map_y_smoothing_std_dev=60, float map_z_smoothing_std_dev=6, float feat1_smoothing_std_dev=30, int num_buckets_feat1=200, bool save_corrected_images_each_iteration=false, bool save_histogram_each_iteration=false, bool save_field_each_iteration=false);
 
-
 	//JK move to private later...
 	float get_mean_least_square_difference_to_template_3D(Vector3D pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template);
 	image_scalar<float, IMAGEDIM>* get_mean_least_square_difference_image_3D(Vector3D from_center_pos, Vector3D to_center_pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template); //least square fit small template to region (center voxel template coordinates...)
 
 	//ITK vesselness functions
 	void vesselness_test(double hessian_sigma=5, double vessel_alpha1=0.5, double vessel_alpha2=0.5);
+
+	void appl_scale_outer_slices_using_mean(int dir);
+
 };
 
 template<class ELEMTYPE, int IMAGEDIM = 3>

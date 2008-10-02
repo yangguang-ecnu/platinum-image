@@ -111,7 +111,7 @@ class image_storage : public image_base
 
 		void print_stats();
 
-		virtual string resolve_tooltip();		//combines tooltip data of this class with data from other classes
+		string resolve_tooltip();		//combines tooltip data of this class with data from other classes
 		string resolve_tooltip_image_storage(); //resolves tooltip data typical for this class
 		string resolve_datasize_in_kb();
 
