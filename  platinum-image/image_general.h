@@ -182,6 +182,7 @@ class image_general : public image_storage <ELEMTYPE >
 		float get_number_voxel(int x, int y, int z) const;
 
 		Vector3D get_physical_pos_for_voxel(int x, int y, int z);
+		Vector3D get_physical_pos_or_voxel_pos(int x, int y, int z, SPACE_TYPE st);
 		float get_physical_distance_between_voxels(int x1, int y1, int z1, int x2, int y2, int z2);
 		float get_phys_span_in_dir(Vector3D dir); //return the largest physical image span in dir...
 		Vector3D get_phys_dir_from_axis_dir(int dir); //return the physical direction of x/y/z axis...

@@ -778,6 +778,11 @@ Vector3D create_Vector3D(float x, float y, float z)
 	return v;
 }
 
+Vector3D create_Vector3D(vnl_vector<float> &v)
+{
+	return create_Vector3D(v(0),v(1),v(2));
+}
+
 
 Vector3Dint create_Vector3Dint( int x, int y, int z )
 {
@@ -1003,6 +1008,37 @@ float tsquare(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y)
 
 	return ((nx * ny) / (nx + ny)) * ((xmean - ymean) * (s_inv * (xmean - ymean)));
 }
+
+void subtract_from_all(std::vector<Vector3D> &x, Vector3D value)
+{
+	for(int i=0; i<x.size(); i++){
+		x[i] = x[i] - value;
+	}
+}
+
+Matrix3D cov(std::vector<Vector3D> x, std::vector<Vector3D> y)
+{
+	Vector3D mx = mean(x);
+	Vector3D my = mean(y);
+	subtract_from_all(x,mx);
+	subtract_from_all(y,my);
+
+	return cov2(x,y);
+}
+
+Matrix3D cov2(std::vector<Vector3D> x, std::vector<Vector3D> y){ //with scaled vectors (where mean is subtracted)
+	Matrix3D m;
+	for(int r=0;r<3;r++){
+		for(int c=0;c<3;c++){
+			for(int i=0;i<x.size();i++){
+				m[r][c] += x[i][r]*y[i][c];
+			}
+		}
+	}
+	cout<<"m"<<m<<endl;
+	return m;
+}
+
 
 double invF(const double p, const double a, const double b)
 { 

@@ -1850,6 +1850,21 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_for_voxel(int x, in
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_physical_pos_or_voxel_pos(int x, int y, int z, SPACE_TYPE st)
+{
+	Vector3D res;
+	if(st == VOXEL_SPACE){
+		res[0]=x; 
+		res[1]=y; 
+		res[2]=z; 
+	}else{ //PHYSICAL_SPACE
+		res = this->get_physical_pos_for_voxel(x,y,z);
+	}
+	return res;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 float image_general<ELEMTYPE, IMAGEDIM>::get_physical_distance_between_voxels(int x1, int y1, int z1, int x2, int y2, int z2)
 {
 	Vector3D distance = get_physical_pos_for_voxel(x1, y1, z1) - get_physical_pos_for_voxel(x2, y2, z2);
