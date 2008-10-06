@@ -392,6 +392,7 @@ float pt_LoG(float x, float sigma);
 void print_datatype_numerical_limits();
 double get_random_number_in_span(double min, double max);
 Vector3D create_Vector3D(float x, float y, float z);
+Vector3D create_Vector3D(vnl_vector<float> &v);
 Vector3Dint create_Vector3Dint(int x, int y, int z);
 Vector2D create_Vector2D(float x, float y);
 Vector2Dint create_Vector2Dint(int x, int y);
@@ -445,6 +446,10 @@ Vector3D mean(const std::vector<Vector3D> & x);
 Matrix3D var(const std::vector<Vector3D> & x);
 Matrix3D pooled_cov(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y);
 float tsquare(const std::vector<Vector3D> & x, const std::vector<Vector3D> & y);		// Hotelling's two-sample t-square statistic
+
+void subtract_from_all(std::vector<Vector3D> & x, Vector3D value);
+Matrix3D cov(std::vector<Vector3D> x, std::vector<Vector3D> y);
+Matrix3D cov2(std::vector<Vector3D> x, std::vector<Vector3D> y); //with scaled vectors (where mean is subtracted)
 
 // Some parts of the implementation of some the following algorithms were inspired by
 // "Numerical Recipes in C", Second Edition, Press, Teukolsky, Vetterling, Flannery

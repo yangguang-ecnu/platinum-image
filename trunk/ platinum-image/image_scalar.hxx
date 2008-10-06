@@ -1231,21 +1231,22 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out(int low_x, int high_x, int low_y
     }
 	
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(vector<plane3D> planes, ELEMTYPE blank, bool outside_all_planes_needed)
+void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(vector<plane3D> planes, ELEMTYPE blank, bool outside_all_planes_needed, SPACE_TYPE st)
 {
+	//JK TODO //öööö make sure this function uses the SPACE_TYPE information
 	int num_planes=planes.size();
 	vector<float> d(num_planes);
 	for (int i=0; i<num_planes; i++) {
 		d[i]= planes[i].get_point()*planes[i].get_normal();
 	}
-	bool outside_all;
-	for (int x=0; x<this->get_size_by_dim(0); x++) {
-		for (int y=0; y<this->get_size_by_dim(1); y++) {
-			for (int z=0; z<this->get_size_by_dim(2); z++) {
-				if(outside_all_planes_needed){
+	if(outside_all_planes_needed){
+		bool outside_all;
+		for (int z=0; z<this->get_size_by_dim(2); z++) {
+			for (int y=0; y<this->get_size_by_dim(1); y++) {
+				for (int x=0; x<this->get_size_by_dim(0); x++) {
 					outside_all=true;
 					for (int i=0; i<num_planes; i++) {
-						if (d[i] <= create_Vector3D(x,y,z)*planes[i].get_normal()) {
+						if (d[i] <= this->get_physical_pos_or_voxel_pos(x,y,z,st)*planes[i].get_normal()) {
 							outside_all=false;
 							break;
 						}	
@@ -1253,9 +1254,15 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(vector<plane3D> p
 					if(outside_all){
 						this->set_voxel(x,y,z,blank);
 					}
-				}else{
+				}
+			}
+		}
+	}else{
+		for (int z=0; z<this->get_size_by_dim(2); z++) {
+			for (int y=0; y<this->get_size_by_dim(1); y++) {
+				for (int x=0; x<this->get_size_by_dim(0); x++) {
 					for (int i=0; i<num_planes; i++) {
-						if (d[i] > create_Vector3D(x,y,z)*planes[i].get_normal()) {
+						if (d[i] > this->get_physical_pos_or_voxel_pos(x,y,z,st)*planes[i].get_normal()) {
 							this->set_voxel(x,y,z,blank);
 							break;
 						}	
@@ -1267,7 +1274,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(vector<plane3D> p
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(plane3D plane1, plane3D plane2, plane3D plane3, plane3D plane4, plane3D plane5, ELEMTYPE blank)
+void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(plane3D plane1, plane3D plane2, plane3D plane3, plane3D plane4, plane3D plane5, ELEMTYPE blank, SPACE_TYPE st)
 {
 	int num_planes=5;
 	if (!plane2.is_defined()) {num_planes=1;}
@@ -1282,12 +1289,13 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::mask_out_from_planes_3D(plane3D plane1, p
 	if (plane4.is_defined()) {planes[3]=plane4;}
 	if (plane5.is_defined()) {planes[4]=plane5;}
 	
-	mask_out_from_planes_3D(planes, blank);
+	mask_out_from_planes_3D(planes, blank, st);
 }
-	
-	template <class ELEMTYPE, int IMAGEDIM>
-		std::vector<double> image_scalar<ELEMTYPE, IMAGEDIM>::get_slice_sum(int direction)
-	{
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+std::vector<double> image_scalar<ELEMTYPE, IMAGEDIM>::get_slice_sum(int direction)
+{
 		int u,v,w;
 		int max_u, max_v, max_w;
 		max_u=this->get_size_by_dim_and_dir(0,direction);
@@ -2339,6 +2347,40 @@ vector<Vector3D> image_scalar<ELEMTYPE, IMAGEDIM>::get_in_slice_center_of_gravit
 
 	return cg_points;
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+vector<Vector3D> image_scalar<ELEMTYPE, IMAGEDIM>::get_positions_of_voxels_with_value_between(ELEMTYPE from_val, ELEMTYPE to_val, SPACE_TYPE st)
+{
+	vector<Vector3D> points;
+	ELEMTYPE val;
+
+	if(st == VOXEL_SPACE){
+		for(int z=0;z<this->nz();z++){
+			for(int y=0;y<this->ny();y++){
+				for(int x=0;x<this->nx();x++){
+					val = this->get_voxel(x,y,z);
+					if( val >= from_val && val <= to_val){
+						points.push_back(create_Vector3D(x,y,z));
+					}
+				}
+			}
+		}
+	}else{
+		for(int z=0;z<this->nz();z++){
+			for(int y=0;y<this->ny();y++){
+				for(int x=0;x<this->nx();x++){
+					val = this->get_voxel(x,y,z);
+					if( val >= from_val && val <= to_val){
+						points.push_back(this->get_physical_pos_for_voxel(x,y,z)); //öööö
+					}
+				}
+			}
+		}
+	}
+
+	return points;
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 Vector3D image_scalar<ELEMTYPE, IMAGEDIM>::get_pos_of_highest_value_in_region(int x1, int y1, int z1, int x2, int y2, int z2, ELEMTYPE upper_limit)

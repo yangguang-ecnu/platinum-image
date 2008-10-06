@@ -155,8 +155,8 @@ public:
 	bool row_sum_threshold(int* res, ELEMTYPE low_thr, ELEMTYPE high_thr, int row_direction=0, int z_direction=2, int first_slice=-1, int last_slice=-1); ///Compute optimal split level for each slice
     void mask_out(image_binary<IMAGEDIM> *mask, IMGBINARYTYPE object_value=TRUE, ELEMTYPE blank=0); ///All voxels in the current image where the corresponding mask voxels != object_value are set to blank.
     void mask_out(int low_x, int high_x, int low_y, int high_y, int low_z, int high_z, ELEMTYPE blank=0); ///All voxels within the given sub-volume are set to blank.
-    void mask_out_from_planes_3D(vector<plane3D> planes, ELEMTYPE blank=0, bool outside_all_planes_needed=false);
-	void mask_out_from_planes_3D(plane3D plane1, plane3D plane2=plane3D(), plane3D plane3=plane3D(), plane3D plane4=plane3D(), plane3D plane5=plane3D(), ELEMTYPE blank=0);
+    void mask_out_from_planes_3D(vector<plane3D> planes, ELEMTYPE blank=0, bool outside_all_planes_needed=false, SPACE_TYPE st=VOXEL_SPACE);
+	void mask_out_from_planes_3D(plane3D plane1, plane3D plane2=plane3D(), plane3D plane3=plane3D(), plane3D plane4=plane3D(), plane3D plane5=plane3D(), ELEMTYPE blank=0, SPACE_TYPE st=VOXEL_SPACE);
 	std::vector<double> get_slice_sum(int direction=2);
 
 	void flip_voxel_data_3D(int direction);
@@ -202,6 +202,8 @@ public:
 	Vector3D get_center_of_gravity(ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(),  SPACE_TYPE type = VOXEL_SPACE);
 	Vector3D get_in_slice_center_of_gravity_in_dir(int dir, int slice, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(),  SPACE_TYPE type = VOXEL_SPACE);
 	vector<Vector3D> get_in_slice_center_of_gravities_in_dir(int dir, ELEMTYPE lower_int_limit, ELEMTYPE upper_int_limit=std::numeric_limits<ELEMTYPE>::max(), SPACE_TYPE type = VOXEL_SPACE);
+	vector<Vector3D> get_positions_of_voxels_with_value_between(ELEMTYPE from_val=1, ELEMTYPE to_val=1, SPACE_TYPE st = VOXEL_SPACE);
+
 	Vector3D get_pos_of_highest_value_in_region(int x1, int y1, int z1, int x2, int y2, int z2, ELEMTYPE upper_limit=std::numeric_limits<ELEMTYPE>::max());
 	Vector3D get_pos_of_highest_value_in_region(Vector3D from_pos, Vector3D to_pos, ELEMTYPE upper_limit=std::numeric_limits<ELEMTYPE>::max());
 	Vector3D get_pos_of_highest_value(ELEMTYPE upper_limit=std::numeric_limits<ELEMTYPE>::max());

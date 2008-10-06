@@ -137,6 +137,9 @@ public:
 	float mutual_overlap_3D(image_binary<IMAGEDIM>* second_image);
 
 	void appl_crude_abdominal_artifact_removal();
+
+	plane3D get_plane3D_with_best_fit_to_binary_data(SPACE_TYPE st=VOXEL_SPACE);
+
     };
 
 template <int DIM>
