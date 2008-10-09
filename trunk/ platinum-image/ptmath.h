@@ -63,6 +63,7 @@ public:
 	float evaluate_at(float x);
 	double integrate_total_area(int from_x, int to_x);
 	int get_x_that_includes_area_fraction(double fraction, int from_x, int to_x);
+	float get_value_at_intersection_between_centers(gaussian g2, float num_calc_steps=200);
 };
 
 class gaussian_2d{
@@ -397,7 +398,10 @@ Vector3Dint create_Vector3Dint(int x, int y, int z);
 Vector2D create_Vector2D(float x, float y);
 Vector2Dint create_Vector2Dint(int x, int y);
 void save_Vector3D_to_file(Vector3D v,string filepath);
+void save_vector_of_Vector3D_to_file(vector<Vector3D> v,string filepath);
 Vector3D load_Vector3D_from_file(string filepath);
+Vector3D string2Vector3D(string s);
+vector<Vector3D> load_vector_of_Vector3D_from_file(string filepath);
 bool is_defined(float f);
 bool is_defined(Vector3D v);
 

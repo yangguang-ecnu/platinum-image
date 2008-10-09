@@ -53,6 +53,25 @@ int gaussian::get_x_that_includes_area_fraction(double fraction, int from_x, int
 	return to_x;
 }
 
+float gaussian::get_value_at_intersection_between_centers(gaussian g2, float num_calc_steps)
+{
+	float from = min(this->center,g2.center);
+	float to = max(this->center,g2.center);
+	float min_diff = std::numeric_limits<float>::max();
+	float min_diff_pos = std::numeric_limits<float>::max();
+	float diff;
+
+	for(float i=from; i<=to; i += (to-from)/num_calc_steps){
+		diff = abs(this->evaluate_at(i) - g2.evaluate_at(i));
+		if(diff<min_diff){
+			min_diff = diff;
+			min_diff_pos = i;
+		}
+	}
+
+	return min_diff_pos;
+}
+
 gaussian_2d::gaussian_2d(float amp, float cent_x, float cent_y, float sig_u, float sig_v, float angle){
 	amplitude = amp;
 	center_x = cent_x;
@@ -816,6 +835,49 @@ void save_Vector3D_to_file(Vector3D v,string filepath)
 	myfile.close();
 }
 
+void save_vector_of_Vector3D_to_file(vector<Vector3D> v,string filepath)
+{
+	ofstream myfile;
+	myfile.open(filepath.c_str());
+	for(int i=0;i<v.size();i++){
+		myfile<<v[i][0]<<";"<<v[i][1]<<";"<<v[i][2]<<";\n";
+	}
+	myfile.close();
+}
+
+Vector3D string2Vector3D(string s)
+{
+	Vector3D v;
+	string word;
+
+	int ind1=0;
+	int ind2=0;
+	vector<string> row;
+
+	ind1=0;
+	ind2=0;
+	row = vector<string>();
+
+	while(ind2>=0){
+		ind2 = s.find_first_of(";",ind1);
+		word = s.substr(ind1,ind2-ind1);
+//		cout<<ind1<<" "<<ind2<<"  "<<word.c_str()<<"  ("<<s.c_str()<<")"<<endl;
+		ind1 = ind2+1;
+		if(ind2>=0){			 //the row is set to end with an ";"
+			row.push_back(word);
+//			cout<<"word="<<word<<endl;
+		}
+	}
+//	cout<<"row[0].c_str()="<<row[0].c_str()<<endl;
+//	cout<<"row[1].c_str()="<<row[1].c_str()<<endl;
+//	cout<<"row[2].c_str()="<<row[2].c_str()<<endl;
+	v[0] = atof(row[0].c_str());
+	v[1] = atof(row[1].c_str());
+	v[2] = atof(row[2].c_str());
+
+	return v;
+}
+
 Vector3D load_Vector3D_from_file(string filepath)
 {
 	Vector3D v;
@@ -824,40 +886,40 @@ Vector3D load_Vector3D_from_file(string filepath)
 	if(myfile.is_open()){
 		char buffer[10000];
 		string s;
-		string word;
-
-		int ind1=0;
-		int ind2=0;
-		vector<string> row;
 
 		while(!myfile.eof()){
 			myfile.getline(buffer,10000);
 			s=string(buffer);
-			ind1=0;
-			ind2=0;
-			row = vector<string>();
-
-			while(ind2>=0){
-				ind2 = s.find_first_of(";",ind1);
-				word = s.substr(ind1,ind2-ind1);
-				cout<<ind1<<" "<<ind2<<"  "<<word.c_str()<<"  ("<<s.c_str()<<")"<<endl;
-				ind1 = ind2+1;
-				if(ind2>=0){			 //the row is set to end with an ";"
-					row.push_back(word);
-					cout<<"word="<<word<<endl;
-				}
-			}
-			cout<<"row[0].c_str()="<<row[0].c_str()<<endl;
-			cout<<"row[1].c_str()="<<row[1].c_str()<<endl;
-			cout<<"row[2].c_str()="<<row[2].c_str()<<endl;
-			v[0] = atof(row[0].c_str());
-			v[1] = atof(row[1].c_str());
-			v[2] = atof(row[2].c_str());
+			v = string2Vector3D(s);
 		}
 		myfile.close();
 	}
 
 	return v;
+}
+
+vector<Vector3D> load_vector_of_Vector3D_from_file(string filepath)
+{
+	Vector3D v;
+	vector<Vector3D> v2;
+	ifstream myfile(filepath.c_str());
+
+	if(myfile.is_open()){
+		char buffer[10000];
+		string s;
+
+		while(!myfile.eof()){
+			myfile.getline(buffer,10000);
+			s=string(buffer);
+			if(s != ""){
+				v = string2Vector3D(s);
+				v2.push_back(v);
+			}
+		}
+		myfile.close();
+	}
+
+	return v2;
 }
 
 bool is_defined(float f)
