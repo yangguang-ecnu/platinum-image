@@ -412,6 +412,55 @@ bool is_dicom_file_imaginary_image(string file_path)
 	return does_dicom_file_tag_contain(file_path, DCM_IMAGE_TYPE, DCM_IMAGINARY_SUBSTRING);
 }
 
+string get_elemtype_in_dicom_file(string file_path)
+{
+    itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+	string result = "undefined";
+
+	if(dicomIO->CanReadFile(file_path.c_str())){
+		dicomIO->SetFileName(file_path.c_str());
+		dicomIO->ReadImageInformation();	//get basic DICOM header
+
+//		itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType(); //scalar
+		itk::ImageIOBase::IOComponentType componentType = dicomIO->GetComponentType();
+
+		switch(componentType){	//Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
+			case itk::ImageIOBase::UCHAR:
+				result = "uchar";
+			break;
+			case itk::ImageIOBase::CHAR:
+				result = "char";
+			break;
+			case itk::ImageIOBase::USHORT:
+				result = "ushort";
+			break;
+			case itk::ImageIOBase::SHORT:
+				result = "short";
+			break;
+			case itk::ImageIOBase::UINT:
+				result = "uint";
+			break;
+			case itk::ImageIOBase::INT:
+				result = "int";
+			break;
+			case itk::ImageIOBase::ULONG:
+				result = "ulong";
+			break;
+			case itk::ImageIOBase::LONG:
+				result = "long";
+			break;
+			case itk::ImageIOBase::FLOAT:
+				result = "float";
+			break;
+			case itk::ImageIOBase::DOUBLE:
+				result = "double";
+			break;
+		}
+	}
+
+	return result;
+}
+
 
 
 //------------- String handling functions ----------------------

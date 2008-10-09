@@ -916,7 +916,7 @@ vector<double> histogram_1D<ELEMTYPE>::get_overlaps_in_percent(vector<gaussian> 
 		}
 
 		overlap_percent.push_back( sum_overlap/areas[j] );
-		cout<<"overlap_percent="<<overlap_percent[j]<<endl;
+//		cout<<"overlap_percent="<<overlap_percent[j]<<endl;
 	}
 
 	return overlap_percent;
@@ -966,14 +966,16 @@ ELEMTYPE histogram_1D<ELEMTYPE>::fit_two_gaussians_to_histogram_and_return_thres
 	cout<<"amoeba_optimizer.F_tolerance="<<amoeba_optimizer.F_tolerance<<endl;
 	cout<<"amoeba_optimizer.X_tolerance="<<amoeba_optimizer.X_tolerance<<endl;
 
+	gaussian g = gaussian(x[0],x[1],x[2]);
+	gaussian g2 = gaussian(x[3],x[4],x[5]);
+
 	if(save_histogram_file_path != ""){
-		gaussian g = gaussian(x[0],x[1],x[2]);
-		gaussian g2 = gaussian(x[3],x[4],x[5]);
 		vector<gaussian> v; v.push_back(g); v.push_back(g2);
 		this->save_histogram_to_txt_file(save_histogram_file_path,v);
 	}
 
-	return x[1] + 3*x[2]; //pos + 2*SD
+//	return x[1] + 3*x[2]; //pos + 2*SD
+	return g.get_value_at_intersection_between_centers(g2);
 }
 
 
@@ -1093,7 +1095,7 @@ double fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::f(vnl_vector<doubl
 		v.push_back( gaussian(x[i*3+0],x[i*3+1],x[i*3+2]) );
 	}
 	double res = the_hist->get_sum_square_diff(v);
-	cout<<x<<"-->"<<res<<endl;
+//	cout<<x<<"-->"<<res<<endl;
 
 	//-------------------------------
 	//-------------------------------
@@ -1115,13 +1117,10 @@ double fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::f(vnl_vector<doubl
 	//-------------------------------
 
 
-
-
-	
 	if(punish_overlap){
 		vector<double> overlaps = the_hist->get_overlaps_in_percent(v);
 		double mean_ = mean<double>(overlaps);
-		cout<<"mean_="<<mean_<<endl;
+//		cout<<"mean_="<<mean_<<endl;
 		res = res*(1+mean_);
 
 		res += the_hist->get_sum_square_gaussian_overlap(v);
@@ -1132,16 +1131,16 @@ double fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::f(vnl_vector<doubl
 		vector<double> areas = the_hist->get_gaussian_areas(v);
 		
 		double mean_area = mean<double>(areas);
-		cout<<"mean_area="<<mean_area<<endl;
+//		cout<<"mean_area="<<mean_area<<endl;
 
 		double mean_diff_percent=0;
 		for(int i=0;i<areas.size();i++){
 			mean_diff_percent += abs(mean_area - areas[i])/mean_area;
-			cout<<"mean_diff_percent="<<mean_diff_percent<<endl;
+//			cout<<"mean_diff_percent="<<mean_diff_percent<<endl;
 		}
 		mean_diff_percent = mean_diff_percent/areas.size();
 
-		cout<<"*mean_diff_percent="<<mean_diff_percent<<endl;
+//		cout<<"*mean_diff_percent="<<mean_diff_percent<<endl;
 
 		res = res*(1+0.2*mean_diff_percent);
 	}
