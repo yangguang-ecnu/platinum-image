@@ -171,6 +171,8 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 
 		ELEMTYPE get_bucket_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity);
 		ELEMTYPE get_intensity_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity);
+		ELEMTYPE get_bucket_at_histogram_higher_percentile(float percentile, bool ignore_zero_intensity);
+		ELEMTYPE get_intensity_at_histogram_higher_percentile(float percentile, bool ignore_zero_intensity);
 		ELEMTYPE get_intensity_at_included_num_pix_from_lower_int(ELEMTYPE lower_int, float num_pix);
 
 		bool is_central_histogram_bimodal(int min_mode_sep=150, double valley_factor=0.7, ELEMTYPE peak_min=200, int speedup=1); //looks in the central 50% of intensities

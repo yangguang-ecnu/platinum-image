@@ -606,6 +606,50 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(flo
 
 
 template <class ELEMTYPE>
+ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_higher_percentile(float percentile, bool ignore_zero_intensity)
+{
+    cout<<"get_bucket_at_histogram_higher_percentile("<<percentile<<")"<<endl;
+	//if histogram comes from masked region... following line wont work....
+	//float num_elem_limit = float(this->images[0]->get_num_elements())*percentile;
+
+	unsigned short the_zero_bucket = this->intensity_to_bucketpos(0);
+	float num_elem_limit;
+
+	if (ignore_zero_intensity) {
+		num_elem_limit = float(this->num_elements_in_hist)*percentile;
+		if(the_zero_bucket>=0 && the_zero_bucket<this->num_buckets){ //the "zero_bucket" migh be missing (the histogram might for example be created from a masked region...)
+			num_elem_limit -= float(this->buckets[the_zero_bucket])*percentile;
+		}
+	}
+	else{
+		num_elem_limit = float(this->num_elements_in_hist)*percentile;
+	}
+
+	float sum_elements=0;
+	
+	
+
+	for (unsigned short i = this->num_buckets-1; i>=0; i++)
+	{
+		if (!ignore_zero_intensity || i!=the_zero_bucket) {
+			sum_elements += this->buckets[i];
+			if(sum_elements>=num_elem_limit){
+				return i;
+			}
+		}
+	}
+
+	return 0;
+}
+
+template <class ELEMTYPE>
+ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_higher_percentile(float percentile, bool ignore_zero_intensity)
+{
+    cout<<"get_intensity_at_histogram_higher_percentile("<<percentile<<")"<<endl;
+	return bucketpos_to_intensity( get_bucket_at_histogram_higher_percentile(percentile,ignore_zero_intensity) );
+}
+
+template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_included_num_pix_from_lower_int(ELEMTYPE lower_int, float num_pix)
 {
     cout<<"get_intensity_at_included_num_pix_from_lower_int("<<lower_int<<","<<num_pix<<")"<<endl;
