@@ -26,6 +26,7 @@
 #define __ptmath__
 
 #define pt_PI 3.1415926536
+#define pt_golden_section 0.6180339887
 
 #include <limits>	//for example...  numeric_limits<float>
 #include <set>
@@ -160,9 +161,9 @@ protected:
 class ellipsoid3D{
 public:
 	ellipsoid3D();
-	ellipsoid3D(Vector3D centrum, Vector3D radii, float azimuth, float elevation);
-	ellipsoid3D(Vector3D centrum, float radius_u, float radius_v, float radius_w, float azimuth, float elevation);
-	ellipsoid3D(float centrum_x, float centrum_y, float centrum_z, float radius_u, float radius_v, float radius_w, float azimuth, float elevation);
+	ellipsoid3D(Vector3D centrum, Vector3D radii, float azimuth=0, float elevation=0);
+	ellipsoid3D(Vector3D centrum, float radius_u, float radius_v, float radius_w, float azimuth=0, float elevation=0);
+	ellipsoid3D(float centrum_x, float centrum_y, float centrum_z, float radius_u, float radius_v, float radius_w, float azimuth=0, float elevation=0);
 
 	Vector3D get_centrum();
 	Vector3D get_radii();

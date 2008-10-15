@@ -223,7 +223,7 @@ void datamanager::datawidgets_setup()
     outergroup->end();
     }
 
-void datamanager::add(image_base * v, string name)
+void datamanager::add(image_base * v, string name, bool data_changed)
 {
     if(v != NULL){
         if(dataItems.size() < IMAGEVECTORMAX){
@@ -233,6 +233,9 @@ void datamanager::add(image_base * v, string name)
                 v->activate();
 				if(name!=""){
 					v->name(name);
+				}
+				if(data_changed){
+					v->data_has_changed();
 				}
 
                 int freeViewportID=viewmanagement.find_viewport_no_images();

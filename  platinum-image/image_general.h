@@ -202,6 +202,9 @@ class image_general : public image_storage <ELEMTYPE >
         void set_voxels(vector<Vector3D> coords, ELEMTYPE voxelvalue);
         void set_voxel_in_physical_pos(Vector3D phys_pos, ELEMTYPE voxelvalue);
 		void set_voxel_by_dir(int u, int v, int w, ELEMTYPE value, int direction=2);
+		void add_value_to_voxel(int x, int y, int z, ELEMTYPE value);
+		void add_value_to_voxel(Vector3D coord_pos, ELEMTYPE value);
+		void add_value_to_voxels(vector<Vector3D> coords, ELEMTYPE value);
 		void fill_region_3D(int x, int y, int z, int dx, int dy, int dz, ELEMTYPE value);
 		void fill_region_3D(int dir, int start_index, int end_index, ELEMTYPE value);
 		void fill_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size, ELEMTYPE value);
