@@ -1933,7 +1933,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxels(vector<Vector3D> coords, ELEM
 		}
     }
 
-
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_in_physical_pos(Vector3D phys_pos, ELEMTYPE voxelvalue)
 {
@@ -1941,6 +1940,30 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_voxel_in_physical_pos(Vector3D phys_
 	this->set_voxel(pos[0],pos[1],pos[2],voxelvalue);
 }
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::add_value_to_voxel(int x, int y, int z, ELEMTYPE value)
+{
+	//JK - uncomment these rows to detect writing outside allocated memory...
+	if(x<0||x>=datasize[0] || y<0||y>=datasize[1] || z<0||z>=datasize[2])
+	{cout<<"set_voxel--> strange index... x="<<x<<" y="<<y<<" z="<<z<<"... datasize=("<<datasize[0]<<","<<datasize[1]<<","<<datasize[2]<<")"<<endl;}
+	
+    this->dataptr[x + datasize[0]*y + datasize[0]*datasize[1]*z] += value;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::add_value_to_voxel(Vector3D coord_pos, ELEMTYPE value)
+{
+	this->add_value_to_voxel(coord_pos[0],coord_pos[1],coord_pos[2],value);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::add_value_to_voxels(vector<Vector3D> coords, ELEMTYPE value)
+{
+	for(int i=0;i<coords.size();i++){
+		this->add_value_to_voxel(coords[i][0],coords[i][1],coords[i][2],value);
+	}
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z) const

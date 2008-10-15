@@ -82,8 +82,8 @@ public:
 
 //	void rows(int val);
 //	void cols(int val);
-	inline unsigned int rows() const;
-	inline unsigned int cols() const;
+	unsigned int rows() const;
+	unsigned int cols() const;
 
 	// --- row operations ---
 	void add_row(vector<string> r, string space_holder="");
