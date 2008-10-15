@@ -2800,6 +2800,33 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_bias_field_data3D(bias_po
 
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_gaussian_values_centered_2D(int dir, gaussian g)
+{
+	Vector3Dint center;
+	for(int i=0; i<3; i++){
+		center[i] = this->get_size_by_dim_and_dir(i,dir)/2;
+	}
+
+	Vector3Dint diff;
+	diff[2]=0;
+
+	for(int w=0; w<this->get_size_by_dim_and_dir(2,dir); w++){
+		for(int v=0; v<this->get_size_by_dim_and_dir(1,dir); v++){
+			diff[1]=center[1]-v;
+			for(int u=0; u<this->get_size_by_dim_and_dir(0,dir); u++){
+				diff[0]=center[0]-u;
+				this->set_voxel_by_dir(u,v,w,g.evaluate_at(magnitude(diff)),dir);
+			}
+		}
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_gaussian_values_centered_2D(int dir, float ampl, float sigma_in_voxels)
+{
+	this->fill_image_with_gaussian_values_centered_2D(dir, gaussian(ampl,0,sigma_in_voxels));
+}
 
 
 

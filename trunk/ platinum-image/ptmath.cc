@@ -1021,6 +1021,11 @@ float magnitude(const Vector3D v)
 	return sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
 }
 
+float magnitude(const Vector3Dint v)
+{
+	return sqrt(float(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]));
+}
+
 Vector3D mean(const std::vector<Vector3D> & x)
 {
 	Vector3D sum = create_Vector3D(0.0, 0.0, 0.0);

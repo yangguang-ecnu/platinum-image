@@ -255,6 +255,8 @@ public:
 // -------------- bias field operations ---------------
 	
 	void fill_image_with_bias_field_data3D(bias_poly<3> b);
+	void fill_image_with_gaussian_values_centered_2D(int dir, gaussian g);
+	void fill_image_with_gaussian_values_centered_2D(int dir, float ampl, float sigma_in_voxels);
 
 
 	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----
