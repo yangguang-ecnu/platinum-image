@@ -32,6 +32,8 @@
 
 #include <vnl/algo/vnl_powell.h>
 #include <vnl/vnl_cost_function.h>
+#include <vnl/algo/vnl_symmetric_eigensystem.h>
+
 
 template<int IMAGEDIM = 3>
 class image_binary : public image_label <IMAGEDIM>
