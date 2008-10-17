@@ -193,6 +193,25 @@ class FLTK_VTK_pane : public FLTKpane
 	protected:
 		vtkFlRenderWindowInteractor *fl_vtk_window;
 		virtual void initialize_vtkRenderWindow();
+		
+		double Xcam; //SO
+		double Ycam; 
+		double Zcam;
+
+		double XcamUp; 
+		double YcamUp; 
+		double ZcamUp;
+
+
+
+
+
+
+
+
+
+
+
 
 	public:
 	    FLTK_VTK_pane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
