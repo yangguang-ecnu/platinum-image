@@ -532,11 +532,11 @@ vector<string> subdirs(string dir_path, bool fullpath)
         {
         //sort out items which are not directories
         //or circular references
-//		cout<<"*dirs="<<*dirs<<endl;
+		cout<<"*dirs="<<*dirs<<endl;
 
 	    if (*dirs == "." || *dirs == ".." || !dir_exists(dir_path + *dirs) )
             {
-            result.erase(dirs);
+            dirs=result.erase(dirs);
             }
         else
             {
