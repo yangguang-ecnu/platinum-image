@@ -318,7 +318,33 @@ string find_first_sub_dir_containing_dcm_file_with_tag_value(string dir_path, st
 	return "";
 }
 
+//----------------------------------------------work in progress-----/SO------------------
+TagValueDirInfo get_number_of_dirs_and_first_sub_dir_containing_dcm_file_with_tag_value(string dir_path, string dcm_tag, string tag_val)
+{
+	vector<string> dirs = subdirs(dir_path);
+	TagValueDirInfo tagVal;
+	tagVal.firstDir="";
+	tagVal.similarDirs = 0;
 
+	for(int i=0;i<dirs.size();i++)
+	{
+		cout<<"dirs[i]="<<dirs[i]<<endl;
+
+		if(does_dir_contain_dcmfile_with_tag_value(dirs[i],dcm_tag,tag_val,false))
+		{
+			tagVal.similarDirs++;
+
+			if (tagVal.firstDir == "")
+			{
+			tagVal.firstDir = dirs[i];
+			}
+		}
+	}
+	cout << "* * * Number of similarDirs = " << tagVal.similarDirs << endl;
+	cout << "* * * firstDir = " << tagVal.firstDir << endl;
+	return tagVal;
+}
+//-----------------------------------------------------------------------------------------------------------
 
 vector<string> list_dicom_tag_values_for_this_ref_tag_value(vector<string> files, string dcm_tag, string dcm_tag_val, string dcm_ref_tag)
 {
