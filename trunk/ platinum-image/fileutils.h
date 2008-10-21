@@ -68,6 +68,11 @@ void add_to_string_vector_if_not_present(vector<string> &v, string s);
 
 //------------- Dicom specific file handling ----------------------
 
+struct TagValueDirInfo{ //SO
+	string firstDir;
+	int similarDirs;
+};
+
 vector<string>	get_dicom_files_in_dir(string dir_path, bool full_path=false);
 string			get_first_dicom_file_in_dir(string dir_path, bool full_path=false);
 string			get_second_dicom_file_in_dir(string dir_path, bool full_path=false); //can for example be used for loading image 2 in dual echo sequences...
@@ -76,6 +81,7 @@ int				get_number_of_dicom_files_in_dir(string dir_path);
 string			get_dicom_tag_value(string file_path, string dcm_tag, bool remove_garbage_char=true);
 bool			does_dir_contain_dcmfile_with_tag_value(string dir_path, string dcm_tag, string tag_val, bool recursive_search=false);
 string			find_first_sub_dir_containing_dcm_file_with_tag_value(string dir_path, string dcm_tag, string tag_val, bool recursive_search=false);
+TagValueDirInfo get_number_of_dirs_and_first_sub_dir_containing_dcm_file_with_tag_value(string dir_path, string dcm_tag, string tag_val); //SO
 vector<string>	list_dicom_tag_values_for_this_ref_tag_value(vector<string> files, string dcm_tag, string dcm_tag_val, string dcm_ref_tag);
 vector<string>	list_dicom_tag_values_in_dir(string dir_path, string dcm_tag, bool recursive_search=false, bool exclusive_values=false);
 
