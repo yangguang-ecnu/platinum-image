@@ -529,17 +529,17 @@ bool remove_string_ending(string &s, string ending)
 
 string replace_last_substring(string s, string val, string replacement){
 //	cout<<"replace_last_substring..."<<endl;
-	cout<<"s="<<s<<endl;
+//	cout<<"s="<<s<<endl;
 	int last = s.find_last_of(val);
 	string s2 = s;
 	string a = s.substr(0,last-val.size()+1);
 	string b = replacement;
-	cout<<"s2="<<s2<<endl;
+//	cout<<"s2="<<s2<<endl;
 	string c = s2.substr(last+1,s2.size()-1-last);
-	cout<<"last="<<last<<endl;
-	cout<<"a="<<a<<endl;
-	cout<<"b="<<b<<endl;
-	cout<<"c="<<c<<endl;
+//	cout<<"last="<<last<<endl;
+//	cout<<"a="<<a<<endl;
+//	cout<<"b="<<b<<endl;
+//	cout<<"c="<<c<<endl;
 	return a+b+c;
 }
 
@@ -548,9 +548,9 @@ vector<string> subdirs(string dir_path, bool fullpath)
     trailing_slash(dir_path);
 
     vector<string> result = get_dir_entries(dir_path,false);
-	for(int i=0;i<result.size();i++){
+//	for(int i=0;i<result.size();i++){
 //		cout<<"res="<<result[i]<<endl;
-	}
+//	}
 
     vector<string>::iterator dirs = result.begin();
 
@@ -558,7 +558,7 @@ vector<string> subdirs(string dir_path, bool fullpath)
         {
         //sort out items which are not directories
         //or circular references
-		cout<<"*dirs="<<*dirs<<endl;
+		//cout<<"*dirs="<<*dirs<<endl;
 
 	    if (*dirs == "." || *dirs == ".." || !dir_exists(dir_path + *dirs) )
             {

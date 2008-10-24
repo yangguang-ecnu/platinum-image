@@ -307,57 +307,45 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_rough_lung_fr
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from_sum_image(image_binary<3> *thorax_body_mask, float lung_volume_in_litres, int low_threshold)
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from_sum_image(image_binary<3> *thorax_body_mask, float lung_volume_in_litres, int low_threshold, string base)
 {
 
 	image_binary<3> *rough_lung = this->appl_wb_segment_rough_lung_from_sum_image(thorax_body_mask, lung_volume_in_litres);
 	rough_lung->name("rough_lung");
-	rough_lung->save_to_file("c:/Joel/TMP/combi_1_rough_lung.vtk");
+	rough_lung->save_to_file(base+"__g_lung_1_rough_lung.vtk");
 
 	image_integer<short,3> *dist = rough_lung->distance_345_3D();
 	dist->name("dist");
-	dist->save_to_file("c:/Joel/TMP/combi_2_dist.vtk");
+	dist->save_to_file(base+"__g_lung_2_dist.vtk");
 
 	image_binary<3> *seeds = dist->threshold(15);
-//	image_binary<3> *seeds = new image_binary<3>(rough_lung);
-//	seeds->name("seeds");
-//	seeds->erode_3D_26Nbh();
-//	seeds->erode_3D_26Nbh();
-//	seeds->erode_3D_26Nbh();
 	seeds->largest_object_3D();
 
 	image_binary<3> *res = dist->region_grow_3D_if_lower_intensity(seeds);
 	res->name("res");
 	res->dilate_3D_26Nbh();
 	res->dilate_3D_26Nbh();
-	res->save_to_file("c:/Joel/TMP/combi_3_res.vtk");
+	res->save_to_file(base+"__g_lung_3_RG_res.vtk");
 
-	histogram_1D<ELEMTYPE> *h2 = this->get_histogram_from_masked_region_3D(res);
-	h2->save_histogram_to_txt_file("c:/Joel/TMP/combi_4_hist.txt");
+	histogram_1D<ELEMTYPE> *hist_masked = this->get_histogram_from_masked_region_3D(res);
+	hist_masked->save_histogram_to_txt_file(base+"__g_lung_4_hist_masked.txt");
 
 	float a;
 	float c;
 	float s;
-	h2->fit_gaussian_to_intensity_range(a,c,s,1,low_threshold);
+	hist_masked->fit_gaussian_to_intensity_range(a,c,s,3,low_threshold,true);
 	cout<<"a="<<a<<endl;
 	cout<<"c="<<c<<endl;
 	cout<<"s="<<s<<endl;
 	cout<<"-->thres="<<c+2*s<<endl;
 
-//	gaussian *g = new gaussian(a,c,s);
-//	h2->save_histogram_to_txt_file(base + "__c08_lung hist.txt",false,g);
-
-	//thresholda p¬ c + 2*s...
+	//threshold t = c + 2*s...
 
 	image_binary<3> *right_lung = this->threshold(0,c+2*s);
 	right_lung->name("right_lung");
 	right_lung->mask_out(res);
 	right_lung->largest_object_3D();
 
-//	datamanagement.add(rough_lung);
-//	datamanagement.add(dist);
-//	datamanagement.add(seeds);
-//	datamanagement.add(res);
 	delete rough_lung;
 	delete dist;
 	delete seeds;
@@ -367,7 +355,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres, int low_threshold)
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres, int low_threshold, string base)
 {
 	// ---- Create Common thorax mask -----
 	image_binary<3> *thorax_mask = new image_binary<3>(body_mask);
@@ -386,7 +374,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_fr
 	cout<<"***Right Lung***"<<endl;
 	image_binary<3> *right_mask = new image_binary<3>(thorax_mask);
 	right_mask->fill_region_3D(0,cg[0]+2,body_mask->get_size_by_dim(0)-1,0);
-	image_binary<3> *r_lung = this->appl_wb_segment_one_lung_from_sum_image(right_mask,lung_volume_in_litres, low_threshold);
+	image_binary<3> *r_lung = this->appl_wb_segment_one_lung_from_sum_image(right_mask,lung_volume_in_litres, low_threshold, base);
 	r_lung->name("r_lung");
 
 
@@ -400,7 +388,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_both_lungs_fr
 	left_mask->fill_region_3D(0,0,cg[0]-2,0);
 	left_mask->fill_region_3D(1,0,y1,0);
 	left_mask->fill_region_3D(1,y2,left_mask->ny()-1,0);
-	image_binary<3> *l_lung = this->appl_wb_segment_one_lung_from_sum_image(left_mask,lung_volume_in_litres, low_threshold);
+	image_binary<3> *l_lung = this->appl_wb_segment_one_lung_from_sum_image(left_mask,lung_volume_in_litres, low_threshold, base);
 	l_lung->name("l_lung");
 
 
@@ -632,6 +620,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 	delete body_mini;
 	delete abd;
 	delete sat;
+	delete vat_mask_mini;
 	delete sat_seed;
 
 	return vat_mask;

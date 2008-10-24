@@ -292,8 +292,8 @@ public:
 	float appl_wb_correct_inclination(image_scalar<ELEMTYPE, IMAGEDIM>*fat, image_scalar<ELEMTYPE, IMAGEDIM>*water);
 	image_binary<3>* appl_wb_segment_body_from_sum_image(int initial_thres=30);
 	image_binary<3>* appl_wb_segment_rough_lung_from_sum_image(image_binary<3> *mask, float lung_volume_in_litres=2.5);
-	image_binary<3>* appl_wb_segment_one_lung_from_sum_image(image_binary<3> *thorax_body_mask, float lung_volume_in_litres=2.5, int low_threshold=50);
-	image_binary<3>* appl_wb_segment_both_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres=2.5, int low_threshold=50);
+	image_binary<3>* appl_wb_segment_one_lung_from_sum_image(image_binary<3> *thorax_body_mask, float lung_volume_in_litres=2.5, int low_threshold=50, string base="");
+	image_binary<3>* appl_wb_segment_both_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres=2.5, int low_threshold=50, string base="");
 //	image_binary<3>* appl_wb_segment_lungs_from_sum_image(image_binary<3> *body_mask, float lung_volume_in_litres=5);
 	void appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres=950);
 	image_binary<3>* appl_wb_segment_VAT_mask_from_this_water_percent_abd_subvolume(image_binary<3> *bin_body, string base="");
