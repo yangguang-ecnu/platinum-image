@@ -725,12 +725,17 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 	cout<<"to_bucket="<<to_bucket<<endl;
 
 	gaussian g(amp,center,sigma);
-	g.amplitude = float(get_max_value_in_bucket_range(from_bucket,to_bucket));
+	g.amplitude = float(this->get_max_value_in_bucket_range(from_bucket,to_bucket));
 //	g.center = get_mean_intensity_in_bucket_range(from_bucket,to_bucket);
-	g.center = get_max_value_in_bucket_range(from_bucket,to_bucket);
-	g.sigma = sqrt(get_variance_in_bucket_range(from_bucket,to_bucket)); //intensity variance...
+	g.center = this->get_max_value_in_bucket_range(from_bucket,to_bucket);
+	g.sigma = sqrt(this->get_variance_in_bucket_range(from_bucket,to_bucket)); //intensity variance...
 	int dyn_from_bucket = std::max(from_bucket, intensity_to_bucketpos(g.center-1.5*g.sigma));
 	int dyn_to_bucket = std::min(to_bucket, intensity_to_bucketpos(g.center+1.5*g.sigma));
+
+	cout<<"***INIT***"<<endl;
+	cout<<"amp="<<g.amplitude<<endl;
+	cout<<"center="<<g.center<<endl;
+	cout<<"sigma="<<g.sigma<<endl;
 
 	if(print_info)
 	{

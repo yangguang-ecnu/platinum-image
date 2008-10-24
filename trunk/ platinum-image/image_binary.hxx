@@ -94,6 +94,15 @@ image_binary<IMAGEDIM>* image_binary<IMAGEDIM>::get_subvolume_from_slice_3D(int 
 }
 
 template <int IMAGEDIM>
+image_binary<IMAGEDIM>* image_binary<IMAGEDIM>::get_subvolume_from_region_3D(image_binary<3> *mask, IMGBINARYTYPE object_value)
+{
+	int x1,y1,z1,x2,y2,z2;
+	mask->get_span_of_value_3D(object_value,x1,y1,z1,x2,y2,z2);
+	return this->get_subvolume_from_region_3D(x1,y1,z1,x2,y2,z2);
+}
+
+
+template <int IMAGEDIM>
 image_binary<IMAGEDIM>* image_binary<IMAGEDIM>::get_subvolume_from_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size)
 {
 	return get_subvolume_from_region_3D(vox_pos[0],vox_pos[1],vox_pos[2],vox_pos[0]+vox_size[0],vox_pos[1]+vox_size[1],vox_pos[2]+vox_size[2]);
