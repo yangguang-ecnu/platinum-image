@@ -719,15 +719,15 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 	cout<<"this->min()="<<this->min()<<endl;
 	cout<<"this->num_buckets()="<<this->num_buckets<<endl;
 
-	int from_bucket = intensity_to_bucketpos(from);
-	int to_bucket = intensity_to_bucketpos(to);
+	int from_bucket = std::max(0, int(intensity_to_bucketpos(from)));
+	int to_bucket = std::min(int(this->num_buckets-1), int(intensity_to_bucketpos(to)));
 	cout<<"from_bucket="<<from_bucket<<endl;
 	cout<<"to_bucket="<<to_bucket<<endl;
 
 	gaussian g(amp,center,sigma);
 	g.amplitude = float(this->get_max_value_in_bucket_range(from_bucket,to_bucket));
-//	g.center = get_mean_intensity_in_bucket_range(from_bucket,to_bucket);
-	g.center = this->get_max_value_in_bucket_range(from_bucket,to_bucket);
+	g.center = get_mean_intensity_in_bucket_range(from_bucket,to_bucket);
+//	g.center = this->get_max_value_in_bucket_range(from_bucket,to_bucket);
 	g.sigma = sqrt(this->get_variance_in_bucket_range(from_bucket,to_bucket)); //intensity variance...
 	int dyn_from_bucket = std::max(from_bucket, intensity_to_bucketpos(g.center-1.5*g.sigma));
 	int dyn_to_bucket = std::min(to_bucket, intensity_to_bucketpos(g.center+1.5*g.sigma));
