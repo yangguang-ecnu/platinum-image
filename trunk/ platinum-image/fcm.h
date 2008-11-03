@@ -131,7 +131,7 @@ public:
 	void calc_mean_nbh_dist_image();
 	float calc_dissimilarity(int c, int i, int j, int k); //denoted dissimilarity index (D_kx) in Liew2003
 
-	void Update_imagesfcm(); //executes sfcm algorithm ( in sweet ITK style... ;-)  )...
+	void Update_imagesfcm(float scale_percentile=0.95); //executes sfcm algorithm ( in sweet ITK style... ;-)  )...
 
 	void save_mean_nbh_dist_image(string file_path);
 	void save_dissimilarity_images(string file_path_base);

@@ -514,8 +514,11 @@ void sfcm::calc_dissimilarity_images(const vnl_matrix<float> &V)
 
 	for(int c=0;c<n_clust();c++){
 		cout<<" "<<c;
-//		this->dissim_images[c]->fill(0);	//JK-time consuming
-		this->dissim_images[c]->fill_image_border_3D(0);
+		if(image_mask!=NULL){
+			this->dissim_images[c]->fill(0);	//JK-time consuming but needed when a mask is used...
+		}else{
+			this->dissim_images[c]->fill_image_border_3D(0);
+		}
 
 		for(int k=1;k<nz()-1;k++){
 			for(int j=1;j<ny()-1;j++){
@@ -531,17 +534,21 @@ void sfcm::calc_dissimilarity_images(const vnl_matrix<float> &V)
 
 }
 
-void sfcm::Update_imagesfcm()
+void sfcm::Update_imagesfcm(float scale_percentile)
 {
-	cout<<"fcm::Update_imagesfcm()..."<<endl;
+	cout<<"sfcm::Update_imagesfcm()..."<<endl;
 
 	//-----------------------
 	// Normalize image intensities... (row-wise...) (and scale image intensities from 0...max --> 0...1 
 	// (one might do more intelligent trimming of the image top intensity values)
 	//-----------------------
+	float perc;
 	cout<<"scale..."<<endl;
+
 	for(int b=0;b<n_bands();b++){
-		cout<<"band="<<b<<" max="<<images[b]->get_max()<<endl;
+		perc = images[b]->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(scale_percentile, false);
+		cout<<"band="<<b<<" max="<<images[b]->get_max()<<" perc="<<perc<<endl;
+		images[b]->map_values(perc,10000000,perc);
 		images[b]->scale(0,1);
 		images[b]->data_has_changed();
 		cout<<"band="<<b<<" max="<<images[b]->get_max()<<endl;
@@ -560,18 +567,21 @@ void sfcm::Update_imagesfcm()
 
 	//calc sfcm objects....
 	calc_mean_nbh_dist_image();	//only needed once...
-	save_mean_nbh_dist_image("c:\\Joel\\TMP\\Pivus75\\_sfcm_mean_dist.vtk");
+	save_mean_nbh_dist_image("d:/Joel/TMP/Pivus75/_sfcm_mean_dist.vtk");
 	calc_sigma();				//only needed once...
 
 
 	//do a first roud outside to allow calculation of "u_change_max"...
+	cout<<"V1="<<V<<endl;
 	calc_int_dist_images_euclidean(V);
+	cout<<"V2="<<V<<endl;
 	calc_dissimilarity_images(V);	//sfcm
-	save_dissimilarity_images("c:\\Joel\\TMP\\Pivus75\\_sfcm_dissim_images");
+	cout<<"V3="<<V<<endl;
+	save_dissimilarity_images("d:/Joel/TMP/Pivus75/_sfcm_dissim_images");
 
 //	calc_memberships(u_images2, int_dist_images, m);
-	calc_memberships(u_images2, dissim_images, m);
-	this->save_membership_images_to_vtk("c:\\Joel\\TMP\\Pivus75\\_sfcm_membership_images");
+	calc_memberships(u_images2, dissim_images, m); //JK... This messes things up....
+	this->save_membership_images_to_vtk("d:/Joel/TMP/Pivus75/_sfcm_membership_images");
 	calc_cluster_centers(V,u_images2,m);
 
 	cout<<"V="<<V<<endl;
@@ -584,7 +594,7 @@ void sfcm::Update_imagesfcm()
 	while(u_change_max > u_maxdiff_limit)
 	{ 
 		iter++;
-		cout<<"fcm iteration = "<<iter<<endl;
+		cout<<"sfcm iteration = "<<iter<<endl;
 
 		//-----------------------
 		// Calc dist_functions... int_dist(n_clust, n_pix) 
@@ -592,7 +602,7 @@ void sfcm::Update_imagesfcm()
 		//-----------------------
 		calc_int_dist_images_euclidean(V);
 		calc_dissimilarity_images(V);
-		save_dissimilarity_images("c:\\Joel\\TMP\\Pivus75\\_sfcm_dissim_images_iter_"+int2str(iter));
+		save_dissimilarity_images("d:/Joel/TMP/Pivus75/_sfcm_dissim_images_iter_"+int2str(iter));
 		//	cout<<endl<<"int_dist="<<int_dist<<endl;
 
 		//-----------------------
