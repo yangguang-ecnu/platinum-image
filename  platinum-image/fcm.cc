@@ -338,6 +338,13 @@ void fcm::save_membership_image_collage_to_vtk(string file_path)
 	delete tmp;
 }
 
+void fcm::save_int_dist_images(string file_path_base)
+{
+	for(int c=0;c<n_clust();c++){
+		int_dist_images[c]->save_to_file(file_path_base+"_"+int2str(c)+".vtk");
+	}
+}
+
 
 fcm_image_vector_type fcm::get_membership_images()
 {
@@ -380,7 +387,9 @@ void fcm::save_vnl_matrix_to_file(vnl_matrix<float> &V, std::string file_path)
 
 
 
+// -------------------------------------------------------------
 // ----------------------- SFCM --------------------------------
+// -------------------------------------------------------------
 
 sfcm::sfcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness, float u_diff_limit, image_binary<3> *mask) : fcm(vec, V_init_clusters, m_fuzzyness, u_diff_limit, mask)
 {
@@ -537,7 +546,7 @@ void sfcm::calc_dissimilarity_images(const vnl_matrix<float> &V)
 void sfcm::Update_imagesfcm(float scale_percentile)
 {
 	cout<<"sfcm::Update_imagesfcm()..."<<endl;
-
+	string path = "C:/Joel/TMP/";
 	//-----------------------
 	// Normalize image intensities... (row-wise...) (and scale image intensities from 0...max --> 0...1 
 	// (one might do more intelligent trimming of the image top intensity values)
@@ -546,7 +555,11 @@ void sfcm::Update_imagesfcm(float scale_percentile)
 	cout<<"scale..."<<endl;
 
 	for(int b=0;b<n_bands();b++){
-		perc = images[b]->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(scale_percentile, false);
+		if(image_mask!=NULL){
+			perc = images[b]->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(scale_percentile, false);
+		}else{
+			perc = images[b]->get_histogram()->get_intensity_at_histogram_lower_percentile(scale_percentile, false);
+		}
 		cout<<"band="<<b<<" max="<<images[b]->get_max()<<" perc="<<perc<<endl;
 		images[b]->map_values(perc,10000000,perc);
 		images[b]->scale(0,1);
@@ -565,23 +578,35 @@ void sfcm::Update_imagesfcm(float scale_percentile)
 		u_images2.push_back(new image_scalar<float>(this->images[0],false));	//degree of membership	(n_bands)
 	}
 
-	//calc sfcm objects....
-	calc_mean_nbh_dist_image();	//only needed once...
-	save_mean_nbh_dist_image("d:/Joel/TMP/Pivus75/_sfcm_mean_dist.vtk");
-	calc_sigma();				//only needed once...
 
 
 	//do a first roud outside to allow calculation of "u_change_max"...
 	cout<<"V1="<<V<<endl;
 	calc_int_dist_images_euclidean(V);
+
+	save_int_dist_images(path+"sfcm0_int_dist");
+
+	//calc sfcm objects....
+	calc_mean_nbh_dist_image();	//only needed once...
+	save_mean_nbh_dist_image(path+"sfcm1_mean_dist.vtk");
+	calc_sigma();				//only needed once...
+
+	cout<<"V1="<<V<<endl;
+	calc_int_dist_images_euclidean(V);
 	cout<<"V2="<<V<<endl;
 	calc_dissimilarity_images(V);	//sfcm
 	cout<<"V3="<<V<<endl;
-	save_dissimilarity_images("d:/Joel/TMP/Pivus75/_sfcm_dissim_images");
+	save_dissimilarity_images(path+"sfcm2_dissim_images");
+/*
+	calc_memberships(u_images2, int_dist_images, m);
+	for(int c=0;c<n_clust();c++){
+		u_images2[c]->save_to_VTK_file(path +"sfcm3_u_images2_"+ int2str(c)+".vtk");
+	}
 
-//	calc_memberships(u_images2, int_dist_images, m);
-	calc_memberships(u_images2, dissim_images, m); //JK... This messes things up....
-	this->save_membership_images_to_vtk("d:/Joel/TMP/Pivus75/_sfcm_membership_images");
+	calc_spatial_memberships(u_images2, dissim_images, m); //JK... This messes things up....
+	this->save_membership_images_to_vtk(path+"sfcm4_membership_images");
+
+
 	calc_cluster_centers(V,u_images2,m);
 
 	cout<<"V="<<V<<endl;
@@ -602,7 +627,7 @@ void sfcm::Update_imagesfcm(float scale_percentile)
 		//-----------------------
 		calc_int_dist_images_euclidean(V);
 		calc_dissimilarity_images(V);
-		save_dissimilarity_images("d:/Joel/TMP/Pivus75/_sfcm_dissim_images_iter_"+int2str(iter));
+		save_dissimilarity_images(path+"sfcm5_dissim_images_iter_"+int2str(iter));
 		//	cout<<endl<<"int_dist="<<int_dist<<endl;
 
 		//-----------------------
@@ -635,6 +660,8 @@ void sfcm::Update_imagesfcm(float scale_percentile)
 		copy_memberships_from(u_images2);
 
 	}
+
+	*/
 	cout<<"sFCM limit reached..."<<endl;
 }
 
