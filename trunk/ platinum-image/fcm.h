@@ -95,6 +95,8 @@ public:
 	void save_membership_images_to_dcm(string file_path_base, float scale_factor=1000); 
 	void save_membership_images_to_vtk(string file_path_base); 
 	void save_membership_image_collage_to_vtk(string file_path_base); 
+	void save_int_dist_images(string file_path_base);
+
 	fcm_image_vector_type get_membership_images();
 
 //	fcm_image_vector_type get_image_vector_from_u_vector(); //note that geometrical info is not reconstructed...
@@ -103,6 +105,10 @@ public:
 };
 
 
+
+// -------------------------------------------------------------
+// ----------------------- SFCM --------------------------------
+// -------------------------------------------------------------
 
 
 // Class for inclusion of spatial naighbourhood information into the fcm algorith. Adapted from
@@ -126,7 +132,7 @@ public:
 	sfcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness=2, float u_maxdiff_limit=0.05, image_binary<3> *mask=NULL);
 	~sfcm();
 
-	float calc_lamda(float nbh_dist); //denoted lamda(delta) in Liew2003
+	float calc_lamda(float nbh_dist); //denoted lamda(delta) in Liew2003 (uses: average_nbh_dist_mean / sigma)
 	void calc_sigma();
 	void calc_mean_nbh_dist_image();
 	float calc_dissimilarity(int c, int i, int j, int k); //denoted dissimilarity index (D_kx) in Liew2003
