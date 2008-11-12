@@ -2954,9 +2954,9 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::logarithm_3d(int zero_handling)
 	// zero_handling=1: non-positive voxels are set to zero
 	// zero_handling=2: non-positive voxels are set to std::numeric_limits<ELEMTYPE>::min()
 	if (zero_handling<0 || zero_handling>2) {zero_handling=0;}
-	for (int x=0; x<this->get_size_by_dim(0); x++) {
+	for (int z=0; z<this->get_size_by_dim(2); z++) {
 		for (int y=0; y<this->get_size_by_dim(1); y++) {
-			for (int z=0; z<this->get_size_by_dim(2); z++) {
+			for (int x=0; x<this->get_size_by_dim(0); x++) {
 				if (this->get_voxel(x,y,z)>0) {this->set_voxel(x,y,z,log(this->get_voxel(x,y,z)));	}
 				else if (zero_handling==1) {this->set_voxel(x,y,z,0);}
 				else if (zero_handling==2) {this->set_voxel(x,y,z,std::numeric_limits<ELEMTYPE>::min());}
@@ -2968,9 +2968,9 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::logarithm_3d(int zero_handling)
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::abs_3d()
 {
-	for (int x=0; x<this->get_size_by_dim(0); x++) {
+	for (int z=0; z<this->get_size_by_dim(2); z++) {
 		for (int y=0; y<this->get_size_by_dim(1); y++) {
-			for (int z=0; z<this->get_size_by_dim(2); z++) {
+			for (int x=0; x<this->get_size_by_dim(0); x++) {
 				this->set_voxel( x,y,z,abs(this->get_voxel(x,y,z)) );
 			}
 		}
