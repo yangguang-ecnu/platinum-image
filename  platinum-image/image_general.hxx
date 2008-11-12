@@ -1674,8 +1674,10 @@ vector<plane3D> image_general<ELEMTYPE, IMAGEDIM>::get_planes_spanning_volume3D(
 	return v;
 }
 
+
+
 template <class ELEMTYPE, int IMAGEDIM>
-Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_phys_pos_of_max_intensity_between(Vector3Dint from_vox, Vector3Dint to_vox)
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_phys_pos_of_max_intensity_between(Vector3Dint from_vox, Vector3Dint to_vox, unsigned int radius)
 {
 	Vector3Dint diff = (to_vox - from_vox);
 	float n = max( max(diff[0],diff[1]), diff[2] );
@@ -1687,19 +1689,34 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_phys_pos_of_max_intensity_betwee
 	Vector3D max_pos;
 	ELEMTYPE max_intensity = std::numeric_limits<ELEMTYPE>::min();
 	ELEMTYPE tmp;
-	for(float i=0;i<n+1;i++){
-		tmp = this->get_voxel( from_vox[0]+delta[0]*i, from_vox[1]+delta[1]*i, from_vox[2]+delta[2]*i);
-		if(tmp>max_intensity){
-			max_intensity = tmp;
-			max_pos = this->voxel_to_world( create_Vector3D(from_vox[0]+delta[0]*i, from_vox[1]+delta[1]*i, from_vox[2]+delta[2]*i) );
+
+	if(radius==0){
+
+		for(float i=0;i<n+1;i++){
+			tmp = this->get_voxel( from_vox[0]+delta[0]*i, from_vox[1]+delta[1]*i, from_vox[2]+delta[2]*i);
+			if(tmp>max_intensity){
+				max_intensity = tmp;
+				max_pos = this->voxel_to_world( create_Vector3D(from_vox[0]+delta[0]*i, from_vox[1]+delta[1]*i, from_vox[2]+delta[2]*i) );
+			}
 		}
+
+	}else{
+
+		for(float i=0;i<n+1;i++){
+			tmp = this->get_max_in_region(from_vox[0]+delta[0]*i, from_vox[1]+delta[1]*i, from_vox[2]+delta[2]*i, radius);
+			if(tmp>max_intensity){
+				max_intensity = tmp;
+				max_pos = this->voxel_to_world( create_Vector3D(from_vox[0]+delta[0]*i, from_vox[1]+delta[1]*i, from_vox[2]+delta[2]*i) );
+			}
+		}
+
 	}
 
 	return max_pos;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_phys_pos_of_max_intensity_along(line3D line)
+Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_phys_pos_of_max_intensity_along(line3D line, unsigned int radius)
 {
 	Vector3D pos;
 
@@ -1709,10 +1726,30 @@ Vector3D image_general<ELEMTYPE, IMAGEDIM>::get_phys_pos_of_max_intensity_along(
 	cout<<"v1="<<v1<<endl;
 	cout<<"v2="<<v2<<endl;
 	if(v2[0]>=0){
-		pos = this->get_phys_pos_of_max_intensity_between(v1,v2);
+		pos = this->get_phys_pos_of_max_intensity_between(v1,v2, radius);
 	}
 
 	return pos;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_max_in_region(int x,int y,int z, unsigned int radius)
+{
+	ELEMTYPE max_val = std::numeric_limits<ELEMTYPE>::min();
+	ELEMTYPE val;
+
+	for(int w=std::max(0,int(z-radius)); w<=std::min(int(this->nz()-1),int(z+radius)); w++){
+		for(int v=std::max(0,int(y-radius)); v<=std::min(int(this->ny()-1),int(y+radius)); v++){
+			for(int u=std::max(0,int(x-radius)); u<=std::min(int(this->nx()-1),int(x+radius)); u++){
+				val = this->get_voxel(u,v,w);
+				if(val>max_val){
+					max_val = val;
+				}
+			}
+		}
+	}
+
+	return max_val;
 }
 
 
@@ -2216,7 +2253,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_image_border_3D(ELEMTYPE value, int
 {
 	for(int dim=0;dim<=2;dim++){
 		this->fill_region_3D(dim,0,border_thickness-1, value);								//low x/y/z-values
-		this->fill_region_3D(dim,datasize[dim]-2-border_thickness,datasize[dim]-1, value);	//high x/y/z-values
+		this->fill_region_3D(dim,datasize[dim]-border_thickness,datasize[dim]-1, value);	//high x/y/z-values
 	}
 }
 template <class ELEMTYPE, int IMAGEDIM>

@@ -312,11 +312,11 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from
 
 	image_binary<3> *rough_lung = this->appl_wb_segment_rough_lung_from_sum_image(thorax_body_mask, lung_volume_in_litres);
 	rough_lung->name("rough_lung");
-	rough_lung->save_to_file(base+"__g_lung_1_rough_lung.vtk");
+	rough_lung->save_to_file(base+"__d01_lung_1_rough_lung.vtk");
 
 	image_integer<short,3> *dist = rough_lung->distance_345_3D();
 	dist->name("dist");
-	dist->save_to_file(base+"__g_lung_2_dist.vtk");
+	dist->save_to_file(base+"__d01_lung_2_dist.vtk");
 
 	image_binary<3> *seeds = dist->threshold(15);
 	seeds->largest_object_3D();
@@ -325,10 +325,10 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from
 	res->name("res");
 	res->dilate_3D_26Nbh();
 	res->dilate_3D_26Nbh();
-	res->save_to_file(base+"__g_lung_3_RG_res.vtk");
+	res->save_to_file(base+"__d01_lung_3_RG_res.vtk");
 
 	histogram_1D<ELEMTYPE> *hist_masked = this->get_histogram_from_masked_region_3D(res);
-	hist_masked->save_histogram_to_txt_file(base+"__g_lung_4_hist_masked.txt");
+	hist_masked->save_histogram_to_txt_file(base+"__d01_lung_4_hist_masked.txt");
 
 	float a;
 	float c;

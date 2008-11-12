@@ -416,6 +416,8 @@ sfcm::~sfcm()
 	for(int c=0;c<n_clust();c++){
 		delete this->dissim_images[c];
 	}
+
+	//~fcm() is called after this....
 }
 
 float sfcm::get_squared_pixel_int_dist(int i, int j, int k, int i2, int j2, int k2)
@@ -670,6 +672,12 @@ void sfcm::Update_imagesfcm(float scale_percentile)
 
 
 	cout<<"sFCM limit reached..."<<endl;
+
+	//free memory.....
+	for(int c=0;c<n_clust();c++){
+		delete u_images2[c];
+	}
+
 }
 
 
