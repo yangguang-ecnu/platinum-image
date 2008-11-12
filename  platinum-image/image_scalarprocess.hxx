@@ -754,9 +754,9 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 		feat1_min=feat1_corr->get_min(); feat2_min=feat2_corr->get_min();
 		feat1_scale = float(feat1_corr->get_max()-feat1_min)*1.000001/float(num_buckets_feat1);
 		feat2_scale = float(feat2_corr->get_max()-feat2_min)*1.000001/float(num_buckets_feat2);
-		for (int x=0; x<xsize; x++) {
+		for (int z=0; z<zsize; z++) {
 			for (int y=0; y<ysize; y++) {
-				for (int z=0; z<zsize; z++) {
+				for (int x=0; x<xsize; x++) {
 					if (body_lung_mask->get_voxel(x,y,z))	{
 						feat1_bucket=(feat1_corr->get_voxel(x,y,z)-feat1_min)/feat1_scale;
 						feat2_bucket=(feat2_corr->get_voxel(x,y,z)-feat2_min)/feat2_scale;
@@ -796,9 +796,9 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 		//feat1_corr->add_value_to_all_voxels(1); feat2_corr->add_value_to_all_voxels(1);
 		feat1_corr->combine(feat1, COMB_MULT); feat2_corr->combine(feat2, COMB_MULT);
 		//Set negative values to zero
-		for (int x=0; x<xsize; x++) {
+		for (int z=0; z<zsize; z++) {
 			for (int y=0; y<ysize; y++) {
-				for (int z=0; z<zsize; z++) {
+				for (int x=0; x<xsize; x++) {
 					if (feat1_corr->get_voxel(x,y,z)<0) {feat1_corr->set_voxel(x,y,z,0);}
 					if (feat2_corr->get_voxel(x,y,z)<0) {feat2_corr->set_voxel(x,y,z,0);}
 				}

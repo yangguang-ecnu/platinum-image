@@ -1674,6 +1674,108 @@ image_integer<short, IMAGEDIM> *  image_binary<IMAGEDIM>::distance_345_3D(bool e
 	}
 
 template <int IMAGEDIM>
+image_integer<short, IMAGEDIM>* image_binary<IMAGEDIM>::distance_chessboard_3D(bool edge_is_object, IMGBINARYTYPE object_value)
+{
+	image_integer<short, IMAGEDIM>* output = new image_integer<short,IMAGEDIM> (this,false);
+	int u,v,w;
+	int max_u=this->get_size_by_dim(0);
+	int max_v=this->get_size_by_dim(1);
+	int max_w=this->get_size_by_dim(2);
+	int veryhigh = (std::max(max_w,std::max(max_u,max_v))); // veryhigh must be higher than any final calculated distance value in image
+	int initvalue = (edge_is_object)?veryhigh:0;
+	IMGBINARYTYPE p;//pixel value
+	int mmm,mul,mum,mur,mml,mmr,mll,mlm,mlr,aul,aum,aur,aml,amm,amr,all,alm,alr,bul,bum,bur,bml,bmm,bmr,bll,blm,blr;//neighbour labels: First letter: above/middle/below (w-direction). Second letter: upper/middle/lower (v-direction). Third letter: left/middle/right (u-direction).
+	
+	//Forward pass
+	for(w=0; w<max_w; w++){
+		for(v=0; v<max_v; v++){
+			u=0;
+			mml=initvalue;
+			mul=initvalue;
+			aml=initvalue;
+			aul=initvalue;
+			all=initvalue;
+			mum=(v>0)? output->get_voxel(u,v-1,w) : initvalue;
+			aum=(v>0 && w>0)? output->get_voxel(u,v-1,w-1) : initvalue;
+			amm=(w>0)? output->get_voxel(u,v,w-1) : initvalue;
+			alm=(v<max_v-1 && w>0)? output->get_voxel(u,v+1,w-1) : initvalue;
+			for(u=0; u<max_u; u++){
+				p=this->get_voxel(u,v,w);
+				mur=(u<max_u-1 && v>0)? output->get_voxel(u+1,v-1,w) : initvalue;
+				aur=(u<max_u-1 && v>0 && w>0)? output->get_voxel(u+1,v-1,w-1) : initvalue;
+				amr=(u<max_u-1 && w>0)? output->get_voxel(u+1,v,w-1) : initvalue;
+				alr=(u<max_u-1 && v<max_v-1 && w>0)? output->get_voxel(u+1,v+1,w-1) : initvalue;
+				mmm=(p==object_value)?std::min(
+											   std::min(
+														std::min( std::min(aul,aum),std::min(aur,aml) ),
+														std::min( std::min(amm,amr),std::min(all,alm) )
+														),
+											   std::min( std::min( std::min(alr,mul),std::min(mum,mur) ), mml )
+											   )+1:0;
+				output->set_voxel(u,v,w,mmm);
+				mml=mmm; //traverse the information minimie "get_voxel" calls...
+				mul=mum;
+				mum=mur;
+				aul=aum;
+				aum=aur;
+				aml=amm;
+				amm=amr;
+				all=alm;
+				alm=alr;
+			}
+		}
+	}
+	
+	//Backward pass
+	for(w=max_w-1; w>=0; w--){
+		for(v=max_v-1; v>=0; v--){
+			u=max_u-1;
+			mmr=initvalue;
+			mlr=initvalue;
+			bmr=initvalue;
+			bur=initvalue;
+			blr=initvalue;
+			mlm=(v<max_v-1)? output->get_voxel(u,v+1,w) : initvalue;
+			bum=(v>0 && w<max_w-1)? output->get_voxel(u,v-1,w+1) : initvalue;
+			bmm=(w<max_w-1)? output->get_voxel(u,v,w+1) : initvalue;
+			blm=(v<max_v-1 && w<max_w-1)? output->get_voxel(u,v+1,w+1) : initvalue;
+			
+			for(u=max_u-1; u>=0; u--){
+				p=this->get_voxel(u,v,w);
+				mmm=output->get_voxel(u,v,w);
+				mll=(u>0 && v<max_v-1)? output->get_voxel(u-1,v+1,w) : initvalue;
+				bul=(u>0 && v>0 && w<max_w-1)? output->get_voxel(u-1,v-1,w+1) : initvalue;
+				bml=(u>0 && w<max_w-1)? output->get_voxel(u-1,v,w+1) : initvalue;
+				bll=(u>0 && v<max_v-1 && w<max_w-1)? output->get_voxel(u-1,v+1,w+1) : initvalue;
+				mmm=(p==object_value)?std::min(
+											   std::min(
+														std::min( std::min(bul,bum),std::min(bur,bml) ),
+														std::min( std::min(bmm,bmr),std::min(bll,blm) )
+														),
+											   std::min( 
+														std::min(std::min(blr,mll),std::min(mlm,mlr) ),
+														std::min(mmm-1,mmr)
+														)
+											   )+1:0;
+				output->set_voxel(u,v,w,mmm);
+				mmr=mmm;
+				mlr=mlm;
+				mlm=mll;
+				bur=bum;
+				bum=bul;
+				bmr=bmm;
+				bmm=bml;
+				blr=blm;
+				blm=bll;
+			}
+		}
+	}
+	
+	output->data_has_changed();
+	return output;
+}
+
+template <int IMAGEDIM>
 image_label<3>* image_binary<IMAGEDIM>::label_connected_objects_3D(IMGBINARYTYPE object_value)
 {
 	int u,v,w;
@@ -2430,9 +2532,9 @@ float image_binary<IMAGEDIM>::mutual_overlap_3D(image_binary<IMAGEDIM>* second_i
 	int mutual_voxels=0;
 	int num_voxels_this=0;
 	int num_voxels_second=0;
-	for (int x=0; x<this->get_size_by_dim(0); x++) {
-		for (int y=0; y<this->get_size_by_dim(1); y++) {
-			for (int z=0; z<this->get_size_by_dim(2); z++) {
+	for (int z=0; z<this->get_size_by_dim(2); z++)
+		for (int y=0; y<this->get_size_by_dim(1); y++)
+			for (int x=0; x<this->get_size_by_dim(0); x++) {
 				if (this->get_voxel(x,y,z)) {
 					num_voxels_this++;
 					if (second_image->get_voxel(x,y,z)) {
@@ -2443,8 +2545,6 @@ float image_binary<IMAGEDIM>::mutual_overlap_3D(image_binary<IMAGEDIM>* second_i
 				else if (second_image->get_voxel(x,y,z))
 					num_voxels_second++;
 			}
-		}
-	}
 	if ((num_voxels_this + num_voxels_second)!=0)
 		return float(2*mutual_voxels)/float(num_voxels_this + num_voxels_second);
 	else

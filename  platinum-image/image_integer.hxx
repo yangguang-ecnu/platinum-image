@@ -42,9 +42,9 @@ image_integer<short, 3>* image_integer<ELEMTYPE, IMAGEDIM>::watershed()
 	int ysize = this->get_size_by_dim(1);
 	int zsize = this->get_size_by_dim(2);
 	map<ELEMTYPE, vector<Vector3Dint> > histogram;
-	for (int x=0; x<xsize; x++)
+	for (int z=0; z<zsize; z++)
 		for (int y=0; y<ysize; y++)
-			for (int z=0; z<zsize; z++)
+			for (int x=0; x<xsize; x++)
 				histogram[this->get_voxel(x,y,z)].push_back(create_Vector3Dint(x,y,z));
 			
 	Vector3Dint p, p1, p2;
