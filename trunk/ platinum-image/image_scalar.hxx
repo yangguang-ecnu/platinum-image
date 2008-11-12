@@ -838,6 +838,7 @@ ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_max_in_slice3D(int slice, int dir
 	 return max;
 }
 
+
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::crop_3D(image_binary<3> *mask)
 {

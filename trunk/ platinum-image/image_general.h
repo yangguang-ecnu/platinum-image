@@ -164,8 +164,9 @@ class image_general : public image_storage <ELEMTYPE >
 		Vector3Dint get_line_intersection_with_plane_spanning_volume3D(line3D l, int plane_id);
 		void get_line_intersection_voxels(line3D l, Vector3Dint &v1, Vector3Dint &v2);
 		vector<plane3D> get_planes_spanning_volume3D();	//normals point outwards...
-		Vector3D get_phys_pos_of_max_intensity_between(Vector3Dint from_vox, Vector3Dint to_vox);	
-		Vector3D get_phys_pos_of_max_intensity_along(line3D line);	
+		Vector3D get_phys_pos_of_max_intensity_between(Vector3Dint from_vox, Vector3Dint to_vox, unsigned int radius=0);	
+		Vector3D get_phys_pos_of_max_intensity_along(line3D line, unsigned int radius=0);	
+		ELEMTYPE get_max_in_region(int x,int y,int z, unsigned int radius=1);
 
 
 
