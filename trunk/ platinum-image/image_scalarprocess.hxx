@@ -312,11 +312,15 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from
 
 	image_binary<3> *rough_lung = this->appl_wb_segment_rough_lung_from_sum_image(thorax_body_mask, lung_volume_in_litres);
 	rough_lung->name("rough_lung");
-	rough_lung->save_to_file(base+"__d01_lung_1_rough_lung.vtk");
+	if(base!=""){
+		rough_lung->save_to_file(base+"__c01_lung_1_rough_lung.vtk");
+	}
 
 	image_integer<short,3> *dist = rough_lung->distance_345_3D();
 	dist->name("dist");
-	dist->save_to_file(base+"__d01_lung_2_dist.vtk");
+	if(base!=""){
+		dist->save_to_file(base+"__c01_lung_2_dist.vtk");
+	}
 
 	image_binary<3> *seeds = dist->threshold(15);
 	seeds->largest_object_3D();
@@ -325,10 +329,14 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_one_lung_from
 	res->name("res");
 	res->dilate_3D_26Nbh();
 	res->dilate_3D_26Nbh();
-	res->save_to_file(base+"__d01_lung_3_RG_res.vtk");
+	if(base!=""){
+		res->save_to_file(base+"__c01_lung_3_RG_res.vtk");
+	}
 
 	histogram_1D<ELEMTYPE> *hist_masked = this->get_histogram_from_masked_region_3D(res);
-	hist_masked->save_histogram_to_txt_file(base+"__d01_lung_4_hist_masked.txt");
+	if(base!=""){
+		hist_masked->save_histogram_to_txt_file(base+"__c01_lung_4_hist_masked.txt");
+	}
 
 	float a;
 	float c;
@@ -489,26 +497,32 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres)
+void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres, string base)
 {
 	cout<<"appl_wb_segment_find_crotch_pos_from_water_percent_image..."<<endl;
 
 //	cout<<"create MIP (z)..."<<endl;
 	image_scalar<ELEMTYPE,IMAGEDIM> *tmip = this->create_projection_3D(2);
 	tmip->name("_tmip");
-//	tmip->save_to_VTK_file("D:/Joel/TMP/_wpMIP1.vtk");
+	if(base!=""){
+		tmip->save_to_VTK_file(base+"__d01_wpMIP1.vtk");
+	}
 
 	cout<<"threshold MIP..."<<endl;
 	image_binary<3> *tbin = tmip->threshold(mip_thres);  //95% MIP - water content....
 	tbin->name("_tbin");
-//	tbin->save_to_VTK_file("D:/Joel/TMP/_wpMIP2_thres.vtk");
+	if(base!=""){
+		tbin->save_to_VTK_file(base+"__d02_wpMIP2_thres.vtk");
+	}
 
 
 	cout<<"filter bin..."<<endl;
 //	tbin->dilate_2D();
 	tbin->erode_2D();
 	tbin->dilate_2D();
-//	tbin->save_to_VTK_file("D:/Joel/TMP/_wpMIP3_open2D.vtk");
+	if(base!=""){
+		tbin->save_to_VTK_file(base+"__d03_wpMIP3_open2D.vtk");
+	}
 
 
 	cout<<"find_crotch..."<<endl;
@@ -559,18 +573,18 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 	image_binary<> *vat_mask = abd->threshold(500);
 	vat_mask->name("vat_mask");
 	if(base!=""){
-		vat_mask->save_to_VTK_file(base + "__g00b_convex_hull.vtk");
+		vat_mask->save_to_VTK_file(base + "__f01a_vat_mask_thres.vtk");
 	}
 	vat_mask->largest_object_3D();
 	vat_mask->convex_hull_line_filling_3D(0);
 	vat_mask->convex_hull_line_filling_3D(2);
 	if(base!=""){
-		vat_mask->save_to_VTK_file(base + "__g00b_convex_hull.vtk");
+		vat_mask->save_to_VTK_file(base + "__f01b_convex_hull.vtk");
 	}
 	vat_mask->dilate_3D_26Nbh();
 	vat_mask->erode_3D_26Nbh();
 	if(base!=""){
-		vat_mask->save_to_VTK_file(base + "__g00c_closed.vtk");
+		vat_mask->save_to_VTK_file(base + "__f01c_closed.vtk");
 	}
 
 	image_binary<> *vat_mask_mini = new image_binary<>(vat_mask);
@@ -594,26 +608,28 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_VAT_mask_from
 	sat_seed->fill_region_3D(1,0,y1-1,0);
 	sat_seed->fill_region_3D(1,y2+1,sat_seed->ny()-1,0);
 	if(base!=""){
-		sat_seed->save_to_VTK_file(base + "__g00e_sat_seed.vtk");
+		sat_seed->save_to_VTK_file(base + "__f01e_sat_seed.vtk");
 	}
 
 	sat->mask_out(vat_mask_mini,0);
+	sat->mask_out(bin_body);
 	if(base!=""){
-		sat->save_to_VTK_file(base + "__g00f_sat_limit.vtk");
+		sat->save_to_VTK_file(base + "__f01f_sat_limit.vtk");
 	}
 
-	sat->region_grow_3D(sat_seed,1);
+//	sat->region_grow_3D(sat_seed,1);	//We will save a lot of time here if only the abd-subvolume is considered...
+	sat->largest_object_3D();	//We will save a lot of time here if only the abd-subvolume is considered...
 
 	if(base!=""){
-		sat->save_to_VTK_file(base + "__g00g_sat_grown.vtk");
+		sat->save_to_VTK_file(base + "__f01g_sat_grown.vtk");
 	}
 
 	if(base!=""){
-		vat_mask->save_to_VTK_file(base + "__g00h_vat_before.vtk");
+		vat_mask->save_to_VTK_file(base + "__f01h_vat_before.vtk");
 	}
 	vat_mask->mask_out(sat,0);
 	if(base!=""){
-		vat_mask->save_to_VTK_file(base + "__g00i_vat_after.vtk");
+		vat_mask->save_to_VTK_file(base + "__f01i_vat_after.vtk");
 	}
 
 

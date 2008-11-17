@@ -2248,6 +2248,56 @@ void image_general<ELEMTYPE, IMAGEDIM>::fill_region_of_mask_3D(image_binary<IMAG
 	}
 }
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::combine_with_offset(image_general<ELEMTYPE, IMAGEDIM> *const image2, COMBINE_MODE mode, Vector3Dint to_pos){
+
+	//enum COMBINE_MODE {COMB_ADD, COMB_SUB, COMB_MULT, COMB_DIV, COMB_MAX, COMB_MIN, COMB_MEAN_NON_ZERO, COMB_MAGN}; //and, xor, mask...
+
+	int xx; //destination voxel pos....
+	int yy;
+
+	int zz = to_pos[2];
+	for(int z=0; z<image2->nz(); z++){
+		yy = to_pos[1];
+		for(int y=0; y<image2->ny(); y++){
+			xx = to_pos[0];
+			for(int x=0; x<image2->nx(); x++){
+				if(this->is_voxelpos_within_image_3D(xx,yy,zz)){
+					if(mode==COMB_ADD){
+						this->set_voxel( xx,yy,zz, this->get_voxel(xx,yy,zz) + image2->get_voxel(x,y,z) );
+					}//TODO more COMB-options...
+					else if(mode==COMB_SUB){
+						this->set_voxel( xx,yy,zz, this->get_voxel(xx,yy,zz) - image2->get_voxel(x,y,z) );
+					}
+					else if(mode==COMB_MULT){
+						this->set_voxel( xx,yy,zz, this->get_voxel(xx,yy,zz) * image2->get_voxel(x,y,z) );
+					}
+					else if(mode==COMB_DIV){
+						this->set_voxel( xx,yy,zz, this->get_voxel(xx,yy,zz) / image2->get_voxel(x,y,z) );
+					}
+					//MAX
+					//MIN
+					else if(mode==COMB_MEAN_NON_ZERO){
+						if( this->get_voxel(xx,yy,zz) == 0){
+							this->set_voxel( xx,yy,zz, image2->get_voxel(x,y,z) );
+						}
+						else if( image2->get_voxel(x,y,z) != 0){	//this voxel in NOt zero... nor is image2´s voxel...
+							this->set_voxel( xx,yy,zz, (this->get_voxel(xx,yy,zz) + image2->get_voxel(x,y,z))/2.0 );
+						}
+						//else keep this voxel unchanged...
+					}
+					//MAGN
+					
+				}
+				xx++;
+			}
+			yy++;
+		}
+		zz++;
+	}
+}
+
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::fill_image_border_3D(ELEMTYPE value, int border_thickness)
 {
