@@ -211,6 +211,7 @@ class image_general : public image_storage <ELEMTYPE >
 		void fill_region_3D_with_subvolume_image(image_general<ELEMTYPE, IMAGEDIM> *subvolume); //based on physical coords
 		void fill_region_3D_with_subvolume_image(Vector3Dint to_pos, image_general<ELEMTYPE, IMAGEDIM> *im, Vector3Dint from_pos, Vector3Dint from_size, ELEMTYPE empty_value=0); //based on given voxel coords
 		void fill_region_of_mask_3D(image_binary<IMAGEDIM> *mask, ELEMTYPE value);
+		void combine_with_offset(image_general<ELEMTYPE, IMAGEDIM> *const image2, COMBINE_MODE mode, Vector3Dint to_pos);
 		void fill_image_border_3D(ELEMTYPE value, int border_thickness=1);
 		void translate_subvolume_3D(Vector3Dint pos, Vector3Dint size, Vector3Dint T, ELEMTYPE empty_value=0);
 		void translate_slice_3D(int dir, int slice, int du, int dv, ELEMTYPE empty_value=0);
