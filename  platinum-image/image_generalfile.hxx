@@ -412,6 +412,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_DICOM_fileAF(std::stri
 //		fileNames = get_dicom_files_with_dcm_tag_value(fileNames, DCM_TE, get_dicom_tag_value(file_path,DCM_TE));
 //	}
 
+	fileNames = get_dicom_files_with_dcm_tag_value(fileNames, DCM_TEMP_POS_ID, get_dicom_tag_value(file_path,DCM_TEMP_POS_ID));
+	std::cout<<"Number of files in series (efter separation for TEMPORAL_POS_ID..."<<fileNames.size()<<std::endl;
+	
 	load_dataset_from_these_DICOM_files(fileNames);
 }
 

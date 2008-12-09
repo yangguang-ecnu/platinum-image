@@ -396,6 +396,7 @@ double get_random_number_in_span(double min, double max);
 Vector3D create_Vector3D(float x, float y, float z);
 Vector3D create_Vector3D(vnl_vector<float> &v);
 Vector3Dint create_Vector3Dint(int x, int y, int z);
+Vector3Dint create_Vector3Dint(Vector3D v);
 Vector2D create_Vector2D(float x, float y);
 Vector2Dint create_Vector2Dint(int x, int y);
 void save_Vector3D_to_file(Vector3D v,string filepath);

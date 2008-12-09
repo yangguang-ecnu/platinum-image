@@ -811,6 +811,15 @@ Vector3Dint create_Vector3Dint( int x, int y, int z )
 	v[2] = z;
 	return v;
 }
+Vector3Dint create_Vector3Dint(Vector3D v)
+{
+	Vector3Dint v2;
+	v2[0] = v[0];
+	v2[1] = v[1];
+	v2[2] = v[2];
+	return v2;
+}
+
 
 Vector2D create_Vector2D(float x, float y)
 {

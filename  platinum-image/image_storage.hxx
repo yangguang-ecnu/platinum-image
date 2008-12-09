@@ -383,6 +383,29 @@ void image_storage<ELEMTYPE >::scale_by_factor(float factor, ELEMTYPE old_center
 	}
 }
 
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::scale_intervall(ELEMTYPE from_min_val, ELEMTYPE from_max_val, ELEMTYPE to_min_val, ELEMTYPE to_max_val)
+{
+	typename image_storage<ELEMTYPE>::iterator itr = this->begin();
+	ELEMTYPE from_span = from_max_val-from_min_val; 
+	ELEMTYPE to_span = to_max_val-to_min_val; 
+
+	while(itr != this->end()) {
+
+		if(*itr < from_min_val){
+			*itr = to_min_val;
+
+		}else if(*itr >from_max_val){
+			*itr = to_max_val;
+		
+		}else{
+			*itr = to_min_val + ELEMTYPE( ((*itr)-from_min_val)/(from_span)*(to_span) );
+		}
+
+		++itr;
+	}
+}
+
 
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::map_values(ELEMTYPE map_from, ELEMTYPE map_to, ELEMTYPE result_value)
