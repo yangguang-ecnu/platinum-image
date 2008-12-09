@@ -140,7 +140,7 @@ void FLTK_VTK_pane::initialize_vtkRenderWindow()
 
 void FLTK_VTK_pane::draw_overlay()
 {
-	((FLTKviewport*)this->parent())->viewport_parent->paint_overlay();
+//	((FLTKviewport*)this->parent())->viewport_parent->paint_overlay(); //öööö JK
 }
 
 int FLTK_VTK_pane::handle(int event)
@@ -205,8 +205,9 @@ int FLTK_VTK_pane::handle(int event)
 			cout << "im maxvalue (if created) : " << im->get_max_float() << endl;
 		
 
+			image_scalar<float,3> *im2 = dynamic_cast<image_scalar<float,3>* >(im);
 			//image_scalar<unsigned short,3> *im2 = dynamic_cast<image_scalar<unsigned short,3>* >(im);
-			image_scalar<signed char,3> *im2 = dynamic_cast<image_scalar<signed char,3>* >(im);
+			//image_scalar<signed char,3> *im2 = dynamic_cast<image_scalar<signed char,3>* >(im);
 			cout << "Image pointer created?" << endl;
 			//cout << "im2 maxvalue (if created) : " << im2->get_max() << endl;
 
@@ -214,10 +215,9 @@ int FLTK_VTK_pane::handle(int event)
 			{
 				cout<<"jippie"<<endl;
 				line3D line = line3D(worldP_2[0],worldP_2[1],worldP_2[2],direction[0],direction[1],direction[2]);
-				Vector3D max_pos = im2->get_phys_pos_of_max_intensity_along(line);
+				Vector3D max_pos = im2->get_phys_pos_of_max_intensity_along(line,1);
 				cout<<"max_pos="<<max_pos<<endl;
-				//im2->draw_line_3D(line,500);
-
+				im2->draw_line_3D(line,11000);
 
 
 				//::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -676,6 +676,7 @@ void FLTK_VTK_MIP_pane::initialize_vtkRenderWindow()
 	ren->GetActiveCamera()->Elevation(-90);
 	//ren->GetActiveCamera()->SetViewUp( 0, 1, 0); //SO
 	ren->GetActiveCamera()->GetPosition(Xcam2, Ycam2, Zcam2);
+	ren->GetActiveCamera()->SetParallelProjection(1);
 //	ren->SetBackground(0.4392, 0.5020, 0.5647);
 	ren->SetBackground(0.1, 0.1, 0.1);
 

@@ -497,7 +497,7 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres, string base)
+void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres, string base, int y_start)
 {
 	cout<<"appl_wb_segment_find_crotch_pos_from_water_percent_image..."<<endl;
 
@@ -535,7 +535,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_wate
 	pos_x=0;
 
 	for(int x=x_start;x<x_end;x++){			//for each x in 10% range from center...
-		for(int y=ny-1;y>=0;y--){			//see how faar "up" you can go between the legs...
+		for(int y=y_start;y>=0;y--){			//see how faar "up" you can go between the legs...
 			if(tbin->get_voxel(x,y)==0){
 				if(y<pos_y){
 					pos_y = y;
