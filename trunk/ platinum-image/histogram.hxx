@@ -422,6 +422,13 @@ ELEMTYPE histogram_1D<ELEMTYPE>::bucketpos_to_intensity(int bucketpos){
 
 template <class ELEMTYPE>
 int histogram_1D<ELEMTYPE>::intensity_to_bucketpos(ELEMTYPE intensity){
+	if( intensity <= this->min() ){
+		return 0;
+	}
+	else if( intensity > this->max() ){
+		return this->num_buckets-1;
+	}
+
 	return (intensity - this->min())/get_scalefactor();
 }
 
@@ -575,7 +582,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_lower_percentile(float 
 	unsigned short the_zero_bucket = this->intensity_to_bucketpos(0);
 	float num_elem_limit;
 
-	if (ignore_zero_intensity) {
+	if( ignore_zero_intensity && (the_zero_bucket>=0) && (the_zero_bucket<this->num_buckets) ) {
 		num_elem_limit = float(this->num_elements_in_hist-this->buckets[the_zero_bucket])*percentile;
 	}
 	else {num_elem_limit = float(this->num_elements_in_hist)*percentile;}

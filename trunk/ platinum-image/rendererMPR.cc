@@ -122,7 +122,9 @@ bool rendererMPR::supports_mode (int m)
         case BLEND_MIN:
         case BLEND_AVG:
         case BLEND_TINT:
+        case BLEND_GREY_PLUS_RBG:
         case BLEND_GREY_PLUS_RED:
+        case BLEND_GREY_PLUS_BLUE:
         case RENDER_THRESHOLD:
             return true;
             break;
@@ -254,8 +256,8 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
             //color for tint mode
 			//Note that the order is set to RED, BLUE, GREEN 
             int tint_r=(((the_image % 3) ==0) ^ (the_image > 2));
-            int tint_b=(((the_image % 3) ==1) ^ (the_image > 2));	
-            int tint_g=(((the_image % 3) ==2) ^ (the_image > 2));
+            int tint_g=(((the_image % 3) ==1) ^ (the_image > 2));	
+            int tint_b=(((the_image % 3) ==2) ^ (the_image > 2));
         
            //pixel fill start & end points, used in common blend mode code
             long fill_x_start,
@@ -402,9 +404,39 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                                         pixels[RGBpixmap_bytesperpixel *
                                             (rgb_fill_x+rgb_sx*rgb_fill_y)] += tint_r*value.mono();
                                         pixels[RGBpixmap_bytesperpixel *
-                                            (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += tint_g*value.mono();
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += tint_b*value.mono();
                                         pixels[RGBpixmap_bytesperpixel *
-                                            (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += tint_b*value.mono();
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += tint_g*value.mono();
+                                        break;
+
+									case BLEND_GREY_PLUS_RBG:
+										if(the_image==0){ //if first image --> Grey scale
+                                            value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
+
+										}else if(the_image==1){ //--> R
+//											pixels[RGBpixmap_bytesperpixel *
+//												(rgb_fill_x+rgb_sx*rgb_fill_y)] *= (1-value.r()/255.0);
+	                                        pixels[RGBpixmap_bytesperpixel *
+		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
+			                                pixels[RGBpixmap_bytesperpixel *
+				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
+
+										}else if(the_image==2){ //--> B
+											pixels[RGBpixmap_bytesperpixel *
+												(rgb_fill_x+rgb_sx*rgb_fill_y)] *= (1-value.r()/255.0);
+	                                        pixels[RGBpixmap_bytesperpixel *
+		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
+//			                                pixels[RGBpixmap_bytesperpixel *
+//				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
+
+										}else if(the_image==3){ //--> G
+											pixels[RGBpixmap_bytesperpixel *
+												(rgb_fill_x+rgb_sx*rgb_fill_y)] *= (1-value.r()/255.0);
+//	                                        pixels[RGBpixmap_bytesperpixel *
+//		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
+			                                pixels[RGBpixmap_bytesperpixel *
+				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
+										}
                                         break;
 
 									case BLEND_GREY_PLUS_RED:
@@ -420,6 +452,19 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
 		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
 			                                pixels[RGBpixmap_bytesperpixel *
 				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
+										}
+                                        break;
+
+									case BLEND_GREY_PLUS_BLUE:
+										if(the_image==0){ //if first image --> Grey scale
+                                            value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
+										}else{ //--> weight in the blue direction...
+											pixels[RGBpixmap_bytesperpixel *
+												(rgb_fill_x+rgb_sx*rgb_fill_y)] *= (1-value.r()/255.0);
+	                                        pixels[RGBpixmap_bytesperpixel *
+		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
+//			                                pixels[RGBpixmap_bytesperpixel *
+//				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
 										}
                                         break;
                                         
