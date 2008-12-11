@@ -30,6 +30,8 @@
 #include "image_base.h"
 
 
+
+
 datamanager datamanagement;
 extern rendermanager rendermanagement;
 extern viewmanager viewmanagement;
@@ -289,6 +291,7 @@ void datamanager::delete_data (data_base * d)
             {
             delete *itr; //the data_base destructor calls remove_data() to
                          //remove it from dataItems 
+			itr=dataItems.begin(); //SO
             //break;
             }
 		else
@@ -306,6 +309,8 @@ void datamanager::delete_data (int id)
         if ((*itr)->get_id() == id)
             {
             delete *itr;
+			itr=dataItems.begin(); //SO
+
 
             //break;
             }
@@ -320,7 +325,9 @@ void datamanager::delete_all()
     for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
         {
             delete *itr; //the data_base destructor calls remove_data() to remove it from dataItems 
+			itr=dataItems.begin(); //SO - needed for VS 2008
         }
+
 }
 
 // Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allocated memory is removed)
