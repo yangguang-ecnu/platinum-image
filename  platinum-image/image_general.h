@@ -260,6 +260,8 @@ class image_general : public image_storage <ELEMTYPE >
 
 		image_general<ELEMTYPE, IMAGEDIM>* get_subvolume_from_slices_3D(int start_slice, int every_no_slice, int slice_dir=2);	
 		void copy_slice_from_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int to_slice_no, int slice_dir=2);
+		image_general<ELEMTYPE, IMAGEDIM>* get_subvolume_from_slice_rotated_3D(int slice, int dir=2);
+
 	
 		//adds image volume/slice (currently only of same in-plane size...) in positive x/y/z directions... 
 		//A temporary image is needed, therefor, this cannot be implemented in "image_general"

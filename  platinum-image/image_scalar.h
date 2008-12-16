@@ -136,6 +136,7 @@ public:
 
 	//------------------------- Various Operations -------------------------
 	image_scalar<ELEMTYPE, IMAGEDIM>* get_subvolume_from_slice_3D(int slice, int dir=2);
+	image_scalar<ELEMTYPE, IMAGEDIM>* get_subvolume_from_slice_rotated_3D(int slice, int dir=2);
 	image_scalar<ELEMTYPE, IMAGEDIM>* get_subvolume_from_region_3D(Vector3Dint vox_pos, Vector3Dint vox_size);	
 	image_scalar<ELEMTYPE, IMAGEDIM>* get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2);	
 	image_scalar<ELEMTYPE, IMAGEDIM>* get_subvolume_from_region_3D(image_binary<3> *mask, IMGBINARYTYPE object_value=TRUE);
