@@ -2058,7 +2058,7 @@ float image_general<ELEMTYPE, IMAGEDIM>::get_display_max_float() const
 template <class ELEMTYPE, int IMAGEDIM>
 histogram_1D<ELEMTYPE>* image_general<ELEMTYPE, IMAGEDIM>::get_histogram_from_masked_region_3D(image_binary<3>* mask, int num_buckets)
 {
-	cout<<"get_histogram_from_masked_region_3D..."<<endl;
+//	cout<<"get_histogram_from_masked_region_3D..."<<endl;
 	image_storage<unsigned char>* tmp = dynamic_cast<image_storage<unsigned char>*>(mask);
 
 	histogram_1D<ELEMTYPE> *stats_masked = new histogram_1D<ELEMTYPE>(this, tmp, num_buckets);
