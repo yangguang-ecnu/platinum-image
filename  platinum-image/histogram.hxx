@@ -179,7 +179,7 @@ histogram_1D<ELEMTYPE>::histogram_1D (ELEMTYPE * start,ELEMTYPE * end ):histogra
 template <class ELEMTYPE>
 histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image_storage<unsigned char> *image_bin_mask, int num_buckets):histogram_typed<ELEMTYPE>()
 {
-	cout<<"histogram_1D...masked..."<<endl;
+//	cout<<"histogram_1D...masked..."<<endl;
 
 	if(num_buckets >=0){
 		this->num_buckets = num_buckets;
@@ -366,7 +366,7 @@ void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, ga
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, vector<gaussian> v, bool reload_hist_from_image, std::string separator){
-		cout<<"save_histogram_to_txt_file(std::string file...)"<<endl;
+//		cout<<"save_histogram_to_txt_file(std::string file...)"<<endl;
 
 		if(reload_hist_from_image){
 			this->images[0]->min_max_refresh(); //make sure to update image min and max before calling calculate() 
@@ -467,7 +467,7 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times){
 
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, int from_bucket, int to_bucket){
-	cout<<"smooth....("<<nr_of_neighbours<<","<<nr_of_times<<")...";
+//	cout<<"smooth....("<<nr_of_neighbours<<","<<nr_of_times<<")...";
 
 	to_bucket = std::min((unsigned short)to_bucket, this->num_buckets);
 
@@ -486,13 +486,13 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 		int end_filt	= to_bucket - (nr_of_neighbours-half);
 		int start_sum	= - half;
 		int end_sum		= nr_of_neighbours - half;
-		cout<<" half="<<half;
+/*		cout<<" half="<<half;
 		cout<<" start_filt="<<start_filt;
 		cout<<" end_filt="<<end_filt;
 		cout<<" start_sum="<<start_sum;
 		cout<<" end_sum="<<end_sum<<endl;
 		cout<<"this->num_buckets="<<this->num_buckets<<endl;
-
+*/
 		for(int nr=1;nr<=nr_of_times;nr++){
 			for(int i=start_filt;i<end_filt;i++){
 				tmp=0;
@@ -575,7 +575,7 @@ float histogram_1D<ELEMTYPE>::get_norm_p_log_p_gradient_for_intensity(ELEMTYPE i
 template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity)
 {
-    cout<<"get_bucket_at_histogram_lower_percentile("<<percentile<<")"<<endl;
+//    cout<<"get_bucket_at_histogram_lower_percentile("<<percentile<<")"<<endl;
 	//if histogram comes from masked region... following line wont work....
 	//float num_elem_limit = float(this->images[0]->get_num_elements())*percentile;
 
@@ -607,7 +607,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_lower_percentile(float 
 template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(float percentile, bool ignore_zero_intensity)
 {
-    cout<<"get_intensity_at_histogram_lower_percentile("<<percentile<<")"<<endl;
+//    cout<<"get_intensity_at_histogram_lower_percentile("<<percentile<<")"<<endl;
 	return bucketpos_to_intensity( get_bucket_at_histogram_lower_percentile(percentile,ignore_zero_intensity) );
 }
 
@@ -615,7 +615,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_lower_percentile(flo
 template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_higher_percentile(float percentile, bool ignore_zero_intensity)
 {
-    cout<<"get_bucket_at_histogram_higher_percentile("<<percentile<<")"<<endl;
+//    cout<<"get_bucket_at_histogram_higher_percentile("<<percentile<<")"<<endl;
 	//if histogram comes from masked region... following line wont work....
 	//float num_elem_limit = float(this->images[0]->get_num_elements())*percentile;
 
@@ -652,14 +652,14 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_higher_percentile(float
 template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_histogram_higher_percentile(float percentile, bool ignore_zero_intensity)
 {
-    cout<<"get_intensity_at_histogram_higher_percentile("<<percentile<<")"<<endl;
+//    cout<<"get_intensity_at_histogram_higher_percentile("<<percentile<<")"<<endl;
 	return bucketpos_to_intensity( get_bucket_at_histogram_higher_percentile(percentile,ignore_zero_intensity) );
 }
 
 template <class ELEMTYPE>
 ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_included_num_pix_from_lower_int(ELEMTYPE lower_int, float num_pix)
 {
-    cout<<"get_intensity_at_included_num_pix_from_lower_int("<<lower_int<<","<<num_pix<<")"<<endl;
+//    cout<<"get_intensity_at_included_num_pix_from_lower_int("<<lower_int<<","<<num_pix<<")"<<endl;
 
 	unsigned short start_bucket = this->intensity_to_bucketpos(lower_int);
     cout<<"start_bucket="<<start_bucket<<endl;
@@ -721,15 +721,15 @@ bool histogram_1D<ELEMTYPE>::is_histogram_bimodal(int start_bucket, int end_buck
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info)
 {
-    cout<<"fit_gaussian_to_intensity_range..."<<endl;
-	cout<<"this->max()="<<this->max()<<endl;
-	cout<<"this->min()="<<this->min()<<endl;
-	cout<<"this->num_buckets()="<<this->num_buckets<<endl;
+//	cout<<"fit_gaussian_to_intensity_range..."<<endl;
+//	cout<<"this->max()="<<this->max()<<endl;
+//	cout<<"this->min()="<<this->min()<<endl;
+//	cout<<"this->num_buckets()="<<this->num_buckets<<endl;
 
 	int from_bucket = std::max(0, int(intensity_to_bucketpos(from)));
 	int to_bucket = std::min(int(this->num_buckets-1), int(intensity_to_bucketpos(to)));
-	cout<<"from_bucket="<<from_bucket<<endl;
-	cout<<"to_bucket="<<to_bucket<<endl;
+//	cout<<"from_bucket="<<from_bucket<<endl;
+//	cout<<"to_bucket="<<to_bucket<<endl;
 
 	gaussian g(amp,center,sigma);
 	g.amplitude = float(this->get_max_value_in_bucket_range(from_bucket,to_bucket));
@@ -739,10 +739,10 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 	int dyn_from_bucket = std::max(from_bucket, intensity_to_bucketpos(g.center-1.5*g.sigma));
 	int dyn_to_bucket = std::min(to_bucket, intensity_to_bucketpos(g.center+1.5*g.sigma));
 
-	cout<<"***INIT***"<<endl;
-	cout<<"amp="<<g.amplitude<<endl;
-	cout<<"center="<<g.center<<endl;
-	cout<<"sigma="<<g.sigma<<endl;
+//	cout<<"***INIT***"<<endl;
+//	cout<<"amp="<<g.amplitude<<endl;
+//	cout<<"center="<<g.center<<endl;
+//	cout<<"sigma="<<g.sigma<<endl;
 
 	if(print_info)
 	{
@@ -758,16 +758,16 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 	}
 
 	float tmp;
-	int nr_iterations=5;
+	int nr_iterations=8;
 	for(int i=0;i<nr_iterations;i++){
 		g.amplitude = find_better_amplitude(g,dyn_from_bucket,dyn_to_bucket,0.8,1.2,10+i);
 		g.center = find_better_center(g,dyn_from_bucket,dyn_to_bucket,0.8,1.2,10+i);
 		g.sigma = find_better_sigma(g,dyn_from_bucket,dyn_to_bucket,0.8,1.2,10+i);
 		
 		//consider shape of gaussian but dont go outside given limits...
-		tmp = std::max(float(from),float(g.center-1.5*g.sigma)); //limits intensity range...
+		tmp = std::max(float(from),float(g.center-1.1*g.sigma)); //limits intensity range...
 		dyn_from_bucket = std::max(from_bucket, intensity_to_bucketpos(tmp)); //limits bucket range...
-		dyn_to_bucket = std::min(to_bucket, intensity_to_bucketpos(g.center+1.5*g.sigma));
+		dyn_to_bucket = std::min(to_bucket, intensity_to_bucketpos(g.center+1.1*g.sigma));
 
 	if(print_info)
 	{

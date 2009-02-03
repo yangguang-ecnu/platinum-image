@@ -1421,7 +1421,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::str
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, gaussian *g, bool reload_hist_from_image, const std::string separator)
 {
-	cout<<"save_histogram_to_txt_file..."<<endl;
+//	cout<<"save_histogram_to_txt_file..."<<endl;
 	cout<<this->stats<<endl;
 	pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
 	this->stats->save_histogram_to_txt_file(filename, g, reload_hist_from_image, separator);

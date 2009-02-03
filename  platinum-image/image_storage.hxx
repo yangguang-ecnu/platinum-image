@@ -462,7 +462,7 @@ bool image_storage<ELEMTYPE >::same_size(image_storage<ELEMTYPE> *const image2)
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, COMBINE_MODE mode)
 {
-	cout<<"Combine...";
+//	cout<<"Combine...";
 	if(this->same_size(image2)){
 	    typename image_storage<ELEMTYPE>::iterator i = this->begin();
 	    typename image_storage<ELEMTYPE>::iterator i2 = image2->begin();
@@ -470,7 +470,7 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
 		switch(mode)
         {
         case COMB_ADD:
-			cout<<"...ADD";
+//			cout<<"...ADD";
 			while(i != this->end())
 			{
 				*i = *i + *i2;
@@ -480,7 +480,7 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
             break;
 
         case COMB_SUB:
-			cout<<"...SUB";
+//			cout<<"...SUB";
 			while(i != this->end())
 			{
 				*i = *i - *i2;
@@ -490,7 +490,7 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
             break;
 
         case COMB_MULT:
-			cout<<"...MULT";
+//			cout<<"...MULT";
 			while(i != this->end())
 			{
 				*i = (*i)*(*i2);
@@ -500,7 +500,7 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
             break;
 
         case COMB_DIV:
-			cout<<"...DIV";
+//			cout<<"...DIV";
 			while(i != this->end())
 			{
 				if(*i2==0){
@@ -514,7 +514,7 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
             break;
 
         case COMB_MAX:
-			cout<<"...MAX";
+//			cout<<"...MAX";
 			while(i != this->end())
 			{
 				*i = std::max(*i,*i2);
@@ -524,7 +524,7 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
             break;
 
 		case COMB_MIN:
-			cout<<"...MIN";
+//			cout<<"...MIN";
 			while(i != this->end())
 			{
 				*i = std::min(*i,*i2);
@@ -534,7 +534,7 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
             break;
 
 		case COMB_MEAN_NON_ZERO:
-			cout<<"...COMB_MEAN_NON_ZERO";
+//			cout<<"...COMB_MEAN_NON_ZERO";
 			while(i != this->end())
 			{
 				if(*i==0){
@@ -547,7 +547,7 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
 			}
             break;
 		case COMB_MAGN:
-			cout<<"...COMB_MAGN";
+//			cout<<"...COMB_MAGN";
 			while(i != this->end())
 			{
 				*i = sqrt( float((*i)*(*i) + (*i2)*(*i2)) );
