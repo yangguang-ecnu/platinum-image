@@ -543,6 +543,19 @@ string replace_last_substring(string s, string val, string replacement){
 	return a+b+c;
 }
 
+string get_csv_item(string s, int item_num, string separator)
+{
+	string word;
+	int ind1=0;
+	int ind2=0;
+	for(int i=0;i<item_num;i++){
+		ind2 = s.find_first_of(separator,ind1);
+		ind1 = ind2+1;
+	}
+	return s.substr(ind1,ind2-ind1);
+}
+
+
 vector<string> subdirs(string dir_path, bool fullpath)
     {
     trailing_slash(dir_path);

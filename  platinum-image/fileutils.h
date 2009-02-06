@@ -97,6 +97,7 @@ bool does_string_end_with(string s, string ending);
 bool remove_file_lastname(string &s, int max_no_lastname_chars=3);
 bool remove_string_ending(string &s, string ending=" ");
 string replace_last_substring(string s, string val, string replacement="");
+string get_csv_item(string s, int item_num, string separator="\t"); //item_num=0 is the first...
 
 string int2str(int i);
 string float2str(float f);
