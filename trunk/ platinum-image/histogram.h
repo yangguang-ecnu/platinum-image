@@ -57,7 +57,7 @@ class histogram_base
         unsigned long bucket_mean;
         unsigned long num_elements_in_hist;	//stores total number of elements in histogram, (e.g. histograms from masked regions)
 
-        bool readytorender;
+        bool readytorender;					//check that images have the same size --> 2D_hist for example
         
         void clear_pixmap (unsigned char * image, unsigned int w,unsigned int h);
         virtual void render_ (unsigned char * image, unsigned int width,unsigned int height) = 0;
@@ -128,20 +128,21 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
         void render_(unsigned char * image, unsigned int w, unsigned int h)
             {}
     public:
-        histogram_1D (image_storage<ELEMTYPE> * i, int num_buckets=-1);
-        histogram_1D (ELEMTYPE * start,ELEMTYPE * end );
-        histogram_1D (image_storage<ELEMTYPE> *image_data, image_storage<unsigned char> *image_bin_mask, int num_buckets);
+        histogram_1D(image_storage<ELEMTYPE> * i, int num_buckets=-1);
+        histogram_1D(ELEMTYPE * start, ELEMTYPE * end );
+        histogram_1D(image_storage<ELEMTYPE> *image_data, image_storage<unsigned char> *image_bin_mask, int num_buckets);
+        histogram_1D(string hist_text_file_path, std::string separator="\t");
 
-        ~histogram_1D ();
+        ~histogram_1D();
         
-        void resize (unsigned long); //JK - Should maybe be protected...
+        void resize(unsigned long); //JK - Should maybe be protected...
 		virtual void resize_to_fit_data(); //Make sure alla integer values have a bucket, JK - Should maybe be protected...
         void render(unsigned char * image, unsigned int width, unsigned int height);
 
 	    //void image (int vol);
 
 		void calculate_from_image_data(int number_of_buckets=0);
-		void print_histogram_content();
+//		void print_histogram_content();
 		//thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
 		virtual bool ready ()
 			{return this->readytorender;}   
@@ -153,6 +154,8 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		float get_scalefactor();
 		ELEMTYPE bucketpos_to_intensity(int bucketpos);
 		int intensity_to_bucketpos(ELEMTYPE intensity);
+		
+		void add_histogram_data(histogram_1D<ELEMTYPE> *hist2);
 
 		//------------ scaling filtering -------------------------
 		void set_sum_of_bucket_contents_to_value(double value=1); //often requires the ELEMTYPEs float or double.

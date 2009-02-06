@@ -250,6 +250,63 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 		this->min_value = std::numeric_limits<ELEMTYPE>::min();
 	}
 }
+ 
+template <class ELEMTYPE>
+histogram_1D<ELEMTYPE>::histogram_1D(string hist_text_file_path, std::string separator):histogram_typed<ELEMTYPE>()
+{
+	cout<<"histogram_1D("<<hist_text_file_path<<")"<<endl;
+    ifstream myfile;
+
+	if( file_exists(hist_text_file_path) ){
+		myfile.open(hist_text_file_path.c_str());
+		char buffer[10000];
+		//----------------------------------
+		myfile.getline(buffer,10000);	this->num_buckets = atof( get_csv_item(string(buffer),1,separator).c_str() );
+		myfile.getline(buffer,10000);	this->min( atof( get_csv_item(string(buffer),1,separator).c_str() ) );
+		myfile.getline(buffer,10000);	this->max( atof( get_csv_item(string(buffer),1,separator).c_str() ) );
+//		myfile.getline(buffer,10000);	this->num_distinct_values = atof( get_csv_item(string(buffer),1,separator).c_str() );
+//		myfile.getline(buffer,10000);	this->num_elements_in_hist =atof( get_csv_item(string(buffer),1,separator).c_str() );
+//		myfile.getline(buffer,10000);	this->bucket_max = atof( get_csv_item(string(buffer),1,separator).c_str() );
+//		myfile.getline(buffer,10000);	this->bucket_mean = atof( get_csv_item(string(buffer),1,separator).c_str() );
+//		myfile.getline(buffer,10000);	this->readytorender = atof( get_csv_item(string(buffer),1,separator).c_str() );
+		this->readytorender = true;
+
+		if(num_buckets >=0){
+			if(this->buckets!=NULL){
+				delete this->buckets;
+			}
+			this->buckets=new unsigned long [this->num_buckets];
+		}else{
+			pt_error::error("histogram_1D - constructor - num_buckets=strange...",pt_error::debug);
+		}
+
+		//Jump to the histogram data part.....
+		
+		string header = "bucket" + separator + "intensity" + separator + "bucketvalue";
+		while( !myfile.eof() && (string(buffer)!=header) ){
+			myfile.getline(buffer,10000);
+//			cout<<"("<<string(buffer)<<")"<<endl;
+		}
+
+		//Load the histogram data...
+
+		int i=0;
+		while( !myfile.eof() ){
+			myfile.getline(buffer,10000);
+			this->buckets[i] = atof( get_csv_item(string(buffer),2,separator).c_str() );
+//			cout<<this->buckets[i]<<" "<<endl;
+			i++;
+		}
+
+		myfile.close();
+	}else
+	{
+		this->readytorender = true;
+		pt_error::error("histogram_1D - constructor - file does not exist...",pt_error::debug);
+	}
+}
+
+
 
 template <class ELEMTYPE>
 histogram_1D<ELEMTYPE >::~histogram_1D ()
@@ -430,6 +487,17 @@ int histogram_1D<ELEMTYPE>::intensity_to_bucketpos(ELEMTYPE intensity){
 	}
 
 	return (intensity - this->min())/get_scalefactor();
+}
+
+template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::add_histogram_data(histogram_1D<ELEMTYPE> *hist2){
+	if(this->num_buckets == hist2->num_buckets){
+		for(int i=0;i<this->num_buckets;i++){
+			this->buckets[i] += hist2->buckets[i];
+		}
+	}else{
+		pt_error::error("histogram_1D - add_histogram_data - not same size...",pt_error::debug);
+	}
 }
 
 template <class ELEMTYPE>
