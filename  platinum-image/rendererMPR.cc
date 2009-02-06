@@ -121,6 +121,7 @@ bool rendererMPR::supports_mode (int m)
         case BLEND_MAX:
         case BLEND_MIN:
         case BLEND_AVG:
+        case BLEND_DIFF:
         case BLEND_TINT:
         case BLEND_GREY_PLUS_RBG:
         case BLEND_GREY_PLUS_RED:
@@ -397,6 +398,18 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry *
                                             pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] += value.r()/vol_count;
                                             pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += value.g()/vol_count;
                                             pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += value.b()/vol_count;
+                                        }
+                                        break;
+                                    case BLEND_DIFF:
+                                        {
+											if(the_image==0){ //if first image --> Grey scale
+		                                        value.write(pixels+RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y));
+											}else if(the_image==1){ //Fist image minus this...
+ 												pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] = abs( pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)] - value.r() );
+												pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = abs( pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)+1] - value.g() );
+												pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = abs( pixels[RGBpixmap_bytesperpixel * (rgb_fill_x+rgb_sx*rgb_fill_y)+2] - value.b() );
+											}
+	
                                         }
                                         break;
                                         

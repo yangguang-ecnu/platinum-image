@@ -34,7 +34,7 @@ using namespace std;
 
 const char * preset_direction_labels[] = {"Z","Y","X","-Z","-Y","-X"};
 //const char * preset_direction_labels[] ={"Axial","Coronal","Sagittal","-Axial","-Coronal","-Sagittal"};
-const char * blend_mode_labels[] = {"Overwrite","Max","Min","Average","Tint","Grey+Tint","Grey+Red","Grey+Blue"};
+const char * blend_mode_labels[] = {"Overwrite","Max","Min","Average","Diff","Tint","Grey+Tint","Grey+Red","Grey+Blue"};
 
 struct menu_callback_params
 {
