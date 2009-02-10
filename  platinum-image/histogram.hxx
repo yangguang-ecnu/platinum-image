@@ -271,7 +271,7 @@ histogram_1D<ELEMTYPE>::histogram_1D(string hist_text_file_path, std::string sep
 //		myfile.getline(buffer,10000);	this->readytorender = atof( get_csv_item(string(buffer),1,separator).c_str() );
 		this->readytorender = true;
 
-		if(num_buckets >=0){
+		if(this->num_buckets >=0){
 			if(this->buckets!=NULL){
 				delete this->buckets;
 			}
