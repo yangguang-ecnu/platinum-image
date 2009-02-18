@@ -84,6 +84,7 @@ class image_base : public data_base
         Vector3D origin;
         Matrix3D orientation;
 		//Note: Vector3D voxel_size is defined in image_general...
+		string slice_orientation; // undefined/axial/coronal/sagittal (lower case letters...)
 
 
 
@@ -109,6 +110,7 @@ class image_base : public data_base
         virtual float get_max_float() const = 0;    //return max/min values in type-independent form     
         virtual float get_display_min_float() const = 0;
         virtual float get_display_max_float() const = 0;
+
             
         virtual void testpattern() = 0 ;
 
@@ -121,12 +123,16 @@ class image_base : public data_base
         
         bool read_origin_from_dicom_file(std::string dcm_file);
 		bool read_orientation_from_dicom_file(std::string dcm_file);
+		bool read_slice_orientation_from_dicom_file(std::string dcm_file);
 		//void rotate(...); //replaced by the 2 functions below...
 		void rotate_orientation(int fi_x_deg, int fi_y_deg, int fi_z_deg);
 		void rotate_orientation(float fi_x_rad, float fi_y_rad, float fi_z_rad);
 //		void rotate_geometry_around_center_voxel(int fi_z_deg, int fi_y_deg, int fi_x_deg); //implemented in image_general
 		void rotate_origin(int rot_axis, int pos_neg_dir=+1); //assumes orientation and voxel_size are correct
 		void rotate_voxel_size(int rot_axis, int pos_neg_dir=+1);
+
+		string get_slice_orientation();
+		void set_slice_orientation(string s);
 
 
         Vector3D world_to_voxel( const Vector3D & wpos ) const;
@@ -143,6 +149,9 @@ class image_base : public data_base
         Matrix3D get_orientation () const;
 		string get_orientation_as_dcm_string(); //print first two columns (cosines for x and y direction)
         Vector3D get_slice_direction();
+        Vector3D get_voxel_x_dir_in_phys();
+        Vector3D get_voxel_y_dir_in_phys();
+        Vector3D get_voxel_z_dir_in_phys();
 		void set_orientation(const Matrix3D m);
         Vector3D get_origin() const;
         void set_origin(const Vector3D v); 

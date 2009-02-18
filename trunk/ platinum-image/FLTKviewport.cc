@@ -32,7 +32,7 @@ extern viewmanager viewmanagement;
 using namespace std;
 
 
-const char * preset_direction_labels[] = {"Z","Y","X","-Z","-Y","-X"};
+const char * preset_direction_labels[] = {"Z","Y","X","-Z","-Y","-X","Axial","Sagittal","Coronal"};
 //const char * preset_direction_labels[] ={"Axial","Coronal","Sagittal","-Axial","-Coronal","-Sagittal"};
 const char * blend_mode_labels[] = {"Overwrite","Max","Min","Average","Diff","Tint","Grey+Tint","Grey+Red","Grey+Blue"};
 
@@ -925,11 +925,11 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
     renderermenu_button->user_data(NULL);
     
     //direction menu is constant for each viewport
-    Fl_Menu_Item dir_menu_items [6+1];
+    Fl_Menu_Item dir_menu_items [9+1];
     
     int m;
-    for (m=0;m<6;m++)
-        {
+    for (m=0;m<9;m++)
+    {
         menu_callback_params * cbp=new menu_callback_params;
         cbp->direction=(preset_direction)m;
         cbp->vport=viewport_parent;
@@ -945,7 +945,7 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
         //so we'll disable those choices
 //        if (m > SAGITTAL)
 //            {dir_menu_items[m].deactivate();}
-        }
+    }
 
     //terminate menu
     dir_menu_items[m].label(NULL);

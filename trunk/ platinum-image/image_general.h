@@ -195,7 +195,7 @@ class image_general : public image_storage <ELEMTYPE >
         ELEMTYPE get_voxel_by_dir(int u, int v, int w, int direction=2);
 
 
-        histogram_1D<ELEMTYPE>* get_histogram_from_masked_region_3D(image_binary<3>* mask, int num_buckets=500);
+        histogram_1D<ELEMTYPE>* get_histogram_from_masked_region_3D(image_binary<3>* mask, int num_buckets=1000);
 
         void set_voxel(int x, int y, int z, ELEMTYPE voxelvalue);
         void set_voxel(Vector3D coord_pos, ELEMTYPE voxelvalue);

@@ -31,6 +31,8 @@ extern uchar *animage; //defined in datamanager.cc
 
 const int datawidget_base::thumbnail_size = 128;
 
+const char * slice_orientation_labels[] = {"axial","sagittal","coronal", "undefined"};
+
 
 
 #pragma mark transferfactory statics
@@ -431,6 +433,72 @@ datawidget<point_collection>::datawidget (point_collection* p, std::string n): d
     featuremenu->menu(menu_featuremenu_point_collection);
 }
 
+FLTKslice_orientation_menu::FLTKslice_orientation_menu(string slice_orientation, int x, int y, int w, int h):Fl_Group(x,y,w,h)
+{
+	this->color(FL_BACKGROUND_COLOR);
+	slice_menu = new Fl_Menu_Button(x,y,w,h);
+    slice_menu->box(FL_THIN_UP_BOX);
+    slice_menu->labelsize(FLTK_SMALL_LABEL);
+	slice_menu->label(strdup(slice_orientation.c_str()));
+
+	//-----------------------------
+    Fl_Menu_Item slice_menu_items[4+1];
+
+    int m;
+    for (m=0;m<4;m++)
+    {
+//        menu_callback_params * cbp=new menu_callback_params;
+  //      cbp->direction=(preset_direction)m;
+    //    cbp->vport=viewport_parent;
+        
+        init_fl_menu_item(slice_menu_items[m]);
+       
+        slice_menu_items[m].label(slice_orientation_labels[m]);
+//        slice_menu_items[m].callback(&set_direction_callback);
+//        slice_menu_items[m].user_data(cbp);
+        slice_menu_items[m].flags= FL_MENU_RADIO;
+    }
+    slice_menu_items[m].label(NULL);    //terminate menu
+    
+    //Axial is pre-set, set checkmark accordingly
+//    dir_menu_items[Z_DIR].setonly();
+//    dir_menu_items[AXIAL].setonly(); //AXIAL_NEG
+    
+//    directionmenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight,preset_direction_labels[Z_DIR]);
+//    directionmenu_button->copy(dir_menu_items);
+
+	//-----------------------------
+	slice_menu->callback(slice_menu_cb);
+//	slice_menu->when(FL_WHEN_RELEASE);
+    slice_menu->copy(slice_menu_items);
+
+	end();
+}
+
+void FLTKslice_orientation_menu::slice_menu_cb(Fl_Widget *w, void*)
+{
+	cout<<"slice_menu_cb(Fl_Widget *w, void*)"<<endl;
+	FLTKslice_orientation_menu* m = (FLTKslice_orientation_menu*)w->parent();
+	m->do_callback(m);
+}
+
+void FLTKslice_orientation_menu::value(string s)
+{
+	slice_menu->label(strdup(s.c_str()));
+    //slice_menu_items[AXIAL].setonly(); //AXIAL_NEG
+}
+
+string FLTKslice_orientation_menu::value()
+{
+//	cout<<"val="<<slice_menu->value()<<endl;
+    ((Fl_Menu_Item*)slice_menu->menu())[slice_menu->value()].setonly();
+//	cout<<"lab="<<mi[slice_menu->value()].label()<<endl;
+	slice_menu->label(  ((Fl_Menu_Item*)slice_menu->menu())[slice_menu->value()].label()  );
+	return string(  ((Fl_Menu_Item*)slice_menu->menu())[slice_menu->value()].label()  );
+}
+
+
+
 #pragma mark FLTKVector3D
 FLTKVector3D::FLTKVector3D(Vector3D v, int x, int y, int w, int h, const char *sx, const char *sy, const char *sz):Fl_Group(x,y,w,h)
 {
@@ -562,21 +630,27 @@ FLTKgeom_image::FLTKgeom_image(int id, int x, int y, int w, int h):FLTKgeom_base
 	const int size_w = 10.0/60.0*w;
 	const int orient_w = 18.0/60.0*w;
 	const int rotation_w = 15.0/60.0*w;
+	const int slice_w = 20.0/60.0*w;
 
-	orig = new FLTKVector3D(datamanagement.get_image(data_id)->get_origin(), x, y, orig_w, h, "x", "y", "z");
-	size = new FLTKVector3D(datamanagement.get_image(data_id)->get_voxel_size(), x + orig_w, y, size_w, h, "dx", "dy", "dz");
-	orient = new FLTKMatrix3D(datamanagement.get_image(data_id)->get_orientation(), x + orig_w + size_w, y, orient_w, h);
+	int h_coord = h*3/4;
+
+	orig = new FLTKVector3D(datamanagement.get_image(data_id)->get_origin(), x, y, orig_w, h_coord, "x", "y", "z");
+	size = new FLTKVector3D(datamanagement.get_image(data_id)->get_voxel_size(), x + orig_w, y, size_w, h_coord, "dx", "dy", "dz");
+	orient = new FLTKMatrix3D(datamanagement.get_image(data_id)->get_orientation(), x + orig_w + size_w, y, orient_w, h_coord);
 	
 	//start = datamanagement.get_image(data_id)->get_orientation();
 	
 	Vector3D r;
 	r.Fill(0);
-	rotation = new FLTKVector3D(r, x + orig_w + size_w + orient_w, y, rotation_w, h, "x", "y", "z");
+	rotation = new FLTKVector3D(r, x + orig_w + size_w + orient_w, y, rotation_w, h_coord, "x", "y", "z");
 	
+	slice = new FLTKslice_orientation_menu(datamanagement.get_image(data_id)->get_slice_orientation(),x,h_coord,slice_w,h-h_coord-1);
+
 	orig->callback(orig_update_cb);
 	size->callback(size_update_cb);
 	orient->callback(orient_update_cb);
 	rotation->callback(rotation_update_cb);
+	slice->callback(slice_orient_update_cb);
 		
 	resizable(NULL);
 	
@@ -641,6 +715,16 @@ void FLTKgeom_image::rotation_update_cb ( Fl_Widget * w, void * )
 	
 	// rendermanagement.center3d_and_fit( g->data_id );	
 }
+
+
+void FLTKgeom_image::slice_orient_update_cb(Fl_Widget *w, void*)
+{
+	FLTKslice_orientation_menu *m = (FLTKslice_orientation_menu*)w;
+	FLTKgeom_image *g = (FLTKgeom_image*)m->parent();
+	datamanagement.get_image(g->data_id)->set_slice_orientation(m->value());
+	datamanagement.data_has_changed(g->data_id);
+}
+
 
 //const Matrix3D FLTKgeom_image::get_start() const
 //{

@@ -112,6 +112,9 @@ void metadata::read_metadata_from_dcm_file(string dcm_file)
 		//dcmIO->ReadImageInformation();		//Needs to be called before accessing data...
 		//dcmIO->GetValueFromTag("0010"+"|"+"0010",string dcmdata);
 
+//	cout<<"load_private_tags="<<itk::GDCMImageIO::GetLoadPrivateTagsDefault()<<endl;
+//	itk::GDCMImageIO::SetLoadPrivateTagsDefault(true);
+//	cout<<"load_private_tags="<<itk::GDCMImageIO::GetLoadPrivateTagsDefault()<<endl;
 
 	itk::GDCMImageIO::Pointer dcmIO = itk::GDCMImageIO::New();		//Allows simple dicom meta data import
 	dcmIO->SetFileName(dcm_file);
@@ -181,6 +184,10 @@ void metadata::read_metadata_from_dcm_file(string dcm_file)
 		add_dcm_data_float(dcmIO,DCM_SCALE_SLOPE);
 		add_dcm_data_float(dcmIO,DCM_SCALE_INTERCEPT2);
 		add_dcm_data_float(dcmIO,DCM_SCALE_SLOPE2);
+
+		add_dcm_data_string(dcmIO,DCM_SLICE_ORIENTATION); // To make this work ollowing was commented from "itkGDCMImageIO.cxx" 
+		//if( v->GetName() != gdcm::GDCM_UNKNOWN )	//JK removed this 2009-02-18
+		//{EncapsulateMetaData<std::string>(dico, v->GetKey(), v->GetValue() );}
 	}
 }
 
@@ -253,7 +260,22 @@ std::string metadata::get_name()
 	return namestring.str();
 }
 
+std::string metadata::get_slice_orientation()
+{
+	string s = get_data_as_string(DCM_SLICE_ORIENTATION);
 
+	if( string_contains(s,"SAGITTAL") ){
+		return "sagittal";
+	}
+	else if( string_contains(s,"CORONAL") ){
+		return "coronal";
+	}
+	else if( string_contains(s,"TRANSVERSAL") || string_contains(s,"AXIAL") ){
+		return "axial";
+	}
+
+	return "undefined";
+}
 
 metadata& metadata::operator=(const metadata& source)
 {
@@ -325,7 +347,9 @@ void metadata::print_all()
 	print_float(DCM_SCALE_INTERCEPT);
 	print_float(DCM_SCALE_SLOPE);
 	print_float(DCM_SCALE_INTERCEPT2);
-	print_float(DCM_SCALE_SLOPE2);
+	print_float(DCM_SCALE_SLOPE2); 
+
+	print_string(DCM_SLICE_ORIENTATION);
 }
 
 void metadata::add_dcm_data_int(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG)

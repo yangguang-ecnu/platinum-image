@@ -741,7 +741,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolum
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slice_rotated_3D(int slice, int dir)
 {
-	cout<<"get_subvolume_from_slice_rotated_3D..."<<endl;
+//	cout<<"get_subvolume_from_slice_rotated_3D..."<<endl;
 
 	int usize=this->get_size_by_dim_and_dir(0,dir);
 	int vsize=this->get_size_by_dim_and_dir(1,dir);
@@ -777,7 +777,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolum
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolume_from_region_3D(int x1, int y1, int z1, int x2, int y2, int z2)
 {
-	cout<<"image_scalar-get_subvolume_from_region_3D..."<<endl;
+	//cout<<"image_scalar-get_subvolume_from_region_3D..."<<endl;
 
 	int nx=this->nx();
 	int ny=this->ny();
