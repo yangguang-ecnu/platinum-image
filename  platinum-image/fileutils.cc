@@ -555,6 +555,13 @@ string get_csv_item(string s, int item_num, string separator)
 	return s.substr(ind1,ind2-ind1);
 }
 
+bool string_contains(string s, string sample)
+{
+	if( s.find(sample) < s.size() ){
+		return true;
+	}
+	return false;
+}
 
 vector<string> subdirs(string dir_path, bool fullpath)
     {

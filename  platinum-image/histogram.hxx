@@ -880,6 +880,10 @@ float histogram_1D<ELEMTYPE>::find_better_center(gaussian g, int from_bucket, in
 {
 	float start = factor1*g.center;
 	float end = factor2*g.center;
+	if(g.center==0){
+		start = this->bucketpos_to_intensity(from_bucket);
+		end = this->bucketpos_to_intensity(to_bucket);
+	}
 	float step = (end-start)/float(nr_steps);
 	float best = 0;
 	double error_sum = 0;

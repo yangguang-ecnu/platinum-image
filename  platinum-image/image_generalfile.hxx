@@ -454,6 +454,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_these_DICOM_files(vect
 //	this->meta.print_all();
 //	cout<<"..."<<endl;
 	this->name( this->meta.get_name() );
+	this->set_slice_orientation( this->meta.get_slice_orientation() );
+
 	this->read_geometry_from_dicom_file ( fileNames[0].c_str() );			// use the first file name in the vector
 //	this->print_geometry();
 }

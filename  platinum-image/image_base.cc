@@ -108,6 +108,42 @@ bool image_base::read_orientation_from_dicom_file(std::string dcm_file)
 	return succeded;
 }
 
+bool image_base::read_slice_orientation_from_dicom_file(std::string dcm_file)
+{
+	bool succeded = false;
+//	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+    /*
+//	if (dicomIO->CanReadFile(dcm_file.c_str())){
+//	}
+	typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer image = get_image_as_itk_output();
+    writer->SetFileName( file_path.c_str() );
+    writer->SetInput(image);
+	if(useCompression){
+		writer->UseCompressionOn();
+	}
+
+	if(anonymize){
+		typedef itk::GDCMImageIO ImageIOType;
+		ImageIOType::Pointer gdcmImageIO = ImageIOType::New();
+		writer->SetImageIO( gdcmImageIO );
+		typedef itk::MetaDataDictionary   DictionaryType;
+		DictionaryType & dictionary = image->GetMetaDataDictionary();
+
+		//TODO - make sure all interesting data in "metadata-object" is saves....
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_NAME, "Anonymized" );
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_ID, "Anonymized" );
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_BIRTH_DATE, "Anonymized" );
+		// The two lines below don't work... 
+		// The brutal rotation of the orientation matrix was used before and after saving instead...
+		//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_POSITION_PATIENT, "1\\2\\3" );
+		//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_ORIENTATION_PATIENT, this->get_orientation_as_dcm_string() );
+	}
+
+*/
+	return succeded;
+}
+
+
 void image_base::rotate_orientation(int fi_x_deg, int fi_y_deg, int fi_z_deg)
 {
 //    matrix_generator mg;
@@ -170,6 +206,16 @@ void image_base::rotate_voxel_size(int rot_axis, int pos_neg_dir)
 	}
 }
 
+string image_base::get_slice_orientation()
+{
+	return this->slice_orientation;
+}
+
+void image_base::set_slice_orientation(string s)
+{
+	this->slice_orientation = s;
+}
+
 void image_base::redraw()
     {
     rendermanagement.data_has_changed(ID);
@@ -192,6 +238,18 @@ string image_base::get_orientation_as_dcm_string()
 }
 
 Vector3D image_base::get_slice_direction()
+{
+	return create_Vector3D(orientation[0][2],orientation[1][2],orientation[2][2]);
+}
+Vector3D image_base::get_voxel_x_dir_in_phys()
+{
+	return create_Vector3D(orientation[0][0],orientation[1][0],orientation[2][0]);
+}
+Vector3D image_base::get_voxel_y_dir_in_phys()
+{
+	return create_Vector3D(orientation[0][1],orientation[1][1],orientation[2][1]);
+}
+Vector3D image_base::get_voxel_z_dir_in_phys()
 {
 	return create_Vector3D(orientation[0][2],orientation[1][2],orientation[2][2]);
 }
@@ -243,7 +301,7 @@ string image_base::resolve_tooltip()
 
 string image_base::resolve_tooltip_image_base()
 {
-	return resolve_tooltip_data_base() + "origin="+Vector3D2str(origin)+"\n";  //+"\n"+"orientation="+orientation;
+	return resolve_tooltip_data_base()  +  "origin="+Vector3D2str(origin)+"\n"  +  "slice_orientation="+this->get_slice_orientation()+"\n";  //+"\n"+"orientation="+orientation;
 }
 
 

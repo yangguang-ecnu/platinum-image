@@ -150,6 +150,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
 	this->set_origin(sourceImage->get_origin());
     this->set_voxel_size(sourceImage->get_voxel_size());
 	this->set_orientation(sourceImage->get_orientation());
+	this->set_slice_orientation(sourceImage->get_slice_orientation());
 
     this->stats->max(sourceImage->get_max());
     this->stats->min(sourceImage->get_min());
@@ -288,6 +289,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::initialize_dataset(int w, int h, int d, 
     datasize[0] = w; datasize[1] = h; datasize[2] = d;
 
     voxel_size.Fill(1);
+	this->set_slice_orientation("undefined");
     
     //dimension-independent loop that may be lifted outside this function
     this->num_elements=1;
@@ -591,7 +593,7 @@ typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::RegionType image_general<ELEMT
 template <class ELEMTYPE, int IMAGEDIM>
 typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer image_general<ELEMTYPE, IMAGEDIM>::get_image_as_itk_output()
 {
-	cout<<"get_image_as_itk_output..."<<endl;
+//	cout<<"get_image_as_itk_output..."<<endl;
 
 	typedef itk::ImportImageFilter<ELEMTYPE, IMAGEDIM> filterType;
 	typename filterType::Pointer ITKimportfilter = filterType::New();
@@ -1117,7 +1119,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::copy_slice_from_3D(image_general<ELEMTYP
 template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slice_rotated_3D(int slice, int dir)
 {
-	cout<<"get_subvolume_from_slice_rotated_3D..."<<endl;
+//	cout<<"get_subvolume_from_slice_rotated_3D..."<<endl;
 
 	int usize=this->get_size_by_dim_and_dir(0,dir);
 	int vsize=this->get_size_by_dim_and_dir(1,dir);
@@ -1411,7 +1413,7 @@ vector< image_scalar<ELEMTYPE, IMAGEDIM>* > image_general<ELEMTYPE, IMAGEDIM>::s
 template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D(int rot_axis, int pos_neg_dir)
 { 
-	cout<<"rotate_voxeldata_3D("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")"<<endl;
+//	cout<<"rotate_voxeldata_3D("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")"<<endl;
 	
 	image_scalar<ELEMTYPE, 3>* res = new image_scalar<ELEMTYPE, 3>(); 
 	res->set_parameters(this);
@@ -1517,6 +1519,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::rotate_voxe
 	res->set_voxel_size(new_voxel_size);
 	res->set_origin(new_origin);
 	res->set_orientation(new_orientation);
+	//TODO:JK figure out how to handle shift slice orientation 
 	
 	return res;
 }
@@ -1524,7 +1527,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::rotate_voxe
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D_in_this(int rot_axis, int pos_neg_dir)
 {
-	cout<<"rotate_voxeldata_3D_in_this..."<<endl;
+//	cout<<"rotate_voxeldata_3D_in_this..."<<endl;
 	image_scalar<ELEMTYPE, IMAGEDIM> *tmp = rotate_voxeldata_3D(rot_axis, pos_neg_dir);
 //	tmp->save_to_file("C:/joel/TMP/rot.vtk");
 	int sx = tmp->get_size_by_dim(0);
@@ -2565,6 +2568,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::print_geometry()
 	std::cout<<"origin:"<<this->origin<<std::endl;
 	std::cout<<"voxel_size:"<<this->get_voxel_size()<<std::endl;
 	std::cout<<"voxel_resize:"<<std::endl<<this->get_voxel_resize()<<std::endl;
+	std::cout<<"slice_orientation:"<<std::endl<<this->get_slice_orientation()<<std::endl;
 	std::cout<<"orientation:"<<std::endl;
 	std::cout<<this->orientation[0][0]<<" "<<this->orientation[1][0]<<" "<<this->orientation[2][0]<<std::endl;
 	std::cout<<this->orientation[0][1]<<" "<<this->orientation[1][1]<<" "<<this->orientation[2][1]<<std::endl;

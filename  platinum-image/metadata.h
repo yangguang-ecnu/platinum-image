@@ -134,6 +134,7 @@ public:
 	string metadata::get_data_as_string ( std::string key );
 
 	std::string get_name();
+	std::string get_slice_orientation();
 
 private:
 	void add_dcm_data_int(itk::GDCMImageIO::Pointer dcmIO, string DCM_TAG);
