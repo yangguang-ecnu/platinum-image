@@ -498,12 +498,16 @@ image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_lungs_from_su
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_water_percent_image(int &pos_x, int &pos_y, int mip_thres, string base, int y_start)
+void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_wp_smooth_image(int &pos_x, int &pos_y, int mip_thres, string base, int y_start)
 {
 	cout<<"appl_wb_segment_find_crotch_pos_from_water_percent_image..."<<endl;
 
+//	image_scalar<ELEMTYPE, IMAGEDIM> *wp2 = new image_scalar<ELEMTYPE, IMAGEDIM>(this);
+//	wp2->smooth_3D(create_Vector3D(1,1,1));
 //	cout<<"create MIP (z)..."<<endl;
+
 	image_scalar<ELEMTYPE,IMAGEDIM> *tmip = this->create_projection_3D(2);
+//	image_scalar<ELEMTYPE,IMAGEDIM> *tmip = wp2->create_projection_3D(2);
 	tmip->name("_tmip");
 	if(base!=""){
 		tmip->save_to_VTK_file(base+"__d01_wpMIP1.vtk");
@@ -523,6 +527,11 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_wate
 	tbin->dilate_2D();
 	if(base!=""){
 		tbin->save_to_VTK_file(base+"__d03_wpMIP3_open2D.vtk");
+	}
+
+	tbin->largest_object_2D();
+	if(base!=""){
+		tbin->save_to_VTK_file(base+"__d04_wpMIP4_largest_obj.vtk");
 	}
 
 
@@ -548,13 +557,150 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_segment_find_crotch_pos_from_wate
 		}
 	}
 
-	cout<<"pos_x="<<pos_x<<endl;
-	cout<<"pos_y(=crotch_level)="<<pos_y<<endl;
-
+//	datamanagement.add(wp2);
 //	datamanagement.add(tmip);
 //	datamanagement.add(tbin);
+//	delete wp2;
 	delete tmip;
 	delete tbin;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+int image_scalar<ELEMTYPE, IMAGEDIM>::appl_find_femur_y_level_from_wp_image(image_scalar<unsigned short, 3>* model_l, Vector3Dint guess_center_l, Vector3Dint d_xyz, image_scalar<unsigned short,3> *cost_image)
+{
+	int y_min=0;
+
+	Vector3D min_pos1;
+	Vector3D min_pos2;
+	cost_image->fill(0);
+
+	image_scalar<unsigned short,3> *model_r = new image_scalar<unsigned short,3>(model_l);
+	model_r->flip_voxel_data_3D(0);
+
+	int guess_x2 = cost_image->nx() - guess_center_l[0];
+
+
+	double cost1=0; //left
+	double cost2=0;	//right
+	double VERY_LARGE=1000000000000000000;
+	double min_slice_cost1=VERY_LARGE;
+	double min_slice_cost2=VERY_LARGE;
+	double min_cost=VERY_LARGE;
+	Vector3D min_slice_pos1;
+	Vector3D min_slice_pos2;
+
+	for(int y=guess_center_l[1]-d_xyz[1]; y<guess_center_l[1]+d_xyz[1]; y++){				
+		min_slice_cost1=VERY_LARGE;
+		min_slice_cost2=VERY_LARGE;
+
+		for(int z=guess_center_l[2]-d_xyz[2]; z<guess_center_l[2]+d_xyz[2]; z++){
+			for(int x=guess_center_l[0]-d_xyz[0],int x2=guess_x2-d_xyz[0]; x<guess_center_l[0]+d_xyz[0], x2<guess_x2+d_xyz[0]; x++,x2++){
+
+				cost1 = sqrt(this->get_mean_squared_difference_to_template_centered_3D(create_Vector3D(x,y,z),model_l));
+				cost2 = sqrt(this->get_mean_squared_difference_to_template_centered_3D(create_Vector3D(x2,y,z),model_r));
+				cost_image->set_voxel(x,y,z,cost1);
+				cost_image->set_voxel(x2,y,z,cost2);
+				
+				if(cost1<min_slice_cost1){
+					min_slice_cost1 = cost1;
+					min_slice_pos1 = create_Vector3D(x,y,z);
+				}
+				if(cost2<min_slice_cost2){
+					min_slice_cost2 = cost2;
+					min_slice_pos2 = create_Vector3D(x2,y,z);
+				}
+			}
+		}
+
+		if(min_slice_cost1+min_slice_cost2<min_cost){
+			min_cost = min_slice_cost1+min_slice_cost2;
+			y_min=y;
+			min_pos1 = min_slice_pos1;
+			min_pos2 = min_slice_pos2;
+		}
+		cout<<"y="<<y<<" min_cost="<<min_cost<<endl;
+		cost_image->set_voxel(min_slice_pos1[0],min_slice_pos1[1],min_slice_pos1[2],15000);
+		cost_image->set_voxel(min_slice_pos2[0],min_slice_pos2[1],min_slice_pos2[2],15000);
+	}
+
+	cost_image->set_voxel(min_pos1[0],min_pos1[1],min_pos1[2],16001);
+	cost_image->set_voxel(min_pos2[0],min_pos2[1],min_pos2[2],16002);
+
+	return y_min;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+int image_scalar<ELEMTYPE, IMAGEDIM>::appl_find_femur_y_level_from_body_masked_fp_image(int from_y, int to_y, Vector3Dint &femur_l, Vector3Dint &femur_r, float p2a_c,float p2a_sd, float area_c, float area_sd, int res_thresh, string base)
+{
+	image_scalar<unsigned short,3> *fp_sub = dynamic_cast<image_scalar<unsigned short,3 >*>( this->get_subvolume_from_region_3D(create_Vector3Dint(0,from_y,0),create_Vector3Dint(this->nx(),to_y - from_y,this->nz())) );
+	fp_sub->smooth_3D(create_Vector3D(1,1,1));
+	image_binary<3> *bin = fp_sub->threshold(500);
+
+	image_scalar<float,3> *p2a = bin->label_connected_objects_with_p2a_2D(1);					//circles have a p2a around 4PI = 12.6  (14+-3.5)
+	image_scalar<float,3> *p2a2 = new image_scalar<float,3>(p2a);
+	p2a2->map_values_using_gaussian(new gaussian(100,p2a_c,p2a_sd));
+
+	image_integer<unsigned long,3> *areas = bin->label_connected_objects_with_area_2D(1);		//an area between 100 -- 400 seems to be useful! (280+-150)
+	image_scalar<float,3> *areas2 = new image_scalar<float,3>(areas);
+	areas2->map_values_using_gaussian(new gaussian(100,area_c,area_sd));
+
+	image_scalar<float,3> *res = new image_scalar<float,3>(p2a2);
+	res->combine(areas2,COMB_MULT);
+	res->smooth_3D(create_Vector3D(1,1,1));
+
+	image_binary<3> *femurs = res->threshold(res_thresh); //5500 //4000
+	femurs->largest_objects_3D(2);
+
+	vector<Vector3D> cgs = femurs->get_center_of_gravities_for_objects_3D();
+
+	if(cgs.size()>=2){
+		//add the "from_y" value to the resulting voxel position
+		cgs[0][1] = cgs[0][1] + from_y;
+		cgs[1][1] = cgs[1][1] + from_y;
+		if(cgs[0][0] > cgs[1][0]){
+			for(int i=0; i<3; i++){
+				femur_l[i]=cgs[0][i];
+				femur_r[i]=cgs[1][i];
+			}
+		}else{
+			for(int i=0; i<3; i++){
+				femur_l[i]=cgs[1][i];
+				femur_r[i]=cgs[0][i];
+			}
+		}
+		for(int i=0; i<cgs.size(); i++){
+			cout<<"cg="<<cgs[i]<<endl;
+		}
+	}
+
+
+	if(base!=""){
+		p2a->save_to_file(base + "__e01a_p2a.vtk");
+		p2a2->save_to_file(base + "__e01b_p2a2.vtk");
+		areas->save_to_file(base + "__e02a_areas.vtk");
+		areas2->save_to_file(base + "__e02b_areas2.vtk");
+		res->save_to_file(base + "__e03_res.vtk");
+		femurs->save_to_file(base + "__e04_femurs.vtk");
+	}
+
+	delete fp_sub;
+	delete bin;
+//	delete p2a;
+//	delete areas;
+
+//	datamanagement.add(fp_sub,"fp_sub",true);
+//	datamanagement.add(bin,"bin",true);
+	datamanagement.add(p2a,"p2a",true);
+	datamanagement.add(p2a2,"p2a2",true);
+	datamanagement.add(areas,"areas",true);
+	datamanagement.add(areas2,"areas2",true);
+	datamanagement.add(res,"res",true);
+	datamanagement.add(femurs,"femurs",true);
+
+	if(cgs.size()==2){
+		return float(cgs[0][1] + cgs[1][1])/2.0;
+	}
+	return -1;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>

@@ -363,7 +363,7 @@ image_integer<unsigned long, 3>* image_binary<IMAGEDIM>::label_connected_objects
 	int new_label;
 	//init labels
 	int number_of_objects=1;
-	vector<int> changes;
+	vector<int> changes;	//changes[a] = b //--> replace index a with b... Note that changes[1] is always = 1...
 	changes.push_back(0);
 	vector<int> sizes;
 	sizes.push_back(0);
@@ -372,22 +372,22 @@ image_integer<unsigned long, 3>* image_binary<IMAGEDIM>::label_connected_objects
 			for(u=0; u<max_u; u++) {
 				p=this->get_voxel_by_dir(u,v,w,direction);
 				if(p==object_value)	{
-					up=(v>0)? label_image->get_voxel_by_dir(u,v-1,w,direction) : 0;
+					up=(v>0)? label_image->get_voxel_by_dir(u,v-1,w,direction) : 0;		//read up and left
 					left=(u>0)? label_image->get_voxel_by_dir(u-1,v,w,direction) : 0;
-					while(up!=changes[up])
+					while(up!=changes[up])												//update up and left according to already known changes
 						up=changes[up];
 					while(left!=changes[left])
 						left=changes[left];
-					new_label=number_of_objects;
-					if(up>0 && up<new_label)
+					new_label=number_of_objects;		//start off by guessing new_label to be "number_of_objects" 
+					if(up>0 && up<new_label)			//update new_label if "up"/"left" already belongs to an object with "lower" label
 						new_label=up;
 					if(left>0 && left<new_label)
 						new_label=left;
-					if(up>new_label)
+					if(up>new_label)					//i.e. if left was "lower" than up...
 						changes[up]=new_label;
-					if(left>new_label)
+					if(left>new_label)					//i.e. if up was "lower" than left...
 						changes[left]=new_label;
-					if(new_label==number_of_objects) {
+					if(new_label==number_of_objects) {			//i.e. a "new" object is found
 						changes.push_back(number_of_objects);
 						sizes.push_back(0);
 						number_of_objects++;	
@@ -434,6 +434,142 @@ image_integer<unsigned long, 3>* image_binary<IMAGEDIM>::label_connected_objects
 	delete[] lut;
 	return label_image;
 }
+
+template <int IMAGEDIM>
+image_integer<unsigned long, 3>* image_binary<IMAGEDIM>::label_connected_objects_with_perimeter_2D(int direction, IMGBINARYTYPE object_value)
+{
+	int u,v,w;
+	int max_u, max_v, max_w;
+	max_u=this->get_size_by_dim_and_dir(0,direction);
+	max_v=this->get_size_by_dim_and_dir(1,direction);
+	max_w=this->get_size_by_dim_and_dir(2,direction);
+		
+	IMGBINARYTYPE p;//pixel value
+	int label,up,left,right,down;//neighbour labels 
+    image_integer<unsigned long,IMAGEDIM> * label_image = new image_integer<unsigned long,IMAGEDIM> (this);
+	int new_label;
+	//init labels
+	int number_of_objects=1;
+	vector<int> changes;	//changes[a] = b //--> replace index a with b... Note that changes[1] is always = 1...
+	changes.push_back(0);
+	vector<float> sizes;
+	sizes.push_back(0);
+	int num_bg_pix=0;
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				p=this->get_voxel_by_dir(u,v,w,direction);
+				if(p==object_value)	{
+					up=(v>0)? label_image->get_voxel_by_dir(u,v-1,w,direction) : 0;		//read up and left
+					left=(u>0)? label_image->get_voxel_by_dir(u-1,v,w,direction) : 0;
+					while(up!=changes[up])												//update up and left according to already known changes
+						up=changes[up];
+					while(left!=changes[left])
+						left=changes[left];
+					new_label=number_of_objects;		//start off by guessing new_label to be "number_of_objects" 
+					if(up>0 && up<new_label)			//update new_label if "up"/"left" already belongs to an object with "lower" label
+						new_label=up;
+					if(left>0 && left<new_label)
+						new_label=left;
+					if(up>new_label)					//i.e. if left was "lower" than up...
+						changes[up]=new_label;
+					if(left>new_label)					//i.e. if up was "lower" than left...
+						changes[left]=new_label;
+					if(new_label==number_of_objects) {			//i.e. a "new" object is found
+						changes.push_back(number_of_objects);
+						sizes.push_back(0);
+						number_of_objects++;	
+					}
+					label_image->set_voxel_by_dir(u,v,w,new_label,direction);
+
+					down=(v<max_v-1)? label_image->get_voxel_by_dir(u,v+1,w,direction) : 0;		//read down
+					right=(u<max_u-1)? label_image->get_voxel_by_dir(u+1,v,w,direction) : 0;		//read right
+					
+					num_bg_pix=0;
+					if(up==0)
+						num_bg_pix++;
+					if(left==0)
+						num_bg_pix++;
+					if(down==0)
+						num_bg_pix++;
+					if(right==0)
+						num_bg_pix++;
+
+					if( num_bg_pix == 2 ){
+						sizes[new_label] += 1.414214;
+					}else if( num_bg_pix >0 ){
+						sizes[new_label]++;					
+					}
+//					if( (up==0)||(left==0)||(down==0)||(right==0) ){
+//						sizes[new_label]++;
+//					}
+					/*
+					if(up==0)
+						sizes[new_label]++;
+					if(left==0)
+						sizes[new_label]++;
+					if(down==0)
+						sizes[new_label]++;
+					if(right==0)
+						sizes[new_label]++;
+					*/
+				}
+				else
+					label_image->set_voxel_by_dir(u,v,w,0,direction);
+			}
+		}
+	}
+	
+	// calculate look-up-table and sizes
+	int* lut=new int[number_of_objects];
+	memset(lut, 0, sizeof(int)*number_of_objects);
+	vector<int> tot_sizes;
+	tot_sizes.push_back(0);
+	new_label=1;
+	for(int i=1; i<number_of_objects; i++) {
+		label=i;
+		while(label!=changes[label])
+			label=changes[label];
+		if(label==i) {
+			lut[i]=new_label;
+			new_label++;
+			tot_sizes.push_back(0);
+		}
+		else
+			lut[i]=lut[label];
+		tot_sizes[lut[i]]+=sizes[i];
+	}
+	
+    // set new labels from look-up table and sizes
+	for(w=0; w<max_w; w++) {
+		for(v=0; v<max_v; v++) {
+			for(u=0; u<max_u; u++) {
+				label=label_image->get_voxel_by_dir(u,v,w,direction);
+				if (label>0)
+					label_image->set_voxel_by_dir(u,v,w,tot_sizes[lut[label]],direction);
+			}
+		}
+	}
+	delete[] lut;
+	return label_image;
+}
+
+template <int IMAGEDIM>
+image_scalar<float, 3>* image_binary<IMAGEDIM>::label_connected_objects_with_p2a_2D(int direction, IMGBINARYTYPE object_value)
+{
+	image_integer<unsigned long,3> *perim = this->label_connected_objects_with_perimeter_2D(direction,object_value);
+	image_integer<unsigned long,3> *area = this->label_connected_objects_with_area_2D(direction,object_value);
+
+	image_scalar<float,3> *p2a = new image_scalar<float,3>(perim);
+	image_scalar<float,3> *area2 = new image_scalar<float,3>(area);
+	p2a->combine(p2a,COMB_MULT);
+	p2a->combine(area2,COMB_DIV);
+	delete perim;
+	delete area;
+	delete area2;
+	return p2a;
+}
+
 
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::largest_object_2D(int direction, IMGBINARYTYPE object_value)
@@ -2551,6 +2687,45 @@ float image_binary<IMAGEDIM>::mutual_overlap_3D(image_binary<IMAGEDIM>* second_i
 		return 0;
 }
 
+template <int IMAGEDIM>
+vector<Vector3D> image_binary<IMAGEDIM>::get_center_of_gravities_for_objects_3D(SPACE_TYPE type)
+{
+	image_label<3> *labels = this->label_connected_objects_3D();
+	labels->data_has_changed();
+	int max = labels->get_max();
+	vector<Vector3D> sums = vector<Vector3D>(max,create_Vector3D(0,0,0));
+	vector<int> nums = vector<int>(max,0);
+
+	IMGLABELTYPE val;
+
+	for(int z=0; z<this->nz(); z++){
+		for(int y=0; y<this->ny(); y++){
+			for(int x=0; x<this->nx(); x++){
+				val = labels->get_voxel(x,y,z);
+				if(val>0){
+					sums[val-1] += create_Vector3D(x,y,z);
+					nums[val-1]++;
+				}
+			}
+		}
+	}
+
+	for(int i=0; i<max; i++){
+		sums[i]/=nums[i];
+	}
+	
+	delete labels;
+	
+	if(type == VOXEL_SPACE){
+		return sums;
+	}
+		//else PHYSICAL_SPACE
+
+	for(int i=0; i<max; i++){
+		sums[i] = this->get_physical_pos_for_voxel(sums[i][0],sums[i][1],sums[i][2]);
+	}
+	return sums;
+}
 
 template <int IMAGEDIM>
 void image_binary<IMAGEDIM>::appl_crude_abdominal_artifact_removal()

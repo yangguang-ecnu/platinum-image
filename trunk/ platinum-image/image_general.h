@@ -311,7 +311,7 @@ class image_general : public image_storage <ELEMTYPE >
 
         void save_to_file(const std::string file_path, const bool useCompression = true, const bool anonymize = true); //enterprits file name ending...
         void save_to_VTK_file(const std::string file_path, const bool useCompression = true);
-        void save_to_DCM_file(const std::string file_path, const bool useCompression = true, const bool anonymize = true);
+        void save_to_DCM_file(const std::string file_path, const bool useCompression = false, const bool anonymize = true);
         void save_to_DCM_file_series(const std::string file_path, const bool useCompression = true, const bool anonymize = true);
 		void save_to_raw_file(const std::string file_path, bool save_image_info_txt_file=false);
         void save_to_NIFTI_file(const std::string file_path); //JK test
