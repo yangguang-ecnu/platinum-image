@@ -213,7 +213,18 @@ string image_base::get_slice_orientation()
 
 void image_base::set_slice_orientation(string s)
 {
-	this->slice_orientation = s;
+	//undefined/axial/coronal/sagittal (lower case letters...)
+	if(s=="a"){
+		this->slice_orientation = "axial";
+	}else if(s=="c"){
+		this->slice_orientation = "coronal";
+	}else if(s=="s"){
+		this->slice_orientation = "sagittal";
+	}else if(s=="u"){
+		this->slice_orientation = "undefined";
+	}else{
+		this->slice_orientation = s;
+	}
 }
 
 void image_base::redraw()

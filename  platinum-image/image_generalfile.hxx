@@ -468,7 +468,11 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_all_DICOM_files_in_dir
 		
 		//-- Remove final "\\" of dir_path...
 		while(dir_path.find_last_of("\\")==dir_path.size()-1){
-			cout<<"substring...ing..."<<endl;
+			cout<<"substring...ing...(\\)"<<endl;
+			dir_path = dir_path.substr(0,dir_path.size()-1);
+		}
+		while(dir_path.find_last_of("/")==dir_path.size()-1){
+			cout<<"substring...ing...(/)"<<endl;
 			dir_path = dir_path.substr(0,dir_path.size()-1);
 		}
 //		cout<<"dir_path="<<dir_path<<endl;

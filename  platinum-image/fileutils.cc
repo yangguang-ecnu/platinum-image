@@ -167,6 +167,16 @@ void create_dir(string dir_path)
 	itksys::SystemTools::MakeDirectory( dir_path.c_str() );
 }
 
+void create_file(string file_path)
+{
+	ofstream myfile;
+	myfile.open(file_path.c_str());
+	myfile<<"";
+	myfile.close();
+}
+
+
+
 void add_to_string_vector_if_not_present(vector<string> &v, string s)
 {
 	if(s!=""){
@@ -204,6 +214,32 @@ vector<string> get_dicom_files_in_dir(string dir_path, bool full_path)
 		}
 	}
 	return dcm_files;
+}
+
+vector<string> get_first_dicom_files_in_all_subdirs(string dir_path, bool full_path)
+{
+	cout<<"get_first_dicom_files_in_all_subdirs..."<<endl;
+
+	vector<string> all_dcm_files;
+	vector<string> sub_dcm_files;
+	vector<string> these_dcm_files = get_dicom_files_in_dir(dir_path, full_path);
+
+	vector<string>dirs = subdirs(dir_path, true);
+	for(int i=0;i<dirs.size();i++)	{
+		cout<<"*dir_i="<<i<<" "<<dirs[i]<<endl;
+		sub_dcm_files = get_first_dicom_files_in_all_subdirs(dirs[i], full_path);
+		for(int i=0;i<sub_dcm_files.size();i++)	{
+			all_dcm_files.push_back( sub_dcm_files[i] );
+		}
+		sub_dcm_files.clear();
+	}
+
+	for(int i=0;i<these_dcm_files.size();i++)
+	{
+		cout<<"*i="<<i<<" "<<these_dcm_files[i]<<endl;
+		all_dcm_files.push_back(these_dcm_files[i]);
+	}
+	return all_dcm_files;
 }
 
 string get_first_dicom_file_in_dir(string dir_path, bool full_path)

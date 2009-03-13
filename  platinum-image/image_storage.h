@@ -103,6 +103,7 @@ class image_storage : public image_base
 		void scale_intervall(ELEMTYPE from_min_val, ELEMTYPE from_max_val, ELEMTYPE to_min_val, ELEMTYPE to_max_val);
 		void map_values(ELEMTYPE map_from=1, ELEMTYPE map_to=255, ELEMTYPE result_value=255);
 		void map_negative_values(ELEMTYPE to_value=0);
+		void map_values_using_gaussian(gaussian* g);	//The gaussian value for each intentity determines the new intensity --> extracts intensity ranges of interest!
 		int get_number_of_voxels_with_value(ELEMTYPE val);
 		int get_number_of_voxels_with_value_greater_than(ELEMTYPE val);
 

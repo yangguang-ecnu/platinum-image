@@ -95,7 +95,9 @@ public:
 	void convex_hull_objectwise_in_slice_2D(image_label<3>* image, int dir=2, int slice=0); // Get convex hull of each 4-connected object in specified 2D-plane orthogonal to the axis given by direction.
     void fill_holes_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Fill holes in objects defined by object_value in 2D-planes orthogonal to the axis given by direction.
     image_label<3>* label_connected_objects_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Get image_label from connected objects in 2D-planes orthogonal to the axis given by direction.
-	image_integer<unsigned long, 3>* label_connected_objects_with_area_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Get image_integer from connected objects in 2D-planes orthogonal to the axis given by direction with labels corresponding to object volume.
+	image_integer<unsigned long, 3>* label_connected_objects_with_area_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Get image_integer from connected objects in 2D-planes orthogonal to the axis given by direction with labels corresponding to object volume (4-nbh).
+	image_integer<unsigned long, 3>* label_connected_objects_with_perimeter_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Get image_integer from connected objects in 2D-planes orthogonal to the axis given by direction with labels corresponding to object perimeter (4-nbh).
+	image_scalar<float, 3>* label_connected_objects_with_p2a_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); //Uses "perimeter_2D" and "area_2D"
 	void largest_object_2D(int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep the largest object (defined by object_value) for each plane in 2D-planes orthogonal to the axis given by direction.
     void threshold_size_2D(int min_size, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep all objects (defined by object_value) > min_size voxels for each plane in 2D-planes orthogonal to the axis given by direction.
     void cog_inside_2D(image_binary<IMAGEDIM>* mask, int direction=2, IMGBINARYTYPE object_value=TRUE); ///Keep all objects (defined by object_value) having their cog within mask in 2D-planes orthogonal to the axis given by direction.
@@ -139,6 +141,7 @@ public:
 	void get_num_neighbours_distribution_3D_26Nbh(vector<int> &num_nb, vector<int> &num_vox, IMGBINARYTYPE object_value=TRUE); //Returns statistics on the number of object neighbours object voxels have.
 	float get_border_volume_ratio_3D_26Nbh(int num_nb_inside_limit=17, IMGBINARYTYPE object_value=TRUE); //Returns statistics on the number of object neighbours object voxels have.
 	float mutual_overlap_3D(image_binary<IMAGEDIM>* second_image);
+	vector<Vector3D> get_center_of_gravities_for_objects_3D(SPACE_TYPE type = VOXEL_SPACE); //öööö
 
 	void appl_crude_abdominal_artifact_removal();
 

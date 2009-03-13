@@ -1422,7 +1422,6 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file(const std::string filename, gaussian *g, bool reload_hist_from_image, const std::string separator)
 {
 //	cout<<"save_histogram_to_txt_file..."<<endl;
-	cout<<this->stats<<endl;
 	pt_error::error_if_null(this->stats,"image_scalar<ELEMTYPE, IMAGEDIM>::save_histogram_to_txt_file - stats==NULL",pt_error::debug);
 	this->stats->save_histogram_to_txt_file(filename, g, reload_hist_from_image, separator);
 }
@@ -3365,25 +3364,32 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::set_parameters (image_scalar<ELEMTYPE, IM
 //Vector3D get_pos_of_type_in_region_voxel ( Vector3D center, Vector3D radius, POINT_TYPE point_type )
 
 template <class ELEMTYPE, int IMAGEDIM>
-float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_square_difference_to_template_3D(Vector3D pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template)
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_squared_difference_to_template_3D(Vector3D pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template)
 {
 	double cost=0;
-	int dx = small_template->get_size_by_dim(0);
-	int dy = small_template->get_size_by_dim(1);
-	int dz = small_template->get_size_by_dim(2);
+	double fact = small_template->nx()*small_template->ny()*small_template->nz();
+	int nr=0;
 
-	for(int x=pos[0], m_x=0;x<pos[0]+dx;x++,m_x++){
-		for(int y=pos[1], m_y=0;y<pos[1]+dy;y++,m_y++){
-			for(int z=pos[2], m_z=0;z<pos[2]+dz;z++,m_z++){
-				cost += pow(small_template->get_voxel(m_x,m_y,m_z) - this->get_voxel(x,y,z),2);
+	for(int x=pos[0], int m_x=0;  x<pos[0]+small_template->nx();  x++,m_x++){
+		for(int y=pos[1], int m_y=0;  y<pos[1]+small_template->ny();  y++,m_y++){
+			for(int z=pos[2], int m_z=0;  z<pos[2]+small_template->nz();  z++,m_z++){
+				cost += pow( double(small_template->get_voxel(m_x,m_y,m_z)-this->get_voxel(x,y,z)), 2 );
+				nr++;
 			}
 		}
 	}
-	return sqrt( cost/double(dx*dy*dz) );
+	cout<<nr<<",";
+	return cost/fact;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_scalar<float, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_square_difference_image_3D(Vector3D fcp, Vector3D tcp, image_scalar<ELEMTYPE, IMAGEDIM> *small_template)
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_squared_difference_to_template_centered_3D(Vector3D pos, image_scalar<ELEMTYPE, IMAGEDIM> *small_template)
+{
+	return this->get_mean_squared_difference_to_template_3D(pos - small_template->get_size()/2.0, small_template);
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<float, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_squared_difference_image_3D(Vector3D fcp, Vector3D tcp, image_scalar<ELEMTYPE, IMAGEDIM> *small_template)
 {
 	image_scalar<float,3> *res = new image_scalar<float,3>(this,0);
 	res->fill(0);
@@ -3405,7 +3411,7 @@ image_scalar<float, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_least_
 //		cout<<"k="<<k<<endl;
 		for(int j=from_pos[1];j<=to_pos[1];j++){
 			for(int i=from_pos[0];i<=to_pos[0];i++){
-				r = this->get_mean_least_square_difference_to_template_3D(create_Vector3D(i,j,k),small_template);
+				r = this->get_mean_squared_difference_to_template_3D(create_Vector3D(i,j,k),small_template);
 				res->set_voxel(i+half_size[0],j+half_size[1],k+half_size[2],r);
 			}
 		}
