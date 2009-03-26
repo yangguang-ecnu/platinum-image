@@ -649,7 +649,7 @@ vector<string> subdirs_where_name_contains(string dir_path, string name_substrin
 	return sub2;
 }
 
-vector<string> get_files_in_dir_where_name_contains(string dir_path, string name_substring)
+vector<string> get_files_in_dir_where_name_contains(string dir_path, string name_substring, bool fullpath)
 {
 	vector<string> files = get_dir_entries(dir_path,false);
 	vector<string> files2;
@@ -660,7 +660,11 @@ vector<string> get_files_in_dir_where_name_contains(string dir_path, string name
 //			cout<<"files[i].find(name_substring)="<<files[i].find(name_substring)<<endl;
 			if( files[i].find(name_substring) < files[i].size() ){
 //				cout<<"***"<<endl;
-				files2.push_back(files[i]);
+				if(fullpath){
+					files2.push_back(dir_path+"/"+files[i]);
+				}else{
+					files2.push_back(files[i]);
+				}
 			}
 		}
 	}
