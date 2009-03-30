@@ -27,6 +27,7 @@
 
 #include <sstream>
 
+/*
 template <class ELEMTYPE >
 transfer_base<ELEMTYPE >::transfer_base (image_storage<ELEMTYPE > * s)
     {
@@ -49,18 +50,49 @@ void transfer_base<ELEMTYPE >::redraw_image_cb( Fl_Widget* o, void* p )
 	theImage->redraw(); //this function can be accesses since "transfer_base" is "friend" of "image_base"...
     }
 
+
+*/
+
+//-------------------------------------------------------------------
+
+
+template <class ELEMTYPE >
+transfer_scalar_base<ELEMTYPE >::transfer_scalar_base(image_storage<ELEMTYPE > * s)
+    {
+    source=s;
+	if(source->widget!=NULL)
+		pane = pt_error::error_if_null(dynamic_cast<datawidget<image_base>*>(source->widget)->reset_tf_controls(),"Trying to reset_tf_controls on widget of other type than datawidget<image_base>",pt_error::fatal);
+	else
+		pane = NULL;
+    }
+
+template <class ELEMTYPE >
+transfer_scalar_base<ELEMTYPE >::~transfer_scalar_base()
+    {
+    }
+
+template <class ELEMTYPE >
+void transfer_scalar_base<ELEMTYPE >::redraw_image_cb( Fl_Widget* o, void* p )
+    {
+    REDRAWCALLBACKPTYPE theImage = reinterpret_cast<REDRAWCALLBACKPTYPE > (p);
+	theImage->redraw(); //this function can be accesses since "transfer_base" is "friend" of "image_base"...
+    }
+
+
+//-------------------------------------------------------------------
+
 // *** transfer_brightnesscontrast ***
 
 template <class ELEMTYPE >
-transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_storage<ELEMTYPE > * s) : transfer_base<ELEMTYPE >(s)
+transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_storage<ELEMTYPE > * s) : transfer_scalar_base<ELEMTYPE >(s)
     {
 	Fl_Group* frame = this->pane;
 	frame->resize(0,0,270,65);
-	frame->callback(transfer_base<ELEMTYPE >::redraw_image_cb);
+	frame->callback(transfer_scalar_base<ELEMTYPE >::redraw_image_cb);
 	frame->user_data( static_cast<REDRAWCALLBACKPTYPE>(this->source) );
 
-	min = this->source->get_min();
-	max = this->source->get_max();
+	min = this->source->get_min_float();//öööö
+	max = this->source->get_max_float();//öööö
     ELEMTYPE intrange = max-min;
 
 	//JK - GUI modification
@@ -73,17 +105,17 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
 	int dh = 12;
 	int dy = 15;
 
-/*
-	min_ctrl = new Fl_Value_Slider(x_start,yy+5+0*dy,width,dh,"Min");
-	min_ctrl->type(FL_HOR_SLIDER);
-	min_ctrl->align(FL_ALIGN_LEFT);
-    min_ctrl->value(min);
-    min_ctrl->bounds(min,max);
-	min_ctrl->step(float(intrange)/100.0);
-	min_ctrl->precision(2);
-	min_ctrl->callback(slider_cb,this);
-//	min_ctrl->callback(slider_cb,"Min");
-*/
+
+//	min_ctrl = new Fl_Value_Slider(x_start,yy+5+0*dy,width,dh,"Min");
+//	min_ctrl->type(FL_HOR_SLIDER);
+//	min_ctrl->align(FL_ALIGN_LEFT);
+//  min_ctrl->value(min);
+//   min_ctrl->bounds(min,max);
+//	min_ctrl->step(float(intrange)/100.0);
+//	min_ctrl->precision(2);
+//	min_ctrl->callback(slider_cb,this);
+////	min_ctrl->callback(slider_cb,"Min");
+
 
 
 	min_ctrl = new FLTK_Editable_Slider(x_start,yy+5+0*dy,width,dh,"Min",40);
@@ -128,6 +160,8 @@ transfer_brightnesscontrast<ELEMTYPE >::transfer_brightnesscontrast (image_stora
     frame->do_callback(); //redraw image that the transfer function is attached to ( 
 	//required when another transfer has just been used...
     }
+
+
 
 template <class ELEMTYPE >
 float transfer_brightnesscontrast<ELEMTYPE >::get_src_int_range()
@@ -247,15 +281,17 @@ void transfer_brightnesscontrast<ELEMTYPE >::slider_cb(Fl_Widget *w, void *data)
 // *** transfer_threshold_illustrator ***
 
 template <class ELEMTYPE >
-transfer_threshold_illustrator<ELEMTYPE >::transfer_threshold_illustrator (image_storage<ELEMTYPE > * s) : transfer_base<ELEMTYPE >(s)
+transfer_threshold_illustrator<ELEMTYPE >::transfer_threshold_illustrator (image_storage<ELEMTYPE > * s) : transfer_scalar_base<ELEMTYPE >(s)
 {
 	Fl_Group* frame = this->pane;
 	frame->resize(0,0,270,35); //JK
-	frame->callback(transfer_base<ELEMTYPE >::redraw_image_cb);
+	frame->callback(transfer_scalar_base<ELEMTYPE >::redraw_image_cb);
 	frame->user_data( static_cast<REDRAWCALLBACKPTYPE>(this->source) );
 
-	float min = this->source->get_min();
-	float max = this->source->get_max();
+//	float min = this->source->get_min();
+//	float max = this->source->get_max();
+	float min = this->source->get_min_float(); //öööö
+	float max = this->source->get_max_float(); //öööö
     float intrange = max-min;
 
 	//JK - GUI modification
@@ -316,7 +352,7 @@ void transfer_threshold_illustrator<ELEMTYPE >::slider_cb(Fl_Widget *o, void *v)
 // *** transfer_mapcolor ***
 
 template <class ELEMTYPE >
-transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
+transfer_mapcolor<ELEMTYPE >::transfer_mapcolor  (image_storage<ELEMTYPE > * s):transfer_scalar_base<ELEMTYPE >(s)
     {
     //pane->choice ();
     Fl_Group * frame = this->pane;
@@ -445,7 +481,7 @@ void transfer_mapcolor<ELEMTYPE>::get (ELEMTYPE v, RGBvalue &p)
 // *** transfer_default ***
 
 template <class ELEMTYPE >
-transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
+transfer_default<ELEMTYPE >::transfer_default  (image_storage<ELEMTYPE > * s):transfer_scalar_base<ELEMTYPE >(s)
     {
 	if(this->pane == NULL)
 		return;
@@ -481,11 +517,15 @@ void transfer_default<std::complex<float> >::get (const std::complex<float> v, R
     }
 */
 
+
 template <class ELEMTYPE >
-void transfer_default<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
+void transfer_default<ELEMTYPE >::get(const ELEMTYPE v, RGBvalue &p)
 	{
-		if(this->source->get_max()>this->source->get_min())	{
-			p.set_mono(255*(v- this->source->get_min())/(this->source->get_max()- this->source->get_min()));
+		float ma = this->source->get_max_float();
+		float mi = this->source->get_min_float();
+		if(ma>mi){
+//			p.set_mono(255); //öööööö
+			p.set_mono( 255*(v-mi)/(ma-mi) ); //ööööö
 		}else{
 			p.set_mono(0);
 		}
@@ -495,11 +535,69 @@ void transfer_default<ELEMTYPE >::get (const ELEMTYPE v, RGBvalue &p)
 template <class ELEMTYPE >
 void transfer_default<ELEMTYPE >::update()
     {
-    std::string label = templ_to_string (this->source->get_min());
+    std::string label = templ_to_string (this->source->get_min_float());
     black->copy_label(label.c_str());
 
-    label = templ_to_string (this->source->get_max());
+    label = templ_to_string (this->source->get_max_float());
     white->copy_label(label.c_str());
     }
+
+
+
+	/*
+
+template <class ELEMTYPE >
+transfer_complex<ELEMTYPE>::transfer_complex(image_complex<ELEMTYPE> *s)// : transfer_base<ELEMTYPE >(s) //öööö
+    {
+	if(this->pane == NULL)
+		return;
+    this->pane->resize(0,0,270,35);
+    this->pane->resizable(NULL);
+
+    //pane->choice ();
+
+    // *** FLUID ***
+        { Fl_Box* o = white = new Fl_Box(80, 10, 15, 15, "high");
+        o->box(FL_THIN_DOWN_BOX);
+        o->color(FL_WHITE);
+        o->align(FL_ALIGN_RIGHT);
+        }
+        { Fl_Box* o = black = new Fl_Box(15, 10, 15, 15, "low");
+        o->box(FL_THIN_DOWN_BOX);
+        o->color(FL_FOREGROUND_COLOR);
+        o->align(FL_ALIGN_RIGHT);
+        }
+    // *** end of FLUID ***
+
+    this->pane->end();
+
+    this->update();
+    }
+
+
+
+template <class ELEMTYPE>
+void transfer_complex<ELEMTYPE>::get(const complex<ELEMTYPE> v, RGBvalue &p)
+	{
+		float ma = this->source->get_max_float();
+		float mi = this->source->get_min_float();
+		if(ma>mi){
+			p.set_mono( 255*(abs(v)-mi)/(ma-mi) );
+		}else{
+			p.set_mono(0);
+		}
+	}
+
+
+template <class ELEMTYPE>
+void transfer_complex<ELEMTYPE>::update()
+    {
+    std::string label = templ_to_string (this->source->get_min_float());
+    black->copy_label(label.c_str());
+
+    label = templ_to_string (this->source->get_max_float());
+    white->copy_label(label.c_str());
+    }
+*/
 
 #endif

@@ -42,7 +42,7 @@ class image_base;
 template<class ELEMTYPE>
 class image_storage : public image_base
     {
-    friend class transfer_base<ELEMTYPE>;
+    friend class transfer_scalar_base<ELEMTYPE>;
 
     private:
         void set_parameters ();
@@ -53,14 +53,13 @@ class image_storage : public image_base
         image_storage(image_storage<SOURCETYPE> * const s);
 //        image_storage(const string filepath);
 
-        transfer_base<ELEMTYPE> *tfunction;
         histogram_1D<ELEMTYPE> *stats;
 
-        virtual void transfer_function(transfer_base<ELEMTYPE> * t = NULL);
+//		void transfer_function(transfer_scalar_base * t = NULL);
         //allows subclasses to set a different default transfer function, and
         //to reject unsuitable choices
-
         virtual void transfer_function(std::string functionName); //! replace transfer function using string identifier
+
         void set_stats_histogram(histogram_1D<ELEMTYPE > * h);
 
         // *** Image data pointer ***

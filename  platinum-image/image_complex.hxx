@@ -22,9 +22,45 @@
 //#include "image_multi.hxx"
 
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_complex<ELEMTYPE, IMAGEDIM>::set_complex_parameters()
+    {
+    tfunction = NULL;
+
+//	transfer_function();
+    }
+
+
+/*
+template <class ELEMTYPE, int IMAGEDIM>
+void image_complex<ELEMTYPE, IMAGEDIM>::transfer_function(transfer_complex<ELEMTYPE > * const t)
+{
+    if (this->tfunction != NULL)
+        {delete this->tfunction;}
+
+    if (t == NULL)
+//        this->tfunction = new transfer_complex<ELEMTYPE>(this);
+    else
+        this->tfunction = t;
+}
+*/
+
 
 template <class ELEMTYPE, int IMAGEDIM>
-//template<class ELEMTYPE, int IMAGEDIM>
+void image_complex<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z) const
+{
+	val.r( (IMGELEMCOMPTYPE)(100) );
+	val.g( (IMGELEMCOMPTYPE)(0) );
+	val.b( (IMGELEMCOMPTYPE)(0) );
+
+//	this->tfunction->get(this->get_voxel(x, y, z),val);
+
+//		val.r( (IMGELEMCOMPTYPE)(image_vector[0]->get_voxel(x, y, z)) ); //JK4 - involve transfer functions later....
+//    this->tfunction->get(get_voxel(x, y, z),val);
+    //val.set_mono(255*(get_voxel (x, y, z)-minvalue)/(maxvalue-minvalue));
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_complex<ELEMTYPE, IMAGEDIM>::silly_test()
 {
 	cout<<"* This is a silly test , JK"<<endl;
@@ -45,7 +81,5 @@ float image_complex<ELEMTYPE, IMAGEDIM>::get_max_float() const
 	float max=255;
 	return max; //JK4
 }
-
-
 
 #endif

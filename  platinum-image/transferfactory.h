@@ -34,7 +34,7 @@ template <class ELEMTYPE >
 class image_storage;
 
 template <class ELEMTYPE >
-class transfer_base;
+class transfer_scalar_base;
 
 class transferfactory //! transfer gets its own object factory type because constructors for templated classes cannot be stored
 {
@@ -54,7 +54,7 @@ public:
     };
     
     template <class ELEMTYPE >
-        transfer_base<ELEMTYPE > * Create(factoryIdType unique_id, image_storage<ELEMTYPE >* s);
+        transfer_scalar_base<ELEMTYPE > * Create(factoryIdType unique_id, image_storage<ELEMTYPE >* s);
     
     Fl_Menu_Item* function_menu(Fl_Callback *cb);
     

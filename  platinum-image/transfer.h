@@ -42,6 +42,9 @@
 template <class ELEMTYPE>
 class image_storage;
 
+//template <class ELEMTYPE, class IMAGEDIM>
+//class image_complex;
+
 template <class ELEMTYPE>
 class histogram_1D;
 
@@ -58,40 +61,67 @@ class transfer_manufactured //! Sub-base class that holds the static factory obj
         static transferfactory factory; //instatiated in transferfactory.cc
     };
 
-template <class ELEMTYPE >
+
+//----------------------------- transfer_base --------------------------
 class transfer_base: public transfer_manufactured
     {
     protected:
-        image_storage<ELEMTYPE > * source;
-        Fl_Group*  pane;
+        Fl_Group *pane;
+		transfer_base(){};
+
+    public:
+		virtual ~transfer_base(){};
+        virtual void update(){} //!update t-function controls
+    };
 
 
-        transfer_base (image_storage<ELEMTYPE > * s);
-
+//----------------------------- transfer_scalar_base --------------------------
+template <class ELEMTYPE >
+class transfer_scalar_base: public transfer_base
+    {
+    protected:
+        image_storage<ELEMTYPE > *source;
+        transfer_scalar_base(image_storage<ELEMTYPE > *s);
         static void redraw_image_cb( Fl_Widget* o, void* p );//!redraw associated image after touching a control
 
     public:
-        virtual ~transfer_base ();
-
-        virtual void get (const ELEMTYPE v, RGBvalue &p) = 0;
-        virtual void update() //!update t-function controls
-            {}
+        virtual ~transfer_scalar_base();
+        virtual void get(const ELEMTYPE v, RGBvalue &p) = 0; //öööö
     };
 
+
+
+
 template <class ELEMTYPE >
-class transfer_default: public transfer_base <ELEMTYPE >
+class transfer_default: public transfer_scalar_base <ELEMTYPE >
 {
 protected:
 	Fl_Box *white;
 	Fl_Box *black;
 public:
-	transfer_default (image_storage <ELEMTYPE > * s);
-	void get (const ELEMTYPE v, RGBvalue &p);
+	transfer_default(image_storage <ELEMTYPE > *s);
+
+/*	template <class E2>
+		void get(const E2 v, RGBvalue &p){
+			{
+				float ma = this->source->get_max_float();
+				float mi = this->source->get_min_float();
+				if(ma>mi){
+					p.set_mono( 255*(v-mi)/(ma-mi) ); //ööööö
+				}else{
+					p.set_mono(0);
+				}
+			}
+		}
+*/
+	void get(const ELEMTYPE v, RGBvalue &p);
+	void get(const complex<ELEMTYPE> v, RGBvalue &p){} //öööö	
+
 	virtual void update();
 };
 
 template <class ELEMTYPE >
-class transfer_brightnesscontrast: public transfer_base <ELEMTYPE >
+class transfer_brightnesscontrast: public transfer_scalar_base <ELEMTYPE >
 {
 protected:
 //	Fl_Value_Slider* min_ctrl;
@@ -109,6 +139,7 @@ protected:
 public:
 	transfer_brightnesscontrast (image_storage <ELEMTYPE > *);
 	void get (const ELEMTYPE v, RGBvalue &p);
+	void get(const complex<ELEMTYPE> v, RGBvalue &p){} //öööö
 	void update(string slider_label);				//Updates intensity/contrast parameters from FLTK sliders ...
 	static void slider_cb(Fl_Widget *w, void *data);	//slider callback
 };
@@ -116,7 +147,7 @@ public:
 //-------------------
 
 template <class ELEMTYPE >
-class transfer_threshold_illustrator: public transfer_base <ELEMTYPE >
+class transfer_threshold_illustrator: public transfer_scalar_base <ELEMTYPE >
 {
 protected:
 //	Fl_Value_Slider* min_ctrl;
@@ -126,22 +157,24 @@ protected:
 public:
 	transfer_threshold_illustrator (image_storage <ELEMTYPE > *);
 	void get (const ELEMTYPE v, RGBvalue &p);
+	void get(const complex<ELEMTYPE> v, RGBvalue &p){} //öööö	
 //	void update(string slider_label);				//Updates intensity/contrast parameters from FLTK sliders ...
 	static void slider_cb(Fl_Widget *o, void *v); //slicer callback
 };
 
 
 template <class ELEMTYPE >
-class transfer_mapcolor: public transfer_base <ELEMTYPE >
+class transfer_mapcolor: public transfer_scalar_base <ELEMTYPE >
 {
 public:
 	transfer_mapcolor (image_storage <ELEMTYPE > * s);
 	void get (const ELEMTYPE v, RGBvalue &p);
+	void get(const complex<ELEMTYPE> v, RGBvalue &p){}; //öööö	
 };
 
 
 template <class ELEMTYPE >
-class transfer_interpolated: public transfer_base <ELEMTYPE >
+class transfer_interpolated: public transfer_scalar_base <ELEMTYPE >
 {
 public:
 
@@ -178,6 +211,7 @@ protected:
 public:
 	virtual ~transfer_interpolated();
     void get(const ELEMTYPE v, RGBvalue &p);
+	void get(const complex<ELEMTYPE> v, RGBvalue &p){} //öööö	
     virtual void update();
 };
 
@@ -214,7 +248,7 @@ public:
 
 
 template <class ELEMTYPE >
-class transfer_scalar_to_RGB_linear: public transfer_base <ELEMTYPE >
+class transfer_scalar_to_RGB_linear: public transfer_scalar_base <ELEMTYPE >
 {
 protected:
 //	Some_FL_color_vector_widget *w;
@@ -222,9 +256,30 @@ protected:
 public:
 	transfer_scalar_to_RGB_linear(image_storage <ELEMTYPE > *);
 	void get(const ELEMTYPE v, RGBvalue &p);
+	void get(const complex<ELEMTYPE> v, RGBvalue &p){} //öööö	
 //	void update(string slider_label);				//Updates intensity/contrast parameters from FLTK sliders ...
 //	static void slider_cb(Fl_Widget *o, void *v); //slicer callback
 };
+
+/*
+
+template <class ELEMTYPE>
+class transfer_complex: public transfer_base
+{
+protected:
+    image_complex<ELEMTYPE> *source;
+	Fl_Box *white;
+	Fl_Box *black;
+public:
+	transfer_complex(image_complex<ELEMTYPE> *s);
+	void get(const complex<ELEMTYPE> v, RGBvalue &p)
+	{
+		p.set_rgb(0,0,100);
+	} //öööö	
+	virtual void update();
+};
+*/
+
 
 #include "transferfactory.hxx"
 

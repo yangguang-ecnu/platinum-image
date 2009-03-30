@@ -256,7 +256,7 @@ public:
     };
     
     template <class ELEMTYPE >
-        transfer_base<ELEMTYPE > * Create(factoryIdType unique_id, image_storage<ELEMTYPE >* s);
+        transfer_scalar_base<ELEMTYPE > * Create(factoryIdType unique_id, image_storage<ELEMTYPE >* s);
  */   
     Fl_Menu_Item* get_FLTK_menu(Fl_Callback *cb)
     {

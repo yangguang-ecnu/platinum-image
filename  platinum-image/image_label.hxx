@@ -102,7 +102,7 @@ image_label<IMAGEDIM>::image_label(image_binary<IMAGEDIM>* image1, image_binary<
 
 
 template<int IMAGEDIM >
-void image_label<IMAGEDIM >:: transfer_function(transfer_base<IMGLABELTYPE > * const t)
+void image_label<IMAGEDIM >:: transfer_function(transfer_scalar_base<IMGLABELTYPE > * const t)
     {
     if (this->tfunction != NULL)
         {delete this->tfunction;}

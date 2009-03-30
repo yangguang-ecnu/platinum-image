@@ -73,19 +73,30 @@ void image_storage<ELEMTYPE >::set_parameters()
     {
     dataptr = NULL;
     stats = NULL;
-    tfunction = NULL;
+    //tfunction = NULL; //ööööö
 
     set_stats_histogram (new histogram_1D<ELEMTYPE >(this));  //hist1D constructor calls resize()... and calculate()
-	transfer_function();  //set default transfer function
+//	transfer_function();  //set default transfer function
 	
     stats->min(std::numeric_limits<ELEMTYPE>::min());
     stats->max(std::numeric_limits<ELEMTYPE>::max());
     }
 
+	/*
+template <class ELEMTYPE >
+void image_storage<ELEMTYPE >::transfer_function(transfer_scalar_base * t)
+{
+	//tfunction = t;
+	int a=0;
+}
+*/
+
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::transfer_function(std::string functionName)
     {
-    transfer_function(transfer_manufactured::factory.Create<ELEMTYPE> (functionName,this));
+//		transfer_scalar_base<ELEMTYPE > *t = transfer_manufactured::factory.Create<ELEMTYPE> (functionName,this);
+//		this->transfer_function(t); //JK TODO ööööö quick fix...
+		int a=0;
     }
 
 template <class ELEMTYPE >
@@ -140,7 +151,7 @@ image_storage<ELEMTYPE >::image_storage(const string filepath):image_base(filepa
 template <class ELEMTYPE >
 image_storage<ELEMTYPE >::~image_storage()
     {
-    delete tfunction;
+//    delete tfunction; //öööö
 
     if (stats != NULL)
         { delete stats; }
@@ -152,9 +163,9 @@ image_storage<ELEMTYPE >::~image_storage()
     //maxvalue=std::numeric_limits<ELEMTYPE>::max();
     }
 
-
+/*
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)
+void image_storage<ELEMTYPE >::transfer_function(transfer_scalar_base<ELEMTYPE> * t)
     {
     if (t == NULL) //default
         { 
@@ -170,7 +181,7 @@ void image_storage<ELEMTYPE >::transfer_function(transfer_base<ELEMTYPE> * t)
         tfunction = t;
         }
     }
-
+*/
 
 template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_min() const
@@ -186,17 +197,18 @@ float image_storage<std::complex<float> >::get_max_float()
     }
 */
 
-//JK - I have not managed to specialize this function for "complex<ELEMTYPE>" - I think the whole class needs to be rewritten for "complex<ELEMTYPE>"
+//JK - öööö - I have not managed to specialize this function for "complex<ELEMTYPE>" - I think the whole class needs to be rewritten for "complex<ELEMTYPE>"
+
 template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_max_float() const
 {
-	return abs(float(stats->max())); //JK4
+	return 0; //JK4 - Function is virtual and result will be delivered by sub-classes
 }
 
 template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_min_float() const
 {
-	return abs(float(stats->min())); //JK4
+	return 0; //JK4 - Function is virtual and result will be delivered by sub-classes
 }
 
 
