@@ -58,7 +58,7 @@ public:
 //JK: TMP removal due to Histo2D - compile error!
 	image_label(image_binary<IMAGEDIM>* image1, image_binary<IMAGEDIM>* image2, image_binary<IMAGEDIM>* image3, image_binary<IMAGEDIM>* image4=NULL, image_binary<IMAGEDIM>* image5=NULL, const string name="");
 
-    virtual void transfer_function(transfer_base<IMGLABELTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
+    virtual void transfer_function(transfer_scalar_base<IMGLABELTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
 
 	string resolve_tooltip();		//combines tooltip data of this class with data from other classes
 	string resolve_tooltip_image_label(); //resolves tooltip data typical for this class

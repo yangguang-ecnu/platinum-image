@@ -77,25 +77,34 @@ private:
 	void filter_3d_border_voxel(filter_base* filter, image_scalar<ELEMTYPE,IMAGEDIM>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag);
 
 protected:
-//    void set_parameters (image_scalar<ELEMTYPE, IMAGEDIM> * from_image);         //clone parameters from another image
+   void set_scalar_parameters();
+   transfer_scalar_base<ELEMTYPE> *tfunction; //ööööö
+	void transfer_function(transfer_scalar_base<ELEMTYPE> * t=NULL);
+    virtual void transfer_function(std::string functionName); //! replace transfer function using string identifier
+
 
 public:
-    image_scalar(): image_general<ELEMTYPE, IMAGEDIM>(){};
-    image_scalar(int w, int h, int d, ELEMTYPE *ptr = NULL):image_general<ELEMTYPE, IMAGEDIM>(w, h, d, ptr) {};
-    image_scalar(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i):image_general<ELEMTYPE, IMAGEDIM>(i) {}
+    image_scalar(): image_general<ELEMTYPE, IMAGEDIM>(){set_scalar_parameters();};
+    image_scalar(int w, int h, int d, ELEMTYPE *ptr = NULL):image_general<ELEMTYPE, IMAGEDIM>(w, h, d, ptr) {set_scalar_parameters();};
+    image_scalar(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i):image_general<ELEMTYPE, IMAGEDIM>(i) {set_scalar_parameters();}
     //copy constructor
     template<class SOURCETYPE>
         image_scalar(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_general<ELEMTYPE, IMAGEDIM>(old_image, copyData)
-            {};
+            {set_scalar_parameters();};
 
-	image_scalar(ELEMTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize) : image_general<ELEMTYPE, IMAGEDIM>(inData,inDataNumElems, width, height, voxelSize) {}
+	image_scalar(ELEMTYPE * inData, unsigned long inDataNumElems, long width, long height, Vector3D voxelSize) : image_general<ELEMTYPE, IMAGEDIM>(inData,inDataNumElems, width, height, voxelSize) {set_scalar_parameters();}
     //raw constructor
-    image_scalar(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile = 1,unsigned int increment = 1) : image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment){};
-    image_scalar(const string filepath, const string name=""):image_general<ELEMTYPE, IMAGEDIM>(filepath, name){}
+    image_scalar(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile = 1,unsigned int increment = 1) : image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment){set_scalar_parameters();};
+    image_scalar(const string filepath, const string name=""):image_general<ELEMTYPE, IMAGEDIM>(filepath, name){set_scalar_parameters();}
 
 
     //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
-    virtual float get_number_voxel(int x, int y, int z) const;  //the use of virtual makes for example "complex<>" class work...
+    float get_number_voxel(int x, int y, int z) const;  //the use of virtual makes for example "complex<>" class work...
+	float get_max_float() const;
+	float get_min_float() const;
+	virtual float get_display_min_float() const;
+	virtual float get_display_max_float() const;
+    virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
 
 	string resolve_tooltip();		//combines tooltip data of this class with data from other classes
 	string resolve_tooltip_image_scalar(); //resolves tooltip data typical for this class
@@ -104,6 +113,7 @@ public:
 	vtkImageData* getVTKImagePointer();
 	void writeVTKImagePointer(vtkImageData *im);
 	vtkAlgorithmOutput* getvtkStructuredPoints();
+
 
 
 	//------------------------- Interpolations -------------------------
@@ -173,6 +183,9 @@ public:
 	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
 
 //	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
+
+
+	void translate_slices_to_align_coordinates_3D(vector<Vector3D> coords, int dir, ELEMTYPE empty_value=0, bool unalign=false);
 
 	void smooth_ITK(Vector3D radius); 
 	void smooth_3D(Vector3D r); 

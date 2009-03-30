@@ -31,29 +31,80 @@
 #include <complex>
 #include <typeinfo> //typeid
 
-//template <int IMAGEDIM = 3>
+
 template <class ELEMTYPE, int IMAGEDIM = 3>
 class image_complex : public image_general<complex<ELEMTYPE> , IMAGEDIM>
 //class image_complex : public image_multi<ELEMTYPE, IMAGEDIM>
 {
-    //redundant declaration of constructor, since those cannot be inherited
-public:
-    image_complex():image_general<complex<ELEMTYPE>, IMAGEDIM>(){cout<<"a is: "<<typeid(complex<ELEMTYPE>).name()<<'\n';}
-//    image_complex():image_multi<ELEMTYPE, IMAGEDIM>(){}
-/*    
-    template<class SOURCETYPE>
-    image_complex(image_multi<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_multi<complex<float> , IMAGEDIM>(old_image, copyData)
-    {} //copy constructor
-    
-    image_complex (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_multi<complex<float> , IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
+protected:
+   void set_complex_parameters();
 
-*/
+//	transfer_complex<ELEMTYPE > *tfunction;
+    //redundant declaration of constructor, since those cannot be inherited
+//    virtual void transfer_function(transfer_complex<ELEMTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
+
+public:
+    image_complex():image_general<complex<ELEMTYPE>, IMAGEDIM>()
+	{
+		cout<<"a is: "<<typeid(complex<ELEMTYPE>).name()<<'\n';
+		this->transfer_function();
+	}
+//    image_complex():image_multi<ELEMTYPE, IMAGEDIM>(){}
+    
+//    template<class SOURCETYPE>
+//    image_complex(image_multi<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_multi<complex<float> , IMAGEDIM>(old_image, copyData)
+//    {} //copy constructor
+    
+//    image_complex (std::vector<std::string> files, long width, long height, bool bigEndian = false, long headerSize = 0, Vector3D voxelSize = Vector3D (1,1,4), unsigned int startFile = 1,unsigned int increment = 1): image_multi<complex<float> , IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment) {}
+
+	virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
+
 	void silly_test();
 
-	virtual float get_number_voxel(int x, int y, int z) const;
+	float get_number_voxel(int x, int y, int z) const;
     virtual float get_max_float() const;
-
 };
 
+
+//-------------------------------- operators -----------------------------------------
+
+/*
+template <class T>
+bool operator<(complex<T> &c1, complex<T> &c2)
+{
+	if(abs(c1)<abs(c2))
+		return true;
+
+	return false;
+}
+
+template <class T>
+bool operator>(complex<T> &c1, complex<T> &c2)
+{
+	if(abs(c1)>abs(c2))
+		return true;
+
+	return false;
+}
+
+template <class T>
+bool operator<=(complex<T> &c1, complex<T> &c2)
+{
+	if(abs(c1)<=abs(c2))
+		return true;
+
+	return false;
+}
+
+template <class T>
+bool operator>=(complex<T> &c1, complex<T> &c2)
+{
+	if(abs(c1)=>abs(c2))
+		return true;
+
+	return false;
+}
+*/
+//------------------------------------------------------------------------------------
 
 #endif

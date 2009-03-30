@@ -32,7 +32,7 @@ histogram_typed<ELEMTYPE>::histogram_typed()
 }
 
 template <class ELEMTYPE>
-void histogram_typed<ELEMTYPE>::fill(ELEMTYPE val)
+void histogram_typed<ELEMTYPE>::fill(unsigned long val)
 {
 	for(unsigned short i=0; i<this->num_buckets; i++)
 	{
@@ -486,7 +486,7 @@ int histogram_1D<ELEMTYPE>::intensity_to_bucketpos(ELEMTYPE intensity){
 		return this->num_buckets-1;
 	}
 
-	return (intensity - this->min())/get_scalefactor();
+	return (intensity - this->min())/get_scalefactor();	//jk-complex
 }
 
 template <class ELEMTYPE>

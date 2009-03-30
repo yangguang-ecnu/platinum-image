@@ -141,6 +141,7 @@ class image_general : public image_storage <ELEMTYPE >
 
         virtual void data_has_changed(bool stats_refresh = true);   //called when image data has been changed
 
+
 		void set_voxel_size(float dx, float dy, float dz=0);		//physical voxel size
 		bool read_voxel_size_from_dicom_file(std::string dcm_file);	//physical voxel size	
 		float get_voxel_volume_in_mm3();
@@ -179,7 +180,7 @@ class image_general : public image_storage <ELEMTYPE >
         ELEMTYPE get_voxel_in_physical_pos_mean_3D_interp26(Vector3D phys_pos);  
 		ELEMTYPE get_voxel_in_physical_pos_26NB_weighted(Vector3D phys_pos, float w1, float w2, float w3, float w4);
         //ELEMTYPE get_voxel(unsigned long offset); //deprecated: use iterator!
-		float get_number_voxel(int x, int y, int z) const;
+		virtual float get_number_voxel(int x, int y, int z) const;
 
 		Vector3D get_physical_pos_for_voxel(int x, int y, int z);
 		Vector3D get_physical_pos_or_voxel_pos(int x, int y, int z, SPACE_TYPE st);
@@ -189,6 +190,8 @@ class image_general : public image_storage <ELEMTYPE >
 
         RGBvalue get_display_voxel(itk::Vector<int,IMAGEDIM>) const;
         virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
+        virtual float get_max_float() const;
+        virtual float get_min_float() const;
         virtual float get_display_min_float() const;
         virtual float get_display_max_float() const;
 
@@ -215,7 +218,6 @@ class image_general : public image_storage <ELEMTYPE >
 		void fill_image_border_3D(ELEMTYPE value, int border_thickness=1);
 		void translate_subvolume_3D(Vector3Dint pos, Vector3Dint size, Vector3Dint T, ELEMTYPE empty_value=0);
 		void translate_slice_3D(int dir, int slice, int du, int dv, ELEMTYPE empty_value=0);
-		void translate_slices_to_align_coordinates_3D(vector<Vector3D> coords, int dir, ELEMTYPE empty_value=0, bool unalign=false);
 
         void give_parametersXYplane(int renderstartX, int renderstartY, int renderwidth, int renderheight, int &startoffset, int &patchXoffset );
         void testpattern();

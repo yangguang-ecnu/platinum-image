@@ -98,16 +98,16 @@ class image_base : public data_base
         static void load(const std::vector<std::string> files);  //load files in supported formats
                                                     //as selected in "files" vector
 
-        virtual void transfer_function(std::string functionName) = 0; //! replace transfer function using string identifier
+        virtual void transfer_function(std::string functionName)=0; //! replace transfer function using string identifier
                     
         virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const = 0;
-        virtual float get_number_voxel(int x, int y, int z) const = 0;//get value as float for onscreen display in numbers
+        virtual float get_number_voxel(int x, int y, int z) const = 0;//get value as float for onscreen display in numbers (e.g. complex values--> scalars)
                                                                     //when other kinds than 3D images are implemented,
                                                                     //one might want to make these dimensionality-independent 
                                                                     //like get_size_by_dim(int dim)
         
-        virtual float get_min_float() const = 0;
-        virtual float get_max_float() const = 0;    //return max/min values in type-independent form     
+        virtual float get_min_float() const = 0; //ööööö
+        virtual float get_max_float() const = 0; //return max/min values in type-independent form     
         virtual float get_display_min_float() const = 0;
         virtual float get_display_max_float() const = 0;
 

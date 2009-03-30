@@ -110,7 +110,7 @@ class histogram_typed : public histogram_base //!features common to histograms o
         void max (ELEMTYPE new_max)			
             {max_value=new_max;}
 
-		void fill(ELEMTYPE val);
+		void fill(unsigned long val);
 		void calc_bucket_max(bool ignore_zero_and_one=true);
 		void calc_bucket_mean();
 		void calc_num_distinct_values();
@@ -210,6 +210,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		float get_variance_in_intensity_range(ELEMTYPE from, ELEMTYPE to);
 		int get_bucket_pos_with_largest_value_in_bucket_range(int from, int to);
 		int get_bucket_pos_with_largest_value_in_intensity_range(ELEMTYPE from, ELEMTYPE to);
+
 
     };
 

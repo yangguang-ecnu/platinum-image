@@ -34,6 +34,44 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) co
     return static_cast<float>(this->get_voxel(x, y, z)); //JK4
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_max_float() const
+{
+	return abs(float(stats->max())); //JK4
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_min_float() const
+{
+	return abs(float(stats->min())); //JK4
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_display_min_float() const
+{
+	RGBvalue val;
+    this->tfunction->get(this->get_min_float(),val);
+	return float(val.mono());
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_display_max_float() const
+{
+	RGBvalue val;
+    this->tfunction->get(this->get_max_float(),val);
+	return float(val.mono());
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z) const
+    {
+	if(this->tfunction!=NULL){
+		this->tfunction->get(get_voxel(x, y, z),val); //ööööö
+	}else{
+		cout<<".jk.";
+	}
+	}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 string image_scalar<ELEMTYPE, IMAGEDIM>::resolve_tooltip()
@@ -46,6 +84,41 @@ string image_scalar<ELEMTYPE, IMAGEDIM>::resolve_tooltip_image_scalar()
 {
 	return this->resolve_tooltip_image_general() + "\n";
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::set_scalar_parameters()
+    {
+    tfunction = NULL;
+
+	transfer_function();
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::transfer_function(transfer_scalar_base<ELEMTYPE> * t)
+    {
+    if (t == NULL) //default
+        { 
+        if (tfunction == NULL)
+            {tfunction = new TFUNCTIONTEST<ELEMTYPE >(this); }
+        //else, do nothing since a transfer function was assigned elsewhere
+        }
+    else
+        { 
+        if (tfunction != NULL)
+            {delete tfunction;}
+
+        tfunction = t;
+        }
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::transfer_function(std::string functionName)
+    {
+		transfer_scalar_base<ELEMTYPE > *t = transfer_manufactured::factory.Create<ELEMTYPE> (functionName,this);
+		this->transfer_function(t); //JK TODO ööööö quick fix...
+		int a=0;
+    }
+
 /*
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::getVTKImagePointer()
@@ -309,6 +382,7 @@ vtkAlgorithmOutput* image_scalar<ELEMTYPE, IMAGEDIM>::getvtkStructuredPoints()
 	//return reader->GetOutputPort();
 	return imageCast->GetOutputPort();
 }
+
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -1615,6 +1689,64 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::calculate_T1
 	}
 }
 
+
+ //cannot instantiate abstract class
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::translate_slices_to_align_coordinates_3D(vector<Vector3D> coords, int dir, ELEMTYPE empty_value, bool unalign)
+{
+	image_scalar<ELEMTYPE, IMAGEDIM> *tmp = new image_scalar<ELEMTYPE, IMAGEDIM>(this,0);
+	tmp->fill(empty_value);
+
+	//uses the first coordinate in vector as reference and aligns all the other coordinates...		
+	Vector3D mean_coord = get_mean_Vector3D(coords);
+	cout<<"mean_coord="<<mean_coord<<endl;
+
+	mean_coord[0] = int(mean_coord[0]);
+	mean_coord[1] = int(mean_coord[1]);
+	mean_coord[2] = int(mean_coord[2]);
+
+	int du;
+	int dv;
+	int slice;
+
+	if(dir==0){
+		for(int i=0;i<coords.size();i++){
+			du = coords[i][1]-mean_coord[1];
+			dv = coords[i][2]-mean_coord[2];
+			if(unalign){
+				du = -du;
+				dv = -dv;
+			}
+			slice = coords[i][0];
+			tmp->fill_region_3D_with_subvolume_image( create_Vector3Dint(slice,0-du,0-dv), this, create_Vector3Dint(slice,0,0), create_Vector3Dint(1,this->ny(),this->nz()), empty_value );
+		}
+	}else if(dir==1){
+		for(int i=0;i<coords.size();i++){
+			du = coords[i][0]-mean_coord[0];
+			dv = coords[i][2]-mean_coord[2];
+			if(unalign){
+				du = -du;
+				dv = -dv;
+			}
+			slice = coords[i][1];
+			tmp->fill_region_3D_with_subvolume_image( create_Vector3Dint(0-du,slice,0-dv), this, create_Vector3Dint(0,slice,0), create_Vector3Dint(this->nx(),1,this->nz()), empty_value );
+		}
+	}else{
+		for(int i=0;i<coords.size();i++){
+			du = coords[i][0]-mean_coord[0];
+			dv = coords[i][1]-mean_coord[1];
+			if(unalign){
+				du = -du;
+				dv = -dv;
+			}
+			slice = coords[i][2];
+			tmp->fill_region_3D_with_subvolume_image( create_Vector3Dint(0-du,0-dv,slice), this, create_Vector3Dint(0,0,slice), create_Vector3Dint(this->nx(),this->ny(),1), empty_value );
+		}
+	}
+
+	copy_data(tmp,this);
+	delete tmp;
+}
 
 
 

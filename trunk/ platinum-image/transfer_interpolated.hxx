@@ -29,7 +29,7 @@ transfer_interpolated<ELEMTYPE >::transferchart::transferchart (histogram_1D<ELE
     lookup = NULL;
     histogram = hi;
     
-    callback (transfer_base<ELEMTYPE >::redraw_image_cb);
+    callback (transfer_scalar_base<ELEMTYPE >::redraw_image_cb);
     user_data(static_cast<REDRAWCALLBACKPTYPE>(hi->image()));
     
     calc_lookup_params(256);
@@ -272,7 +272,7 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
 
 // *** transfer_interpolated (base class) ***
 template <class ELEMTYPE>
-transfer_interpolated<ELEMTYPE >::transfer_interpolated(image_storage <ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
+transfer_interpolated<ELEMTYPE >::transfer_interpolated(image_storage <ELEMTYPE > * s):transfer_scalar_base<ELEMTYPE >(s)
 {
     this->pane->resize(0,0,256,128);
     this->pane->resizable(this->pane);
@@ -398,7 +398,7 @@ void transfer_spline<ELEMTYPE >::transferchart_spline::update ()
 
 
 template <class ELEMTYPE>
-transfer_scalar_to_RGB_linear<ELEMTYPE >::transfer_scalar_to_RGB_linear(image_storage <ELEMTYPE > * s):transfer_base<ELEMTYPE >(s)
+transfer_scalar_to_RGB_linear<ELEMTYPE >::transfer_scalar_to_RGB_linear(image_storage <ELEMTYPE > * s):transfer_scalar_base<ELEMTYPE >(s)
 {
     //pane->choice ();
     Fl_Group * frame = this->pane;

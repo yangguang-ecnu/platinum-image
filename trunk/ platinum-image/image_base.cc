@@ -1333,3 +1333,5 @@ void image_base::load( std::vector<std::string> chosen_files)	//loads all files 
 	userIOmanagement.progress_update( 2, "Loading image(s)...", 2 );
 	userIOmanagement.progress_update();
 }
+
+

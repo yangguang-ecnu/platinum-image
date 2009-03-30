@@ -20,7 +20,7 @@
 //This file exists only because transfer_manufactured and transferfactory are co-dependent and transferfactory and the subclasses of transfer_manufactured all use templates
 
 template <class ELEMTYPE >
-transfer_base<ELEMTYPE > * transferfactory::Create(factoryIdType unique_id, image_storage<ELEMTYPE >* s)
+transfer_scalar_base<ELEMTYPE > * transferfactory::Create(factoryIdType unique_id, image_storage<ELEMTYPE >* s)
 {
     int n = 0;
     
