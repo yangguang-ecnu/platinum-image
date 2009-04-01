@@ -27,7 +27,11 @@
 #ifndef __image_complex__
 #define __image_complex__
 
-#include "image_multi.h"
+//#include "image_multi.h"
+#include "image_general.hxx"
+
+#include "transfer.h"
+
 #include <complex>
 #include <typeinfo> //typeid
 
@@ -36,20 +40,26 @@ template <class ELEMTYPE, int IMAGEDIM = 3>
 class image_complex : public image_general<complex<ELEMTYPE> , IMAGEDIM>
 //class image_complex : public image_multi<ELEMTYPE, IMAGEDIM>
 {
-protected:
-   void set_complex_parameters();
+	friend class image_storage<ELEMTYPE>;
 
-//	transfer_complex<ELEMTYPE > *tfunction;
-    //redundant declaration of constructor, since those cannot be inherited
-//    virtual void transfer_function(transfer_complex<ELEMTYPE> * t = NULL); //NOTE: must be called by all constructors in this class!
+protected:
+	void set_complex_parameters();
+   	histogram_1D<ELEMTYPE> *stats;
+	void set_stats_histogram(histogram_1D<ELEMTYPE > * h);
+	virtual void stats_refresh(bool min_max_refresh=false);
+
+	transfer_complex<ELEMTYPE,IMAGEDIM> *tfunction;
+    virtual void transfer_function(transfer_complex<ELEMTYPE,IMAGEDIM> * t = NULL); //NOTE: must be called by all constructors in this class!
+	virtual void transfer_function(std::string functionName){}; //! replace transfer function using string identifier
+
+//	virtual histogram_1D<ELEMTYPE>* get_stats(){return stats;} //called by image_storage
+	virtual void set_max(float m){if(stats!=NULL) stats->max(m);}
+	virtual void set_min(float m){if(stats!=NULL) stats->min(m);}
 
 public:
-    image_complex():image_general<complex<ELEMTYPE>, IMAGEDIM>()
-	{
-		cout<<"a is: "<<typeid(complex<ELEMTYPE>).name()<<'\n';
-		this->transfer_function();
-	}
-//    image_complex():image_multi<ELEMTYPE, IMAGEDIM>(){}
+    image_complex();//:image_general<complex<ELEMTYPE>, IMAGEDIM>();
+	image_complex(int w, int h, int d, complex<ELEMTYPE> *ptr = NULL);//:image_general<complex<ELEMTYPE>, IMAGEDIM>(w,h,d,ptr);
+	image_complex(string path_image_re, string path_image_im, float unsigned_offset=2047, string name="");
     
 //    template<class SOURCETYPE>
 //    image_complex(image_multi<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true): image_multi<complex<float> , IMAGEDIM>(old_image, copyData)
@@ -60,9 +70,19 @@ public:
 	virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
 
 	void silly_test();
-
 	float get_number_voxel(int x, int y, int z) const;
     virtual float get_max_float() const;
+    virtual float get_min_float() const;
+	float get_max_float_safe() const;
+	float get_min_float_safe() const;
+
+
+	ELEMTYPE get_voxel_re(int x, int y, int z) const;
+	ELEMTYPE get_voxel_im(int x, int y, int z) const;
+	ELEMTYPE get_voxel_magn(int x, int y, int z) const;
+	float get_voxel_phase(int x, int y, int z) const;  //returns phase in radians [-PI, PI]
+
+	image_scalar<ELEMTYPE, IMAGEDIM>* get_magnitude_image();
 };
 
 

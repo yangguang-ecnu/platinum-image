@@ -30,20 +30,30 @@
 #include "image_storage_iterator.hxx"
 
 template <class fromType, class toType>
-void copy_data(image_storage<fromType > * const in,image_storage<toType > * out) //!General data copying
+void copy_data(image_storage<fromType > * const in, image_storage<toType > * out) //!General data copying
     {
-	//MSVC 2005 no like, See following discussion...
-	//http://www.informit.com/guides/content.aspx?g=cplusplus&seqNum=259&rl=1
+	//MSVC 2005 no like, See following discussion...	//http://www.informit.com/guides/content.aspx?g=cplusplus&seqNum=259&rl=1
     //std::copy (in->begin(),in->end(),out->begin());
-
     typename image_storage<fromType >::iterator i = in->begin();
     typename image_storage<toType >::iterator   o = out->begin();
+    while (i != in->end() && o != out->end()){
+	    *o = *i;
+		++i; ++o;
+    }
 
-    while (i != in->end() && o != out->end())
+    pt_error::error_if_false(i == in->end() && o == out->end(),"Image sizes didn't match when copying data",pt_error::serious);
+    }
+
+template <class T, class toType>
+void copy_data(image_storage<complex<T> > * const in, image_storage<toType > * out) //!General data copying
     {
-    *o = *i;
-
-    ++i; ++o;
+	//MSVC 2005 no like, See following discussion...	//http://www.informit.com/guides/content.aspx?g=cplusplus&seqNum=259&rl=1
+    //std::copy (in->begin(),in->end(),out->begin());
+    typename image_storage<complex<T> >::iterator i = in->begin();
+    typename image_storage<toType >::iterator   o = out->begin();
+    while (i != in->end() && o != out->end()){
+	    *o = abs(*i); //from complex<float> --> "toType"
+		++i; ++o;
     }
 
     pt_error::error_if_false(i == in->end() && o == out->end(),"Image sizes didn't match when copying data",pt_error::serious);
@@ -72,14 +82,14 @@ template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::set_parameters()
     {
     dataptr = NULL;
-    stats = NULL;
-    //tfunction = NULL; //ööööö
+    //stats = NULL;
+    //tfunction = NULL; 
 
-    set_stats_histogram (new histogram_1D<ELEMTYPE >(this));  //hist1D constructor calls resize()... and calculate()
-//	transfer_function();  //set default transfer function
+	//set_stats_histogram (new histogram_1D<ELEMTYPE >(this));  //hist1D constructor calls resize()... and calculate()
+	//transfer_function();  //set default transfer function
 	
-    stats->min(std::numeric_limits<ELEMTYPE>::min());
-    stats->max(std::numeric_limits<ELEMTYPE>::max());
+	//stats->min(std::numeric_limits<ELEMTYPE>::min());
+	//stats->max(std::numeric_limits<ELEMTYPE>::max());
     }
 
 	/*
@@ -90,15 +100,17 @@ void image_storage<ELEMTYPE >::transfer_function(transfer_scalar_base * t)
 	int a=0;
 }
 */
-
+/*
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::transfer_function(std::string functionName)
     {
 //		transfer_scalar_base<ELEMTYPE > *t = transfer_manufactured::factory.Create<ELEMTYPE> (functionName,this);
-//		this->transfer_function(t); //JK TODO ööööö quick fix...
+//		this->transfer_function(t);
 		int a=0;
     }
+*/
 
+/*
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::set_stats_histogram(histogram_1D<ELEMTYPE > * h)
     {
@@ -109,7 +121,7 @@ void image_storage<ELEMTYPE >::set_stats_histogram(histogram_1D<ELEMTYPE > * h)
 
     stats = h;
     }
-
+*/
 
 template <class ELEMTYPE >
 ELEMTYPE * image_storage<ELEMTYPE >::imagepointer()
@@ -153,8 +165,8 @@ image_storage<ELEMTYPE >::~image_storage()
     {
 //    delete tfunction; //öööö
 
-    if (stats != NULL)
-        { delete stats; }
+//    if (stats != NULL)
+//        { delete stats; }
 
     if (imagepointer() != NULL)
         { deallocate(); }
@@ -165,30 +177,11 @@ image_storage<ELEMTYPE >::~image_storage()
 
 /*
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::transfer_function(transfer_scalar_base<ELEMTYPE> * t)
-    {
-    if (t == NULL) //default
-        { 
-        if (tfunction == NULL)
-            {tfunction = new TFUNCTIONTEST<ELEMTYPE >(this); }
-        //else, do nothing since a transfer function was assigned elsewhere
-        }
-    else
-        { 
-        if (tfunction != NULL)
-            {delete tfunction;}
-
-        tfunction = t;
-        }
-    }
-*/
-
-template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_min() const
     {
     return stats->min();
     }
-
+*/
 /*
 template <> // image_complex testing
 float image_storage<std::complex<float> >::get_max_float()
@@ -211,13 +204,13 @@ float image_storage<ELEMTYPE >::get_min_float() const
 	return 0; //JK4 - Function is virtual and result will be delivered by sub-classes
 }
 
-
+/*
 template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_max() const
     {
     return stats->max();
     }
-
+*/
 template <class ELEMTYPE >
 float image_storage<ELEMTYPE >::get_mean(image_storage<IMGBINARYTYPE>* mask)
 {
@@ -272,12 +265,13 @@ float image_storage<ELEMTYPE >::get_standard_deviation(image_storage<IMGBINARYTY
 	} 
 	return (float) sqrt(sum/num);
 }
-
+/*
 template <class ELEMTYPE >
 ELEMTYPE image_storage<ELEMTYPE >::get_num_values()
 { 
 	return stats->num_values(); 
 }
+*/
 /*
 template <class ELEMTYPE >
 unsigned long image_storage<ELEMTYPE >::get_num_elements()
@@ -285,13 +279,15 @@ unsigned long image_storage<ELEMTYPE >::get_num_elements()
 	return num_elements;
 }
 */
+/*
 template <class ELEMTYPE >
 histogram_1D<ELEMTYPE> * image_storage<ELEMTYPE >::get_histogram()
 {
 	pt_error::error_if_null(stats,"Trying to get_histogram() which is NULL");
 	return stats;
 }
-
+*/
+/*
 template <class ELEMTYPE >
 histogram_1D<ELEMTYPE> *image_storage<ELEMTYPE >::get_histogram_new_with_same_num_buckets_as_intensities()
 {
@@ -300,7 +296,7 @@ histogram_1D<ELEMTYPE> *image_storage<ELEMTYPE >::get_histogram_new_with_same_nu
 	this->get_min_max_values(minimum, maximum);
 	return new histogram_1D<ELEMTYPE>(this,int(maximum-minimum));
 }
-
+*/
 
 
 template <class ELEMTYPE >
@@ -592,12 +588,6 @@ void image_storage<ELEMTYPE >::combine(image_storage<ELEMTYPE> *const image2, CO
 }
 
 template <class ELEMTYPE >
-void image_storage<ELEMTYPE >::print_stats()
-{
-//	stats->print_histogram_content();
-}
-
-template <class ELEMTYPE >
 string image_storage<ELEMTYPE >::resolve_tooltip()
 {
 	return resolve_tooltip_image_storage();
@@ -621,7 +611,7 @@ string image_storage<ELEMTYPE >::resolve_datasize_in_kb()
 	return float2str(f);
 }
 
-
+/*
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::stats_refresh(bool min_max_refresh)
     {
@@ -636,16 +626,16 @@ void image_storage<ELEMTYPE >::stats_refresh(bool min_max_refresh)
    
     //don't change if values don't make sense - 
     //that would be an empty/zero image
-/*
-    if (stats->min() < stats->max())
-        {
-        this->maxvalue=stats->max();
-        this->minvalue=stats->min();
-        }
-*/
+
+//    if (stats->min() < stats->max())   {
+//        this->maxvalue=stats->max();
+//        this->minvalue=stats->min();
+//        }
+
 
     }
-
+*/
+/*
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::min_max_refresh()
 {
@@ -660,7 +650,7 @@ void image_storage<ELEMTYPE >::min_max_refresh()
         this->stats->max(maximum);
         }
 }
-
+*/
 template <class ELEMTYPE >
 void image_storage<ELEMTYPE >::get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &maximum)
 {
@@ -673,8 +663,8 @@ void image_storage<ELEMTYPE >::get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &m
 		while (itr != this->end())
 		{
 			val=*itr;		//****If you crash here... the image was likely not loaded correctly...
-			minimum = min (val, minimum);
-			maximum = max (val, maximum);
+			minimum = std::min (val, minimum);
+			maximum = std::max (val, maximum);
 			++itr;
 		}
 //	}

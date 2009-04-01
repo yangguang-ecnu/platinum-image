@@ -37,6 +37,8 @@ template <class ELEMTYPE>
 
 //template <class IMAGEDIM>
 //    class image_binary;
+template <class E, int D>
+    class image_complex;
 
 
 struct regionofinterest
@@ -62,6 +64,8 @@ class histogram_base
         void clear_pixmap (unsigned char * image, unsigned int w,unsigned int h);
         virtual void render_ (unsigned char * image, unsigned int width,unsigned int height) = 0;
         thresholdparvalue threshold;
+
+		void reallocate_buckets_if_necessary(int new_num_buckets=0); 	//if new_num_buckets == 0 --> keep the current resolution...
 
         histogram_base();
 
@@ -103,6 +107,11 @@ class histogram_typed : public histogram_base //!features common to histograms o
 
         ELEMTYPE min()							//returns histogram (and also image) "intensity min"
             {return min_value;}
+//        float min_float()
+  //          {return min_value;}
+	//	template <complex<ELEMTYPE> >
+      //  float min_float()
+        //    {return abs(min_value);}
         void min (ELEMTYPE new_min)			
             {min_value=new_min;}
         ELEMTYPE max()							//returns histogram (and also image) "intensity max"
@@ -137,6 +146,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
         
         void resize(unsigned long); //JK - Should maybe be protected...
 		virtual void resize_to_fit_data(); //Make sure alla integer values have a bucket, JK - Should maybe be protected...
+
         void render(unsigned char * image, unsigned int width, unsigned int height);
 
 	    //void image (int vol);
@@ -144,6 +154,16 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		void calculate_from_image_data(int number_of_buckets=0);
 //		void print_histogram_content();
 		//thresholdparvalue get_threshold (float h_min,float h_max, float v_min, float v_max, int mode = THRESHOLD_2D_MODE_RECT);
+
+//		void recalc_min_max_data(ELEMTYPE test);//{cout<<"hej1";};
+//		void recalc_min_max_data(complex<float> test){cout<<"hej2_complex";}
+		void recalc_min_max_data();
+		void refill_bucket_data();
+
+		template <class E, int D>
+			void calculate_from_image_complex(image_complex<E,D> *im);
+
+
 		virtual bool ready ()
 			{return this->readytorender;}   
 		image_storage<ELEMTYPE> * image ();

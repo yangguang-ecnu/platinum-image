@@ -26,6 +26,20 @@ extern datamanager datamanagement;
 
 // *** histogram_base ***
 
+void histogram_base::reallocate_buckets_if_necessary(int new_num_buckets)
+    {
+	if (new_num_buckets >0 || this->buckets==NULL){
+        //resize(...) isn't used here because this function is called from resize, however the above condition will be false in that case
+
+		if (new_num_buckets !=0){    //change #buckets
+            this->num_buckets=new_num_buckets;
+		}
+		delete []this->buckets;  
+		this->buckets = NULL;
+        this->buckets=new unsigned long [this->num_buckets];
+	}
+    }
+
 void histogram_base::clear_pixmap (uchar * image, unsigned int w,unsigned int h)
     {
     //clear image

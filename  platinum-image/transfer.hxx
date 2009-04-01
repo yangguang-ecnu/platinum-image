@@ -524,8 +524,7 @@ void transfer_default<ELEMTYPE >::get(const ELEMTYPE v, RGBvalue &p)
 		float ma = this->source->get_max_float();
 		float mi = this->source->get_min_float();
 		if(ma>mi){
-//			p.set_mono(255); //öööööö
-			p.set_mono( 255*(v-mi)/(ma-mi) ); //ööööö
+			p.set_mono( 255*(v-mi)/(ma-mi) );
 		}else{
 			p.set_mono(0);
 		}
@@ -544,12 +543,17 @@ void transfer_default<ELEMTYPE >::update()
 
 
 
-	/*
+	
 
-template <class ELEMTYPE >
-transfer_complex<ELEMTYPE>::transfer_complex(image_complex<ELEMTYPE> *s)// : transfer_base<ELEMTYPE >(s) //öööö
-    {
-	if(this->pane == NULL)
+
+
+
+template <class ELEMTYPE, int IMAGEDIM >
+transfer_complex<ELEMTYPE,IMAGEDIM>::transfer_complex(image_complex<ELEMTYPE,IMAGEDIM> *s) : transfer_base() //öööö
+ {
+	 this->source = s; //since the "s" is not passed on to "_base"
+
+/*	if(this->pane == NULL)
 		return;
     this->pane->resize(0,0,270,35);
     this->pane->resizable(NULL);
@@ -572,12 +576,16 @@ transfer_complex<ELEMTYPE>::transfer_complex(image_complex<ELEMTYPE> *s)// : tra
     this->pane->end();
 
     this->update();
-    }
+*/
+
+}
 
 
 
-template <class ELEMTYPE>
-void transfer_complex<ELEMTYPE>::get(const complex<ELEMTYPE> v, RGBvalue &p)
+
+/*
+template <class ELEMTYPE, int IMAGEDIM>
+void transfer_complex<ELEMTYPE, IMAGEDIM>::get(const complex<ELEMTYPE> v, RGBvalue &p)
 	{
 		float ma = this->source->get_max_float();
 		float mi = this->source->get_min_float();
@@ -587,10 +595,10 @@ void transfer_complex<ELEMTYPE>::get(const complex<ELEMTYPE> v, RGBvalue &p)
 			p.set_mono(0);
 		}
 	}
+*/
 
-
-template <class ELEMTYPE>
-void transfer_complex<ELEMTYPE>::update()
+template <class ELEMTYPE, int IMAGEDIM>
+void transfer_complex<ELEMTYPE,IMAGEDIM>::update()
     {
     std::string label = templ_to_string (this->source->get_min_float());
     black->copy_label(label.c_str());
@@ -598,6 +606,6 @@ void transfer_complex<ELEMTYPE>::update()
     label = templ_to_string (this->source->get_max_float());
     white->copy_label(label.c_str());
     }
-*/
+
 
 #endif
