@@ -145,7 +145,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z) const
 {
 	if(this->tfunction!=NULL){
-		this->tfunction->get(get_voxel(x, y, z),val);
+		this->tfunction->get(this->get_voxel(x, y, z),val);
 	}else{
 		cout<<".jk.";
 	}
@@ -3606,14 +3606,20 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_squared_difference_to_template_
 	double cost=0;
 	double fact = small_template->nx()*small_template->ny()*small_template->nz();
 	int nr=0;
-
-	for(int x=pos[0], int m_x=0;  x<pos[0]+small_template->nx();  x++,m_x++){
-		for(int y=pos[1], int m_y=0;  y<pos[1]+small_template->ny();  y++,m_y++){
-			for(int z=pos[2], int m_z=0;  z<pos[2]+small_template->nz();  z++,m_z++){
+	
+	int m_x=0;
+	for(int x=pos[0];  x<pos[0]+small_template->nx();  x++){
+		int m_y=0;
+		for(int y=pos[1];  y<pos[1]+small_template->ny();  y++){
+			int m_z=0;
+			for(int z=pos[2];  z<pos[2]+small_template->nz();  z++){
 				cost += pow( double(small_template->get_voxel(m_x,m_y,m_z)-this->get_voxel(x,y,z)), 2 );
 				nr++;
+				m_z++;
 			}
+			m_y++;
 		}
+		m_x++;
 	}
 	cout<<nr<<",";
 	return cost/fact;

@@ -582,7 +582,7 @@ int image_scalar<ELEMTYPE, IMAGEDIM>::appl_find_femur_y_level_from_wp_image(imag
 
 	double cost1=0; //left
 	double cost2=0;	//right
-	double VERY_LARGE=1000000000000000000;
+	double VERY_LARGE=std::numeric_limits<double>::max();
 	double min_slice_cost1=VERY_LARGE;
 	double min_slice_cost2=VERY_LARGE;
 	double min_cost=VERY_LARGE;
@@ -594,7 +594,8 @@ int image_scalar<ELEMTYPE, IMAGEDIM>::appl_find_femur_y_level_from_wp_image(imag
 		min_slice_cost2=VERY_LARGE;
 
 		for(int z=guess_center_l[2]-d_xyz[2]; z<guess_center_l[2]+d_xyz[2]; z++){
-			for(int x=guess_center_l[0]-d_xyz[0],int x2=guess_x2-d_xyz[0]; x<guess_center_l[0]+d_xyz[0], x2<guess_x2+d_xyz[0]; x++,x2++){
+			int x2=guess_x2-d_xyz[0]; 
+			for(int x=guess_center_l[0]-d_xyz[0]; x<guess_center_l[0]+d_xyz[0] && x2<guess_x2+d_xyz[0]; x++){
 
 				cost1 = sqrt(this->get_mean_squared_difference_to_template_centered_3D(create_Vector3D(x,y,z),model_l));
 				cost2 = sqrt(this->get_mean_squared_difference_to_template_centered_3D(create_Vector3D(x2,y,z),model_r));
@@ -609,6 +610,7 @@ int image_scalar<ELEMTYPE, IMAGEDIM>::appl_find_femur_y_level_from_wp_image(imag
 					min_slice_cost2 = cost2;
 					min_slice_pos2 = create_Vector3D(x2,y,z);
 				}
+				x2++;
 			}
 		}
 
