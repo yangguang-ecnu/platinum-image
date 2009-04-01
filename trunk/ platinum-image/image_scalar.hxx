@@ -27,6 +27,66 @@
 extern userIOmanager userIOmanagement;
 extern datamanager datamanagement;
 
+template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_max() const
+    {
+    return stats->max();
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_min() const
+    {
+    return stats->min();
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_num_values()
+{ 
+	return stats->num_values(); 
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+histogram_1D<ELEMTYPE> * image_scalar<ELEMTYPE, IMAGEDIM>::get_histogram()
+{
+	pt_error::error_if_null(stats,"Trying to get_histogram() which is NULL");
+	return stats;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+histogram_1D<ELEMTYPE> *image_scalar<ELEMTYPE, IMAGEDIM>::get_histogram_new_with_same_num_buckets_as_intensities()
+{
+	ELEMTYPE minimum;
+	ELEMTYPE maximum;
+	this->get_min_max_values(minimum, maximum);
+	return new histogram_1D<ELEMTYPE>(this,int(maximum-minimum));
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::stats_refresh(bool min_max_refresh)
+    {
+	if(min_max_refresh){
+		this->min_max_refresh();
+	}
+    stats->calculate_from_image_data(); //when called without argument (=0) the histogram "resolution" is kept..
+
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::min_max_refresh()
+{
+    ELEMTYPE minimum, maximum;
+	get_min_max_values(minimum, maximum);
+   
+    //don't change if values don't make sense - 
+    //that would be an empty/zero image
+    if (minimum < maximum)
+        {
+        this->stats->min(minimum);
+        this->stats->max(maximum);
+        }
+}
+
+
 //JK - I have not managed to specialize this function for "complex<ELEMTYPE>" - I think the whole class needs to be rewritten for "complex<ELEMTYPE>"
 template <class ELEMTYPE, int IMAGEDIM>
 float image_scalar<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
@@ -37,13 +97,32 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) co
 template <class ELEMTYPE, int IMAGEDIM>
 float image_scalar<ELEMTYPE, IMAGEDIM>::get_max_float() const
 {
-	return abs(float(stats->max())); //JK4
+	return float(stats->max()); //JK4
 }
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_max_float_safe() const
+{
+	if(stats!=NULL){
+		return float(stats->max()); //JK4
+	}
+	return 1000;
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 float image_scalar<ELEMTYPE, IMAGEDIM>::get_min_float() const
 {
-	return abs(float(stats->min())); //JK4
+	return float(stats->min()); //JK4
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_min_float_safe() const
+{
+	if(stats!=NULL){
+		return float(stats->min()); //JK4
+	}
+	return 0;
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -64,13 +143,13 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_display_max_float() const
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, int y, int z) const
-    {
+{
 	if(this->tfunction!=NULL){
-		this->tfunction->get(get_voxel(x, y, z),val); //ööööö
+		this->tfunction->get(get_voxel(x, y, z),val);
 	}else{
 		cout<<".jk.";
 	}
-	}
+}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -86,11 +165,38 @@ string image_scalar<ELEMTYPE, IMAGEDIM>::resolve_tooltip_image_scalar()
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>::~image_scalar()
+    {
+    if (tfunction != NULL)
+	    delete tfunction; //öööö
+
+    if (stats != NULL)
+        { delete stats; }
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::set_scalar_parameters()
     {
+	stats = NULL;
+	set_stats_histogram (new histogram_1D<ELEMTYPE >(this));  //hist1D constructor calls resize()... and calculate()
+	
+    stats->min(std::numeric_limits<ELEMTYPE>::min());
+    stats->max(std::numeric_limits<ELEMTYPE>::max());
+
     tfunction = NULL;
 
 	transfer_function();
+    }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::set_stats_histogram(histogram_1D<ELEMTYPE > * h)
+    {
+    if (stats != NULL)
+        {
+        delete stats;
+        }
+
+    stats = h;
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -116,7 +222,6 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::transfer_function(std::string functionNam
     {
 		transfer_scalar_base<ELEMTYPE > *t = transfer_manufactured::factory.Create<ELEMTYPE> (functionName,this);
 		this->transfer_function(t); //JK TODO ööööö quick fix...
-		int a=0;
     }
 
 /*

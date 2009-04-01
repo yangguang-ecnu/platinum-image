@@ -106,11 +106,10 @@ class image_base : public data_base
                                                                     //one might want to make these dimensionality-independent 
                                                                     //like get_size_by_dim(int dim)
         
-        virtual float get_min_float() const = 0; //ööööö
-        virtual float get_max_float() const = 0; //return max/min values in type-independent form     
+        virtual float get_min_float() const = 0; //return max/min values in type-independent form     
+        virtual float get_max_float() const = 0;
         virtual float get_display_min_float() const = 0;
         virtual float get_display_max_float() const = 0;
-
             
         virtual void testpattern() = 0 ;
 

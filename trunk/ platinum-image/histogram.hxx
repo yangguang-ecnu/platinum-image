@@ -17,6 +17,9 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+
+
+
 // *** histogram_typed ***
 
 template <class ELEMTYPE>
@@ -181,7 +184,8 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 {
 //	cout<<"histogram_1D...masked..."<<endl;
 
-	if(num_buckets >=0){
+	this->reallocate_buckets_if_necessary(num_buckets);
+/*	if(num_buckets >=0){
 		this->num_buckets = num_buckets;
 		if(this->buckets!=NULL){
 			delete this->buckets;
@@ -190,7 +194,7 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 	}else{
 		pt_error::error("histogram_1D - constructor(masked) - num_buckets=strange...",pt_error::debug);
 	}
-
+*/
 	//get pointer to source data
 	if (this->i_start == NULL)
 	{
@@ -271,7 +275,10 @@ histogram_1D<ELEMTYPE>::histogram_1D(string hist_text_file_path, std::string sep
 //		myfile.getline(buffer,10000);	this->readytorender = atof( get_csv_item(string(buffer),1,separator).c_str() );
 		this->readytorender = true;
 
-		if(this->num_buckets >=0){
+		delete []this->buckets;  
+		this->buckets = NULL;
+		this->reallocate_buckets_if_necessary(this->num_buckets);
+/*		if(this->num_buckets >=0){
 			if(this->buckets!=NULL){
 				delete this->buckets;
 			}
@@ -279,7 +286,7 @@ histogram_1D<ELEMTYPE>::histogram_1D(string hist_text_file_path, std::string sep
 		}else{
 			pt_error::error("histogram_1D - constructor - num_buckets=strange...",pt_error::debug);
 		}
-
+*/
 		//Jump to the histogram data part.....
 		
 		string header = "bucket" + separator + "intensity" + separator + "bucketvalue";
@@ -308,6 +315,7 @@ histogram_1D<ELEMTYPE>::histogram_1D(string hist_text_file_path, std::string sep
 
 
 
+
 template <class ELEMTYPE>
 histogram_1D<ELEMTYPE >::~histogram_1D ()
 {}
@@ -315,50 +323,64 @@ histogram_1D<ELEMTYPE >::~histogram_1D ()
 template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE >::calculate_from_image_data(int new_num_buckets)
 {
-
-	//if new_num_buckets == 0 --> keep the current resolution...
-	if (new_num_buckets !=0 || this->buckets==NULL){
-        //resize(...) isn't used here because this function is called from resize,
-        //however the above condition will be false in that case
-
-		if (new_num_buckets !=0){    //change #buckets
-            this->num_buckets=new_num_buckets;
-		}
-		delete []this->buckets;  
-		this->buckets = NULL;
-        this->buckets=new unsigned long [this->num_buckets];
-	}
-
+	this->reallocate_buckets_if_necessary(new_num_buckets);
 
     //get pointer to source data
 	//if (this->i_start == NULL) //Always re-read the pointers... they might be lost after some ITK-process for example
 	//retrieve pointers to image data, iterating pointers are generally a bad idea
     //but this way histograms can be made straight from data pointers when
     //there is not yet an image, such as during load of raw files
+
+	this->readytorender=(this->images[0]->begin().pointer() != NULL);
+
+    if(this->readytorender){
+		this->recalc_min_max_data();
+		this->refill_bucket_data();
+		this->data_has_changed();
+	}else{
+        //no calculation was done, set sensible values
+        this->max_value = std::numeric_limits<ELEMTYPE>::max(); 
+        this->min_value = std::numeric_limits<ELEMTYPE>::min();
+	}
+}
+
+template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::recalc_min_max_data()
+{
     this->i_start = this->images[0]->begin().pointer();
     this->i_end = this->images[0]->end().pointer();
-
     this->readytorender=(this->i_start != NULL);
 
-    if (this->readytorender)
-        {
-        this->fill(0);//reset buckets
-
-        //ready to calculate, actually
-
-        unsigned short bucketpos;
-        ELEMTYPE *voxel;
-
+    if(this->readytorender){
 	    this->max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
 		this->min_value = std::numeric_limits<ELEMTYPE>::max();
 
-		for (voxel = this->i_start;voxel != this->i_end;++voxel) //Currently, this needs do be done prior to the filling of the buckets...
+        ELEMTYPE *voxel;
+		for(voxel = this->i_start; voxel != this->i_end; ++voxel) //Currently, this needs do be done prior to the filling of the buckets...
 		{
-			this->min_value = std::min (this->min_value,*voxel);
-			this->max_value = std::max (this->max_value,*voxel);
+			this->min_value = std::min(this->min_value,*voxel);
+			this->max_value = std::max(this->max_value,*voxel);
 		}
 
-		for (voxel = this->i_start;voxel != this->i_end;++voxel)
+	}else{
+        //no calculation was done, set sensible values
+        this->max_value = std::numeric_limits<ELEMTYPE>::max(); 
+        this->min_value = std::numeric_limits<ELEMTYPE>::min();
+    }
+}
+
+template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::refill_bucket_data()
+{
+    this->i_start = this->images[0]->begin().pointer();
+    this->i_end = this->images[0]->end().pointer();
+    this->readytorender=(this->i_start != NULL);
+
+    if(this->readytorender){
+        this->fill(0);//reset buckets
+        unsigned short bucketpos;
+        ELEMTYPE *voxel;
+		for(voxel = this->i_start; voxel != this->i_end; ++voxel)
 		{
 			bucketpos = intensity_to_bucketpos(*voxel);
 			if(bucketpos<this->num_buckets){				//NOT VERY good to write outside allocated memory
@@ -369,16 +391,57 @@ void histogram_1D<ELEMTYPE >::calculate_from_image_data(int new_num_buckets)
 			}
 		}
 
-		this->data_has_changed();
-		}
-	else
-        {
+	}else{
         //no calculation was done, set sensible values
         this->max_value = std::numeric_limits<ELEMTYPE>::max(); 
         this->min_value = std::numeric_limits<ELEMTYPE>::min();
-        }
+    }
 }
 
+/*
+template <>
+void histogram_1D< complex<float> >::recalc_min_max_data()
+{
+	cout<<"hej2"<<endl;
+}
+*/
+
+template <class ELEMTYPE>
+template <class E, int D>
+void histogram_1D<ELEMTYPE>::calculate_from_image_complex(image_complex<E,D> *im)
+{
+	this->reallocate_buckets_if_necessary();
+
+	this->readytorender=(this->images[0]->begin().pointer() != NULL);
+
+    if(this->readytorender){
+		//this->recalc_min_max_data();
+	    this->max_value = std::numeric_limits<ELEMTYPE>::min(); //!set initial values to opposite, simplifies the algorithm
+		this->min_value = std::numeric_limits<ELEMTYPE>::max();
+
+		E val;
+		for(int z=0;z<im->nz();z++){
+			for(int y=0;y<im->ny();y++){
+				for(int x=0;x<im->nx();x++){
+					val = im->get_voxel_magn(x,y,z);
+					if(val>this->max_value){
+						this->max_value = val;
+					}
+					if(val<this->min_value){
+						this->min_value = val;
+					}
+				}
+			}
+		}
+
+//		this->refill_bucket_data();
+//		this->data_has_changed();
+	}else{
+        //no calculation was done, set sensible values
+        this->max_value = std::numeric_limits<ELEMTYPE>::max(); 
+        this->min_value = std::numeric_limits<ELEMTYPE>::min();
+	}
+}
 
 
 template <class ELEMTYPE>

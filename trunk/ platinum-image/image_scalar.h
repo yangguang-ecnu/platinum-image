@@ -72,18 +72,30 @@
 template<class ELEMTYPE, int IMAGEDIM = 3>
 class image_scalar : public image_general <ELEMTYPE, IMAGEDIM>
 {
+	friend class image_storage<ELEMTYPE>;
+
 private:
 	//void filter_3d_border_voxel(filter_base* filter, image_scalar<float,3>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag);
 	void filter_3d_border_voxel(filter_base* filter, image_scalar<ELEMTYPE,IMAGEDIM>* copy, int x, int y, int z, int borderflag, image_binary<IMAGEDIM>* mask, int maskflag);
+//	virtual histogram_1D<ELEMTYPE>* get_stats(){return stats;} //called by image_storage
+	virtual void set_max(float m){stats->max(m);}
+	virtual void set_min(float m){stats->min(m);}
+
 
 protected:
-   void set_scalar_parameters();
-   transfer_scalar_base<ELEMTYPE> *tfunction; //ööööö
+	void set_scalar_parameters();
+	histogram_1D<ELEMTYPE> *stats;
+	void set_stats_histogram(histogram_1D<ELEMTYPE > * h);
+
+	transfer_scalar_base<ELEMTYPE> *tfunction;
 	void transfer_function(transfer_scalar_base<ELEMTYPE> * t=NULL);
     virtual void transfer_function(std::string functionName); //! replace transfer function using string identifier
 
 
+
 public:
+	virtual ~image_scalar();
+
     image_scalar(): image_general<ELEMTYPE, IMAGEDIM>(){set_scalar_parameters();};
     image_scalar(int w, int h, int d, ELEMTYPE *ptr = NULL):image_general<ELEMTYPE, IMAGEDIM>(w, h, d, ptr) {set_scalar_parameters();};
     image_scalar(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i):image_general<ELEMTYPE, IMAGEDIM>(i) {set_scalar_parameters();}
@@ -99,9 +111,19 @@ public:
 
 
     //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
+    ELEMTYPE get_num_values();
+	ELEMTYPE get_max() const;
+	ELEMTYPE get_min() const;
+	histogram_1D<ELEMTYPE>* get_histogram();
+	histogram_1D<ELEMTYPE>* get_histogram_new_with_same_num_buckets_as_intensities();
+	virtual void stats_refresh(bool min_max_refresh=false);
+	void min_max_refresh();     //! lighter function that _only_ recalculates max/min values, for use inside processing functions
+
     float get_number_voxel(int x, int y, int z) const;  //the use of virtual makes for example "complex<>" class work...
 	float get_max_float() const;
 	float get_min_float() const;
+	float get_max_float_safe() const;
+	float get_min_float_safe() const;
 	virtual float get_display_min_float() const;
 	virtual float get_display_max_float() const;
     virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;

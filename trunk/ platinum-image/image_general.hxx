@@ -152,8 +152,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters (image_general<sourceType
 	this->set_orientation(sourceImage->get_orientation());
 	this->set_slice_orientation(sourceImage->get_slice_orientation());
 
-    this->stats->max(sourceImage->get_max());
-    this->stats->min(sourceImage->get_min());
+    this->set_max(sourceImage->get_max_float_safe());
+    this->set_min(sourceImage->get_min_float_safe());
+//    this->stats->max(sourceImage->get_max());
+//    this->stats->min(sourceImage->get_min());
 
 //	cout<<"this->get_voxel_size()="<<this->get_voxel_size()<<endl;
 
@@ -2468,8 +2470,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::O
 	typename theStatsFilterPointerType statsFilter = theStatsFilterType::New();
     statsFilter->SetInput(i);
     statsFilter->Update();
-    this->stats->min(statsFilter->GetMinimum());
-    this->stats->max(statsFilter->GetMaximum());
+    this->set_max(statsFilter->GetMaximum());
+    this->set_min(statsFilter->GetMinimum());
+//    this->stats->min(statsFilter->GetMinimum());
+//    this->stats->max(statsFilter->GetMaximum());
 /*
     ELEMTYPE new_max  = statsFilter->GetMaximum();
 

@@ -679,6 +679,7 @@ string float2str(float f){
 return templ_to_string(f);
 }
 
+
 void split(const std::string & s, char c, std::vector<std::string> & v)
 {
 	string::size_type i = 0;

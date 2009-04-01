@@ -46,21 +46,25 @@ class image_storage : public image_base
 
     private:
         void set_parameters ();
- 
+
     protected:
         image_storage();
         template<class SOURCETYPE>
         image_storage(image_storage<SOURCETYPE> * const s);
 //        image_storage(const string filepath);
 
-        histogram_1D<ELEMTYPE> *stats;
+//		virtual histogram_1D<ELEMTYPE>* get_stats(){return NULL}; 
+//        histogram_1D<ELEMTYPE> *stats;
+		virtual void set_max(float m){};
+		virtual void set_min(float m){};
+		//virtual void set_min(complexfloat m){};
 
 //		void transfer_function(transfer_scalar_base * t = NULL);
         //allows subclasses to set a different default transfer function, and
         //to reject unsuitable choices
-        virtual void transfer_function(std::string functionName); //! replace transfer function using string identifier
+		virtual void transfer_function(std::string functionName){}//; //! replace transfer function using string identifier
 
-        void set_stats_histogram(histogram_1D<ELEMTYPE > * h);
+//        void set_stats_histogram(histogram_1D<ELEMTYPE > * h);
 
         // *** Image data pointer ***
         ELEMTYPE *dataptr;			//no forced access via function for speedup...
@@ -76,18 +80,20 @@ class image_storage : public image_base
 
         virtual float get_max_float() const;
 		virtual float get_min_float() const;
-        ELEMTYPE get_max() const;
-        ELEMTYPE get_min() const;
+		virtual float get_max_float_safe()const {return 0;};	//checks if stats==NULL first, not done normally for better performance 
+		virtual float get_min_float_safe()const {return 0;};	//checks if stats==NULL first, not done normally for better performance 
+		virtual ELEMTYPE get_max() const {return 0;};
+		virtual ELEMTYPE get_min() const {return 0;};
 		float get_mean(image_storage<IMGBINARYTYPE>* mask=NULL);
 		float get_standard_deviation(image_storage<IMGBINARYTYPE>* mask=NULL);
-        ELEMTYPE get_num_values();
+//        ELEMTYPE get_num_values();
 //		unsigned long get_num_elements();
-        histogram_1D<ELEMTYPE>* get_histogram();
-		histogram_1D<ELEMTYPE>* get_histogram_new_with_same_num_buckets_as_intensities();
+		virtual histogram_1D<ELEMTYPE>* get_histogram(){return NULL;};
+		virtual histogram_1D<ELEMTYPE>* get_histogram_new_with_same_num_buckets_as_intensities(){return NULL;};
 
 		virtual void data_has_changed(bool stats_refresh = true) = 0;   
-        void stats_refresh(bool min_max_refresh = false);
-        void min_max_refresh();     //! lighter function that _only_ recalculates max/min values,
+		virtual void stats_refresh(bool min_max_refresh = false){};
+		virtual void min_max_refresh(){};     //! lighter function that _only_ recalculates max/min values,
                                     //! for use inside processing functions
         void get_min_max_values(ELEMTYPE &minimum, ELEMTYPE &maximum);
 		double get_sum_of_voxels(ELEMTYPE lower_limit = std::numeric_limits<ELEMTYPE>::min(), bool calc_scalar_abs_value=false, image_storage<IMGBINARYTYPE>* mask=NULL);
@@ -110,7 +116,6 @@ class image_storage : public image_base
 		bool same_size(image_storage<ELEMTYPE> *const image2); //checks the data size only... (not the dimension)
 		void combine(image_storage<ELEMTYPE> *const image2, COMBINE_MODE mode);
 
-		void print_stats();
 
 		string resolve_tooltip();		//combines tooltip data of this class with data from other classes
 		string resolve_tooltip_image_storage(); //resolves tooltip data typical for this class

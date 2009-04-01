@@ -105,6 +105,11 @@ bool string_contains(string s, string sample);
 string int2str(int i);
 string float2str(float f);
 
+template <class T>
+string float2str(complex<T> f){
+	return "(" + templ_to_string(f.real()) + "," + templ_to_string(f.imag()) + ")";
+}
+
 template <class ELEMTYPE >
 string templ_to_string (ELEMTYPE t)
     {

@@ -42,8 +42,8 @@
 template <class ELEMTYPE>
 class image_storage;
 
-//template <class ELEMTYPE, class IMAGEDIM>
-//class image_complex;
+template <class ELEMTYPE, int IMAGEDIM>
+class image_complex;
 
 template <class ELEMTYPE>
 class histogram_1D;
@@ -101,19 +101,6 @@ protected:
 public:
 	transfer_default(image_storage <ELEMTYPE > *s);
 
-/*	template <class E2>
-		void get(const E2 v, RGBvalue &p){
-			{
-				float ma = this->source->get_max_float();
-				float mi = this->source->get_min_float();
-				if(ma>mi){
-					p.set_mono( 255*(v-mi)/(ma-mi) ); //ööööö
-				}else{
-					p.set_mono(0);
-				}
-			}
-		}
-*/
 	void get(const ELEMTYPE v, RGBvalue &p);
 	void get(const complex<ELEMTYPE> v, RGBvalue &p){} //öööö	
 
@@ -256,31 +243,41 @@ protected:
 public:
 	transfer_scalar_to_RGB_linear(image_storage <ELEMTYPE > *);
 	void get(const ELEMTYPE v, RGBvalue &p);
-	void get(const complex<ELEMTYPE> v, RGBvalue &p){} //öööö	
+//	void get(const complex<ELEMTYPE> v, RGBvalue &p){} //öööö	
 //	void update(string slider_label);				//Updates intensity/contrast parameters from FLTK sliders ...
 //	static void slider_cb(Fl_Widget *o, void *v); //slicer callback
 };
 
-/*
 
-template <class ELEMTYPE>
+
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 class transfer_complex: public transfer_base
 {
 protected:
-    image_complex<ELEMTYPE> *source;
+    image_complex<ELEMTYPE,IMAGEDIM> *source;
 	Fl_Box *white;
 	Fl_Box *black;
+
 public:
-	transfer_complex(image_complex<ELEMTYPE> *s);
-	void get(const complex<ELEMTYPE> v, RGBvalue &p)
-	{
-		p.set_rgb(0,0,100);
+	transfer_complex(image_complex<ELEMTYPE,IMAGEDIM> *s);
+
+	void get(const complex<ELEMTYPE> v, RGBvalue &p){
+		float ma = source->get_max_float();
+		float res = abs(v)*255.0/ma;
+		if(res>0){
+			p.set_mono(res);
+		}else{
+			p.set_mono(res);
+		}
+//		p.set_rgb(0,0,100);
 	} //öööö	
 	virtual void update();
+
 };
-*/
 
 
 #include "transferfactory.hxx"
-
 #endif
