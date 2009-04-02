@@ -39,7 +39,7 @@ void trailing_slash (string &s)
         }
     }
 
-vector<string> get_dir_entries(string path, bool full_path)
+vector<string> get_dir_entries(string path, bool full_path, bool use_recustion)
     {
     // *** POSIX ***
 
@@ -59,6 +59,17 @@ vector<string> get_dir_entries(string path, bool full_path)
 	}
 
     (void) closedir (dp);
+
+	if(use_recustion){
+		vector<string> dirs = subdirs(path, true);
+	    vector<string> f2;
+		for(int i=0;i<dirs.size();i++){
+			f2 = get_dir_entries(dirs[i], true, true);
+			for(int j=0;j<f2.size();j++){
+				f.push_back(f2[j]);
+			}
+		}
+	}
 
     return f;
     }
@@ -193,19 +204,43 @@ void add_to_string_vector_if_not_present(vector<string> &v, string s)
 	}
 }
 
+bool combinations_equal(vector<string> tag_combo_1, vector<string> tag_combo_2)
+{
+	if(tag_combo_1.size() != tag_combo_2.size()){
+		return false;
+	}
+	for(int i=0; i<tag_combo_1.size();i++){
+		if(tag_combo_1[i] != tag_combo_2[i]){
+			return false;
+		}
+	}
+	return true;
+}
+
+
 //------------- Dicom specific file handling ----------------------
+vector<string> get_dicom_files_in_dir(string dir_path, bool full_path, bool recursive_search)
+{
+	vector<string> tmp;
+	return	get_dicom_files_in_dir(dir_path, tmp, full_path, recursive_search);
+}
 
-
-vector<string> get_dicom_files_in_dir(string dir_path, bool full_path)
+vector<string>	get_dicom_files_in_dir(string dir_path, vector<string> tmp_dcm_files, bool full_path, bool recursive_search)
 {
 //	cout<<"get_dicom_files_in_dir..."<<endl;
-	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
-
-	vector<string> dcm_files;
+	vector<string> dcm_files = tmp_dcm_files;
 	vector<string> all_files = get_dir_entries(dir_path,true);
 
-	for(int i=0;i<all_files.size();i++)
-	{
+	if(recursive_search){
+		vector<string> dirs = subdirs(dir_path, true);
+		for(int i=0;i<dirs.size();i++)	{
+			dcm_files = get_dicom_files_in_dir(dirs[i], dcm_files, true, recursive_search);
+		}
+	}
+
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+
+	for(int i=0;i<all_files.size();i++)	{
 //		cout<<"*i="<<i<<" "<<all_files[i]<<endl;
 		if(dicomIO->CanReadFile(all_files[i].c_str()))
 		{
@@ -522,6 +557,162 @@ string get_elemtype_in_dicom_file(string file_path)
 
 	return result;
 }
+
+
+vector<string> get_dicom_tag_value_combination(string file_path, vector<string> dcm_tags, bool remove_garbage_char)
+{
+//	cout<<"get_dicom_tag_value_combination..."<<endl;
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+
+	vector<string> res;
+	string dcmdata = "";
+
+	if(dicomIO->CanReadFile(file_path.c_str()))
+	{
+		dicomIO->SetFileName(file_path.c_str());
+		dicomIO->ReadImageInformation();		//get basic DICOM header
+
+		for(int i=0; i<dcm_tags.size();i++){
+			dicomIO->GetValueFromTag(dcm_tags[i],dcmdata);
+			if(remove_garbage_char){
+				remove_string_ending(dcmdata, " ");
+			}
+
+			res.push_back(dcmdata);
+		}
+	}
+	return res;
+}
+
+vector<string>	get_dicom_files_with_dcm_tag_value_combos(vector<string> files, vector<string> dcm_tags, vector<string> tag_vals, bool remove_garbage_char)
+{
+	vector<string> res;
+
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+	string dcmdata = "";
+	bool include_file = true;
+
+	for(int i=0; i<files.size();i++){
+		if(dicomIO->CanReadFile(files[i].c_str())){
+
+			dicomIO->SetFileName(files[i].c_str());
+			dicomIO->ReadImageInformation();		//get basic DICOM header
+
+			include_file = true;
+			for(int j=0; include_file&&(j<dcm_tags.size()); j++){
+				dicomIO->GetValueFromTag(dcm_tags[j],dcmdata);
+				if(remove_garbage_char){
+					remove_string_ending(dcmdata, " ");
+				}
+
+				if(dcmdata != tag_vals[j]){
+					include_file=false;
+				}
+			}
+
+			if(include_file){
+				res.push_back(files[i]);
+			}
+
+		}
+	}
+	return res;
+}
+
+vector<vector<string> >	get_header_combinations_from_these_dicom_files(vector<string> dcm_files, vector<string> tag_combo)
+{
+	vector<vector<string> > combs;
+	vector<string> comb;
+	bool add_this_combo=true;
+
+	for(int i=0; i<dcm_files.size();i++){
+		comb = get_dicom_tag_value_combination(dcm_files[i],tag_combo,true);
+
+		add_this_combo=true;
+		
+		for(int j=0; add_this_combo&&(j<combs.size()); j++){
+			if( combinations_equal(comb,combs[j]) ){
+				add_this_combo=false;
+			}
+		}
+		if(add_this_combo){
+			combs.push_back(comb);
+		}
+	}
+
+	return combs;
+}
+
+vector<string>	get_first_dicom_files_corresponding_to_these_combos(string dir_path, vector<string> dcm_tags, vector<vector<string> > combos, bool recursive_search, bool full_path)
+{
+	vector<string> dcm_files = get_dicom_files_in_dir(dir_path, true, recursive_search);
+	vector<string> this_comb;
+	vector<string> res;
+
+	for(int i=0; (combos.size()>0) && (i<dcm_files.size()); i++){
+		this_comb = get_dicom_tag_value_combination(dcm_files[i], dcm_tags);
+
+		cout<<dcm_files[i]<<endl;
+		for(int j=0; j<combos.size() ; j++){
+			for(int k=0; k<combos[j].size() ; k++){
+				cout<<combos[j][k]<<" ";
+			}
+			if( combinations_equal(this_comb,combos[j]) ){
+				res.push_back(dcm_files[i]);
+				combos.erase(combos.begin()+j);
+				cout<<"***";
+			}
+		}
+		cout<<endl;
+	}
+
+	return res;
+}
+
+vector<string>	get_first_dicom_files_corresponding_to_these_combos2(string dir_path, vector<string> dcm_tags, bool recursive_search, bool full_path)
+{
+	//jk öööööööööööö
+	vector<string> all_files = get_dir_entries(dir_path,true,true);
+	vector<vector<string> > found_combos;
+	vector<string> this_combo;
+	string dcmdata = "";
+	bool combo_exists=true;
+	vector<string> first_dcm_files;
+
+	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
+
+	for(int i=0; i<all_files.size(); i++){
+		cout<<"*i="<<i<<" "<<all_files[i]<<endl;
+		if( dicomIO->CanReadFile(all_files[i].c_str()) ){
+			dicomIO->SetFileName(all_files[i].c_str());
+			dicomIO->ReadImageInformation();		//get basic DICOM header
+
+			for(int j=0; j<dcm_tags.size();j++){
+				dicomIO->GetValueFromTag(dcm_tags[j],dcmdata);
+				remove_string_ending(dcmdata, " ");
+				this_combo.push_back(dcmdata);
+			}
+
+			combo_exists=false;
+			for(int j=0; (!combo_exists)&&(j<found_combos.size()); j++){
+				if(combinations_equal(this_combo, found_combos[j])){
+					combo_exists=true;
+				}
+			}
+
+			if(	!combo_exists ){
+				found_combos.push_back(this_combo);
+				first_dcm_files.push_back(all_files[i]);
+			}
+
+			//you might add files that belong to the same combo to some structure here.....
+			this_combo.clear();
+
+		}
+	}
+	return first_dcm_files;
+}
+
 
 
 

@@ -76,6 +76,9 @@ void image_complex<ELEMTYPE, IMAGEDIM>::set_complex_parameters()
 
     tfunction = NULL;
 	transfer_function();
+
+	min_complex = complex<ELEMTYPE>(0,1);	//JK öööööö
+	max_complex = complex<ELEMTYPE>(11,12); //JK öööööö
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -132,6 +135,19 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_complex<ELEMTYPE, IMAGEDIM>::silly_test()
 {
 	cout<<"* This is a silly test , JK"<<endl;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+complex<ELEMTYPE> image_complex<ELEMTYPE, IMAGEDIM>::get_max() const
+{
+    return max_complex;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+complex<ELEMTYPE> image_complex<ELEMTYPE, IMAGEDIM>::get_min() const
+{
+    return min_complex;
 }
 
 

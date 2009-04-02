@@ -584,12 +584,13 @@ image_base * ximgloader::read()
 	return result;
 }
 
-
+/*
 dicomloader::dicomloader(std::vector<std::string> *f): imageloader(f)
 {
 	dicomIO = itk::GDCMImageIO::New();
 	this->this_load_type = DCM_LOAD_SERIES_ID_ONLY; //alt. DCM_LOAD_ALL
 }
+*/
 
 dicomloader::dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type): imageloader(f)
 {

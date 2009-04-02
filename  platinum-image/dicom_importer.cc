@@ -31,57 +31,67 @@
 
 extern datamanager datamanagement;
 
-dcmtable::dcmtable(int x, int y, int w, int h, const char *l) : Fl_Table_Row(x,y,w,h,l)
+FLTK_dcmtable::FLTK_dcmtable(int x, int y, int w, int h, DCM_IMPORT_WIN_TYPE type, string settings_file_path, const char *l) : Fl_Table_Row(x,y,w,h,l)
 {
+	the_file_path = settings_file_path;
 	_sort_reverse = 0;
 	_sort_lastcol = -1;
 	end();
 	callback(event_callback, (void*)this);
 
-	if(!file_exists("dcm_import_tags.csv")){
+//	if(!file_exists("dcm_import_tags.csv")){
+	if(!file_exists(the_file_path)){
 
 		//		vector<string> row;
-		dcmtags.add_three_strings_row("Name","0010","0010");
-		dcmtags.add_three_strings_row("Study Date","0008","0020");
-		dcmtags.add_three_strings_row("Series Date","0008","0021");
-		dcmtags.add_three_strings_row("Series ID","0020","000e");
-		dcmtags.add_three_strings_row("Modality","0008","0060");
-		dcmtags.add_three_strings_row("Image Type","0008","0008");
-		dcmtags.add_three_strings_row("Study Descr.","0008","1030");
-		dcmtags.add_three_strings_row("Series Descr.","0008","103E");
+		if(type == DCM_FILES){
+			dcmtags.add_three_strings_row("Name","0010","0010");
+			dcmtags.add_three_strings_row("Study Date","0008","0020");
+			dcmtags.add_three_strings_row("Series Date","0008","0021");
+			dcmtags.add_three_strings_row("Series ID","0020","000e");
+			dcmtags.add_three_strings_row("Modality","0008","0060");
+			dcmtags.add_three_strings_row("Image Type","0008","0008");
+			dcmtags.add_three_strings_row("Study Descr.","0008","1030");
+			dcmtags.add_three_strings_row("Series Descr.","0008","103e");
 
-		dcmtags.add_three_strings_row("Patient ID","0010","0020");
-		dcmtags.add_three_strings_row("Birth Date","0010","0030");
-		dcmtags.add_three_strings_row("Sex","0010","0040");
-		dcmtags.add_three_strings_row("Weight","0010","1030");
+			dcmtags.add_three_strings_row("Patient ID","0010","0020");
+			dcmtags.add_three_strings_row("Birth Date","0010","0030");
+			dcmtags.add_three_strings_row("Sex","0010","0040");
+			dcmtags.add_three_strings_row("Weight","0010","1030");
 
-		dcmtags.add_three_strings_row("TR","0018","0080");
-		dcmtags.add_three_strings_row("TE","0018","0081");
-		dcmtags.add_three_strings_row("Flip","0018","1314");
-		dcmtags.add_three_strings_row("NSA","0018","0083");
-		dcmtags.add_three_strings_row("Slc/Thickn","0018","0050");
-		dcmtags.add_three_strings_row("Slc/Space","0018","0088");
+			dcmtags.add_three_strings_row("TR","0018","0080");
+			dcmtags.add_three_strings_row("TE","0018","0081");
+			dcmtags.add_three_strings_row("Flip","0018","1314");
+			dcmtags.add_three_strings_row("NSA","0018","0083");
+			dcmtags.add_three_strings_row("Slc/Thickn","0018","0050");
+			dcmtags.add_three_strings_row("Slc/Space","0018","0088");
 
-		dcmtags.add_three_strings_row("FOV?","0018","1100");
-		dcmtags.add_three_strings_row("B0(T)","0018","0087");
+			dcmtags.add_three_strings_row("FOV?","0018","1100");
+			dcmtags.add_three_strings_row("B0(T)","0018","0087");
 
-		dcmtags.add_three_strings_row("No phase enc.","0018","0089");
-		dcmtags.add_three_strings_row("Perc. sampl.","0018","0093");
-		dcmtags.add_three_strings_row("RFOV","0018","0094");
-		dcmtags.add_three_strings_row("Protocol","0018","1030");
+			dcmtags.add_three_strings_row("No phase enc.","0018","0089");
+			dcmtags.add_three_strings_row("Perc. sampl.","0018","0093");
+			dcmtags.add_three_strings_row("RFOV","0018","0094");
+			dcmtags.add_three_strings_row("Protocol","0018","1030");
 
-		dcmtags.add_three_strings_row("Transm Coil","0018","1251");
-		dcmtags.add_three_strings_row("Rcv Coil","0018","1250");
+			dcmtags.add_three_strings_row("Transm Coil","0018","1251");
+			dcmtags.add_three_strings_row("Rcv Coil","0018","1250");
+
+		}else if(type == DCM_SERIES){
+			dcmtags.add_three_strings_row("Series Descr.","0008","103e");
+			dcmtags.add_three_strings_row("Study Descr.","0008","1030");
+			dcmtags.add_three_strings_row("Name","0010","0010");
+			dcmtags.add_three_strings_row("Patient ID","0010","0020");
+		}
 
 
-		dcmtags.write_to_csvfile("dcm_import_tags.csv");
+		dcmtags.write_to_csvfile(the_file_path);
 
 		//The saved file has typically this format...
 		//Patient Name;0010;0010;
 		//Modality;0008;0060;
 
 	}else{
-		dcmtags.read_from_csvfile("dcm_import_tags.csv");
+		dcmtags.read_from_csvfile(the_file_path);
 	}
 	//	dcmtags.print_all();
 
@@ -89,12 +99,12 @@ dcmtable::dcmtable(int x, int y, int w, int h, const char *l) : Fl_Table_Row(x,y
 	update_tabledata();
 }
 
-dcmtable::~dcmtable()
+FLTK_dcmtable::~FLTK_dcmtable()
 { }
 
 
 // Handle drawing all cells in table
-void dcmtable::draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H)
+void FLTK_dcmtable::draw_cell(TableContext context, int R, int C, int X, int Y, int W, int H)
 {
 	char *s = "";
 
@@ -185,7 +195,7 @@ void dcmtable::draw_cell(TableContext context, int R, int C, int X, int Y, int W
 }
 
 // Automatically set column widths to widest data in each column
-void dcmtable::autowidth(int pad)
+void FLTK_dcmtable::autowidth(int pad)
 {
 	fl_font(FL_COURIER, 12);
 
@@ -219,7 +229,7 @@ void dcmtable::autowidth(int pad)
 	redraw();
 }
 
-void dcmtable::print_all()
+void FLTK_dcmtable::print_all()
 {
 	cout<<"***DATA***"<<endl;
 	data.print_all();
@@ -229,13 +239,13 @@ void dcmtable::print_all()
 
 
 // Callback whenever someone clicks on different parts of the table
-void dcmtable::event_callback(Fl_Widget*, void *data)
+void FLTK_dcmtable::event_callback(Fl_Widget*, void *data)
 {
-	dcmtable *o = (dcmtable*)data;
+	FLTK_dcmtable *o = (FLTK_dcmtable*)data;
 	o->event_callback2();
 }
 
-void dcmtable::event_callback2()
+void FLTK_dcmtable::event_callback2()
 {
 	//	int R = callback_row();			// currently unused
 	int C = callback_col();
@@ -289,7 +299,7 @@ void dcmtable::event_callback2()
 	}
 }
 
-void dcmtable::fill_table(vector<string> dcm_files)
+void FLTK_dcmtable::fill_table(vector<string> dcm_files)
 {
 	itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
 	vector<string> dcm_data_row;
@@ -315,9 +325,9 @@ void dcmtable::fill_table(vector<string> dcm_files)
 	update_tabledata();
 }
 
-void dcmtable::update_tabledata()
+void FLTK_dcmtable::update_tabledata()
 {
-	dcmtags.read_from_csvfile("dcm_import_tags.csv");
+	dcmtags.read_from_csvfile(the_file_path);
 
 	rows((int)data.rows());
 	cols((int)data.cols());
@@ -327,7 +337,7 @@ void dcmtable::update_tabledata()
 	redraw();
 }
 
-vector<string> dcmtable::get_selected_filenames()
+vector<string> FLTK_dcmtable::get_selected_filenames()
 {
 	vector<string> v;
 	for(int r=0;r<data.rows();r++){
@@ -341,13 +351,13 @@ vector<string> dcmtable::get_selected_filenames()
 //----------------------------------------------------------
 //----------------------------------------------------------
 //----------------------------------------------------------
-void dcmimportwin::button_cb(Fl_Button* b, const void* bstring)
+void FLTK_dcmimportwin::button_cb(Fl_Button* b, const void* bstring)
 {
-	dcmimportwin *w = (dcmimportwin*)b->parent();
+	FLTK_dcmimportwin *w = (FLTK_dcmimportwin*)b->parent();
 	w->button_cb2(string((const char*)bstring));
 }
 
-void dcmimportwin::button_cb2(string s)
+void FLTK_dcmimportwin::button_cb2(string s)
 {
 	cout<<"("<<s<<")"<<endl;
 
@@ -355,8 +365,12 @@ void dcmimportwin::button_cb2(string s)
 		//open file/folder chooser... import selected files/folders (incl "subfolders" if checked...)
 		//return as a vector of strings...
 
-		//		char * path = fl_file_chooser("Choose a directory", "", 0);
+		string last_path = pt_config::read<std::string>("latest_path");
+		//char * path = fl_file_chooser("Choose a directory", "", 0);
 		char * path = fl_dir_chooser("Choose a directory", "", 0);
+		if(path !=""){
+			pt_config::write("latest_path",string(path));
+		}
 
 		pt_error::error("dcm_import path="+string(path),pt_error::notice);
 
@@ -364,51 +378,83 @@ void dcmimportwin::button_cb2(string s)
 			cout<<"fl_dir_chooser-->"<<path<<endl;
 			cout<<"name-->"<<fl_filename_name(path)<<endl;
 
-			if(incl_subfolder_check_button->value()){
-				cout<<"include subfolders..."<<endl;
-			}else{
-				cout<<"DONT include subfolders..."<<endl;
-			}
-
-			//-----------------------
-			//-----------------------
-			vector<string> dcm_file_vector;
-			dcm_file_vector = get_dcm_files_from_dir(path, dcm_file_vector, incl_subfolder_check_button->value());
+//			dcm_file_vector = get_dcm_files_from_dir(path, dcm_file_vector, incl_subfolder_check_button->value());
+			vector<string> dcm_file_vector = get_dcm_files_of_interest( path, incl_subfolder_check_button->value() );
 			cout<<"***TOTAL NO files = "<<dcm_file_vector.size()<<endl;
 
-			//for each file... get the dcm info specified in the dcmtable-"dcmtags" object...
-			//fill the dcmtable-"data" with the data....
-			table->fill_table(dcm_file_vector);
+			table->fill_table(dcm_file_vector); //for each file... get the dcm info specified in the FLTK_dcmtable-"dcmtags" object... fill the FLTK_dcmtable-"data"
 		}
 
 
 	}else if(s=="settings"){
-		settingswin::create(50,50,700,800,table,"Settings");
+		FLTK_settingswin::create(50,50,700,800,table,"Settings");
 		//		table->update_tabledata();
 
 	}else if(s=="import"){
-		datamanagement.load_dcm_import_vector(table->get_selected_filenames(), import_vol_name_input->value());
+		load_selected_images();
 
 	}else if(s=="close"){
 		this->hide();
 	}else{
-		pt_error::pt_error("dcmimportwin::button_cb2... No matching string",pt_error::debug);
+		pt_error::pt_error("FLTK_dcmimportwin::button_cb2... No matching string",pt_error::debug);
 	}
 }
 
-dcmimportwin* dcmimportwin::create(int xx, int yy, int ww, int hh, const char *ll)
+
+vector<string> FLTK_dcmimportwin::get_dcm_files_of_interest(string path, bool include_subfolders)
 {
-	Fl_Group::current(NULL);// *Warning* - If this is forgotten, The window/graphics might end up in 
-	return new dcmimportwin(xx,yy,ww,hh,ll);
+	if(this->the_win_type == DCM_FILES){
+//		vector<string> tmp;
+//		return get_dcm_files_from_dir(path, tmp, include_subfolders);
+		return get_dicom_files_in_dir(path, true, include_subfolders);
+	}else if(this->the_win_type == DCM_SERIES){
+
+		vector<string> tag_combo;
+		tag_combo.push_back(DCM_PATIENT_NAME);
+		tag_combo.push_back(DCM_SERIES_DESCRIPTION);
+/*
+		vector<string> dcm_files = get_dicom_files_in_dir(path, true, include_subfolders);
+		vector<vector<string> >	v = get_header_combinations_from_these_dicom_files(dcm_files, tag_combo);
+		cout<<endl;
+		for(int i=0; i<v.size();i++){
+			for(int j=0; j<v[i].size();j++){
+				cout<<v[i][j]<<" ";
+			}
+			cout<<endl;
+		}
+		return get_first_dicom_files_corresponding_to_these_combos(path, tag_combo, v, include_subfolders, true);
+*/
+		return get_first_dicom_files_corresponding_to_these_combos2(path, tag_combo, include_subfolders, true);
+
+	}
+	vector<string> tmp;
+	return tmp;
 }
 
 
-dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Window(xx,yy,ww,hh,ll)
+void FLTK_dcmimportwin::load_selected_images()
 {
+	datamanagement.load_dcm_import_vector(table->get_selected_filenames(), import_vol_name_input->value(),this->the_win_type);
+}
+
+
+
+FLTK_dcmimportwin* FLTK_dcmimportwin::create(int xx, int yy, int ww, int hh, DCM_IMPORT_WIN_TYPE type, string settings_file, const char *ll)
+{
+	Fl_Group::current(NULL);// *Warning* - If this is forgotten, The window/graphics might end up in 
+	return new FLTK_dcmimportwin(xx,yy,ww,hh,type,settings_file,ll);
+}
+
+
+FLTK_dcmimportwin::FLTK_dcmimportwin(int xx, int yy, int ww, int hh, DCM_IMPORT_WIN_TYPE type, string settings_file, const char *ll):Fl_Window(xx,yy,ww,hh,ll)
+{
+	the_win_type = type;
+	settings_file_path = settings_file;
+
 	int wm = 10;	//widget margin
 	int wh = 30;	//widget height
 
-	table = new dcmtable(wm, 2*wm+wh, w()-2*wm, h()-4*wm-2*wh);
+	table = new FLTK_dcmtable(wm, 2*wm+wh, w()-2*wm, h()-4*wm-2*wh, the_win_type, settings_file_path); //the window type 
 	table->selection_color(FL_YELLOW);
 	table->col_header(1);
 	table->col_resize(1);
@@ -462,8 +508,8 @@ dcmimportwin::dcmimportwin(int xx, int yy, int ww, int hh, const char *ll):Fl_Wi
 }
 
 
-
-vector<string> dcmimportwin::get_dcm_files_from_dir(const char *dir, vector<string> dcm_files, bool incl_sub_dirs)
+/*
+vector<string> FLTK_dcmimportwin::get_dcm_files_from_dir(const char *dir, vector<string> dcm_files, bool incl_sub_dirs)
 {
 	cout<<"***get_dcm_files_from_dir...="<<dir<<endl;
 	struct dirent **files;
@@ -506,15 +552,16 @@ vector<string> dcmimportwin::get_dcm_files_from_dir(const char *dir, vector<stri
 	//		}
 	return dcm_files;
 }
-
+*/
 
 //----------------------------------------------------------
 //----------------------------------------------------------
 //----------------------------------------------------------
 
-string_edit_table::string_edit_table(int x, int y, int w, int h, const char *l, int r_nr, int c_nr) : Fl_Table(x,y,w,h,l)
+string_edit_table::string_edit_table(int x, int y, int w, int h, const char *l, int r_nr, int c_nr, string settings_file) : Fl_Table(x,y,w,h,l)
 {
-	dcmtags.read_from_csvfile("dcm_import_tags.csv");
+	settings_file_path = settings_file;
+	dcmtags.read_from_csvfile(settings_file_path);
 
 	callback(&event_callback, (void*)this);
 	input = new Fl_Input(20,20,50,20);
@@ -684,21 +731,22 @@ void input_cb(Fl_Widget*, void* v)
 //----------------------------------------------------------
 //----------------------------------------------------------
 //----------------------------------------------------------
-settingswin* settingswin::create(int xx, int yy, int ww, int hh, dcmtable *dt, const char *ll)
+FLTK_settingswin* FLTK_settingswin::create(int xx, int yy, int ww, int hh, FLTK_dcmtable *dt, const char *ll)
 {
 	Fl_Group::current(NULL);// *Warning* - If this is forgotten, The window/graphics might end up in 
-	return new settingswin(xx,yy,ww,hh,dt,ll);
+	return new FLTK_settingswin(xx,yy,ww,hh,dt,ll);
 }
 
-settingswin::settingswin(int x, int y, int w, int h, dcmtable *dt, const char *l):Fl_Window(x,y,w,h,l)
+FLTK_settingswin::FLTK_settingswin(int x, int y, int w, int h, FLTK_dcmtable *dt, const char *l):Fl_Window(x,y,w,h,l)
 {
 	int wm = 10;	//widget margin
 	int wh = 30;	//widget height
 
-	table = new string_edit_table(wm, wm, w-2*wm, h-3*wm-wh,"",5,3);
-	table->read_from_csvfile("dcm_import_tags.csv");
+	FLTK_dcmtable_ptr=dt;
 
-	dcmtable_ptr=dt;
+	table = new string_edit_table(wm, wm, w-2*wm, h-3*wm-wh,"",5,3, FLTK_dcmtable_ptr->the_file_path);
+	table->read_from_csvfile(FLTK_dcmtable_ptr->the_file_path);
+
 
 	// ROWS
 	table->row_header(1);
@@ -755,15 +803,15 @@ settingswin::settingswin(int x, int y, int w, int h, dcmtable *dt, const char *l
 	Fl::run();
 }
 
-void settingswin::button_cb(Fl_Button* b, void* bstring)
+void FLTK_settingswin::button_cb(Fl_Button* b, void* bstring)
 {
-	settingswin *w = (settingswin*)b->parent();
+	FLTK_settingswin *w = (FLTK_settingswin*)b->parent();
 	string s = string((const char*)bstring);
 	w->button_cb2(s);
 }
 
 
-void settingswin::button_cb2(string s)
+void FLTK_settingswin::button_cb2(string s)
 {
 	cout<<"("<<s<<")"<<endl;
 
@@ -802,20 +850,20 @@ void settingswin::button_cb2(string s)
 		}
 
 	}else if(s=="OK"){
-		table->write_to_csvfile("dcm_import_tags.csv");
-		dcmtable_ptr->update_tabledata();
+		table->write_to_csvfile(FLTK_dcmtable_ptr->the_file_path);
+		FLTK_dcmtable_ptr->update_tabledata();
 		hide();
 
 	}else if(s=="Cancel"){
 		hide();
 
 	}else{
-		pt_error::pt_error("settingswin::button_cb2... No matching string",pt_error::debug);
+		pt_error::pt_error("FLTK_settingswin::button_cb2... No matching string",pt_error::debug);
 	}
 }
 
 
-void settingswin::update_tabledata()
+void FLTK_settingswin::update_tabledata()
 {
 	table->update_tabledata();
 }
