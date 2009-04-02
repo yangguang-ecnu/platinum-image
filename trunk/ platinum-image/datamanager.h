@@ -101,6 +101,7 @@ class datamanager
         static void loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager);
         static void clear_data_list_button_callback(Fl_Widget *callingwidget, void *thisdatamanager);
         static void dcm_import_callback(Fl_Widget *callingwidget, void *thisdatamanager);
+        static void dcm_series_callback(Fl_Widget *callingwidget, void *thisdatamanager);
 		
         void loadimages();
         static void removedata_callback(Fl_Widget *, void *);
@@ -132,7 +133,7 @@ class datamanager
         
 		//JK geometry information will be difficult to import, as files can be chosen arbitraryly...
 		//Set the geometry info to "default" (i.e no rotation, origin (0,0,0), scaling (1,1,1) )
-		void load_dcm_import_vector(std::vector<std::string> dcm_filenames, std::string import_vol_name);
+		void load_dcm_import_vector(std::vector<std::string> dcm_filenames, std::string import_vol_name, DCM_IMPORT_WIN_TYPE win_type);
 
 
         int create_empty_image(int x, int y, int z, int unit);      //creates empty image of given size

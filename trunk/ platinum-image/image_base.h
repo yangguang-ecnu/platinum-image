@@ -187,8 +187,8 @@ private:
 	void clear_files_vector_from_already_loaded();
 
 public:
-    dicomloader(std::vector<std::string> *f);
-    dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type);
+//    dicomloader(std::vector<std::string> *f);
+    dicomloader(std::vector<std::string> *f, DICOM_LOADER_TYPE type= DCM_LOAD_SERIES_ID_ONLY);
     image_base * read();
 
 

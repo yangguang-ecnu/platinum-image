@@ -6,9 +6,9 @@
 ///	 This file is adapted from "sortapp.cxx" example from The Fl_Table class (Version 3.12, 04/02/2006 )
 ///	 created by Greg Ercolano (http://seriss.com/people/erco/fltk/).
 
-///  The "dcmimportwin" uses a "dcmtable" (Fl_Table) to handle dicom meta data.
-///  The "dcmtable" uses a "stringmatrix" for the string storage	
-///  The "settingswin" uses a "string_edit_table" (Fl_Table) to allow editable settings.
+///  The "FLTK_dcmimportwin" uses a "FLTK_dcmtable" (Fl_Table) to handle dicom meta data.
+///  The "FLTK_dcmtable" uses a "stringmatrix" for the string storage	
+///  The "FLTK_settingswin" uses a "string_edit_table" (Fl_Table) to allow editable settings.
 ///
 ///  Window for importing single/multiple dicom images
 ///	 This file is adapted from "sortapp.cxx" example from The Fl_Table class (Version 3.12, 04/02/2006 )
@@ -80,8 +80,10 @@ using namespace std;
 //----------------------------------------------------------
 //----------------------------------------------------------
 
-class dcmtable : public Fl_Table_Row
+class FLTK_dcmtable : public Fl_Table_Row
 {
+	friend class FLTK_settingswin;
+
 private:
 	stringmatrix data;			// contains the loaded dicom header data...
 //	int _maxcols;				// max # columns in all rows
@@ -94,14 +96,15 @@ private:
 	vector<string> selected_filenames;
 
 protected:
+	string the_file_path;
 	// table cell drawing 
 	// Column headers are bold, an arrow displays the "column that holds the sorting"
 	// Selected rows are given the "selection_color"
 	void draw_cell(TableContext context, int R=0, int C=0, int X=0, int Y=0, int W=0, int H=0);
 
 public:
-	dcmtable(int x, int y, int w, int h, const char *l=0);
-	~dcmtable();
+	FLTK_dcmtable(int x, int y, int w, int h, DCM_IMPORT_WIN_TYPE type, string settings_file_path, const char *l=0);
+	~FLTK_dcmtable();
 
 	stringmatrix dcmtags;		// contains dicom tag info, updated via the "settings window"
 	//---- dcmtags specification ----
@@ -121,22 +124,29 @@ public:
 //----------------------------------------------------------
 //----------------------------------------------------------
 
-class dcmimportwin : public Fl_Window
+class FLTK_dcmimportwin : public Fl_Window
 {
 private:
-	dcmimportwin(int xx, int yy, int ww, int hh, const char *ll=0);
-	dcmtable *table;
+	FLTK_dcmimportwin(int xx, int yy, int ww, int hh, DCM_IMPORT_WIN_TYPE type, string settings_file, const char *ll=0);
+
+	string settings_file_path;
+	DCM_IMPORT_WIN_TYPE the_win_type;
+
+	FLTK_dcmtable *table;
 	Fl_Check_Button* incl_subfolder_check_button;
 	Fl_Input* import_vol_name_input;
 
 	static void button_cb(Fl_Button* b, const void* bstring);
 	void button_cb2(string s);
-	
-	vector<string> get_dcm_files_from_dir(const char *dir, vector<string> dcm_files, bool incl_sub_dirs);
+	vector<string> get_dcm_files_of_interest(string path, bool include_subfolders);
+//	vector<string> get_dcm_files_from_dir(const char *dir, vector<string> dcm_files, bool incl_sub_dirs); //JK - maybe faster than version in fileutils????
+	void load_selected_images();
+
+
 
 public:
 	//makes sure current(NULL) is not forgotten...
-	static dcmimportwin* create(int xx, int yy, int ww, int hh, const char *ll=0);
+	static FLTK_dcmimportwin* create(int xx, int yy, int ww, int hh, DCM_IMPORT_WIN_TYPE type, string settings_file, const char *ll=0);
 
 };
 
@@ -145,6 +155,7 @@ public:
 //----------------------------------------------------------
 class string_edit_table : public Fl_Table
 {
+	string settings_file_path;
 	Fl_Input* input;
 	int row_edit;
 	int col_edit;
@@ -158,7 +169,7 @@ protected:
 	static void input_cb(Fl_Widget*, void* v);
 
 public:
-	string_edit_table(int x, int y, int w, int h, const char *l, int nr_r, int nr_c);
+	string_edit_table(int x, int y, int w, int h, const char *l, int nr_r, int nr_c, string settings_file);
 	~string_edit_table();
 
 	stringmatrix dcmtags;
@@ -172,12 +183,12 @@ public:
 //----------------------------------------------------------
 //----------------------------------------------------------
 
-class settingswin : public Fl_Window
+class FLTK_settingswin : public Fl_Window
 {
 private:
-	settingswin(int xx, int yy, int ww, int hh, dcmtable *dt, const char *ll=0);
+	FLTK_settingswin(int xx, int yy, int ww, int hh, FLTK_dcmtable *dt, const char *ll=0);
 	string_edit_table* table;
-	dcmtable* dcmtable_ptr;
+	FLTK_dcmtable* FLTK_dcmtable_ptr;
 	Fl_Input* ins_row_input;
 	Fl_Input* del_row_input;
 
@@ -186,7 +197,7 @@ private:
 	void update_tabledata();
 
 public:
-	static settingswin* create(int xx, int yy, int ww, int hh, dcmtable *dt, const char *ll=0);
+	static FLTK_settingswin* create(int xx, int yy, int ww, int hh, FLTK_dcmtable *dt, const char *ll=0);
 };
 
 //Fl_Callback input_cb;

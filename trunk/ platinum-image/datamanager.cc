@@ -204,14 +204,18 @@ void datamanager::datawidgets_setup()
 
     Fl_Group* buttongroup = new Fl_Group(xpos,data_widget_box->y()+data_widget_box->h(),width,BUTTONHEIGHT+margin*2);
     buttongroup->box(FL_NO_BOX);
-
-    load_button = new Fl_Button(xpos,data_widget_box->y()+data_widget_box->h()+margin,120,BUTTONHEIGHT, "Load image...");
+	
+	int b_width = 80;
+    load_button = new Fl_Button(xpos,data_widget_box->y()+data_widget_box->h()+margin,b_width,BUTTONHEIGHT, "Load...");
     load_button->callback(loadimage_callback,this);
 
 //JK - dicom_import testing....
 #ifdef TESTMODE
-		Fl_Widget *dcm_import_button = new Fl_Button(xpos+120+margin,data_widget_box->y()+data_widget_box->h()+margin,120,BUTTONHEIGHT, "Dicom Importer...");
+		Fl_Widget *dcm_import_button = new Fl_Button(xpos+b_width+margin,data_widget_box->y()+data_widget_box->h()+margin,b_width,BUTTONHEIGHT, "Dcm Import...");
 		dcm_import_button->callback(dcm_import_callback,this);
+
+		Fl_Widget *dcm_series_button = new Fl_Button(xpos+2*b_width+2*margin,data_widget_box->y()+data_widget_box->h()+margin,b_width,BUTTONHEIGHT, "Dcm Series...");
+		dcm_series_button->callback(dcm_series_callback,this);
 #endif
 
     buttongroup->resizable(NULL);
@@ -394,7 +398,15 @@ void datamanager::dcm_import_callback(Fl_Widget *callingwidget, void *thisdatama
 // argument must tell us which instance, if multiple
 {
 #ifdef TESTMODE
-	dcmimportwin::create(50,50,1200,800,"Dicom File Import");
+	FLTK_dcmimportwin::create(50,50,1200,800,DCM_FILES,"pt_settings_dcm_file_import_tags.csv","Dicom File Import");
+#endif
+}
+
+void datamanager::dcm_series_callback(Fl_Widget *callingwidget, void *thisdatamanager)
+// argument must tell us which instance, if multiple
+{
+#ifdef TESTMODE
+	FLTK_dcmimportwin::create(50,50,1200,800,DCM_SERIES,"pt_settings_dcm_series_import_tags.csv","Dicom Series Import");
 #endif
 }
 
@@ -448,7 +460,7 @@ void datamanager::loadimages() // argument must tell us which instance, if multi
 //JK geometry information will be difficult to import, as files can be chosen arbitraryly...
 //Set the geometry info to "default" (i.e no rotation, origin (0,0,0), scaling (1,1,1) )
 
-void datamanager::load_dcm_import_vector(std::vector<std::string> dcm_filenames, std::string import_vol_name)
+void datamanager::load_dcm_import_vector(std::vector<std::string> dcm_filenames, std::string import_vol_name, DCM_IMPORT_WIN_TYPE win_type)
 {
 	if(dcm_filenames.size()>0){
 		//JK Warning... there is some error in the selected slices / the slice order...
@@ -456,10 +468,21 @@ void datamanager::load_dcm_import_vector(std::vector<std::string> dcm_filenames,
 		for(int i=0;i<dcm_filenames.size();i++){
 			cout<<"i="<<i<<" "<<dcm_filenames[i]<<endl;
 		}
-		dicomloader dl = dicomloader(&dcm_filenames,DCM_LOAD_ALL);
-		datamanagement.add(dl.read());
+
+		if(win_type == DCM_FILES){
+			dicomloader dl = dicomloader(&dcm_filenames,DCM_LOAD_ALL);
+			datamanagement.add(dl.read());
+
+		}else if(win_type == DCM_SERIES){
+			image_base::load(dcm_filenames);
+//			dicomloader dl = dicomloader(&dcm_filenames,DCM_LOAD_SERIES_ID_ONLY);
+//			datamanagement.add(dl.read());
+		}
+
 	}
 }
+
+
 
 int datamanager::create_empty_image(int x, int y, int z, int unit) // argument must tell us which instance, if multiple
     {

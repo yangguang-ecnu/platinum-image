@@ -610,6 +610,14 @@ string image_storage<ELEMTYPE >::resolve_datasize_in_kb()
 	float f = float(num_elements)*float(numeric_limits<ELEMTYPE>::digits) * 0.001/8;
 	return float2str(f);
 }
+/*
+template <>
+string image_storage<complex<float> >::resolve_datasize_in_kb()
+{
+	float f = float(num_elements)*2*float(numeric_limits<float>::digits) * 0.001/8;
+	return float2str(f);
+}
+*/
 
 /*
 template <class ELEMTYPE >

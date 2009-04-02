@@ -42,6 +42,10 @@ class image_complex : public image_general<complex<ELEMTYPE> , IMAGEDIM>
 {
 	friend class image_storage<ELEMTYPE>;
 
+private:
+	complex<ELEMTYPE> min_complex;
+	complex<ELEMTYPE> max_complex;
+
 protected:
 	void set_complex_parameters();
    	histogram_1D<ELEMTYPE> *stats;
@@ -70,6 +74,9 @@ public:
 	virtual void get_display_voxel(RGBvalue &val,int x, int y, int z=0) const;
 
 	void silly_test();
+	complex<ELEMTYPE> get_max() const;
+	complex<ELEMTYPE> get_min() const;
+
 	float get_number_voxel(int x, int y, int z) const;
     virtual float get_max_float() const;
     virtual float get_min_float() const;

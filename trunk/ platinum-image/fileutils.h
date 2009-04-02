@@ -48,8 +48,9 @@ using namespace std;
 void trailing_slash (string &s);                           //! ensures an accurate directory path,
                                                                 //! adds a trailing slash ( / ) if
                                                                 //! there wasn't one already
+//------------- File and directory handling ----------------------
 
-vector<string> get_dir_entries(string path, bool full_path=false);    //return string vector listing directory contents
+vector<string> get_dir_entries(string path, bool full_path=false, bool use_recustion=false);    //return string vector listing directory contents
 vector<string> get_dir_entries_ending_with(string path, string ending);    //return string vector listing directory contents that end with (ending)
 
 string path_parent(string);                         //!get parent (full path except file/indicated dir)
@@ -63,9 +64,12 @@ bool dir_exists(string file_path);
 void create_dir(string dir_path);
 void create_file(string file_path);
 
+
 //------------- String vector specific handling ----------------------
 
 void add_to_string_vector_if_not_present(vector<string> &v, string s);
+bool combinations_equal(vector<string> tag_combo_1, vector<string> tag_combo_2);
+
 
 //------------- Dicom specific file handling ----------------------
 
@@ -74,7 +78,8 @@ struct TagValueDirInfo{ //SO
 	int similarDirs;
 };
 
-vector<string>	get_dicom_files_in_dir(string dir_path, bool full_path=false);
+vector<string>	get_dicom_files_in_dir(string dir_path, bool full_path=false, bool recursive_search=false);
+vector<string>	get_dicom_files_in_dir(string dir_path, vector<string> dcm_files, bool full_path=false, bool recursive_search=true);
 vector<string>	get_first_dicom_files_in_all_subdirs(string dir_path, bool full_path=true);
 string			get_first_dicom_file_in_dir(string dir_path, bool full_path=false);
 string			get_second_dicom_file_in_dir(string dir_path, bool full_path=false); //can for example be used for loading image 2 in dual echo sequences...
@@ -92,6 +97,14 @@ bool			is_dicom_file_magnitude_image(string file_path);
 bool			is_dicom_file_real_image(string file_path);
 bool			is_dicom_file_imaginary_image(string file_path);
 string			get_elemtype_in_dicom_file(string file_path);
+
+//------  Dicom tag combos -------
+vector<string>	get_dicom_tag_value_combination(string file_path, vector<string> dcm_tags, bool remove_garbage_char=true);
+vector<string>	get_dicom_files_with_dcm_tag_value_combos(vector<string> files, vector<string> dcm_tags, vector<string> tag_vals, bool remove_garbage_char=true);
+vector<vector<string> >	get_header_combinations_from_these_dicom_files(vector<string> dcm_files, vector<string> tag_combo);
+//vector<string>	get_header_combinations_from_dicom_files_in_dir(string dir_path, bool use_folder_recursion=false, vector<string> res2=vector<string>())
+vector<string>	get_first_dicom_files_corresponding_to_these_combos(string dir_path, vector<string> dcm_tags, vector<vector<string> > combos, bool recursive_search=false, bool full_path=true);
+vector<string>	get_first_dicom_files_corresponding_to_these_combos2(string dir_path, vector<string> dcm_tags, bool recursive_search=false, bool full_path=true);
 
 //------------- String handling functions ----------------------
 
