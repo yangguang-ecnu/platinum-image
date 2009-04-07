@@ -21,6 +21,7 @@
 #include "datawidget.h"
 #include "bruker.h"
 #include "image_label.hxx" //used in... analyze_objloader::read()
+#include "image_complex.hxx" //used in... analyze_objloader::read() //ööööööööööööööööö
 //#include "image_complex.hxx"
 //#include "itkVTKImageIO.h"
 //#include "fileutils.h"
@@ -632,12 +633,12 @@ image_base *dicomloader::read()
 						loaded_TEs.push_back(get_dicom_tag_value(*file,DCM_TE));
 
 						itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
-						itk::ImageIOBase::IOComponentType componentType = dicomIO->GetComponentType();
+						itk::ImageIOBase::IOComponentType theComponentType = dicomIO->GetComponentType();
 
 						switch(pixelType){ 							//Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
 						case itk::ImageIOBase::SCALAR:
 							if(this_load_type==DCM_LOAD_SERIES_ID_ONLY){
-								switch(componentType){
+								switch(theComponentType){
 								case itk::ImageIOBase::UCHAR:
 									result = new image_integer<unsigned char>();
 									((image_integer<unsigned char>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
@@ -667,12 +668,12 @@ image_base *dicomloader::read()
 									((image_integer<float>*)result)->load_dataset_from_DICOM_fileAF(*file,seriesIdentifier);
 									break;
 								default:
-									pt_error::error("dicomloader::read() --> Unsupported component type: " + dicomIO->GetComponentTypeAsString (componentType), pt_error::warning);
+									pt_error::error("dicomloader::read() --> Unsupported component type: " + dicomIO->GetComponentTypeAsString (theComponentType), pt_error::warning);
 								}
 
 							}else if(this_load_type==DCM_LOAD_ALL){
 
-							switch (componentType){
+							switch (theComponentType){
 								case itk::ImageIOBase::UCHAR:
 									result = new image_integer<unsigned char>();
 									((image_integer<unsigned char>*)result)->load_dataset_from_these_DICOM_files(*files);
@@ -694,13 +695,26 @@ image_base *dicomloader::read()
 									return result;
 									break;
 								default:
-									pt_error::error("dicomloader::read() --> Unsupported component type: " + dicomIO->GetComponentTypeAsString (componentType), pt_error::warning);
+									pt_error::error("dicomloader::read() --> Unsupported component type: " + dicomIO->GetComponentTypeAsString (theComponentType), pt_error::warning);
 								}//switch
 							}//DCM_LOAD_ALL
 
 						break;
 							case itk::ImageIOBase::COMPLEX:
+//								switch (theComponentType){
+//								case itk::ImageIOBase::FLOAT:
+									result = new image_complex<float>();
+									((image_complex<float>*)result)->load_complex_dataset_from_these_DICOM_files(*files);
+									return result;
+//									break;
+//								}
+//								pt_error::error("image_base::load(...): unsupported pixel type(COMPLEX): " + dicomIO->GetPixelTypeAsString(pixelType),pt_error::warning);
 								break;
+
+//							case itk::ImageIOBase::RGB:
+//								pt_error::error("image_base::load(...): unsupported pixel type(RGB): " + dicomIO->GetPixelTypeAsString(pixelType),pt_error::warning);
+//								break;
+
 							default:
 								pt_error::error("image_base::load(...): unsupported pixel type: " + dicomIO->GetPixelTypeAsString(pixelType),pt_error::warning);
 					}//switch -scalar-complex
