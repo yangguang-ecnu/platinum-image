@@ -41,6 +41,8 @@ template<int IMAGEDIM>
     class image_label;
 template<class ELEMTYPE, int IMAGEDIM>
     class image_multi; 
+//template<class ELEMTYPE, int IMAGEDIM>
+//    class image_complex; 
 
 
 
@@ -308,12 +310,13 @@ class image_general : public image_storage <ELEMTYPE >
 //        void load_dataset_from_DICOM_files(std::string dir_path,std::string seriesIdentifier); //gdcm
   //      void load_dataset_from_DICOM_files2(std::string dir_path,std::string seriesIdentifier);//"itk-dcm"
         void load_dataset_from_DICOM_fileAF(std::string file_path,std::string seriesIdentifier);//"itk-dcm"
-        void load_dataset_from_these_DICOM_files(vector<string> filenames);
+//        virtual void load_dataset_from_these_DICOM_files(vector<string> filenames);
+		void load_dataset_from_these_DICOM_files(vector<string> filenames);
 		void load_dataset_from_all_DICOM_files_in_dir(std::string dir_path);
 
         void save_to_file(const std::string file_path, const bool useCompression = true, const bool anonymize = true); //enterprits file name ending...
-        void save_to_VTK_file(const std::string file_path, const bool useCompression = true);
-        void save_to_DCM_file(const std::string file_path, const bool useCompression = false, const bool anonymize = true);
+        virtual void save_to_VTK_file(const std::string file_path, const bool useCompression = true);
+        virtual void save_to_DCM_file(const std::string file_path, const bool useCompression = false, const bool anonymize = true);
         void save_to_DCM_file_series(const std::string file_path, const bool useCompression = true, const bool anonymize = true);
 		void save_to_raw_file(const std::string file_path, bool save_image_info_txt_file=false);
         void save_to_NIFTI_file(const std::string file_path); //JK test

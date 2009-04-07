@@ -90,6 +90,16 @@ public:
 	float get_voxel_phase(int x, int y, int z) const;  //returns phase in radians [-PI, PI]
 
 	image_scalar<ELEMTYPE, IMAGEDIM>* get_magnitude_image();
+
+
+	typename itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM >::Pointer	get_complex_image_as_itk_output();
+
+	void load_complex_dataset_from_these_DICOM_files(vector<string> filenames);
+	void save_to_VTK_file(const std::string file_path, const bool useCompression = true);
+    void save_to_DCM_file(const std::string file_path, const bool useCompression = false, const bool anonymize = true);
+
+
+
 };
 
 

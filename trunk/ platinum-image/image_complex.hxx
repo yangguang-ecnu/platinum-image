@@ -229,4 +229,113 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_complex<ELEMTYPE, IMAGEDIM>::get_magnitu
 }
 
 
+//-------------------------------------------------------------------
+//-------------------------------------------------------------------
+
+template <class ELEMTYPE, int IMAGEDIM>
+typename itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM >::Pointer image_complex<ELEMTYPE, IMAGEDIM>::get_complex_image_as_itk_output()
+{
+//	cout<<"get_image_as_itk_output..."<<endl;
+
+	typedef itk::ImportImageFilter<std::complex<ELEMTYPE>, IMAGEDIM> filterType;
+	typename filterType::Pointer ITKimportfilter = filterType::New();
+	ITKimportfilter->SetRegion(this->get_region_itk());
+	ITKimportfilter->SetOrigin(this->get_origin_itk());
+	ITKimportfilter->SetSpacing(this->get_voxel_size_itk());
+	ITKimportfilter->SetDirection(this->get_orientation_itk()); //JK - Very important to remember ;-)
+
+    ITKimportfilter->SetImportPointer(this->imagepointer(), this->num_elements, false);
+
+    typedef itk::CastImageFilter<theComplexImageType2, theComplexImageType> castType;
+	typename castType::Pointer caster = castType::New();
+	caster->SetInput(ITKimportfilter->GetOutput());
+	caster->Update();
+
+	return caster->GetOutput();
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_complex<ELEMTYPE, IMAGEDIM>::load_complex_dataset_from_these_DICOM_files(vector<string> filenames)
+{
+	cout<<"load_complex_dataset_from_these_DICOM_files...("<<filenames.size()<<")"<<endl;
+
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_complex<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_path, const bool useCompression)
+{
+	cout<<"save_to_VTK_file..."<<endl;
+    typename theComplexWriterType::Pointer writer = theComplexWriterType::New();   //default file type is VTK
+    writer->SetFileName( file_path.c_str() );
+    writer->SetInput(get_complex_image_as_itk_output());
+	if(useCompression){
+		writer->UseCompressionOn();
+	}
+
+    try{
+        writer->Update();
+        }
+    catch (itk::ExceptionObject &ex){
+        pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
+		std::cout<<ex<<std::endl;
+        }
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_complex<ELEMTYPE, IMAGEDIM>::save_to_DCM_file(const std::string file_path, const bool useCompression, const bool anonymize)
+{
+//	cout<<"save_to_DCM_file..."<<endl;    //port image to ITK image and save it as DCM file
+
+	//--------------------------------------------------------
+	//--- If dicom image has tag "DCM_IMAGE_ORIENTATION_PATIENT" a/b/c/d/e/f
+	//--- This is read as 
+	//		a d j
+	//		b e	k
+	//		c f l
+	//--- GDCMImageIO saves the direcional conines transposed compared to the ITK use....
+	//--- Idea - Transpose rotation matrix before saving... and again after...
+
+	//--------------------------------------------------------
+	this->orientation = this->orientation.GetTranspose();
+	//--------------------------------------------------------
+
+    typename theComplexWriterType::Pointer writer = theComplexWriterType::New();
+	typename itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM >::Pointer image = get_complex_image_as_itk_output();
+    writer->SetFileName( file_path.c_str() );
+    writer->SetInput(image);
+	if(useCompression){
+		writer->UseCompressionOn();
+	}
+
+	if(anonymize){
+		typedef itk::GDCMImageIO ImageIOType;
+		ImageIOType::Pointer gdcmImageIO = ImageIOType::New();
+		writer->SetImageIO( gdcmImageIO );
+		typedef itk::MetaDataDictionary   DictionaryType;
+		DictionaryType & dictionary = image->GetMetaDataDictionary();
+
+		//TODO - make sure all interesting data in "metadata-object" is saves....
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_NAME, "Anonymized" );
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_ID, "Anonymized" );
+		itk::EncapsulateMetaData<std::string>( dictionary, DCM_PATIENT_BIRTH_DATE, "Anonymized" );
+		// The two lines below don't work... 
+		// The brutal rotation of the orientation matrix was used before and after saving instead...
+		//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_POSITION_PATIENT, "1\\2\\3" );
+		//itk::EncapsulateMetaData<std::string>( dictionary, DCM_IMAGE_ORIENTATION_PATIENT, this->get_orientation_as_dcm_string() );
+	}
+
+    try{
+        writer->Update();
+    }catch (itk::ExceptionObject &ex){
+        pt_error::error("Exception thrown saving file (" +file_path + ")", pt_error::warning);
+		std::cout<<ex<<std::endl;
+    }
+
+	//--------------------------------------------------------
+	this->orientation = this->orientation.GetTranspose(); //transpose again  "=back"
+	//--------------------------------------------------------
+}
+
+
 #endif

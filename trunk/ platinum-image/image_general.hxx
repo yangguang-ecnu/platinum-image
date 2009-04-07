@@ -59,8 +59,10 @@ using namespace std;
 //GCC does not support templated typedefs
 //we bow our heads in appreciation and define them with macros instead :P
 //#define theImageType itk::Image<ELEMTYPE,IMAGEDIM>
-#define theImageType2 itk::Image<ELEMTYPE,IMAGEDIM>
 #define theImageType itk::OrientedImage<ELEMTYPE,IMAGEDIM>
+#define theImageType2 itk::Image<ELEMTYPE,IMAGEDIM>
+#define theComplexImageType itk::OrientedImage<std::complex<ELEMTYPE>,IMAGEDIM>
+#define theComplexImageType2 itk::Image<std::complex<ELEMTYPE>,IMAGEDIM>
 #define theImageType2D itk::OrientedImage<ELEMTYPE,2>
 #define theOrientedImageType itk::OrientedImage<ELEMTYPE,IMAGEDIM>
 #define theImageToOrientedCastFilterType itk::CastImageFilter< theImageType, theOrientedImageType >
@@ -70,7 +72,8 @@ using namespace std;
 #define theSeriesWriterType itk::ImageSeriesWriter<theImageType >
 #define theReaderType itk::ImageFileReader<theImageType >
 #define	theWriterType itk::ImageFileWriter<theImageType >
-#define	theOrientedWriterType itk::ImageFileWriter<theOrientedImageType >
+#define	theComplexWriterType itk::ImageFileWriter<theComplexImageType >
+//#define	theOrientedWriterType itk::ImageFileWriter<theOrientedImageType >
 #define theSizeType theImageType::RegionType::SizeType
 #define theStatsFilterType itk::StatisticsImageFilter<theImageType >
 #define theStatsFilterPointerType theStatsFilterType::Pointer

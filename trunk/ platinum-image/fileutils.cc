@@ -31,7 +31,7 @@
 #include <dirent.h>
 #endif
 
-void trailing_slash (string &s)
+void ensure_trailing_slash(string &s)
     {
     if (*s.rbegin() != '/')
         {
@@ -39,7 +39,7 @@ void trailing_slash (string &s)
         }
     }
 
-vector<string> get_dir_entries(string path, bool full_path, bool use_recustion)
+vector<string> get_dir_entries(string path, bool full_path, bool use_recursion)
     {
     // *** POSIX ***
 
@@ -60,7 +60,7 @@ vector<string> get_dir_entries(string path, bool full_path, bool use_recustion)
 
     (void) closedir (dp);
 
-	if(use_recustion){
+	if(use_recursion){
 		vector<string> dirs = subdirs(path, true);
 	    vector<string> f2;
 		for(int i=0;i<dirs.size();i++){
@@ -73,6 +73,18 @@ vector<string> get_dir_entries(string path, bool full_path, bool use_recustion)
 
     return f;
     }
+
+vector<string> get_files_in_dir(string path, bool full_path, bool use_recursion)
+{
+	vector<string> entries = get_dir_entries(path, true, use_recursion);
+	vector<string> files;
+	for(int i=0;i<entries.size();i++){
+		if(file_exists(entries[i])){
+			files.push_back(entries[i]);
+		}
+	}
+	return files;
+}
 
 vector<string> get_dir_entries_ending_with(string path, string ending)
     {
@@ -186,6 +198,51 @@ void create_file(string file_path)
 	myfile.close();
 }
 
+void copy_dir(string from_path, string to_path, bool always)
+{
+	itksys::SystemTools::CopyADirectory(from_path.c_str(),to_path.c_str(),always); //current files are overwritten
+}
+
+void copy_file(string from_path, string to_path, bool always)
+{
+	itksys::SystemTools::CopyAFile(from_path.c_str(),to_path.c_str(),always); //current file is overwritten
+}
+
+void copy_files(vector<string> from_paths, vector<string> to_paths, bool always)
+{
+	if(from_paths.size()==to_paths.size()){
+		
+		for(int i=0; i<from_paths.size();i++){
+			itksys::SystemTools::CopyAFile(from_paths[i].c_str(),to_paths[i].c_str(),always); //current file is overwritten
+		}
+
+	}else{
+		cout<<"copy_files-vectors do not have the same size..."<<endl;
+	}
+}
+
+void copy_files(vector<string> from_paths, string to_dir_path, bool always)
+{
+	string s="";
+	for(int i=0; i<from_paths.size();i++){
+		cout<<"from: "<<from_paths[i]<<endl;
+		s = to_dir_path + path_end(from_paths[i]);
+		cout<<"to: "<<s<<endl;
+		itksys::SystemTools::CopyAFile(from_paths[i].c_str(),s.c_str(),always); //current file is overwritten
+	}
+}
+
+
+void remove_dir(string dir_path)
+{
+	itksys::SystemTools::RemoveADirectory(dir_path.c_str());
+}
+
+void remove_file(string file_path)
+{
+	itksys::SystemTools::RemoveFile(file_path.c_str());
+}
+
 
 
 void add_to_string_vector_if_not_present(vector<string> &v, string s)
@@ -217,6 +274,21 @@ bool combinations_equal(vector<string> tag_combo_1, vector<string> tag_combo_2)
 	return true;
 }
 
+vector<string> remove_strings_that_conatain_any_of_these(vector<string> v, vector<string> samples)
+{
+	vector<string> res;
+	bool keep_this = true;
+	for(int i=0; i<v.size();i++){
+		keep_this = true;
+		for(int j=0; j<samples.size() && keep_this; j++){
+			keep_this = !string_contains(v[i], samples[j]);
+		}
+		if(keep_this){
+			res.push_back(v[i]);
+		}
+	}
+	return res;
+}
 
 //------------- Dicom specific file handling ----------------------
 vector<string> get_dicom_files_in_dir(string dir_path, bool full_path, bool recursive_search)
@@ -253,15 +325,17 @@ vector<string>	get_dicom_files_in_dir(string dir_path, vector<string> tmp_dcm_fi
 
 vector<string> get_first_dicom_files_in_all_subdirs(string dir_path, bool full_path)
 {
-	cout<<"get_first_dicom_files_in_all_subdirs..."<<endl;
+//	cout<<"get_first_dicom_files_in_all_subdirs..."<<endl;
 
 	vector<string> all_dcm_files;
 	vector<string> sub_dcm_files;
-	vector<string> these_dcm_files = get_dicom_files_in_dir(dir_path, full_path);
+//	vector<string> these_dcm_files = get_dicom_files_in_dir(dir_path, full_path);
+	string this_dcm_file = get_first_dicom_file_in_dir(dir_path, full_path);
+	
 
 	vector<string>dirs = subdirs(dir_path, true);
 	for(int i=0;i<dirs.size();i++)	{
-		cout<<"*dir_i="<<i<<" "<<dirs[i]<<endl;
+//		cout<<"*dir_i="<<i<<" "<<dirs[i]<<endl;
 		sub_dcm_files = get_first_dicom_files_in_all_subdirs(dirs[i], full_path);
 		for(int i=0;i<sub_dcm_files.size();i++)	{
 			all_dcm_files.push_back( sub_dcm_files[i] );
@@ -269,11 +343,13 @@ vector<string> get_first_dicom_files_in_all_subdirs(string dir_path, bool full_p
 		sub_dcm_files.clear();
 	}
 
-	for(int i=0;i<these_dcm_files.size();i++)
-	{
-		cout<<"*i="<<i<<" "<<these_dcm_files[i]<<endl;
-		all_dcm_files.push_back(these_dcm_files[i]);
-	}
+//	for(int i=0;i<these_dcm_files.size();i++)
+//	{
+//		cout<<"*i="<<i<<" "<<these_dcm_files[i]<<endl;
+//		all_dcm_files.push_back(these_dcm_files[i]);
+//	}
+	all_dcm_files.push_back(this_dcm_file);
+	
 	return all_dcm_files;
 }
 
@@ -482,6 +558,25 @@ vector<string> list_dicom_tag_values_in_dir(string dir_path, string dcm_tag, boo
 	return tags;
 }
 
+vector<string>	get_top_folders_where_first_dicom_file_contains(string dir_path, string dcm_tag, string dcm_tag_val)
+{
+	vector<string> first_files = get_first_dicom_files_in_all_subdirs(dir_path, true);
+	vector<string> folders;
+	string s;
+	string val;
+
+	for(int i=0;i<first_files.size();i++){
+//		cout<<"first_files="<<first_files[i]<<endl;
+		val = get_dicom_tag_value(first_files[i], dcm_tag, true);
+//		cout<<"val="<<val<<endl;
+		if(val == dcm_tag_val){
+			folders.push_back(path_parent(first_files[i]));
+//			cout<<"***folders="<<path_parent(first_files[i])<<endl;
+		}
+	}
+	return folders;
+}
+
 bool does_dicom_file_tag_contain(string file_path, string dcm_tag, string content)
 {
 	string tag = get_dicom_tag_value(file_path, dcm_tag, true);
@@ -643,6 +738,41 @@ vector<vector<string> >	get_header_combinations_from_these_dicom_files(vector<st
 	return combs;
 }
 
+vector<vector<string> >	get_header_combinations_from_these_dicom_files_sort_files(string dir_path, bool recursive_search, vector<string> tag_combo, vector<vector<string> > &sorted_files)
+{
+	vector<string> entries = get_dir_entries(dir_path, true, recursive_search);    //return string vector listing directory contents
+	return get_header_combinations_from_these_dicom_files_sort_files(entries, tag_combo, sorted_files);
+}
+
+
+vector<vector<string> >	get_header_combinations_from_these_dicom_files_sort_files(vector<string> dcm_files, vector<string> tag_combo, vector<vector<string> > &sorted_files)
+{
+	vector<vector<string> > combs;
+	vector<string> comb;
+	bool add_this_combo=true;
+
+	for(int i=0; i<dcm_files.size();i++){
+		comb = get_dicom_tag_value_combination(dcm_files[i],tag_combo,true);
+
+		add_this_combo=true;
+		
+		for(int j=0; add_this_combo&&(j<combs.size()); j++){
+			if( combinations_equal(comb,combs[j]) ){
+				add_this_combo=false;
+				sorted_files[j].push_back(dcm_files[i]); // (since the j index will be the same for "combs" and for "sorted_files")
+			}
+		}
+		if(add_this_combo){
+			combs.push_back(comb);
+			vector<string> new_file_vector;
+			new_file_vector.push_back(dcm_files[i]); //add first file...
+			sorted_files.push_back(new_file_vector);	// --> the j index will be the same for "combs" and for "sorted_files"
+		}
+	}
+	return combs;
+}
+
+
 vector<string>	get_first_dicom_files_corresponding_to_these_combos(string dir_path, vector<string> dcm_tags, vector<vector<string> > combos, bool recursive_search, bool full_path)
 {
 	vector<string> dcm_files = get_dicom_files_in_dir(dir_path, true, recursive_search);
@@ -792,7 +922,7 @@ bool string_contains(string s, string sample)
 
 vector<string> subdirs(string dir_path, bool fullpath)
     {
-    trailing_slash(dir_path);
+    ensure_trailing_slash(dir_path);
 
     vector<string> result = get_dir_entries(dir_path,false);
 //	for(int i=0;i<result.size();i++){
@@ -816,7 +946,7 @@ vector<string> subdirs(string dir_path, bool fullpath)
 				if(fullpath){
 					(*dirs).insert(0,dir_path);
 				}
-            trailing_slash(*dirs);
+            ensure_trailing_slash(*dirs);
 
             ++dirs; 
 
