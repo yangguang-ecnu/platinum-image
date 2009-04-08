@@ -40,6 +40,14 @@ ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_min() const
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
+template <class sourceType>
+void image_scalar<ELEMTYPE, IMAGEDIM>::set_parameters(image_scalar<sourceType, IMAGEDIM> *sourceImage)
+{
+	image_general<ELEMTYPE, IMAGEDIM>::set_parameters(sourceImage);
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_num_values()
 { 
 	return stats->num_values(); 
@@ -223,6 +231,42 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::transfer_function(std::string functionNam
 		transfer_scalar_base<ELEMTYPE > *t = transfer_manufactured::factory.Create<ELEMTYPE> (functionName,this);
 		this->transfer_function(t); //JK TODO ööööö quick fix...
     }
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i)
+{
+/*
+    typename itk::OrientedImage<ELEMTYPE,IMAGEDIM>::SpacingType		itk_vox_size = i->GetSpacing(); 
+    typename itk::OrientedImage<ELEMTYPE,IMAGEDIM>::PointType       itk_origin = i->GetOrigin();
+    typename itk::OrientedImage<ELEMTYPE,IMAGEDIM>::DirectionType   itk_orientation = i->GetDirection();
+
+    for(unsigned int d=0;d<IMAGEDIM;d++){
+        if(itk_vox_size[d] > 0){
+			voxel_size[d]=itk_vox_size[d];
+		}
+
+		this->origin[d]=itk_origin[d];
+
+        for(unsigned int c=0;c<3;c++){
+			this->orientation[d][c]=itk_orientation[d][c];
+		}
+	}
+    
+    if(voxel_size[0] * voxel_size[1] * voxel_size[2] == 0){
+		voxel_size.Fill(1); 
+	}
+
+//	this->print_geometry(); //JK
+    calc_transforms();
+
+	typename theStatsFilterType::Pointer statsFilter = theStatsFilterType::New();
+    statsFilter->SetInput(i);
+    statsFilter->Update();
+    this->set_max(statsFilter->GetMaximum());
+    this->set_min(statsFilter->GetMinimum());
+	*/
+}
+
 
 /*
 template <class ELEMTYPE, int IMAGEDIM>
@@ -3093,6 +3137,30 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_gaussian_values_centered_
 {
 	this->fill_image_with_gaussian_values_centered_2D(dir, gaussian(ampl,0,sigma_in_voxels));
 }
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_path)
+{
+/*	if(file_exists(file_path)){
+		typename theReaderType::Pointer r = theReaderType::New();
+		itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
+		r->SetFileName(file_path.c_str());
+		r->SetImageIO( VTKIO );
+
+		typename theImagePointer image = theImageType::New();
+		image = r->GetOutput();
+		r->Update();
+		typename theSizeType s = image->GetBufferedRegion().GetSize();
+		replicate_itk_to_image(image);
+		this->name_from_path(file_path);
+	}else{
+		pt_error::error("image_scalar::load_dataset_from_VTK_file()--> file does not exist...",pt_error::debug);
+	}
+*/
+}
+
 
 
 

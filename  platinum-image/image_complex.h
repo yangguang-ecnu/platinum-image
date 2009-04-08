@@ -56,6 +56,8 @@ protected:
     virtual void transfer_function(transfer_complex<ELEMTYPE,IMAGEDIM> * t = NULL); //NOTE: must be called by all constructors in this class!
 	virtual void transfer_function(std::string functionName){}; //! replace transfer function using string identifier
 
+	void set_parameters(itk::SmartPointer< itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM > > &i);   //set parameters from ITK metadata
+
 //	virtual histogram_1D<ELEMTYPE>* get_stats(){return stats;} //called by image_storage
 	virtual void set_max(float m){if(stats!=NULL) stats->max(m);}
 	virtual void set_min(float m){if(stats!=NULL) stats->min(m);}
@@ -93,6 +95,9 @@ public:
 
 
 	typename itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM >::Pointer	get_complex_image_as_itk_output();
+
+// -------------- Scalar Load/Save functions ---------------
+	virtual void load_dataset_from_VTK_file(std::string file_path);
 
 	void load_complex_dataset_from_these_DICOM_files(vector<string> filenames);
 	void save_to_VTK_file(const std::string file_path, const bool useCompression = true);

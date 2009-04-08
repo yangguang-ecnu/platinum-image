@@ -365,9 +365,7 @@ image_base *vtkloader::read()
         itk::ImageIOBase::IOComponentType componentType = vtkIO->GetComponentType();
         
         switch(pixelType){
-            case itk::ImageIOBase::SCALAR:
-                //Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
-
+            case itk::ImageIOBase::SCALAR:	//Enumeration values: UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE
                 switch(componentType){
                     case itk::ImageIOBase::UCHAR:
                         result =  new image_integer<unsigned char>();
@@ -398,29 +396,48 @@ image_base *vtkloader::read()
                     }
                 break;
 
-		/*case itk::ImageIOBase::COMPLEX:
-                switch (componentType)
-                {
-                case itk::ImageIOBase::UCHAR:
-                result = new image_complex<unsigned char>();
-                ((image_scalar<unsigned char>*)result)->load_dataset_from_VTK_file(path_parent(*file));
-                break;
-                case itk::ImageIOBase::USHORT:
-                result = new image_complex<unsigned short>();
-                ((image_scalar<unsigned short>*)result)->load_dataset_from_VTK_file(path_parent(*file));
+
+			case itk::ImageIOBase::COMPLEX:
+                switch (componentType){
+/*					case itk::ImageIOBase::UCHAR:
+						result = new image_complex<unsigned char>();
+						((image_scalar<unsigned char>*)result)->load_dataset_from_VTK_file(file_path);
+						break;
+					case itk::ImageIOBase::USHORT:
+						result = new image_complex<unsigned short>();
+						((image_scalar<unsigned short>*)result)->load_dataset_from_VTK_file(file_path);
+						break;
+					case itk::ImageIOBase::SHORT:
+						result = new image_complex<short>();
+						((image_scalar<short>*)result)->load_dataset_from_VTK_file(file_path);
+						break;
+						*/
+					case itk::ImageIOBase::FLOAT:
+						result = new image_complex<float>();
+						((image_complex<float>*)result)->load_dataset_from_VTK_file(file_path);
+						break;
+					default:
+					#ifdef _DEBUG
+						cout << "Load complex VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
+					#endif
+					}
                 break;
 
-                case itk::ImageIOBase::SHORT:
-                result = new image_complex<short>();
-                ((image_scalar<short>*)result)->load_dataset_from_VTK_file(path_parent(*file));
+			case itk::ImageIOBase::VECTOR:
+                switch (componentType){
+					case itk::ImageIOBase::FLOAT:
+						result = new image_complex<float>();
+						((image_complex<float>*)result)->load_dataset_from_VTK_file(file_path);
+						break;
+					default:
+					#ifdef _DEBUG
+						cout << "Load VECTOR VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
+					#endif
+					}
                 break;
-                default:
-                #ifdef _DEBUG
-                cout << "Load complex VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
-                #endif
-                }*/
-                break;
-            default:
+
+
+			default:
                 pt_error::error("image_base::load(...): unsupported pixel type: " + vtkIO->GetPixelTypeAsString(pixelType), pt_error::warning);
             }
 

@@ -91,6 +91,7 @@ protected:
 	void transfer_function(transfer_scalar_base<ELEMTYPE> * t=NULL);
     virtual void transfer_function(std::string functionName); //! replace transfer function using string identifier
 
+	void set_parameters(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
 
 
 public:
@@ -109,6 +110,8 @@ public:
     image_scalar(std::vector<std::string> files, long width, long height, bool bigEndian, long headerSize, Vector3D voxelSize, unsigned int startFile = 1,unsigned int increment = 1) : image_general<ELEMTYPE, IMAGEDIM> (files, width, height, bigEndian, headerSize, voxelSize, startFile,increment){set_scalar_parameters();};
     image_scalar(const string filepath, const string name=""):image_general<ELEMTYPE, IMAGEDIM>(filepath, name){set_scalar_parameters();}
 
+	template <class sourceType>
+		void set_parameters(image_scalar<sourceType, IMAGEDIM> *from_image);         //clone parameters from another image
 
     //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
     ELEMTYPE get_num_values();
@@ -293,6 +296,11 @@ public:
 	void fill_image_with_bias_field_data3D(bias_poly<3> b);
 	void fill_image_with_gaussian_values_centered_2D(int dir, gaussian g);
 	void fill_image_with_gaussian_values_centered_2D(int dir, float ampl, float sigma_in_voxels);
+
+
+// -------------- Scalar Load/Save functions ---------------
+	virtual void load_dataset_from_VTK_file(std::string file_path);
+
 
 
 	// --------- image_scalarprocess.hxx ------- (file for application specific implementations) -----

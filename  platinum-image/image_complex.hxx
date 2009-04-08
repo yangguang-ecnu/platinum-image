@@ -53,7 +53,7 @@ image_complex<ELEMTYPE, IMAGEDIM>::image_complex(string path_image_re, string pa
 	}
 
 	this->set_complex_parameters();
-	this->set_parameters(re);
+	image_general<complex<ELEMTYPE>, IMAGEDIM>::set_parameters(re); //The "superclass" needs to be specified, at least for Visual Studio 2003...
 	if(name!=""){
 		this->name(name);
 	}
@@ -114,6 +114,44 @@ void image_complex<ELEMTYPE, IMAGEDIM>::transfer_function(transfer_complex<ELEMT
     else
         this->tfunction = t;
 }
+
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_complex<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM > > &i)
+{
+	/*
+    typename itk::OrientedImage<std::complex<ELEMTYPE>,IMAGEDIM>::SpacingType		itk_vox_size = i->GetSpacing(); 
+    typename itk::OrientedImage<std::complex<ELEMTYPE>,IMAGEDIM>::PointType       itk_origin = i->GetOrigin();
+    typename itk::OrientedImage<std::complex<ELEMTYPE>,IMAGEDIM>::DirectionType   itk_orientation = i->GetDirection();
+
+    for(unsigned int d=0;d<IMAGEDIM;d++){
+        if(itk_vox_size[d] > 0){
+			voxel_size[d]=itk_vox_size[d];
+		}
+
+		this->origin[d]=itk_origin[d];
+
+        for(unsigned int c=0;c<3;c++){
+			this->orientation[d][c]=itk_orientation[d][c];
+		}
+	}
+    
+    if(voxel_size[0] * voxel_size[1] * voxel_size[2] == 0){
+		voxel_size.Fill(1); 
+	}
+
+//	this->print_geometry(); //JK
+    calc_transforms();
+
+//	typename theComplexStatsFilterType::Pointer statsFilter = theComplexStatsFilterType::New(); //ööööööööööööööö
+//	statsFilter->SetInput(i);
+//    statsFilter->Update();
+//    this->set_max(statsFilter->GetMaximum());
+//    this->set_min(statsFilter->GetMinimum());
+*/
+}
+
+
 
 
 
@@ -254,6 +292,26 @@ typename itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM >::Pointer image_co
 	return caster->GetOutput();
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_complex<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_path)
+{
+	if(file_exists(file_path)){
+		typename theComplexReaderType::Pointer r = theComplexReaderType::New();
+		r->SetFileName(file_path.c_str());
+		itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
+		r->SetImageIO( VTKIO );
+
+		typename theComplexImagePointer image = theComplexImageType::New();
+		image = r->GetOutput();
+		r->Update();
+//		typename theSizeType s = image->GetBufferedRegion().GetSize();
+		replicate_itk_to_image(image);
+		this->name_from_path(file_path);
+	}else{
+		pt_error::error("image_complex::load_dataset_from_VTK_file()--> file does not exist...",pt_error::debug);
+	}
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_complex<ELEMTYPE, IMAGEDIM>::load_complex_dataset_from_these_DICOM_files(vector<string> filenames)
@@ -268,7 +326,15 @@ void image_complex<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
 	cout<<"save_to_VTK_file..."<<endl;
     typename theComplexWriterType::Pointer writer = theComplexWriterType::New();   //default file type is VTK
     writer->SetFileName( file_path.c_str() );
-    writer->SetInput(get_complex_image_as_itk_output());
+	writer->SetInput(get_complex_image_as_itk_output());
+
+	itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
+	//						itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
+
+	VTKIO->SetPixelType(itk::ImageIOBase::COMPLEX);
+//	VTKIO->SetPixelTypeInfo(itk::VTKImageIO::COMPLEX);
+	writer->SetImageIO( VTKIO );
+
 	if(useCompression){
 		writer->UseCompressionOn();
 	}
