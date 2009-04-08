@@ -897,7 +897,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_uchar2D_to_TIF_file(const std::stri
 //	this->clear_itk_porting();
 }
 
-
+/*
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_path)
     {
@@ -921,6 +921,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_p
 		pt_error::error("image_general::load_dataset_from_VTK_file()--> file does not exist...",pt_error::debug);
 	}
     }
+*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_hdr_file(string file_path)

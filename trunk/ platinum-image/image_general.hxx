@@ -67,16 +67,19 @@ using namespace std;
 #define theOrientedImageType itk::OrientedImage<ELEMTYPE,IMAGEDIM>
 #define theImageToOrientedCastFilterType itk::CastImageFilter< theImageType, theOrientedImageType >
 #define theImagePointer theImageType::Pointer
+#define theComplexImagePointer theComplexImageType::Pointer
 #define theIteratorType itk::ImageRegionIterator<theImageType >
 #define theSeriesReaderType itk::ImageSeriesReader<theImageType >
 #define theSeriesWriterType itk::ImageSeriesWriter<theImageType >
 #define theReaderType itk::ImageFileReader<theImageType >
+#define theComplexReaderType itk::ImageFileReader<theComplexImageType >
 #define	theWriterType itk::ImageFileWriter<theImageType >
 #define	theComplexWriterType itk::ImageFileWriter<theComplexImageType >
 //#define	theOrientedWriterType itk::ImageFileWriter<theOrientedImageType >
 #define theSizeType theImageType::RegionType::SizeType
 #define theStatsFilterType itk::StatisticsImageFilter<theImageType >
-#define theStatsFilterPointerType theStatsFilterType::Pointer
+#define theComplexStatsFilterType itk::StatisticsImageFilter<theComplexImageType >
+//#define theStatsFilterPointerType theStatsFilterType::Pointer
 #define theMeanFilterType itk::MeanImageFilter<theImageType,theImageType >
 #define theRegionType theImageType::RegionType
 #define theIndexType theImageType::IndexType
@@ -448,14 +451,28 @@ template <class ELEMTYPE, int IMAGEDIM>
 //void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer< itk::Image<ELEMTYPE, IMAGEDIM > > &i)
 //void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i)
 void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer i)
-    {
+{
 	pt_error::error_if_true(i.IsNull(),"replicate_itk_to_image -- ITK image is NULL", pt_error::fatal ); 
 
     typename theSizeType ITKsize = i->GetLargestPossibleRegion().GetSize();
     i->SetBufferedRegion(i->GetLargestPossibleRegion());
     initialize_dataset(ITKsize[0], ITKsize[1], ITKsize[2],i->GetBufferPointer());
     set_parameters(i);
-    }
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(typename itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM >::Pointer i)
+{
+	pt_error::error_if_true(i.IsNull(),"replicate_itk_to_image -- ITK image is NULL", pt_error::fatal ); 
+
+    typename theSizeType ITKsize = i->GetLargestPossibleRegion().GetSize();
+    i->SetBufferedRegion(i->GetLargestPossibleRegion());
+    initialize_dataset(ITKsize[0], ITKsize[1], ITKsize[2],i->GetBufferPointer());
+  //  set_parameters(i);
+}
+
+	
+
 /*
 template <class ELEMTYPE, int IMAGEDIM>
 typename theImagePointer image_general<ELEMTYPE, IMAGEDIM>::itk_image()
@@ -1156,7 +1173,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 {
 //	cout<<"image_scalar-add_volume_3D..("<<add_dir<<")"<<endl;
 
-	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
+//	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
+	image_general<ELEMTYPE, IMAGEDIM>* res = new image_general<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
 	res->set_parameters(this); //copy rotation and size infor to tmp image first...
 
 	if(add_dir==2){
@@ -1417,11 +1435,11 @@ vector< image_scalar<ELEMTYPE, IMAGEDIM>* > image_general<ELEMTYPE, IMAGEDIM>::s
 
 
 template <class ELEMTYPE, int IMAGEDIM>
-image_scalar<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D(int rot_axis, int pos_neg_dir)
+image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D(int rot_axis, int pos_neg_dir)
 { 
 //	cout<<"rotate_voxeldata_3D("+int2str(rot_axis)+", "+int2str(pos_neg_dir)+")"<<endl;
 	
-	image_scalar<ELEMTYPE, 3>* res = new image_scalar<ELEMTYPE, 3>(); 
+	image_general<ELEMTYPE, 3>* res = new image_general<ELEMTYPE, 3>(); 
 	res->set_parameters(this);
 	
 	int sx = this->get_size_by_dim(0);
@@ -1534,7 +1552,7 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::rotate_voxeldata_3D_in_this(int rot_axis, int pos_neg_dir)
 {
 //	cout<<"rotate_voxeldata_3D_in_this..."<<endl;
-	image_scalar<ELEMTYPE, IMAGEDIM> *tmp = rotate_voxeldata_3D(rot_axis, pos_neg_dir);
+	image_general<ELEMTYPE, IMAGEDIM> *tmp = rotate_voxeldata_3D(rot_axis, pos_neg_dir);
 //	tmp->save_to_file("C:/joel/TMP/rot.vtk");
 	int sx = tmp->get_size_by_dim(0);
 	int sy = tmp->get_size_by_dim(1);
@@ -2445,7 +2463,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::resample_into_this_image_NN(image_genera
         }
 }
 
-
+/*
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i)
 {
@@ -2453,33 +2471,34 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::O
     typename itk::OrientedImage<ELEMTYPE,IMAGEDIM>::PointType       itk_origin = i->GetOrigin();
     typename itk::OrientedImage<ELEMTYPE,IMAGEDIM>::DirectionType   itk_orientation = i->GetDirection();
 
-    for (unsigned int d=0;d<IMAGEDIM;d++)
-        {
-        if (itk_vox_size[d] > 0)
-            {voxel_size[d]=itk_vox_size[d];}
-        this->origin[d]=itk_origin[d];
+    for(unsigned int d=0;d<IMAGEDIM;d++){
+        if(itk_vox_size[d] > 0){
+			voxel_size[d]=itk_vox_size[d];
+		}
 
-        for (unsigned int c=0;c<3;c++)
-            {this->orientation[d][c]=itk_orientation[d][c];}
-        }
+		this->origin[d]=itk_origin[d];
+
+        for(unsigned int c=0;c<3;c++){
+			this->orientation[d][c]=itk_orientation[d][c];
+		}
+	}
     
-    if (voxel_size[0] * voxel_size[1] * voxel_size[2] == 0)
-        { voxel_size.Fill(1); }
+    if(voxel_size[0] * voxel_size[1] * voxel_size[2] == 0){
+		voxel_size.Fill(1); 
+	}
 
 //	this->print_geometry(); //JK
-
     calc_transforms();
 
-	typename theStatsFilterPointerType statsFilter = theStatsFilterType::New();
+	typename theStatsFilterType::Pointer statsFilter = theStatsFilterType::New();
     statsFilter->SetInput(i);
     statsFilter->Update();
     this->set_max(statsFilter->GetMaximum());
     this->set_min(statsFilter->GetMinimum());
 //    this->stats->min(statsFilter->GetMinimum());
 //    this->stats->max(statsFilter->GetMaximum());
-/*
-    ELEMTYPE new_max  = statsFilter->GetMaximum();
 
+//    ELEMTYPE new_max  = statsFilter->GetMaximum();
     //we don't want to lose pixel-data correspondence by scaling chars,
     //don't alter max/min in that case
     //note: scaling is for display only
@@ -2489,19 +2508,50 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::O
     //images with just a few classes (20) starting with 0
     //(eg. binary) still get their scaling
 
-    if (new_max - this->get_min() > 255 || (this->get_min() ==0 && new_max - this->get_min() < 20) )
-        {
-        //this->maxvalue=new_max;
-		this->stats->max(new_max);
-        }
-    else
-        {
+//    if (new_max - this->get_min() > 255 || (this->get_min() ==0 && new_max - this->get_min() < 20) ){
+//        //this->maxvalue=new_max;
+//		this->stats->max(new_max);
+//	}else{
         //this->maxvalue = this->minvalue + 255;
-		this->stats->max(this->stats->min() + 255);
-        }
-*/
-}
+//		this->stats->max(this->stats->min() + 255);
+//	}
 
+}
+*/
+/*
+template <class ELEMTYPE, int IMAGEDIM>
+void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM > > &i)
+{
+    typename itk::OrientedImage<std::complex<ELEMTYPE>,IMAGEDIM>::SpacingType		itk_vox_size = i->GetSpacing(); 
+    typename itk::OrientedImage<std::complex<ELEMTYPE>,IMAGEDIM>::PointType       itk_origin = i->GetOrigin();
+    typename itk::OrientedImage<std::complex<ELEMTYPE>,IMAGEDIM>::DirectionType   itk_orientation = i->GetDirection();
+
+    for(unsigned int d=0;d<IMAGEDIM;d++){
+        if(itk_vox_size[d] > 0){
+			voxel_size[d]=itk_vox_size[d];
+		}
+
+		this->origin[d]=itk_origin[d];
+
+        for(unsigned int c=0;c<3;c++){
+			this->orientation[d][c]=itk_orientation[d][c];
+		}
+	}
+    
+    if(voxel_size[0] * voxel_size[1] * voxel_size[2] == 0){
+		voxel_size.Fill(1); 
+	}
+
+//	this->print_geometry(); //JK
+    calc_transforms();
+
+	typename theComplexStatsFilterType::Pointer statsFilter = theComplexStatsFilterType::New();
+    statsFilter->SetInput(i);
+    statsFilter->Update();
+    this->set_max(statsFilter->GetMaximum());
+    this->set_min(statsFilter->GetMinimum());
+}
+*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::set_geometry(float ox,float oy,float oz,float dx,float dy,float dz,float fi_x,float fi_y,float fi_z)

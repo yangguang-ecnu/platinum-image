@@ -105,12 +105,13 @@ class image_general : public image_storage <ELEMTYPE >
 
 
         void set_parameters();                                                     //reset & calculate parameters
-        void set_parameters(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);   //set parameters from ITK metadata
+		virtual void set_parameters(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i){};   //set parameters from ITK metadata
+		virtual void set_parameters(itk::SmartPointer< itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM > > &i){};   //set parameters from ITK metadata
         void calc_transforms(); //used by set_parameters(...), cached transform(s) recalculations
 
     public:     
         template <class sourceType>
-        void set_parameters (image_general<sourceType, IMAGEDIM> * from_image);         //clone parameters from another image
+			void set_parameters(image_general<sourceType, IMAGEDIM> *from_image);         //clone parameters from another image
 
 		image_base * alike (imageDataType);
 
@@ -139,6 +140,7 @@ class image_general : public image_storage <ELEMTYPE >
 //        void replicate_itk_to_image();     //use the image_general-object's own ITK image pointer
 //        void replicate_itk_to_image(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);
 		void replicate_itk_to_image(typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer i);
+		void replicate_itk_to_image(typename itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM >::Pointer i);
 
 
         virtual void data_has_changed(bool stats_refresh = true);   //called when image data has been changed
@@ -282,7 +284,7 @@ class image_general : public image_storage <ELEMTYPE >
 		//resamples the voxel data +x +y +z -x -y -z 
 		//positive direction defines anticlockwise rotation around rot_axis...
 		//JK-also (Note Warning) No changes are made to geometry origin, orientation size...
-		image_scalar<ELEMTYPE, IMAGEDIM>* rotate_voxeldata_3D(int rot_axis, int pos_neg_dir=+1);
+		image_general<ELEMTYPE, IMAGEDIM>* rotate_voxeldata_3D(int rot_axis, int pos_neg_dir=+1);
 		void rotate_voxeldata_3D_in_this(int rot_axis, int pos_neg_dir=+1);
 
 
@@ -303,7 +305,7 @@ class image_general : public image_storage <ELEMTYPE >
 
         typename itk::OrientedImage<ELEMTYPE, IMAGEDIM >::Pointer		get_image_as_itk_output();
 
-        void load_dataset_from_VTK_file(std::string file_path);
+		virtual void load_dataset_from_VTK_file(std::string file_path){};
         void load_dataset_from_hdr_file(std::string file_path);
 		void load_dataset_from_ximg_file(std::string file_path);
         void load_dataset_from_NIFTI_file(std::string file_path);
