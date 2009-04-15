@@ -242,7 +242,7 @@ vector< image_scalar<ELEMTYPE, IMAGEDIM>* > image_scalar<ELEMTYPE, IMAGEDIM>::sl
 {
 	int nc = no_contrasts; //number of contrasts
 	int nd = no_dynamics; //number of dynamics
-	int nz = datasize[2];
+	int nz = this->datasize[2];
 	int nz_res = int(float(nz)/float(nc));
 	int ns = int(float(nz)/float(nd)/float(nc));	//number of physical slices in each dynamic
 
@@ -260,7 +260,7 @@ vector< image_scalar<ELEMTYPE, IMAGEDIM>* > image_scalar<ELEMTYPE, IMAGEDIM>::sl
 	for(int i=0; i<nc; i++)
 	{
 		im = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
-		im->initialize_dataset(datasize[0],datasize[1],nz_res);
+		im->initialize_dataset(this->datasize[0],this->datasize[1],nz_res);
 		vec.push_back(im);
 	}
 //	copy_data(res,this);

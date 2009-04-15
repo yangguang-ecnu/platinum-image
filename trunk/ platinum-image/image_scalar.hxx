@@ -3145,7 +3145,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_gaussian_values_centered_
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_path)
 {
-	#define theImageType22 itk::OrientedImage< char ,IMAGEDIM>
+	#define theImageType22 itk::OrientedImage< ELEMTYPE ,IMAGEDIM>
 	#define theReaderType22 itk::ImageFileReader<theImageType22 >
 	cout<<"Warning... no file loaded...."<<endl;
 	cout<<"ELEMTYPE=("<<string(typeid(ELEMTYPE).name())<<")"<<endl;
