@@ -244,7 +244,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::Or
 
     for(unsigned int d=0;d<IMAGEDIM;d++){
         if(itk_vox_size[d] > 0){
-			voxel_size[d]=itk_vox_size[d];
+			this->voxel_size[d]=itk_vox_size[d];
 		}
 
 		this->origin[d]=itk_origin[d];
@@ -254,12 +254,12 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::Or
 		}
 	}
     
-    if(voxel_size[0] * voxel_size[1] * voxel_size[2] == 0){
-		voxel_size.Fill(1); 
+    if(this->voxel_size[0] * this->voxel_size[1] * this->voxel_size[2] == 0){
+		this->voxel_size.Fill(1); 
 	}
 
 //	this->print_geometry(); //JK
-    calc_transforms();
+    this->calc_transforms();
 
 	typename theStatsFilterType::Pointer statsFilter = theStatsFilterType::New();
     statsFilter->SetInput(i);
