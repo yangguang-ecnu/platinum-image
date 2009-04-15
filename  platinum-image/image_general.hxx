@@ -472,7 +472,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::replicate_itk_to_image(typename itk::Ori
     typename theSizeType ITKsize = i->GetLargestPossibleRegion().GetSize();
     i->SetBufferedRegion(i->GetLargestPossibleRegion());
     initialize_dataset(ITKsize[0], ITKsize[1], ITKsize[2],i->GetBufferPointer());
-  //  set_parameters(i);
+    set_parameters(i);
 }
 
 	
