@@ -28,7 +28,7 @@
 #define __image_complex__
 
 //#include "image_multi.h"
-#include "image_general.hxx"
+#include "image_general.h"
 
 #include "transfer.h"
 
@@ -38,6 +38,7 @@
 
 template <class ELEMTYPE, int IMAGEDIM = 3>
 class image_complex : public image_general<complex<ELEMTYPE> , IMAGEDIM>
+//class image_complex : public image_general<ELEMTYPE , IMAGEDIM>
 //class image_complex : public image_multi<ELEMTYPE, IMAGEDIM>
 {
 	friend class image_storage<ELEMTYPE>;
@@ -97,7 +98,7 @@ public:
 	typename itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM >::Pointer	get_complex_image_as_itk_output();
 
 // -------------- Scalar Load/Save functions ---------------
-	virtual void load_dataset_from_VTK_file(std::string file_path);
+	void load_dataset_from_VTK_file(std::string file_path);
 
 	void load_complex_dataset_from_these_DICOM_files(vector<string> filenames);
 	void save_to_VTK_file(const std::string file_path, const bool useCompression = true);

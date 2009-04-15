@@ -19,6 +19,7 @@
 #define __image_complex_hxx__
 
 #include "image_complex.h"
+#include "image_general.hxx"
 //#include "image_multi.hxx"
 
 #include "transfer.hxx"
@@ -26,12 +27,14 @@
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_complex<ELEMTYPE, IMAGEDIM>::image_complex():image_general<complex<ELEMTYPE>, IMAGEDIM>()
+//image_complex<ELEMTYPE, IMAGEDIM>::image_complex():image_general<ELEMTYPE, IMAGEDIM>()
 {   
 	this->set_complex_parameters();
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_complex<ELEMTYPE, IMAGEDIM>::image_complex(int w, int h, int d, complex<ELEMTYPE> *ptr):image_general<complex<ELEMTYPE>, IMAGEDIM>(w,h,d,ptr)
+//image_complex<ELEMTYPE, IMAGEDIM>::image_complex(int w, int h, int d, ELEMTYPE *ptr):image_general<ELEMTYPE, IMAGEDIM>(w,h,d,ptr)
 {   
 	this->set_complex_parameters();
 }
@@ -328,11 +331,10 @@ void image_complex<ELEMTYPE, IMAGEDIM>::save_to_VTK_file(const std::string file_
     writer->SetFileName( file_path.c_str() );
 	writer->SetInput(get_complex_image_as_itk_output());
 
+	//itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
+	//VTKIO->SetPixelTypeInfo(itk::VTKImageIO::COMPLEX);
 	itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
-	//						itk::ImageIOBase::IOPixelType pixelType=dicomIO->GetPixelType();
-
-	VTKIO->SetPixelType(itk::ImageIOBase::COMPLEX);
-//	VTKIO->SetPixelTypeInfo(itk::VTKImageIO::COMPLEX);
+	VTKIO->SetPixelType(itk::ImageIOBase::COMPLEX);			//does not seem to be written to the file....
 	writer->SetImageIO( VTKIO );
 
 	if(useCompression){

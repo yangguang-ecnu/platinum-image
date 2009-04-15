@@ -872,7 +872,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_TIF_file_series_3D(const std::st
 		slc->data_has_changed(true);
 
 		sprintf(buf,"%04i",s);
-		slc2 = new image_scalar<unsigned char,3>(slc);
+		slc2 = new image_general<unsigned char,3>(slc);
 		slc2->save_uchar2D_to_TIF_file(file_path_base, string(buf));
 		delete slc;
 		delete slc2;

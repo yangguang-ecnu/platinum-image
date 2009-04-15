@@ -133,6 +133,8 @@ class image_base : public data_base
 		string get_slice_orientation();
 		void set_slice_orientation(string s);
 
+	//	virtual void load_dataset_from_VTK_file(std::string file_path){};
+
 
         Vector3D world_to_voxel( const Vector3D & wpos ) const;
 		Vector3D voxel_to_world( const Vector3D & vpos ) const;

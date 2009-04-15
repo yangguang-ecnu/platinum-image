@@ -234,6 +234,61 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::weight_of_type( Vector3D center, Vector3
 	}
 }
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+//void image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int no_dynamics, int no_contrasts)
+vector< image_scalar<ELEMTYPE, IMAGEDIM>* > image_scalar<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int no_dynamics, int no_contrasts)
+
+{
+	int nc = no_contrasts; //number of contrasts
+	int nd = no_dynamics; //number of dynamics
+	int nz = datasize[2];
+	int nz_res = int(float(nz)/float(nc));
+	int ns = int(float(nz)/float(nd)/float(nc));	//number of physical slices in each dynamic
+
+	cout<<"***** slice_reorganization_multicontrast *****"<<endl;
+	cout<<"nc = "<<nc<<endl;
+	cout<<"nd = "<<nd<<endl;
+	cout<<"nz = "<<nz<<endl;
+	cout<<"nz_res = "<<nz<<endl;
+	cout<<"ns = "<<ns<<endl;
+	cout<<"Total = "<<nd*nc*ns<<endl;
+
+	image_scalar<ELEMTYPE, IMAGEDIM>* im;
+	vector< image_scalar<ELEMTYPE, IMAGEDIM>* > vec;
+
+	for(int i=0; i<nc; i++)
+	{
+		im = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
+		im->initialize_dataset(datasize[0],datasize[1],nz_res);
+		vec.push_back(im);
+	}
+//	copy_data(res,this);
+//  set_parameters(res);
+
+
+	int this_slice=0;
+	int i=0;
+	for (int s=0; s<nd; s++){				//No physical slices per dynamic
+		for (int d=0; d<ns; d++){			//Dynamics
+			for (int c=0; c<nc; c++){		//No contrasts
+				i = s*nc + d*nd*nc + c;
+				cout<<"i = "<<i<<endl;
+				vec[c]->copy_slice_from_3D(this,i,this_slice);	//data_has_changed() is not called...
+			}
+			this_slice++;
+		}
+	}
+
+	char s[10];
+	for (int c=0; c<nc; c++){		//No contrasts
+	    sprintf(s,"%i",c);
+		vec[c]->data_has_changed(true);		//do not forget this part...
+		vec[c]->save_to_VTK_file("c:/Joel/TMP/_reorg_"+string(s)+".vtk");
+	}
+	return vec;
+}
+
 template <class ELEMTYPE, int IMAGEDIM>
 float image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_correct_inclination(image_scalar<ELEMTYPE, IMAGEDIM> *fat, image_scalar<ELEMTYPE, IMAGEDIM> *water)
 {

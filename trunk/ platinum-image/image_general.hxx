@@ -58,6 +58,9 @@ using namespace std;
 
 //GCC does not support templated typedefs
 //we bow our heads in appreciation and define them with macros instead :P
+//#define --> "The define keyword means simple text replacement"
+//#typedef --> "The typedef keyword allows you to create a new alias for an existing data type"
+
 //#define theImageType itk::Image<ELEMTYPE,IMAGEDIM>
 #define theImageType itk::OrientedImage<ELEMTYPE,IMAGEDIM>
 #define theImageType2 itk::Image<ELEMTYPE,IMAGEDIM>
@@ -80,7 +83,7 @@ using namespace std;
 #define theStatsFilterType itk::StatisticsImageFilter<theImageType >
 #define theComplexStatsFilterType itk::StatisticsImageFilter<theComplexImageType >
 //#define theStatsFilterPointerType theStatsFilterType::Pointer
-#define theMeanFilterType itk::MeanImageFilter<theImageType,theImageType >
+//#define theMeanFilterType itk::MeanImageFilter<theImageType,theImageType >
 #define theRegionType theImageType::RegionType
 #define theIndexType theImageType::IndexType
 #define theIteratorWithIndexType itk::ImageRegionIteratorWithIndex<theImageType >
@@ -91,9 +94,10 @@ using namespace std;
 //#define VesselnessMeasureFilterPointerType VesselnessMeasureFilterType::Pointer
 
 
-#include "image_general.h"
-#include "image_storage.hxx"
-#include "image_generalfile.hxx"
+#include "image_general.h"				//according to the "general-linking-system"
+#include "image_storage.hxx"			//according to the "general-linking-system"
+
+#include "image_generalfile.hxx"		//just separate the code in different files
 #include "image_general_iterator.hxx"
 
 template <class NEWELEM, class TRYELEM, int DIM, template <class, int> class requestedClass >
@@ -853,7 +857,7 @@ image_base* image_general<ELEMTYPE, IMAGEDIM>::expand_borders(unsigned int dx, u
 	int old_size_x=this->get_size_by_dim(0);
 	int old_size_y=this->get_size_by_dim(1);
 	int old_size_z=this->get_size_by_dim(2);
-	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(old_size_x+2*dx, old_size_y+2*dy, old_size_z+2*dz);
+	image_general<ELEMTYPE, IMAGEDIM>* res = new image_general<ELEMTYPE, IMAGEDIM>(old_size_x+2*dx, old_size_y+2*dy, old_size_z+2*dz);
 	res->fill(value);
 	res->set_parameters(this);
 
@@ -871,13 +875,13 @@ image_base* image_general<ELEMTYPE, IMAGEDIM>::expand_borders(unsigned int dx, u
 template <class ELEMTYPE, int IMAGEDIM>
 image_base* image_general<ELEMTYPE, IMAGEDIM>::expand_borders2D_by_dir(int dir, unsigned int dr, ELEMTYPE value)
 {
-	image_scalar<ELEMTYPE, IMAGEDIM>* res;
+	image_general<ELEMTYPE, IMAGEDIM>* res;
 	if(dir==2){
-		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( expand_borders(dr,dr,0,value) );
+		res = dynamic_cast<image_general<ELEMTYPE,IMAGEDIM >*>( expand_borders(dr,dr,0,value) );
 	}else if(dir==1){
-		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( expand_borders(dr,0,dr,value) );
+		res = dynamic_cast<image_general<ELEMTYPE,IMAGEDIM >*>( expand_borders(dr,0,dr,value) );
 	}else{
-		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( expand_borders(0,dr,dr,value) );
+		res = dynamic_cast<image_general<ELEMTYPE,IMAGEDIM >*>( expand_borders(0,dr,dr,value) );
 	}
 	return res;
 }
@@ -890,7 +894,7 @@ image_base* image_general<ELEMTYPE, IMAGEDIM>::contract_borders(unsigned int dx,
 	int old_size_x=this->get_size_by_dim(0);
 	int old_size_y=this->get_size_by_dim(1);
 	int old_size_z=this->get_size_by_dim(2);
-	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(old_size_x-2*dx, old_size_y-2*dy, old_size_z-2*dz);
+	image_general<ELEMTYPE, IMAGEDIM>* res = new image_general<ELEMTYPE, IMAGEDIM>(old_size_x-2*dx, old_size_y-2*dy, old_size_z-2*dz);
 	res->set_parameters(this);
 
 	for (int z=0; z<res->nz(); z++){
@@ -907,13 +911,13 @@ image_base* image_general<ELEMTYPE, IMAGEDIM>::contract_borders(unsigned int dx,
 template <class ELEMTYPE, int IMAGEDIM>
 image_base* image_general<ELEMTYPE, IMAGEDIM>::contract_borders2D_by_dir(int dir, unsigned int dr)
 {
-	image_scalar<ELEMTYPE, IMAGEDIM>* res;
+	image_general<ELEMTYPE, IMAGEDIM>* res;
 	if(dir==2){
-		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( contract_borders(dr,dr,0) );
+		res = dynamic_cast<image_general<ELEMTYPE,IMAGEDIM >*>( contract_borders(dr,dr,0) );
 	}else if(dir==1){
-		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( contract_borders(dr,0,dr) );
+		res = dynamic_cast<image_general<ELEMTYPE,IMAGEDIM >*>( contract_borders(dr,0,dr) );
 	}else{
-		res = dynamic_cast<image_scalar<ELEMTYPE,IMAGEDIM >*>( contract_borders(0,dr,dr) );
+		res = dynamic_cast<image_general<ELEMTYPE,IMAGEDIM >*>( contract_borders(0,dr,dr) );
 	}
 	return res;
 }
@@ -1071,7 +1075,7 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvol
 {
 	cout<<"get_subvolume_from_slices_3D...("<<slice_dir<<")"<<endl;
 
-	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>();
+	image_general<ELEMTYPE, IMAGEDIM>* res = new image_general<ELEMTYPE, IMAGEDIM>();
 
 	int nr_slices=0;
 	if(slice_dir ==0 || slice_dir ==1 || slice_dir ==2){
@@ -1146,7 +1150,7 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvol
 
 	int usize=this->get_size_by_dim_and_dir(0,dir);
 	int vsize=this->get_size_by_dim_and_dir(1,dir);
-	pt_error::error_if_false(slice>=0 && slice<this->get_size_by_dim_and_dir(2,dir)," slice outside image dimensions in image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slice_3D",pt_error::debug);
+	pt_error::error_if_false(slice>=0 && slice<this->get_size_by_dim_and_dir(2,dir)," slice outside image dimensions in image_general<ELEMTYPE, IMAGEDIM>::get_subvolume_from_slice_3D",pt_error::debug);
 
 	image_general<ELEMTYPE, IMAGEDIM>* res = new image_general<ELEMTYPE, IMAGEDIM>(usize, vsize, 1);
 	res->set_parameters(this);
@@ -1171,7 +1175,7 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_subvol
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int add_dir)
 {
-//	cout<<"image_scalar-add_volume_3D..("<<add_dir<<")"<<endl;
+//	cout<<"image_general-add_volume_3D..("<<add_dir<<")"<<endl;
 
 //	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
 	image_general<ELEMTYPE, IMAGEDIM>* res = new image_general<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
@@ -1263,7 +1267,8 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_general<ELEMTYPE, IM
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_label<IMAGEDIM> *src, int add_dir)
 {
-	image_scalar<ELEMTYPE,IMAGEDIM> *src2 = scalar_copycast<image_scalar,ELEMTYPE,IMAGEDIM>(src);
+//	image_scalar<ELEMTYPE,IMAGEDIM> *src2 = scalar_copycast<image_scalar,ELEMTYPE,IMAGEDIM>(src);
+	image_general<ELEMTYPE,IMAGEDIM> *src2 = new image_general(src);
 //	src2->save_to_file("C:/Joel/TMP/bin_add_volume_3D.vtk");
 	src2->scale_by_factor( this->get_max_float()/src2->get_max_float() );	//Often used to create collages of results where binary images benefit from scaling... 
 	this->add_volume_3D(src2,add_dir);
@@ -1274,10 +1279,10 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_volume_3D(image_label<IMAGEDIM> *src
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no, int slice_dir)
 {
-//	cout<<"image_scalar-add_slice_3D..("<<slice_dir<<")"<<endl;
+//	cout<<"image_general-add_slice_3D..("<<slice_dir<<")"<<endl;
 
 	int f = from_slice_no;
-	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
+	image_general<ELEMTYPE, IMAGEDIM>* res = new image_general<ELEMTYPE, IMAGEDIM>();
 
 	if(slice_dir==2){
 		res->name("res-2..");
@@ -1362,7 +1367,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::add_slice_3D(image_general<ELEMTYPE, IMA
 template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_collage2D_from3D_volume(int num_cols, int num_rows)
 {
-	image_scalar<ELEMTYPE, IMAGEDIM> *res = new image_scalar<ELEMTYPE, IMAGEDIM>(num_cols*this->nx(),num_rows*this->ny(),1);
+	image_general<ELEMTYPE, IMAGEDIM> *res = new image_general<ELEMTYPE, IMAGEDIM>(num_cols*this->nx(),num_rows*this->ny(),1);
 	res->fill(0);
 	int slice=0;
 	Vector3Dint from_size = create_Vector3Dint(this->nx(),this->ny(),1);
@@ -1379,59 +1384,6 @@ image_general<ELEMTYPE, IMAGEDIM>* image_general<ELEMTYPE, IMAGEDIM>::get_collag
 }
  
 
-template <class ELEMTYPE, int IMAGEDIM>
-//void image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int no_dynamics, int no_contrasts)
-vector< image_scalar<ELEMTYPE, IMAGEDIM>* > image_general<ELEMTYPE, IMAGEDIM>::slice_reorganization_multicontrast(int no_dynamics, int no_contrasts)
-
-{
-	int nc = no_contrasts; //number of contrasts
-	int nd = no_dynamics; //number of dynamics
-	int nz = datasize[2];
-	int nz_res = int(float(nz)/float(nc));
-	int ns = int(float(nz)/float(nd)/float(nc));	//number of physical slices in each dynamic
-
-	cout<<"***** slice_reorganization_multicontrast *****"<<endl;
-	cout<<"nc = "<<nc<<endl;
-	cout<<"nd = "<<nd<<endl;
-	cout<<"nz = "<<nz<<endl;
-	cout<<"nz_res = "<<nz<<endl;
-	cout<<"ns = "<<ns<<endl;
-	cout<<"Total = "<<nd*nc*ns<<endl;
-
-	image_scalar<ELEMTYPE, IMAGEDIM>* im;
-	vector< image_scalar<ELEMTYPE, IMAGEDIM>* > vec;
-
-	for(int i=0; i<nc; i++)
-	{
-		im = new image_scalar<ELEMTYPE, IMAGEDIM>(); //cannot instantiate image_general...
-		im->initialize_dataset(datasize[0],datasize[1],nz_res);
-		vec.push_back(im);
-	}
-//	copy_data(res,this);
-//  set_parameters(res);
-
-
-	int this_slice=0;
-	int i=0;
-	for (int s=0; s<nd; s++){				//No physical slices per dynamic
-		for (int d=0; d<ns; d++){			//Dynamics
-			for (int c=0; c<nc; c++){		//No contrasts
-				i = s*nc + d*nd*nc + c;
-				cout<<"i = "<<i<<endl;
-				vec[c]->copy_slice_from_3D(this,i,this_slice);	//data_has_changed() is not called...
-			}
-			this_slice++;
-		}
-	}
-
-	char s[10];
-	for (int c=0; c<nc; c++){		//No contrasts
-	    sprintf(s,"%i",c);
-		vec[c]->data_has_changed(true);		//do not forget this part...
-		vec[c]->save_to_VTK_file("c:/Joel/TMP/_reorg_"+string(s)+".vtk");
-	}
-	return vec;
-}
 
 
 template <class ELEMTYPE, int IMAGEDIM>
