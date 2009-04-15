@@ -122,7 +122,7 @@ void image_complex<ELEMTYPE, IMAGEDIM>::transfer_function(transfer_complex<ELEMT
 template <class ELEMTYPE, int IMAGEDIM>
 void image_complex<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::OrientedImage<std::complex<ELEMTYPE>, IMAGEDIM > > &i)
 {
-	/*
+	
     typename itk::OrientedImage<std::complex<ELEMTYPE>,IMAGEDIM>::SpacingType		itk_vox_size = i->GetSpacing(); 
     typename itk::OrientedImage<std::complex<ELEMTYPE>,IMAGEDIM>::PointType       itk_origin = i->GetOrigin();
     typename itk::OrientedImage<std::complex<ELEMTYPE>,IMAGEDIM>::DirectionType   itk_orientation = i->GetDirection();
@@ -145,7 +145,7 @@ void image_complex<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::O
 
 //	this->print_geometry(); //JK
     calc_transforms();
-
+/*
 //	typename theComplexStatsFilterType::Pointer statsFilter = theComplexStatsFilterType::New(); //ööööööööööööööö
 //	statsFilter->SetInput(i);
 //    statsFilter->Update();

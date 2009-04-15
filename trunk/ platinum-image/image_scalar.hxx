@@ -238,7 +238,6 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::transfer_function(std::string functionNam
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i)
 {
-/*
     typename itk::OrientedImage<ELEMTYPE,IMAGEDIM>::SpacingType		itk_vox_size = i->GetSpacing(); 
     typename itk::OrientedImage<ELEMTYPE,IMAGEDIM>::PointType       itk_origin = i->GetOrigin();
     typename itk::OrientedImage<ELEMTYPE,IMAGEDIM>::DirectionType   itk_orientation = i->GetDirection();
@@ -267,7 +266,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::Or
     statsFilter->Update();
     this->set_max(statsFilter->GetMaximum());
     this->set_min(statsFilter->GetMinimum());
-	*/
+	
 }
 
 
@@ -3145,19 +3144,15 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_gaussian_values_centered_
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_path)
 {
-	#define theImageType22 itk::OrientedImage< ELEMTYPE ,IMAGEDIM>
-	#define theReaderType22 itk::ImageFileReader<theImageType22 >
 	cout<<"Warning... no file loaded...."<<endl;
 	cout<<"ELEMTYPE=("<<string(typeid(ELEMTYPE).name())<<")"<<endl;
 	
 	if(file_exists(file_path)){
-//		typename itk::ImageFileReader<itk::OrientedImage<ELEMTYPE ,IMAGEDIM> >::Pointer r = itk::ImageFileReader<itk::OrientedImage<ELEMTYPE ,IMAGEDIM> >::New();
-//		typename theComplexReaderType::Pointer r = theComplexReaderType::New();
-//		typename theReaderType::Pointer r = theReaderType::New();
-		typename theReaderType22::Pointer r = theReaderType22::New();
+		typename theReaderType::Pointer r = theReaderType::New();
+//		typename theReaderType22::Pointer r = theReaderType22::New();
 //		typename theScalarReaderType::Pointer r = theScalarReaderType::New();
 
-/*		itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
+		itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
 		r->SetFileName(file_path.c_str());
 		r->SetImageIO( VTKIO );
 
@@ -3167,7 +3162,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_pa
 		typename theSizeType s = image->GetBufferedRegion().GetSize();
 		replicate_itk_to_image(image);
 		this->name_from_path(file_path);
-*/
+
 	}else{
 		pt_error::error("image_scalar::load_dataset_from_VTK_file()--> file does not exist...",pt_error::debug);
 	}
