@@ -416,8 +416,8 @@ image_base *vtkloader::read()
 						result = new image_complex<float>();
 						((image_complex<float>*)result)->load_dataset_from_VTK_file(file_path);
 						break;
-					default:
 					#ifdef _DEBUG
+					default:
 						cout << "Load complex VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
 					#endif
 					}
@@ -429,8 +429,8 @@ image_base *vtkloader::read()
 						result = new image_complex<float>();
 						((image_complex<float>*)result)->load_dataset_from_VTK_file(file_path);
 						break;
-					default:
 					#ifdef _DEBUG
+					default:
 						cout << "Load VECTOR VTK: unsupported component type: " << vtkIO->GetComponentTypeAsString (componentType) << endl;
 					#endif
 					}
