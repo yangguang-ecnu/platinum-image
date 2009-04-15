@@ -31,16 +31,16 @@
 //#define pt_PI 3.1415926536
 
 //forward declarations, needed with GCC for unknown reasons
-template<class ELEMTYPE, int IMAGEDIM>
-    class image_integer;
-template<class ELEMTYPE, int IMAGEDIM>
-    class image_scalar; 
+//template<class ELEMTYPE, int IMAGEDIM>
+//    class image_integer;
+//template<class ELEMTYPE, int IMAGEDIM>
+//    class image_scalar; 
 template<int IMAGEDIM>
     class image_binary;
 template<int IMAGEDIM>
     class image_label;
-template<class ELEMTYPE, int IMAGEDIM>
-    class image_multi; 
+//template<class ELEMTYPE, int IMAGEDIM>
+//    class image_multi; 
 //template<class ELEMTYPE, int IMAGEDIM>
 //    class image_complex; 
 
@@ -81,7 +81,7 @@ class image_general : public image_storage <ELEMTYPE >
     {
 
 	friend void meta_load_function (int userIO_ID,int par_num); //so
-	friend image_scalar<short,3> * create_whole_body(char *path, string s_protocol); //so
+//	friend image_scalar<short,3> * create_whole_body(char *path, string s_protocol); //so //commented by JK 2009-04-15 ööööööööööööö
 	
     protected:
         image_general<ELEMTYPE, IMAGEDIM>(int w, int h, int d, ELEMTYPE *ptr = NULL);
@@ -99,8 +99,6 @@ class image_general : public image_storage <ELEMTYPE >
         // *** Constructors & factories ***
         image_general<ELEMTYPE, IMAGEDIM>();
         image_general<ELEMTYPE, IMAGEDIM>(itk::SmartPointer< itk::OrientedImage<ELEMTYPE, IMAGEDIM > > &i);
-        template<class SOURCETYPE> 
-            image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true);
 		image_general(const string filepath, const string name="");
 
 
@@ -110,7 +108,10 @@ class image_general : public image_storage <ELEMTYPE >
         void calc_transforms(); //used by set_parameters(...), cached transform(s) recalculations
 
     public:     
-        template <class sourceType>
+        template<class SOURCETYPE> 
+            image_general(image_general<SOURCETYPE, IMAGEDIM> * old_image, bool copyData = true);
+
+		template <class sourceType>
 			void set_parameters(image_general<sourceType, IMAGEDIM> *from_image);         //clone parameters from another image
 
 		image_base * alike (imageDataType);
@@ -276,9 +277,6 @@ class image_general : public image_storage <ELEMTYPE >
 		void add_slice_3D(image_general<ELEMTYPE, IMAGEDIM> *src, int from_slice_no=0, int slice_dir=2);
 		image_general<ELEMTYPE, IMAGEDIM>* get_collage2D_from3D_volume(int num_cols, int num_rows);
 
-		// slice reorganization function that sorts slices from many dynamic scans
-		// first used for slice sorting from DICOM export from "COMBI-acquisition" on Philips 1.5T MRI. 
-		vector< image_scalar<ELEMTYPE, IMAGEDIM>* > slice_reorganization_multicontrast(int no_dynamics, int no_contrasts);
 
 
 		//resamples the voxel data +x +y +z -x -y -z 

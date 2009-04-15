@@ -31,6 +31,7 @@
 #include <stack>
 #include <queue>
 #include "image_general.h"
+//#include "image_general.hxx"
 #include "bias_field.h"
 #include "filters.h"
 #include "voxel_tools.h"
@@ -299,7 +300,7 @@ public:
 
 
 // -------------- Scalar Load/Save functions ---------------
-	virtual void load_dataset_from_VTK_file(std::string file_path);
+	void load_dataset_from_VTK_file(std::string file_path);
 
 
 
@@ -327,6 +328,11 @@ public:
 	float grad_mag_voxel ( int x, int y, int z, GRAD_MAG_TYPE type );
 	
 	float weight_of_type( Vector3D center, Vector3D current, WEIGHT_TYPE type );
+
+	// slice reorganization function that sorts slices from many dynamic scans
+	// first used for slice sorting from DICOM export from "COMBI-acquisition" on Philips 1.5T MRI. 
+	vector< image_scalar<ELEMTYPE, IMAGEDIM>* > slice_reorganization_multicontrast(int no_dynamics, int no_contrasts);
+
 
 	//-----------------------------------------------------------------
 	//Functions for segmentation of bodies and lungs form whole-body MRI scans

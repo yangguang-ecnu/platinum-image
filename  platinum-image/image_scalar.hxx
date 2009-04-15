@@ -27,6 +27,9 @@
 extern userIOmanager userIOmanagement;
 extern datamanager datamanagement;
 
+#define theScalarImageType itk::OrientedImage<ELEMTYPE,IMAGEDIM>
+#define theScalarReaderType itk::ImageFileReader<theScalarImageType >
+
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_max() const
     {
@@ -155,7 +158,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, in
 	if(this->tfunction!=NULL){
 		this->tfunction->get(this->get_voxel(x, y, z),val);
 	}else{
-		cout<<".jk.";
+		cout<<"*this->tfunction==NULL*";
 	}
 }
 
@@ -3139,13 +3142,22 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_gaussian_values_centered_
 }
 
 
-
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_path)
 {
-/*	if(file_exists(file_path)){
-		typename theReaderType::Pointer r = theReaderType::New();
-		itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
+	#define theImageType22 itk::OrientedImage< char ,IMAGEDIM>
+	#define theReaderType22 itk::ImageFileReader<theImageType22 >
+	cout<<"Warning... no file loaded...."<<endl;
+	cout<<"ELEMTYPE=("<<string(typeid(ELEMTYPE).name())<<")"<<endl;
+	
+	if(file_exists(file_path)){
+//		typename itk::ImageFileReader<itk::OrientedImage<ELEMTYPE ,IMAGEDIM> >::Pointer r = itk::ImageFileReader<itk::OrientedImage<ELEMTYPE ,IMAGEDIM> >::New();
+//		typename theComplexReaderType::Pointer r = theComplexReaderType::New();
+//		typename theReaderType::Pointer r = theReaderType::New();
+		typename theReaderType22::Pointer r = theReaderType22::New();
+//		typename theScalarReaderType::Pointer r = theScalarReaderType::New();
+
+/*		itk::VTKImageIO::Pointer VTKIO = itk::VTKImageIO::New();
 		r->SetFileName(file_path.c_str());
 		r->SetImageIO( VTKIO );
 
@@ -3155,10 +3167,10 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_pa
 		typename theSizeType s = image->GetBufferedRegion().GetSize();
 		replicate_itk_to_image(image);
 		this->name_from_path(file_path);
+*/
 	}else{
 		pt_error::error("image_scalar::load_dataset_from_VTK_file()--> file does not exist...",pt_error::debug);
 	}
-*/
 }
 
 
