@@ -42,7 +42,7 @@ image_base* allocate_image (bool floatType, bool signedType, unsigned int voxel_
         {
         try_allocate<float,IMGCLASS>(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
         try_allocate<double,IMGCLASS>(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
-        try_allocate<long double,IMGCLASS>(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+        //try_allocate<long double,IMGCLASS>(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
         }
     else
         {
@@ -51,14 +51,14 @@ image_base* allocate_image (bool floatType, bool signedType, unsigned int voxel_
             try_allocate<signed char,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
             try_allocate<signed short,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
             try_allocate<signed long,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
-            try_allocate<signed long long,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+            //try_allocate<signed long long,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
             }
         else
             {
             try_allocate<unsigned char,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
             try_allocate<unsigned short,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
             try_allocate<unsigned long,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
-            try_allocate<long long,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
+            //try_allocate<long long,IMGCLASS >(output, voxel_type, files, width, height, bigEndian, headerSize, voxelSize);
             }
         }
     
