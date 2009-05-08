@@ -224,6 +224,7 @@ void copy_files(vector<string> from_paths, vector<string> to_paths, bool always)
 void copy_files(vector<string> from_paths, string to_dir_path, bool always)
 {
 	string s="";
+	ensure_trailing_slash(to_dir_path);
 	for(int i=0; i<from_paths.size();i++){
 		cout<<"from: "<<from_paths[i]<<endl;
 		s = to_dir_path + path_end(from_paths[i]);
@@ -740,8 +741,9 @@ vector<vector<string> >	get_header_combinations_from_these_dicom_files(vector<st
 
 vector<vector<string> >	get_header_combinations_from_these_dicom_files_sort_files(string dir_path, bool recursive_search, vector<string> tag_combo, vector<vector<string> > &sorted_files)
 {
-	vector<string> entries = get_dir_entries(dir_path, true, recursive_search);    //return string vector listing directory contents
-	return get_header_combinations_from_these_dicom_files_sort_files(entries, tag_combo, sorted_files);
+	vector<string> files = get_dicom_files_in_dir(dir_path, true, recursive_search);    //return string vector listing directory contents
+	cout<<"files.size()="<<files.size()<<endl;
+	return get_header_combinations_from_these_dicom_files_sort_files(files, tag_combo, sorted_files);
 }
 
 

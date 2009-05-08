@@ -118,6 +118,7 @@ public:
     ELEMTYPE get_num_values();
 	ELEMTYPE get_max() const;
 	ELEMTYPE get_min() const;
+	float get_mean_intensity();
 	histogram_1D<ELEMTYPE>* get_histogram();
 	histogram_1D<ELEMTYPE>* get_histogram_new_with_same_num_buckets_as_intensities();
 	virtual void stats_refresh(bool min_max_refresh=false);
@@ -297,10 +298,13 @@ public:
 	void fill_image_with_bias_field_data3D(bias_poly<3> b);
 	void fill_image_with_gaussian_values_centered_2D(int dir, gaussian g);
 	void fill_image_with_gaussian_values_centered_2D(int dir, float ampl, float sigma_in_voxels);
+	void fill_image_with_gaussian_values_2D(int dir, float ampl, float sigma_in_voxels, int center_u, int center_v);
 
 
 // -------------- Scalar Load/Save functions ---------------
 	void load_dataset_from_VTK_file(std::string file_path);
+    void save_to_TIF_file_series_3D(const std::string file_path_base, int dir=2, int from_slice=-1, int to_slice=-1);
+	void save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice="0");
 
 
 

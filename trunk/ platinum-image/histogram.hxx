@@ -564,6 +564,15 @@ void histogram_1D<ELEMTYPE>::add_histogram_data(histogram_1D<ELEMTYPE> *hist2){
 }
 
 template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::clear_zero_intentisty_bucket(){
+	int zero_bucket_pos = this->intensity_to_bucketpos(0);
+	if(zero_bucket_pos>=0 && zero_bucket_pos<this->num_buckets){
+		this->buckets[zero_bucket_pos] = 0;
+	}
+}
+
+
+template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::set_sum_of_bucket_contents_to_value(double value){ //often requires the ELEMTYPEs float or double.
 	double scale_factor = value / double(this->num_elements_in_hist);
 	for(int i=0;i<this->num_buckets;i++){
@@ -711,20 +720,26 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_lower_percentile(float 
 	//float num_elem_limit = float(this->images[0]->get_num_elements())*percentile;
 
 	unsigned short the_zero_bucket = this->intensity_to_bucketpos(0);
-	float num_elem_limit;
 
-	if( ignore_zero_intensity && (the_zero_bucket>=0) && (the_zero_bucket<this->num_buckets) ) {
-		num_elem_limit = float(this->num_elements_in_hist-this->buckets[the_zero_bucket])*percentile;
+	float num_elem_limit=0;
+	if( ignore_zero_intensity && (the_zero_bucket>=0) && (the_zero_bucket<this->num_buckets) ){
+		num_elem_limit = float(this->num_elements_in_hist - this->buckets[the_zero_bucket] )*percentile;
+	}else{
+		num_elem_limit = float(this->num_elements_in_hist)*percentile;
 	}
-	else {num_elem_limit = float(this->num_elements_in_hist)*percentile;}
 
 	float sum_elements=0;
-	
-	
-
-	for (unsigned short i = 0; i < this->num_buckets; i++)
-	{
-		if (!ignore_zero_intensity || i!=the_zero_bucket) {
+	if(ignore_zero_intensity){
+		for(unsigned short i=0; i<this->num_buckets; i++){
+			if(i!=the_zero_bucket){
+				sum_elements += this->buckets[i];
+				if(sum_elements>=num_elem_limit){
+					return i;
+				}
+			}
+		}
+	}else{
+		for(unsigned short i=0; i<this->num_buckets; i++){
 			sum_elements += this->buckets[i];
 			if(sum_elements>=num_elem_limit){
 				return i;
@@ -751,25 +766,27 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_higher_percentile(float
 	//float num_elem_limit = float(this->images[0]->get_num_elements())*percentile;
 
 	unsigned short the_zero_bucket = this->intensity_to_bucketpos(0);
-	float num_elem_limit;
 
-	if (ignore_zero_intensity) {
-		num_elem_limit = float(this->num_elements_in_hist)*percentile;
-		if(the_zero_bucket>=0 && the_zero_bucket<this->num_buckets){ //the "zero_bucket" migh be missing (the histogram might for example be created from a masked region...)
-			num_elem_limit -= float(this->buckets[the_zero_bucket])*percentile;
-		}
-	}
-	else{
+	float num_elem_limit=0;
+	if( ignore_zero_intensity && (the_zero_bucket>=0) && (the_zero_bucket<this->num_buckets) ){//the "zero_bucket" might be missing (the histogram might for example be created from a masked region...)
+		num_elem_limit = float(this->num_elements_in_hist - this->buckets[the_zero_bucket] )*percentile;
+	}else{
 		num_elem_limit = float(this->num_elements_in_hist)*percentile;
 	}
 
 	float sum_elements=0;
-	
-	
 
-	for (unsigned short i = this->num_buckets-1; i>=0; i++)
-	{
-		if (!ignore_zero_intensity || i!=the_zero_bucket) {
+	if(ignore_zero_intensity){
+		for(unsigned short i = this->num_buckets-1; i>=0; i--){
+			if(i!=the_zero_bucket) {
+				sum_elements += this->buckets[i];
+				if(sum_elements>=num_elem_limit){
+					return i;
+				}
+			}
+		}
+	}else{
+		for(unsigned short i = this->num_buckets-1; i>=0; i--){
 			sum_elements += this->buckets[i];
 			if(sum_elements>=num_elem_limit){
 				return i;
@@ -850,15 +867,18 @@ bool histogram_1D<ELEMTYPE>::is_histogram_bimodal(int start_bucket, int end_buck
 
 
 template <class ELEMTYPE>
-void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info)
+void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from_int, ELEMTYPE to_int, bool print_info)
 {
 //	cout<<"fit_gaussian_to_intensity_range..."<<endl;
 //	cout<<"this->max()="<<this->max()<<endl;
 //	cout<<"this->min()="<<this->min()<<endl;
 //	cout<<"this->num_buckets()="<<this->num_buckets<<endl;
+	cout<<"from_int="<<from_int<<endl;
+	cout<<"to_int="<<to_int<<endl;
+	cout<<"this->get_max_value_in_bucket_range(0,3)="<<this->get_max_value_in_bucket_range(0,3)<<endl;
 
-	int from_bucket = std::max(0, int(intensity_to_bucketpos(from)));
-	int to_bucket = std::min(int(this->num_buckets-1), int(intensity_to_bucketpos(to)));
+	int from_bucket = std::max(0, int(intensity_to_bucketpos(from_int)));
+	int to_bucket = std::min(int(this->num_buckets-1), int(intensity_to_bucketpos(to_int)));
 //	cout<<"from_bucket="<<from_bucket<<endl;
 //	cout<<"to_bucket="<<to_bucket<<endl;
 
@@ -896,20 +916,20 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 		g.sigma = find_better_sigma(g,dyn_from_bucket,dyn_to_bucket,0.8,1.2,10+i);
 		
 		//consider shape of gaussian but dont go outside given limits...
-		tmp = std::max(float(from),float(g.center-1.1*g.sigma)); //limits intensity range...
+		tmp = std::max(float(from_int),float(g.center-1.1*g.sigma)); //limits intensity range...
 		dyn_from_bucket = std::max(from_bucket, intensity_to_bucketpos(tmp)); //limits bucket range...
 		dyn_to_bucket = std::min(to_bucket, intensity_to_bucketpos(g.center+1.1*g.sigma));
 
-	if(print_info)
-	{
-		cout<<"**************"<<endl;
-		cout<<"iter="<<i<<"/"<<nr_iterations<<endl;
-		cout<<"g.amplitude="<<g.amplitude<<endl;
-		cout<<"g.center="<<g.center<<endl;
-		cout<<"g.sigma="<<g.sigma<<endl;
-		cout<<"dyn_from_bucket="<<dyn_from_bucket<<endl;
-		cout<<"dyn_to_bucket="<<dyn_to_bucket<<endl;
-	}
+		if(print_info){
+			cout<<"**************"<<endl;
+			cout<<"iter="<<i<<"/"<<nr_iterations<<endl;
+			cout<<"g.amplitude="<<g.amplitude<<endl;
+			cout<<"g.center="<<g.center<<endl;
+			cout<<"g.sigma="<<g.sigma<<endl;
+			cout<<"tmp="<<tmp<<endl;
+			cout<<"dyn_from_bucket="<<dyn_from_bucket<<endl;
+			cout<<"dyn_to_bucket="<<dyn_to_bucket<<endl;
+		}
 	}
 
 	//set the reference variables again...
@@ -1129,7 +1149,7 @@ vnl_vector<double> histogram_1D<ELEMTYPE>::get_vnl_vector_with_start_guess_of_nu
 		//center (intensity)
 		//SD (int)
 		x[i*3+0] = this->get_max_value_in_bucket_range(from_bucket,to_bucket);
-		x[i*3+1] = this->bucketpos_to_intensity( this->get_bucket_at_histogram_lower_percentile( float(i+0.5)/float(num_gaussians), true) );
+		x[i*3+1] = this->get_intensity_at_histogram_lower_percentile( float(i+0.5)/float(num_gaussians), true );
 		x[i*3+2] = sqrt(this->get_variance_in_bucket_range(from_bucket,to_bucket));
 
 		from_bucket = to_bucket;
@@ -1228,6 +1248,12 @@ float histogram_1D<ELEMTYPE>::get_mean_intensity_in_bucket_range(int from, int t
 		num_values += this->buckets[i];
 	}
 	return intensity_sum/num_values;
+}
+
+template <class ELEMTYPE>
+float histogram_1D<ELEMTYPE>::get_mean_intensity()
+{
+	return this->get_mean_intensity_in_bucket_range(0,this->num_buckets-1);
 }
 
 template <class ELEMTYPE>

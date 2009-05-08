@@ -1007,9 +1007,9 @@ void image_general<ELEMTYPE, IMAGEDIM>::get_span_of_value_3D(ELEMTYPE val, int &
 	y1 = datasize[1];	y2 = 0;
     z1 = datasize[2];	z2 = 0;
 
-	for (int z=0; z < datasize[2]; z++){
-		for (int y=0; y < datasize[1]; y++){
-			for (int x=0; x < datasize[0]; x++){
+	for(int z=0; z < datasize[2]; z++){
+		for(int y=0; y < datasize[1]; y++){
+			for(int x=0; x < datasize[0]; x++){
 				if(get_voxel(x,y,z)==val){
 					x1 = min(x,x1);
 					y1 = min(y,y1);
@@ -1883,7 +1883,8 @@ ELEMTYPE image_general<ELEMTYPE, IMAGEDIM>::get_voxel_in_physical_pos_26NB_weigh
 template <class ELEMTYPE, int IMAGEDIM>
 float image_general<ELEMTYPE, IMAGEDIM>::get_number_voxel(int x, int y, int z) const
 {
-    return static_cast<float>(get_number_voxel(x, y, z)); //JK4
+//    return static_cast<float>(get_number_voxel(x, y, z)); //JK4
+	return 0; //JK4
 }
 
 
