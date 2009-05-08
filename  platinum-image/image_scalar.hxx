@@ -32,15 +32,22 @@ extern datamanager datamanagement;
 
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_max() const
-    {
+{
     return stats->max();
-    }
+}
 
 template <class ELEMTYPE, int IMAGEDIM>
 ELEMTYPE image_scalar<ELEMTYPE, IMAGEDIM>::get_min() const
-    {
+{
     return stats->min();
-    }
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_intensity()
+{
+    return stats->get_mean_intensity();
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 template <class sourceType>
@@ -3140,12 +3147,29 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_gaussian_values_centered_
 	this->fill_image_with_gaussian_values_centered_2D(dir, gaussian(ampl,0,sigma_in_voxels));
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::fill_image_with_gaussian_values_2D(int dir, float ampl, float sigma_in_voxels, int center_u, int center_v)
+{
+	Vector3Dint diff;
+	diff[2]=0;
+	gaussian g = gaussian(ampl,0,sigma_in_voxels);
+	for(int w=0; w<this->get_size_by_dim_and_dir(2,dir); w++){
+		for(int v=0; v<this->get_size_by_dim_and_dir(1,dir); v++){
+			diff[1]=center_v-v;
+			for(int u=0; u<this->get_size_by_dim_and_dir(0,dir); u++){
+				diff[0]=center_u-u;
+				this->set_voxel_by_dir(u,v,w,g.evaluate_at(magnitude(diff)),dir);
+			}
+		}
+	}
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_path)
 {
-	cout<<"Warning... no file loaded...."<<endl;
-	cout<<"ELEMTYPE=("<<string(typeid(ELEMTYPE).name())<<")"<<endl;
+//	cout<<"Warning... no file loaded...."<<endl;
+//	cout<<"ELEMTYPE=("<<string(typeid(ELEMTYPE).name())<<")"<<endl;
 	
 	if(file_exists(file_path)){
 		typename theReaderType::Pointer r = theReaderType::New();
@@ -3168,6 +3192,58 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_pa
 	}
 }
 
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::save_to_TIF_file_series_3D(const std::string file_path_base, int dir, int from_slice, int to_slice)
+{
+	char buf[10];
+	int s_start=0;
+	int s_end;
+	
+	if(from_slice>=0){
+		s_start = from_slice;
+	}
+	if(to_slice>=0){
+		s_end = to_slice;
+	}else{
+		s_end = this->get_size_by_dim(dir);
+	}
+		
+	image_scalar<ELEMTYPE, IMAGEDIM> *slc;
+//	image_general<unsigned char,3> *slc2;
+	image_scalar<unsigned char,3> *slc2;
+	for(int s=s_start; s<s_end; s++){
+		slc = this->get_subvolume_from_slice_rotated_3D(s,dir);
+		slc->scale(); //0...256
+		slc->data_has_changed(true);
+
+		sprintf(buf,"%04i",s);
+		slc2 = new image_scalar<unsigned char,3>(slc);
+		slc2->save_uchar2D_to_TIF_file(file_path_base, string(buf));
+		datamanagement.add(slc,"slc");
+		datamanagement.add(slc2,"slc2");
+//		delete slc;
+//		delete slc2;
+	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice)
+{
+	typedef itk::ImageFileWriter<itk::OrientedImage<unsigned char,3> >	theTifWriterType;
+
+	string s = file_path_base+"_"+slice+".tif";
+	theTifWriterType::Pointer writer = theTifWriterType::New();
+	writer->SetFileName(s.c_str());
+	writer->SetInput(get_image_as_itk_output());
+	try{
+		writer->Update();
+	}catch (itk::ExceptionObject &ex){
+		cout<<"Exception thrown saving file.....("<<s<<")"<<ex;
+	}
+
+//	this->clear_itk_porting();
+}
 
 
 
@@ -3696,7 +3772,7 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_squared_difference_to_template_
 		}
 		m_x++;
 	}
-	cout<<nr<<",";
+//	cout<<nr<<",";
 	return cost/fact;
 }
 

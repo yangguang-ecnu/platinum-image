@@ -320,8 +320,8 @@ class image_general : public image_storage <ELEMTYPE >
         void save_to_DCM_file_series(const std::string file_path, const bool useCompression = true, const bool anonymize = true);
 		void save_to_raw_file(const std::string file_path, bool save_image_info_txt_file=false);
         void save_to_NIFTI_file(const std::string file_path); //JK test
-        void save_to_TIF_file_series_3D(const std::string file_path_base, int dir=2, int from_slice=-1, int to_slice=-1);
-		void save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice="0");
+//        void save_to_TIF_file_series_3D(const std::string file_path_base, int dir=2, int from_slice=-1, int to_slice=-1);
+//		void save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice="0");
 
 		void set_geometry(float ox,float oy,float oz,float dx,float dy,float dz,float fi_x,float fi_y,float fi_z);
         bool read_geometry_from_dicom_file(std::string dcm_file);

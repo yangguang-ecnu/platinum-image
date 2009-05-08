@@ -176,6 +176,8 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		int intensity_to_bucketpos(ELEMTYPE intensity);
 		
 		void add_histogram_data(histogram_1D<ELEMTYPE> *hist2);
+		void clear_zero_intentisty_bucket();
+
 
 		//------------ scaling filtering -------------------------
 		void set_sum_of_bucket_contents_to_value(double value=1); //often requires the ELEMTYPEs float or double.
@@ -226,6 +228,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		ELEMTYPE get_max_value_in_bucket_range(int from, int to);
 		ELEMTYPE get_max_value_in_bucket_range(int from, int to, int &max_val_bucket_pos);
 		float get_mean_intensity_in_bucket_range(int from, int to);
+		float get_mean_intensity();
 		float get_variance_in_bucket_range(int from, int to);
 		float get_variance_in_intensity_range(ELEMTYPE from, ELEMTYPE to);
 		int get_bucket_pos_with_largest_value_in_bucket_range(int from, int to);

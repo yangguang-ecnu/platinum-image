@@ -848,55 +848,6 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_NIFTI_file(const std::string fil
 }
 
 
-template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::save_to_TIF_file_series_3D(const std::string file_path_base, int dir, int from_slice, int to_slice)
-{
-	char buf[10];
-	int s_start=0;
-	int s_end;
-	
-	if(from_slice>=0){
-		s_start = from_slice;
-	}
-	if(to_slice>=0){
-		s_end = to_slice;
-	}else{
-		s_end = this->get_size_by_dim(dir);
-	}
-		
-	image_general<ELEMTYPE, IMAGEDIM> *slc;
-	image_general<unsigned char,3> *slc2;
-	for(int s=s_start; s<s_end; s++){
-		slc = this->get_subvolume_from_slice_rotated_3D(s,dir);
-		slc->scale(); //0...256
-		slc->data_has_changed(true);
-
-		sprintf(buf,"%04i",s);
-		slc2 = new image_general<unsigned char,3>(slc);
-		slc2->save_uchar2D_to_TIF_file(file_path_base, string(buf));
-		delete slc;
-		delete slc2;
-	}
-}
-
-template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::save_uchar2D_to_TIF_file(const std::string file_path_base, const std::string slice)
-{
-	typedef itk::ImageFileWriter<itk::OrientedImage<unsigned char,3> >	theTifWriterType;
-
-	string s = file_path_base+"_"+slice+".tif";
-	theTifWriterType::Pointer writer = theTifWriterType::New();
-	writer->SetFileName(s.c_str());
-	writer->SetInput(get_image_as_itk_output());
-	try{
-		writer->Update();
-	}catch (itk::ExceptionObject &ex){
-		cout<<"Exception thrown saving file.....("<<s<<")"<<ex;
-	}
-
-//	this->clear_itk_porting();
-}
-
 /*
 template <class ELEMTYPE, int IMAGEDIM>
 void image_general<ELEMTYPE, IMAGEDIM>::load_dataset_from_VTK_file(string file_path)
