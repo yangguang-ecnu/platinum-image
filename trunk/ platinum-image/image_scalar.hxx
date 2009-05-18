@@ -1053,6 +1053,70 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::get_subvolum
 
 
 template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value)
+{
+	cout<<"expanding image borders (image_scalar)..."<<endl;
+	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(this->nx()+2*dx, this->ny()+2*dy, this->nz()+2*dz);
+	res->fill(value);
+	res->set_parameters(this);
+	res->fill_region_3D_with_subvolume_image( create_Vector3Dint(dx,dy,dz),this,create_Vector3Dint(0,0,0),create_Vector3Dint(this->nx(),this->ny(),this->nz()) ); //based on given voxel coords
+	res->set_origin(this->get_physical_pos_for_voxel(-dx,-dy,-dz));
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::expand_borders2D_by_dir(int dir, unsigned int dr, IMGBINARYTYPE value)
+{
+	image_scalar<ELEMTYPE, IMAGEDIM>* res;
+	if(dir==2){
+		res = expand_borders(dr,dr,0,value);
+	}else if(dir==1){
+		res = expand_borders(dr,0,dr,value);
+	}else{
+		res = expand_borders(0,dr,dr,value);
+	}
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::contract_borders(unsigned int dx, unsigned int dy, unsigned int dz)
+{
+	cout<<"contracting image borders (image_binary)..."<<endl;
+	int old_size_x=this->get_size_by_dim(0);
+	int old_size_y=this->get_size_by_dim(1);
+	int old_size_z=this->get_size_by_dim(2);
+	image_scalar<ELEMTYPE, IMAGEDIM>* res = new image_scalar<ELEMTYPE, IMAGEDIM>(old_size_x-2*dx, old_size_y-2*dy, old_size_z-2*dz);
+	res->set_parameters(this);
+
+	for (int z=0; z<res->nz(); z++){
+		for (int y=0; y<res->ny(); y++){
+			for (int x=0; x<res->nx(); x++){
+				res->set_voxel(x,y,z, this->get_voxel(x+dx,y+dy,z+dz));
+			}
+		}
+	}
+	res->set_origin(this->get_physical_pos_for_voxel(0+dx,0+dy,0+dz));
+	return res;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::contract_borders2D_by_dir(int dir, unsigned int dr)
+{
+	image_scalar<ELEMTYPE, IMAGEDIM>* res;
+	if(dir==2){
+		res = contract_borders(dr,dr,0);
+	}else if(dir==1){
+		res = contract_borders(dr,0,dr);
+	}else{
+		res = contract_borders(0,dr,dr);
+	}
+	return res;
+}
+
+
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::crop_and_return_3D(image_binary<3> *mask)
 {
 	image_scalar<ELEMTYPE, IMAGEDIM>* res;
@@ -1762,6 +1826,16 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create_slice
 	}
 }
 
+/*
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<unsigned short, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram_from_two_outermost_slices(int dir, int num_buckets=200){
+
+	if(scale_a<=0){	scale_a = this->get_max(); }
+	if(scale_b<=0){	scale_b = second_image->get_max(); }
+
+	image_scalar<ELEMTYPE, IMAGEDIM> *hist;
+}
+*/
 
 
 

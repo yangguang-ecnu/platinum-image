@@ -20,6 +20,7 @@
 #include "fileutils.h"
 
 #include <iostream>
+#include "image_base.h"				//due to use of dicomloader
 
 #ifdef WIN32
 //Windows
@@ -244,6 +245,21 @@ void remove_file(string file_path)
 	itksys::SystemTools::RemoveFile(file_path.c_str());
 }
 
+string find_first_file_where_filename_contains(string dir_path, string substring)
+{
+//	cout<<"find_first_file_where_filename_contains..."<<endl;
+
+	vector<string> all_files = get_dir_entries(dir_path,true);
+	int pos;
+	for(int i=0; i<all_files.size(); i++){
+		pos = all_files[i].find(substring);
+//		cout<<i<<" "<<all_files[i]<<" "<<pos<<endl;
+		if(pos>0 && pos<all_files[i].size()){
+			return all_files[i];
+		}
+	}
+	return "";
+}
 
 
 void add_to_string_vector_if_not_present(vector<string> &v, string s)
@@ -845,6 +861,37 @@ vector<string>	get_first_dicom_files_corresponding_to_these_combos2(string dir_p
 	return first_dcm_files;
 }
 
+void save_all_dicom_series_to_VTK_files(string dir_path, vector<string> tag_combo, bool use_recursive_search){
+
+	vector<string> dcm_files = get_first_dicom_files_corresponding_to_these_combos2(dir_path, tag_combo, use_recursive_search, true);
+
+	image_base* im;
+	string this_dcm_file;
+	string save_file_name;
+
+	while(dcm_files.size()>0){
+		cout<<"********************"<<endl;
+		cout<<dcm_files[0]<<endl;
+		this_dcm_file = dcm_files[0]; //this needs to be saved since it is "consumed" when the file is read...
+		dicomloader dl = dicomloader(&dcm_files, DCM_LOAD_SERIES_ID_ONLY);
+		im = dl.read();
+
+		save_file_name = get_dicom_tag_value(this_dcm_file, tag_combo[0]);
+		for(int j=1;j<tag_combo.size();j++){
+			save_file_name += "_" + get_dicom_tag_value(this_dcm_file, tag_combo[j]);
+		}
+		save_file_name += ".vtk";
+
+		cout<<"save_file_name="<<save_file_name<<endl;
+		save_file_name = replace_substrings(save_file_name, " ", "_");
+		save_file_name = replace_substrings(save_file_name, ":", "_");
+		cout<<"save_file_name="<<save_file_name<<endl;
+
+		im->save_to_VTK_file(dir_path + save_file_name);
+
+		delete im;
+	}
+}
 
 
 
@@ -901,6 +948,14 @@ string replace_last_substring(string s, string val, string replacement){
 //	cout<<"c="<<c<<endl;
 	return a+b+c;
 }
+
+string replace_substrings(string s, string val, string replacement){
+	while(s.find_last_of(val)>0 && s.find_last_of(val)<s.size() ){
+		s=replace_last_substring(s, val, replacement);
+	}
+	return s;
+}
+
 
 string get_csv_item(string s, int item_num, string separator)
 {

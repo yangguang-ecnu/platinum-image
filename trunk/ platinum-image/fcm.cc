@@ -489,7 +489,7 @@ void sfcm::calc_mean_nbh_dist_image()
 	cout<<"average_nbh_dist_mean="<<this->average_nbh_dist_mean<<endl;
 }
 
-float sfcm::calc_dissimilarity(int c, int i, int j, int k)
+float sfcm::calc_dissimilarity_6NBH(int c, int i, int j, int k)
 {
 	float dkx2 = pow(int_dist_images[c]->get_voxel(i,j,k),2);
 
@@ -523,6 +523,38 @@ float sfcm::calc_dissimilarity(int c, int i, int j, int k)
 	return dissim;
 }
 
+float sfcm::calc_dissimilarity_4NBH(int c, int i, int j, int k)
+{
+	float dkx2 = pow(int_dist_images[c]->get_voxel(i,j,k),2);
+
+	float dky2[4];
+	dky2[0] = pow(int_dist_images[c]->get_voxel(i,j-1,k),2);
+	dky2[1] = pow(int_dist_images[c]->get_voxel(i,j+1,k),2);
+	dky2[2] = pow(int_dist_images[c]->get_voxel(i-1,j,k),2);
+	dky2[3] = pow(int_dist_images[c]->get_voxel(i+1,j,k),2);
+
+	float dxy[4];
+	dxy[0] = get_pixel_int_dist(i,j,k,i,j-1,k);
+	dxy[1] = get_pixel_int_dist(i,j,k,i,j+1,k);
+	dxy[2] = get_pixel_int_dist(i,j,k,i-1,j,k);
+	dxy[3] = get_pixel_int_dist(i,j,k,i+1,j,k);
+
+	float lxy[4];
+	for(int i=0;i<4;i++){
+		lxy[i] = this->calc_lamda(dxy[i]);
+	}
+
+	float dissim=0;
+	for(int i=0;i<4;i++){
+		dissim += dkx2*lxy[i] + dky2[i]*(1.0-lxy[i]);
+	}
+	dissim = dissim/4.0;
+
+	return dissim;
+}
+
+
+
 void sfcm::calc_dissimilarity_images(const vnl_matrix<float> &V)
 {
 	cout<<"calc_dissimilarity_images... c= ";
@@ -540,7 +572,8 @@ void sfcm::calc_dissimilarity_images(const vnl_matrix<float> &V)
 			for(int j=1;j<ny()-1;j++){
 				for(int i=1;i<nx()-1;i++){
 					if(this->is_pixel_included(i,j,k)){
-						this->dissim_images[c]->set_voxel(i,j,k,this->calc_dissimilarity(c,i,j,k));
+						//this->dissim_images[c]->set_voxel(i,j,k,this->calc_dissimilarity_6NBH(c,i,j,k));
+						this->dissim_images[c]->set_voxel(i,j,k,this->calc_dissimilarity_4NBH(c,i,j,k));
 					}
 				}
 			}
@@ -558,17 +591,17 @@ void sfcm::Update_imagesfcm(float scale_percentile)
 	// Normalize image intensities... (row-wise...) (and scale image intensities from 0...max --> 0...1 
 	// (one might do more intelligent trimming of the image top intensity values)
 	//-----------------------
-	float perc;
+	float intensity_at_percentile;
 	cout<<"scale..."<<endl;
 
 	for(int b=0;b<n_bands();b++){
 		if(image_mask!=NULL){
-			perc = images[b]->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(scale_percentile, false);
+			intensity_at_percentile = images[b]->get_histogram_from_masked_region_3D(image_mask)->get_intensity_at_histogram_lower_percentile(scale_percentile, false);
 		}else{
-			perc = images[b]->get_histogram()->get_intensity_at_histogram_lower_percentile(scale_percentile, false);
+			intensity_at_percentile = images[b]->get_histogram()->get_intensity_at_histogram_lower_percentile(scale_percentile, false);
 		}
-		cout<<"band="<<b<<" max="<<images[b]->get_max()<<" perc="<<perc<<endl;
-		images[b]->map_values(perc,10000000,perc);
+		cout<<"band="<<b<<" max="<<images[b]->get_max()<<" intensity_at_percentile="<<intensity_at_percentile<<endl;
+		images[b]->map_values(intensity_at_percentile,10000000,intensity_at_percentile);
 		images[b]->scale(0,1);
 		images[b]->data_has_changed();
 		cout<<"band="<<b<<" max="<<images[b]->get_max()<<endl;

@@ -179,6 +179,13 @@ public:
 	image_scalar<ELEMTYPE, IMAGEDIM>* get_subvolume_from_region_3D(image_binary<3> *mask, IMGBINARYTYPE object_value=TRUE);
 	image_scalar<ELEMTYPE, IMAGEDIM>* get_subvolume_from_thresholded_region_3D(ELEMTYPE from_val, ELEMTYPE to_val=std::numeric_limits<ELEMTYPE>::max());
 
+	//--------------------
+	image_scalar<ELEMTYPE, IMAGEDIM>* expand_borders(unsigned int dx, unsigned int dy, unsigned int dz, IMGBINARYTYPE value=0);	
+	image_scalar<ELEMTYPE, IMAGEDIM>* expand_borders2D_by_dir(int dir, unsigned int dr=1, IMGBINARYTYPE value=0);	
+	image_scalar<ELEMTYPE, IMAGEDIM>* contract_borders(unsigned int dx, unsigned int dy, unsigned int dz);
+	image_scalar<ELEMTYPE, IMAGEDIM>* contract_borders2D_by_dir(int dir, unsigned int dr=1);
+
+	//--------------------
 	void crop_3D(image_binary<3> *mask);
 	image_scalar<ELEMTYPE, IMAGEDIM>* crop_and_return_3D(image_binary<3> *mask);
 	//... get_sub_region(...)
@@ -208,6 +215,7 @@ public:
 	//the resulting histogram volume will have the intensities of first/second in the x/y directions.
 	//The z direction will gives the different 2D-histograms in the specified direction "hist_slc_dir"
 	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
+//    image_scalar<unsigned short, 3>* create2Dhistogram_from_two_outermost_slices(int dir); 
 
 //	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
 
