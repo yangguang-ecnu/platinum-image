@@ -135,7 +135,8 @@ public:
 	float calc_lamda(float nbh_dist); //denoted lamda(delta) in Liew2003 (uses: average_nbh_dist_mean / sigma)
 	void calc_sigma();
 	void calc_mean_nbh_dist_image();
-	float calc_dissimilarity(int c, int i, int j, int k); //denoted dissimilarity index (D_kx) in Liew2003
+	float calc_dissimilarity_6NBH(int c, int i, int j, int k); //denoted dissimilarity index (D_kx) in Liew2003
+	float calc_dissimilarity_4NBH(int c, int i, int j, int k); //denoted dissimilarity index (D_kx) in Liew2003
 
 	void Update_imagesfcm(float scale_percentile=0.95); //executes sfcm algorithm ( in sweet ITK style... ;-)  )...
 

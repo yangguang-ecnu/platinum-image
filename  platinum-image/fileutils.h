@@ -72,6 +72,8 @@ void copy_files(vector<string> from_paths, string to_dir_path, bool always=true)
 void remove_dir(string dir_path);
 void remove_file(string file_path);
 
+string find_first_file_where_filename_contains(string dir_path, string substring);
+
 
 //------------- String vector specific handling ----------------------
 
@@ -121,12 +123,15 @@ vector<vector<string> >	get_header_combinations_from_these_dicom_files_sort_file
 vector<string>	get_first_dicom_files_corresponding_to_these_combos(string dir_path, vector<string> dcm_tags, vector<vector<string> > combos, bool recursive_search=false, bool full_path=true);
 vector<string>	get_first_dicom_files_corresponding_to_these_combos2(string dir_path, vector<string> dcm_tags, bool recursive_search=false, bool full_path=true);
 
+void save_all_dicom_series_to_VTK_files(string dir_path, vector<string> tag_combo, bool use_recursive_search=true);
+
 //------------- String handling functions ----------------------
 
 bool does_string_end_with(string s, string ending);
 bool remove_file_lastname(string &s, int max_no_lastname_chars=3);
 bool remove_string_ending(string &s, string ending=" ");
 string replace_last_substring(string s, string val, string replacement="");
+string replace_substrings(string s, string val, string replacement="");
 string get_csv_item(string s, int item_num, string separator="\t"); //item_num=0 is the first...
 bool string_contains(string s, string sample);
 
