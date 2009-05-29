@@ -36,6 +36,7 @@
 #include <vnl/vnl_matrix.h>
 #include <vnl/vnl_vector.h>
 
+enum SFCM_NBH_TYPE {SFCM_4NBH, SFCM_6NBH};
 
 typedef vector<image_scalar<float,3>*> fcm_image_vector_type;
 
@@ -122,6 +123,7 @@ protected:
 	image_scalar<float,3>*	mean_nbh_dist_image;	//denoted delta_av(x) in Liew2003
 	float					average_nbh_dist_mean;	//;-) denoted my in Liew2003
 	float					sigma;					//;-) denoted sigma in Liew2003, regulates the dregee of influence of the  
+	SFCM_NBH_TYPE			the_sfcm_nbh_type;
 
 	float get_squared_pixel_int_dist(int i, int j, int k, int i2, int j2, int k2);
 	float get_pixel_int_dist(int i, int j, int k, int i2, int j2, int k2); //denoted delta in Liew2003
@@ -129,12 +131,13 @@ protected:
 	void calc_dissimilarity_images(const vnl_matrix<float> &V);
 
 public:
-	sfcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness=2, float u_maxdiff_limit=0.05, image_binary<3> *mask=NULL);
+	sfcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness=2, float u_maxdiff_limit=0.05, SFCM_NBH_TYPE=SFCM_6NBH, image_binary<3> *mask=NULL);
 	~sfcm();
 
 	float calc_lamda(float nbh_dist); //denoted lamda(delta) in Liew2003 (uses: average_nbh_dist_mean / sigma)
 	void calc_sigma();
-	void calc_mean_nbh_dist_image();
+	void calc_mean_nbh_dist_image_6NBH();
+	void calc_mean_nbh_dist_image_4NBH();
 	float calc_dissimilarity_6NBH(int c, int i, int j, int k); //denoted dissimilarity index (D_kx) in Liew2003
 	float calc_dissimilarity_4NBH(int c, int i, int j, int k); //denoted dissimilarity index (D_kx) in Liew2003
 

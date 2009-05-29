@@ -196,10 +196,12 @@ template <class ELEMTYPE, int IMAGEDIM>
 void image_scalar<ELEMTYPE, IMAGEDIM>::set_scalar_parameters()
     {
 	stats = NULL;
-	set_stats_histogram (new histogram_1D<ELEMTYPE >(this));  //hist1D constructor calls resize()... and calculate()
+	set_stats_histogram(new histogram_1D<ELEMTYPE >(this));  //hist1D constructor calls resize()... and calculate()
 	
-    stats->min(std::numeric_limits<ELEMTYPE>::min());
-    stats->max(std::numeric_limits<ELEMTYPE>::max());
+	ELEMTYPE mi = stats->min();
+	ELEMTYPE ma = stats->max();
+//    stats->min(std::numeric_limits<ELEMTYPE>::min());
+//    stats->max(std::numeric_limits<ELEMTYPE>::max()); //JK öööööööööööööööö
 
     tfunction = NULL;
 
@@ -1739,7 +1741,9 @@ image_scalar<unsigned short, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhisto
 		int this_x;
 		int this_y;
 		float this_min=this->get_min();
+		float this_max=this->get_max();
 		float second_min=second_image->get_min();
+		float second_max=second_image->get_max();
 		float scale_a = float(this->get_max()-this_min)*1.000001/float(num_buckets_a);
 		float scale_b = float(second_image->get_max()-second_min)*1.000001/float(num_buckets_b);
 		for(int z=0; z<this->datasize[2]; z++){
@@ -1824,6 +1828,56 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::create_slice
 	hist->data_has_changed(true);
 	return hist;
 	}
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
+image_scalar<unsigned short, 3>* image_scalar<ELEMTYPE, IMAGEDIM>::create2Dhistogram_from_slices(int dir, int slice1, int slice2, bool remove_zero_intensity, int num_buckets_a, int num_buckets_b)
+{
+	float max1 = this->get_max_in_slice3D(slice1,dir);
+	float max2 = this->get_max_in_slice3D(slice2,dir);
+	float max = std::max(max1,max2);
+	if(num_buckets_a<=0){ num_buckets_a = max1; }
+	if(num_buckets_b<=0){ num_buckets_b = max2; }
+
+	image_scalar<unsigned short, 3> *hist_im = new image_scalar<unsigned short, 3>(num_buckets_a,num_buckets_b,1);
+	hist_im->fill(0);
+	float val_1;
+	float val_2;
+	int pos1;
+	int pos2;
+	vector<double> sum_int(num_buckets_a);
+	vector<float> num_voxels(num_buckets_a);
+
+	for(int i=0; i<num_buckets_a; i++){
+		sum_int[i] =0;
+		num_voxels[i] =0;
+	}
+
+
+	for(int v=0; v<this->get_size_by_dim(1); v++){
+		for(int u=0; u<this->get_size_by_dim(0); u++){
+			val_1 = this->get_voxel_by_dir(u,v,slice1,dir);
+			val_2 = this->get_voxel_by_dir(u,v,slice2,dir);
+			pos1 = val_1/max*num_buckets_a;
+			pos2 = val_2/max*num_buckets_b;
+			if(pos1>=num_buckets_a){
+				pos1 = num_buckets_a-1;
+			}
+			if(pos2>=num_buckets_b){
+				pos2 = num_buckets_b-1;
+			}
+			sum_int[pos1] += pos2; 
+			num_voxels[pos1] += 1.0;
+		}
+	}
+
+	cout<<"***********"<<endl;
+	for(int i=0; i<num_buckets_a; i++){
+		cout<<i<<"\t"<<sum_int[i]/num_voxels[i]<<endl;
+	}
+	cout<<"***********"<<endl;
+
+	return hist_im;
 }
 
 /*
@@ -3385,56 +3439,47 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::scale_slice_by_factor_3d(int dir, float f
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+float image_scalar<ELEMTYPE, IMAGEDIM>::scale_slice_average_to_3d(int dir, ELEMTYPE new_average, int slice) 
+{
+	if(dir<0 || dir>2) {
+		pt_error::error("Direction dir must be between 0 and 2 in scale_slice_by_factor_3d", pt_error::debug);
+	}
+	if(slice<0 || slice>=this->get_size_by_dim(dir)){
+		pt_error::error("Slice out of bounds in scale_slice_average_to_3d",pt_error::debug); 
+	}
+
+	ELEMTYPE mean_local = this->get_mean_from_slice_3d(dir,slice);
+	float factor = float(new_average)/float(mean_local);
+	cout<<"mean_loacal="<<mean_local<<endl;
+	cout<<"factor="<<factor<<endl;
+
+	for(int v=0; v<this->get_size_by_dim_and_dir(1,dir); v++){
+		for(int u=0; u<this->get_size_by_dim_and_dir(0,dir); u++){
+			this->set_voxel_by_dir(u,v,slice, ELEMTYPE(float(this->get_voxel_by_dir(u,v,slice,dir)*factor)));
+		}
+	}
+	return factor;
+}
+
+
+template <class ELEMTYPE, int IMAGEDIM>
 float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_from_slice_3d(int dir, int slice, image_binary<IMAGEDIM>* mask) 
 {
 	pt_error::error_if_false(dir>=0 && dir<=2, "Direction dir must be between 0 and 2 in get_mean_from_slice_3d", pt_error::debug);
 	pt_error::error_if_false(slice>=0 && slice<this->get_size_by_dim(dir), "Slice out of bounds in get_mean_from_slice_3d",pt_error::debug); 
-	if(mask!=NULL){
-		pt_error::error_if_false(this->same_size(mask),"Image size does not match mask size in get_mean_from_slice_3d", pt_error::debug);
-	}
+	pt_error::error_if_true( (mask!=NULL)&&(!this->same_size(mask)) , "Image size does not match mask size in get_mean_from_slice_3d", pt_error::debug);
+
 	float sum=0;
 	float num_voxels=0;
 
-	for(int u=0; u<this->get_size_by_dim_and_dir(1,dir); u++){
-		for(int v=0; v<this->get_size_by_dim_and_dir(0,dir); v++){
+	for(int v=0; v<this->get_size_by_dim_and_dir(1,dir); v++){
+		for(int u=0; u<this->get_size_by_dim_and_dir(0,dir); u++){
 			if( mask==NULL || mask->get_voxel_by_dir(u,v,slice,dir) ) { //öööö
 				sum += this->get_voxel_by_dir(u,v,slice,dir);
 				num_voxels++;
 			}
 		}
 	}
-/*
-	if (dir==0)	{
-		for (int j=0; j < this->get_size_by_dim(1); j++){
-			for(int k=0; k < this->get_size_by_dim(2); k++){
-				if (mask==NULL || mask->get_voxel(slice,j,k)) {
-					sum += this->get_voxel(slice,j,k);
-					num_voxels++;
-				}
-			}
-		}
-	}
-	else if (dir==1)	{
-		for (int i=0; i < this->get_size_by_dim(0); i++){
-			for(int k=0; k < this->get_size_by_dim(2); k++){
-				if (mask==NULL || mask->get_voxel(i,slice,k)) {
-					sum += this->get_voxel(i,slice,k);
-					num_voxels++;
-				}
-			}
-		}
-	}
-	else {
-		for (int i=0; i < this->get_size_by_dim(0); i++){
-			for(int j=0; j < this->get_size_by_dim(1); j++){
-				if (mask==NULL || mask->get_voxel(i,j,slice)) {
-					sum += this->get_voxel(i,j,slice);
-					num_voxels++;
-				}
-			}
-		}
-	}
-	*/
 	return sum/num_voxels;
 }
 

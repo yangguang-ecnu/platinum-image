@@ -210,12 +210,12 @@ public:
 //    void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
     void save_histogram_to_txt_file(const std::string filename, gaussian *g=NULL, bool reload_hist_from_image=false, const std::string separator=";");
 
-    image_scalar<unsigned short, 3>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1, image_binary<IMAGEDIM>* mask=NULL); 
+    image_scalar<unsigned short, 3>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int num_buckets_a=-1, int num_buckets_b=-1, image_binary<IMAGEDIM>* mask=NULL); 
 
 	//the resulting histogram volume will have the intensities of first/second in the x/y directions.
 	//The z direction will gives the different 2D-histograms in the specified direction "hist_slc_dir"
 	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
-//    image_scalar<unsigned short, 3>* create2Dhistogram_from_two_outermost_slices(int dir); 
+    image_scalar<unsigned short, 3>* create2Dhistogram_from_slices(int dir, int slice1, int slice2, bool remove_zero_intensity=false, int num_buckets_a=-1, int num_buckets_b=-1); 
 
 //	image_scalar<ELEMTYPE, IMAGEDIM>* create_slicewise_2Dhistograms_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, int hist_slc_dir=2, bool remove_zero_intensity=false, int scale_a=-1, int scale_b=-1); 
 
@@ -291,6 +291,7 @@ public:
 	Vector3D get_pos_of_max_grad_mag_in_region_voxel ( Vector3D center, Vector3D radius, GRAD_MAG_TYPE type );
 
 	void scale_slice_by_factor_3d(int dir, float factor, int slice);
+	float scale_slice_average_to_3d(int dir, ELEMTYPE new_average, int slice); //returns slice_scale_factor
 
 	float get_mean_from_slice_3d(int dir, int slice, image_binary<IMAGEDIM>* mask=NULL);
 
@@ -376,7 +377,8 @@ public:
 	//ITK vesselness functions
 	void vesselness_test(double hessian_sigma=5, double vessel_alpha1=0.5, double vessel_alpha2=0.5);
 
-	void appl_scale_outer_slices_using_mean(int dir);
+	void appl_scale_outer_slices_using_mean(int dir, int no_outer_slices=1);
+	void appl_scale_outer_slices_using_mean(int dir, int no_outer_slices, image_scalar<ELEMTYPE, IMAGEDIM> *im1, image_scalar<ELEMTYPE, IMAGEDIM> *im2);
 
 };
 
