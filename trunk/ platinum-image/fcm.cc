@@ -395,7 +395,7 @@ void fcm::save_vnl_matrix_to_file(vnl_matrix<float> &V, std::string file_path)
 // ----------------------- SFCM --------------------------------
 // -------------------------------------------------------------
 
-sfcm::sfcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness, float u_diff_limit, image_binary<3> *mask) : fcm(vec, V_init_clusters, m_fuzzyness, u_diff_limit, mask)
+sfcm::sfcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m_fuzzyness, float u_diff_limit, SFCM_NBH_TYPE nbh_type, image_binary<3> *mask) : fcm(vec, V_init_clusters, m_fuzzyness, u_diff_limit, mask)
 {
 
 	mean_nbh_dist_image = new image_scalar<float,3>(this->images[0],false);
@@ -406,6 +406,7 @@ sfcm::sfcm(fcm_image_vector_type vec, vnl_matrix<float> V_init_clusters, float m
 	for(int c=0;c<n_clust();c++){
 		this->dissim_images.push_back(new image_scalar<float>(this->images[0],false));
 	}
+	this->the_sfcm_nbh_type = nbh_type;
 }
 
 sfcm::~sfcm()
@@ -442,7 +443,7 @@ float sfcm::calc_lamda(float nbh_dist)
 void sfcm::calc_sigma()
 {
 	cout<<"calc_sigma()..."<<endl;
-	//first determine 95 percentile of delta_av(x)...
+	//first determine 95 percentile of delta_av(x)... (i. e. the "mean_nbh_dist_image")
 	//then clac sigma by solving eq(8) in Liew2003 for lamda(delta_t)=0.8...
 	float delta_t=0;
 	if(image_mask==NULL){
@@ -458,7 +459,7 @@ void sfcm::calc_sigma()
 
 }
 
-void sfcm::calc_mean_nbh_dist_image()
+void sfcm::calc_mean_nbh_dist_image_6NBH()
 {
 	float d[6];
 	float mean;
@@ -475,18 +476,49 @@ void sfcm::calc_mean_nbh_dist_image()
 					d[5] = get_pixel_int_dist(i,j,k,i+1,j,k);
 					mean = 0;
 					for(int n=0;n<6;n++){
-						mean += d[0];
+						mean += d[n];
 					}
 					mean /= 6.0;
-					this->average_nbh_dist_mean += mean;
 					this->mean_nbh_dist_image->set_voxel(i,j,k,mean);
+					this->average_nbh_dist_mean += mean;
 				}
 			}//x
 		}//y
 	}//z
 	this->average_nbh_dist_mean /= n_pix();
+	this->mean_nbh_dist_image->data_has_changed();
 
-	cout<<"average_nbh_dist_mean="<<this->average_nbh_dist_mean<<endl;
+	cout<<"average_nbh_dist_mean (6NBH) ="<<this->average_nbh_dist_mean<<endl;
+}
+
+void sfcm::calc_mean_nbh_dist_image_4NBH()
+{
+	float d[4];
+	float mean;
+
+	for(int k=0;k<nz();k++){
+		for(int j=1;j<ny()-1;j++){
+			for(int i=1;i<nx()-1;i++){
+				if(this->is_pixel_included(i,j,k)){			//check mask...
+					d[0] = get_pixel_int_dist(i,j,k,i,j-1,k);
+					d[1] = get_pixel_int_dist(i,j,k,i,j+1,k);
+					d[2] = get_pixel_int_dist(i,j,k,i-1,j,k);
+					d[3] = get_pixel_int_dist(i,j,k,i+1,j,k);
+					mean = 0;
+					for(int n=0;n<4;n++){
+						mean += d[n];
+					}
+					mean /= 4.0;
+					this->mean_nbh_dist_image->set_voxel(i,j,k,mean);
+					this->average_nbh_dist_mean += mean;
+				}
+			}//x
+		}//y
+	}//z
+	this->average_nbh_dist_mean /= n_pix();
+	this->mean_nbh_dist_image->data_has_changed();
+
+	cout<<"average_nbh_dist_mean (4NBH) ="<<this->average_nbh_dist_mean<<endl;
 }
 
 float sfcm::calc_dissimilarity_6NBH(int c, int i, int j, int k)
@@ -568,15 +600,27 @@ void sfcm::calc_dissimilarity_images(const vnl_matrix<float> &V)
 			this->dissim_images[c]->fill_image_border_3D(0);
 		}
 
-		for(int k=1;k<nz()-1;k++){
-			for(int j=1;j<ny()-1;j++){
-				for(int i=1;i<nx()-1;i++){
-					if(this->is_pixel_included(i,j,k)){
-						//this->dissim_images[c]->set_voxel(i,j,k,this->calc_dissimilarity_6NBH(c,i,j,k));
-						this->dissim_images[c]->set_voxel(i,j,k,this->calc_dissimilarity_4NBH(c,i,j,k));
+		if(the_sfcm_nbh_type == SFCM_4NBH){
+			for(int k=1;k<nz()-1;k++){
+				for(int j=1;j<ny()-1;j++){
+					for(int i=1;i<nx()-1;i++){
+						if(this->is_pixel_included(i,j,k)){
+							this->dissim_images[c]->set_voxel(i,j,k,this->calc_dissimilarity_4NBH(c,i,j,k));
+						}
 					}
 				}
 			}
+		}else if(the_sfcm_nbh_type == SFCM_6NBH){
+			for(int k=1;k<nz()-1;k++){
+				for(int j=1;j<ny()-1;j++){
+					for(int i=1;i<nx()-1;i++){
+						if(this->is_pixel_included(i,j,k)){
+							this->dissim_images[c]->set_voxel(i,j,k,this->calc_dissimilarity_6NBH(c,i,j,k));
+						}
+					}
+				}
+			}
+
 		}
 	}
 	cout<<endl;
@@ -625,8 +669,14 @@ void sfcm::Update_imagesfcm(float scale_percentile)
 //	save_int_dist_images(path+"sfcm0_int_dist");
 
 	//calc sfcm objects....
-	calc_mean_nbh_dist_image();	//only needed once...
-//	save_mean_nbh_dist_image(path+"sfcm1_mean_dist.vtk");
+	if(the_sfcm_nbh_type == SFCM_6NBH){
+		calc_mean_nbh_dist_image_6NBH();	//only needed once...
+
+	}else if(the_sfcm_nbh_type == SFCM_4NBH){
+		calc_mean_nbh_dist_image_4NBH();	//only needed once...
+	}
+
+	save_mean_nbh_dist_image("sfcm1_mean_dist.vtk");
 	calc_sigma();				//only needed once...
 
 	calc_dissimilarity_images(V);	//sfcm
