@@ -19,6 +19,8 @@
 #include "ptmath.h"
 #include "error.h"
 #include <vcl_iostream.h>
+#include <vnl/vnl_gamma.h>
+
 
 
 gaussian::gaussian(float amp, float cent, float sig){
@@ -91,6 +93,43 @@ float gaussian_2d::evaluate_at(float x, float y){
 	float dx = x-center_x;
 	float dy = y-center_y;
 	return amplitude* exp( -0.5 * (pow( dx*cos_phi + dy*sin_phi , 2)/sigma_u_2 + pow( dy*cos_phi - dx*sin_phi , 2)/sigma_v_2) );
+}
+
+//-------------------
+
+rayleighian::rayleighian(float amp_val, float sigma_val)
+{
+	amp = amp_val;			//amp - can be initialted from histogram data using (amp = max_hist_val*sig*e(0.5))
+	sig = sigma_val;		//sigma - can be initialted from histogram data using (sig = intensity_at_hist_max)
+	sig2 = sig*sig;			//for speedup
+
+	//...previously...
+	//amp - can be initialted from histogram data using (amp = 0.5*Max_hist_val*M*e)
+	//M - can be initialted from histogram data using (M = sqrt(2.0)*intensity_at_hist_max)
+}
+
+rayleighian::~rayleighian(){}
+
+float rayleighian::evaluate_at(float x)
+{
+	return amp*x/(sig2)*exp( -(x*x)/(2*sig2) );
+}
+
+float rayleighian::get_variance()
+{
+	return 0.5*(4-pt_PI)*sig2;
+}
+
+float rayleighian::get_std()
+{
+	return sqrt(0.5*(4-pt_PI))*sig;
+}
+//-------------------
+
+
+double gamma(double x)
+{
+	return vnl_gamma(x); //Uses 6 parameter Lanczos approximation as described by Toth (http://www.rskey.org/gamma.htm) Accurate to about one part in 3e-11. 
 }
 
 line2D::line2D()

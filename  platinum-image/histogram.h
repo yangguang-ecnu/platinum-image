@@ -205,6 +205,7 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 
 		//------ Fitting of gaussian functions ------
 		void fit_gaussian_to_intensity_range(float &amp, float &center, float &sigma, ELEMTYPE from, ELEMTYPE to, bool print_info=false);
+
 		float find_better_amplitude(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		float find_better_center(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
 		float find_better_sigma(gaussian g, int from_bucket, int to_bucket, float factor1=0.8, float factor2=1.2, int nr_steps=10);
@@ -221,6 +222,10 @@ class histogram_1D : public histogram_typed<ELEMTYPE> //horizontal 1D graph hist
 		vnl_vector<double> get_vnl_vector_with_start_guess_of_num_gaussians(int num_gaussians);
 		ELEMTYPE fit_two_gaussians_to_histogram_and_return_threshold(string save_histogram_file_path = "");
 
+		//------ Fitting of rayleigh functions ------
+		void fit_rayleigh_distr_to_intensity_range(float &amp, float &M, ELEMTYPE from_int, ELEMTYPE to_int, bool print_info=false);
+		double get_sum_square_diff(rayleighian r, bool ignore_zeros=true);
+		double get_sum_square_diff_from_buckets(rayleighian r, int from_bucket, int to_bucket, bool ignore_zeros=true);
 
 		//------------ min max variance -------------------------
 		ELEMTYPE get_min_value_in_bucket_range(int from, int to);
@@ -248,6 +253,16 @@ class fit_gaussians_to_histogram_1D_cost_function : public vnl_cost_function
 
 public:
 	fit_gaussians_to_histogram_1D_cost_function(histogram_1D<ELEMTYPE> *h, int num, bool punish_overlap=false, bool punish_large_area_differences=false);
+	double f(vnl_vector<double> const &x);
+};
+
+template<class ELEMTYPE>
+class fit_rayleighian_to_histogram_1D_cost_function : public vnl_cost_function
+{
+	histogram_1D<ELEMTYPE> *the_hist;
+
+public:
+	fit_rayleighian_to_histogram_1D_cost_function(histogram_1D<ELEMTYPE> *h);
 	double f(vnl_vector<double> const &x);
 };
 

@@ -899,8 +899,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 	image_scalar<float,3> *feat1 = new image_scalar<float,3>(this);
 	image_scalar<float,3> *feat2 = new image_scalar<float,3>(second_feature);
 
-	feat1->save_to_file("tmp_feat1.vtk");
-	feat2->save_to_file("tmp_feat2.vtk");
+//	feat1->save_to_file("tmp_feat1.vtk");
+//	feat2->save_to_file("tmp_feat2.vtk");
 
 	bool body_lung_mask_given_as_input=true;
 	if (body_lung_mask==NULL) {
@@ -924,8 +924,8 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 
 	feat1_corr->data_has_changed();
 	feat2_corr->data_has_changed();
-	feat1_corr->save_to_file("tmp_feat1_corr.vtk");
-	feat2_corr->save_to_file("tmp_feat2_corr.vtk");
+//	feat1_corr->save_to_file("tmp_feat1_corr.vtk");
+//	feat2_corr->save_to_file("tmp_feat2_corr.vtk");
 
 	//Parameters:
 	filter_gaussian* gauss_feat1=new filter_gaussian(num_buckets_feat1-num_buckets_feat1%2+1, 0, feat1_smoothing_std_dev); // odd size of kernel
@@ -959,7 +959,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 		// Calculate feature space
 		image_scalar<unsigned short,3> *temp3 = feat1_corr->create2Dhistogram_3D(feat2_corr, true, num_buckets_feat1, num_buckets_feat2, body_lung_mask);
 
-		temp3->save_to_file("tmp_temp3.vtk");
+//		temp3->save_to_file("tmp_temp3.vtk");
 
 		image_scalar<float,3> *hist = new image_scalar<float,3>(temp3); 
 		delete temp3;
@@ -1005,7 +1005,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 		}
 		delete feat1_force; delete feat2_force;
 
-		inh_map->save_to_file("tmp_inh_map.vtk");
+//		inh_map->save_to_file("tmp_inh_map.vtk");
 		
 		// Smooth in each direction
 		cout << "Gauss smoothing in z-direction" << endl;
@@ -1017,15 +1017,15 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_wb_SIM_bias_correction_on_this_float
 
 		// field[i] = field[i-1] + iteration_strength*(force / mean(abs(force)))
 		inh_map->mask_out(body_lung_mask);
-		inh_map->save_to_file("tmp_inh_map_masked.vtk");
+//		inh_map->save_to_file("tmp_inh_map_masked.vtk");
 		float sumvox = inh_map->get_sum_of_voxels(std::numeric_limits<ELEMTYPE>::min(), true, body_lung_mask);
 		inh_map->scale_by_factor(iteration_strength/(sumvox/bodysize)); // oklart varför
-		inh_map->save_to_file("tmp_inh_map_scaled.vtk");
-		field->save_to_file("tmp_field_before.vtk");
+//		inh_map->save_to_file("tmp_inh_map_scaled.vtk");
+//		field->save_to_file("tmp_field_before.vtk");
 		field->combine(inh_map, COMB_ADD);
 		field->data_has_changed();
 
-		field->save_to_file("tmp_field.vtk");
+//		field->save_to_file("tmp_field.vtk");
 			
 		if (save_field_each_iteration) {
 			fields[iter] = new image_scalar<float,3>(field);
@@ -1132,10 +1132,10 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_1D_SIM_bias_correction(image_binary<
 		hist = feat1_corr->get_histogram_from_masked_region_3D(mask, num_buckets_feat1);
 		
 		// Calculate force in each bucket: Smooth, normalize and log, then derivate in each direction with sobel filter
-		hist->save_histogram_to_txt_file("tmp_SIM_hist_" + int2str(iter) + ".txt");
+//		hist->save_histogram_to_txt_file("tmp_SIM_hist_" + int2str(iter) + ".txt");
 		hist->smooth_mean(10,10);
 		hist->data_has_changed();
-		hist->save_histogram_to_txt_file("tmp_SIM_hist_" + int2str(iter) + "_smooth.txt");
+//		hist->save_histogram_to_txt_file("tmp_SIM_hist_" + int2str(iter) + "_smooth.txt");
 
 		for(int z=0; z<zsize; z++){
 			for(int y=0; y<ysize; y++){
@@ -1146,7 +1146,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_1D_SIM_bias_correction(image_binary<
 				}
 			}
 		}
-		tmp_field->save_to_file( "tmp_SIM_fields_" + int2str(iter) + ".vtk" );
+//		tmp_field->save_to_file( "tmp_SIM_fields_" + int2str(iter) + ".vtk" );
 
 
 		// Smooth in each direction
@@ -1164,7 +1164,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_1D_SIM_bias_correction(image_binary<
 		tmp_field->mask_out(mask);
 		float sum = tmp_field->get_sum_of_voxels(std::numeric_limits<float>::min(), true, mask);
 		tmp_field->scale_by_factor( iteration_strength/(sum/bodysize) ); // oklart varfˆr
-		tmp_field->save_to_file( "tmp_SIM_fields_" + int2str(iter) + "_smooth_scale.vtk" );
+//		tmp_field->save_to_file( "tmp_SIM_fields_" + int2str(iter) + "_smooth_scale.vtk" );
 		field->combine(tmp_field, COMB_ADD);
 		field->data_has_changed();
 		field->save_to_file( "tmp_SIM_field_sum_" + int2str(iter) + ".vtk" );
@@ -1258,3 +1258,38 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::appl_scale_outer_slices_using_mean(int di
 	}
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+image_binary<3>* image_scalar<ELEMTYPE, IMAGEDIM>::appl_abd_create_crude_grad_mask( image_binary<3>* small_abd_mask, int std_x, int std_y, int std_z, int erode_dist, string save_base)
+{
+	image_scalar<float,3> *this_float = new image_scalar<float,3>(this);
+
+	filter_central_difference_magn_2d* diff_2d = new filter_central_difference_magn_2d(2);
+	this_float->filter_3D(diff_2d);
+	this_float->data_has_changed();
+
+	this_float->mask_out(small_abd_mask);
+
+	//---------------------------------
+	this_float->smooth_using_filter3D(std_x,std_y,std_z);
+	this_float->data_has_changed();
+
+	if(save_base!=""){
+		this_float->save_to_file(save_base+"_grad_smooth.vtk");
+	}
+
+	image_binary<3> *gradient_mask = this_float->threshold( this_float->get_mean() );
+	gradient_mask->fill_holes_2D();
+	gradient_mask->largest_object_2D();
+
+	if(save_base!=""){
+		gradient_mask->save_to_file(save_base+"_grad_thresh.vtk");
+	}
+	gradient_mask->erode_2D(erode_dist);
+
+	if(save_base!=""){
+		gradient_mask->save_to_file(save_base+"_grad_thresh_eroded.vtk");
+	}
+
+	delete this_float;
+	return gradient_mask;
+}

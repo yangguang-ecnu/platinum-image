@@ -67,6 +67,7 @@ public:
 	float get_value_at_intersection_between_centers(gaussian g2, float num_calc_steps=200);
 };
 
+
 class gaussian_2d{
 public:
 	gaussian_2d(float amp=0, float cent_x=0, float cent_y=0, float sig_u=0, float sig_v=0, float angle=0);
@@ -79,6 +80,22 @@ public:
 	float phi;			//angle of u and v relative to x and y (radians)
 	float evaluate_at(float x, float y);
 };
+
+class rayleighian{
+private:
+	float amp;	
+	float sig;
+	float sig2;
+
+public:
+	rayleighian(float amp_val=0, float sigma_val=0);
+	~rayleighian(void);
+	float evaluate_at(float x);
+	float get_variance();
+	float get_std();
+};
+
+double gamma(double x);
 
 class line2D{
 
