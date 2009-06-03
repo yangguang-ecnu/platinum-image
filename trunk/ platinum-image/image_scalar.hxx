@@ -2124,6 +2124,27 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_3D(Vector3D r)
 	delete res;
 }
 
+template <class ELEMTYPE, int IMAGEDIM>
+void image_scalar<ELEMTYPE, IMAGEDIM>::smooth_using_filter3D(int std_x, int std_y, int std_z)
+{
+	filter_gaussian* gauss_x=new filter_gaussian(std_x*2+1,0,std_x);
+	filter_gaussian* gauss_y=new filter_gaussian(std_y*2+1,1,std_y);
+	filter_gaussian* gauss_z=new filter_gaussian(std_z*2+1,2,std_z);
+
+	cout << "Gauss smoothing in x-direction" << endl;
+	this->filter_3D(gauss_x, 1);
+
+	cout << "Gauss smoothing in y-direction" << endl;
+	this->filter_3D(gauss_y, 1);
+
+	cout << "Gauss smoothing in z-direction" << endl;
+	this->filter_3D(gauss_z, 1);
+
+	delete gauss_x;
+	delete gauss_y;
+	delete gauss_z;
+}
+
 
 template <class ELEMTYPE, int IMAGEDIM>
 image_binary<IMAGEDIM>* image_scalar<ELEMTYPE, IMAGEDIM>::region_grow_corners_3D(ELEMTYPE min_intensity, ELEMTYPE max_intensity)

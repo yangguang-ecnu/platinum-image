@@ -938,6 +938,8 @@ void histogram_1D<ELEMTYPE>::fit_gaussian_to_intensity_range(float &amp, float &
 	sigma = g.sigma;
 }
 
+
+
 template <class ELEMTYPE>
 float histogram_1D<ELEMTYPE>::find_better_amplitude(gaussian g, int from_bucket, int to_bucket, float factor1, float factor2, int nr_steps)
 {
@@ -1189,6 +1191,72 @@ ELEMTYPE histogram_1D<ELEMTYPE>::fit_two_gaussians_to_histogram_and_return_thres
 	return g.get_value_at_intersection_between_centers(g2);
 }
 
+//-----------------------------
+
+template <class ELEMTYPE>
+void histogram_1D<ELEMTYPE>::fit_rayleigh_distr_to_intensity_range(float &amp, float &sigma, ELEMTYPE from_int, ELEMTYPE to_int, bool print_info)
+{
+	cout<<"fit_rayleigh_distr_to_intensity_range..."<<endl;
+
+	fit_rayleighian_to_histogram_1D_cost_function<ELEMTYPE> cost(this);
+
+	vnl_amoeba amoeba_optimizer = vnl_amoeba(cost);
+	amoeba_optimizer.verbose = false;
+	amoeba_optimizer.set_x_tolerance(1000);
+//	amoeba_optimizer.set_relative_diameter(0.10);
+//	amoeba_optimizer.set_max_iterations(10);
+//	amoeba_optimizer.set_f_tolerance(1);
+
+	vnl_vector<double> x(2);
+	int hist_max_val_bucket_pos;
+	ELEMTYPE hist_max = this->get_max_value_in_bucket_range(this->intensity_to_bucketpos(from_int),this->intensity_to_bucketpos(to_int), hist_max_val_bucket_pos);
+	ELEMTYPE intensity_at_hist_max = this->bucketpos_to_intensity(hist_max_val_bucket_pos);
+
+//	x[1] = sqrt(2.0)*intensity_at_hist_max; //M = sqrt(2)*intensity_at_hist_max
+//	x[0] = 0.5*hist_max*x[1]*exp(1.0); //amp = 0.5*hist_max_val*M*exp(1)
+
+	x[1] = intensity_at_hist_max; //sig = intensity_at_hist_max
+	x[0] = hist_max*x[1]*exp(0.5); //amp = hist_max_val*sigma*exp(0.5)
+
+	cout<<"x="<<x<<endl;
+	amoeba_optimizer.minimize(cost,x);
+	cout<<"x="<<x<<endl;
+
+	cout<<"amoeba_optimizer.maxiter="<<amoeba_optimizer.maxiter<<endl;
+	cout<<"amoeba_optimizer.F_tolerance="<<amoeba_optimizer.F_tolerance<<endl;
+	cout<<"amoeba_optimizer.X_tolerance="<<amoeba_optimizer.X_tolerance<<endl;
+
+	amp = x[0];
+	sigma = x[1];
+}
+
+		
+template <class ELEMTYPE>
+double histogram_1D<ELEMTYPE>::get_sum_square_diff(rayleighian r, bool ignore_zeros){
+	return get_sum_square_diff_from_buckets(r, 0, this->num_buckets, ignore_zeros);
+}
+
+template <class ELEMTYPE>
+double histogram_1D<ELEMTYPE>::get_sum_square_diff_from_buckets(rayleighian r, int from_bucket, int to_bucket, bool ignore_zeros){
+	double error = 0;
+	float val=0;
+	int zero_intensity_bucket = intensity_to_bucketpos(0);
+
+	for(int j=from_bucket;j<=to_bucket;j++){
+		//it is very important to use the intensity, and not the bucket position...
+
+		if(this->buckets[j]>0 || !ignore_zeros){
+			if(j != zero_intensity_bucket){ //dont include the commonly seen peak at zero intensity
+
+				ELEMTYPE intensity = bucketpos_to_intensity(j);
+				val = r.evaluate_at(intensity);	
+				error += pow(val - float(this->buckets[j]), 2);
+			}
+		}
+	}
+	return error;
+}
+
 
 
 template <class ELEMTYPE>
@@ -1295,6 +1363,9 @@ int histogram_1D<ELEMTYPE>::get_bucket_pos_with_largest_value_in_intensity_range
 	return pos;
 }
 
+
+
+
 template<class ELEMTYPE>
 fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::fit_gaussians_to_histogram_1D_cost_function(histogram_1D<ELEMTYPE> *h, int num, bool punish_overl, bool punish_large_area_diffs):vnl_cost_function(num*3)
 {
@@ -1361,6 +1432,23 @@ double fit_gaussians_to_histogram_1D_cost_function<ELEMTYPE>::f(vnl_vector<doubl
 
 		res = res*(1+0.2*mean_diff_percent);
 	}
+
+	return res;
+}
+
+
+template<class ELEMTYPE>
+fit_rayleighian_to_histogram_1D_cost_function<ELEMTYPE>::fit_rayleighian_to_histogram_1D_cost_function(histogram_1D<ELEMTYPE> *h):vnl_cost_function(2)
+{
+	the_hist = h;
+}
+
+template<class ELEMTYPE>
+double fit_rayleighian_to_histogram_1D_cost_function<ELEMTYPE>::f(vnl_vector<double> const &x)
+{
+	rayleighian r(x[0],x[1]);
+	double res = the_hist->get_sum_square_diff(r, true);
+	cout<<x<<"-->"<<res<<endl;
 
 	return res;
 }

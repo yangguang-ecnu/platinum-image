@@ -224,6 +224,7 @@ public:
 
 	void smooth_ITK(Vector3D radius); 
 	void smooth_3D(Vector3D r); 
+	void smooth_using_filter3D(int std_x, int std_y, int std_z);
 
 	image_binary<IMAGEDIM>* region_grow_corners_3D(ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
 	image_binary<IMAGEDIM>* region_grow_3D(Vector3D seed, ELEMTYPE min_intensity, ELEMTYPE max_intensity=std::numeric_limits<ELEMTYPE>::max());
@@ -379,6 +380,8 @@ public:
 
 	void appl_scale_outer_slices_using_mean(int dir, int no_outer_slices=1);
 	void appl_scale_outer_slices_using_mean(int dir, int no_outer_slices, image_scalar<ELEMTYPE, IMAGEDIM> *im1, image_scalar<ELEMTYPE, IMAGEDIM> *im2);
+
+	image_binary<3>* appl_abd_create_crude_grad_mask( image_binary<3>* small_abd_mask, int std_x, int std_y, int std_z, int erode_dist, string save_base="" );
 
 };
 
