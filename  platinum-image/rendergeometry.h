@@ -28,37 +28,29 @@
 #define __rendergeometry__
 
 #include "ptmath.h"
-
 #include "global.h"
 
 class rendergeometry 
     {
     private:
         int id;
-
         static int new_rg_ID;                   //ID counter for new geometry objects
-    public:
+
+	public:
         rendergeometry();
 
-        Matrix3D view_to_world_matrix(int viewminsize);
+        // *** NOTE: some render parameter constraints (like not zooming in/out at insane levels) are implemented in renderer_base::move
 
-        // *** NOTE: some render parameter constraints (like not zooming in/out at insane levels)
-        //     are implemented in renderer_base::move
-
-        Matrix3D dir;               //view to composite image matrix
-        //only direction (no scaling) = normal of slice plane
-
+		Vector3D look_at;     //center viewpoint, this will be the middle of the rendering and pivot point for the slice direction.
+        Matrix3D dir;       //view to composite image matrix    //only direction (no scaling) = normal of slice plane
         float zoom;  //user-determined magnification, multiplied with scale to obtain the actual rendering scale
 					//ZOOM_CONSTANT/max(phys_span_x,phys_span_y)*rectangular_score;
 					//rectangular_score = (vp_side_max/vp_side_min) and span = image span, from view direction
 
-        Vector3D look_at;           //center viewpoint, this will be the middle of the
-									//rendering and pivot point for the slice direction.
-        int get_id();
+		int get_id();
 
+		Matrix3D view_to_world_matrix(int viewminsize);
         void refresh_viewports();   //refresh viewports using this combination
-		
-		// Matrix3D get_dir();	// is not in use since dir is already public. why?
 		
 		float distance_to_viewing_plane(Vector3D point);
 
@@ -70,6 +62,5 @@ class rendergeometry
 
 		line3D get_physical_line_of_intersection(rendergeometry *rg2);
 		line2D get_physical_line_of_intersection_projected(rendergeometry *rg2);
-
 	};
 #endif

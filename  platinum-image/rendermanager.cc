@@ -304,19 +304,19 @@ int rendermanager::get_combination_id(int rendererIndex)
 {
 	int c=-1;
 	if(rendererIndex>=0 && rendererIndex<renderers.size()){
-		c = renderers[rendererIndex]->imagestorender->get_id();
+		c = renderers[rendererIndex]->the_rc->get_id();
 	}
 	return c;
 }
 	
 int rendermanager::get_geometry_id(int rendererIndex)
     {
-    return renderers[rendererIndex]->wheretorender->get_id();
+    return renderers[rendererIndex]->the_rg->get_id();
     }
 	
 rendergeometry * rendermanager::get_geometry ( int rendererID )
 {
-	return get_renderer(rendererID)->wheretorender;
+	return get_renderer(rendererID)->the_rg;
 }
 
 void rendermanager::print_renderers()
@@ -375,24 +375,24 @@ void rendermanager::remove_renderer (renderer_base * r)
 
 void rendermanager::toggle_image (int rendererIndex, int imageID)
     {
-    renderers[rendererIndex]->imagestorender->toggle_data( imageID);
+    renderers[rendererIndex]->the_rc->toggle_data( imageID);
     }
 	
 void rendermanager::enable_image( int rendererID, int imageID )
 {
 	int rendererIndex = find_renderer_index( rendererID );
-	renderers[rendererIndex]->imagestorender->enable_data( imageID );
+	renderers[rendererIndex]->the_rc->enable_data( imageID );
 }
 
 void rendermanager::disable_image( int rendererID, int imageID )
 {
 	int rendererIndex = find_renderer_index( rendererID );
-	renderers[rendererIndex]->imagestorender->disable_data( imageID );
+	renderers[rendererIndex]->the_rc->disable_data( imageID );
 }
 
 int rendermanager::image_rendered(int rendererIndex, int volID)
     {
-    return renderers[rendererIndex]->imagestorender->image_rendered(volID);
+    return renderers[rendererIndex]->the_rc->image_rendered(volID);
     }
 
 int rendermanager::renderer_empty (int rendererID)
@@ -400,7 +400,7 @@ int rendermanager::renderer_empty (int rendererID)
     int rendererIndex = find_renderer_index(rendererID);
 
     if (rendererIndex != -1)
-        {return (renderers[rendererIndex]->imagestorender->empty() ? RENDERER_EMPTY : RENDERER_NOT_EMPTY);}
+        {return (renderers[rendererIndex]->the_rc->empty() ? RENDERER_EMPTY : RENDERER_NOT_EMPTY);}
 
     return -1;
     }
@@ -461,11 +461,11 @@ void rendermanager::data_vector_has_changed()
 {
     for (std::vector<renderer_base *>::iterator itr = renderers.begin();itr != renderers.end();itr++)
         {
-        //rendercombination * c = (*itr)->imagestorender;
+        //rendercombination * c = (*itr)->the_rc;
         
-        (*itr)->imagestorender->data_vector_has_changed();
+        (*itr)->the_rc->data_vector_has_changed();
 		
-        /*if ((*itr)->imagestorender->empty())
+        /*if ((*itr)->the_rc->empty())
             {
             //renderer has no images, we might want to kill it - BUT
             //the renderer owns the rendercombination object and is thus
@@ -482,13 +482,13 @@ void rendermanager::data_vector_has_changed()
 }
 Matrix3D rendermanager::get_direction(int renderer_index)
 {
-	return renderers[renderer_index]->wheretorender->dir;
+	return renderers[renderer_index]->the_rg->dir;
 }
 
 void rendermanager::set_geometry(int renderer_index, Matrix3D * dir)
     {
-    renderers[renderer_index]->wheretorender->dir=(*dir);
-    renderers[renderer_index]->wheretorender->refresh_viewports();
+    renderers[renderer_index]->the_rg->dir=(*dir);
+    renderers[renderer_index]->the_rg->refresh_viewports();
     }
 
 void rendermanager::set_geometry(int renderer_ID,Vector3D look_at,float zoom)
@@ -496,21 +496,21 @@ void rendermanager::set_geometry(int renderer_ID,Vector3D look_at,float zoom)
     int index = find_renderer_index(renderer_ID);
     
     if( zoom > 0)
-        {renderers[index]->wheretorender->zoom = zoom;}
+        {renderers[index]->the_rg->zoom = zoom;}
     
-    renderers[index]->wheretorender->look_at = look_at;
+    renderers[index]->the_rg->look_at = look_at;
     
-    renderers[index]->wheretorender->refresh_viewports();
+    renderers[index]->the_rg->refresh_viewports();
 }
 
 int rendermanager::get_blend_mode (int rendererIndex)
     {
-    return renderers[rendererIndex]->imagestorender->blend_mode();
+    return renderers[rendererIndex]->the_rc->blend_mode();
     }
 
 rendercombination* rendermanager::get_combination (int ID)
 {
-    return get_renderer(ID)->imagestorender;
+    return get_renderer(ID)->the_rc;
 }
 
 image_base* rendermanager::get_top_image_from_renderer(int r_id)
@@ -522,7 +522,7 @@ image_base* rendermanager::get_top_image_from_renderer(int r_id)
 
 void rendermanager::set_blendmode(int renderer_index,blendmode mode)
     {
-    renderers[renderer_index]->imagestorender->blend_mode(mode);
+    renderers[renderer_index]->the_rc->blend_mode(mode);
     }
 
 Vector3D rendermanager::center_of_image(const int imageID) const
@@ -546,10 +546,10 @@ void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
 
 //	cout<<"center3d_and_fit..."<<endl;
     int r_ind = find_renderer_index(rendererID);
-//	cout<<"X="<<renderers[r_ind]->wheretorender->get_X()<<endl;
-//	cout<<"Y="<<renderers[r_ind]->wheretorender->get_Y()<<endl;
-	float phys_span_x = image->get_phys_span_in_dir(renderers[r_ind]->wheretorender->get_X());
-	float phys_span_y = image->get_phys_span_in_dir(renderers[r_ind]->wheretorender->get_Y());
+//	cout<<"X="<<renderers[r_ind]->the_rg->get_X()<<endl;
+//	cout<<"Y="<<renderers[r_ind]->the_rg->get_Y()<<endl;
+	float phys_span_x = image->get_phys_span_in_dir(renderers[r_ind]->the_rg->get_X());
+	float phys_span_y = image->get_phys_span_in_dir(renderers[r_ind]->the_rg->get_Y());
 	
 	viewport *vp = viewmanagement.get_viewport(rendererID); //JK Warning rendererID and vp_ID might not be the same in the future....
 
@@ -596,10 +596,10 @@ void rendermanager::center3d_and_fill_vp(const int rendererID, const int imageID
 
 //	cout<<"center3d_and_fill_vp..."<<endl;
     int r_ind = find_renderer_index(rendererID);
-//	cout<<"X="<<renderers[r_ind]->wheretorender->get_X()<<endl;
-//	cout<<"Y="<<renderers[r_ind]->wheretorender->get_Y()<<endl;
-	float phys_span_x = image->get_phys_span_in_dir(renderers[r_ind]->wheretorender->get_X());
-	float phys_span_y = image->get_phys_span_in_dir(renderers[r_ind]->wheretorender->get_Y());
+//	cout<<"X="<<renderers[r_ind]->the_rg->get_X()<<endl;
+//	cout<<"Y="<<renderers[r_ind]->the_rg->get_Y()<<endl;
+	float phys_span_x = image->get_phys_span_in_dir(renderers[r_ind]->the_rg->get_X());
+	float phys_span_y = image->get_phys_span_in_dir(renderers[r_ind]->the_rg->get_Y());
 	cout<<"-------------------------------------"<<endl;
 	cout<<"phys_span_x="<<phys_span_x<<endl;
 	cout<<"phys_span_y="<<phys_span_y<<endl;

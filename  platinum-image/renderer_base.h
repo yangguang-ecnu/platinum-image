@@ -32,10 +32,9 @@
 #include <vector>
 
 #include "rendercombination.h"
-#include "datamanager.h"
 #include "rendergeometry.h"
+#include "datamanager.h"
 #include "threshold.h"
-
 #include "global.h"
 
 class image_base;
@@ -50,15 +49,11 @@ const std::string renderer_labels[] = {"MPR renderer"};
 
 class renderer_base
 {
-public:
-//    const static float display_scale;
+
 protected:
-    int identitet;
-    
+    int id;
     int rc_id;	// rendercombination id
     int rg_id;	// rendergeometry id
-    
-    image_base *get_imagepointer(int imageindex);
     
     static int maxrendererID;
     
@@ -66,39 +61,36 @@ public:
 	renderer_base();
     virtual ~renderer_base() {}
     
-    
     // renderer_base(const renderer_base &k) { *this=k; ::renderer_base(); }
     
     // virtual const renderer_base &operator=(const renderer_base &k) { return k; }
     bool virtual operator<<(const renderer_base &k)
-        { return identitet==k.identitet; }
+        { return id==k.id; }
     bool virtual operator==(const renderer_base &k)
-        { return identitet==k.identitet; }
-    bool virtual operator==(const int &k) { return identitet==k; }
+        { return id==k.id; }
+    bool virtual operator==(const int &k) { return id==k; }
     bool virtual operator!=(const renderer_base &k)
-        { return identitet!=k.identitet; }
+        { return id!=k.id; }
     bool virtual operator<(const renderer_base &k)
-        { return identitet<k.identitet; }
+        { return id<k.id; }
     bool virtual operator>(const renderer_base &k)
-        { return identitet>k.identitet; }
+        { return id>k.id; }
     friend std::istream &operator>>(std::istream &in, renderer_base &k)
-        { in >> k.identitet; return in; }
+        { in >> k.id; return in; }
     friend std::ostream &operator<<(std::ostream &ut, const renderer_base &k)
-        { ut << "[renderer_base. ID= " << k.identitet << "] "; return ut; }
+        { ut << "[renderer_base. ID= " << k.id << "] "; return ut; }
     
-#pragma mark *** render parameters ***
+	// ----- render parameters ------
     
-    rendercombination * imagestorender;    //a list of images to render
-                                           //public, because it is managed by viewport too
-                                           //could also make renderer and viewport friends
-    
-    rendergeometry * wheretorender;                 //lookat and direction vectors for rendering
-    void connect_geometry (rendergeometry *);       //attach a certain geometry to this renderer
+    rendercombination* the_rc;				//list of images to render, public, because it is managed by viewport too (make renderer and viewport friends?)
+	void connect_combination(rendercombination *rc);
     int combination_id();    
-	void connect_combination (rendercombination *);
-	
+
+    rendergeometry* the_rg;                 //lookat and direction vectors for rendering
+    void connect_geometry (rendergeometry *);       //attach a certain geometry to this renderer
 	int geometry_id() const;
-	
+
+
 #pragma mark *** rendering & data interaction ***
     
     virtual void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
@@ -137,17 +129,12 @@ public:
     //NOTE: none of the move commands update the rendered image,
     //that should be done once elsewhere
     
-    virtual void move( float pan_x, float pan_y, float pan_z);
-    //!move in world coordinates
-    
-    virtual void move_view (int vsize,int pan_x, int pan_y, int pan_z = 0, float zoom_d = 1);
-    //!move in view coordinates
-    
-    virtual void move_voxels (int,int,int);
-    //!move in voxels - which image's voxel is a question of definition  
+    virtual void move(float pan_x, float pan_y, float pan_z);    //!move in world coordinates
+    virtual void move_view(int vsize,int pan_x, int pan_y, int pan_z = 0, float zoom_d = 1);    //!move in view coordinates
+    virtual void move_voxels(int,int,int);    //!move in voxels - which image's voxel is a question of definition  
     
     int get_id()
-        { return identitet; }
+        { return id; }
     
     virtual std::string find_typekey() const = 0; //gives name in GUI-lists 
     

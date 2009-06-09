@@ -47,13 +47,13 @@ T signed_ceil(T & x){   //ceil that returns rounded absolute upwards
 void rendererMPR::connect_image(int vHandlerID)
     {
     //TEST: wrapper, this should be done directly by rendermanagement
-    imagestorender->add_data(vHandlerID);
+    the_rc->add_data(vHandlerID);
 	}
 
 void rendererMPR::paint_overlay(int vp_w, int vp_h_pane)
 {
-//	cout<<"rendererMPR::paint_overlay..("<<vp_w<<" "<<vp_h_pane<<") where_id="<<wheretorender->get_id()<<endl;
-	paint_slice_locators_to_overlay(vp_w, vp_h_pane, wheretorender, imagestorender);
+//	cout<<"rendererMPR::paint_overlay..("<<vp_w<<" "<<vp_h_pane<<") where_id="<<the_rg->get_id()<<endl;
+	paint_slice_locators_to_overlay(vp_w, vp_h_pane, the_rg, the_rc);
 }
 
 Vector3D rendererMPR::view_to_world(int vx, int vy, int sx, int sy) const
@@ -67,8 +67,8 @@ Vector3D rendererMPR::view_to_world(int vx, int vy, int sx, int sy) const
     viewCentered[2]=0;
     
     //transform to world coordinates
-    world=wheretorender->view_to_world_matrix(viewmin) * viewCentered;
-    world=world+wheretorender->look_at;
+    world=the_rg->view_to_world_matrix(viewmin) * viewCentered;
+    world=world+the_rg->look_at;
     
     return world;
 }
@@ -83,7 +83,7 @@ Vector3D rendererMPR::view_to_voxel(int vx, int vy,int sx,int sy,int imageID) co
         {    
         Vector3D v;
         
-        image_base * image = imagestorender->top_image();
+        image_base * image = the_rc->top_image();
         
         if (image !=NULL)
             {
@@ -144,12 +144,12 @@ void rendererMPR::render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, 
 
 void rendererMPR::render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold)
 {
-    render_( rgba, rgb_sx, rgb_sy,wheretorender,imagestorender,threshold);
+    render_( rgba, rgb_sx, rgb_sy,the_rg,the_rc,threshold);
 }
 
 void rendererMPR::render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
 {
-    render_( rgb, rgb_sx, rgb_sy,wheretorender,imagestorender,NULL);
+    render_( rgb, rgb_sx, rgb_sy,the_rg,the_rc,NULL);
 }
 
 
