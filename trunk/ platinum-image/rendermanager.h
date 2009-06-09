@@ -31,9 +31,9 @@
 
 #include "ptmath.h"
 
+#include "renderer_base.h"
 #include "rendercombination.h"
 #include "rendergeometry.h"
-#include "renderer_base.h"
 #include "global.h"
 #include "FLTKviewport.h"
 
@@ -45,9 +45,9 @@
 class rendermanager
     {
     private:
-        std::vector<rendergeometry*>	geometries;
-        std::vector<rendercombination*> combinations;
         std::vector<renderer_base*>		renderers;
+        std::vector<rendercombination*> combinations;
+        std::vector<rendergeometry*>	geometries;
         
     public:
         rendermanager ();
@@ -56,29 +56,30 @@ class rendermanager
 //		static listedfactory<renderer_base> renderer_factory;
 		static listedfactory<FLTKpane> pane_factory;
         
-        void listrenderers();
+        void print_renderers();
         int create_renderer(RENDERER_TYPES rendertype);
-        void remove_renderer (renderer_base * r);
-        void remove_renderer (int ID);
+        void remove_renderer(renderer_base * r);
+        void remove_renderer(int ID);
         int find_renderer_index(int uniqueID);
-        int find_renderer_id (int index);
-        renderer_base * get_renderer (int ID);
+        int find_renderer_id(int index);
+        renderer_base * get_renderer(int ID);
         void connect_data_renderer(int rendererID, int data);
-        void data_vector_has_changed();
-        void data_has_changed (int ID);
+
+		void data_vector_has_changed();
+        void data_has_changed(int ID);
 
         void move(int rendererIndex, float panX, float panY, float panZ=0, float scale=1);//alter rendergeometry (pan,zoom)
         void render(int rendererIndex, unsigned char *rgbimage, int rgbXsize, int rgbYsize);
         void render_thumbnail(unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID);
         void render_threshold(int rendererIndex, unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold);
        
+
         void toggle_image (int rendererIndex, int imageID);   //turn image on or off in a combination,
                                                                 //triggered by menu selection
 		void enable_image( int rendererID, int imageID );	// turn image (data) on or leave it on
 
 		void disable_image( int rendererID, int imageID );	// turn image (data) off or leave it off
 		
-
 
         //int get_renderer_type(int rendererIndex);
         int get_blend_mode (int rendererIndex);

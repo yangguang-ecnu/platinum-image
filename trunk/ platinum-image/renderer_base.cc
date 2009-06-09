@@ -31,32 +31,32 @@ renderer_base::renderer_base()
     identitet=maxrendererID;
 
     imagestorender=NULL;
-    imagestorender_id=0;
+    rc_id=0;
 
     wheretorender=NULL;
-    wheretorender_id=0;
+    rg_id=0;
     }
 
 void renderer_base::connect_geometry (rendergeometry * g)
     {
     wheretorender= g;
-    wheretorender_id=g->get_id();
+    rg_id=g->get_id();
     }
 	
 void renderer_base::connect_combination (rendercombination * c)
     {
     imagestorender=c;
-    imagestorender_id=c->get_id();
+    rc_id=c->get_id();
     }
 
 int renderer_base::combination_id()
     {
-    return imagestorender_id;
+    return rc_id;
     }
 	
 int renderer_base::geometry_id() const
 {
-	return wheretorender_id;
+	return rg_id;
 }
 
 void renderer_base::look_at(float x, float y, float z,float zoom)
