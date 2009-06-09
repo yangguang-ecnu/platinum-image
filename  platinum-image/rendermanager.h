@@ -57,7 +57,7 @@ class rendermanager
 		static listedfactory<FLTKpane> pane_factory;
         
         void print_renderers();
-        int create_renderer(RENDERER_TYPES rendertype);
+        int create_renderer(RENDERER_TYPE rendertype);
         void remove_renderer(renderer_base * r);
         void remove_renderer(int ID);
         int find_renderer_index(int uniqueID);
@@ -74,16 +74,13 @@ class rendermanager
         void render_threshold(int rendererIndex, unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold);
        
 
-        void toggle_image (int rendererIndex, int imageID);   //turn image on or off in a combination,
-                                                                //triggered by menu selection
-		void enable_image( int rendererID, int imageID );	// turn image (data) on or leave it on
-
-		void disable_image( int rendererID, int imageID );	// turn image (data) off or leave it off
+        void toggle_image(int rendererIndex, int imageID);   //turn image on or off in a combination, triggered by menu selection
+		void enable_image(int rendererID, int imageID );	// turn image (data) on or leave it on
+		void disable_image(int rendererID, int imageID );	// turn image (data) off or leave it off
 		
-
         //int get_renderer_type(int rendererIndex);
         int get_blend_mode (int rendererIndex);
-        bool renderer_supports_mode(int rendererIndex,int m);
+        bool renderer_supports_mode(int rendererIndex, int m);
         
         factoryIdType get_renderer_type (int ID);
         

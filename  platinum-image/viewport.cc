@@ -104,7 +104,7 @@ int viewport::h_pane(){
 void viewport::clear_rgbpixmap()
 {
     //blacken viewport
-    for (long p=0; p < rgbpixmap_size[0]*rgbpixmap_size[1]*RGBpixmap_bytesperpixel; p +=RGBpixmap_bytesperpixel )
+    for (long p=0; p < rgbpixmap_size[0]*rgbpixmap_size[1]*RGB_pixmap_bpp; p +=RGB_pixmap_bpp )
         {
         rgbpixmap[p] = rgbpixmap[p + 1] = rgbpixmap[p + 2] = 0;
         }
@@ -421,9 +421,9 @@ void viewport::update_viewsize(int des_width, int des_height)
 {
     const float grow_factor=1.5;  //margin area added when re-allocating of rgbpixmap
     
-    if (abs(RGBpixmap_bytesperpixel*des_width*des_height)  > sizeof (rgbpixmap))
+    if (abs(RGB_pixmap_bpp*des_width*des_height)  > sizeof (rgbpixmap))
         {
-        long rgbpixmap_datasize=(long)RGBpixmap_bytesperpixel*des_width*des_height*grow_factor;
+        long rgbpixmap_datasize=(long)RGB_pixmap_bpp*des_width*des_height*grow_factor;
         
         if (rgbpixmap != NULL)
             {

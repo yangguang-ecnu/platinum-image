@@ -332,11 +332,7 @@ void nav_tool::handle(viewport_event &event)
 //					cout<<"***pt_event::rotate - temporary work (ctrl + shift + mouse drag)***"<<endl; 
 					float dx = (mouse[0]-last_global_x);
 					float dy = (mouse[1]-last_global_y);
-					Matrix3D dir = myRenderer->the_rg->dir;
-					Matrix3D m = create_rot_matrix_3D(dy*pt_PI/180.0, -dx*pt_PI/180.0, 0.0);
-					dir = dir*m;
-					myRenderer->the_rg->dir = dir;
-
+					myRenderer->rotate_dir(dx, dy);
 					fp->needs_rerendering();
 					viewmanagement.update_overlays();
 				}

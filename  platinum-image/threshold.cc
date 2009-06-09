@@ -145,8 +145,8 @@ threshold_overlay::threshold_overlay(FLTK_Pt_pane *fp, int r_index)
 //    height=owner->h();
 
     overlay_image_data = NULL;
-//    overlay_image_data = new unsigned char [width*height*RGBApixmap_bytesperpixel];
-    overlay_image_data = new unsigned char [owner->w()*owner->h()*RGBApixmap_bytesperpixel];
+//    overlay_image_data = new unsigned char [width*height*RGBA_pixmap_bpp];
+    overlay_image_data = new unsigned char [owner->w()*owner->h()*RGBA_pixmap_bpp];
 
     rendererIndex= r_index;
     }
@@ -177,14 +177,14 @@ void threshold_overlay::render (thresholdparvalue * t)
 void threshold_overlay::resize ()
 {
     delete[] overlay_image_data;
-    overlay_image_data = new unsigned char [owner->resize_w*owner->resize_h*RGBApixmap_bytesperpixel];
+    overlay_image_data = new unsigned char [owner->resize_w*owner->resize_h*RGBA_pixmap_bpp];
 }
 
 void threshold_overlay::FLTK_draw()
     {    
     if (threshold !=NULL)
         {        
-        Fl_RGB_Image overlay_image (overlay_image_data, owner->w(), owner->h(), RGBApixmap_bytesperpixel, 0);
+        Fl_RGB_Image overlay_image (overlay_image_data, owner->w(), owner->h(), RGBA_pixmap_bpp, 0);
 
 //        overlay_image.draw(owner->x(),owner->y());
         overlay_image.draw(0,0); //JK2 - is now drawn relative the "top" level window, which is FLTK_Pt_pane..last

@@ -448,7 +448,7 @@ template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::render(unsigned char * image, unsigned int width, unsigned int height)
 {
     //about FLTK pixel types:  // http://www.fltk.org/articles.php?L466
-	typedef IMGELEMCOMPTYPE RGBpixel[RGBpixmap_bytesperpixel];
+	typedef IMGELEMCOMPTYPE RGBpixel[RGB_pixmap_bpp];
     RGBpixel * pixels = reinterpret_cast<RGBpixel *>(image);
     
     if (this->buckets != NULL && this->bucket_max > 0){

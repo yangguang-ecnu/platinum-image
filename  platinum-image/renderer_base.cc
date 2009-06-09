@@ -24,7 +24,7 @@ int renderer_base::maxrendererID = 0;
 using namespace std;
 
 renderer_base::renderer_base()
-    {
+{
     maxrendererID++;
     id=maxrendererID;
 
@@ -33,40 +33,61 @@ renderer_base::renderer_base()
 
     the_rg=NULL;
     rg_id=0;
-    }
+}
 
-void renderer_base::connect_geometry (rendergeometry * g)
-    {
-    the_rg= g;
-    rg_id=g->get_id();
-    }
-	
+
+int renderer_base::get_id()
+{
+	return id; 
+}
+
 void renderer_base::connect_combination(rendercombination *rc)
-    {
-    the_rc=rc;
+ {
+	the_rc=rc;
     rc_id=rc->get_id();
-    }
+}
 
 int renderer_base::combination_id()
-    {
+{
     return rc_id;
-    }
-	
+}
+
+void renderer_base::connect_geometry(rendergeometry *rg)
+{
+    the_rg=rg;
+    rg_id=rg->get_id();
+}
+
 int renderer_base::geometry_id() const
 {
 	return rg_id;
 }
 
-void renderer_base::look_at(float x, float y, float z,float zoom)
-    {
+
+void renderer_base::render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
+{
+	pt_error::error("Calling undefined render_position(...)",pt_error::warning);
+}
+
+void renderer_base::render_threshold(unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold)
+{
+	pt_error::error("Calling undefined render_threshold(...)",pt_error::warning);
+}
+
+
+
+void renderer_base::look_at(float x, float y, float z)
+{
     the_rg->look_at[0]=x;
     the_rg->look_at[1]=y;
     the_rg->look_at[2]=z;
+}
 
-    if (zoom > 0)
-        //0 indicates no selection
-        {the_rg->zoom=zoom;}
-    }
+void renderer_base::look_at(float x, float y, float z, float zoom)
+{
+	look_at(x,y,z);
+	the_rg->zoom = zoom;
+}
 
 void renderer_base::move( float pan_x, float pan_y, float pan_z)
 {
@@ -110,18 +131,14 @@ void renderer_base::move_view (int vsize, int pan_x, int pan_y, int pan_z, float
     //zoom is a multiple of previous zoom value
     
     Vector3D pan;
-
     pan.Fill(0);
-	
 //    pan[0]=pan_x*renderer_base::display_scale/(float)(vsize * the_rg->zoom);
 //    pan[1]=pan_y*renderer_base::display_scale/(float)(vsize * the_rg->zoom);
     pan[0]=pan_x*ZOOM_CONSTANT/(float)(vsize * the_rg->zoom);
     pan[1]=pan_y*ZOOM_CONSTANT/(float)(vsize * the_rg->zoom);
     pan[2]=pan_z;
     
-//	cout<<"zoom="<<the_rg->zoom<<"-->";
     the_rg->zoom*=zoom_d;
-//	cout<<the_rg->zoom<<endl;
     the_rg->look_at+=the_rg->dir*pan;
 }
 
@@ -145,6 +162,13 @@ void renderer_base::move_voxels (int x,int y,int z)
     move(dir[0],dir[1],dir[2]);
 }
 
+void renderer_base::rotate_dir(int dx_in_vp_pixels, int dy_in_vp_pixels)
+{
+	Matrix3D m = create_rot_matrix_3D(dy_in_vp_pixels*pt_PI/180.0, -dx_in_vp_pixels*pt_PI/180.0, 0.0);
+	the_rg->dir = the_rg->dir*m;
+}
+
+
 std::vector<int> renderer_base::world_to_view(rendergeometry *g, int sx, int sy, const Vector3D wpos)
 {
     std::vector<int> view;
@@ -165,13 +189,13 @@ std::vector<int> renderer_base::world_to_view(rendergeometry *g, int sx, int sy,
     return view;
 }
 
-std::vector<float> renderer_base::world_dir_to_view_dir (rendergeometry * g,int sx,int sy,const Vector3D w_dir)
+std::vector<float> renderer_base::world_dir_to_view_dir(rendergeometry *rg,int sx,int sy,const Vector3D w_dir)
 {
     std::vector<float> view;
 	int vmin = std::min (sx,sy);
    
     Matrix3D world_to_view_matrix;
-    world_to_view_matrix = g->view_to_world_matrix(vmin).GetInverse();
+    world_to_view_matrix = rg->view_to_world_matrix(vmin).GetInverse();
     
     Vector3D toView = world_to_view_matrix * (w_dir);
     	
@@ -181,7 +205,7 @@ std::vector<float> renderer_base::world_dir_to_view_dir (rendergeometry * g,int 
 }
 
 
-std::vector<int> renderer_base::world_to_view (int sx,int sy,const Vector3D wpos) const
+std::vector<int> renderer_base::world_to_view(int sx,int sy,const Vector3D wpos) const
 {
     return world_to_view(the_rg,sx,sy,wpos);
 }
@@ -213,4 +237,46 @@ std::map<std::string,float> renderer_base::get_values_world(Vector3D worldPos) c
         }
     
     return m;    
+}
+
+
+Vector3D renderer_base::view_to_voxel(int vx, int vy, int sx, int sy, int imageID) const
+{
+	pt_error::error("Calling undefined view_to_voxel(...)",pt_error::warning);
+	Vector3D tmp;
+	return tmp;	//Corrects error in Visual C++ compilation... ("must return a value")
+}
+
+Vector3D renderer_base::view_to_world(int vx, int vy, int sx, int sy) const 
+{
+	pt_error::error("Calling undefined view_to_world(...)",pt_error::warning);
+	Vector3D tmp;
+	return tmp;	//Corrects error in Visual C++ compilation... ("must return a value")
+}
+
+
+void renderer_base::fill_rgbimage_with_value(unsigned char *rgb, int rgb_sx, int rgb_sy, int value)
+{
+	int tmp=0;
+    for(int y=0; y<rgb_sy; y++){
+	    for(int x=0; x<rgb_sx; x++){
+			tmp = RGB_pixmap_bpp*(x+rgb_sx*y);
+            rgb[tmp] = value;
+            rgb[tmp+1] = value;
+            rgb[tmp+2] = value;
+        }
+    }
+}
+
+void renderer_base::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int w, int h, int rgb_sx, int value)
+{
+	int tmp=0;
+    for (int rgb_y=y; rgb_y < y+h; rgb_y++){
+        for (int rgb_x=x; rgb_x < x+w; rgb_x++){
+			tmp = RGB_pixmap_bpp*(rgb_x+rgb_sx*rgb_y);
+            rgb[tmp] = value;
+            rgb[tmp+1] = value;
+            rgb[tmp+2] = value;
+        }
+    }
 }

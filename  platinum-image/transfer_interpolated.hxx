@@ -212,7 +212,7 @@ void transfer_interpolated<ELEMTYPE >::transferchart::draw ()
         
         if (histimg == NULL)
             {
-            imgdata = new IMGELEMCOMPTYPE [w()*h()*RGBpixmap_bytesperpixel];
+            imgdata = new IMGELEMCOMPTYPE [w()*h()*RGB_pixmap_bpp];
             histimg = new Fl_RGB_Image(imgdata,w(), h(), 3);
             }
         

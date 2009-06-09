@@ -326,11 +326,11 @@ void rendermanager::print_renderers()
 	} 
 }
 
-int rendermanager::create_renderer(RENDERER_TYPES rendertype)
+int rendermanager::create_renderer(RENDERER_TYPE rendertype)
     {
     renderer_base *arenderer;
 
-    switch (rendertype)
+    switch(rendertype)
         {
         case RENDERER_MPR:
             arenderer = new rendererMPR();
@@ -405,9 +405,9 @@ int rendermanager::renderer_empty (int rendererID)
     return -1;
     }
 
-bool rendermanager::renderer_supports_mode(int rendererIndex,int m)
+bool rendermanager::renderer_supports_mode(int rendererIndex, int m)
 {
-    return renderers[rendererIndex]->supports_mode (m); //JK corrects Visual C++ compile error ("must return a value")
+    return renderers[rendererIndex]->supports_mode(m); //JK corrects Visual C++ compile error ("must return a value")
 }
 
 /*
@@ -433,7 +433,7 @@ void rendermanager::connect_data_renderer(int rendererID, int dataID)
     {
     int renderindex = find_renderer_index(rendererID);
 
-    renderers[renderindex]->connect_image(dataID);
+    renderers[renderindex]->connect_data(dataID);
     }
 	
 void rendermanager::data_has_changed(int ID)

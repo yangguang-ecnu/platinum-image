@@ -43,8 +43,8 @@ void histogram_base::reallocate_buckets_if_necessary(int new_num_buckets)
 void histogram_base::clear_pixmap (uchar * image, unsigned int w,unsigned int h)
     {
     //clear image
-    unsigned int isize=w*h*RGBpixmap_bytesperpixel;
-    for (unsigned int i=0;i < isize; i+=RGBpixmap_bytesperpixel)
+    unsigned int isize=w*h*RGB_pixmap_bpp;
+    for (unsigned int i=0;i < isize; i+=RGB_pixmap_bpp)
         {
         image[i]=image[i+1]=image[i+2]=0;
         }
@@ -132,9 +132,9 @@ void histogram_2D_plot::render_(uchar * image, unsigned int w,unsigned int h)
                     pixpos_x=h-vol_h->get_number_voxel(voxpos[0],voxpos[1],voxpos[2])*pixfactor_h;
                     pixpos_y=vol_v->get_number_voxel(voxpos[0],voxpos[1],voxpos[2])*pixfactor_v;
 
-                    image[(pixpos_x+w*pixpos_y)*RGBpixmap_bytesperpixel]+=pix_intensity;
-                    image[(pixpos_x+w*pixpos_y)*RGBpixmap_bytesperpixel+1]+=pix_intensity;
-                    image[(pixpos_x+w*pixpos_y)*RGBpixmap_bytesperpixel+2]+=pix_intensity;
+                    image[(pixpos_x+w*pixpos_y)*RGB_pixmap_bpp]+=pix_intensity;
+                    image[(pixpos_x+w*pixpos_y)*RGB_pixmap_bpp+1]+=pix_intensity;
+                    image[(pixpos_x+w*pixpos_y)*RGB_pixmap_bpp+2]+=pix_intensity;
 
                     } while (++voxpos[0] < vol_size[0]);
                 } while (++voxpos[1] < vol_size[1]);
@@ -386,9 +386,9 @@ void histogram_2D::calculate_from_image_data(int new_num_buckets)
                     hist_index=((unsigned short) hist_pos_x)+((unsigned short) hist_pos_y)*num_buckets;
                     intensity_value=std::min((float)buckets [hist_index]*(float)intensity_scale, (float)255.0);
 
-                    image[(x+(h-y)*w)*RGBpixmap_bytesperpixel]=(highlight_data [hist_index] ? intensity_value/2 : intensity_value);
-                    image[(x+(h-y)*w)*RGBpixmap_bytesperpixel+1]=(highlight_data [hist_index] ? intensity_value/2 + 127 : intensity_value);
-                    image[(x+(h-y)*w)*RGBpixmap_bytesperpixel+2]=(highlight_data [hist_index] ? intensity_value/2 + 127 : intensity_value);
+                    image[(x+(h-y)*w)*RGB_pixmap_bpp]=(highlight_data [hist_index] ? intensity_value/2 : intensity_value);
+                    image[(x+(h-y)*w)*RGB_pixmap_bpp+1]=(highlight_data [hist_index] ? intensity_value/2 + 127 : intensity_value);
+                    image[(x+(h-y)*w)*RGB_pixmap_bpp+2]=(highlight_data [hist_index] ? intensity_value/2 + 127 : intensity_value);
                     }
                 }
             }

@@ -34,7 +34,7 @@ public:
         rendererVTK();
         void draw(void);
         
-        virtual void connect_image(int rID) {}
+        virtual void connect_data(int dataID){}
     };
 
 #endif

@@ -1424,8 +1424,8 @@ FLTK_histogram_base::FLTK_histogram_base (int x, int y, int w, int h) : Fl_Widge
     //screen_image=NULL;
     screen_image_data=NULL;
 
-    screen_image_data = new unsigned char [w*h*RGBpixmap_bytesperpixel];
-    //screen_image = new Fl_RGB_Image(screen_image_data, w, h,RGBpixmap_bytesperpixel, 0);
+    screen_image_data = new unsigned char [w*h*RGB_pixmap_bpp];
+    //screen_image = new Fl_RGB_Image(screen_image_data, w, h,RGB_pixmap_bpp, 0);
     }
 
 FLTK_histogram_base::~FLTK_histogram_base ()
@@ -1441,8 +1441,8 @@ void FLTK_histogram_base::resize(int x, int y, int w, int h)
         //delete screen_image;
         delete [] screen_image_data;
 
-        screen_image_data = new unsigned char [w*h*RGBpixmap_bytesperpixel];
-        //screen_image = new Fl_RGB_Image(screen_image_data, w, h,RGBpixmap_bytesperpixel, 0);
+        screen_image_data = new unsigned char [w*h*RGB_pixmap_bpp];
+        //screen_image = new Fl_RGB_Image(screen_image_data, w, h,RGB_pixmap_bpp, 0);
         }
 
     Fl_Widget::resize(x, y, w, h);
@@ -1682,7 +1682,7 @@ void FLTK_histogram_2D::set_selmode(int mode)
 
     void FLTK_histogram_base::draw ()
         {
-        Fl_RGB_Image screen_image(screen_image_data, w(), h(),RGBpixmap_bytesperpixel, 0);
+        Fl_RGB_Image screen_image(screen_image_data, w(), h(),RGB_pixmap_bpp, 0);
                 
         screen_image.draw(x(),y());
         }
@@ -1691,7 +1691,7 @@ void FLTK_histogram_2D::set_selmode(int mode)
         {
         fl_push_clip(x(),y(),w(),h());
         
-        Fl_RGB_Image screen_image(screen_image_data, w(), h(),RGBpixmap_bytesperpixel, 0);
+        Fl_RGB_Image screen_image(screen_image_data, w(), h(),RGB_pixmap_bpp, 0);
 
         screen_image.draw(x(),y());
 
@@ -1712,7 +1712,7 @@ void FLTK_histogram_2D::set_selmode(int mode)
     void FLTK_histogram_base::refresh()
         {
         //allocate image data, 
-        //screen_image_data = new unsigned char [w()*h()*RGBpixmap_bytesperpixel];
+        //screen_image_data = new unsigned char [w()*h()*RGB_pixmap_bpp];
 
         //screen_image->uncache();
         histogram->render(screen_image_data,w(),h());
