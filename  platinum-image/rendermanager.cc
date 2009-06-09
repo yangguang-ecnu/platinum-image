@@ -319,10 +319,12 @@ rendergeometry * rendermanager::get_geometry ( int rendererID )
 	return get_renderer(rendererID)->wheretorender;
 }
 
-void rendermanager::listrenderers()
-    {
-    for (unsigned int i=0; i < renderers.size(); i++) { std::cout << *renderers[i] << std::endl; } 
-    }
+void rendermanager::print_renderers()
+{
+    for (unsigned int i=0; i < renderers.size(); i++) {
+		std::cout << *renderers[i] << std::endl; 
+	} 
+}
 
 int rendermanager::create_renderer(RENDERER_TYPES rendertype)
     {
