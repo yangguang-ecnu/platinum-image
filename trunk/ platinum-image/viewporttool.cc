@@ -206,7 +206,6 @@ void viewporttool::cb_toolbutton (Fl_Widget * button,void * key_ptr)
 
 #pragma mark *** navigation tool ***
 
-//const float nav_tool::wheel_factor=renderer_base::display_scale/10;
 const float nav_tool::wheel_factor=ZOOM_CONSTANT/10;
 
 const float nav_tool::zoom_factor=0.005;
@@ -333,10 +332,10 @@ void nav_tool::handle(viewport_event &event)
 //					cout<<"***pt_event::rotate - temporary work (ctrl + shift + mouse drag)***"<<endl; 
 					float dx = (mouse[0]-last_global_x);
 					float dy = (mouse[1]-last_global_y);
-					Matrix3D dir = myRenderer->wheretorender->dir;
+					Matrix3D dir = myRenderer->the_rg->dir;
 					Matrix3D m = create_rot_matrix_3D(dy*pt_PI/180.0, -dx*pt_PI/180.0, 0.0);
 					dir = dir*m;
-					myRenderer->wheretorender->dir = dir;
+					myRenderer->the_rg->dir = dir;
 
 					fp->needs_rerendering();
 					viewmanagement.update_overlays();

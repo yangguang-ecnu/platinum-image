@@ -18,8 +18,8 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "rendercombination.h"
-
 #include "rendermanager.h"
+
 
 extern rendermanager rendermanagement;
 extern datamanager datamanagement;
@@ -27,6 +27,9 @@ extern datamanager datamanagement;
 int rendercombination::new_rc_ID=1;
 
 using namespace std;
+
+//-----------------------
+
 rendercombination::renderpair::renderpair()
 {
     ID = NOT_FOUND_ID;
@@ -38,27 +41,27 @@ rendercombination::renderpair::renderpair(const int i,data_base* d,const blendmo
 {
     ID = i;
     pointer = d;
-	
     mode = m;
 };        
 
+//-----------------------
+
 rendercombination::rendercombination()
-    {
+{
     //TODO: change the undefined ID from 0 to NOT_FOUND_ID
     id=new_rc_ID++;
     blend_mode_=BLEND_MAX;
-    }
+}
 
 rendercombination::rendercombination(int volID)
-    {
+{
     id=new_rc_ID++;
    
     blend_mode_=BLEND_MAX;
-    if (volID > 0)
-        {
+    if (volID > 0){
         renderdata.push_front(renderpair(volID,datamanagement.get_data(volID),BLEND_OVERWRITE));
-        }
-    }
+	}
+}
 
 rendercombination::iterator rendercombination::begin() const
 {
@@ -98,25 +101,19 @@ void rendercombination::toggle_data(int dataID)
 {
     bool removed=false;
 
-    for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end() && removed == false;itr++)
-        {
-        
-        if (itr->ID==dataID)
-            {
-            remove_image(dataID);
+    for(std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end() && removed == false;itr++){
+        if (itr->ID==dataID){
+            remove_data(dataID);
             removed=true;
 			break;//To avoid undefined values of itr
-            }
-        }
-    
-    if (!removed)
-	{
+		}
+	}
+
+    if(!removed){
 		add_data(dataID);
-	
+
         image_base * image = dynamic_cast<image_base *>( datamanagement.get_data(dataID) );
-        
-        if ( image != NULL )
-		{	// it is an image
+        if(image != NULL){	// it is an image
 			rendermanagement.center3d_and_fit( rendermanagement.renderer_from_combination(get_id()), image->get_id() );
 		}
 	}
@@ -154,19 +151,19 @@ void rendercombination::disable_data( int dataID )
 	{
 		if ( itr->ID == dataID )
 		{
-			remove_image( dataID );
+			remove_data( dataID );
 			break;
 		}
 	}
 }
 
-void rendercombination::remove_image(int ID)
-    {
+void rendercombination::remove_data(int dataID)
+{
     bool removed=false;
     
     for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
         {
-        if (itr->ID == ID)
+        if (itr->ID == dataID)
             {
             renderdata.erase(itr);
             removed = true;
@@ -176,55 +173,46 @@ void rendercombination::remove_image(int ID)
     if (removed)
         {rendermanagement.combination_update_callback(this->id);}
   
-    }
+}
 
 int rendercombination::image_rendered(int ID)
-    {
-    for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++)
-        {
-            if (itr->ID ==ID)
-                {return blend_mode();}
-        }
+{
+    for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();itr++){
+		if (itr->ID ==ID)
+        {return blend_mode();}
+	}
 
-        return BLEND_NORENDER;
-    }
+	return BLEND_NORENDER;
+}
 
 int rendercombination::get_id()
-    {
+{
     return id;
-    }
+}
 
 void rendercombination::data_vector_has_changed()
-    {
+{
     //images may have been deleted too, we need to update both image ID and image pointer
 
-	for (std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();)
-        {
+	for(std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end();){
         itr->pointer=datamanagement.get_data(itr->ID);
-        
-        if ( itr->pointer == NULL)
-            {
-            //image at p does not exist
-            
-            itr = renderdata.erase(itr);
-			//itr = renderdata.begin();//To avoid undefined values of itr
-            }
-		else
-			{
-				itr++;
-			}
-        };
-    
+        if(itr->pointer == NULL){            //image at p does not exist
+            itr = renderdata.erase(itr);	//itr = renderdata.begin();//To avoid undefined values of itr
+		}
+		else{
+            itr++;
+		}
+	}
     rendermanagement.combination_update_callback(id);
-    }
+}
 
 void rendercombination::blend_mode(blendmode b)
-    {
+{
     blend_mode_=b;
     rendermanagement.combination_update_callback(id);
-    }
+}
 
 blendmode rendercombination::blend_mode()
-    {
+{
     return blend_mode_;
-    }
+}

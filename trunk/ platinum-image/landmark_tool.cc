@@ -120,7 +120,7 @@ void landmark_tool::handle(viewport_event &event)
 //				
 //				// TODO: använd myGeometry->dir för att rotera radius korrekt och bestäm sedan även vilken typ som ska
 //				// användas. tex MAX_GRAD_MAG_X och MAX_GRAD_MAG_Y eller MAX_GRAD_MAG_Y och MAX_GRAD_MAG_Z osv
-//				rendergeometry * myGeometry = myRenderer->wheretorender;
+//				rendergeometry * myGeometry = myRenderer->the_rg;
 //				std::cout << "radius " << radius << std::endl;				
 //				radius[0] = abs( radius[0] );
 //				radius[1] = abs( radius[1] );

@@ -43,24 +43,26 @@ BLEND_GREY_PLUS_RBG,
 BLEND_GREY_PLUS_RED,
 BLEND_GREY_PLUS_BLUE,
 NUM_BLEND_MODES,
-RENDER_THRESHOLD};  //RENDER_THRESHOLD is not user-selectable, used internally 
-                    //for rendering threshold overlays
+RENDER_THRESHOLD};  //RENDER_THRESHOLD is not user-selectable, used internally for rendering threshold overlays
 
 //blend_mode_labels defined in viewport.cc
+
 class rendercombination
-    {
+{
+
 public:
-        class renderpair {
+        class renderpair 
+		{
 		public:
             int ID;
-            data_base * pointer;
+            data_base* pointer;
             blendmode mode;
-            
             renderpair();
             renderpair(const int, data_base*,const blendmode);
-
         };        
-        
+
+		typedef std::list<renderpair>::const_iterator iterator;
+
 private:
         //int renderimages [MAXRENDERVOLUMES];
         std::list<renderpair> renderdata;
@@ -69,30 +71,27 @@ private:
         int id; //id to identify this combination in callbacks
         static int new_rc_ID;   //unique id to assign newly created combinations
         blendmode blend_mode_;
+
 public:
 		rendercombination();
-        typedef std::list<renderpair>::const_iterator iterator;
-        rendercombination(int ID);  //constructor that populates
-                                    //the renderdata array 
-                                    //from the beginning
-        void data_vector_has_changed ();   //image has been added or removed - update renderlist
+        rendercombination(int ID);  //constructor that populates the renderdata array from the beginning
+
+		void data_vector_has_changed();   //image has been added or removed - update renderlist
         iterator begin() const;
         iterator end() const;
         bool empty() const;
-        image_base* top_image ()const; //topmost image
-        image_base* get_imagepointer(int ID);
-        void add_data(int ID);
-        void toggle_data(int imageID);
-		void enable_data( int dataID );
-		void disable_data( int dataID );
-        void remove_image(int ID);
+        image_base* top_image()const; //topmost image
+        void add_data(int dataID);
+        void toggle_data(int dataID);
+		void enable_data(int dataID);
+		void disable_data(int dataID);
+        void remove_data(int dataID);
         int image_rendered(int ID);//for updating various widgets: returns nonzero if
                                    //the image ID is included in this combination
                                    //may return value indicating per-image blending mode for this combination
-            int get_id();
-            blendmode blend_mode();          //get blendmoide
-            void blend_mode (blendmode b);   //set blendmode
+		int get_id();
+        blendmode blend_mode();          //get blendmoide
+        void blend_mode(blendmode b);   //set blendmode
     };
 
 #endif
-

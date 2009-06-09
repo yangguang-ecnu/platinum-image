@@ -22,48 +22,37 @@ extern rendermanager rendermanagement;
 
 int rendergeometry::new_rg_ID=1;
 
-Matrix3D rendergeometry::view_to_world_matrix(int viewminsize)
-    {
-//    return dir*renderer_base::display_scale/(viewminsize*zoom);
-    return dir*ZOOM_CONSTANT/(viewminsize*zoom);
-	
-    }
 
 rendergeometry::rendergeometry()
-    {
-    //initialize look at to center
-
-    look_at.Fill(0);
-
-    //initialize direction
-    dir.SetIdentity();
-
-    //intialize zoom to 100%
-    zoom=1;
-
-    id=new_rg_ID++;
-    }
+{
+	id=new_rg_ID++;
+    look_at.Fill(0);	    //initialize look at to center
+    dir.SetIdentity();		//initialize direction
+    zoom=1;					//intialize zoom to 100%
+}
 
 int rendergeometry::get_id()
-    {
+{
     return id;
-    }
+}
+
+Matrix3D rendergeometry::view_to_world_matrix(int viewminsize)
+{
+//    return dir*renderer_base::display_scale/(viewminsize*zoom);
+    return dir*ZOOM_CONSTANT/(viewminsize*zoom);
+}
 
 void rendergeometry::refresh_viewports()
-    {
+{
     rendermanagement.geometry_update_callback(this->id);
-    }
+}
 	
 float rendergeometry::distance_to_viewing_plane(Vector3D point)
 {
 	Vector3D v;
-	
 	v = point - look_at;
-
 	Vector3D n = get_n();
-
 	float distance = abs ( v * n);
-	
 	return distance;
 }
 
@@ -86,7 +75,6 @@ Vector3D rendergeometry::get_X()
 
 Vector3D rendergeometry::get_Y()
 {
-//	cout<<"get_Y--> dir="<<dir<<endl;
 	return dir * create_Vector3D(0, 1, 0);
 }
 
@@ -103,4 +91,3 @@ line2D rendergeometry::get_physical_line_of_intersection_projected(rendergeometr
 	plane3D p = plane3D(this->look_at,this->get_n());
 	return p.get_projected_line(l);
 }
-

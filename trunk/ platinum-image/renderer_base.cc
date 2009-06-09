@@ -20,33 +20,31 @@
 #include "renderer_base.h"
 
 int renderer_base::maxrendererID = 0;
-//const float renderer_base::display_scale = 50;  //! number of mm:s to display 
-                                                //!across a viewport at zoom 1
-using namespace std;
 
+using namespace std;
 
 renderer_base::renderer_base()
     {
     maxrendererID++;
-    identitet=maxrendererID;
+    id=maxrendererID;
 
-    imagestorender=NULL;
+    the_rc=NULL;
     rc_id=0;
 
-    wheretorender=NULL;
+    the_rg=NULL;
     rg_id=0;
     }
 
 void renderer_base::connect_geometry (rendergeometry * g)
     {
-    wheretorender= g;
+    the_rg= g;
     rg_id=g->get_id();
     }
 	
-void renderer_base::connect_combination (rendercombination * c)
+void renderer_base::connect_combination(rendercombination *rc)
     {
-    imagestorender=c;
-    rc_id=c->get_id();
+    the_rc=rc;
+    rc_id=rc->get_id();
     }
 
 int renderer_base::combination_id()
@@ -61,13 +59,13 @@ int renderer_base::geometry_id() const
 
 void renderer_base::look_at(float x, float y, float z,float zoom)
     {
-    wheretorender->look_at[0]=x;
-    wheretorender->look_at[1]=y;
-    wheretorender->look_at[2]=z;
+    the_rg->look_at[0]=x;
+    the_rg->look_at[1]=y;
+    the_rg->look_at[2]=z;
 
     if (zoom > 0)
         //0 indicates no selection
-        {wheretorender->zoom=zoom;}
+        {the_rg->zoom=zoom;}
     }
 
 void renderer_base::move( float pan_x, float pan_y, float pan_z)
@@ -82,26 +80,26 @@ void renderer_base::move( float pan_x, float pan_y, float pan_z)
     const float max_zoom=10;
     float max_pan=0.5;           //in local coordinates; means panning to composite image edge
     
-    if ((wheretorender->zoom*zoom_d >= min_zoom && wheretorender->zoom*zoom_d <= max_zoom ) || !use_constraints)*/
+    if ((the_rg->zoom*zoom_d >= min_zoom && the_rg->zoom*zoom_d <= max_zoom ) || !use_constraints)*/
     
     pan.Fill(0);
     pan[0]=pan_x;
     pan[1]=pan_y;
     pan[2]=pan_z;
     
-    wheretorender->look_at+=pan;
+    the_rg->look_at+=pan;
     
     /*if (use_constraints)
         {
         for (int d=0;d<3;d++)
             {
-            if (fabs(wheretorender->look_at[d]) > max_pan)                        
+            if (fabs(the_rg->look_at[d]) > max_pan)                        
                 //if look_at is outside max_pan
                 //in any direction,
                 //set to max_pan maintaining sign   
                 
-                {wheretorender->look_at[d]=max_pan*
-                wheretorender->look_at[d]/fabs(wheretorender->look_at[d]);}   
+                {the_rg->look_at[d]=max_pan*
+                the_rg->look_at[d]/fabs(the_rg->look_at[d]);}   
             }
         }*/
 }
@@ -115,16 +113,16 @@ void renderer_base::move_view (int vsize, int pan_x, int pan_y, int pan_z, float
 
     pan.Fill(0);
 	
-//    pan[0]=pan_x*renderer_base::display_scale/(float)(vsize * wheretorender->zoom);
-//    pan[1]=pan_y*renderer_base::display_scale/(float)(vsize * wheretorender->zoom);
-    pan[0]=pan_x*ZOOM_CONSTANT/(float)(vsize * wheretorender->zoom);
-    pan[1]=pan_y*ZOOM_CONSTANT/(float)(vsize * wheretorender->zoom);
+//    pan[0]=pan_x*renderer_base::display_scale/(float)(vsize * the_rg->zoom);
+//    pan[1]=pan_y*renderer_base::display_scale/(float)(vsize * the_rg->zoom);
+    pan[0]=pan_x*ZOOM_CONSTANT/(float)(vsize * the_rg->zoom);
+    pan[1]=pan_y*ZOOM_CONSTANT/(float)(vsize * the_rg->zoom);
     pan[2]=pan_z;
     
-//	cout<<"zoom="<<wheretorender->zoom<<"-->";
-    wheretorender->zoom*=zoom_d;
-//	cout<<wheretorender->zoom<<endl;
-    wheretorender->look_at+=wheretorender->dir*pan;
+//	cout<<"zoom="<<the_rg->zoom<<"-->";
+    the_rg->zoom*=zoom_d;
+//	cout<<the_rg->zoom<<endl;
+    the_rg->look_at+=the_rg->dir*pan;
 }
 
 void renderer_base::move_voxels (int x,int y,int z)
@@ -136,9 +134,9 @@ void renderer_base::move_voxels (int x,int y,int z)
     //positions and orientation), here it is defined that
     //move_voxels will move by the voxels of the topmost image
     
-    image_base* image = imagestorender->top_image();
+    image_base* image = the_rc->top_image();
     
-    dir = wheretorender->dir*dir;
+    dir = the_rg->dir*dir;
     Matrix3D reOrient;
     reOrient = image->get_orientation().GetInverse();
     
@@ -185,7 +183,7 @@ std::vector<float> renderer_base::world_dir_to_view_dir (rendergeometry * g,int 
 
 std::vector<int> renderer_base::world_to_view (int sx,int sy,const Vector3D wpos) const
 {
-    return world_to_view(wheretorender,sx,sy,wpos);
+    return world_to_view(the_rg,sx,sy,wpos);
 }
 
 std::map<std::string,float> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const 
@@ -198,7 +196,7 @@ std::map<std::string,float> renderer_base::get_values_world(Vector3D worldPos) c
 {
     std::map<std::string,float> m;
 
-    for (rendercombination::iterator itr = imagestorender->begin(); itr != imagestorender->end();itr++)
+    for (rendercombination::iterator itr = the_rc->begin(); itr != the_rc->end();itr++)
         {
         image_base * image = dynamic_cast<image_base *> (itr->pointer);
         
