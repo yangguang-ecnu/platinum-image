@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
-//  RendererMPR $Revision$
+//  RendererMPR $Revision: 684 $
 ///
 /// arbitrary 2D slices rendered by scanline
 ///
-//  $LastChangedBy$
+//  $LastChangedBy: joel.kullberg $
 
 // This file is part of the Platinum library.
 // Copyright (c) 2007 Uppsala University.
@@ -52,7 +52,6 @@ void rendererMPR::connect_data(int dataID)
 
 void rendererMPR::paint_overlay(int vp_w, int vp_h_pane)
 {
-//	cout<<"rendererMPR::paint_overlay..("<<vp_w<<" "<<vp_h_pane<<") rc_id="<<the_rg->get_id()<<endl;
 	paint_slice_locators_to_overlay(vp_w, vp_h_pane, the_rg, the_rc);
 }
 
@@ -136,10 +135,10 @@ bool rendererMPR::supports_mode (int m)
 
 void rendererMPR::render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID)
 {
-    rendercombination rc = rendercombination(image_ID);
-    rendergeometry rg = rendergeometry ();
+    rendercombination r = rendercombination (image_ID);
+    rendergeometry g = rendergeometry ();
     
-    render_( rgb, rgb_sx, rgb_sy,&rg,&rc,NULL);
+    render_( rgb, rgb_sx, rgb_sy,&g,&r,NULL);
 }
 
 void rendererMPR::render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold)
@@ -158,75 +157,80 @@ void rendererMPR::render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
 //render orthogonal slices using memory-order scanline
 void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry *rg, rendercombination *rc, thresholdparvalue * threshold)
 {
-    if(rc->empty()){       //*** no images: exit ***
+    if(rc->empty()){//*** no images: exit ***
         return;
-	}
-        
-    int vol_count; //number of images to render in this call
-    Vector3D voxel_offset[MAXRENDERVOLUMES]; //The voxel index ,for each volume, that should be displayed in the top left corner of the viewport
+    }
+	//The voxel index, for each volume, that should be displayed in the "top left" corner of the viewport
+	Vector3D voxel_offset[MAXRENDERVOLUMES];
     float rgb_min_norm=min(float(rgb_sx),float(rgb_sy));
-    vol_count = static_cast<int> (std::distance(rc->begin(), rc->end()));
-    
+
+	//number of images to render in this call
+	int vol_count = static_cast<int>( std::distance(rc->begin(),rc->end()) );
+
     Vector3D screen_center = create_Vector3D(rgb_sx, rgb_sy, 0);
     screen_center/=2;
     
-    //fill background color, standard MIN blending leaves background white, instead background is marked
+    //fill background color
+    //standard MIN blending leaves background white, instead background is marked
     //with zero intensity in G+B channels, and tinted in a second pass
     
     blendmode blend_mode = rc->blend_mode();
-    if(threshold != NULL){ 
-		blend_mode = RENDER_THRESHOLD;
+    if(threshold != NULL){
+		blend_mode = RENDER_THRESHOLD; 
 	}
     
     switch(blend_mode){
         case RENDER_THRESHOLD:
-            for(long p=0; p < rgb_sx*rgb_sy*RGBA_pixmap_bpp; p +=RGBA_pixmap_bpp){
+            for (long p=0; p < rgb_sx*rgb_sy*RGBA_pixmap_bpp; p +=RGBA_pixmap_bpp )
+                {
                 pixels[p] = pixels[p + 1] = pixels[p + 2]= pixels[p + 3]=0;
-			}
+                }
             break;
         case BLEND_MIN:
-            for(long p=0; p < rgb_sx*rgb_sy*RGB_pixmap_bpp; p +=RGB_pixmap_bpp){
+            for (long p=0; p < rgb_sx*rgb_sy*RGB_pixmap_bpp; p +=RGB_pixmap_bpp )
+                {
                 pixels[p] = 255;
                 pixels[p + 1] = pixels[p + 2] = 0;
                 }
             break;
         default:
-            for(long p=0; p < rgb_sx*rgb_sy*RGB_pixmap_bpp; p +=RGB_pixmap_bpp)
+            for (long p=0; p < rgb_sx*rgb_sy*RGB_pixmap_bpp; p +=RGB_pixmap_bpp )
                 {pixels[p] = pixels[p + 1] = pixels[p + 2]=0;}
         }
        
     #pragma mark *** Per-image render loop ***
-  
+    
+    
     int the_image = 0;
 
-    for(rendercombination::iterator pairItr = rc->begin();pairItr != rc->end();pairItr++){ 
-        image_base *the_image_pointer, *the_other_image_pointer;
+    for(rendercombination::iterator pairItr=rc->begin(); pairItr != rc->end(); pairItr++){ 
+        image_base *the_image_pointer;
+		image_base *the_other_image_pointer;
         
 		pt_error::error_if_null(pairItr->pointer,"Rendered data object is NULL");//Crash here when closing an image
-
-        the_image_pointer = dynamic_cast<image_base *> (pairItr->pointer);
-        
+        the_image_pointer = dynamic_cast<image_base *>(pairItr->pointer);
         bool OKrender = the_image_pointer != NULL;
         
         if(blend_mode == RENDER_THRESHOLD){
-            the_image_pointer       = datamanagement.get_image (threshold->id[0]);
-            the_other_image_pointer = datamanagement.get_image (threshold->id[1]);
+            the_image_pointer       = datamanagement.get_image(threshold->id[0]);
+            the_other_image_pointer = datamanagement.get_image(threshold->id[1]);
             
             OKrender = the_image_pointer != NULL && the_other_image_pointer != NULL;
-        }
+		}
         
         //render images in first pass, points in second
-        if(OKrender){ 
+		if(OKrender){
             const float scale = rgb_min_norm / ZOOM_CONSTANT; //constant = the number of mms that should fit inside a viewport at zoom 1
-
-			//color for tint mode, Note that the order is set to RED, BLUE, GREEN 
+            
+            //color for tint mode
+			//Note that the order is set to RED, BLUE, GREEN 
             int tint_r=(((the_image % 3) ==0) ^ (the_image > 2));
             int tint_g=(((the_image % 3) ==1) ^ (the_image > 2));	
             int tint_b=(((the_image % 3) ==2) ^ (the_image > 2));
         
            //pixel fill start & end points, used in common blend mode code
-			long fill_y_start;
-		    long fill_y_end;
+            long fill_y_start;
+			long fill_y_end;
             long fill_x_start;
 			long fill_x_end;
             
@@ -235,7 +239,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
             bool threshold_value = false;
             
 
-			//"(rc->dir * screen_center)/(rc->zoom * scale)"  
+			//"(rg->dir * screen_center)/(rg->zoom * scale)"  
 			//This rotates/scales/returns vector from top left viewport corner to viewport center in world coordinates...
 			voxel_offset[the_image] = the_image_pointer->world_to_voxel( rg->look_at - ( (rg->dir * screen_center) / (rg->zoom * scale) ) );
 
@@ -243,14 +247,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
             Vector3D start,end;
             start = voxel_offset[the_image];
                         
-
 			//set slope to size of render plane in unit coordinates
-			//------------------
-			//this matrix transforms translations in viewport pixels to translations in volume voxels
-			Matrix3D slope = rg->get_scan_line_slop_matrix(the_image_pointer,scale);
-
-			//------------------
-/*
 			Matrix3D orientation_inv;
             orientation_inv = the_image_pointer->get_orientation().GetInverse();
 //			Vector3D origin = the_image_pointer->get_origin();
@@ -263,23 +260,25 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
             slope = inv_size * slope;
             
             slope/= rg->zoom * scale;
-*/
-			//------------------
 
 			//calculate the "slope" in volume voxels for x-steps in viewpost pixels 
-            Vector3D slope_x = create_Vector3D(1,0,0);
+            Vector3D slope_x;
+            slope_x.Fill(0);
+            slope_x[0] = 1;
+
             slope_x = slope * rg->dir * slope_x;
-			//rc->dir is required to make other views than axial "z-dir" possible...
+			//rg->dir is required to make other views than axial "z-dir" possible...
+
 
 			//calculate the "slope" in volume voxels for y-steps in viewpost pixels 
-            Vector3D slope_y = create_Vector3D(0,1,0);
+            Vector3D slope_y;
+            slope_y.Fill(0);
+            slope_y[1] = 1;
             slope_y = slope * rg->dir * slope_y;
-			//rc->dir is required to make other views than axial "z-dir" possible...
-
+			//rg->dir is required to make other views than axial "z-dir" possible...
 
             //position to read in voxel data grid
-            Vector3D vox;
-			int pixmap_addr;
+            Vector3Dint vox;
             
             // Render loop
             
@@ -289,18 +288,17 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
             //4. move along scanline (iterate x)
             //5. repeat
              
-            for(fill_y_start=0; fill_y_start < rgb_sy; fill_y_start++){
+            for(fill_y_start=0; fill_y_start<rgb_sy; fill_y_start++){
                 fill_y_end=fill_y_start+1;
                 vox=start+slope_y*(float)fill_y_start;
                 
                 for(fill_x_start=0; fill_x_start < rgb_sx; fill_x_start++){
                     fill_x_end=fill_x_start+1;
-
                     //get actual value in data, this has been scaled to fit the range of unsigned char
+//                    if(vox[0] >= 0 && vox[1] >= 0 && vox[2] >= 0 && vox[0] < the_image_pointer->nx() && vox[1] < the_image_pointer->ny() && vox[2] < the_image_pointer->nz())
 					if(the_image_pointer->is_voxelpos_within_image_3D(vox)){
-
-                        if(blend_mode == RENDER_THRESHOLD){
-                            float t_value[2];
+                        if (blend_mode == RENDER_THRESHOLD){
+                            float t_value [2];
                             
                             t_value[0] = the_image_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
                             t_value[1] = the_other_image_pointer->get_number_voxel(vox[0],vox[1],vox[2]);
@@ -309,29 +307,32 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
                             threshold_value = ( t_value[0] > threshold->low[0] && t_value[0] < threshold->high[0] &&
                                                 t_value[1] > threshold->low[1] && t_value[1] < threshold->high[1]);
                             
-                            if(threshold_value && threshold->mode==THRESHOLD_2D_MODE_OVAL){
+                            if (threshold_value && threshold->mode==THRESHOLD_2D_MODE_OVAL)
+                                {
                                 //oval threshold
                                 threshold_value = (sqrt(powf((t_value[0]-((threshold->high[0]+threshold->low[0])/2.0))/((threshold->high[0]-threshold->low[0])/(threshold->high[1]-threshold->low[1])),2.0)+powf(t_value[1]-((threshold->high[1]+threshold->low[1])/2.0),2.0) ) <= (threshold->high[1]+threshold->low[1])/2.0);
-							}
-						}
-
-
-                        else{ 
-							the_image_pointer->get_display_voxel(value,vox[0],vox[1],vox[2]);
-						}
+                                }
+                            }
+                        else
+                            { the_image_pointer->get_display_voxel(value,vox[0],vox[1],vox[2]);}
                         
                         
-                        for(long rgb_fill_y=fill_y_start; (rgb_fill_y <  fill_y_end);rgb_fill_y++){
-                            for(long rgb_fill_x=fill_x_start;(rgb_fill_x < fill_x_end);rgb_fill_x++){
-								pixmap_addr = RGB_pixmap_bpp*(rgb_fill_x+rgb_sx*rgb_fill_y);
-
-                                switch (blend_mode){
+                        for (long rgb_fill_y=fill_y_start; (rgb_fill_y <  fill_y_end);rgb_fill_y++)
+                            {
+                            for (long rgb_fill_x=fill_x_start;(rgb_fill_x < fill_x_end);rgb_fill_x++)
+                                {
+                                switch (blend_mode)
+                                    {
                                     case BLEND_OVERWRITE:
-                                        value.write(pixels+pixmap_addr);
+                                        value.write(pixels+RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y));
                                         break;
                                         
                                     case BLEND_MIN:
-                                        if(pixels[pixmap_addr] >= value.mono()){
+                                        if (pixels[RGB_pixmap_bpp *
+                                            
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y)] >= value.mono())
+                                            
+                                            {
                                             //we can assume that the R value represents total pixel intensity
                                             //because previous pixel value was set with the same mode
                                             
@@ -339,64 +340,77 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
                                             //we want to replace the background even for the r=255 case
                                             //to mask out background color
                                             
-                                            value.write(pixels+pixmap_addr);
+                                            value.write(pixels+RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y));
                                             }
                                         break;
                                         
                                     case BLEND_MAX:
-                                        if (pixels[pixmap_addr] < value.mono())
+                                        if (pixels[RGB_pixmap_bpp *
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y)] < value.mono())
                                             {
                                             //we can assume that the R value represents total pixel intensity
                                             //because previous pixel value was set with the same mode
                                             
-                                            value.write(pixels+pixmap_addr);
+                                            value.write(pixels+RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y));
                                             }
                                         break;
                                         
                                     case BLEND_AVG:
                                         {
-                                            pixels[pixmap_addr] += value.r()/vol_count;
-                                            pixels[pixmap_addr + 1] += value.g()/vol_count;
-                                            pixels[pixmap_addr + 2] += value.b()/vol_count;
+                                            pixels[RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y)] += value.r()/vol_count;
+                                            pixels[RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += value.g()/vol_count;
+                                            pixels[RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += value.b()/vol_count;
                                         }
                                         break;
                                     case BLEND_DIFF:
                                         {
 											if(the_image==0){ //if first image --> Grey scale
-		                                        value.write(pixels+pixmap_addr);
+		                                        value.write(pixels+RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y));
 											}else if(the_image==1){ //Fist image minus this...
- 												pixels[pixmap_addr] = abs( pixels[pixmap_addr] - value.r() );
-												pixels[pixmap_addr + 1] = abs( pixels[pixmap_addr+1] - value.g() );
-												pixels[pixmap_addr + 2] = abs( pixels[pixmap_addr+2] - value.b() );
+ 												pixels[RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y)] = abs( pixels[RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y)] - value.r() );
+												pixels[RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] = abs( pixels[RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y)+1] - value.g() );
+												pixels[RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] = abs( pixels[RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y)+2] - value.b() );
 											}
 	
                                         }
                                         break;
                                         
                                     case BLEND_TINT:
-                                        pixels[pixmap_addr] += tint_r*value.mono();
-                                        pixels[pixmap_addr + 1] += tint_b*value.mono();
-                                        pixels[pixmap_addr + 2] += tint_g*value.mono();
+                                        pixels[RGB_pixmap_bpp *
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y)] += tint_r*value.mono();
+                                        pixels[RGB_pixmap_bpp *
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] += tint_b*value.mono();
+                                        pixels[RGB_pixmap_bpp *
+                                            (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] += tint_g*value.mono();
                                         break;
 
 									case BLEND_GREY_PLUS_RBG:
 										if(the_image==0){ //if first image --> Grey scale
-                                            value.write(pixels+pixmap_addr);
+                                            value.write(pixels+RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y));
 
 										}else if(the_image==1){ //--> R
-											//pixels[pixmap_addr] *= (1-value.r()/255.0);
-	                                        pixels[pixmap_addr + 1] *= (1-value.g()/255.0);
-			                                pixels[pixmap_addr + 2] *= (1-value.b()/255.0);
+//											pixels[RGB_pixmap_bpp *
+//												(rgb_fill_x+rgb_sx*rgb_fill_y)] *= (1-value.r()/255.0);
+	                                        pixels[RGB_pixmap_bpp *
+		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
+			                                pixels[RGB_pixmap_bpp *
+				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
 
 										}else if(the_image==2){ //--> B
-											pixels[pixmap_addr] *= (1-value.r()/255.0);
-	                                        pixels[pixmap_addr + 1] *= (1-value.g()/255.0);
-//			                                pixels[pixmap_addr + 2] *= (1-value.b()/255.0);
+											pixels[RGB_pixmap_bpp *
+												(rgb_fill_x+rgb_sx*rgb_fill_y)] *= (1-value.r()/255.0);
+	                                        pixels[RGB_pixmap_bpp *
+		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
+//			                                pixels[RGB_pixmap_bpp *
+//				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
 
 										}else if(the_image==3){ //--> G
-											pixels[pixmap_addr] *= (1-value.r()/255.0);
-//	                                        pixels[pixmap_addr + 1] *= (1-value.g()/255.0);
-			                                pixels[pixmap_addr + 2] *= (1-value.b()/255.0);
+											pixels[RGB_pixmap_bpp *
+												(rgb_fill_x+rgb_sx*rgb_fill_y)] *= (1-value.r()/255.0);
+//	                                        pixels[RGB_pixmap_bpp *
+//		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
+			                                pixels[RGB_pixmap_bpp *
+				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
 										}
                                         break;
 
@@ -405,21 +419,27 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
 //											value.r(value.r()/vol_count);
 //											value.g(value.g()/vol_count);
 //											value.b(value.b()/vol_count);
-                                            value.write(pixels+pixmap_addr);
+                                            value.write(pixels+RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y));
 										}else{ //--> weight in the red direction...
-//											pixels[pixmap_addr] *= value.r()/255; // /vol_count
-	                                        pixels[pixmap_addr + 1] *= (1-value.g()/255.0);
-			                                pixels[pixmap_addr + 2] *= (1-value.b()/255.0);
+//											pixels[RGB_pixmap_bpp *
+//												(rgb_fill_x+rgb_sx*rgb_fill_y)] *= value.r()/255; // /vol_count
+	                                        pixels[RGB_pixmap_bpp *
+		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
+			                                pixels[RGB_pixmap_bpp *
+				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
 										}
                                         break;
 
 									case BLEND_GREY_PLUS_BLUE:
 										if(the_image==0){ //if first image --> Grey scale
-                                            value.write(pixels+pixmap_addr);
+                                            value.write(pixels+RGB_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y));
 										}else{ //--> weight in the blue direction...
-											pixels[pixmap_addr] *= (1-value.r()/255.0);
-	                                        pixels[pixmap_addr + 1] *= (1-value.g()/255.0);
-//			                                pixels[pixmap_addr + 2] *= (1-value.b()/255.0);
+											pixels[RGB_pixmap_bpp *
+												(rgb_fill_x+rgb_sx*rgb_fill_y)] *= (1-value.r()/255.0);
+	                                        pixels[RGB_pixmap_bpp *
+		                                        (rgb_fill_x+rgb_sx*rgb_fill_y) + 1] *= (1-value.g()/255.0);
+//			                                pixels[RGB_pixmap_bpp *
+//				                                (rgb_fill_x+rgb_sx*rgb_fill_y) + 2] *= (1-value.b()/255.0);
 										}
                                         break;
                                         
@@ -427,7 +447,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
                                         if (threshold_value)
                                             {
                                             RGBAvalue value = RGBAvalue (IMGELEMCOMPMAX,0,0, IMGELEMCOMPMAX);
-                                            value.write(pixels+RGBA_pixmap_bpp*(rgb_fill_x+rgb_sx*rgb_fill_y));
+                                            value.write(pixels+RGBA_pixmap_bpp * (rgb_fill_x+rgb_sx*rgb_fill_y));
                                             }
                                         break;
                                     default:
@@ -464,8 +484,6 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
         the_image++;
 	} //per-image loop
     	
-
-//	draw_slice_locators(pixels, rgb_sx, rgb_sy, rc, rc);
 
 
     #pragma mark *** per-point render loop ***
@@ -512,21 +530,48 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
 	
 	}//point rendering loop
 
+
+	//JK set grey border around rendered area...
+	/*
+	for(int x=0; x<rgb_sx; x++){
+		pixels[RGB_pixmap_bpp * (x+rgb_sx*0)] += 125;
+		pixels[RGB_pixmap_bpp * (x+rgb_sx*0) + 1] += 125;
+        pixels[RGB_pixmap_bpp * (x+rgb_sx*0) + 2] += 125;
+	}
+	*/
+
+	/*
+		for(int y=0; y<rgb_sy; y++){
+		pixels[RGB_pixmap_bpp * (y+rgb_sy*0)] += 125;
+		pixels[RGB_pixmap_bpp * (y+rgb_sy*0) + 1] += 125;
+        pixels[RGB_pixmap_bpp * (y+rgb_sy*0) + 2] += 125;
+	}
+	*/
+
+
+//	fill_y_start=0; fill_y_start < rgb_sy; fill_y_start++)
+  //              {
+    //            fill_y_end=fill_y_start+1;
+      //          vox=start+slope_y*(float)fill_y_start;
+                
+        //        for ( fill_x_start=0; fill_x_start < rgb_sx; fill_x_start++)
+
+
+
+
 }//render_ function
 
 
 
 
 
-void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry *rc, Vector3D point, std::vector<int> on_spot_rgb)
+void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry *rg, Vector3D point, std::vector<int> on_spot_rgb)
 {
-
-
 	int default_size = 2;
 	int on_spot_size = 3;
 	float default_threshold = 10.0;
 	float on_spot_threshold = 0.5;
-	float distance = rc->distance_to_viewing_plane(point);
+	float distance = rg->distance_to_viewing_plane(point);
 	float alpha = abs(distance - default_threshold) / default_threshold;
 
 	vector<int> default_rgb(3);	
@@ -553,7 +598,7 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 		rgb = on_spot_rgb;
 	}
 
-	std::vector<int> loc = world_to_view(rc, rgb_sx, rgb_sy, point);
+	std::vector<int> loc = world_to_view(rg, rgb_sx, rgb_sy, point);
 	
 	// Vertical part
 	if ( loc[0] >= 0 && loc[0] <= rgb_sx )
@@ -592,11 +637,25 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 	}
 }
 
-void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry *rg, rendercombination *rc)
+void rendererMPR::draw_slice_locators ( uchar *pixels, int sx, int sy, rendergeometry *rg, rendercombination *rc)
 {
-	std::vector<rendergeometry *> geometries = rendermanagement.geometries_by_image_and_direction( rc->get_id() );	// get geometries that holds at least one of the images in the input combination
-// and have a different direction than the input geometry (i.e. not the same direction nor the opposite direction)
+/*
+	std::vector<int> geometryIDs = rendermanagement.geometries_by_image_and_direction(rc->get_id() );	// get geometries that holds at least one of the images in the input combination
+																									// and have a different direction than the input geometry (i.e. not the same
+																									// direction nor the opposite direction)
+	std::vector<rendergeometry *> geometries;
 	
+	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ )	// get the geometries for each geometry id
+	{
+		geometries.push_back( rendermanagement.get_geometry(*itr) );		
+	}
+*/	
+	std::vector<rendergeometry *> geometries = rendermanagement.geometries_by_image_and_direction(rc->get_id());	// get geometries that holds at least one of the images in the input combination
+																									// and have a different direction than the input geometry (i.e. not the same
+																									// direction nor the opposite direction)
+	
+
+
 	renderer_base * renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(rg->get_id()) );
 	//because class/function is static
 
@@ -610,11 +669,16 @@ void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeome
 	for ( std::vector<rendergeometry *>::const_iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
 	{			
 		Vector3D b = (*itr)->get_N();
+		
 		Vector3D c = CrossProduct( a, b);
+
 		float factor = vmin.GetNorm() / c.GetNorm();
+
 		c *= factor / 2;
+
 		std::vector<int> p = world_to_view(rg, sx, sy, (*itr)->look_at);	// determine the position of one of the "other" planes in the active viewport
 		std::vector<int> v = world_to_view(rg, sx, sy, c + (*itr)->look_at);
+		
 
 		int dx = abs ( p[0] - v[0] );
 		int dy = abs ( p[1] - v[1] );
@@ -674,12 +738,12 @@ void rendererMPR::paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rende
 {
 //	cout<<"paint_slice_locators_to_overlay("<<vp_w<<" "<<vp_h_pane<<"...)"<<endl;
 
-	std::vector<rendergeometry*> geoms = rendermanagement.geometries_by_image_and_direction(rc->get_id());	// get geometries that holds at least one of the images in the input combination
+	std::vector<rendergeometry *> geoms = rendermanagement.geometries_by_image_and_direction(rc->get_id());	// get geometries that holds at least one of the images in the input combination
 
 //	cout<<"geoms.size()="<<geoms.size()<<endl;
 
 	if(geoms.size()>0){
-		renderer_base *renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(rc->get_id()) );	//because class/function is static
+		renderer_base *renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(rg->get_id()) );	//because class/function is static
 
 		int smin = std::min(vp_w, vp_h_pane);
 		Vector3D vmin = renderer->view_to_world(smin, 0, vp_w, vp_h_pane) - renderer->view_to_world(0, 0, vp_w, vp_h_pane);

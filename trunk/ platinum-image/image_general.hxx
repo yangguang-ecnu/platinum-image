@@ -651,7 +651,7 @@ unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_num_voxels()
 template <class ELEMTYPE, int IMAGEDIM>
 unsigned short image_general<ELEMTYPE, IMAGEDIM>::get_size_by_dim(int dim) const
     {
-    return datasize [dim];
+    return datasize[dim];
     }
 
 template <class ELEMTYPE, int IMAGEDIM>
@@ -726,6 +726,19 @@ bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other)
         }
     return true;
     }
+/*
+template <class ELEMTYPE, int IMAGEDIM>
+bool image_general<ELEMTYPE, IMAGEDIM>::is_voxel_pos_within_image(Vector3Dint vox_pos)
+{
+	if(vox_pos[0]<0) return false;
+	if(vox_pos[1]<0) return false;
+	if(vox_pos[2]<0) return false;
+	if(vox_pos[0]>=datasize[0]) return false;
+	if(vox_pos[1]>=datasize[1]) return false;
+	if(vox_pos[2]>=datasize[2]) return false;
+	return true;
+}
+*/
 
 template <class ELEMTYPE, int IMAGEDIM>
 bool image_general<ELEMTYPE, IMAGEDIM>::same_size (image_base * other, int direction)

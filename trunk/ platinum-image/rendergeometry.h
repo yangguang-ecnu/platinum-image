@@ -30,6 +30,8 @@
 #include "ptmath.h"
 #include "global.h"
 
+class image_base;
+
 class rendergeometry 
     {
     private:
@@ -62,5 +64,7 @@ class rendergeometry
 
 		line3D get_physical_line_of_intersection(rendergeometry *rg2);
 		line2D get_physical_line_of_intersection_projected(rendergeometry *rg2);
+
+		Matrix3D get_scan_line_slop_matrix(image_base *the_image_pointer, float rgb_min_norm_div_by_zoom_constant);
 	};
 #endif

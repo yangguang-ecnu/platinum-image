@@ -43,8 +43,8 @@
 #define NOT_FOUND_ID -1
 #define NA 0 // not applicable
 
-#define RGBpixmap_bytesperpixel 3
-#define RGBApixmap_bytesperpixel 4
+#define RGB_pixmap_bpp 3 //RGB_pixmap_bytesperpixel
+#define RGBA_pixmap_bpp 4 //RGBA_pixmap_bytesperpixel
 
 #define IMGELEMCOMPTYPE unsigned char	//image element computer type...
 #define IMGELEMCOMPMAX 255.0
@@ -72,7 +72,6 @@ enum SPACE_TYPE {VOXEL_SPACE, PHYSICAL_SPACE};
 enum VIEWPORT_TYPE {PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
 enum ZERO_HANDLING_TYPE {ZERO_HANDLING_LEAVE, ZERO_HANDLING_SET_ZERO, ZERO_HANDLING_SET_MIN};
 enum DCM_IMPORT_WIN_TYPE {DCM_FILES, DCM_SERIES};
-
 
 
 //Dicom Tag definitions

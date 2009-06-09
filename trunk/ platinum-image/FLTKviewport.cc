@@ -845,7 +845,7 @@ void FLTK_Pt_pane::draw(unsigned char *rgbimage)
 {
 //	cout<<"FLTK_Pt_pane::draw(unsigned char *rgbimage)..."<<endl;
 //	cout<<"("<<x()<<" "<<y()<<" "<<w()<<" "<<h()<<")"<<endl;
-    const int D=RGBpixmap_bytesperpixel;
+//    const int D=RGB_pixmap_bpp;
 
     //damage (FL_DAMAGE_ALL);
 

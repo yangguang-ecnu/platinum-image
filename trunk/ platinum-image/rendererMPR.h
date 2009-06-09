@@ -32,24 +32,22 @@
 #include "renderer_base.h"
 #include "colormap.h"
 #include "datamanager.h"
-
 #include "global.h"
 
 //Complimentary vector functions (TODO: unuse and remove)
-Vector3D mult_elems( const Vector3D & one, const Vector3D & other );
-Vector3D div_elems( const Vector3D & numer, const Vector3D & denom );
+//Vector3D mult_elems(const Vector3D &one, const Vector3D &other);
+//Vector3D div_elems(const Vector3D &numer, const Vector3D &denom);
 
 class rendererMPR : public renderer_base
     {
     private:
-        void fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int w, int h, int rgb_sx, int value);
 
-        static void render_(uchar *pixels, int rgb_sx, int rgb_sy,rendergeometry * where,rendercombination * what,thresholdparvalue * threshold);
+        static void render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry *rg, rendercombination *rc,thresholdparvalue * threshold);
 
-		static void draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry * where, Vector3D  point, std::vector<int>);
+		static void draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry *rg, Vector3D point, std::vector<int>);
 		
-		static void draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry * where, rendercombination * what);
-		static void paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rendergeometry * where, rendercombination * what);
+		static void draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry *rg, rendercombination *rc);
+		static void paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rendergeometry *rg, rendercombination *rc);
 		static void paint_overlay_line(int vp_w, int vp_h_pane, line2D local_vp_line);
 		
 		static int sgn(long a);
@@ -58,7 +56,7 @@ class rendererMPR : public renderer_base
 
     public:
 
-        void connect_image(int vHandlerID);	//add image to rendering combination
+        void connect_data(int dataID);	//add image to rendering combination
         int renderer_type(); //return RENDERER_MPR
 
         static void render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID);
