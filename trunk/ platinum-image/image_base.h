@@ -120,6 +120,7 @@ class image_base : public data_base
         virtual Vector3D get_physical_center() const = 0; //return center in world coordinates
         virtual bool same_size (image_base *) = 0;
         virtual bool is_voxelpos_within_image_3D(Vector3Dint vox_pos) = 0;
+//        virtual bool is_voxelpos_within_image_3D(Vector3Dint vox_pos) = 0;
         
         bool read_origin_from_dicom_file(std::string dcm_file);
 		bool read_orientation_from_dicom_file(std::string dcm_file);
