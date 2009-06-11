@@ -111,6 +111,8 @@ bool			is_dicom_file_magnitude_image(string file_path);
 bool			is_dicom_file_real_image(string file_path);
 bool			is_dicom_file_imaginary_image(string file_path);
 string			get_elemtype_in_dicom_file(string file_path);
+string			get_elemtype_in_vtk_file(string file_path);
+
 
 
 //------  Dicom tag combos -------
@@ -174,14 +176,58 @@ string templ_to_string (unsigned char t)
     }*/
 
 
-
-
-
 // split a delimited string into multiple strings
 // example: "aaa;bbb;ccc" -> "aaa" "bbb" "ccc"
 void split(const std::string & s, char c, std::vector<std::string> & v);
-	
 
+template <class ELEMTYPE>
+vector<ELEMTYPE> read_file_into_data_vector(string file_path)
+{
+	vector<ELEMTYPE> data;
 
+	ifstream myfile(file_path.c_str());
+
+	if(myfile.is_open()){
+		int i=0;
+		ELEMTYPE sh;
+
+		while(!myfile.eof()){
+			myfile.read( (char *)(&sh), sizeof(sh) );
+			data.push_back(sh);
+			i++;
+		}
+	}
+	myfile.close();
+	return data;
+}
+
+template <class ELEMTYPE>
+vector<ELEMTYPE> read_file_into_data_vector_binary(string file_path, int num_data_points)
+{
+	vector<ELEMTYPE> data;
+
+	ELEMTYPE *buffer = new ELEMTYPE[num_data_points];
+	for(int i=0;i<num_data_points;i++){
+		buffer[i]=0;
+	}
+
+	for(int i=0;i<10;i++){
+		cout<<buffer[i]<<" ";
+	}
+	cout<<endl;
+	cout<<endl;
+
+	FILE *input = fopen(file_path.c_str(), "rb");
+	fread( (void*)buffer, sizeof(ELEMTYPE), num_data_points, input);
+
+	for(int i=0;i<num_data_points;i++){
+		data.push_back(buffer[i]);
+		cout<<buffer[i]<<" ";
+	}
+
+	fclose(input);
+
+	return data;
+}
 
 #endif

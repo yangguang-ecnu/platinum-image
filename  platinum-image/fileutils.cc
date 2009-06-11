@@ -626,7 +626,7 @@ string get_elemtype_in_dicom_file(string file_path)
     itk::GDCMImageIO::Pointer dicomIO = itk::GDCMImageIO::New();
 	string result = "undefined";
 
-	if(dicomIO->CanReadFile(file_path.c_str())){
+	if( dicomIO->CanReadFile(file_path.c_str()) ){
 		dicomIO->SetFileName(file_path.c_str());
 		dicomIO->ReadImageInformation();	//get basic DICOM header
 
@@ -670,6 +670,51 @@ string get_elemtype_in_dicom_file(string file_path)
 	return result;
 }
 
+string get_elemtype_in_vtk_file(string file_path)
+{
+    itk::VTKImageIO::Pointer vtkIO = itk::VTKImageIO::New();
+	string result = "undefined";
+
+	if(vtkIO->CanReadFile(file_path.c_str())){   //Assumption: File contains image data
+		vtkIO->SetFileName(file_path.c_str());
+		vtkIO->ReadImageInformation();	//get basic DICOM header
+        itk::ImageIOBase::IOComponentType componentType = vtkIO->GetComponentType();
+        
+		switch(componentType){
+			case itk::ImageIOBase::UCHAR:
+				result = "uchar";
+			break;
+			case itk::ImageIOBase::CHAR:
+				result = "char";
+			break;
+			case itk::ImageIOBase::USHORT:
+				result = "ushort";
+			break;
+			case itk::ImageIOBase::SHORT:
+				result = "short";
+			break;
+			case itk::ImageIOBase::UINT:
+				result = "uint";
+			break;
+			case itk::ImageIOBase::INT:
+				result = "int";
+			break;
+			case itk::ImageIOBase::ULONG:
+				result = "ulong";
+			break;
+			case itk::ImageIOBase::LONG:
+				result = "long";
+			break;
+			case itk::ImageIOBase::FLOAT:
+				result = "float";
+			break;
+			case itk::ImageIOBase::DOUBLE:
+				result = "double";
+			break;
+		}
+	}
+	return result;
+}
 
 vector<string> get_dicom_tag_value_combination(string file_path, vector<string> dcm_tags, bool remove_garbage_char)
 {
