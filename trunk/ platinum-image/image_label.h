@@ -74,4 +74,7 @@ public:
 template <int IMAGEDIM>
 image_label<IMAGEDIM>* label_copycast (image_base* const input);
 
+//template<class ELEMTYPE, int IMAGEDIM = 3>
+//image_label<IMAGEDIM>* creat_image_label_from_highest_intensities(vector< image_scalar<ELEMTYPE,IMAGEDIM>* > v);
+
 #endif
