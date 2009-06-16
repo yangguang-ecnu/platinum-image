@@ -32,7 +32,7 @@ extern viewmanager viewmanagement;
 using namespace std;
 
 
-const char * preset_direction_labels[] = {"Z","Y","X","-Z","-Y","-X","Axial","Sagittal","Coronal"};
+const char * preset_direction_labels[] = {"Default","Axial","Sagittal","Coronal","Z","Y","X","-Z","-Y","-X"};
 //const char * preset_direction_labels[] ={"Axial","Coronal","Sagittal","-Axial","-Coronal","-Sagittal"};
 const char * blend_mode_labels[] = {"Overwrite","Max","Min","Average","Diff","Tint","Grey+Tint","Grey+Red","Grey+Blue"};
 
@@ -925,11 +925,10 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
     renderermenu_button->user_data(NULL);
     
     //direction menu is constant for each viewport
-    Fl_Menu_Item dir_menu_items [9+1];
+    Fl_Menu_Item dir_menu_items[NUM_DIRECTIONS+1];
     
     int m;
-    for (m=0;m<9;m++)
-    {
+    for(m=0;m<NUM_DIRECTIONS;m++){
         menu_callback_params * cbp=new menu_callback_params;
         cbp->direction=(preset_direction)m;
         cbp->vport=viewport_parent;
@@ -947,11 +946,9 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 //            {dir_menu_items[m].deactivate();}
     }
 
-    //terminate menu
-    dir_menu_items[m].label(NULL);
-    
-    //Axial is pre-set, set checkmark accordingly
-    dir_menu_items[Z_DIR].setonly();
+    dir_menu_items[m].label(NULL);	//terminate menu
+    dir_menu_items[DEFAULT_DIR].setonly();	//DEFAULT_DIR is pre-set, set checkmark accordingly
+//    dir_menu_items[Z_DIR].setonly();
 //    dir_menu_items[AXIAL].setonly(); //AXIAL_NEG
     
 
@@ -960,8 +957,7 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
     
     Fl_Menu_Item blend_menu_items [NUM_BLEND_MODES+1];
     
-    for (m=0;m<NUM_BLEND_MODES;m++ )
-        {
+    for(m=0;m<NUM_BLEND_MODES;m++){
 //		cout<<"m="<<m<<"/"<<NUM_BLEND_MODES<<endl;
 
         menu_callback_params * cbp=new menu_callback_params;
@@ -1024,7 +1020,7 @@ FLTKviewport::~FLTKviewport()
 	{
 		if (datamenu_button != NULL) //objects menu has user data which was allocated in line 542
 		{
-			fl_menu_userdata_delete (renderermenu_button->menu()); 
+			fl_menu_userdata_delete(renderermenu_button->menu()); 
 		}
 	}
 }
@@ -1119,8 +1115,7 @@ void FLTKviewport::rebuild_blendmode_menu()//update checkmark for current blend 
 void FLTKviewport::update_data_menu()
 {	
     unsigned int m=0;
-    
-    const Fl_Menu_Item * cur_menu, *base_menu;
+    const Fl_Menu_Item *cur_menu, *base_menu;
     
     base_menu=datamanagement.FLTK_objects_menu();
     cur_menu=datamenu_button->menu();
@@ -1128,42 +1123,37 @@ void FLTKviewport::update_data_menu()
     unsigned int baseMenuSize = fl_menu_size(base_menu);
     
     //Fl_Menu_Item new_menu[baseMenuSize+1];
-    Fl_Menu_Item * new_menu = new Fl_Menu_Item[baseMenuSize+1];
+    Fl_Menu_Item *new_menu = new Fl_Menu_Item[baseMenuSize+1];
     
-    if (cur_menu!=NULL)
-        {
+    if(cur_menu!=NULL){
         //delete old callback data (menu is deleted by fl_menu::copy)
-        
         fl_menu_userdata_delete(cur_menu);
-        }
+	}
     
-    if (base_menu != NULL && viewport_parent->rendererIndex >= 0)
-        {
-        do 
-            {       
-                memcpy (&new_menu[m],&base_menu[m],sizeof(Fl_Menu_Item));
+    if(base_menu != NULL && viewport_parent->rendererIndex >= 0){
+        do{
+            memcpy (&new_menu[m],&base_menu[m],sizeof(Fl_Menu_Item));
                 
-                if (new_menu[m].label()!=NULL)
-                    {
-                    //long v=base_menu[m].argument();
-                    //attach menu_callback_params and
-                    //set checkmarks according to displayed images
+            if(new_menu[m].label()!=NULL){
+                //long v=base_menu[m].argument();
+                //attach menu_callback_params and
+                //set checkmarks according to displayed images
                     
-                    menu_callback_params * p= new menu_callback_params;
-                    p->rend_index=viewport_parent->rendererIndex;
-                    p->vol_id=base_menu[m].argument();  //image ID is stored in user data initially
-//					p->vport = this; //JK
+                menu_callback_params * p= new menu_callback_params;
+                p->rend_index=viewport_parent->rendererIndex;
+                p->vol_id=base_menu[m].argument();  //image ID is stored in user data initially
+//				p->vport = this; //JK
                     
-                    new_menu[m].callback((Fl_Callback *)toggle_image_callback);
-                    new_menu[m].user_data(p);
-                    new_menu[m].flags=FL_MENU_TOGGLE;
-                    if (rendermanagement.image_rendered(viewport_parent->rendererIndex,p->vol_id) !=BLEND_NORENDER)
-                        {
-                        //checked
-                        new_menu[m].set();
-                        }
-                    }
-            } while (new_menu[m++].label() !=NULL && m <= baseMenuSize);
+                new_menu[m].callback((Fl_Callback *)toggle_image_callback);
+                new_menu[m].user_data(p);
+                new_menu[m].flags=FL_MENU_TOGGLE;
+                if(rendermanagement.image_rendered(viewport_parent->rendererIndex,p->vol_id) !=BLEND_NORENDER){
+                    //checked
+                    new_menu[m].set();
+				}
+			}
+		}
+		while(new_menu[m++].label() !=NULL && m <= baseMenuSize);
         
         datamenu_button->copy(new_menu);
         delete new_menu;
@@ -1347,6 +1337,8 @@ void FLTKviewport::toggle_image_callback(Fl_Widget *callingwidget, void * params
 	}else{
 		viewmanagement.refresh_viewports(); //complicated to remember old settings... slow but simple solution... 
 	}
+	
+	//JK-öööö update direction if needed (for example if "DEFAULT_DIR" is used...)
 
 	// TODO: only refresh viewports that holds the addded/removed image
 	// hur kan det aktuella bild id:et erhållas? undersök om det verkligen är en bild (dvs exkludera tex en point_collection)

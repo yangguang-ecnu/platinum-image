@@ -51,18 +51,18 @@ struct regionofinterest
 class histogram_base
     {
     protected:
-        unsigned long *buckets;         //histogram "frequency"
+        unsigned long *buckets;         //stores histogram "frequency"
         unsigned long num_distinct_values;
         
         unsigned short num_buckets;     //buckets per dimension, ie. actual #buckets = num_buckets^2 for 2D histogram
-        unsigned long bucket_max;
-        unsigned long bucket_mean;
+        unsigned long bucket_max;		//max value... (frequency)
+        unsigned long bucket_mean;		//mean value...
         unsigned long num_elements_in_hist;	//stores total number of elements in histogram, (e.g. histograms from masked regions)
 
         bool readytorender;					//check that images have the same size --> 2D_hist for example
         
-        void clear_pixmap (unsigned char * image, unsigned int w,unsigned int h);
-        virtual void render_ (unsigned char * image, unsigned int width,unsigned int height) = 0;
+        void clear_pixmap(unsigned char * image, unsigned int w,unsigned int h);
+        virtual void render_(unsigned char * image, unsigned int width,unsigned int height) = 0;
         thresholdparvalue threshold;
 
 		void reallocate_buckets_if_necessary(int new_num_buckets=0); 	//if new_num_buckets == 0 --> keep the current resolution...
