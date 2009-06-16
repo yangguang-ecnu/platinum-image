@@ -77,6 +77,7 @@ bruker.h
 color.h 
 colormap.h 
 cursor3D.h 
+curve.h 
 data_base.h 
 ${WIN32_DIRENT_HEAD} 
 datamanager.h 
@@ -143,6 +144,7 @@ bruker.cc
 color.cc 
 colormap.cc 
 cursor3D.cc 
+curve.hxx
 data_base.cc 
 datamanager.cc 
 datawidget.cc 
@@ -316,6 +318,7 @@ image_multi.hxx
 image_scalar.hxx)
 
 SOURCE_GROUP(Data FILES 
+curve.h 
 datamanager.h 
 data_base.h 
 image_base.h 
@@ -328,6 +331,8 @@ points_seq_func1D.h
 rawimporter.h 
 dicom_importer.h 
 voxel_tools.h
+
+curve.hxx
 datamanager.cc 
 data_base.cc 
 image_base.cc 
