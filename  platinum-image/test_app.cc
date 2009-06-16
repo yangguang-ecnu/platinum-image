@@ -26,6 +26,7 @@
 
 #include "../../global.h"
 #include "../../image_binary.hxx"
+#include "../../curve.hxx"
 
 //retrieve command-line arguments
 int visid = -1;
