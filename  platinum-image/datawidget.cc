@@ -461,7 +461,7 @@ FLTKslice_orientation_menu::FLTKslice_orientation_menu(string slice_orientation,
     slice_menu_items[m].label(NULL);    //terminate menu
     
     //Axial is pre-set, set checkmark accordingly
-//    dir_menu_items[Z_DIR].setonly();
+//    dir_menu_items[Z_DIR].setonly();//DEFAULT_DIR
 //    dir_menu_items[AXIAL].setonly(); //AXIAL_NEG
     
 //    directionmenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight,preset_direction_labels[Z_DIR]);

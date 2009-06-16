@@ -108,7 +108,6 @@ void rendercombination::toggle_data(int dataID)
 			break;//To avoid undefined values of itr
 		}
 	}
-
     if(!removed){
 		add_data(dataID);
 

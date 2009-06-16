@@ -373,10 +373,10 @@ void rendermanager::remove_renderer (renderer_base * r)
         }
 }
 
-void rendermanager::toggle_image (int rendererIndex, int imageID)
-    {
-    renderers[rendererIndex]->the_rc->toggle_data( imageID);
-    }
+void rendermanager::toggle_image(int rendererIndex, int imageID)
+{
+    renderers[rendererIndex]->the_rc->toggle_data(imageID);
+}
 	
 void rendermanager::enable_image( int rendererID, int imageID )
 {
