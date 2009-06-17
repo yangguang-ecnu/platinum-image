@@ -38,7 +38,7 @@
 //Vector3D mult_elems(const Vector3D &one, const Vector3D &other);
 //Vector3D div_elems(const Vector3D &numer, const Vector3D &denom);
 
-class rendererMPR : public renderer_base
+class rendererMPR : public renderer_image_base
     {
     private:
 
@@ -56,6 +56,7 @@ class rendererMPR : public renderer_base
 		static void draw_line(uchar *pixels, int sx, int sy, int a, int b, int c, int d, std::vector<int> color);
 
     public:
+		rendererMPR();
 
         void connect_data(int dataID);	//add image to rendering combination
         int renderer_type(); //return RENDERER_MPR

@@ -360,8 +360,7 @@ void nav_tool::handle(viewport_event &event)
 						
 						//get values and update statusfield
 						
-//						const std::map<std::string, float> values = myRenderer->get_values_view( event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h());
-						const std::map<std::string, string> values = myRenderer->get_values_view( event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h());
+						const std::map<std::string, string> values = myRenderer->resolve_values_view( event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h());
 
 						if (values.empty())
 						{
