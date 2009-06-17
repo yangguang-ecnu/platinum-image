@@ -266,6 +266,61 @@ Vector3D image_base::get_voxel_z_dir_in_phys()
 	return create_Vector3D(orientation[0][2],orientation[1][2],orientation[2][2]);
 }
 
+Matrix3D image_base::get_dir_rendering_matrix(preset_direction direction)
+{
+    Matrix3D dir;
+
+    switch(direction){
+		case DEFAULT_DIR:
+			dir = orientation;
+			break;
+
+		case AXIAL:
+			if(this->get_slice_orientation()=="axial"){
+				dir = orientation;
+			}else if(this->get_slice_orientation()=="sagittal"){
+				copy_columns(dir, orientation, 0, 2);
+				copy_columns(dir, orientation, 1, 0);
+				copy_columns(dir, orientation, 2, 1, true);
+			}else if(this->get_slice_orientation()=="coronal"){
+				copy_columns(dir, orientation, 0, 0);
+				copy_columns(dir, orientation, 1, 2);
+				copy_columns(dir, orientation, 2, 1, true);
+			}
+            break;
+
+		case SAGITTAL:
+			if(this->get_slice_orientation()=="axial"){
+				copy_columns(dir, orientation, 0, 1);
+				copy_columns(dir, orientation, 1, 2, true);
+				copy_columns(dir, orientation, 2, 0);
+			}else if(this->get_slice_orientation()=="sagittal"){
+				dir = orientation;
+			}else if(this->get_slice_orientation()=="coronal"){
+				copy_columns(dir, orientation, 0, 2);
+				copy_columns(dir, orientation, 1, 1);
+				copy_columns(dir, orientation, 2, 0, true);
+			}
+	        break;
+		case CORONAL:
+			if(this->get_slice_orientation()=="axial"){
+				copy_columns(dir, orientation, 0, 0);
+				copy_columns(dir, orientation, 1, 2, true);
+				copy_columns(dir, orientation, 2, 1);
+			}else if(this->get_slice_orientation()=="sagittal"){
+				copy_columns(dir, orientation, 0, 2, true);
+				copy_columns(dir, orientation, 1, 1);
+				copy_columns(dir, orientation, 2, 0);
+			}else if(this->get_slice_orientation()=="coronal"){
+				dir = orientation;
+			}
+	        break;
+
+
+	}
+	return dir;
+}
+
 
 void image_base::set_orientation(const Matrix3D m)
 {

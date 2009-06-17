@@ -431,6 +431,7 @@ string Vector3D2str(Vector3D v);
 string bool2str(bool b);
 
 Matrix3D outer_product(const Vector3D a, const Vector3D b);
+void copy_columns(Matrix3D &m_to, Matrix3D &m_from, int to_col, int from_col, bool negate=false);
 
 unsigned int get_factorial(unsigned int i);
 unsigned int get_permutations(unsigned int n, unsigned int r); //returns pascals triangle values

@@ -19,17 +19,17 @@
 #include "curve.h"
 //#include "datawidget.h"
 
-/*
 
-point_collection::point_collection() : data_base()
+
+curve_base::curve_base() : data_base()
 {
     //start empty
-    widget = new datawidget<point_collection>(this, "Untitled point_collection");
-	active = -1;
+    widget = new datawidget<curve_base>(this, "Untitled point_collection");
 }
 
-point_collection::~point_collection() {}
+curve_base::~curve_base() {}
 
+/*
 point_collection::point_collection(const point_collection & source) // : data_base(source)
 {
 	// ID is not copied (which is correct)
