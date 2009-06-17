@@ -361,6 +361,16 @@ Vector3D image_base::world_to_voxel( const Vector3D & wpos ) const
 	return vpos;
 }
 
+string image_base::resolve_value_world(Vector3D worldPos)
+{
+	string s="";
+	Vector3D vPos = this->world_to_voxel(worldPos);
+	if( this->is_voxelpos_within_image_3D(create_Vector3Dint(vPos[0],vPos[1],vPos[2])) ){
+		s = "" + float2str(this->get_number_voxel(vPos[0],vPos[1],vPos[2])); //JK - quick fix...
+	}
+	return s;
+}
+
 string image_base::resolve_tooltip()
 {
 	return resolve_tooltip_image_base();

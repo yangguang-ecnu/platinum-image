@@ -34,6 +34,7 @@ renderer_base::renderer_base()
     the_rg=NULL;
     rg_id=0;
 }
+renderer_base::~renderer_base() {}
 
 
 int renderer_base::get_id()
@@ -210,16 +211,16 @@ std::vector<int> renderer_base::world_to_view(int sx,int sy,const Vector3D wpos)
     return world_to_view(the_rg,sx,sy,wpos);
 }
 
-std::map<std::string,float> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const 
+std::map<std::string,string> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const 
 {
     //virtual function, MSVC gets hickups without namespace spec however :(
-    return renderer_base::get_values_world(view_to_world(vx,vy,sx,sy));
+    return renderer_base::resolve_values_world(view_to_world(vx,vy,sx,sy));
 }
 
-std::map<std::string,float> renderer_base::get_values_world(Vector3D worldPos) const
+std::map<std::string,string> renderer_base::resolve_values_world(Vector3D worldPos) const
 {
-    std::map<std::string,float> m;
-
+    std::map<std::string,string> m;
+/*
     for (rendercombination::iterator itr = the_rc->begin(); itr != the_rc->end();itr++)
         {
         image_base * image = dynamic_cast<image_base *> (itr->pointer);
@@ -235,6 +236,12 @@ std::map<std::string,float> renderer_base::get_values_world(Vector3D worldPos) c
             
             }
         }
+		*/
+	    for(rendercombination::iterator itr = the_rc->begin(); itr != the_rc->end();itr++){
+			if(itr->pointer != NULL){
+				m[itr->pointer->name()] = itr->pointer->resolve_value_world(worldPos);
+			}
+		}
     
     return m;    
 }
