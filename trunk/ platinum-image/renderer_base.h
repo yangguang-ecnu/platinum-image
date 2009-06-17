@@ -50,15 +50,13 @@ protected:
     int id;
     int rc_id;	// rendercombination id
     int rg_id;	// rendergeometry id
-    
-    static int maxrendererID;
+	static int maxrendererID;
     
 public:
 	renderer_base();
 	//renderer_base(const renderer_base &k) { *this=k; ::renderer_base(); }
-    virtual ~renderer_base() {}
+    virtual ~renderer_base();
     
-  
 	// ----- parameters ------
     int get_id();
     
@@ -72,11 +70,10 @@ public:
 
 
 	// ----- rendering & data interaction ------
-    
-    virtual void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy);
+	virtual void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy);
     virtual void render_threshold(unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue *threshold);
-    virtual std::map<std::string,float> get_values_view(int vx, int vy, int sx, int sy) const; //get values from current view, pixel coordinates
-    virtual std::map<std::string,float> get_values_world(Vector3D unitPos) const;             //get values from composite, unit image coordinates
+    virtual std::map<std::string,string> get_values_view(int vx, int vy, int sx, int sy) const; //get values from current view, pixel coordinates
+    virtual std::map<std::string,string> resolve_values_world(Vector3D worldPos) const;             //get values from composite, unit image coordinates
     
     //convert view coordinates to voxels, virtual since the result depends on what's visible, which in turn depends on how it's rendered
     virtual Vector3D view_to_voxel(int vx, int vy, int sx, int sy, int imageID = -1) const;

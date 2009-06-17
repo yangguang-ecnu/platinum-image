@@ -119,7 +119,7 @@ class image_base : public data_base
         virtual Vector3D get_physical_size () const = 0; //return size in world coordinates
         virtual Vector3D get_physical_center() const = 0; //return center in world coordinates
         virtual bool same_size (image_base *) = 0;
-        virtual bool is_voxelpos_within_image_3D(Vector3Dint vox_pos) = 0;
+        virtual bool is_voxelpos_within_image_3D(Vector3Dint vox_pos)=0;
 //        virtual bool is_voxelpos_within_image_3D(Vector3Dint vox_pos) = 0;
         
         bool read_origin_from_dicom_file(std::string dcm_file);
@@ -140,6 +140,7 @@ class image_base : public data_base
 
         Vector3D world_to_voxel( const Vector3D & wpos ) const;
 		Vector3D voxel_to_world( const Vector3D & vpos ) const;
+		virtual string resolve_value_world(Vector3D worldPos);
 
         
         virtual void data_has_changed(bool stats_refresh = true) = 0;

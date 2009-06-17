@@ -360,7 +360,8 @@ void nav_tool::handle(viewport_event &event)
 						
 						//get values and update statusfield
 						
-						const std::map<std::string, float> values = myRenderer->get_values_view( event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h());
+//						const std::map<std::string, float> values = myRenderer->get_values_view( event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h());
+						const std::map<std::string, string> values = myRenderer->get_values_view( event.mouse_pos_local()[0], event.mouse_pos_local()[1], fp->w(), fp->h());
 
 						if (values.empty())
 						{
@@ -368,7 +369,7 @@ void nav_tool::handle(viewport_event &event)
 						}
 						else
 						{
-							for (std::map<std::string,float>::const_iterator itr = values.begin(); itr != values.end();itr++)
+							for (std::map<std::string,string>::const_iterator itr = values.begin(); itr != values.end();itr++)
 							{
 								if (itr != values.begin())
 									{ numbers << "; "; }

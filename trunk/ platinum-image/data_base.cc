@@ -125,6 +125,11 @@ void data_base::activate()
     //widget->show();
     widget->activate();
 }
+string data_base::resolve_value_world(Vector3D worldPos)
+{
+	return "data_base::resolve_value_world(";
+}
+
 
 bool data_base::from_file() const
     {

@@ -46,12 +46,12 @@ class data_base
         static int data_next_ID;
     protected:
         int ID;
-        datawidget_base * widget;
+        datawidget_base *widget;
 
         void name_from_path(std::string filepath);   //sets image name from name portion of path
     
-        data_base ();
-        data_base (data_base * const);
+        data_base();
+        data_base(data_base * const);
 		//data_base(const data_base & source);		// copy constructor
 
     public:
@@ -85,12 +85,13 @@ class data_base
         virtual void data_has_changed (bool);
         int get_id();
         void activate();
+		virtual string resolve_value_world(Vector3D worldPos);
 
 		// *** Metadata ***
 		metadata meta;
 
-        virtual void name (const std::string n);          //set name
-        virtual const std::string name () const;          //get name
+        virtual void name(const std::string n);          //set name
+        virtual const std::string name() const;          //get name
         bool from_file() const;
         void from_file(bool f); //set "from file" status
         virtual void save_to_DCM_file(const std::string, const bool useCompression = true, const bool anonymize = true) = 0;
