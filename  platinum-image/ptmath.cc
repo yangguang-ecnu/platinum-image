@@ -1051,6 +1051,18 @@ void copy_columns(Matrix3D &m_to, Matrix3D &m_from, int to_col, int from_col, bo
 }
 
 
+string Matrix3D2str(Matrix3D m)
+{
+//	return float2str(m[0][0])+" "+float2str(m[0][1])+" "+float2str(m[0][2])+" "+float2str(m[1][0])+" "+float2str(m[1][1])+" "+float2str(m[1][2])+" "+ float2str(m[2][0])+" "+float2str(m[2][1])+" "+float2str(m[2][2]);
+	return Matrix3Drow2str(m,0)+"\n"+Matrix3Drow2str(m,1)+"\n"+Matrix3Drow2str(m,2);
+}
+
+string Matrix3Drow2str(Matrix3D m, int row)
+{
+	return float2str(m[row][0])+" "+float2str(m[row][1])+" "+float2str(m[row][2]);
+}
+
+
 unsigned int get_factorial(unsigned int i)
 {
 	if(i==1){

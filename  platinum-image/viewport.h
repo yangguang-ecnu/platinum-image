@@ -72,6 +72,7 @@ private:
 	void set_renderer_direction(const Matrix3D &dir);
 	void set_renderer_direction(preset_direction direction); 
 
+	bool paint_rendergeometry;
 	
 public:
     viewport(VIEWPORT_TYPE vpt=PT_MPR);

@@ -913,7 +913,7 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 {
 	viewport_parent = vp_parent;
     int buttonleft=0;
-    
+
     viewport_buttons = new Fl_Pack(0,0,width,buttonheight,"");
     viewport_buttons->type(FL_HORIZONTAL);
     
