@@ -57,6 +57,7 @@ viewport::viewport(VIEWPORT_TYPE vpt)
 	ROI_rectangle_h = -1;
 
 	ROI_rect_is_changing = false;
+   	paint_rendergeometry=true;
 }
 
 viewport::~viewport()
@@ -183,36 +184,42 @@ void viewport::set_renderer_direction( preset_direction direction )
 
 	
 		case Z_DIR:
+			dir.Fill(0);
             dir[x][0]=1;	// the x direction of the viewport ("0") lies in the positive ("+1") x direction ("x") of the world coordinate system
             dir[y][1]=1;	// the y direction of the viewport ("1") lies in the positive ("+1") y direction ("y") of the world coordinete system
             dir[z][2]=1;	// the z direction of the viewport ("2") lies in the positive ("+1") z direction ("z") of the world coordinate system
             break;
             
         case Y_DIR:
+			dir.Fill(0);
             dir[x][0]=1;
             dir[z][1]=-1;
             dir[y][2]=1;
             break;
             
         case X_DIR:
+			dir.Fill(0);
             dir[y][0]=-1;
             dir[z][1]=-1;
             dir[x][2]=1;
             break;
             
         case Z_DIR_NEG:
+			dir.Fill(0);
             dir[x][0]=-1;
             dir[y][1]=1;
             dir[z][2]=-1;
             break;
             
         case Y_DIR_NEG:
+			dir.Fill(0);
             dir[x][0]=-1;
             dir[z][1]=-1;
             dir[y][2]=-1;
             break;
             
         case X_DIR_NEG:
+			dir.Fill(0);
             dir[y][0]=1;
             dir[z][1]=-1;
             dir[x][2]=-1;
@@ -405,7 +412,7 @@ void viewport::paint_overlay()
 //	cout<<"***h()="<<h_pane()<<" id="<<this->get_id()<<endl;
 
 	//here the height of the pane needs to be used since the height of the "viewport" includes the buttons...
-	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h_pane()); //h_pane is needed to compensate for button height... 
+	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h_pane(), paint_rendergeometry); //h_pane is needed to compensate for button height... 
 
 	fl_color(FL_GRAY);
 	fl_rect(0, 0, w(), h()); //SO - framing the viewports 888

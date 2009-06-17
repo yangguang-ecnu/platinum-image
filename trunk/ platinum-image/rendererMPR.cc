@@ -50,10 +50,13 @@ void rendererMPR::connect_data(int dataID)
     the_rc->add_data(dataID);
 	}
 
-void rendererMPR::paint_overlay(int vp_w, int vp_h_pane)
+void rendererMPR::paint_overlay(int vp_w, int vp_h_pane, bool paint_rendergeometry)
 {
 //	cout<<"rendererMPR::paint_overlay..("<<vp_w<<" "<<vp_h_pane<<") rc_id="<<the_rg->get_id()<<endl;
 	paint_slice_locators_to_overlay(vp_w, vp_h_pane, the_rg, the_rc);
+	if(paint_rendergeometry){
+		paint_rendergeometry_to_overlay(vp_w, vp_h_pane, the_rg, the_rc);
+	}
 }
 
 Vector3D rendererMPR::view_to_world(int vx, int vy, int sx, int sy) const
@@ -705,6 +708,26 @@ void rendererMPR::paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rende
 //		fl_rect( vp_offset_x+1, vp_offset_y+1, vp_w-2, vp_h-2, FL_YELLOW);
 
 	}//if
+}
+
+void rendererMPR::paint_rendergeometry_to_overlay(int vp_w, int vp_h_pane, rendergeometry *rg, rendercombination *rc)
+{
+	if(rc->top_image()!=NULL){
+		fl_font(FL_COURIER, 10);
+		fl_color(FL_RED);
+		fl_draw(Matrix3Drow2str(rg->dir,0).c_str(), 5, 15);
+		fl_draw(Matrix3Drow2str(rg->dir,1).c_str(), 5, 30);
+		fl_draw(Matrix3Drow2str(rg->dir,2).c_str(), 5, 45);
+
+		int str_w, str_h;
+		string tmp = Vector3D2str(rg->look_at);
+		fl_measure(tmp.c_str(),str_w,str_h);
+		fl_draw(tmp.c_str(), vp_w-str_w, 15);
+
+		tmp = float2str(rg->zoom);
+		fl_measure(tmp.c_str(),str_w,str_h);
+		fl_draw(tmp.c_str(), vp_w-str_w, 45);
+	}
 }
 
 
