@@ -44,6 +44,10 @@ T signed_ceil(T & x){   //ceil that returns rounded absolute upwards
     return (x < 0 ? floor (x) : ceil (x));
     }
 
+rendererMPR::rendererMPR():renderer_image_base()
+{
+}
+
 void rendererMPR::connect_data(int dataID)
     {
     //TEST: wrapper, this should be done directly by rendermanagement

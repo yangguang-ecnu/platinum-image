@@ -211,7 +211,7 @@ std::vector<int> renderer_base::world_to_view(int sx,int sy,const Vector3D wpos)
     return world_to_view(the_rg,sx,sy,wpos);
 }
 
-std::map<std::string,string> renderer_base::get_values_view(int vx, int vy,int sx,int sy) const 
+std::map<std::string,string> renderer_base::resolve_values_view(int vx, int vy, int sx, int sy) const 
 {
     //virtual function, MSVC gets hickups without namespace spec however :(
     return renderer_base::resolve_values_world(view_to_world(vx,vy,sx,sy));
@@ -220,29 +220,11 @@ std::map<std::string,string> renderer_base::get_values_view(int vx, int vy,int s
 std::map<std::string,string> renderer_base::resolve_values_world(Vector3D worldPos) const
 {
     std::map<std::string,string> m;
-/*
-    for (rendercombination::iterator itr = the_rc->begin(); itr != the_rc->end();itr++)
-        {
-        image_base * image = dynamic_cast<image_base *> (itr->pointer);
-        
-        if (image != NULL)
-            {
-            Vector3D vPos = image->world_to_voxel(worldPos);
-            
-            if ( vPos[0] >= 0 && vPos[1] >= 0 && vPos[2] >= 0 && vPos[0] < image->get_size_by_dim(0) && vPos[1] < image->get_size_by_dim(1) && vPos[2] < image->get_size_by_dim(2))
-                {
-                m[image->name()] = (image->get_number_voxel(vPos[0],vPos[1],vPos[2]));
-                }
-            
-            }
-        }
-		*/
 	    for(rendercombination::iterator itr = the_rc->begin(); itr != the_rc->end();itr++){
 			if(itr->pointer != NULL){
 				m[itr->pointer->name()] = itr->pointer->resolve_value_world(worldPos);
 			}
 		}
-    
     return m;    
 }
 
@@ -287,3 +269,17 @@ void renderer_base::fill_rgbimage_with_value(unsigned char *rgb, int x, int y, i
         }
     }
 }
+
+
+
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+
+
+
+renderer_image_base::renderer_image_base():renderer_base()
+{
+}
+
+renderer_image_base::~renderer_image_base()
+{}

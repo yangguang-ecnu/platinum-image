@@ -57,7 +57,7 @@ public:
 	//renderer_base(const renderer_base &k) { *this=k; ::renderer_base(); }
     virtual ~renderer_base();
     
-	// ----- parameters ------
+	// ------------- parameters --------------------
     int get_id();
     
     rendercombination* the_rc;				//list of images to render, public, because it is managed by viewport too (make renderer and viewport friends?)
@@ -72,7 +72,7 @@ public:
 	// ----- rendering & data interaction ------
 	virtual void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy);
     virtual void render_threshold(unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue *threshold);
-    virtual std::map<std::string,string> get_values_view(int vx, int vy, int sx, int sy) const; //get values from current view, pixel coordinates
+    virtual std::map<std::string,string> resolve_values_view(int vx, int vy, int sx, int sy) const; //get values from current view, pixel coordinates
     virtual std::map<std::string,string> resolve_values_world(Vector3D worldPos) const;             //get values from composite, unit image coordinates
     
     //convert view coordinates to voxels, virtual since the result depends on what's visible, which in turn depends on how it's rendered
@@ -125,6 +125,17 @@ public:
         { in >> k.id; return in; }
     friend std::ostream &operator<<(std::ostream &ut, const renderer_base &k)
         { ut << "[renderer_base. ID= " << k.id << "] "; return ut; }
+
+};
+
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+class renderer_image_base:public renderer_base
+{
+
+public:
+	renderer_image_base();
+    virtual ~renderer_image_base();
 
 };
 
