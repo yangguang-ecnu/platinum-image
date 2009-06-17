@@ -131,7 +131,7 @@ void viewport::set_renderer_direction( preset_direction direction )
     enum { x, y, z };
     
     Matrix3D dir;
-    dir.Fill(0);
+	dir.SetIdentity();
 
 	image_base *im;
     
@@ -154,272 +154,69 @@ void viewport::set_renderer_direction( preset_direction direction )
   //          dir[y][1]=1;	// the y direction of the viewport ("1") lies in the positive ("+1") y direction ("y") of the world coordinete system
     //        dir[z][2]=1;	// the z direction of the viewport ("2") lies in the positive ("+1") z direction ("z") of the world coordinate system
 
-
 			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
 			if(im!=NULL){
-				Vector3D image_x_dir = im->get_voxel_x_dir_in_phys();
-				Vector3D image_y_dir = im->get_voxel_y_dir_in_phys();
-				Vector3D image_z_dir = im->get_voxel_z_dir_in_phys();
-
-				cout<<"image_x_dir="<<image_x_dir<<endl;
-				cout<<"image_y_dir="<<image_y_dir<<endl;
-				cout<<"image_z_dir="<<image_z_dir<<endl;
-				cout<<"tooltip="<<im->resolve_tooltip_image_base()<<endl;
-				
-				//const char * slice_orientation_labels[] = {"axial","sagittal","coronal", "undefined"};
-	            dir[0][0]=image_x_dir[0]; 
-	            dir[1][0]=image_x_dir[1]; 
-	            dir[2][0]=image_x_dir[2]; 
-
-				dir[0][1]=image_y_dir[0]; 
-				dir[1][1]=image_y_dir[1]; 
-				dir[2][1]=image_y_dir[2]; 
-
-			    dir[0][2]=image_z_dir[0];
-			    dir[1][2]=image_z_dir[1];
-			    dir[2][2]=image_z_dir[2];
-			}else{
-	            dir[y][0]=1; 
-		        dir[z][1]=1;
-			    dir[x][2]=1;
+				dir = im->get_dir_rendering_matrix(direction);
 			}
-
-
             break;
 
 		case AXIAL:
-
 			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
 			if(im!=NULL){
-				string s = im->get_slice_orientation();
-				Vector3D image_x_dir = im->get_voxel_x_dir_in_phys();
-				Vector3D image_y_dir = im->get_voxel_y_dir_in_phys();
-				Vector3D image_z_dir = im->get_voxel_z_dir_in_phys();
-
-				cout<<"s="<<s<<endl;
-				cout<<"image_x_dir="<<image_x_dir<<endl;
-				cout<<"image_y_dir="<<image_y_dir<<endl;
-				cout<<"image_z_dir="<<image_z_dir<<endl;
-				cout<<"tooltip="<<im->resolve_tooltip_image_base()<<endl;
-				
-				//const char * slice_orientation_labels[] = {"axial","sagittal","coronal", "undefined"};
-				if(s=="axial"){
-		            dir[0][0]=image_x_dir[0]; 
-		            dir[1][0]=image_x_dir[1]; 
-		            dir[2][0]=image_x_dir[2]; 
-
-					dir[0][1]=image_y_dir[0]; 
-					dir[1][1]=image_y_dir[1]; 
-					dir[2][1]=image_y_dir[2]; 
-
-				    dir[0][2]=image_z_dir[0];
-				    dir[1][2]=image_z_dir[1];
-				    dir[2][2]=image_z_dir[2];
-
-				}else if(s=="sagittal"){
-		            dir[0][0]=image_z_dir[0]; 
-		            dir[1][0]=image_z_dir[1]; 
-		            dir[2][0]=image_z_dir[2]; 
-
-					dir[0][1]=image_x_dir[0]; 
-					dir[1][1]=image_x_dir[1]; 
-					dir[2][1]=image_x_dir[2]; 
-
-				    dir[0][2]=-image_y_dir[0];
-				    dir[1][2]=-image_y_dir[1];
-				    dir[2][2]=-image_y_dir[2];
-
-				}else if(s=="coronal"){
-		            dir[0][0]=image_x_dir[0]; 
-		            dir[1][0]=image_x_dir[1]; 
-		            dir[2][0]=image_x_dir[2]; 
-
-					dir[0][1]=image_z_dir[0]; 
-					dir[1][1]=image_z_dir[1]; 
-					dir[2][1]=image_z_dir[2]; 
-
-				    dir[0][2]=-image_y_dir[0];
-				    dir[1][2]=-image_y_dir[1];
-				    dir[2][2]=-image_y_dir[2];
-				}
-
-			}else{
-	            dir[y][0]=1; 
-		        dir[z][1]=1;
-			    dir[x][2]=1;
+				dir = im->get_dir_rendering_matrix(direction);
 			}
             break;
 
-		case SAGITTAL:			//JK TODO öööö fix...
-
+		case SAGITTAL:
 			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
 			if(im!=NULL){
-				string s = im->get_slice_orientation();
-				Vector3D image_x_dir = im->get_voxel_x_dir_in_phys();
-				Vector3D image_y_dir = im->get_voxel_y_dir_in_phys();
-				Vector3D image_z_dir = im->get_voxel_z_dir_in_phys();
-
-				cout<<"s="<<s<<endl;
-				cout<<"image_x_dir="<<image_x_dir<<endl;
-				cout<<"image_y_dir="<<image_y_dir<<endl;
-				cout<<"image_z_dir="<<image_z_dir<<endl;
-				cout<<"tooltip="<<im->resolve_tooltip_image_base()<<endl;
-				
-				//const char * slice_orientation_labels[] = {"axial","sagittal","coronal", "undefined"};
-				if(s=="axial"){
-		            dir[0][0]=image_y_dir[0]; 
-		            dir[1][0]=image_y_dir[1]; 
-		            dir[2][0]=image_y_dir[2]; 
-
-					dir[0][1]=-image_z_dir[0]; 
-					dir[1][1]=-image_z_dir[1]; 
-					dir[2][1]=-image_z_dir[2]; 
-
-				    dir[0][2]=image_x_dir[0];
-				    dir[1][2]=image_x_dir[1];
-				    dir[2][2]=image_x_dir[2];
-
-				}else if(s=="sagittal"){
-		            dir[0][0]=image_x_dir[0]; 
-		            dir[1][0]=image_x_dir[1]; 
-		            dir[2][0]=image_x_dir[2]; 
-
-					dir[0][1]=image_y_dir[0]; 
-					dir[1][1]=image_y_dir[1]; 
-					dir[2][1]=image_y_dir[2]; 
-
-				    dir[0][2]=image_z_dir[0];
-				    dir[1][2]=image_z_dir[1];
-				    dir[2][2]=image_z_dir[2];
-
-				}else if(s=="coronal"){
-		            dir[0][0]=image_z_dir[0]; 
-		            dir[1][0]=image_z_dir[1]; 
-		            dir[2][0]=image_z_dir[2]; 
-
-					dir[0][1]=image_y_dir[0]; 
-					dir[1][1]=image_y_dir[1]; 
-					dir[2][1]=image_y_dir[2]; 
-
-				    dir[0][2]=-image_x_dir[0];
-				    dir[1][2]=-image_x_dir[1];
-				    dir[2][2]=-image_x_dir[2];
-				}
-			}else{
-	            dir[y][0]=1; 
-		        dir[z][1]=1;
-			    dir[x][2]=1;
+				dir = im->get_dir_rendering_matrix(direction);
 			}
             break;
 
-		case CORONAL:			//JK TODO öööö fix...
-
+		case CORONAL:
 			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
 			if(im!=NULL){
-				string s = im->get_slice_orientation();
-				Vector3D image_x_dir = im->get_voxel_x_dir_in_phys();
-				Vector3D image_y_dir = im->get_voxel_y_dir_in_phys();
-				Vector3D image_z_dir = im->get_voxel_z_dir_in_phys();
-
-				cout<<"s="<<s<<endl;
-				cout<<"image_x_dir="<<image_x_dir<<endl;
-				cout<<"image_y_dir="<<image_y_dir<<endl;
-				cout<<"image_z_dir="<<image_z_dir<<endl;
-				cout<<"tooltip="<<im->resolve_tooltip_image_base()<<endl;
-				
-				//const char * slice_orientation_labels[] = {"axial","sagittal","coronal", "undefined"};
-				if(s=="axial"){
-		            dir[0][0]=image_x_dir[0]; 
-		            dir[1][0]=image_x_dir[1]; 
-		            dir[2][0]=image_x_dir[2]; 
-
-					dir[0][1]=-image_z_dir[0]; 
-					dir[1][1]=-image_z_dir[1]; 
-					dir[2][1]=-image_z_dir[2]; 
-
-				    dir[0][2]=image_y_dir[0];
-				    dir[1][2]=image_y_dir[1];
-				    dir[2][2]=image_y_dir[2];
-
-				}else if(s=="sagittal"){
-		            dir[0][0]=-image_z_dir[0]; 
-		            dir[1][0]=-image_z_dir[1]; 
-		            dir[2][0]=-image_z_dir[2]; 
-
-					dir[0][1]=image_y_dir[0]; 
-					dir[1][1]=image_y_dir[1]; 
-					dir[2][1]=image_y_dir[2]; 
-
-				    dir[0][2]=image_x_dir[0];
-				    dir[1][2]=image_x_dir[1];
-				    dir[2][2]=image_x_dir[2];
-
-				}else if(s=="coronal"){
-		            dir[0][0]=image_x_dir[0]; 
-		            dir[1][0]=image_x_dir[1]; 
-		            dir[2][0]=image_x_dir[2]; 
-
-					dir[0][1]=image_y_dir[0]; 
-					dir[1][1]=image_y_dir[1]; 
-					dir[2][1]=image_y_dir[2]; 
-
-				    dir[0][2]=image_z_dir[0];
-				    dir[1][2]=image_z_dir[1];
-				    dir[2][2]=image_z_dir[2];
-				}
-			}else{
-	            dir[y][0]=1; 
-		        dir[z][1]=1;
-			    dir[x][2]=1;
+				dir = im->get_dir_rendering_matrix(direction);
 			}
             break;
 
 	
 		case Z_DIR:
-        //case AXIAL:
             dir[x][0]=1;	// the x direction of the viewport ("0") lies in the positive ("+1") x direction ("x") of the world coordinate system
             dir[y][1]=1;	// the y direction of the viewport ("1") lies in the positive ("+1") y direction ("y") of the world coordinete system
             dir[z][2]=1;	// the z direction of the viewport ("2") lies in the positive ("+1") z direction ("z") of the world coordinate system
             break;
             
         case Y_DIR:
-//        case CORONAL:
             dir[x][0]=1;
             dir[z][1]=-1;
             dir[y][2]=1;
             break;
             
         case X_DIR:
-//        case SAGITTAL:
             dir[y][0]=-1;
             dir[z][1]=-1;
             dir[x][2]=1;
             break;
             
         case Z_DIR_NEG:
-//        case AXIAL_NEG:
             dir[x][0]=-1;
             dir[y][1]=1;
             dir[z][2]=-1;
             break;
             
         case Y_DIR_NEG:
-//        case CORONAL_NEG:
             dir[x][0]=-1;
             dir[z][1]=-1;
             dir[y][2]=-1;
             break;
             
         case X_DIR_NEG:
-//        case SAGITTAL_NEG:
             dir[y][0]=1;
             dir[z][1]=-1;
             dir[x][2]=-1;
             break;
-
-
-
-
     }
 	
 	set_renderer_direction( dir );

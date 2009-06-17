@@ -37,11 +37,11 @@ class curve_base : public data_base
 	protected:
         pointStorage thePoints;
 		int active;	// This variable is set from FLTKuserIOpar_landmarks and is used in rendererMPR 
-		
+*/		
 	public:
-        point_collection();
-		~point_collection();
-
+        curve_base();
+		~curve_base();
+/*
 		point_collection(const point_collection & source);	// copy constructor
 		const point_collection & operator=(const point_collection & source);
          

@@ -1037,6 +1037,20 @@ Matrix3D outer_product(const Vector3D a, const Vector3D b)
 	return m;
 }
 
+void copy_columns(Matrix3D &m_to, Matrix3D &m_from, int to_col, int from_col, bool negate)
+{
+	if(negate){
+		for(int i=0;i<=2;i++){
+			m_to[i][to_col] = - m_from[i][from_col];
+		}
+	}else{
+		for(int i=0;i<=2;i++){
+			m_to[i][to_col] = m_from[i][from_col];
+		}
+	}
+}
+
+
 unsigned int get_factorial(unsigned int i)
 {
 	if(i==1){

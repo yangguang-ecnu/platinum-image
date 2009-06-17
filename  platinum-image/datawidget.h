@@ -50,6 +50,7 @@
 
 #include "image_base.h"
 #include "point_collection.h"
+#include "curve.h"
 /*class data_base;
 class image_base;
 class point_collection;*/
@@ -78,6 +79,7 @@ protected:
     // *** menus       
     enum {remove_mi_num=0,save_mi_num, dup_mi_num};
     const static Fl_Menu_Item menu_featuremenu_base[];
+    const static Fl_Menu_Item menu_featuremenu_curve_base[];
     const static Fl_Menu_Item menu_featuremenu_point_collection[];
     const static Fl_Menu_Item *remove_mi;
     const static Fl_Menu_Item *save_vtk_mi;
@@ -113,6 +115,13 @@ public:
 template <class DATATYPE>
 class datawidget:public datawidget_base
 {};
+
+template <>
+class datawidget<curve_base>:public datawidget_base
+{
+public:
+    datawidget(curve_base *p, std::string n);
+};
 
 template <>
 class datawidget<point_collection>:public datawidget_base

@@ -155,6 +155,7 @@ class image_base : public data_base
         Vector3D get_voxel_x_dir_in_phys();
         Vector3D get_voxel_y_dir_in_phys();
         Vector3D get_voxel_z_dir_in_phys();
+		Matrix3D get_dir_rendering_matrix(preset_direction direction);
 		void set_orientation(const Matrix3D m);
         Vector3D get_origin() const;
         void set_origin(const Vector3D v); 

@@ -79,6 +79,17 @@ const Fl_Menu_Item datawidget_base::menu_featuremenu_base[] = {
  {0,0,0,0,0,0,0,0,0}
 };
 
+const Fl_Menu_Item datawidget_base::menu_featuremenu_curve_base[] = {
+ {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
 const Fl_Menu_Item datawidget_base::menu_featuremenu_point_collection[] = {
  {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
@@ -424,6 +435,12 @@ void datawidget<image_base>::cb_show_hide_tfunction(Fl_Widget* callingwidget, vo
 
 
 
+#pragma mark datawidget<curve_base>
+
+datawidget<curve_base>::datawidget(curve_base *p, std::string n): datawidget_base(p,n)
+{
+    featuremenu->menu(menu_featuremenu_curve_base);
+}
 
 
 #pragma mark datawidget<point_collection>
