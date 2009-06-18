@@ -31,8 +31,7 @@ extern rendermanager rendermanagement;
 
 const int datawidget_base::thumbnail_size = 128;
 
-const char * slice_orientation_labels[] = {"axial","sagittal","coronal", "undefined"};
-
+const char *slice_orientation_labels[] = {"axial","sagittal","coronal", "undefined"};
 
 
 #pragma mark transferfactory statics
@@ -54,12 +53,12 @@ void transferfactory::tf_menu_params::switch_tf()
 
 // *** begin FLUID ***
 
-void datawidget_base::cb_filenamebutton_i(Fl_Input*, void*) {
-	cout<<"cb_filenamebutton_i..."<<endl;
-  datamanagement.set_image_name(data_id,string(datanamebutton->value()));
+void datawidget_base::name_field_callback2(Fl_Input*, void*) {
+	cout<<"name_field_callback2..."<<endl;
+  datamanagement.set_image_name(data_id,string(data_name_field->value()));
 }
-void datawidget_base::cb_filenamebutton(Fl_Input* o, void* v) {
-  ((datawidget_base*)(o->parent()->parent()))->cb_filenamebutton_i(o,v);
+void datawidget_base::name_field_callback(Fl_Input* o, void* v) {
+  ((datawidget_base*)(o->parent()->parent()))->name_field_callback2(o,v);
 }
 
 void datawidget_base::edit_geometry_callback(Fl_Widget *callingwidget, void *){
@@ -68,20 +67,23 @@ void datawidget_base::edit_geometry_callback(Fl_Widget *callingwidget, void *){
     the_datawidget->show_hide_edit_geometry();
 }
 
-const Fl_Menu_Item datawidget_base::menu_featuremenu_base[] = {
+const Fl_Menu_Item datawidget_base::the_base_items[] = {
  {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Duplicate", 0,  0, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
+const Fl_Menu_Item datawidget_base::the_image_base_items[] = {
  {"Save as DCM", 0,  (Fl_Callback*)datamanager::save_dcm_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Save as VTK", 0,  (Fl_Callback*)datamanager::save_vtk_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Save histogram", 0,  (Fl_Callback*)datamanager::save_hist_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
- {"Duplicate", 0,  0, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
  {"Geometry Edit(Show/Hide)", 0, (Fl_Callback*)datawidget_base::edit_geometry_callback,0,0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0}
 };
 
-//const Fl_Menu_Item datawidget_base::menu_featuremenu_base[] = FLTK_Menu_Item_Creator::create_featuremenu_base();
-
-const Fl_Menu_Item datawidget_base::menu_featuremenu_curve_base[] = {
+const Fl_Menu_Item datawidget_base::the_curve_items[] = {
  {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0},
@@ -92,7 +94,7 @@ const Fl_Menu_Item datawidget_base::menu_featuremenu_curve_base[] = {
  {0,0,0,0,0,0,0,0,0}
 };
 
-const Fl_Menu_Item datawidget_base::menu_featuremenu_point_collection[] = {
+const Fl_Menu_Item datawidget_base::the_point_collection_items[] = {
  {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0},
@@ -126,19 +128,19 @@ datawidget_base::datawidget_base(data_base * d, std::string n):Fl_Pack(0,0,270,1
     o->when(FL_WHEN_RELEASE);
         { Fl_Pack* o = hpacker = new Fl_Pack(0, 0, 270, 25);
         o->type(1);
-            { Fl_Input* o = datanamebutton = new Fl_Input(0, 0, 240, 25);
+            { Fl_Input* o = data_name_field = new Fl_Input(0, 0, 240, 25);
             o->color(FL_LIGHT1);
-            o->callback((Fl_Callback*)cb_filenamebutton, (void*)(this));
+            o->callback((Fl_Callback*)name_field_callback, (void*)(this));
             o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
             Fl_Group::current()->resizable(o);
 //			o->tooltip( datamanagement.get_data(data_id)->get_tooltip().c_str() ); //widget created before data is fully loaded...
             }
-            { Fl_Menu_Button* o = featuremenu = new Fl_Menu_Button(240, 0, 30, 25);
+            { Fl_Menu_Button* o = data_menu_button = new Fl_Menu_Button(240, 0, 30, 25);
             o->box(FL_THIN_UP_BOX);
             o->user_data((void*)(this));
             o->menu(NULL);
             }
-        resizable(datanamebutton);
+        resizable(data_name_field);
         o->end();
         }
         { Fl_Box* o = thumbnail = new Fl_Box(0, 25, 270, 65);
@@ -159,8 +161,8 @@ datawidget_base::datawidget_base(data_base * d, std::string n):Fl_Pack(0,0,270,1
 
 // *** end FLUID ***
 
-datawidget_base::~datawidget_base ()
-    {
+datawidget_base::~datawidget_base()
+{
 //	cout<<"~datawidget_base ()"<<endl;
     datamanagement.remove_datawidget(this);
 
@@ -172,32 +174,22 @@ datawidget_base::~datawidget_base ()
 //		cout<<"delete [] thumbnail_image"<<endl;
 	}
 
-	/*
-	Fl_Pack *hpacker;
-    Fl_Input *datanamebutton;
-    void cb_filenamebutton_i(Fl_Input*, void*);
-    static void cb_filenamebutton(Fl_Input*, void*);
-	static void edit_geometry_callback(Fl_Widget *callingwidget, void *);
-	Fl_Menu_Button *featuremenu;
+	//JK TODO, delete all objects created...
+}
 
-    // *** thumbnail
-    const static int thumbnail_size;
-    uchar * thumbnail_image;
-    Fl_Box *thumbnail;
-    
-    // *** menus       
-    enum {remove_mi_num=0,save_mi_num, dup_mi_num};
-    const static Fl_Menu_Item menu_featuremenu_base[];
-    const static Fl_Menu_Item *remove_mi;
-    const static Fl_Menu_Item *save_vtk_mi;
-    const static Fl_Menu_Item *duplicate_mi;
-    Fl_Pack *extras;
+void datawidget_base::copy_items(Fl_Menu_Item *to_items, int to_start_index, const Fl_Menu_Item from_items[])
+{
+    int s = fl_menu_size(from_items);
+    for(int i=0; i<s; i++){        
+        to_items[i+to_start_index] = from_items[i];
+	}
+}
 
-	FLTKgeom_base *geom_widget; //JK
+void datawidget_base::copy_items(Fl_Menu_Item *to_items, const Fl_Menu_Item from_items[])
+{
+	copy_items(to_items,0, from_items);
+}
 
-	*/
-
-    }
 
 void datawidget_base::refresh_thumbnail ()
     {
@@ -218,9 +210,9 @@ void datawidget_base::name(std::string n)
     {
     _name.assign(n);
 
-    //datanamebutton->value(NULL);
-    //((Fl_Input *)datanamebutton)->value(n.c_str());
-    datanamebutton->value(_name.c_str());
+    //data_name_field->value(NULL);
+    //((Fl_Input *)data_name_field)->value(n.c_str());
+    data_name_field->value(_name.c_str());
 
     //when interactively changed, redrawing widget is
     //done elsewhere (most notably in datamanagement.set_image_name( ... )
@@ -255,140 +247,82 @@ void datawidget_base::show_hide_edit_geometry()
 
 void datawidget_base::set_tooltip(string s)
 {
-	datanamebutton->tooltip(strdup(s.c_str()));
+	data_name_field->tooltip(strdup(s.c_str()));
 }
 
 
 #pragma mark datawidget<image_base>
 
-const Fl_Menu_Item datawidget<image_base>::tfunctionmenu = {"Transfer function", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0};
-const Fl_Menu_Item datawidget<image_base>::transferfunction_mi = {"Show/hide", 0,  (Fl_Callback*)cb_show_hide_tfunction, 0, 128, FL_NORMAL_LABEL, 0, 14, 0};
+const Fl_Menu_Item datawidget<image_base>::tf_mi = {"Transfer function", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0};
+const Fl_Menu_Item datawidget<image_base>::tf_show_hide_mi = {"Show/hide", 0,  (Fl_Callback*)cb_show_hide_tfunction, 0, 128, FL_NORMAL_LABEL, 0, 14, 0};
 
-datawidget<image_base>::datawidget(image_base* im, std::string n): datawidget_base (im,n)
+datawidget<image_base>::datawidget(image_base *im, std::string n): datawidget_base(im,n)
 {
-    { Fl_Group* o = tfunction_ = new Fl_Group(0, 90, 270, 40);
+    { Fl_Group* o = tf_group = new Fl_Group(0, 90, 270, 40);
         o->box(FL_EMBOSSED_FRAME);
         o->labelsize(11);
         o->align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
         o->hide();
         o->end();
     }
-    extras->add(tfunction_);
+    extras->add(tf_group);
 
 
 	geom_widget=NULL;	//Cannot access geometry data yet since data has not been added to datamanagement 
 //  extras->add(geom_widget);
 
-   
-    int fMenuSize = fl_menu_size (menu_featuremenu_base);
-    menu_featuremenu_plustf = new Fl_Menu_Item[fMenuSize+1+1];
+   //------------------------------------------
+    int s = fl_menu_size(the_base_items);
+    int s2 = fl_menu_size(the_image_base_items);
+    the_image_items = new Fl_Menu_Item[s+s2+1+1];
+	this->copy_items(the_image_items, the_base_items);
+	this->copy_items(the_image_items, s, the_image_base_items);
 
-    for (int fmenuindex = 0; fmenuindex < fMenuSize ; fmenuindex++)
-        {        
-        menu_featuremenu_plustf [fmenuindex] = menu_featuremenu_base[fmenuindex];
-        }
+	the_image_items[s+s2] = tf_mi;
+    setup_transfer_menu(the_image_items[s+s2],im);
+    the_image_items[s+s2+1].label(NULL);
     
-    menu_featuremenu_plustf[fMenuSize] = tfunctionmenu;
-    //setup_transfer_menu (menu_featuremenu_plustf[fMenuSize],im);
+   //------------------------------------------
 
-    {
-        Fl_Menu_Item showhide_item;
-        const int TFSUBNUMHEADITEMS = 1;
-        
-        showhide_item.label("Show/hide");
-        showhide_item.shortcut (0);
-        showhide_item.callback(static_cast<Fl_Callback*>(cb_show_hide_tfunction));
-        showhide_item.user_data(NULL);
-        showhide_item.flags = 128;
-        showhide_item.labeltype(FL_NORMAL_LABEL);
-        showhide_item.labelfont(0);
-        showhide_item.labelsize(14);
-        showhide_item.labelcolor(0);
-        
-        Fl_Menu_Item * tfunctions = transfer_manufactured::factory.function_menu(static_cast<Fl_Callback*>(cb_transferswitch));
-        
-        int subMenuSize = TFSUBNUMHEADITEMS+fl_menu_size (tfunctions);
-        
-        tfunction_submenu = new Fl_Menu_Item [subMenuSize+1];
-        
-        tfunction_submenu[0] = showhide_item;
-        
-        for (int i = TFSUBNUMHEADITEMS; i < subMenuSize ; i++)
-            {
-            int fmenuindex = i-TFSUBNUMHEADITEMS;
-            
-            tfunction_submenu [i] = tfunctions[fmenuindex];
-            
-			//attach "transfer_menu_parameters" (= image_base* and a transfer_type string)
-            tfunction_submenu [i].user_data(new transferfactory::tf_menu_params (transferfactory::tf_name(fmenuindex), im ));
-            }
-        tfunction_submenu[subMenuSize].label(NULL);
-        tfunction_submenu[TFSUBNUMHEADITEMS].set();
-        
-        menu_featuremenu_plustf[fMenuSize].flags = FL_SUBMENU_POINTER;
-        menu_featuremenu_plustf[fMenuSize].user_data (tfunction_submenu);
-        
-        delete [] tfunctions;        
-    }
-    
-    menu_featuremenu_plustf[fMenuSize+1].label(NULL);
-    
-    featuremenu->menu(menu_featuremenu_plustf);
-
-
-    }
-
-datawidget<image_base>::~datawidget()
-{
-    fl_menu_userdata_delete(tfunction_submenu);
-    delete [] menu_featuremenu_plustf;
-    delete [] tfunction_submenu;
+    data_menu_button->menu(the_image_items);
 }
 
-void datawidget<image_base>::setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im) {
-    Fl_Menu_Item showhide_item;
-    const int TFSUBNUMHEADITEMS = 1;
+
+void datawidget<image_base>::setup_transfer_menu(Fl_Menu_Item &submenuitem, image_base *im) {
+    const int NUM_ITEMS = 1;
+
+	Fl_Menu_Item *tfunctions = transfer_manufactured::factory.function_menu(static_cast<Fl_Callback*>(cb_transferswitch));
+    int subMenuSize = NUM_ITEMS+fl_menu_size(tfunctions);
+    tfunction_submenu = new Fl_Menu_Item[subMenuSize+1];
+    tfunction_submenu[0] = tf_show_hide_mi;
     
-    showhide_item.label("Show/hide");
-    showhide_item.shortcut (0);
-    showhide_item.callback(static_cast<Fl_Callback*>(cb_show_hide_tfunction));
-    showhide_item.user_data(NULL);
-    showhide_item.flags = 128;
-    showhide_item.labeltype(FL_NORMAL_LABEL);
-    showhide_item.labelfont(0);
-    showhide_item.labelsize(14);
-    showhide_item.labelcolor(0);
+    for(int i=NUM_ITEMS; i<subMenuSize; i++){
+        int fmenuindex = i-NUM_ITEMS;
+        tfunction_submenu[i] = tfunctions[fmenuindex];
+        tfunction_submenu[i].user_data(new transferfactory::tf_menu_params (transferfactory::tf_name(fmenuindex), im ));
+	}
+
+	tfunction_submenu[subMenuSize].label(NULL);
+    tfunction_submenu[NUM_ITEMS].set();
     
-    Fl_Menu_Item * tfunctions = transfer_manufactured::factory.function_menu(static_cast<Fl_Callback*>(cb_transferswitch));
-    
-    int subMenuSize = TFSUBNUMHEADITEMS+fl_menu_size (tfunctions);
-    
-    tfunction_submenu = new Fl_Menu_Item [subMenuSize+1];
-    
-    tfunction_submenu[0] = showhide_item;
-    
-    for (int i = TFSUBNUMHEADITEMS; i < subMenuSize ; i++)
-        {
-        int fmenuindex = i-TFSUBNUMHEADITEMS;
-        
-        tfunction_submenu [i] = tfunctions[fmenuindex];
-        
-        tfunction_submenu [i].user_data(new transferfactory::tf_menu_params (transferfactory::tf_name(fmenuindex), im ));
-        }
-    tfunction_submenu[subMenuSize].label(NULL);
-    tfunction_submenu[TFSUBNUMHEADITEMS].set();
-    
-    submenuitem->flags = FL_SUBMENU_POINTER;
-    submenuitem->user_data (tfunction_submenu);
+    submenuitem.flags = FL_SUBMENU_POINTER;
+    submenuitem.user_data(tfunction_submenu);
     
     delete [] tfunctions;
 }
 
+datawidget<image_base>::~datawidget()
+{
+    fl_menu_userdata_delete(tfunction_submenu);
+    delete [] the_image_items;
+    delete [] tfunction_submenu;
+}
+
 Fl_Group * datawidget<image_base>::reset_tf_controls()
 {
-    tfunction_->clear();
-    tfunction_->begin();
-    return tfunction_;
+    tf_group->clear();
+    tf_group->begin();
+    return tf_group;
 }
 
 void datawidget<image_base>::cb_transferswitch(Fl_Widget* callingwidget, void* v) {
@@ -405,10 +339,10 @@ void datawidget<image_base>::cb_transferswitch(Fl_Widget* callingwidget, void* v
 	datawidget<image_base> * the_datawidget = dynamic_cast<datawidget<image_base> * >(reinterpret_cast<datawidget_base *>(callingwidget->user_data()));
 	pt_error::error_if_null(the_datawidget,"cb_transferswitch called with datawidget type not being datawidget<image_base>",pt_error::fatal);
 
-	//    the_datawidget->tfunction_->hide();
+	//    the_datawidget->tf_group->hide();
 	//resize the the current "extras" Fl_Pack...
-	the_datawidget->extras->size(the_datawidget->extras->w(),the_datawidget->extras->h()+the_datawidget->tfunction_->h());
-	the_datawidget->tfunction_->show();	//Always show the GUI for a selected transfer function 
+	the_datawidget->extras->size(the_datawidget->extras->w(),the_datawidget->extras->h()+the_datawidget->tf_group->h());
+	the_datawidget->tf_group->show();	//Always show the GUI for a selected transfer function 
 	the_datawidget->parent()->parent()->redraw();	
 }
 
@@ -421,15 +355,12 @@ void datawidget<image_base>::cb_show_hide_tfunction(Fl_Widget* callingwidget, vo
     
     pt_error::error_if_null(the_datawidget,"cb_show_hide_tfunction called with datawidget type not being datawidget<image_base>",pt_error::fatal);
     
-    if (the_datawidget->tfunction_->visible())
-        {
-        the_datawidget->tfunction_->hide();
-        }
-    else
-        { 
-        the_datawidget->extras->size(the_datawidget->extras->w(),the_datawidget->extras->h()+the_datawidget->tfunction_->h());
-        the_datawidget->tfunction_->show();
-        }
+    if(the_datawidget->tf_group->visible()){
+        the_datawidget->tf_group->hide();
+	}else{ 
+		the_datawidget->extras->size(the_datawidget->extras->w(),the_datawidget->extras->h()+the_datawidget->tf_group->h());
+		the_datawidget->tf_group->show();
+	}
     
     the_datawidget->parent()->parent()->redraw();
 }
@@ -441,7 +372,7 @@ void datawidget<image_base>::cb_show_hide_tfunction(Fl_Widget* callingwidget, vo
 
 datawidget<curve_base>::datawidget(curve_base *p, std::string n): datawidget_base(p,n)
 {
-    featuremenu->menu(menu_featuremenu_curve_base);
+    data_menu_button->menu(the_curve_items);
 }
 
 
@@ -449,8 +380,11 @@ datawidget<curve_base>::datawidget(curve_base *p, std::string n): datawidget_bas
 
 datawidget<point_collection>::datawidget (point_collection* p, std::string n): datawidget_base (p,n)
 {
-    featuremenu->menu(menu_featuremenu_point_collection);
+    data_menu_button->menu(the_point_collection_items);
 }
+
+//---------------------- 
+
 
 FLTKslice_orientation_menu::FLTKslice_orientation_menu(string slice_orientation, int x, int y, int w, int h):Fl_Group(x,y,w,h)
 {
@@ -462,35 +396,17 @@ FLTKslice_orientation_menu::FLTKslice_orientation_menu(string slice_orientation,
 
 	//-----------------------------
     Fl_Menu_Item slice_menu_items[4+1];
-
     int m;
-    for (m=0;m<4;m++)
-    {
-//        menu_callback_params * cbp=new menu_callback_params;
-  //      cbp->direction=(preset_direction)m;
-    //    cbp->vport=viewport_parent;
-        
+    for(m=0;m<4;m++){
         init_fl_menu_item(slice_menu_items[m]);
-       
         slice_menu_items[m].label(slice_orientation_labels[m]);
-//        slice_menu_items[m].callback(&set_direction_callback);
-//        slice_menu_items[m].user_data(cbp);
         slice_menu_items[m].flags= FL_MENU_RADIO;
     }
     slice_menu_items[m].label(NULL);    //terminate menu
-    
-    //Axial is pre-set, set checkmark accordingly
-//    dir_menu_items[Z_DIR].setonly();//DEFAULT_DIR
-//    dir_menu_items[AXIAL].setonly(); //AXIAL_NEG
-    
-//    directionmenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight,preset_direction_labels[Z_DIR]);
-//    directionmenu_button->copy(dir_menu_items);
-
 	//-----------------------------
-	slice_menu->callback(slice_menu_cb);
-//	slice_menu->when(FL_WHEN_RELEASE);
-    slice_menu->copy(slice_menu_items);
 
+	slice_menu->callback(slice_menu_cb);
+    slice_menu->copy(slice_menu_items);
 	end();
 }
 
