@@ -726,11 +726,11 @@ void rendererMPR::paint_rendergeometry_to_overlay(int vp_w, int vp_h_pane, rende
 		int str_w, str_h;
 		string tmp = Vector3D2str(rg->look_at);
 		fl_measure(tmp.c_str(),str_w,str_h);
-		fl_draw(tmp.c_str(), vp_w-str_w, 15);
+		fl_draw(tmp.c_str(), vp_w-str_w-5, 15);
 
 		tmp = float2str(rg->zoom);
 		fl_measure(tmp.c_str(),str_w,str_h);
-		fl_draw(tmp.c_str(), vp_w-str_w, 45);
+		fl_draw(tmp.c_str(), vp_w-str_w-5, 45);
 	}
 }
 

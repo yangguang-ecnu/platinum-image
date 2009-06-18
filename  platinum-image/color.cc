@@ -20,87 +20,100 @@
 #include <cmath>
 #include <iostream>
 
-void color_base::set_rgb(const IMGELEMCOMPTYPE r_, const IMGELEMCOMPTYPE g_, const IMGELEMCOMPTYPE b_)
-    {
-    r(r_);
-    g(g_);
-    b(b_);
-    }
-
-void color_base::rgb(IMGELEMCOMPTYPE &r_, IMGELEMCOMPTYPE &g_, IMGELEMCOMPTYPE &b_)
-    {
-    r_ = r();
-    g_ = g();
-    b_ = b();
-    }
+color_base::color_base()
+{}
 
 color_base::color_base(const IMGELEMCOMPTYPE i)
-    {
+{
     this->set_mono(i);
-    }
+}
 
-const IMGELEMCOMPTYPE color_base::mono()
-    {
-    return (static_cast<IMGELEMCOMPTYPE>(0.3*r()+0.6*g()+0.1*b()));
-    }
-/*
-RGBvalue::RGBvalue(IMGELEMCOMPTYPE r_,IMGELEMCOMPTYPE g_,IMGELEMCOMPTYPE b_)
-	{
+color_base::~color_base()
+{}
+
+void color_base::set_rgb(const IMGELEMCOMPTYPE r_, const IMGELEMCOMPTYPE g_, const IMGELEMCOMPTYPE b_)
+{
     r(r_);
     g(g_);
     b(b_);
-	}
-*/
-RGBvalue::RGBvalue(const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_): color_base()
-    {
-    r(r_);
-    g(g_);
-    b(b_);
-    }
-
-
-RGBvalue::RGBvalue (const IMGELEMCOMPTYPE* p)
-    {
-    set_rgb (p);
-    }
-
-void RGBvalue::set_rgb (const IMGELEMCOMPTYPE * p)
-    {
-    memcpy (values,p,sizeof (IMGELEMCOMPTYPE)*3);
-    }
-
-void RGBvalue::set_rgb(const IMGELEMCOMPTYPE r_, const IMGELEMCOMPTYPE g_, const IMGELEMCOMPTYPE b_)
-    {
-    r(r_);
-    g(g_);
-    b(b_);
-    }
-
-void RGBAvalue::set_rgba (const IMGELEMCOMPTYPE * p)
-    {
-    memcpy (values,p,sizeof (IMGELEMCOMPTYPE)*4);
-    }
+}
 
 void color_base::set_mono (const IMGELEMCOMPTYPE i)
-    {
+{
     r(i);
     g(i);
     b(i);
-    }
+}
+
+void color_base::rgb(IMGELEMCOMPTYPE &r_, IMGELEMCOMPTYPE &g_, IMGELEMCOMPTYPE &b_)
+{
+    r_ = r();
+    g_ = g();
+    b_ = b();
+}
+
+
+const IMGELEMCOMPTYPE color_base::mono()
+{
+    return (static_cast<IMGELEMCOMPTYPE>(0.3*r()+0.6*g()+0.1*b()));
+}
+
+//----------------------------------------------------
+
+RGBvalue::RGBvalue(): color_base()
+{}
+
+RGBvalue::RGBvalue(const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_): color_base()
+{
+    set_rgb(r_,g_,b_);
+}
+
+RGBvalue::RGBvalue(const IMGELEMCOMPTYPE i) : color_base (i) {};
+
+
+RGBvalue::RGBvalue(const IMGELEMCOMPTYPE *p)
+{
+    set_rgb(p);
+}
+
+void RGBvalue::set_rgb(const IMGELEMCOMPTYPE *p)
+{
+    memcpy(values,p,sizeof(IMGELEMCOMPTYPE)*3);
+}
+
+void RGBvalue::set_rgb(const IMGELEMCOMPTYPE r_, const IMGELEMCOMPTYPE g_, const IMGELEMCOMPTYPE b_)
+{
+    r(r_);
+    g(g_);
+    b(b_);
+}
+
+//----------------------------------------------------
+
+
+void RGBAvalue::set_rgba (const IMGELEMCOMPTYPE * p)
+{
+    memcpy (values,p,sizeof (IMGELEMCOMPTYPE)*4);
+}
+
 
 RGBAvalue::RGBAvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_, IMGELEMCOMPTYPE a_): color_base()
-    {
+{
     r(r_);
     g(g_);
     b(b_);
     a(a_);
-    }
+}
 
 RGBAvalue::RGBAvalue (const IMGELEMCOMPTYPE i, const IMGELEMCOMPTYPE a_): color_base(i)
-    {
+{
     a(a_);
-    }
+}
 
+
+
+
+//----------------------------------------------------
 
 
 

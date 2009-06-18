@@ -46,8 +46,6 @@ extern userIOmanager userIOmanagement;
 
 using namespace std;
 
-#define TESTMODE	//JK test mode --> "dcm_import_button"
-#define LIST_HEADER_HEIGHT 25 //"DATA" and "TOOLS"
 
 //uchar *animage;
 /*

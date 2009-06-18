@@ -28,6 +28,7 @@
 #include "../../image_binary.hxx"
 #include "../../image_complex.hxx"
 #include "../../curve.hxx"
+#include "../../color.h"
 
 //retrieve command-line arguments
 int visid = -1;
@@ -103,6 +104,10 @@ int main(int argc, char *argv[])
 	im->fill(d);
 	datamanagement.add(im,"im");
 	//------------------
+
+	RGBvalue val = RGBvalue();
+	val.set_rgb_from_complex(complex<float>(5.0,0.1),float(0.1), 5.0);
+	cout<<val<<endl;
 
 	//preset viewport configuration 
 //	viewmanagement.set_vp_direction(1,X_DIR);
