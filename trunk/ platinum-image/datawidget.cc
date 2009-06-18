@@ -27,7 +27,7 @@ using namespace std;
 
 extern datamanager datamanagement;
 extern rendermanager rendermanagement;
-extern uchar *animage; //defined in datamanager.cc
+//extern uchar *animage; //defined in datamanager.cc
 
 const int datawidget_base::thumbnail_size = 128;
 
@@ -78,6 +78,8 @@ const Fl_Menu_Item datawidget_base::menu_featuremenu_base[] = {
  {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0}
 };
+
+//const Fl_Menu_Item datawidget_base::menu_featuremenu_base[] = FLTK_Menu_Item_Creator::create_featuremenu_base();
 
 const Fl_Menu_Item datawidget_base::menu_featuremenu_curve_base[] = {
  {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},

@@ -395,7 +395,7 @@ int rendermanager::image_rendered(int rendererIndex, int volID)
     return renderers[rendererIndex]->the_rc->image_rendered(volID);
     }
 
-int rendermanager::renderer_empty (int rendererID)
+int rendermanager::renderer_empty(int rendererID)
     {
     int rendererIndex = find_renderer_index(rendererID);
 

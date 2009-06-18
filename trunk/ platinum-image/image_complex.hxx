@@ -72,10 +72,11 @@ image_complex<ELEMTYPE, IMAGEDIM>::image_complex(string path_image_re, string pa
 template <class ELEMTYPE, int IMAGEDIM>
 void image_complex<ELEMTYPE, IMAGEDIM>::set_complex_parameters()
     {
-	image_scalar<ELEMTYPE,IMAGEDIM> *tmp = new image_scalar<ELEMTYPE,IMAGEDIM>(1,1,1);
-	tmp->name("image_complex_tmp_image");//this->get_magnitude_image();
+	image_scalar<ELEMTYPE, IMAGEDIM> *magn = this->get_magnitude_image();
+
+	magn->name("image_complex_tmp_image");//this->get_magnitude_image();
 	stats = NULL;
-	set_stats_histogram( new histogram_1D<ELEMTYPE>(tmp) );  //hist1D constructor calls resize()... and calculate()
+	set_stats_histogram( new histogram_1D<ELEMTYPE>(magn) );  //hist1D constructor calls resize()... and calculate()
 
     tfunction = NULL;
 	transfer_function();
@@ -173,6 +174,20 @@ void image_complex<ELEMTYPE, IMAGEDIM>::get_display_voxel(RGBvalue &val,int x, i
 }
 
 template <class ELEMTYPE, int IMAGEDIM>
+string image_complex<ELEMTYPE, IMAGEDIM>::resolve_value_world(Vector3D worldPos)
+{
+	string s="";
+	Vector3D vPos = this->world_to_voxel(worldPos);
+	if( this->is_voxelpos_within_image_3D(create_Vector3Dint(vPos[0],vPos[1],vPos[2])) ){
+		s += "r="+float2str(this->get_voxel_re(vPos[0],vPos[1],vPos[2]));
+		s += " i="+float2str(this->get_voxel_im(vPos[0],vPos[1],vPos[2]));
+		s += " i="+float2str(this->get_voxel_magn(vPos[0],vPos[1],vPos[2]));
+		s += " ph="+float2str(this->get_voxel_phase(vPos[0],vPos[1],vPos[2]));
+	}
+	return s;
+}
+
+template <class ELEMTYPE, int IMAGEDIM>
 void image_complex<ELEMTYPE, IMAGEDIM>::silly_test()
 {
 	cout<<"* This is a silly test , JK"<<endl;
@@ -265,7 +280,7 @@ image_scalar<ELEMTYPE, IMAGEDIM>* image_complex<ELEMTYPE, IMAGEDIM>::get_magnitu
 		}
 	}
 
-	m->set_parameters(this);
+//	m->set_parameters(this);
 	return m;
 }
 

@@ -63,11 +63,13 @@ class viewmanager
         int create_viewport();
         int find_viewport_no_renderer();
         int find_viewport_not_in_view(); // returns -1 if none found
-        int find_viewport_no_images ();
+        int find_viewport_no_images();
         int find_viewport_index(int id); // turns ID into INDEX returns NOT_FOUND_ID if none found
         std::vector<threshold_overlay *> get_overlays (thresholdparvalue *);
         void list_connections();
-        void setup_demo_tiles();   //setup an (irregular) demo tile pattern
+		bool show_in_empty_viewport(int data_id);
+
+		void setup_demo_tiles();   //setup an (irregular) demo tile pattern
         
         void setup_regular_tiles(int t_h=2, int t_v=2, int t_vv=1);
 		void setup_irregular_tiles_h(vector<int> num_vert_in_these_columns, int t_vv=1);

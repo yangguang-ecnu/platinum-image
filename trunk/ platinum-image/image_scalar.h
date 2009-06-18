@@ -112,7 +112,7 @@ public:
     image_scalar(const string filepath, const string name=""):image_general<ELEMTYPE, IMAGEDIM>(filepath, name){set_scalar_parameters();}
 
 	template <class sourceType>
-		void set_parameters(image_scalar<sourceType, IMAGEDIM> *from_image);         //clone parameters from another image
+		void set_parameters(image_general<sourceType, IMAGEDIM> *from_image);         //clone parameters from another image
 
     //ELEMTYPE get_number_voxel(itk::Vector<int,IMAGEDIM>);
     ELEMTYPE get_num_values();

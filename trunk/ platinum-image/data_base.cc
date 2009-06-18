@@ -127,7 +127,7 @@ void data_base::activate()
 }
 string data_base::resolve_value_world(Vector3D worldPos)
 {
-	return "data_base::resolve_value_world(";
+	return "data_base::resolve_value_world - not defined";
 }
 
 
