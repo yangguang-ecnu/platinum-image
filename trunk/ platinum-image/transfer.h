@@ -266,16 +266,20 @@ public:
 
 	void get(const complex<ELEMTYPE> v, RGBvalue &p){
 		float ma = source->get_max_float();
-		float res = abs(v)*255.0/ma;
+		float scale = 255.0/ma;
+//		float res = abs(v)*scale;
+		float res;
+		res = float(v.real())*scale;
 		if(res>0){
-			p.set_mono(res);
+			p.r( abs(res) );
+			p.b( abs(res) );
 		}else{
-			p.set_mono(res);
+			p.b( abs(res) );
+//			p.set_mono(res);
 		}
 //		p.set_rgb(0,0,100);
 	} //öööö	
 	virtual void update();
-
 };
 
 

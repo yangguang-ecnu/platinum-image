@@ -31,6 +31,8 @@
 #define PLATINUM_MAJOR_VER 0
 #define PLATINUM_MINOR_VER 1
 
+#define TESTMODE	//JK test mode --> "dcm_import_button"
+
 #define FLTK_LABEL_SIZE 14
 #define FLTK_SMALL_LABEL 11
 #define FLTK_SCROLLBAR_SIZE 16
@@ -39,6 +41,8 @@
 #define DATALISTINITWIDTH 270
 
 #define DATALISTINITHEIGHT 300
+
+#define LIST_HEADER_HEIGHT 25 //"DATA" and "TOOLS"
 
 #define NOT_FOUND_ID -1
 #define NA 0 // not applicable

@@ -27,17 +27,18 @@
 #define __color__
 
 #include <vector>
+#include <complex>
 
 #include "global.h"
 
-// HSV: see http://en.wikipedia.org/wiki/HSV_color_space
-
+// HSI/HSL/HSV: see http://en.wikipedia.org/wiki/HSL_and_HSV
 class color_base
-    {
+{
     protected:
-        color_base() {}
-        color_base (const IMGELEMCOMPTYPE i);   //monochrome constructor
-        virtual ~color_base() {}
+        color_base();
+        color_base(const IMGELEMCOMPTYPE i);   //monochrome constructor
+        virtual ~color_base();
+
     public:
         // *** get functions ***
         /*virtual void hsv(float &h, float &s, float &v) = 0;*/
@@ -81,31 +82,38 @@ class RGBvalue:public color_base
     protected:
         IMGELEMCOMPTYPE values [3];
     public:
-        RGBvalue () {}
-//        RGBvalue (IMGELEMCOMPTYPE r_,IMGELEMCOMPTYPE g_,IMGELEMCOMPTYPE b_);
-        RGBvalue (const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_);
-        RGBvalue (const IMGELEMCOMPTYPE i) : color_base (i) {};
-        RGBvalue (const IMGELEMCOMPTYPE* p); //pixel pointer constructor
+        RGBvalue();
+        RGBvalue(const IMGELEMCOMPTYPE r_,const IMGELEMCOMPTYPE g_,const IMGELEMCOMPTYPE b_);
+        RGBvalue(const IMGELEMCOMPTYPE i);
+        RGBvalue(const IMGELEMCOMPTYPE *p); //pixel pointer constructor
 
         // *** get functions ***
-        virtual const IMGELEMCOMPTYPE r()
-            {return values[RADDR];}
-        virtual const IMGELEMCOMPTYPE g()
-            {return values[GADDR];}
-        virtual const IMGELEMCOMPTYPE b()
-            {return values[BADDR];}
-        virtual void write (IMGELEMCOMPTYPE * addr)  //write value at address
+        virtual const IMGELEMCOMPTYPE r(){return values[RADDR];}
+        virtual const IMGELEMCOMPTYPE g(){return values[GADDR];}
+        virtual const IMGELEMCOMPTYPE b(){return values[BADDR];}
+        virtual void write(IMGELEMCOMPTYPE * addr)  //write value at address
             { memcpy (addr,values,sizeof (IMGELEMCOMPTYPE)*3);}    
 
         // *** set functions ***
         void set_rgb (const IMGELEMCOMPTYPE * p);
         void set_rgb(const IMGELEMCOMPTYPE r_, const IMGELEMCOMPTYPE g_, const IMGELEMCOMPTYPE b_);
-        virtual void r(const IMGELEMCOMPTYPE r_)
-            {values[RADDR] = r_;}
-        virtual void g(const IMGELEMCOMPTYPE g_)
-            {values[GADDR] = g_;}
-        virtual void b(const IMGELEMCOMPTYPE b_)
-            {values[BADDR] = b_;}
+        virtual void r(const IMGELEMCOMPTYPE r_){values[RADDR] = r_;}
+        virtual void g(const IMGELEMCOMPTYPE g_){values[GADDR] = g_;}
+        virtual void b(const IMGELEMCOMPTYPE b_){values[BADDR] = b_;}
+
+        // *** calc functions ***
+		float calc_HSI_psi(){
+		}
+
+//		template<class E>
+			void set_rgb_from_complex(std::complex<float> &c, float magn_min, float magn_max) 
+			{
+				float grey = (abs(c)-magn_min)/magn_max*255.0;
+				set_mono( grey );
+			}
+		friend std::ostream &operator<<(std::ostream &ut, const RGBvalue &v)
+        { ut << "[color==("<<int(v.values[0])<<" "<<int(v.values[1])<<" "<<int(v.values[2])<<")"; return ut; }
+
     };
 
 class RGBAvalue:public color_base
