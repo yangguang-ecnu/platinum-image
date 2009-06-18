@@ -1331,7 +1331,7 @@ void FLTKdataitem_choice::data_change (const Fl_Menu_Item * base_menu)
     selected_item=0; //set to no selection if previous selection isn't found below
     
     //rebuild
-    Fl_Menu_Item new_menu[datamanager::IMAGEVECTORMAX+2];
+    Fl_Menu_Item new_menu[datamanager::DATA_VECTOR_MAX+2];
     
     new_menu[0].label("(no selection)");
     new_menu[0].shortcut(0);

@@ -84,8 +84,18 @@ void delete_viewport(int viewportID)
 //// this contains the setup information - should be loaded/stored, changed by interacting w. widgets, ...
 //
 
+bool viewmanager::show_in_empty_viewport(int data_id)
+{
+	int vp_id = this->find_viewport_no_images(); //JK TODO change to no_data...
+	if(vp_id != NOT_FOUND_ID){
+		viewmanagement.get_viewport(vp_id)->render_data(data_id);
+		return true;
+	}
+	return false;
+}
+
 void viewmanager::setup_demo_tiles()
-    {
+{
     irregular_tiles = true;
     
     const int demonoofhorizontaltiles[MAXVIRTUALVIEWS] = { 2,0,0 };
@@ -373,7 +383,7 @@ int viewmanager::find_viewport_no_renderer()
     return free_vp_id;
     }
 
-int viewmanager::find_viewport_no_images () 
+int viewmanager::find_viewport_no_images() 
     {
     // returns -1 if none found
 

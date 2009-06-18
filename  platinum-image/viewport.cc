@@ -57,7 +57,11 @@ viewport::viewport(VIEWPORT_TYPE vpt)
 	ROI_rectangle_h = -1;
 
 	ROI_rect_is_changing = false;
-   	paint_rendergeometry=true;
+   	paint_rendergeometry=false;
+
+	#ifdef TESTMODE
+	   	paint_rendergeometry=true;
+	#endif
 }
 
 viewport::~viewport()
@@ -254,6 +258,17 @@ void viewport::needs_rerendering()
 {
 //	cout<<"viewport::needs_rerendering()... (id="<<ID<<")"<<endl;
 	needs_re_rendering = true;
+}
+
+void viewport::render_data(int data_id)
+{
+	//if image...
+
+	int rID = viewmanagement.get_renderer_id(this->ID);
+	if(rendermanagement.renderer_empty(rID)){
+		rendermanagement.center3d_and_fit(rID, data_id); //JK
+	}
+	rendermanagement.connect_data_renderer(rID,data_id);
 }
 
 const int * viewport::pixmap_size () const

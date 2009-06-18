@@ -2,7 +2,7 @@
 //
 //  Datamanager $Revision$
 //
-//  The datamanager maintains a list of work data loaded or created at
+//  The datamanager maintains a list of data loaded or created at
 //  runtime. It has functions for loading and saving data (that invoke
 //  functions in the relevant classes)
 //
@@ -42,27 +42,25 @@
 #include "ptconfig.h"
 //#include "image_base.h"
 
-enum imageFileType {UNKNOWN_TYPE=-1, VTK_TYPE, DICOM_TYPE};
 
 class datamanager
-    {
+{
     public:
-        static const unsigned int IMAGEVECTORMAX = 10000;
+        static const unsigned int DATA_VECTOR_MAX = 10000;
 
     protected:
-        std::vector<data_base* > dataItems;
-        //std::vector<point_base*> vectors;
-
-//        friend class rendercombination;
+        std::vector<data_base*> dataItems;
 
 		bool closing_program;	//Destructor has been called, --> all FLTK widgets are already dead
 
-        horizresizeablescroll *data_widget_box;  //widget that lists the datawidgets.
-                                                 //Has to be available for adding and removing entries
+        horizresizeablescroll *data_widget_box;  //Widget that lists the datawidgets.
 
-        Fl_Menu_Item * image_menu,* objects_menu,* point_menu;
-        template <class OCLASS>
-            Fl_Menu_Item * object_menu ();
+        Fl_Menu_Item *image_menu;
+		Fl_Menu_Item *objects_menu;
+		Fl_Menu_Item *point_menu;
+
+		template <class OCLASS>
+            Fl_Menu_Item* object_menu();
         
         void data_vector_has_changed();
 
@@ -70,13 +68,13 @@ class datamanager
         datamanager();
         ~datamanager();
 
-        void add_datawidget(datawidget_base * the_widget);
-        void remove_datawidget(datawidget_base * the_widget);
         void datawidgets_setup();
-        void refresh_datawidgets();                 //trigger redraw of widgets when
-                                                    //list information has been updated
-        void loadimage_setup();
-        void listimages();
+
+        void add_datawidget(datawidget_base *the_widget);
+        void remove_datawidget(datawidget_base *the_widget);
+        void refresh_datawidgets(); //trigger redraw of widgets when list information has been updated
+        //void loadimage_setup();
+        void print_dataItems();
         void FLTK_running(bool running);
         bool FLTK_running();        //when datamanager destructor is called,
                                     //the window is closed and all FLTK widgets (including
@@ -88,8 +86,8 @@ class datamanager
                                     //are FLTK subclasses, they are deleted automatically
                                     //and this won't be a problem.
 
-        std::vector<data_base* >::iterator begin() const;
-        std::vector<data_base* >::iterator end() const;
+        std::vector<data_base*>::iterator begin() const;
+        std::vector<data_base*>::iterator end() const;
         
         std::string get_data_name(int ID);
         void set_image_name(int ID,std::string n);
@@ -98,18 +96,19 @@ class datamanager
         const Fl_Menu_Item * FLTK_objects_menu() const;
         const Fl_Menu_Item * FLTK_point_menu() const;
         
-        static void loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager);
         static void clear_data_list_button_callback(Fl_Widget *callingwidget, void *thisdatamanager);
+        static void loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager);
+        void loadimages();
         static void dcm_import_callback(Fl_Widget *callingwidget, void *thisdatamanager);
         static void dcm_series_callback(Fl_Widget *callingwidget, void *thisdatamanager);
-		
-        void loadimages();
+
+
         static void removedata_callback(Fl_Widget *, void *);
         static void save_dcm_callback(Fl_Widget *, void *);
         static void save_vtk_callback(Fl_Widget *, void *);
         static void save_hist_callback(Fl_Widget *, void *);
 
-        void add(image_base *v, string name="", bool data_changed=false);           //add image to vector, notify other managers
+        void add(image_base *im, string name="", bool data_changed=false);           //add image to vector, notify other managers
 //		void add(image_base &v);			//JK-test
 		void add(point_collection * v); 
 

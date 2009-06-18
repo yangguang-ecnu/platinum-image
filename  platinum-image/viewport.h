@@ -90,6 +90,7 @@ public:
 	void connect_renderer(int rID);
 
 	void needs_rerendering();
+	void render_data(int data_id);
 
 	const int* pixmap_size() const;
     void update_viewsize(int width, int height);

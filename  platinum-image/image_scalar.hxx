@@ -51,7 +51,7 @@ float image_scalar<ELEMTYPE, IMAGEDIM>::get_mean_intensity()
 
 template <class ELEMTYPE, int IMAGEDIM>
 template <class sourceType>
-void image_scalar<ELEMTYPE, IMAGEDIM>::set_parameters(image_scalar<sourceType, IMAGEDIM> *sourceImage)
+void image_scalar<ELEMTYPE, IMAGEDIM>::set_parameters(image_general<sourceType, IMAGEDIM> *sourceImage)
 {
 	image_general<ELEMTYPE, IMAGEDIM>::set_parameters(sourceImage);
 }

@@ -274,7 +274,7 @@ image_general<ELEMTYPE, IMAGEDIM>::image_general(itk::SmartPointer< itk::Oriente
 template <class ELEMTYPE, int IMAGEDIM>
 image_general<ELEMTYPE, IMAGEDIM>::image_general(int w, int h, int d, ELEMTYPE *ptr) : image_storage<ELEMTYPE >()
     {
-    initialize_dataset( w,  h,  d, NULL);
+    initialize_dataset(w,h,d,ptr);
     }
 
 template <class ELEMTYPE, int IMAGEDIM>

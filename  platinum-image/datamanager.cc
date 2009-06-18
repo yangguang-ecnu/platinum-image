@@ -30,8 +30,6 @@
 #include "image_base.h"
 
 
-
-
 datamanager datamanagement;
 extern rendermanager rendermanagement;
 extern viewmanager viewmanagement;
@@ -49,9 +47,10 @@ extern userIOmanager userIOmanagement;
 using namespace std;
 
 #define TESTMODE	//JK test mode --> "dcm_import_button"
+#define LIST_HEADER_HEIGHT 25 //"DATA" and "TOOLS"
 
-uchar *animage;
-
+//uchar *animage;
+/*
 struct IDENTIFIER
     {
     char name[100];
@@ -65,10 +64,13 @@ IDENTIFIER IDENTIFIERS[] = {
     };
 
 int NOOFIDENTIFIERS = 2;
-
+*/
 //char prioriteter[10][2]; //possible priorities: 0...99
 //int prioindex = 0;
 //int prioritet = -1;
+
+
+
 
 datamanager::datamanager()
 {    
@@ -85,23 +87,82 @@ datamanager::datamanager()
 }
 
 datamanager::~datamanager()
-    {
+{
     closing_program = true;
 
     for (unsigned int i=0; i < dataItems.size(); i++)
         { delete dataItems[i]; }
 	dataItems.clear();
-    }
+}
+
+void datamanager::datawidgets_setup()
+{
+    const int margin=10;
+
+    const unsigned int xpos=Fl_Group::current()->x();
+    const unsigned int width=Fl_Group::current()->w();
+    const unsigned int ypos=0;
+
+    Fl_Group *outergroup; //group containing data list and load control
+    Fl_Widget *load_button;
+
+    outergroup=new Fl_Group(xpos,ypos,width,DATALISTINITHEIGHT);
+
+	//-----------------------
+    Fl_Box *datalabel = new Fl_Box(xpos,ypos,width,LIST_HEADER_HEIGHT,"Data");
+    datalabel->labelfont(FL_HELVETICA_BOLD);
+
+    Fl_Button *clear_data_list_button = new Fl_Button(xpos+width-50,ypos+5,45,BUTTONHEIGHT-10,"Clear All");
+    clear_data_list_button->labelfont(FL_HELVETICA);
+	clear_data_list_button->labelsize(8);
+    clear_data_list_button->callback(clear_data_list_button_callback,this);
+
+    //we should create a bitmap here (i.e. the "animage"), and fill it with
+    //color gradient or solid color depending on image type
+
+    data_widget_box = new horizresizeablescroll(xpos,ypos+LIST_HEADER_HEIGHT,width,DATALISTINITHEIGHT-BUTTONHEIGHT-margin*2-LIST_HEADER_HEIGHT*2);
+    data_widget_box->end();
+
+	//-----------------------
+    Fl_Group *buttongroup = new Fl_Group(xpos,data_widget_box->y()+data_widget_box->h(),width,BUTTONHEIGHT+margin*2);
+    buttongroup->box(FL_NO_BOX);
+	
+	int b_width = 80;
+    load_button = new Fl_Button(xpos,data_widget_box->y()+data_widget_box->h()+margin,b_width,BUTTONHEIGHT, "Load...");
+    load_button->callback(loadimage_callback,this);
+
+	//JK - dicom_import testing....
+	#ifdef TESTMODE
+		Fl_Widget *dcm_import_button = new Fl_Button(xpos+b_width+margin,data_widget_box->y()+data_widget_box->h()+margin,b_width,BUTTONHEIGHT, "Dcm Import...");
+		dcm_import_button->callback(dcm_import_callback,this);
+
+		Fl_Widget *dcm_series_button = new Fl_Button(xpos+2*b_width+2*margin,data_widget_box->y()+data_widget_box->h()+margin,b_width,BUTTONHEIGHT, "Dcm Series...");
+		dcm_series_button->callback(dcm_series_callback,this);
+	#endif
+
+    buttongroup->resizable(NULL);
+    buttongroup->end();
+
+	//-----------------------
+    Fl_Box * toolslabel = new Fl_Box(xpos,load_button->y()+load_button->h()+margin,width,LIST_HEADER_HEIGHT,"Tools");
+    toolslabel->labelfont(FL_HELVETICA_BOLD );
+
+    outergroup->resizable(outergroup);
+    outergroup->box(FL_FLAT_BOX);
+    outergroup->end();
+}
+
+
+// -------------------------- CALLBACKS -------------------------------
 
 void datamanager::removedata_callback(Fl_Widget *callingwidget, void *thisdatamanager)
-    {
-    datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
-
+{
+    datawidget_base *the_datawidget=(datawidget_base*)(callingwidget->user_data());
     ((datamanager*)thisdatamanager)->delete_data( the_datawidget->get_data_id() );
-    }
+}
 
 void datamanager::save_dcm_callback(Fl_Widget *callingwidget, void * thisdatamanager)
-    {
+{
     datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
     int image_index=((datamanager*)thisdatamanager)->find_data_index(the_datawidget->get_data_id());
 
@@ -121,10 +182,10 @@ void datamanager::save_dcm_callback(Fl_Widget *callingwidget, void * thisdataman
 
     ((datamanager*)thisdatamanager)->dataItems[image_index]->save_to_DCM_file(chooser.value(1));
 	pt_config::write("latest_path",path_parent(chooser.value(1)));
-    }
+}
 
 void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdatamanager)
-    {
+{
     datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
     int image_index=((datamanager*)thisdatamanager)->find_data_index(the_datawidget->get_data_id());
 
@@ -144,11 +205,11 @@ void datamanager::save_vtk_callback(Fl_Widget *callingwidget, void * thisdataman
 
     ((datamanager*)thisdatamanager)->dataItems[image_index]->save_to_VTK_file(chooser.value(1));
 	pt_config::write("latest_path",path_parent(chooser.value(1)));
-    }
+}
 
 
 void datamanager::save_hist_callback(Fl_Widget *callingwidget, void * thisdatamanager)
-    {
+{
     datawidget_base * the_datawidget=(datawidget_base *)(callingwidget->user_data());
     int image_index=((datamanager*)thisdatamanager)->find_data_index(the_datawidget->get_data_id());
 
@@ -168,209 +229,118 @@ void datamanager::save_hist_callback(Fl_Widget *callingwidget, void * thisdatama
 
 //    ((datamanager*)thisdatamanager)->dataItems[image_index]->save_histogram_to_txt_file(chooser.value(1));
 	pt_config::write("latest_path",path_parent(chooser.value(1)));
-    }
+}
 
 
 
-#define LISTHEADERHEIGHT 25
-
-void datamanager::datawidgets_setup()
-    {
-    const int margin=10;
-
-    const unsigned int xpos=Fl_Group::current()->x();
-    const unsigned int width=Fl_Group::current()->w();
-    const unsigned int ypos=0;
-
-    Fl_Group* outergroup; //group containing data list and load control
-    Fl_Widget *load_button;
-
-    outergroup=new Fl_Group (xpos,ypos,width,DATALISTINITHEIGHT);
-
-    Fl_Box * datalabel = new Fl_Box(xpos,ypos,width,LISTHEADERHEIGHT,"Data");
-    datalabel->labelfont(FL_HELVETICA_BOLD);
-
-    Fl_Button *clear_data_list_button = new Fl_Button(xpos+width-50,ypos+5,45,BUTTONHEIGHT-10,"Clear All");
-    clear_data_list_button->labelfont(FL_HELVETICA);
-	clear_data_list_button->labelsize(8);
-    clear_data_list_button->callback(clear_data_list_button_callback,this);
-
-    //we should create a bitmap here (i.e. the "animage"), and fill it with
-    //color gradient or solid color depending on image type
-
-    data_widget_box = new horizresizeablescroll(xpos,ypos+LISTHEADERHEIGHT,width,DATALISTINITHEIGHT-BUTTONHEIGHT-margin*2-LISTHEADERHEIGHT*2);
-
-    data_widget_box->end();
-
-    Fl_Group* buttongroup = new Fl_Group(xpos,data_widget_box->y()+data_widget_box->h(),width,BUTTONHEIGHT+margin*2);
-    buttongroup->box(FL_NO_BOX);
-	
-	int b_width = 80;
-    load_button = new Fl_Button(xpos,data_widget_box->y()+data_widget_box->h()+margin,b_width,BUTTONHEIGHT, "Load...");
-    load_button->callback(loadimage_callback,this);
-
-//JK - dicom_import testing....
-#ifdef TESTMODE
-		Fl_Widget *dcm_import_button = new Fl_Button(xpos+b_width+margin,data_widget_box->y()+data_widget_box->h()+margin,b_width,BUTTONHEIGHT, "Dcm Import...");
-		dcm_import_button->callback(dcm_import_callback,this);
-
-		Fl_Widget *dcm_series_button = new Fl_Button(xpos+2*b_width+2*margin,data_widget_box->y()+data_widget_box->h()+margin,b_width,BUTTONHEIGHT, "Dcm Series...");
-		dcm_series_button->callback(dcm_series_callback,this);
-#endif
-
-    buttongroup->resizable(NULL);
-    buttongroup->end();
-
-    Fl_Box * toolslabel = new Fl_Box(xpos,load_button->y()+load_button->h()+margin,width,LISTHEADERHEIGHT,"Tools");
-    toolslabel->labelfont(FL_HELVETICA_BOLD );
-
-    outergroup->resizable(outergroup);
-    outergroup->box(FL_FLAT_BOX);
-    outergroup->end();
-    }
-
-void datamanager::add(image_base * v, string name, bool data_changed)
+void datamanager::add(image_base *im, string name, bool data_changed)
 {
-    if(v != NULL){
-        if(dataItems.size() < IMAGEVECTORMAX){
-            int the_image_id= v->get_id();
-            if(find_data_index(the_image_id) == -1){
-                dataItems.push_back(v);
-                v->activate();
+    if(im != NULL){
+        if(dataItems.size() < DATA_VECTOR_MAX){
+            if(find_data_index(im->get_id()) == -1){
+                dataItems.push_back(im);
+                im->activate();
 				if(name!=""){
-					v->name(name);
+					im->name(name);
 				}
 				if(data_changed){
-					v->data_has_changed();
+					im->data_has_changed();
 				}
 
-                int freeViewportID=viewmanagement.find_viewport_no_images();
-                if(freeViewportID != NOT_FOUND_ID){
-                    int rendererID = viewmanagement.get_renderer_id(freeViewportID);
-                    if(rendermanagement.renderer_empty(rendererID)){
-						rendermanagement.center3d_and_fit( rendererID, the_image_id ); //JK
-					}
-                    rendermanagement.connect_data_renderer(rendererID,the_image_id);
-				}
-                data_vector_has_changed();
-                data_has_changed(the_image_id);
+                viewmanagement.show_in_empty_viewport(im->get_id());
+
+				data_vector_has_changed();
+                data_has_changed(im->get_id());
 
 			}else{
-				pt_error::error("Trying to re-add image ID ("+v->name()+")",pt_error::warning);
+				pt_error::error("Trying to re-add image ID ("+im->name()+")",pt_error::warning);
 			}
 		}else{
             //This error condition should really never happen, if it does there is
-            //reason to rethink the dependency on a fixed image capacity the way IMAGEVECTORMAX works
-            pt_error::error("Error when adding image: number of data items in datamanager exceeds IMAGEVECTORMAX ("+v->name()+")",pt_error::fatal);
+            //reason to rethink the dependency on a fixed image capacity the way DATA_VECTOR_MAX works
+            pt_error::error("Error when adding image: number of data items in datamanager exceeds DATA_VECTOR_MAX ("+im->name()+")",pt_error::fatal);
         }
+
+	}else{
+		pt_error::error("Error when adding image: image_base* = NULL... ",pt_error::debug);
 	}
 }
 
-/*
-void datamanager::add(image_base &v)
-{
-	cout<<"datamanager::add(image_base &v)"<<endl;
-}
-*/
 
-void datamanager::add(point_collection * p)
+void datamanager::add(point_collection *p)
 {
-    pt_error::error_if_false(dataItems.size() < IMAGEVECTORMAX,"Error when adding point: number of data items in datamanager exceeds IMAGEVECTORMAX",pt_error::fatal);
+    pt_error::error_if_false(dataItems.size() < DATA_VECTOR_MAX,"Error when adding point: number of data items in datamanager exceeds IMAGEVECTORMAX",pt_error::fatal);
     
-    if(pt_error::error_if_null(p,"Can't add point to datamanager, pointer is NULL",pt_error::serious) != NULL)
-        {
+    if(pt_error::error_if_null(p,"Can't add point to datamanager, pointer is NULL",pt_error::serious) != NULL){
         dataItems.push_back(p);
         p->activate();
         
         data_vector_has_changed();
         data_has_changed(p->get_id());
-        }
+	}
 }
 
-void datamanager::delete_data (data_base * d)
+void datamanager::delete_data(data_base *d)
 {
-    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
-        {
-        if (*itr == d)
-            {
+    for(vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();){
+        if(*itr == d){
             delete *itr; //the data_base destructor calls remove_data() to
                          //remove it from dataItems 
 			itr=dataItems.begin(); //SO
             //break;
-            }
-		else
-			{
+		}else{
 			itr++;
-			}
-        }
+		}
+	}
 }
 
-void datamanager::delete_data (int id)
+void datamanager::delete_data(int id)
 {
 	// pt_error::error("datamanager::delete_data",pt_error::debug);
-    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
-        {
-        if ((*itr)->get_id() == id)
-            {
+    for(vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();){
+        if((*itr)->get_id() == id){
             delete *itr;
 			itr=dataItems.begin(); //SO
-
-
-            //break;
-            }
-		else{
+		}else{
 			itr++;
 		}
-		}
+	}
 }
 
 void datamanager::delete_all()
 {
-    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
-        {
-            delete *itr; //the data_base destructor calls remove_data() to remove it from dataItems 
-			itr=dataItems.begin(); //SO - needed for VS 2008
-        }
-
+    for(vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();){
+		delete *itr; //the data_base destructor calls remove_data() to remove it from dataItems 
+		itr=dataItems.begin(); //SO - needed for VS 2008
+	}
 }
 
 // Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allocated memory is removed)
-void datamanager::remove_data (int id)
+void datamanager::remove_data(int id)
 {
-    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
-        {
-        if ((*itr)->get_id() == id)
-            {
+    for(vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();){
+        if( (*itr)->get_id() == id ){
             itr = dataItems.erase(itr); 
-            
             data_vector_has_changed();
             //break;
-            }
-		else
-			{
-				itr++;
-			}
-        }
-}
-
-// Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allocated memory is removed)
-void datamanager::remove_data (data_base * d)
-{
-    for (vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();)
-        {
-        if (*itr == d)
-            {
-
-			itr = dataItems.erase(itr); 
-            
-            data_vector_has_changed();
-
-            //break;
-            }
-		else{
+		}else{
 			itr++;
 		}
-        }
+	}
+}
+
+// Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allocated memory is removed)
+void datamanager::remove_data(data_base *d)
+{
+    for(vector<data_base*>::iterator itr=dataItems.begin();itr != dataItems.end();){
+        if(*itr == d){
+			itr = dataItems.erase(itr); 
+            data_vector_has_changed();
+            //break;
+		}else{
+			itr++;
+		}
+	}
 }
 
 string datamanager::get_data_name(int ID)
@@ -410,16 +380,17 @@ void datamanager::dcm_series_callback(Fl_Widget *callingwidget, void *thisdatama
 #endif
 }
 
+void datamanager::clear_data_list_button_callback(Fl_Widget *callingwidget, void *thisdatamanager)
+{
+	((datamanager*)thisdatamanager)->delete_all();
+}
+
 void datamanager::loadimage_callback(Fl_Widget *callingwidget, void *thisdatamanager)
 // argument must tell us which instance, if multiple
-    {
+{
     ((datamanager*)thisdatamanager)->loadimages();	
-    }
+}
 
-void datamanager::clear_data_list_button_callback(Fl_Widget *callingwidget, void *thisdatamanager)
-	{
-	((datamanager*)thisdatamanager)->delete_all();
-	}
 
 void datamanager::loadimages() // argument must tell us which instance, if multiple
     {
@@ -519,7 +490,7 @@ int datamanager::create_empty_image(image_base * blueprint, imageDataType unit)
     return animage->get_id();
     }
 
-void datamanager::listimages()
+void datamanager::print_dataItems()
     {
     for (unsigned int i=0; i < dataItems.size(); i++)
         { cout << *dataItems[i] << endl; } 
@@ -578,7 +549,7 @@ void datamanager::FLTK_running(bool running)
 	closing_program = !running;
 	}
 
-bool datamanager::FLTK_running ()
+bool datamanager::FLTK_running()
     {
     return !closing_program;
     }

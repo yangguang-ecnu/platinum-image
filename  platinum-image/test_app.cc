@@ -26,6 +26,7 @@
 
 #include "../../global.h"
 #include "../../image_binary.hxx"
+#include "../../image_complex.hxx"
 #include "../../curve.hxx"
 
 //retrieve command-line arguments
@@ -39,6 +40,51 @@ int arg(int argc, char **argv, int &i) {
     }
     return 0;
 }
+
+class FLTK_Menu_Item_Container
+{
+public:
+	FLTK_Menu_Item_Container();
+
+	static const Fl_Menu_Item featuremenu_base[];
+    static const Fl_Menu_Item featuremenu_plustf[];		//The "new" version of the "main menu"
+};
+
+static const Fl_Menu_Item featuremenu_base[] = {
+ {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save as DCM", 0,  (Fl_Callback*)datamanager::save_dcm_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save as VTK", 0,  (Fl_Callback*)datamanager::save_vtk_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save histogram", 0,  (Fl_Callback*)datamanager::save_hist_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Duplicate", 0,  0, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
+// {"Geometry Edit(Show/Hide)", 0, (Fl_Callback*)datawidget_base::edit_geometry_callback,0,0, FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
+static const Fl_Menu_Item featuremenu_plustf[] = {
+ {"Remove", 0,  (Fl_Callback*)datamanager::removedata_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save as DCM", 0,  (Fl_Callback*)datamanager::save_dcm_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save as VTK", 0,  (Fl_Callback*)datamanager::save_vtk_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Save histogram", 0,  (Fl_Callback*)datamanager::save_hist_callback, (void*)(&datamanagement), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Duplicate", 0,  0, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
+// {"Geometry Edit(Show/Hide)", 0, (Fl_Callback*)datawidget_base::edit_geometry_callback,0,0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Transfer function", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
+ {0,0,0,0,0,0,0,0,0},
+ {0,0,0,0,0,0,0,0,0}
+};
+
+FLTK_Menu_Item_Container::FLTK_Menu_Item_Container(){
+
+//	int fMenuSize = fl_menu_size(featuremenu_base);
+  //  featuremenu_plustf = new Fl_Menu_Item[fMenuSize+1+1];
+
+//    for(int j=0; j<fMenuSize; j++){        
+  //      featuremenu_plustf[j] = featuremenu_base[j];
+//	}
+//    menu_featuremenu_plustf[fMenuSize] = tfunctionmenu;
+
+}
+
 
 void add_demo_image (int userIO_ID,int par_num)
 {
@@ -94,6 +140,14 @@ int main(int argc, char *argv[])
     //finish the window creation
     window.end();
     window.show(argc, argv);
+
+	//------------------
+	complex<float> c = complex<float>(3,4);
+	complex<float> d = complex<float>(4,5);
+	image_complex<float,3> *im = new image_complex<float,3>(10,10,10,&c);
+	im->fill(d);
+	datamanagement.add(im,"im");
+	//------------------
 
 	//preset viewport configuration 
 //	viewmanagement.set_vp_direction(1,X_DIR);
