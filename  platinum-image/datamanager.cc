@@ -70,8 +70,6 @@ int NOOFIDENTIFIERS = 2;
 //int prioritet = -1;
 
 
-
-
 datamanager::datamanager()
 {    
     image_menu = NULL;

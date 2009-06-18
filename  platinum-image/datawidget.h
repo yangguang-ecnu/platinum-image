@@ -59,36 +59,44 @@ class FLTKgeom_base;
 
 
 class datawidget_base : public Fl_Pack {
+
 protected:
+    datawidget_base(data_base *d, std::string n);
+
     int data_id;  
     bool fromFile; ///indicates whether the data was created inside the program and perhaps needs to be saved;
-    std::string _name;
-    
+
     Fl_Pack *hpacker;
-    Fl_Input *datanamebutton; //JK set tooltip on this 
-    void cb_filenamebutton_i(Fl_Input*, void*);
-    static void cb_filenamebutton(Fl_Input*, void*);
-	static void edit_geometry_callback(Fl_Widget *callingwidget, void *);
-	Fl_Menu_Button *featuremenu;
+	std::string _name;
+    Fl_Input *data_name_field;
+    void name_field_callback2(Fl_Input*, void*);
+    static void name_field_callback(Fl_Input*, void*);
 
     // *** thumbnail
     const static int thumbnail_size;
-    uchar * thumbnail_image;
+    uchar *thumbnail_image;
     Fl_Box *thumbnail;
-    
+
     // *** menus       
+	Fl_Menu_Button *data_menu_button;
     enum {remove_mi_num=0,save_mi_num, dup_mi_num};
-    const static Fl_Menu_Item menu_featuremenu_base[];
-    const static Fl_Menu_Item menu_featuremenu_curve_base[];
-    const static Fl_Menu_Item menu_featuremenu_point_collection[];
-    const static Fl_Menu_Item *remove_mi;
+    const static Fl_Menu_Item the_base_items[];
+    const static Fl_Menu_Item the_image_base_items[];
+    const static Fl_Menu_Item the_curve_items[];
+    const static Fl_Menu_Item the_point_collection_items[];
+    const static Fl_Menu_Item *remove_mi;		//mi = menu item
     const static Fl_Menu_Item *save_vtk_mi;
     const static Fl_Menu_Item *duplicate_mi;
-    Fl_Pack *extras;
+
+	void copy_items(Fl_Menu_Item *to_items, int to_start_index, const Fl_Menu_Item from_items[]);
+	void copy_items(Fl_Menu_Item *to_items, const Fl_Menu_Item from_items[]);
+
+	Fl_Pack *extras;
 
 	FLTKgeom_base *geom_widget;
-    
-    datawidget_base(data_base * d, std::string n);
+	static void edit_geometry_callback(Fl_Widget *callingwidget, void *);
+
+
 public:
     static void change_name_callback(Fl_Widget *callingwidget, void *thisdatawidget);
 
@@ -127,30 +135,31 @@ template <>
 class datawidget<point_collection>:public datawidget_base
 {
 public:
-    datawidget(point_collection* p, std::string n);
+    datawidget(point_collection *p, std::string n);
 };
 
 template <>
 class datawidget<image_base>:public datawidget_base
 {   
-    const static Fl_Menu_Item tfunctionmenu;			//the extra "transfer_funtion row"
-    const static Fl_Menu_Item transferfunction_mi; 
-    static void cb_transferswitch(Fl_Widget* callingwidget, void* v);
+private:
+    Fl_Group *tf_group;
+
+	Fl_Menu_Item *the_image_items;			//The "new" version of the "main menu"
+    Fl_Menu_Item *tfunction_submenu;			//The transfer function submenu. Transferfactory handles all versions of transfer functions
+    const static Fl_Menu_Item tf_mi;			//The extra "transfer_funtion" row
+    const static Fl_Menu_Item tf_show_hide_mi;	//The first Show/Hide tf row...
+
+    void setup_transfer_menu(Fl_Menu_Item &submenuitem, image_base *im);
+
+	static void cb_transferswitch(Fl_Widget* callingwidget, void* v);
     static void cb_show_hide_tfunction(Fl_Widget* callingwidget, void*);
-    
-    Fl_Group *tfunction_;
-    Fl_Menu_Item * menu_featuremenu_plustf;		//The "new" version of the "main menu"
 
-    Fl_Menu_Item * tfunction_submenu;			//The transfer function submenu. Transferfactory handles all versions of transfer functions
-
-    void setup_transfer_menu(Fl_Menu_Item* submenuitem, image_base * im);
 public:
-	datawidget(image_base* im, std::string n);
+	datawidget(image_base *im, std::string n);
     virtual ~datawidget();
     
-    void tfunction(Fl_Group * t);
-    Fl_Group * reset_tf_controls();
-    
+//    void tfunction(Fl_Group *t);
+    Fl_Group *reset_tf_controls();
 };
 
 
