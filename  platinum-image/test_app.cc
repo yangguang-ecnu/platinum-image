@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
 //	val.set_rgb_from_complex(complex<float>(5.0,0.1),float(0.1), 5.0);
 //	cout<<val<<endl;
 
-	rgb_test();
+//	rgb_test();
 
 	//preset viewport configuration 
 //	viewmanagement.set_vp_direction(1,X_DIR);
