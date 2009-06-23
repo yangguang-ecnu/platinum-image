@@ -69,8 +69,108 @@ void expand_function(int userIO_ID,int par_num)
         }
 }
 
+
+void rgb_vol_function(int userIO_ID,int par_num)
+{
+    if(par_num == USERIO_CB_OK){
+		int res = 50;
+		image_scalar<float,3> *red = new image_scalar<float,3>(res,res,res,0);
+		image_scalar<float,3> *gre = new image_scalar<float,3>(res,res,res,0);
+		image_scalar<float,3> *blu = new image_scalar<float,3>(res,res,res,0);
+		for(int z=0;z<red->nz();z++){
+			for(int y=0;y<red->ny();y++){
+				for(int x=0;x<red->nx();x++){
+					red->set_voxel(x,y,z,x);
+					gre->set_voxel(x,y,z,y);
+					blu->set_voxel(x,y,z,z);
+
+				}
+			}
+		}
+		datamanagement.add(red,"red",true);
+		datamanagement.add(gre,"green",true);
+		datamanagement.add(blu,"blue",true);
+	}
+}
+
+
+unsigned char calc_value(unsigned char r, unsigned char g, unsigned char b)
+{
+	return std::max(r,std::max(g,b));			
+}
+
+float calc_hue_in_degrees(unsigned char r, unsigned char g, unsigned char b)
+{
+	float h = 0;			//if R == G == B (Max == Min)
+	float ma = calc_value(r,g,b);
+	float mi = 0;			
+
+
+	if(r>=g && r>b){			//R == Max
+		mi = std::min(g,b);
+		float tmp = 60*float(g-b)/(ma-mi) + 360.0; //mod 360..
+		h = int(tmp)%360;
+
+	}else if(g>=b && g>r){	//G == Max
+		mi = std::min(r,b);
+		h = 60.0*float(b-r)/(ma-mi) + 120;
+
+	}else if(b>=r && b>g){	//B == Max
+		mi = std::min(r,g);
+		h = 60.0*float(r-g)/(ma-mi) + 240;
+	}
+//	cout<<int(r)<<" "<<int(g)<<" "<<int(b)<<" --> "<<h<<" ("<<ma<<" "<<mi<<")"<<endl;
+	return h;
+}
+
+float calc_saturation(unsigned char r, unsigned char g, unsigned char b)
+{
+	float ma = calc_value(r,g,b);
+	float mi = std::min(r,std::min(g,b));
+	return (ma-mi)/ma;			
+}
+
+
+void rgb_test()
+{
+	unsigned char r=255;
+	unsigned char g=255;
+	unsigned char b=255;
+
+	calc_hue_in_degrees(255,255,255);
+	cout<<endl;
+	calc_hue_in_degrees(255,0,0);
+	calc_hue_in_degrees(0,255,0);
+	calc_hue_in_degrees(0,0,255);
+	cout<<endl;
+	calc_hue_in_degrees(255,255,0);
+	calc_hue_in_degrees(100,100,0);
+	cout<<endl;
+	
+	//------------------------
+
+	image_scalar<float,3> *hue = new image_scalar<float,3>(256,256,256,0);
+	image_scalar<float,3> *sat = new image_scalar<float,3>(256,256,256,0);
+	image_scalar<float,3> *val = new image_scalar<float,3>(256,256,256,0);
+	for(int z=0;z<256;z++){
+		for(int y=0;y<256;y++){
+			for(int x=0;x<256;x++){
+				hue->set_voxel(x,y,z,calc_hue_in_degrees(x,y,z));
+				sat->set_voxel(x,y,z,calc_saturation(x,y,z));
+				val->set_voxel(x,y,z,calc_value(x,y,z));
+			}
+		}
+	}
+	datamanagement.add(hue,"hue",true);
+	datamanagement.add(sat,"sat",true);
+	datamanagement.add(val,"val",true);
+
+}
+
+
 int main(int argc, char *argv[])
 {
+
     //start up Platinum
     platinum_init();
     
@@ -78,7 +178,7 @@ int main(int argc, char *argv[])
     Fl_Window window(800,600);
     
     //prepare Platinum for userIO creation
-    platinum_setup(window);
+    platinum_setup(window,3,3);
     
     // *** begin userIO control definitions ***
     int create_vol_demo_ID=userIOmanagement.add_userIO("Add demo image",add_demo_image,"Add");
@@ -90,6 +190,9 @@ int main(int argc, char *argv[])
 
     int expand_ID=userIOmanagement.add_userIO("expanding test",expand_function,"Run");
     userIOmanagement.finish_userIO(expand_ID);
+
+	int rgb_vol_ID=userIOmanagement.add_userIO("Create RGB volumes",rgb_vol_function,"Run");
+    userIOmanagement.finish_userIO(rgb_vol_ID);
 
     // *** end userIO control definitions ***
     
@@ -105,9 +208,11 @@ int main(int argc, char *argv[])
 	datamanagement.add(im,"im");
 	//------------------
 
-	RGBvalue val = RGBvalue();
-	val.set_rgb_from_complex(complex<float>(5.0,0.1),float(0.1), 5.0);
-	cout<<val<<endl;
+//	RGBvalue val = RGBvalue();
+//	val.set_rgb_from_complex(complex<float>(5.0,0.1),float(0.1), 5.0);
+//	cout<<val<<endl;
+
+	rgb_test();
 
 	//preset viewport configuration 
 //	viewmanagement.set_vp_direction(1,X_DIR);

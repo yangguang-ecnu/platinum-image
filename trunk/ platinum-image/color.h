@@ -31,7 +31,9 @@
 
 #include "global.h"
 
-// HSI/HSL/HSV: see http://en.wikipedia.org/wiki/HSL_and_HSV
+// HSL (or HSI) and HSV (or HSB):			
+//see http://en.wikipedia.org/wiki/HSL_and_HSV
+
 class color_base
 {
     protected:
@@ -102,8 +104,14 @@ class RGBvalue:public color_base
         virtual void b(const IMGELEMCOMPTYPE b_){values[BADDR] = b_;}
 
         // *** calc functions ***
-		float calc_HSI_psi(){
-		}
+		float calc_hue_in_degrees(); //0...360
+		float calc_hue_in_degrees(const IMGELEMCOMPTYPE r, const IMGELEMCOMPTYPE g, const IMGELEMCOMPTYPE b); //0...360
+
+		float calc_saturation();
+		float calc_saturation(const IMGELEMCOMPTYPE r, const IMGELEMCOMPTYPE g, const IMGELEMCOMPTYPE b);
+
+		IMGELEMCOMPTYPE calc_value();
+		IMGELEMCOMPTYPE calc_value(const IMGELEMCOMPTYPE r, const IMGELEMCOMPTYPE g, const IMGELEMCOMPTYPE b);
 
 //		template<class E>
 			void set_rgb_from_complex(std::complex<float> &c, float magn_min, float magn_max) 

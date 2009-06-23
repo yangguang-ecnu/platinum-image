@@ -88,6 +88,56 @@ void RGBvalue::set_rgb(const IMGELEMCOMPTYPE r_, const IMGELEMCOMPTYPE g_, const
     b(b_);
 }
 
+float RGBvalue::calc_hue_in_degrees()
+{
+	return calc_hue_in_degrees(r(),g(),b());
+}
+
+float RGBvalue::calc_hue_in_degrees(const IMGELEMCOMPTYPE r, const IMGELEMCOMPTYPE g, const IMGELEMCOMPTYPE b)
+{
+	float h = 0;			//if R == G == B (Max == Min)
+	float ma = calc_value(r,g,b);
+	float mi = 0;			
+
+	if(r>=g && r>b){			//R == Max
+		mi = std::min(g,b);
+		float tmp = 60*float(g-b)/(ma-mi) + 360.0; //mod 360..
+		h = int(tmp)%360;
+
+	}else if(g>=b && g>r){	//G == Max
+		mi = std::min(r,b);
+		h = 60.0*float(b-r)/(ma-mi) + 120;
+
+	}else if(b>=r && b>g){	//B == Max
+		mi = std::min(r,g);
+		h = 60.0*float(r-g)/(ma-mi) + 240;
+	}
+//	cout<<int(r)<<" "<<int(g)<<" "<<int(b)<<" --> "<<h<<" ("<<ma<<" "<<mi<<")"<<endl;
+	return h;
+}
+
+float RGBvalue::calc_saturation()
+{
+	return calc_saturation( r(),g(),b() );
+}
+
+float RGBvalue::calc_saturation(const IMGELEMCOMPTYPE r, const IMGELEMCOMPTYPE g, const IMGELEMCOMPTYPE b)
+{
+	float ma = calc_value(r,g,b);
+	float mi = std::min(r,std::min(g,b));
+	return (ma-mi)/ma;			
+}
+
+IMGELEMCOMPTYPE RGBvalue::calc_value()
+{
+	return std::max( r(),std::max(g(),b()) );			
+}
+
+IMGELEMCOMPTYPE RGBvalue::calc_value(const IMGELEMCOMPTYPE r, const IMGELEMCOMPTYPE g, const IMGELEMCOMPTYPE b)
+{
+	return std::max(r,std::max(g,b));			
+}
+
 //----------------------------------------------------
 
 
