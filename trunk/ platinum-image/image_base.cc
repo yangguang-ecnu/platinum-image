@@ -337,12 +337,12 @@ void image_base::set_origin(const Vector3D v)
     origin = v;
 }
 
-/*
+
 void image_base::save_histogram_to_txt_file(const std::string filename, const std::string separator)
     {
         pt_error::pt_error ("Attempt to save_histogram_to_txt_file on a image_base object",pt_error::warning);
     }
-*/
+
 
 Vector3D image_base::world_to_voxel( const Vector3D & wpos ) const
 {
