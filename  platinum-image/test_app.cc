@@ -176,6 +176,8 @@ int main(int argc, char *argv[])
     
     //set up main window
     Fl_Window window(800,600);
+
+	window.fullscreen();
     
     //prepare Platinum for userIO creation
     platinum_setup(window,3,3);

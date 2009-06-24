@@ -157,12 +157,12 @@ void data_base::name_from_path(string file_path)
     //named from file, comes from file. Set status accordingly:
     from_file(true);
     }
-/*
+
 void data_base::save_histogram_to_txt_file(const std::string filename, const std::string separator)
     {
         pt_error::pt_error ("Attempt to save_histogram_to_txt_file on a data_base object",pt_error::warning);
     }
-*/
+
 
 	
 string data_base::resolve_tooltip()

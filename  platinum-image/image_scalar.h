@@ -207,7 +207,7 @@ public:
 	void flip_voxel_data_3D(int direction);
 
 	ELEMTYPE get_intensity_at_lower_percentile(float percentile, bool ignore_zero_intensity);
-//    void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
+    void save_histogram_to_txt_file(const std::string filename, const std::string separator=";");
     void save_histogram_to_txt_file(const std::string filename, gaussian *g=NULL, bool reload_hist_from_image=false, const std::string separator=";");
 
     image_scalar<unsigned short, 3>* create2Dhistogram_3D(image_scalar<ELEMTYPE, IMAGEDIM> *second_image, bool remove_zero_intensity=false, int num_buckets_a=-1, int num_buckets_b=-1, image_binary<IMAGEDIM>* mask=NULL); 
