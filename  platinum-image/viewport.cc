@@ -82,10 +82,14 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height, VI
    
     update_viewsize(width, height - buttonheight);
     
-	the_widget = new FLTKviewport(xpos,ypos,width,height,this,buttonheight,buttonwidth); //JK2 -  specify vp_type...
+	the_widget = new FLTKviewport(xpos,ypos,width,height,this,buttonheight,buttonwidth); //The FLTKviewport can access the VIEWPORT_TYPE using the pointer to this viewport
 
     //attach MPR renderer - so that all viewports can be populated for additional views
-    viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR)); //JK2- do this in vp_class
+	if(vp_type == PT_MPR){	//PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
+		viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR)); //JK2- do this in vp_class
+	}else if(vp_type == PT_MIP){
+		viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MIP)); //JK2- do this in vp_class
+	}
 }
 
 int viewport::x(){

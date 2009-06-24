@@ -39,7 +39,7 @@
 
 class image_base;
 
-enum RENDERER_TYPE {RENDERER_MPR=0, NUM_RENDERER_TYPES, NUM_RENDERER_TYPES_PLUS_END};
+enum RENDERER_TYPE {RENDERER_MPR=0, RENDERER_MIP=1, NUM_RENDERER_TYPES, NUM_RENDERER_TYPES_PLUS_END};
 //const std::string renderer_labels[] = {"MPR renderer"}; //name strings for renderer types
 
 

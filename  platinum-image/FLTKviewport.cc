@@ -998,6 +998,8 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 
 	if(viewport_parent->vp_type == PT_MPR){
 		pane_widget = new FLTK_Pt_pane(0,0+buttonheight,width,height-buttonheight);
+	}else if(viewport_parent->vp_type == PT_MIP){
+		pane_widget = new FLTK_Pt_pane(0,0+buttonheight,width,height-buttonheight);
 	}else{
 		pane_widget = new FLTK_VTK_Cone_pane(0,0+buttonheight,width,height-buttonheight);
 	}
