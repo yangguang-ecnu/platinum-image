@@ -335,6 +335,9 @@ int rendermanager::create_renderer(RENDERER_TYPE rendertype)
         case RENDERER_MPR:
             arenderer = new rendererMPR();
             break;
+        case RENDERER_MIP:
+            arenderer = new rendererMIP();
+            break;
         default:
             arenderer=NULL;
             pt_error::error("Unknown renderer. Not initialized.",pt_error::fatal); break;
