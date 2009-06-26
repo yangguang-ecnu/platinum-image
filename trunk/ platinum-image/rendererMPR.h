@@ -55,7 +55,6 @@ class rendererMPR : public renderer_image_base
 		
 		static void draw_line(uchar *pixels, int sx, int sy, int a, int b, int c, int d, std::vector<int> color);
 	
-//		rendergeom_image* get_the_rg();
 
     public:
 		rendererMPR();
