@@ -279,8 +279,8 @@ void viewmanager::setup_views(int virtualview, int areawidth, int areaheight) //
                 {
                 int VPind = find_viewport_index( viewportmapping[v][h][virtualview] );
                 //Create viewport widget and set position
-//                viewports[ VPind ].initialize_viewport(int(tilewidthpercentsum*areawidth),int(tileheightpercentsum*areaheight),tilewidth,tileheight);
-                viewports[ VPind ].initialize_viewport(int(tilewidthpercentsum*areawidth),int(tileheightpercentsum*areaheight),tilewidth,tileheight,PT_MIP);
+                viewports[ VPind ].initialize_viewport(int(tilewidthpercentsum*areawidth),int(tileheightpercentsum*areaheight),tilewidth,tileheight,PT_MPR);
+                //viewports[ VPind ].initialize_viewport(int(tilewidthpercentsum*areawidth),int(tileheightpercentsum*areaheight),tilewidth,tileheight,PT_MIP);
                 }
             else
                 {
