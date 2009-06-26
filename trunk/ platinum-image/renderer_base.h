@@ -54,18 +54,17 @@ protected:
     
 public:
 	renderer_base();
-	//renderer_base(const renderer_base &k) { *this=k; ::renderer_base(); }
     virtual ~renderer_base();
     
 	// ------------- parameters --------------------
     int get_id();
     
-    rendercombination* the_rc;				//list of images to render, public, because it is managed by viewport too (make renderer and viewport friends?)
+    rendercombination *the_rc;				//list of images to render, public, because it is managed by viewport too (make renderer and viewport friends?)
 	void connect_combination(rendercombination *rc);
     int combination_id();    
 
-    rendergeometry* the_rg;                 //lookat and direction vectors for rendering
-    void connect_geometry (rendergeometry *);       //attach a certain geometry to this renderer
+    rendergeometry *the_rg;                 //lookat and direction vectors for rendering
+    void connect_geometry(rendergeometry *rg);       //attach a certain geometry to this renderer
 	int geometry_id() const;
 
 

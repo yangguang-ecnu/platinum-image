@@ -32,14 +32,31 @@
 
 class image_base;
 
-class rendergeometry 
-    {
+class rendergeometry_base 
+{
     private:
-        int id;
         static int new_rg_ID;                   //ID counter for new geometry objects
+
+	protected:
+        int id;
+
+	public:
+        rendergeometry_base();
+		int get_id();
+};
+
+//-----------------------------------------------------
+
+class rendergeometry : public rendergeometry_base
+{
+    private:
+//        int id;
+//        static int new_rg_ID;                   //ID counter for new geometry objects
 
 	public:
         rendergeometry();
+
+//		int get_id();
 
         // *** NOTE: some render parameter constraints (like not zooming in/out at insane levels) are implemented in renderer_base::move
 
@@ -49,7 +66,6 @@ class rendergeometry
 					//ZOOM_CONSTANT/max(phys_span_x,phys_span_y)*rectangular_score;
 					//rectangular_score = (vp_side_max/vp_side_min) and span = image span, from view direction
 
-		int get_id();
 
 		Matrix3D view_to_world_matrix(int viewminsize);
         void refresh_viewports();   //refresh viewports using this combination

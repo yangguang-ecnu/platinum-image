@@ -20,21 +20,36 @@
 #include "rendermanager.h"
 extern rendermanager rendermanagement;
 
-int rendergeometry::new_rg_ID=1;
 
+//-----------------------------------------------------
+int rendergeometry_base::new_rg_ID=1;
 
-rendergeometry::rendergeometry()
+rendergeometry_base::rendergeometry_base()
 {
 	id=new_rg_ID++;
+}
+
+int rendergeometry_base::get_id()
+{
+    return id;
+}
+
+
+//-----------------------------------------------------
+
+rendergeometry::rendergeometry():rendergeometry_base()
+{
+//	id=new_rg_ID++;
     look_at.Fill(0);	    //initialize look at to center
     dir.SetIdentity();		//initialize direction
     zoom=1;					//intialize zoom to 100%
 }
-
+/*
 int rendergeometry::get_id()
 {
     return id;
 }
+*/
 
 Matrix3D rendergeometry::view_to_world_matrix(int viewminsize)
 {
