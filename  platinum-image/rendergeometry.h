@@ -49,14 +49,8 @@ class rendergeometry_base
 
 class rendergeom_image : public rendergeometry_base
 {
-    private:
-//        int id;
-//        static int new_rg_ID;                   //ID counter for new geometry objects
-
 	public:
         rendergeom_image();
-
-//		int get_id();
 
         // *** NOTE: some render parameter constraints (like not zooming in/out at insane levels) are implemented in renderer_base::move
 

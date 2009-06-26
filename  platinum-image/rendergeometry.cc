@@ -39,17 +39,10 @@ int rendergeometry_base::get_id()
 
 rendergeom_image::rendergeom_image():rendergeometry_base()
 {
-//	id=new_rg_ID++;
     look_at.Fill(0);	    //initialize look at to center
     dir.SetIdentity();		//initialize direction
     zoom=1;					//intialize zoom to 100%
 }
-/*
-int rendergeom_image::get_id()
-{
-    return id;
-}
-*/
 
 Matrix3D rendergeom_image::view_to_world_matrix(int viewminsize)
 {
@@ -112,6 +105,4 @@ Matrix3D rendergeom_image::get_scan_line_slop_matrix(image_base *the_image_point
 	Matrix3D orientation_inv = the_image_pointer->get_orientation().GetInverse();
 	Matrix3D inv_size = the_image_pointer->get_voxel_resize().GetInverse();
 	return (inv_size * orientation_inv)/(this->zoom * rgb_min_norm_div_by_zoom_constant);
-//	slope/= ;
-//	return slope;
 }

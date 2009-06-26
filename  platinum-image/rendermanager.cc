@@ -519,12 +519,6 @@ void rendermanager::data_vector_has_changed()
             }*/
         }
 }
-/*
-Matrix3D rendermanager::get_direction(int renderer_index)
-{
-	return ((rendergeom_image*)renderers[renderer_index]->the_rg)->dir;		//JK todo--remove
-}
-*/
 
 void rendermanager::set_image_geometry(int renderer_index, Matrix3D * dir)
     {
