@@ -1146,7 +1146,7 @@ void FLTKviewport::update_data_menu()
                 p->vol_id=base_menu[m].argument();  //image ID is stored in user data initially
 //				p->vport = this; //JK
                     
-                new_menu[m].callback((Fl_Callback *)toggle_image_callback);
+                new_menu[m].callback((Fl_Callback *)toggle_data_callback);
                 new_menu[m].user_data(p);
                 new_menu[m].flags=FL_MENU_TOGGLE;
                 if(rendermanagement.image_rendered(viewport_parent->rendererIndex,p->vol_id) !=BLEND_NORENDER){
@@ -1320,11 +1320,11 @@ void FLTKviewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
     rendermanagement.set_blendmode(params->rend_index,params->mode);
 }
 
-void FLTKviewport::toggle_image_callback(Fl_Widget *callingwidget, void * params )
+void FLTKviewport::toggle_data_callback(Fl_Widget *callingwidget, void * params )
 {
     menu_callback_params * widget_user_data=(menu_callback_params *)params;
 
-    rendermanagement.toggle_image(widget_user_data->rend_index,widget_user_data->vol_id);
+    rendermanagement.toggle_data(widget_user_data->rend_index,widget_user_data->vol_id);
 
 	// update all viewports that shows at least one of the images in the current viewport:
 	int c_id = rendermanagement.get_combination_id(widget_user_data->rend_index);
@@ -1344,7 +1344,7 @@ void FLTKviewport::toggle_image_callback(Fl_Widget *callingwidget, void * params
 
 	// TODO: only refresh viewports that holds the addded/removed image
 	// hur kan det aktuella bild id:et erhållas? undersök om det verkligen är en bild (dvs exkludera tex en point_collection)
-	// möjlig lösning är att jämföra de bilder combination innehåller före och efter toggle_image() 
+	// möjlig lösning är att jämföra de bilder combination innehåller före och efter toggle_data() 
 
 //	cout<<"vport_id= "<<widget_user_data->vport->get_id()<<endl;
 //	viewmanagement.refresh_viewports(); //time consuming to update all....

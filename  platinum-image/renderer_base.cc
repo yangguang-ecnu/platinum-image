@@ -34,7 +34,14 @@ renderer_base::renderer_base()
     the_rg=NULL;
     rg_id=0;
 }
-renderer_base::~renderer_base() {}
+renderer_base::~renderer_base() {
+	if(the_rc!=NULL){
+		delete the_rc;
+	}
+	if(the_rg!=NULL){
+		delete the_rg;
+	}
+}
 
 
 int renderer_base::get_id()
@@ -53,7 +60,7 @@ int renderer_base::combination_id()
     return rc_id;
 }
 
-void renderer_base::connect_geometry(rendergeometry *rg)
+void renderer_base::connect_geometry(rendergeometry_base *rg)
 {
     the_rg=rg;
     rg_id=rg->get_id();
@@ -78,99 +85,37 @@ void renderer_base::render_threshold(unsigned char *rgba, int rgb_sx, int rgb_sy
 
 
 void renderer_base::look_at(float x, float y, float z)
-{
-    the_rg->look_at[0]=x;
-    the_rg->look_at[1]=y;
-    the_rg->look_at[2]=z;
-}
+{}
 
 void renderer_base::look_at(float x, float y, float z, float zoom)
-{
-	look_at(x,y,z);
-	the_rg->zoom = zoom;
-}
+{}
 
+/*
 void renderer_base::move( float pan_x, float pan_y, float pan_z)
 {
-    //arguments are physical coordinates,   
-    
-    Vector3D pan;
-    
-    /*const bool use_constraints=false;
-    
-    const float min_zoom=0.5;
-    const float max_zoom=10;
-    float max_pan=0.5;           //in local coordinates; means panning to composite image edge
-    
-    if ((the_rg->zoom*zoom_d >= min_zoom && the_rg->zoom*zoom_d <= max_zoom ) || !use_constraints)*/
-    
-    pan.Fill(0);
-    pan[0]=pan_x;
-    pan[1]=pan_y;
-    pan[2]=pan_z;
+    Vector3D pan = CreateVector3D(pan_x, pan_y, pan_z);
+//    pan.Fill(0);
+  //  pan[0]=pan_x;
+    //pan[1]=pan_y;
+   // pan[2]=pan_z;
     
     the_rg->look_at+=pan;
-    
-    /*if (use_constraints)
-        {
-        for (int d=0;d<3;d++)
-            {
-            if (fabs(the_rg->look_at[d]) > max_pan)                        
-                //if look_at is outside max_pan
-                //in any direction,
-                //set to max_pan maintaining sign   
-                
-                {the_rg->look_at[d]=max_pan*
-                the_rg->look_at[d]/fabs(the_rg->look_at[d]);}   
-            }
-        }*/
+  
 }
+*/
 
-void renderer_base::move_view (int vsize, int pan_x, int pan_y, int pan_z, float zoom_d)
-{
-    //also relative to view orientation
-    //zoom is a multiple of previous zoom value
-    
-    Vector3D pan;
-    pan.Fill(0);
-//    pan[0]=pan_x*renderer_base::display_scale/(float)(vsize * the_rg->zoom);
-//    pan[1]=pan_y*renderer_base::display_scale/(float)(vsize * the_rg->zoom);
-    pan[0]=pan_x*ZOOM_CONSTANT/(float)(vsize * the_rg->zoom);
-    pan[1]=pan_y*ZOOM_CONSTANT/(float)(vsize * the_rg->zoom);
-    pan[2]=pan_z;
-    
-    the_rg->zoom*=zoom_d;
-    the_rg->look_at+=the_rg->dir*pan;
-}
+void renderer_base::move_view(int vsize, int pan_x, int pan_y, int pan_z, float zoom_d)
+{}
 
-void renderer_base::move_voxels (int x,int y,int z)
-{
-    Vector3D dir;
-    dir[0] = x; dir[1] = y; dir[2] = z;
-    
-    //combinations of images are rendered (which may have varying voxel sizes, 
-    //positions and orientation), here it is defined that
-    //move_voxels will move by the voxels of the topmost image
-    
-    image_base* image = the_rc->top_image();
-    
-    dir = the_rg->dir*dir;
-    Matrix3D reOrient;
-    reOrient = image->get_orientation().GetInverse();
-    
-    dir = reOrient* image->get_voxel_resize() * image->get_orientation() * dir;
-            
-    move(dir[0],dir[1],dir[2]);
-}
+
+void renderer_base::move_voxels(int x,int y,int z)
+{}
+
 
 void renderer_base::rotate_dir(int dx_in_vp_pixels, int dy_in_vp_pixels)
-{
-	Matrix3D m = create_rot_matrix_3D(dy_in_vp_pixels*pt_PI/180.0, -dx_in_vp_pixels*pt_PI/180.0, 0.0);
-	the_rg->dir = the_rg->dir*m;
-}
+{}
 
-
-std::vector<int> renderer_base::world_to_view(rendergeometry *g, int sx, int sy, const Vector3D wpos)
+std::vector<int> renderer_base::world_to_view(rendergeom_image *g, int sx, int sy, const Vector3D wpos)
 {
     std::vector<int> view;
     Vector3D toView = wpos;
@@ -190,7 +135,7 @@ std::vector<int> renderer_base::world_to_view(rendergeometry *g, int sx, int sy,
     return view;
 }
 
-std::vector<float> renderer_base::world_dir_to_view_dir(rendergeometry *rg,int sx,int sy,const Vector3D w_dir)
+std::vector<float> renderer_base::world_dir_to_view_dir(rendergeom_image *rg,int sx,int sy,const Vector3D w_dir)
 {
     std::vector<float> view;
 	int vmin = std::min (sx,sy);
@@ -208,7 +153,7 @@ std::vector<float> renderer_base::world_dir_to_view_dir(rendergeometry *rg,int s
 
 std::vector<int> renderer_base::world_to_view(int sx,int sy,const Vector3D wpos) const
 {
-    return world_to_view(the_rg,sx,sy,wpos);
+    return world_to_view((rendergeom_image*)the_rg,sx,sy,wpos);
 }
 
 std::map<std::string,string> renderer_base::resolve_values_view(int vx, int vy, int sx, int sy) const 
@@ -281,5 +226,13 @@ renderer_image_base::renderer_image_base():renderer_base()
 {
 }
 
+
 renderer_image_base::~renderer_image_base()
 {}
+/*
+rendergeom_image* renderer_image_base::get_the_rg()
+{
+	rendergeom_image *ret = (rendergeom_image*)this->the_rg;
+	return ret;
+}
+*/

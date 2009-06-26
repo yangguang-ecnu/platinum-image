@@ -514,7 +514,7 @@ FLTKuserIOpar_landmarks::FLTKuserIOpar_landmarks( const std::string name ) : FLT
 	// show landmarks in viewport 1,2,3
 	for ( int viewportID = 1; viewportID < 4; viewportID++ )
 	{
-		rendermanagement.enable_image(viewportID, landmarksID);
+		rendermanagement.enable_data(viewportID, landmarksID);
 	}
 }
 
@@ -649,12 +649,12 @@ void FLTKuserIOpar_landmarks::showCallback(Fl_Widget * callingwidget, void * thi
 	{
 		if ( (*itr)->value() )
 		{	// is checked
-			rendermanagement.enable_image( viewportID, imageID );
+			rendermanagement.enable_data( viewportID, imageID );
 			rendermanagement.center3d_and_fit( viewportID, imageID );			
 		}
 		else
 		{
-			rendermanagement.disable_image( viewportID, imageID );			
+			rendermanagement.disable_data( viewportID, imageID );			
 		}	
 		viewportID++;
 	}
@@ -1215,12 +1215,12 @@ void FLTKuserIOpar_imageshow::show_callback( Fl_Widget * callingwidget, void * t
 	{
 		if ( (*itr)->value() )
 		{	// is checked
-			rendermanagement.enable_image( viewportID, imageID );
+			rendermanagement.enable_data( viewportID, imageID );
 			rendermanagement.center3d_and_fit( viewportID, imageID );			
 		}
 		else
 		{
-			rendermanagement.disable_image( viewportID, imageID );			
+			rendermanagement.disable_data( viewportID, imageID );			
 		}	
 		viewportID++;
 	}
@@ -1228,7 +1228,7 @@ void FLTKuserIOpar_imageshow::show_callback( Fl_Widget * callingwidget, void * t
 	
 //	for ( int i = 1; i < 4; i++ )
 //	{	// show the image in viewport 1,2,3
-//		rendermanagement.enable_image( i, imageID );
+//		rendermanagement.enable_data( i, imageID );
 //		rendermanagement.center3d_and_fit( i, imageID );		
 //	}
 }

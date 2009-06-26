@@ -68,7 +68,7 @@ private:
     int rgbpixmap_size[2];
     void clear_rgbpixmap();		//fill for viewport without renderer
 
-	Matrix3D get_renderer_direction();
+//	Matrix3D get_renderer_direction();
 	void set_renderer_direction(const Matrix3D &dir);
 	void set_renderer_direction(preset_direction direction); 
 

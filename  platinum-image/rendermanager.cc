@@ -59,11 +59,11 @@ void rendermanager::render(int rendererIndex, unsigned char *rgbimage, int rgbXs
     renderers[rendererIndex]->render_position(rgbimage, rgbXsize, rgbYsize);
     }
 
-void rendermanager::render_thumbnail(unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID)
+void rendermanager::render_thumbnail(unsigned char *rgb, int rgb_sx, int rgb_sy, int dataID)
     {
     //decision: MPRs are nice for thumbnails
 
-    rendererMPR::render_thumbnail(rgb, rgb_sx, rgb_sy, image_ID);
+    rendererMPR::render_thumbnail(rgb, rgb_sx, rgb_sy, dataID);
     }
 
 void rendermanager::render_threshold (int rendererIndex, unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold)
@@ -200,10 +200,10 @@ std::vector<int> rendermanager::geometries_from_renderers ( const std::vector<in
 std::vector<int> rendermanager::geometries_by_direction ( const int geometryID, const std::vector<int> & geometryIDs )
 {
 	std::vector<int> IDs;
-	Vector3D a = get_geometry(geometryID)->get_N();
+	Vector3D a = ((rendergeom_image*)get_geometry_from_its_id(geometryID))->get_N();
 	Vector3D b;
 	for ( std::vector<int>::const_iterator itr = geometryIDs.begin(); itr != geometryIDs.end(); itr++ ){
-		b = get_geometry(*itr)->get_N();
+		b = ((rendergeom_image*)this->get_geometry_from_its_id(*itr))->get_N();
 //		cout<<"a="<<a<<endl;
 //		cout<<"b="<<b<<endl;
 		if ( (a!=b) && (a!=-b) ){
@@ -218,7 +218,7 @@ std::vector<int> rendermanager::geometries_by_direction ( const int geometryID )
 //	cout<<"hej..."<<endl;
 	std::vector<int> geometryIDs;
 	
-	for ( std::vector<rendergeometry *>::const_iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
+	for ( std::vector<rendergeometry_base *>::const_iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
 	{
 		geometryIDs.push_back( (*itr)->get_id() );
 	} 
@@ -239,14 +239,37 @@ std::vector<int> rendermanager::geometryIDs_by_image_and_direction ( const int c
 	return geometryIDs;
 }
 
-std::vector<rendergeometry *> rendermanager::geometries_by_image_and_direction ( const int combinationID )
+std::vector<int> rendermanager::rendIDs_by_image_and_direction ( const int combinationID )
+{
+	std::vector<int> geom_IDs = geometryIDs_by_image_and_direction ( combinationID );
+	std::vector<int> rIDs;
+	int my_rendererID = renderer_from_combination( combinationID );
+
+	for(int r=0;r<renderers.size();r++){
+		if( renderers[r]->get_id() != my_rendererID ){
+
+			for(int g=0;g<geom_IDs.size();g++){
+				if( renderers[r]->geometry_id() == geom_IDs[g] ){
+					rIDs.push_back( renderers[r]->get_id() );
+				}
+			}
+
+		}
+	}
+
+	return rIDs;
+}
+
+std::vector<rendergeom_image*> rendermanager::geometries_by_image_and_direction ( const int combinationID )
 {
 //	std::vector<int> geomIDs = rendermanagement.geometryIDs_by_image_and_direction(combinationID);
-	std::vector<int> geomIDs = this->geometryIDs_by_image_and_direction(combinationID); //Jk2
-	std::vector<rendergeometry *> geom;
-	for(int i=0;i<geomIDs.size();i++){
+//	std::vector<int> geomIDs = this->geometryIDs_by_image_and_direction(combinationID); //Jk2
+	std::vector<int> rendIDs = this->rendIDs_by_image_and_direction(combinationID); //Jk2
+
+	std::vector<rendergeom_image *> geom;
+	for(int i=0;i<rendIDs.size();i++){
 //		geom.push_back( rendermanagement.get_geometry(geomIDs[i]) );		
-		geom.push_back( this->get_geometry(geomIDs[i]) );		//JK2
+		geom.push_back( (rendergeom_image*)this->get_geometry(rendIDs[i]) );		//JK2
 	}
 	return geom;
 }
@@ -314,10 +337,23 @@ int rendermanager::get_geometry_id(int rendererIndex)
     return renderers[rendererIndex]->the_rg->get_id();
     }
 	
-rendergeometry * rendermanager::get_geometry ( int rendererID )
+rendergeometry_base * rendermanager::get_geometry ( int rendererID )
 {
-	return get_renderer(rendererID)->the_rg;
+	return (rendergeometry_base*)get_renderer(rendererID)->the_rg;
 }
+
+rendergeometry_base * rendermanager::get_geometry_from_its_id(int geomID)
+{
+    for(unsigned int g=0; g < geometries.size(); g++) {
+		if(geometries[g]->get_id() == geomID){
+			return geometries[g];
+		}
+	} 
+
+	return NULL;
+}
+
+
 
 void rendermanager::print_renderers()
 {
@@ -344,7 +380,7 @@ int rendermanager::create_renderer(RENDERER_TYPE rendertype)
         }
     renderers.push_back(arenderer);
 
-    geometries.push_back(new rendergeometry());
+    geometries.push_back(new rendergeom_image());
     arenderer->connect_geometry (geometries[geometries.size()-1]);
 
     combinations.push_back(new rendercombination());
@@ -376,21 +412,21 @@ void rendermanager::remove_renderer (renderer_base * r)
         }
 }
 
-void rendermanager::toggle_image(int rendererIndex, int imageID)
+void rendermanager::toggle_data(int rendererIndex, int dataID)
 {
-    renderers[rendererIndex]->the_rc->toggle_data(imageID);
+    renderers[rendererIndex]->the_rc->toggle_data(dataID);
 }
 	
-void rendermanager::enable_image( int rendererID, int imageID )
+void rendermanager::enable_data(int rendererID, int dataID)
 {
-	int rendererIndex = find_renderer_index( rendererID );
-	renderers[rendererIndex]->the_rc->enable_data( imageID );
+	int rendererIndex = find_renderer_index(rendererID);
+	renderers[rendererIndex]->the_rc->enable_data(dataID);
 }
 
-void rendermanager::disable_image( int rendererID, int imageID )
+void rendermanager::disable_data(int rendererID, int dataID)
 {
-	int rendererIndex = find_renderer_index( rendererID );
-	renderers[rendererIndex]->the_rc->disable_data( imageID );
+	int rendererIndex = find_renderer_index(rendererID);
+	renderers[rendererIndex]->the_rc->disable_data(dataID);
 }
 
 int rendermanager::image_rendered(int rendererIndex, int volID)
@@ -483,27 +519,28 @@ void rendermanager::data_vector_has_changed()
             }*/
         }
 }
+/*
 Matrix3D rendermanager::get_direction(int renderer_index)
 {
-	return renderers[renderer_index]->the_rg->dir;
+	return ((rendergeom_image*)renderers[renderer_index]->the_rg)->dir;		//JK todo--remove
 }
+*/
 
-void rendermanager::set_geometry(int renderer_index, Matrix3D * dir)
+void rendermanager::set_image_geometry(int renderer_index, Matrix3D * dir)
     {
-    renderers[renderer_index]->the_rg->dir=(*dir);
-    renderers[renderer_index]->the_rg->refresh_viewports();
+    ((rendergeom_image*)renderers[renderer_index]->the_rg)->dir=(*dir);
+    ((rendergeom_image*)renderers[renderer_index]->the_rg)->refresh_viewports();
     }
 
-void rendermanager::set_geometry(int renderer_ID,Vector3D look_at,float zoom)
+void rendermanager::set_image_geometry(int renderer_ID,Vector3D look_at,float zoom)
 {
     int index = find_renderer_index(renderer_ID);
-    
-    if( zoom > 0)
-        {renderers[index]->the_rg->zoom = zoom;}
-    
-    renderers[index]->the_rg->look_at = look_at;
-    
-    renderers[index]->the_rg->refresh_viewports();
+    rendergeom_image *r = (rendergeom_image*)renderers[index]->the_rg;
+    if(zoom>0){
+		r->zoom = zoom;
+	}
+    r->look_at = look_at;
+	r->refresh_viewports();
 }
 
 int rendermanager::get_blend_mode (int rendererIndex)
@@ -537,10 +574,12 @@ Vector3D rendermanager::center_of_image(const int imageID) const
 void rendermanager::center2d(const int rendererID, const int imageID)
 {
 	Vector3D center = center_of_image(imageID);
-	rendergeometry * where = get_geometry(rendererID);
-	center = center - (where->get_n() * (where->get_n() * (center - where->look_at)));
+	rendergeom_image * where = (rendergeom_image*)get_geometry(rendererID);
 	
-	set_geometry(rendererID, center);
+	if(where!=NULL){
+		center = center - (where->get_n() * (where->get_n() * (center - where->look_at)));
+		set_image_geometry(rendererID, center);
+	}
 }
 
 void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
@@ -551,8 +590,8 @@ void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
     int r_ind = find_renderer_index(rendererID);
 //	cout<<"X="<<renderers[r_ind]->the_rg->get_X()<<endl;
 //	cout<<"Y="<<renderers[r_ind]->the_rg->get_Y()<<endl;
-	float phys_span_x = image->get_phys_span_in_dir(renderers[r_ind]->the_rg->get_X());
-	float phys_span_y = image->get_phys_span_in_dir(renderers[r_ind]->the_rg->get_Y());
+	float phys_span_x = image->get_phys_span_in_dir(((rendergeom_image*)renderers[r_ind]->the_rg)->get_X());
+	float phys_span_y = image->get_phys_span_in_dir(((rendergeom_image*)renderers[r_ind]->the_rg)->get_Y());
 	
 	viewport *vp = viewmanagement.get_viewport(rendererID); //JK Warning rendererID and vp_ID might not be the same in the future....
 
@@ -579,7 +618,7 @@ void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
 		}
 	}
 
-	set_geometry(rendererID, center_of_image(imageID), zoom_factor); //JK2
+	set_image_geometry(rendererID, center_of_image(imageID), zoom_factor); //JK2
 }
 
 void rendermanager::center3d_and_fit( const int imageID )

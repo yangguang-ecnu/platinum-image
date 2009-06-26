@@ -383,7 +383,7 @@ public:
 	void viewport_callback(Fl_Widget *callingwidget);                               //Callback that handles events always redraws (pt_event::draw/resize)
     static void viewport_callback(Fl_Widget *callingwidget, void *thisviewport);    //FLTK callback wrapper
 
-    static void toggle_image_callback(Fl_Widget *callingwidget, void *params);
+    static void toggle_data_callback(Fl_Widget *callingwidget, void *params);
     static void set_direction_callback(Fl_Widget *callingwidget, void *params);
     static void set_blendmode_callback(Fl_Widget *callingwidget, void *params);
 	void set_direction_button_label(preset_direction direction);

@@ -49,7 +49,7 @@ class renderer_base
 protected:
     int id;
     int rc_id;	// rendercombination id
-    int rg_id;	// rendergeometry id
+    int rg_id;	// rendergeometry_base id
 	static int maxrendererID;
     
 public:
@@ -63,8 +63,8 @@ public:
 	void connect_combination(rendercombination *rc);
     int combination_id();    
 
-    rendergeometry *the_rg;                 //lookat and direction vectors for rendering
-    void connect_geometry(rendergeometry *rg);       //attach a certain geometry to this renderer
+    rendergeometry_base *the_rg;                 //lookat and direction vectors for rendering
+    void connect_geometry(rendergeometry_base *rg);       //attach a certain geometry to this renderer
 	int geometry_id() const;
 
 
@@ -80,20 +80,20 @@ public:
     
     //result is deterministic regardless of what's visible, no virtual:
     std::vector<int> world_to_view(int view_size_x,int view_size_y,const Vector3D wpos) const;
-    static std::vector<int> world_to_view(rendergeometry * g,int sx,int sy,const Vector3D wpos);
-    static std::vector<float> world_dir_to_view_dir(rendergeometry * g,int sx,int sy,const Vector3D w_dir);
+    static std::vector<int> world_to_view(rendergeom_image *rg,int sx,int sy,const Vector3D wpos);
+    static std::vector<float> world_dir_to_view_dir(rendergeom_image *rg,int sx,int sy,const Vector3D w_dir);
 
-    void look_at(float x, float y, float z);
-    void look_at(float x, float y, float z, float zoom);
+    virtual void look_at(float x, float y, float z);
+    virtual void look_at(float x, float y, float z, float zoom);
     
     //NOTE: none of the move commands update the rendered image,
     //that should be done once elsewhere
     
-    virtual void move(float pan_x, float pan_y, float pan_z);    //!move in world coordinates
+//    virtual void move(float pan_x, float pan_y, float pan_z);    //!move in world coordinates
     virtual void move_view(int vsize,int pan_x, int pan_y, int pan_z = 0, float zoom_d = 1);    //!move in view coordinates
     virtual void move_voxels(int,int,int);    //!move in voxels - which image's voxel is a question of definition  
 
-	void rotate_dir(int dx_in_vp_pixels,int dy_in_vp_pixels);
+	virtual void rotate_dir(int dx_in_vp_pixels,int dy_in_vp_pixels);
     
     virtual std::string find_typekey() const = 0; //gives name in GUI-lists 
     
@@ -131,6 +131,9 @@ public:
 //---------------------------------------------------------------------------------------------
 class renderer_image_base:public renderer_base
 {
+
+protected:
+//	virtual rendergeom_image* get_the_rg();
 
 public:
 	renderer_image_base();

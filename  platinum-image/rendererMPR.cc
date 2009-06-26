@@ -46,6 +46,7 @@ T signed_ceil(T & x){   //ceil that returns rounded absolute upwards
 
 rendererMPR::rendererMPR():renderer_image_base()
 {
+	the_rg = new rendergeom_image();
 }
 
 void rendererMPR::connect_data(int dataID)
@@ -57,9 +58,9 @@ void rendererMPR::connect_data(int dataID)
 void rendererMPR::paint_overlay(int vp_w, int vp_h_pane, bool paint_rendergeometry)
 {
 //	cout<<"rendererMPR::paint_overlay..("<<vp_w<<" "<<vp_h_pane<<") rc_id="<<the_rg->get_id()<<endl;
-	paint_slice_locators_to_overlay(vp_w, vp_h_pane, the_rg, the_rc);
+	paint_slice_locators_to_overlay(vp_w, vp_h_pane, (rendergeom_image*)the_rg, the_rc);
 	if(paint_rendergeometry){
-		paint_rendergeometry_to_overlay(vp_w, vp_h_pane, the_rg, the_rc);
+		paint_rendergeometry_to_overlay(vp_w, vp_h_pane, (rendergeom_image*)the_rg, the_rc);
 	}
 }
 
@@ -74,8 +75,8 @@ Vector3D rendererMPR::view_to_world(int vx, int vy, int sx, int sy) const
     viewCentered[2]=0;
     
     //transform to world coordinates
-    world=the_rg->view_to_world_matrix(viewmin) * viewCentered;
-    world=world+the_rg->look_at;
+    world = ((rendergeom_image*)the_rg)->view_to_world_matrix(viewmin) * viewCentered;
+	world = world + ((rendergeom_image*)this->the_rg)->look_at;
     
     return world;
 }
@@ -144,26 +145,26 @@ bool rendererMPR::supports_mode (int m)
 void rendererMPR::render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID)
 {
     rendercombination rc = rendercombination(image_ID);
-    rendergeometry rg = rendergeometry ();
+    rendergeom_image rg = rendergeom_image();
     
     render_( rgb, rgb_sx, rgb_sy,&rg,&rc,NULL);
 }
 
 void rendererMPR::render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold)
 {
-    render_( rgba, rgb_sx, rgb_sy,the_rg,the_rc,threshold);
+    render_( rgba, rgb_sx, rgb_sy,(rendergeom_image*)the_rg,the_rc,threshold);
 }
 
 void rendererMPR::render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
 {
-    render_( rgb, rgb_sx, rgb_sy,the_rg,the_rc,NULL);
+    render_( rgb, rgb_sx, rgb_sy,(rendergeom_image*)the_rg,the_rc,NULL);
 }
 
 
 
 
 //render orthogonal slices using memory-order scanline
-void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry *rg, rendercombination *rc, thresholdparvalue * threshold)
+void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_image *rg, rendercombination *rc, thresholdparvalue * threshold)
 {
     if(rc->empty()){       //*** no images: exit ***
         return;
@@ -526,7 +527,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry 
 
 
 
-void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry *rc, Vector3D point, std::vector<int> on_spot_rgb)
+void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_image *rc, Vector3D point, std::vector<int> on_spot_rgb)
 {
 
 
@@ -600,9 +601,9 @@ void rendererMPR::draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeomet
 	}
 }
 
-void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry *rg, rendercombination *rc)
+void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeom_image *rg, rendercombination *rc)
 {
-	std::vector<rendergeometry *> geometries = rendermanagement.geometries_by_image_and_direction( rc->get_id() );	// get geometries that holds at least one of the images in the input combination
+	std::vector<rendergeom_image *> geometries = rendermanagement.geometries_by_image_and_direction( rc->get_id() );	// get geometries that holds at least one of the images in the input combination
 // and have a different direction than the input geometry (i.e. not the same direction nor the opposite direction)
 	
 	renderer_base * renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(rg->get_id()) );
@@ -615,7 +616,7 @@ void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeome
 	
 	Vector3D a = rg->get_N();
 
-	for ( std::vector<rendergeometry *>::const_iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
+	for ( std::vector<rendergeom_image *>::const_iterator itr = geometries.begin(); itr != geometries.end(); itr++ )
 	{			
 		Vector3D b = (*itr)->get_N();
 		Vector3D c = CrossProduct( a, b);
@@ -678,16 +679,18 @@ void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeome
 	}
 }
 
-void rendererMPR::paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rendergeometry *rg, rendercombination *rc)
+void rendererMPR::paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc)
 {
 //	cout<<"paint_slice_locators_to_overlay("<<vp_w<<" "<<vp_h_pane<<"...)"<<endl;
 
-	std::vector<rendergeometry*> geoms = rendermanagement.geometries_by_image_and_direction(rc->get_id());	// get geometries that holds at least one of the images in the input combination
+	std::vector<rendergeom_image*> geoms = rendermanagement.geometries_by_image_and_direction(rc->get_id());	// get geometries that holds at least one of the images in the input combination
 
 //	cout<<"geoms.size()="<<geoms.size()<<endl;
 
 	if(geoms.size()>0){
-		renderer_base *renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(rc->get_id()) );	//because class/function is static
+//		renderer_base *renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_geometry(rc->get_id()) );	//because class/function is static
+		renderer_base *renderer = rendermanagement.get_renderer( rendermanagement.renderer_from_combination(rc->get_id()) );	//because class/function is static
+		
 
 		int smin = std::min(vp_w, vp_h_pane);
 		Vector3D vmin = renderer->view_to_world(smin, 0, vp_w, vp_h_pane) - renderer->view_to_world(0, 0, vp_w, vp_h_pane);
@@ -714,7 +717,7 @@ void rendererMPR::paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rende
 	}//if
 }
 
-void rendererMPR::paint_rendergeometry_to_overlay(int vp_w, int vp_h_pane, rendergeometry *rg, rendercombination *rc)
+void rendererMPR::paint_rendergeometry_to_overlay(int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc)
 {
 	if(rc->top_image()!=NULL){
 		fl_font(FL_COURIER, 10);
@@ -854,5 +857,78 @@ void rendererMPR::draw_line(uchar *pixels, int sx, int sy, int a, int b, int c, 
 		}
 	}
 }
+/*
+rendergeom_image* rendererMPR::get_the_rg()
+{
+	rendergeom_image *ret = (rendergeom_image*)this->the_rg;
+	return ret;
+}
+*/
+void rendererMPR::move_view(int vsize, int pan_x, int pan_y, int pan_z, float zoom_d)
+{
+    //also relative to view orientation, zoom is a multiple of previous zoom value
+    
+    Vector3D pan;
+    pan.Fill(0);
+//    pan[0]=pan_x*renderer_base::display_scale/(float)(vsize * the_rg->zoom);
+//    pan[1]=pan_y*renderer_base::display_scale/(float)(vsize * the_rg->zoom);
+    pan[0]=pan_x*ZOOM_CONSTANT/(float)(vsize * ((rendergeom_image*)the_rg)->zoom);
+    pan[1]=pan_y*ZOOM_CONSTANT/(float)(vsize * ((rendergeom_image*)the_rg)->zoom);
+    pan[2]=pan_z;
+    
+    ((rendergeom_image*)the_rg)->zoom*=zoom_d;
+    ((rendergeom_image*)the_rg)->look_at += ((rendergeom_image*)the_rg)->dir*pan;
+}
 
 
+void rendererMPR::rotate_dir(int dx_in_vp_pixels, int dy_in_vp_pixels)
+{
+	Matrix3D m = create_rot_matrix_3D(dy_in_vp_pixels*pt_PI/180.0, -dx_in_vp_pixels*pt_PI/180.0, 0.0);
+//	get_the_rg()->dir = get_the_rg->dir*m;
+	((rendergeom_image*)this->the_rg)->dir = ((rendergeom_image*)this->the_rg)->dir*m;
+}
+
+void rendererMPR::look_at(float x, float y, float z)
+{
+    ((rendergeom_image*)the_rg)->look_at[0]=x;
+    ((rendergeom_image*)the_rg)->look_at[1]=y;
+    ((rendergeom_image*)the_rg)->look_at[2]=z;
+}
+
+void rendererMPR::look_at(float x, float y, float z, float zoom)
+{
+	look_at(x,y,z);
+	((rendergeom_image*)the_rg)->zoom = zoom;
+}
+
+void rendererMPR::move( float pan_x, float pan_y, float pan_z)
+{
+    Vector3D pan = create_Vector3D(pan_x, pan_y, pan_z);
+//    pan.Fill(0);
+  //  pan[0]=pan_x;
+    //pan[1]=pan_y;
+   // pan[2]=pan_z;
+    
+    ((rendergeom_image*)the_rg)->look_at+=pan;
+  
+}
+
+void rendererMPR::move_voxels(int x,int y,int z)
+{
+    Vector3D dir;
+    dir[0] = x; dir[1] = y; dir[2] = z;
+    
+    //combinations of images are rendered (which may have varying voxel sizes, 
+    //positions and orientation), here it is defined that
+    //move_voxels will move by the voxels of the topmost image
+    
+    image_base* image = the_rc->top_image();
+    
+    dir = ((rendergeom_image*)the_rg)->dir*dir;
+    Matrix3D reOrient;
+    reOrient = image->get_orientation().GetInverse();
+    
+    dir = reOrient* image->get_voxel_resize() * image->get_orientation() * dir;
+            
+    move(dir[0],dir[1],dir[2]);
+}

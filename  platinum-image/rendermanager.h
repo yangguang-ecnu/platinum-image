@@ -45,9 +45,9 @@
 class rendermanager
     {
     private:
-        std::vector<renderer_base*>		renderers;
-        std::vector<rendercombination*> combinations;
-        std::vector<rendergeometry*>	geometries;
+        std::vector<renderer_base*>			renderers;
+        std::vector<rendercombination*>		combinations;
+        std::vector<rendergeometry_base*>	geometries;
         
     public:
         rendermanager ();
@@ -58,71 +58,64 @@ class rendermanager
         
         void print_renderers();
         int create_renderer(RENDERER_TYPE rendertype);
-        void remove_renderer(renderer_base * r);
+        void remove_renderer(renderer_base *r);
         void remove_renderer(int ID);
         int find_renderer_index(int uniqueID);
         int find_renderer_id(int index);
-        renderer_base * get_renderer(int ID);
-        void connect_data_renderer(int rendererID, int data);
+        renderer_base* get_renderer(int ID);
+        void connect_data_renderer(int rendererID, int dataID);
 
 		void data_vector_has_changed();
         void data_has_changed(int ID);
 
-        void move(int rendererIndex, float panX, float panY, float panZ=0, float scale=1);//alter rendergeometry (pan,zoom)
+//        void move(int rendererIndex, float panX, float panY, float panZ=0, float scale=1);//alter rendergeometry (pan,zoom)
         void render(int rendererIndex, unsigned char *rgbimage, int rgbXsize, int rgbYsize);
-        void render_thumbnail(unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID);
+        void render_thumbnail(unsigned char *rgb, int rgb_sx, int rgb_sy, int dataID);
         void render_threshold(int rendererIndex, unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold);
        
 
-        void toggle_image(int rendererIndex, int imageID);   //turn image on or off in a combination, triggered by menu selection
-		void enable_image(int rendererID, int imageID );	// turn image (data) on or leave it on
-		void disable_image(int rendererID, int imageID );	// turn image (data) off or leave it off
+        void toggle_data(int rendererIndex, int dataID);   //turn image on or off in a combination, triggered by menu selection
+		void enable_data(int rendererID, int dataID);	// turn image (data) on or leave it on
+		void disable_data(int rendererID, int dataID);	// turn image (data) off or leave it off
 		
         //int get_renderer_type(int rendererIndex);
-        int get_blend_mode (int rendererIndex);
+        int get_blend_mode(int rendererIndex);
         bool renderer_supports_mode(int rendererIndex, int m);
         
-        factoryIdType get_renderer_type (int ID);
+        factoryIdType get_renderer_type(int ID);
         
-        int get_combination_id(int rendererIndex);              //get id of combination object associated with
-                                                                //renderer rendererIndex
+        int get_combination_id(int rendererIndex);              //get id of combination object associated with renderer rendererIndex
+        rendercombination* get_combination(int ID);
 
-        rendercombination * get_combination (int ID);
+        int get_geometry_id(int rendererIndex);                 //get id of geometry object associated with renderer rendererIndex
+		rendergeometry_base* get_geometry(int rendererID);			// get rendergeometry from renderer id
+		rendergeometry_base* get_geometry_from_its_id(int geomID);
 
 		image_base* get_top_image_from_renderer(int r_id);
 
-        int get_geometry_id(int rendererIndex);                 //get id of geometry object associated with
-                                                                //renderer rendererIndex
-		rendergeometry * get_geometry (int rendererID);			// get rendergeometry from renderer id
-		
 																
-        void combination_update_callback (int c_id);
-        std::vector<int> combinations_from_data (int dataID);    //return any combinations containing the data object with dataID
-
-		std::vector<int> renderers_from_data ( int dataID );	// return any renderer connected to this data id
-		
-		std::vector<int> renderers_from_data ( const std::vector<int> & dataIDs);	// return a set of renderers. each renderer in the returned set
+        void combination_update_callback(int c_id);
+        std::vector<int> combinations_from_data(int dataID);    //return any combinations containing the data object with dataID
+		std::vector<int> renderers_from_data(int dataID);	// return any renderer connected to this data id
+	
+		std::vector<int> renderers_from_data(const std::vector<int> & dataIDs);	// return a set of renderers. each renderer in the returned set
 																					// holds at least one of the items in the data set
 
 		int renderer_from_combination(const int combination_id) const; // return a renderer id from a combination id
-		
 		std::vector<int> renderers_from_combinations(const std::vector<int> & combination_ids);	// return a set of renderer ids from a set of combination ids
 		
 		int renderer_from_geometry(const int geometry_id) const;	 // return a renderer id from a geometry id
-		
 		std::vector<int> geometries_from_renderers ( const std::vector<int> & renderer_ids );	// return a set of geometries from a set of renderers
-		
-		
-		std::vector<int> geometries_by_direction ( const int geometryID, const std::vector<int> & geometryIDs );	// return geometries from the given set that have a different direction than the input geometry
-																													// i.e. not the same nor the opposite direction
-
+	
+		std::vector<int> geometries_by_direction ( const int geometryID, const std::vector<int> & geometryIDs );	
+		// return geometries from the given set that have a different direction than the input geometry i.e. not the same nor the opposite direction
 		std::vector<int> geometries_by_direction ( const int geometryID );	// return geometries that has a different direction than the input geometry
 																			// i.e not the same nor the opposite direction
-		
 		std::vector<int> geometryIDs_by_image_and_direction ( const int combinationID );	// return geometries that holds at least one of the images in the input combination
 																						// and have a different direction than the input geometry (i.e. not the same nor the opposite direction)
-		std::vector<rendergeometry *> geometries_by_image_and_direction ( const int combinationID );	// return geometries that holds at least one of the images in the input combination
+		std::vector<rendergeom_image*> geometries_by_image_and_direction ( const int combinationID );	// return geometries that holds at least one of the images in the input combination
 																						// and have a different direction than the input geometry (i.e. not the same nor the opposite direction)
+		std::vector<int> rendIDs_by_image_and_direction ( const int combinationID );	// return geometries that holds at least one of the images in the input combination
 																						
 		std::vector<int> geometries_by_image ( const int combinationID );	// return geometries that holds at least one of the images in the input combination
 		
@@ -142,9 +135,9 @@ class rendermanager
 //        std::map<std::string,float> get_values(int rendererIndex, int px, int py,int sx, int sy);
         Vector3D get_location(int rendererIndex, int imageID, int px, int py, int sx, int sy);
 
-        Matrix3D get_direction(int renderer_index);
-        void set_geometry(int renderer_index, Matrix3D * dir);
-        void set_geometry(int renderer_ID, Vector3D look_at,float zoom = 0);
+//        Matrix3D get_direction(int renderer_index);
+        void set_image_geometry(int renderer_index, Matrix3D * dir);
+        void set_image_geometry(int renderer_ID, Vector3D look_at,float zoom = 0);
 
         void set_blendmode(int rend_index,blendmode mode);   //sets combination-wide blend mode, if blendmode is later defined
                                                              //for each image in a combination, this should set all of them
