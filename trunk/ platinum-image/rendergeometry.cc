@@ -37,7 +37,7 @@ int rendergeometry_base::get_id()
 
 //-----------------------------------------------------
 
-rendergeometry::rendergeometry():rendergeometry_base()
+rendergeom_image::rendergeom_image():rendergeometry_base()
 {
 //	id=new_rg_ID++;
     look_at.Fill(0);	    //initialize look at to center
@@ -45,24 +45,24 @@ rendergeometry::rendergeometry():rendergeometry_base()
     zoom=1;					//intialize zoom to 100%
 }
 /*
-int rendergeometry::get_id()
+int rendergeom_image::get_id()
 {
     return id;
 }
 */
 
-Matrix3D rendergeometry::view_to_world_matrix(int viewminsize)
+Matrix3D rendergeom_image::view_to_world_matrix(int viewminsize)
 {
 //    return dir*renderer_base::display_scale/(viewminsize*zoom);
     return dir*ZOOM_CONSTANT/(viewminsize*zoom);
 }
 
-void rendergeometry::refresh_viewports()
+void rendergeom_image::refresh_viewports()
 {
     rendermanagement.geometry_update_callback(this->id);
 }
 	
-float rendergeometry::distance_to_viewing_plane(Vector3D point)
+float rendergeom_image::distance_to_viewing_plane(Vector3D point)
 {
 	Vector3D v;
 	v = point - look_at;
@@ -71,43 +71,43 @@ float rendergeometry::distance_to_viewing_plane(Vector3D point)
 	return distance;
 }
 
-Vector3D rendergeometry::get_N()
+Vector3D rendergeom_image::get_N()
 {
 	Vector3D direction = create_Vector3D(0, 0, 1);
 	return dir * direction;
 }
 
-Vector3D rendergeometry::get_n()
+Vector3D rendergeom_image::get_n()
 {
 	Vector3D N = get_N();
 	return N / N.GetNorm();
 }
 
-Vector3D rendergeometry::get_X()
+Vector3D rendergeom_image::get_X()
 {
 	return dir * create_Vector3D(1, 0, 0);
 }
 
-Vector3D rendergeometry::get_Y()
+Vector3D rendergeom_image::get_Y()
 {
 	return dir * create_Vector3D(0, 1, 0);
 }
 
-line3D rendergeometry::get_physical_line_of_intersection(rendergeometry *rg2)
+line3D rendergeom_image::get_physical_line_of_intersection(rendergeom_image *rg2)
 {
 	plane3D p = plane3D(this->look_at,this->get_n());
 	plane3D p2 = plane3D(rg2->look_at,rg2->get_n());
 	return p.get_line_of_intersection(p2);
 }
 
-line2D rendergeometry::get_physical_line_of_intersection_projected(rendergeometry *rg2)
+line2D rendergeom_image::get_physical_line_of_intersection_projected(rendergeom_image *rg2)
 {
 	line3D l = get_physical_line_of_intersection(rg2);
 	plane3D p = plane3D(this->look_at,this->get_n());
 	return p.get_projected_line(l);
 }
 
-Matrix3D rendergeometry::get_scan_line_slop_matrix(image_base *the_image_pointer, float rgb_min_norm_div_by_zoom_constant)
+Matrix3D rendergeom_image::get_scan_line_slop_matrix(image_base *the_image_pointer, float rgb_min_norm_div_by_zoom_constant)
 {
 	Matrix3D orientation_inv = the_image_pointer->get_orientation().GetInverse();
 	Matrix3D inv_size = the_image_pointer->get_voxel_resize().GetInverse();

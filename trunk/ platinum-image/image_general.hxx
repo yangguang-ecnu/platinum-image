@@ -2520,7 +2520,7 @@ void image_general<ELEMTYPE, IMAGEDIM>::set_parameters(itk::SmartPointer< itk::O
 */
 
 template <class ELEMTYPE, int IMAGEDIM>
-void image_general<ELEMTYPE, IMAGEDIM>::set_geometry(float ox,float oy,float oz,float dx,float dy,float dz,float fi_x,float fi_y,float fi_z)
+void image_general<ELEMTYPE, IMAGEDIM>::set_image_geometry(float ox,float oy,float oz,float dx,float dy,float dz,float fi_x,float fi_y,float fi_z)
 {
 	this->origin[0]=ox;
 	this->origin[1]=oy;

@@ -582,7 +582,7 @@ void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::v
 	{ 
 		Vector3D tmp;
 		
-		rendergeometry * geometry = rendermanagement.get_geometry ( *itr );
+		rendergeom_image* geometry = (rendergeom_image*)rendermanagement.get_geometry ( *itr );
 
 		const int viewport_id = viewmanagement.viewport_from_renderer(*itr);
 		viewport * vp = viewmanagement.get_viewport(viewport_id);
@@ -612,7 +612,7 @@ void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::v
 		}
 		
 		
-		rendermanagement.set_geometry(*itr, tmp); 
+		rendermanagement.set_image_geometry(*itr, tmp); 
 	}
 
 }

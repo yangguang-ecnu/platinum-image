@@ -47,14 +47,14 @@ class rendergeometry_base
 
 //-----------------------------------------------------
 
-class rendergeometry : public rendergeometry_base
+class rendergeom_image : public rendergeometry_base
 {
     private:
 //        int id;
 //        static int new_rg_ID;                   //ID counter for new geometry objects
 
 	public:
-        rendergeometry();
+        rendergeom_image();
 
 //		int get_id();
 
@@ -78,8 +78,8 @@ class rendergeometry : public rendergeometry_base
 		Vector3D get_X();	// return global vector for viewport x-dir
 		Vector3D get_Y();	// return global vector for viewport y-dir
 
-		line3D get_physical_line_of_intersection(rendergeometry *rg2);
-		line2D get_physical_line_of_intersection_projected(rendergeometry *rg2);
+		line3D get_physical_line_of_intersection(rendergeom_image *rg2);
+		line2D get_physical_line_of_intersection_projected(rendergeom_image *rg2);
 
 		Matrix3D get_scan_line_slop_matrix(image_base *the_image_pointer, float rgb_min_norm_div_by_zoom_constant);
 	};

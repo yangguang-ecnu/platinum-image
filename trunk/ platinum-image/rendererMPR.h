@@ -42,18 +42,20 @@ class rendererMPR : public renderer_image_base
     {
     private:
 
-        static void render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry *rg, rendercombination *rc,thresholdparvalue * threshold);
+        static void render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_image *rg, rendercombination *rc,thresholdparvalue * threshold);
 
-		static void draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeometry *rg, Vector3D point, std::vector<int>);
+		static void draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_image *rg, Vector3D point, std::vector<int>);
 		
-		static void draw_slice_locators(uchar *pixels, int sx, int sy, rendergeometry *rg, rendercombination *rc);
-		static void paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rendergeometry *rg, rendercombination *rc);
-		static void paint_rendergeometry_to_overlay(int vp_w, int vp_h_pane, rendergeometry *rg, rendercombination *rc);
+		static void draw_slice_locators(uchar *pixels, int sx, int sy, rendergeom_image *rg, rendercombination *rc);
+		static void paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc);
+		static void paint_rendergeometry_to_overlay(int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc);
 		static void paint_overlay_line(int vp_w, int vp_h_pane, line2D local_vp_line);
 		
 		static int sgn(long a);
 		
 		static void draw_line(uchar *pixels, int sx, int sy, int a, int b, int c, int d, std::vector<int> color);
+	
+//		rendergeom_image* get_the_rg();
 
     public:
 		rendererMPR();
@@ -61,7 +63,7 @@ class rendererMPR : public renderer_image_base
         void connect_data(int dataID);	//add image to rendering combination
         int renderer_type(); //return RENDERER_MPR
 
-        static void render_thumbnail (unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID);
+        static void render_thumbnail(unsigned char *rgb, int rgb_sx, int rgb_sy, int image_ID);
         void render_threshold (unsigned char *rgba, int rgb_sx, int rgb_sy, thresholdparvalue * threshold);
         void render_position(unsigned char *rgb, int rgb_sx, int rgb_sy);
 
@@ -77,6 +79,13 @@ class rendererMPR : public renderer_image_base
             {return typekey();}
 
 		void paint_overlay(int vp_w, int vp_h_pane, bool paint_rendergeometry);
+
+		void move_view(int vsize, int pan_x, int pan_y, int pan_z, float zoom_d);
+		void move(float pan_x, float pan_y, float pan_z);
+		void move_voxels(int x,int y,int z);
+	    void look_at(float x, float y, float z);
+		void look_at(float x, float y, float z, float zoom);
+		virtual void rotate_dir(int dx_in_vp_pixels,int dy_in_vp_pixels);
 
         };
 

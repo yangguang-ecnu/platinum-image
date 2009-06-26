@@ -118,18 +118,18 @@ void viewport::clear_rgbpixmap()
         rgbpixmap[p] = rgbpixmap[p + 1] = rgbpixmap[p + 2] = 0;
         }
 } 
-
+/*
 Matrix3D viewport::get_renderer_direction()
 {
 	return rendermanagement.get_direction(rendererIndex);
 }
-
+*/
 
 void viewport::set_renderer_direction( const Matrix3D & dir )
 {
     Matrix3D * dir_p = new Matrix3D(dir);
 	
-    rendermanagement.set_geometry( rendererIndex, dir_p );
+    rendermanagement.set_image_geometry( rendererIndex, dir_p );
 //    cout<<"vp_id="<<this->ID<<" dir_p="<<dir_p<<endl;
     delete dir_p;
 	
