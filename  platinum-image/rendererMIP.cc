@@ -39,7 +39,7 @@ void rendererMIP::connect_data(int dataID)
     the_rc->add_data(dataID);
 }
 
-void rendererMIP::paint_overlay(int vp_w, int vp_h_pane, bool paint_rendergeometry)
+void rendererMIP::paint_overlay(int h_offset, int vp_w, int vp_h_pane, bool paint_rendergeometry)
 {
 //	cout<<"rendererMPR::paint_overlay..("<<vp_w<<" "<<vp_h_pane<<") rc_id="<<the_rg->get_id()<<endl;
 //	paint_slice_locators_to_overlay(vp_w, vp_h_pane, the_rg, the_rc);

@@ -36,7 +36,7 @@ class rendererMIP  : public renderer_image_base
 
 	    virtual std::string find_typekey() const; //gives name in GUI-lists 
 		virtual void connect_data(int dataID);
-		virtual void paint_overlay(int vp_w, int vp_h_pane, bool paint_rendergeometry);
+		virtual void paint_overlay(int h_offset, int vp_w, int vp_h_pane, bool paint_rendergeometry);
 
 };
 

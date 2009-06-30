@@ -188,7 +188,7 @@ FLTK_event::FLTK_event(int FL_event, FLTK_Event_pane *fp):pt_event()
             state_ = begin;
             
             mouseStart[0] = Fl::event_x();
-            mouseStart[1] = Fl::event_y();
+            mouseStart[1] = Fl::event_y()-20; //compensate or height of buttons in "button_pack2" in "FLTK_Pt_pane"
             break;
 
         case FL_RELEASE:
@@ -201,7 +201,7 @@ FLTK_event::FLTK_event(int FL_event, FLTK_Event_pane *fp):pt_event()
             state_ = iterate;
             
             mouseStart[0] = Fl::event_x();
-            mouseStart[1] = Fl::event_y();
+            mouseStart[1] = Fl::event_y()-20; //compensate or height of buttons in "button_pack2" in "FLTK_Pt_pane"
             break;
 
         case FL_ENTER:
@@ -245,7 +245,7 @@ FLTK_event::FLTK_event(int FL_event, FLTK_Event_pane *fp):pt_event()
         }
 
     mousePos[0]=Fl::event_x();
-    mousePos[1]=Fl::event_y();
+    mousePos[1]=Fl::event_y()-20; //compensate or height of buttons in "button_pack2" in "FLTK_Pt_pane"
     wheelDelta = Fl::event_dy();
     }
 

@@ -72,14 +72,14 @@ void rendermanager::render_threshold (int rendererIndex, unsigned char *rgba, in
     }
 
 int rendermanager::find_renderer_index(int uniqueID)
-    {
-    for (unsigned int i=0; i < renderers.size(); i++)
-        {
-        if (*renderers[i]==uniqueID) { return i;
-            }
-        }
-    return -1; // not found
-    }
+{
+    for(unsigned int i=0; i<renderers.size(); i++){
+		if(renderers[i]->get_id() == uniqueID){
+            return i;
+		}
+	}
+	return -1; // not found
+}
 
 int rendermanager::find_renderer_id (int index)
 {
