@@ -281,7 +281,7 @@ viewport_event::viewport_event (pt_event_type t, FLTK_Event_pane *fp):FLTK_event
     state_ = idle;
 }
 
-FLTK_Event_pane* viewport_event::get_FLTK_viewport()
+FLTK_Event_pane* viewport_event::get_FLTK_Event_pane()
 {
     return dynamic_cast<FLTK_Event_pane*> (myWidget);
 }
@@ -289,7 +289,7 @@ FLTK_Event_pane* viewport_event::get_FLTK_viewport()
 void viewport_event::resize_point (int &x,int &y)
 {
     int oldSize [2];
-    FLTK_Event_pane *fp = get_FLTK_viewport();
+    FLTK_Event_pane *fp = get_FLTK_Event_pane();
     
     oldSize[0] = fp->w(); oldSize[1] = fp->h();
     

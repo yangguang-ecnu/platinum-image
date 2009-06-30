@@ -92,4 +92,14 @@ class rendergeom_MIP : public rendergeom_image
 
 };
 
+class rendergeom_curve : public rendergeometry_base
+{
+	public:
+        rendergeom_curve();
+		float x_min;
+		float x_max;
+		float y_min;
+		float y_max;
+};
+
 #endif
