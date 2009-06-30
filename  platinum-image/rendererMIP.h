@@ -41,17 +41,5 @@ class rendererMIP  : public renderer_image_base
 };
 
 
-/*
-class rendererMIP : public rendererVTK
-    {
-public:
-        rendererMIP();
-        static const std::string typekey ()
-            {return "MIP renderer (VTK)";}
-
-        virtual std::string find_typekey() const
-            {return typekey();}
-    };
-*/
 
 #endif

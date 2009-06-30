@@ -80,7 +80,7 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height, VI
     const int buttonheight=20;
     const int buttonwidth=70;
    
-    update_viewsize(width, height - buttonheight);
+    update_viewsize(width, height - 2*buttonheight);
     
 	the_widget = new FLTKviewport(xpos,ypos,width,height,this,buttonheight,buttonwidth); //The FLTKviewport can access the VIEWPORT_TYPE using the pointer to this viewport
 
@@ -235,8 +235,6 @@ void viewport::set_renderer_direction( preset_direction direction )
     }
 	
 	set_renderer_direction( dir );
-
-//	directionmenu_button->label( preset_direction_labels[direction] );
 	the_widget->set_direction_button_label(direction);
 }
 
@@ -396,7 +394,7 @@ void viewport::refresh()
             //our renderer has been deleted
             rendererID=NO_RENDERER_ID;
             clear_rgbpixmap();
-            //viewport_buttons->deactivate();
+            //button_pack_top->deactivate();
             }
         else
             {
@@ -430,21 +428,20 @@ void viewport::paint_overlay()
 //	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h());
 //	cout<<"***h()="<<h_pane()<<" id="<<this->get_id()<<endl;
 
-	//here the height of the pane needs to be used since the height of the "viewport" includes the buttons...
-	rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h_pane(), paint_rendergeometry); //h_pane is needed to compensate for button height... 
+	if(vp_type == PT_MPR){	
+		//here the height of the pane needs to be used since the height of the "viewport" includes the buttons...
+		rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h_pane(), paint_rendergeometry); //h_pane is needed to compensate for button height... 
 
-	fl_color(FL_GRAY);
-	fl_rect(0, 0, w(), h()); //SO - framing the viewports 888
-	
+		fl_color(FL_GRAY);
+		fl_rect(0, 0, w(), h()); //SO - framing the viewports 888
+		
 
-	if(ROI_rectangle_x >-1 ){
-		fl_color(FL_RED);
-		//fl_line_style(FL_DOT, 2, 0); //fl_line_style(int style, int width=0, char* dashes=0)
-		fl_rect(ROI_rectangle_x,ROI_rectangle_y,ROI_rectangle_w,ROI_rectangle_h);
-		//fl_line_style(0); //reset line style
-	
-	
-
+		if(ROI_rectangle_x >-1 ){
+			fl_color(FL_RED);
+			//fl_line_style(FL_DOT, 2, 0); //fl_line_style(int style, int width=0, char* dashes=0)
+			fl_rect(ROI_rectangle_x,ROI_rectangle_y,ROI_rectangle_w,ROI_rectangle_h);
+			//fl_line_style(0); //reset line style
+		}
 	}
 }
 
@@ -457,7 +454,7 @@ threshold_overlay * viewport::get_threshold_overlay (thresholdparvalue * thresho
     if (busyTool == NULL)
         {
 //        viewport_event e = viewport_event(0,pane_widget);
-		viewport_event e = viewport_event(0, (FLTK_Pt_pane*)the_widget->pane_widget);
+		viewport_event e = viewport_event(0, (FLTK_Event_pane*)the_widget->pane_widget);
         busyTool = utool = new histo2D_tool (e,threshold_par,this, rendermanagement.get_renderer(rendererID));
         }
     

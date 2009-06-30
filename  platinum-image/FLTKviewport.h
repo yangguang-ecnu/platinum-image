@@ -174,6 +174,7 @@ class FLTKpane : public Fl_Overlay_Window //JK2
 	public:
 	    FLTKpane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
 	    FLTKpane(int X,int Y,int W,int H);  //constructor
+		virtual int h_pane()=0;
 		void needs_rerendering();			//passes this on to the "viewport_parent"...
 	    virtual void resize_content(int w,int h);
 		static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
@@ -205,18 +206,11 @@ class FLTK_VTK_pane : public FLTKpane
 
 
 
-
-
-
-
-
-
-
-
 	public:
 	    FLTK_VTK_pane();  //JK2 - Default constructor, needed for the listedfactory "Create()" function...
 	    FLTK_VTK_pane(int X,int Y,int W,int H);  //constructor
 	    ~FLTK_VTK_pane();
+		virtual int h_pane();
 	    void resize_content(int w,int h);
 		void draw_overlay();
 		int handle(int e);
@@ -284,12 +278,25 @@ class FLTKpane2 : public FLTKpane
 
 //---------------------------------------------
 //---------------------------------------------
-class FLTK_Event_pane : public Fl_Widget
+class FLTK_Event_pane : public Fl_Widget		//This class catches events and passes them on to "viewport" and draws the "rgbpixmap"
 {
+    friend class FLTKviewport;
+    friend class FLTK_Pt_pane;
+	friend class threshold_overlay;
+
+	private:
+	    int callback_action;    //which action to perform during click or drag processed by callback
+        viewport_event callback_event;
+		void do_callback(callbackAction action = CB_ACTION_NONE);  //do callback with specified action
+
 	public:
 		FLTK_Event_pane(int X,int Y,int W,int H);  //constructor
 		int handle(int event);
+		void resize(int x, int y, int w, int h);
 		void draw();                //FLTK draw call - called when FLTK wants the viewport updated
+	    void draw(unsigned char *rgbimage); //JK
+		void needs_rerendering();			//passes this on to the "viewport_parent"...
+
 };
 
 //---------------------------------------------
@@ -300,20 +307,42 @@ class FLTK_Pt_pane : public FLTKpane
     friend class viewport;
 	friend class FLTKviewport;
     friend class FLTK_Event_pane; //allows acces to e.g. callback_event
-	friend class threshold_overlay;
+//	friend class threshold_overlay;
 	//friend class viewporttool;
 	friend class histo2D_tool;
+
+	private:
+		Fl_Pack			*pane_buttons;
+		Fl_Menu_Button	*directionmenu_button;
+//		void initiate_buttons();
+
+ //       void draw();                //FLTK draw call - called when FLTK wants the viewport updated
+
+//	    void draw_feedback();       //draws the cursor
+	   
+        std::string feedback_string;      //info (coordinates and such)
+		void do_callback(callbackAction action = CB_ACTION_NONE);  //do callback with specified action
+	    //Variables used by callback function to process events
+        int mouse_pos[2];
+	    int drag_dx;
+	    int drag_dy;
+	    int wheel_y;            //mouse wheel rotation
+	    int callback_action;    //which action to perform during click or drag processed by callback
+
+	protected:
+//	    void resize_overlay(int new_x,int new_y,int new_w,int new_h);
 
 	public:
 	    FLTK_Pt_pane();    //JK2 - Default constructor, needed for the listedfactory "Create()" function...
 	    FLTK_Pt_pane(int X,int Y,int W,int H);  //constructor
         ~FLTK_Pt_pane();
+		int h_pane();
+
 		void draw_overlay();
-	    void draw(unsigned char *rgbimage); //JK
+//	    void draw(unsigned char *rgbimage); //JK
 											//our "active" draw method - will redraw directly whenever it is called
                                             //this method draws the argument rgbimage AND
                                             //feedback (coordinates, cursor)
-	    void resize(int new_x,int new_y,int new_w,int new_h);
 //	    int handle(int event);
 	    void resize_content(int w,int h);
 
@@ -321,25 +350,8 @@ class FLTK_Pt_pane : public FLTKpane
         static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
             {return "undef";}
 
-  
-	private:
 		FLTK_Event_pane *event_pane; //used to catch events in the viewport...
-
-        void draw();                //FLTK draw call - called when FLTK wants the viewport updated
-
-//	    void draw_feedback();       //draws the cursor
-	   
-        std::string feedback_string;      //info (coordinates and such)
-		void do_callback (callbackAction action = CB_ACTION_NONE);  //do callback with specified action
-	    //Variables used by callback function to process events
-        int mouse_pos[2];
-	    int drag_dx;
-	    int drag_dy;
-	    int wheel_y;            //mouse wheel rotation
-	    int callback_action;    //which action to perform during click or drag processed by callback
-        viewport_event callback_event;
-	    int resize_w;
-	    int resize_h;
+  
 };
 
 
@@ -350,16 +362,17 @@ class FLTKviewport : public Fl_Window   //handles the FLTK part of the viewport 
 {
 	friend class FLTKpane;
 	friend class FLTK_Pt_pane;
+	friend class FLTK_Event_pane;
 	friend class FLTK_VTK_pane;
 	friend class FLTK_VTK_MIP_pane;
 
 private:
 	viewport *viewport_parent;
 
-    Fl_Pack			*viewport_buttons;		//group containing per-viewport widgets such as the image menu
+    Fl_Pack			*button_pack_top;		//group containing per-viewport widgets such as the image menu
     Fl_Menu_Button	*datamenu_button;   
-    Fl_Menu_Button	*directionmenu_button;
     Fl_Menu_Button	*renderermenu_button;
+    Fl_Menu_Button	*directionmenu_button;
     Fl_Menu_Button	*blendmenu_button;
 
     void update_data_menu();   //set rendering status for images from rendercombination for this viewport's renderer

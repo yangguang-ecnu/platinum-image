@@ -32,7 +32,7 @@
 #include <vector>
 #include <FL/Fl_Widget.H>
 
-class FLTK_Pt_pane;
+class FLTK_Event_pane;
 
 class pt_event //! this class should not contain anything FLTK
 {
@@ -141,8 +141,8 @@ private:
     int mousePosGlobal[2];	// only used as a tmp variable ...
 protected:
     Fl_Widget * myWidget;
-    FLTK_event(int FL_event, FLTK_Pt_pane *fp); //! constructor translates the content of the FLTK event into a neutral format that is stored in the base class
-    FLTK_event(FLTK_Pt_pane *fp);
+    FLTK_event(int FL_event, FLTK_Event_pane *fp); //! constructor translates the content of the FLTK event into a neutral format that is stored in the base class
+    FLTK_event(FLTK_Event_pane *fp);
 public:
 //	std::vector<int> mouse_pos_local();
 //	const int * mouse_pos_local();
@@ -154,11 +154,11 @@ public:
 class viewport_event : public FLTK_event
 {
 public:
-    viewport_event(pt_event_type, FLTK_Pt_pane *fp); //constructor for events not from FLTK event no. (e.g. draw)
-    viewport_event(int FL_event, FLTK_Pt_pane *fp);
+    viewport_event(pt_event_type, FLTK_Event_pane *fp); //constructor for events not from FLTK event no. (e.g. draw)
+    viewport_event(int FL_event, FLTK_Event_pane *fp);
     viewport_event() : FLTK_event (NULL) {}
     
-    FLTK_Pt_pane * get_FLTK_viewport();
+    FLTK_Event_pane * get_FLTK_viewport();
     void resize_point (int &x,int &y);
 };
 

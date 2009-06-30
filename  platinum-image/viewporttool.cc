@@ -235,7 +235,7 @@ void nav_tool::init()
 
 void nav_tool::handle(viewport_event &event)
 {
-	FLTK_Pt_pane *fp = event.get_FLTK_viewport();
+	FLTK_Event_pane *fp = event.get_FLTK_viewport();
 
     if ( event.state() == pt_event::begin )
 	{
@@ -296,7 +296,7 @@ void nav_tool::handle(viewport_event &event)
 //					std::cout<<"Pan..."<<std::endl;
                     event.grab();
                     myRenderer->move_view(viewSize,(last_local_x-event.mouse_pos_local()[0]),(last_local_y-event.mouse_pos_local()[1]));
-                    fp->needs_rerendering();
+                    ((FLTK_Pt_pane*)fp->parent())->needs_rerendering();
 					last_local_x = event.mouse_pos_local()[0];
 					last_local_y = event.mouse_pos_local()[1];
 				}
@@ -321,7 +321,7 @@ void nav_tool::handle(viewport_event &event)
 					int dy = new_pos[1]-local_zoom_start_pos[1];
 					myRenderer->move_view(viewSize,dx,dy);
                     
-                    fp->needs_rerendering();
+                    ((FLTK_Pt_pane*)fp->parent())->needs_rerendering();
 				}					
 			break;
                 
@@ -587,7 +587,7 @@ void cursor_tool::handle(viewport_event &event)
 //    std::vector<int> mouse = event.mouse_pos_local();
     int *mouse = event.mouse_pos_local();
     
-    FLTK_Pt_pane *fp = event.get_FLTK_viewport();
+    FLTK_Event_pane *fp = event.get_FLTK_viewport();
 
     if (event.type() == pt_event::create)
         {

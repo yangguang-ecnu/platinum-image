@@ -135,7 +135,7 @@ int thresholdparvalue::make_threshold_image ()
     return result_vol_ID;
     }
 
-threshold_overlay::threshold_overlay(FLTK_Pt_pane *fp, int r_index)
+threshold_overlay::threshold_overlay(FLTK_Event_pane *fp, int r_index)
     {
     owner=fp;
 
@@ -177,7 +177,7 @@ void threshold_overlay::render (thresholdparvalue * t)
 void threshold_overlay::resize ()
 {
     delete[] overlay_image_data;
-    overlay_image_data = new unsigned char [owner->resize_w*owner->resize_h*RGBA_pixmap_bpp];
+	overlay_image_data = new unsigned char [owner->w()*owner->h()*RGBA_pixmap_bpp];
 }
 
 void threshold_overlay::FLTK_draw()
