@@ -102,7 +102,7 @@ public:
     
     virtual void connect_data(int dataID) = 0;
 
-	virtual void paint_overlay(int vp_w, int vp_h_pane, bool paint_rendergeometry)=0;
+	virtual void paint_overlay(int h_offset, int vp_w, int vp_h_pane, bool paint_rendergeometry)=0;
 
 	void fill_rgbimage_with_value(unsigned char *rgb, int rgb_sx, int rgb_sy, int value);
 	void fill_rgbimage_with_value(unsigned char *rgb, int x, int y, int w, int h, int rgb_sx, int value);

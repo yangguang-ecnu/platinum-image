@@ -47,9 +47,9 @@ class rendererMPR : public renderer_image_base
 		static void draw_cross(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_image *rg, Vector3D point, std::vector<int>);
 		
 		static void draw_slice_locators(uchar *pixels, int sx, int sy, rendergeom_image *rg, rendercombination *rc);
-		static void paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc);
-		static void paint_rendergeometry_to_overlay(int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc);
-		static void paint_overlay_line(int vp_w, int vp_h_pane, line2D local_vp_line);
+		static void paint_slice_locators_to_overlay(int h_offset, int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc);
+		static void paint_rendergeometry_to_overlay(int h_offset, int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc);
+		static void paint_overlay_line(int h_offset, int vp_w, int vp_h_pane, line2D local_vp_line);
 		
 		static int sgn(long a);
 		
@@ -77,7 +77,7 @@ class rendererMPR : public renderer_image_base
         virtual std::string find_typekey() const
             {return typekey();}
 
-		void paint_overlay(int vp_w, int vp_h_pane, bool paint_rendergeometry);
+		void paint_overlay(int h_offset, int vp_w, int vp_h_pane, bool paint_rendergeometry);
 
 		void move_view(int vsize, int pan_x, int pan_y, int pan_z, float zoom_d);
 		void move(float pan_x, float pan_y, float pan_z);

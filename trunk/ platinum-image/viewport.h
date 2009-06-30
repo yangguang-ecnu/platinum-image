@@ -47,8 +47,9 @@ class thresholdparvalue;
 
 class viewport
 {
-    friend class FLTK_Event_pane;	//TMP
     friend class FLTKviewport;	//allow access to for example "rendererIndex"...
+    friend class FLTK_Pt_pane;	//allow access to for example "set_renderer_direction"...
+    friend class FLTK_Event_pane;	//TMP
     friend class viewporttool;
 
 private:

@@ -55,12 +55,12 @@ void rendererMPR::connect_data(int dataID)
     the_rc->add_data(dataID);
 	}
 
-void rendererMPR::paint_overlay(int vp_w, int vp_h_pane, bool paint_rendergeometry)
+void rendererMPR::paint_overlay(int h_offset, int vp_w, int vp_h_pane, bool paint_rendergeometry)
 {
 //	cout<<"rendererMPR::paint_overlay..("<<vp_w<<" "<<vp_h_pane<<") rc_id="<<the_rg->get_id()<<endl;
-	paint_slice_locators_to_overlay(vp_w, vp_h_pane, (rendergeom_image*)the_rg, the_rc);
+	paint_slice_locators_to_overlay(h_offset, vp_w, vp_h_pane, (rendergeom_image*)the_rg, the_rc);
 	if(paint_rendergeometry){
-		paint_rendergeometry_to_overlay(vp_w, vp_h_pane, (rendergeom_image*)the_rg, the_rc);
+		paint_rendergeometry_to_overlay(h_offset, vp_w, vp_h_pane, (rendergeom_image*)the_rg, the_rc);
 	}
 }
 
@@ -166,7 +166,7 @@ void rendererMPR::render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
 //render orthogonal slices using memory-order scanline
 void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_image *rg, rendercombination *rc, thresholdparvalue * threshold)
 {
-	cout<<"render_("<<rgb_sx<<" "<<rgb_sy<<"...)"<<endl;
+//	cout<<"render_("<<rgb_sx<<" "<<rgb_sy<<"...)"<<endl;
 
     if(rc->empty()){       //*** no images: exit ***
         return;
@@ -681,7 +681,7 @@ void rendererMPR::draw_slice_locators(uchar *pixels, int sx, int sy, rendergeom_
 	}
 }
 
-void rendererMPR::paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc)
+void rendererMPR::paint_slice_locators_to_overlay(int h_offset, int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc)
 {
 //	cout<<"paint_slice_locators_to_overlay("<<vp_w<<" "<<vp_h_pane<<"...)"<<endl;
 
@@ -711,7 +711,7 @@ void rendererMPR::paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rende
 			local_vp_line.set_direction(dir_loc[0],dir_loc[1]);
 
 //			paint_overlay_line(vp_w, vp_h, local_vp_line);
-			paint_overlay_line(vp_w, vp_h_pane, local_vp_line); //It is important that the right pane_height is given...
+			paint_overlay_line(h_offset, vp_w, vp_h_pane, local_vp_line); //It is important that the right pane_height is given...
 		}//for
 
 //		fl_rect( vp_offset_x+1, vp_offset_y+1, vp_w-2, vp_h-2, FL_YELLOW);
@@ -719,28 +719,28 @@ void rendererMPR::paint_slice_locators_to_overlay(int vp_w, int vp_h_pane, rende
 	}//if
 }
 
-void rendererMPR::paint_rendergeometry_to_overlay(int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc)
+void rendererMPR::paint_rendergeometry_to_overlay(int h_offset, int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc)
 {
 	if(rc->top_image()!=NULL){
 		fl_font(FL_COURIER, 10);
 		fl_color(FL_RED);
-		fl_draw(Matrix3Drow2str(rg->dir,0).c_str(), 5, 15);
-		fl_draw(Matrix3Drow2str(rg->dir,1).c_str(), 5, 30);
-		fl_draw(Matrix3Drow2str(rg->dir,2).c_str(), 5, 45);
+		fl_draw(Matrix3Drow2str(rg->dir,0).c_str(), 5, h_offset+15);
+		fl_draw(Matrix3Drow2str(rg->dir,1).c_str(), 5, h_offset+30);
+		fl_draw(Matrix3Drow2str(rg->dir,2).c_str(), 5, h_offset+45);
 
 		int str_w, str_h;
 		string tmp = Vector3D2str(rg->look_at);
 		fl_measure(tmp.c_str(),str_w,str_h);
-		fl_draw(tmp.c_str(), vp_w-str_w-5, 15);
+		fl_draw(tmp.c_str(), vp_w-str_w-5, h_offset+15);
 
 		tmp = float2str(rg->zoom);
 		fl_measure(tmp.c_str(),str_w,str_h);
-		fl_draw(tmp.c_str(), vp_w-str_w-5, 45);
+		fl_draw(tmp.c_str(), vp_w-str_w-5, h_offset+45);
 	}
 }
 
 
-void rendererMPR::paint_overlay_line(int vp_w, int vp_h_pane, line2D local_vp_line)
+void rendererMPR::paint_overlay_line(int h_offset, int vp_w, int vp_h_pane, line2D local_vp_line)
 {
 //	cout<<"paint_overlay_line..."<<endl;
 //	cout<<"local_vp_line="<<local_vp_line.get_point()<<" "<<local_vp_line.get_direction()<<endl;
@@ -762,7 +762,7 @@ void rendererMPR::paint_overlay_line(int vp_w, int vp_h_pane, line2D local_vp_li
 		x2 = x;
 		y2 = vp_h_pane;
 		if(x>=0 && x<=vp_w){ //make sure no drawing is made outside current vp... 
-			fl_line(x, y, x2, y2);
+			fl_line(x, h_offset+y, x2, h_offset+y2);
 		}
 	}else{
 		x = 0;
@@ -791,7 +791,7 @@ void rendererMPR::paint_overlay_line(int vp_w, int vp_h_pane, line2D local_vp_li
 
 //		cout<<"("<<x<<","<<y<<")   ("<<x2<<","<<y2<<")"<<endl;
 
-		fl_line(x, y, x2, y2);
+		fl_line(x, h_offset+y, x2, h_offset+y2);
 	}
 }
 

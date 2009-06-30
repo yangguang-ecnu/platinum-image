@@ -77,19 +77,24 @@ viewport::~viewport()
 void viewport::initialize_viewport(int xpos, int ypos, int width, int height, VIEWPORT_TYPE vpt)
 {
 	vp_type = vpt;
+	the_widget = NULL;
     const int buttonheight=20;
     const int buttonwidth=70;
    
+	int rendID;
+
+	if(vp_type == PT_MPR){	//PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
+		rendID = rendermanagement.create_renderer(RENDERER_MPR);
+	}else if(vp_type == PT_MIP){
+		rendID = rendermanagement.create_renderer(RENDERER_MIP);
+	}
+    //attach MPR renderer - so that all viewports can be populated for additional views
+	viewmanagement.connect_renderer_to_viewport(ID,rendID); 
+
     update_viewsize(width, height - 2*buttonheight);
     
 	the_widget = new FLTKviewport(xpos,ypos,width,height,this,buttonheight,buttonwidth); //The FLTKviewport can access the VIEWPORT_TYPE using the pointer to this viewport
 
-    //attach MPR renderer - so that all viewports can be populated for additional views
-	if(vp_type == PT_MPR){	//PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
-		viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MPR)); //JK2- do this in vp_class
-	}else if(vp_type == PT_MIP){
-		viewmanagement.connect_renderer_to_viewport(ID,rendermanagement.create_renderer(RENDERER_MIP)); //JK2- do this in vp_class
-	}
 }
 
 int viewport::x(){
@@ -137,106 +142,9 @@ void viewport::set_renderer_direction( const Matrix3D & dir )
 
 void viewport::set_renderer_direction( preset_direction direction ) 
 {
-    enum { x, y, z };
-    
-    Matrix3D dir;
-	dir.SetIdentity();
-
-	image_base *im;
-    
-    /**dir[0][0]=1; //voxel direction of view x
-        *dir[2][1]=1; //voxel direction of view y
-    *dir[1][2]=1; //voxel direction of slicing*/
-    
-    //remember,
-    // A sagittal plane divides the body into left and right portions.
-    //The midsagittal plane is in the midline, i.e. it would pass through midline structures such as the navel or spine, and all other sagittal planes are parallel to it.
-    // A coronal plane divides the body into dorsal and ventral portions.
-    // A transverse plane divides the body into cranial (cephalic) and caudal portions.
-    
-	//enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG, AXIAL};
-
-    switch(direction){
-		case DEFAULT_DIR:
-        //case AXIAL:
-//            dir[x][0]=1;	// the x direction of the viewport ("0") lies in the positive ("+1") x direction ("x") of the world coordinate system
-  //          dir[y][1]=1;	// the y direction of the viewport ("1") lies in the positive ("+1") y direction ("y") of the world coordinete system
-    //        dir[z][2]=1;	// the z direction of the viewport ("2") lies in the positive ("+1") z direction ("z") of the world coordinate system
-
-			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
-			if(im!=NULL){
-				dir = im->get_dir_rendering_matrix(direction);
-			}
-            break;
-
-		case AXIAL:
-			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
-			if(im!=NULL){
-				dir = im->get_dir_rendering_matrix(direction);
-			}
-            break;
-
-		case SAGITTAL:
-			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
-			if(im!=NULL){
-				dir = im->get_dir_rendering_matrix(direction);
-			}
-            break;
-
-		case CORONAL:
-			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
-			if(im!=NULL){
-				dir = im->get_dir_rendering_matrix(direction);
-			}
-            break;
-
-	
-		case Z_DIR:
-			dir.Fill(0);
-            dir[x][0]=1;	// the x direction of the viewport ("0") lies in the positive ("+1") x direction ("x") of the world coordinate system
-            dir[y][1]=1;	// the y direction of the viewport ("1") lies in the positive ("+1") y direction ("y") of the world coordinete system
-            dir[z][2]=1;	// the z direction of the viewport ("2") lies in the positive ("+1") z direction ("z") of the world coordinate system
-            break;
-            
-        case Y_DIR:
-			dir.Fill(0);
-            dir[x][0]=1;
-            dir[z][1]=-1;
-            dir[y][2]=1;
-            break;
-            
-        case X_DIR:
-			dir.Fill(0);
-            dir[y][0]=-1;
-            dir[z][1]=-1;
-            dir[x][2]=1;
-            break;
-            
-        case Z_DIR_NEG:
-			dir.Fill(0);
-            dir[x][0]=-1;
-            dir[y][1]=1;
-            dir[z][2]=-1;
-            break;
-            
-        case Y_DIR_NEG:
-			dir.Fill(0);
-            dir[x][0]=-1;
-            dir[z][1]=-1;
-            dir[y][2]=-1;
-            break;
-            
-        case X_DIR_NEG:
-			dir.Fill(0);
-            dir[y][0]=1;
-            dir[z][1]=-1;
-            dir[x][2]=-1;
-            break;
-    }
-	
-	set_renderer_direction( dir );
-	the_widget->set_direction_button_label(direction);
+	the_widget->pane_widget->set_renderer_direction(direction); 
 }
+
 
 int viewport::get_id () const
 {
@@ -322,7 +230,7 @@ void viewport::enable_and_set_direction( preset_direction direction )
 void viewport::set_renderer(string renderer_type)
 {
 	the_widget->switch_pane(renderer_type);
-	the_widget->set_renderer_button_label(renderer_type);
+//	the_widget->set_renderer_button_label(renderer_type);
 }
 
 void viewport::set_blend_mode(blendmode bm)
@@ -387,10 +295,8 @@ void viewport::refresh()
     // we cache the vector ID to speed things up - now it must be recomputed
     rendererIndex = rendermanagement.find_renderer_index(rendererID);
     
-    if (the_widget != NULL)
-        {
-        if (rendererIndex == -1)
-            {
+    if(the_widget!=NULL){
+        if(rendererIndex == -1){
             //our renderer has been deleted
             rendererID=NO_RENDERER_ID;
             clear_rgbpixmap();
@@ -404,10 +310,12 @@ void viewport::refresh()
 				utool->attach(this,rendermanagement.get_renderer(rendererID));
 				}
             
-			the_widget->refresh_menus();
+			if(the_widget !=NULL){
+				the_widget->refresh_menus();
+				the_widget->pane_widget->damage(FL_DAMAGE_ALL); //JK2-check if needed...
+			}
             needs_re_rendering = true;
 
-			the_widget->pane_widget->damage(FL_DAMAGE_ALL); //JK2-check if needed...
             }
         
         //pane_widget->damage(FL_DAMAGE_ALL);
@@ -430,7 +338,7 @@ void viewport::paint_overlay()
 
 	if(vp_type == PT_MPR){	
 		//here the height of the pane needs to be used since the height of the "viewport" includes the buttons...
-		rendermanagement.get_renderer(this->rendererID)->paint_overlay(w(), h_pane(), paint_rendergeometry); //h_pane is needed to compensate for button height... 
+		rendermanagement.get_renderer(this->rendererID)->paint_overlay(20, w(), h_pane(), paint_rendergeometry); //h_pane is needed to compensate for button height... 
 
 		fl_color(FL_GRAY);
 		fl_rect(0, 0, w(), h()); //SO - framing the viewports 888

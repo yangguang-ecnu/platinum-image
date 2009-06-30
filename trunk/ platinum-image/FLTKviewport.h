@@ -181,6 +181,8 @@ class FLTKpane : public Fl_Overlay_Window //JK2
             {return "base_key";}
 		int get_renderer_id();
 
+		virtual void set_renderer_direction(preset_direction direction);	//only implement for panes can use a "direction" 
+		virtual void refresh_menus();
 };
 
 
@@ -293,10 +295,11 @@ class FLTK_Event_pane : public Fl_Widget		//This class catches events and passes
 		FLTK_Event_pane(int X,int Y,int W,int H);  //constructor
 		int handle(int event);
 		void resize(int x, int y, int w, int h);
-		void draw();                //FLTK draw call - called when FLTK wants the viewport updated
-	    void draw(unsigned char *rgbimage); //JK
-		void needs_rerendering();			//passes this on to the "viewport_parent"...
+		void draw();						//FLTK draw call - called when FLTK wants the viewport updated
+	    void draw(unsigned char *rgbimage); //JK //our "active" draw method - will redraw directly whenever it is called
+                                            //this method draws the argument rgbimage...
 
+		void needs_rerendering();			//passes this on to the "viewport_parent"...
 };
 
 //---------------------------------------------
@@ -312,8 +315,10 @@ class FLTK_Pt_pane : public FLTKpane
 	friend class histo2D_tool;
 
 	private:
-		Fl_Pack			*pane_buttons;
+	    Fl_Pack			*button_pack2;		//group containing per-viewport widgets such as the image menu
 		Fl_Menu_Button	*directionmenu_button;
+	    Fl_Menu_Button	*blendmenu_button;
+
 //		void initiate_buttons();
 
  //       void draw();                //FLTK draw call - called when FLTK wants the viewport updated
@@ -329,6 +334,8 @@ class FLTK_Pt_pane : public FLTKpane
 	    int wheel_y;            //mouse wheel rotation
 	    int callback_action;    //which action to perform during click or drag processed by callback
 
+		viewport* get_viewport_parent();
+
 	protected:
 //	    void resize_overlay(int new_x,int new_y,int new_w,int new_h);
 
@@ -339,19 +346,23 @@ class FLTK_Pt_pane : public FLTKpane
 		int h_pane();
 
 		void draw_overlay();
-//	    void draw(unsigned char *rgbimage); //JK
-											//our "active" draw method - will redraw directly whenever it is called
-                                            //this method draws the argument rgbimage AND
-                                            //feedback (coordinates, cursor)
+
 //	    int handle(int event);
 	    void resize_content(int w,int h);
+
+		static void set_direction_callback(Fl_Widget *callingwidget, void *params);
+	    static void set_blendmode_callback(Fl_Widget *callingwidget, void *params);
 
 
         static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
             {return "undef";}
 
 		FLTK_Event_pane *event_pane; //used to catch events in the viewport...
-  
+
+		void set_direction_button_label(preset_direction direction);
+		void set_renderer_direction( preset_direction direction );
+	    void rebuild_blendmode_menu();//update checkmark for current blend mode
+		virtual void refresh_menus();
 };
 
 
@@ -372,8 +383,8 @@ private:
     Fl_Pack			*button_pack_top;		//group containing per-viewport widgets such as the image menu
     Fl_Menu_Button	*datamenu_button;   
     Fl_Menu_Button	*renderermenu_button;
-    Fl_Menu_Button	*directionmenu_button;
-    Fl_Menu_Button	*blendmenu_button;
+//    Fl_Menu_Button	*directionmenu_button;
+//    Fl_Menu_Button	*blendmenu_button;
 
     void update_data_menu();   //set rendering status for images from rendercombination for this viewport's renderer
     void rebuild_renderer_menu();//update checkmark for current renderer type
@@ -381,7 +392,7 @@ private:
     static void cb_renderer_select2(Fl_Widget *o, void *v); //JK2
     static void cb_renderer_select3(Fl_Widget *o, void *v); //JK2
 //    void cb_renderer_select3b(FLTKpane* new_pane); //JK2
-    void rebuild_blendmode_menu();//update checkmark for current blend mode
+//    void rebuild_blendmode_menu();//update checkmark for current blend mode
 	int get_renderer_id();
 	
 	
@@ -399,9 +410,10 @@ public:
     static void toggle_data_callback(Fl_Widget *callingwidget, void *params);
     static void set_direction_callback(Fl_Widget *callingwidget, void *params);
     static void set_blendmode_callback(Fl_Widget *callingwidget, void *params);
-	void set_direction_button_label(preset_direction direction);
+//	void set_direction_button_label(preset_direction direction);
     void switch_pane(factoryIdType type); //JK2
-	void set_renderer_button_label(factoryIdType type); //JK2
+//	void set_renderer_button_label(factoryIdType type); //JK2
+
 	
     bool render_if_needed();
         

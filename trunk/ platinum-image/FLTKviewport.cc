@@ -86,8 +86,8 @@ FLTKpane::FLTKpane():Fl_Overlay_Window(0,0,100,100)
 FLTKpane::FLTKpane(int X,int Y,int W,int H) : Fl_Overlay_Window(X,Y,W,H)
 //FLTKpane::FLTKpane(int X,int Y,int W,int H) : Fl_Window(X,Y,W,H)
 {
-	Fl_Button *b = new Fl_Button(10,10,80,80, "FLTKpane(xywh)_button");
-	b->color(FL_RED);
+//	Fl_Button *b = new Fl_Button(10,10,80,80, "FLTKpane(xywh)_button");
+//	b->color(FL_RED);
 //	this->end();
 }
 
@@ -108,6 +108,15 @@ int FLTKpane::get_renderer_id()
 {
 	return ( (FLTKviewport*)this->parent())->get_renderer_id();
 }
+
+void FLTKpane::set_renderer_direction( preset_direction direction ) 
+{}
+
+void FLTKpane::refresh_menus()
+{}
+
+//------------------------------------------------
+//------------------------------------------------
 
 FLTK_VTK_pane::FLTK_VTK_pane(): FLTKpane(0,0,100,100)
 {
@@ -747,7 +756,7 @@ FLTKpane2::FLTKpane2(int X,int Y,int W,int H): FLTKpane(X,Y,W,H)
 
 FLTK_Event_pane::FLTK_Event_pane(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
 {
-	cout<<"FLTK_Event_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
+//	cout<<"FLTK_Event_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
 }
 
 int FLTK_Event_pane::handle(int event){
@@ -790,8 +799,8 @@ return 1;//	return Fl_Widget::handle(event);
 
 void FLTK_Event_pane::resize(int new_in_x,int new_in_y, int new_in_w,int new_in_h)
 {
-	cout<<"-----------------------------------------------"<<endl;
-	cout<<"FLTK_Event_pane::resize("<<new_in_x<<","<<new_in_y<<","<<new_in_w<<","<<new_in_h<<")"<<endl;
+//	cout<<"-----------------------------------------------"<<endl;
+//	cout<<"FLTK_Event_pane::resize("<<new_in_x<<","<<new_in_y<<","<<new_in_w<<","<<new_in_h<<")"<<endl;
 
 	Fl_Widget::resize(new_in_x,new_in_y,new_in_w,new_in_h);	//We have to update "our own" size aswell
 
@@ -813,7 +822,7 @@ void FLTK_Event_pane::resize(int new_in_x,int new_in_y, int new_in_w,int new_in_
 
 void FLTK_Event_pane::draw()
 {
-	cout << "Nu ska här ritas!!!" << endl;
+//	cout << "Nu ska här ritas!!!" << endl;
     callback_event = viewport_event(pt_event::draw,this);
 	do_callback(CB_ACTION_DRAW); //JK2
 }
@@ -821,7 +830,7 @@ void FLTK_Event_pane::draw()
 void FLTK_Event_pane::draw(unsigned char *rgbimage)
 {
     if (w()>0 && h()>0){
-		cout<<"Nu ritar vi!!!"<<endl;
+//		cout<<"Nu ritar vi!!!"<<endl;
         // do not redraw zero-sized viewport, fl_draw_image will break down
 		
 //		fl_draw_image(rgbimage,0,0,w(),h());
@@ -881,13 +890,64 @@ FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 
 //	Fl_Group::current(this);
 
-    pane_buttons = new Fl_Pack(0,0,W,buttonheight,"");
+	//--------------------------------
+    button_pack2 = new Fl_Pack(0,0,W,buttonheight,"");
+    button_pack2->type(FL_HORIZONTAL);
+
+	Fl_Menu_Item dir_menu_items[NUM_DIRECTIONS+1];
+    
+    int m;
+    for(m=0;m<NUM_DIRECTIONS;m++){
+        menu_callback_params * cbp=new menu_callback_params;
+        cbp->direction=(preset_direction)m;
+        cbp->vport=get_viewport_parent();
+        
+        init_fl_menu_item(dir_menu_items[m]);
+        dir_menu_items[m].label(preset_direction_labels[m]);
+        dir_menu_items[m].callback(&set_direction_callback);
+        dir_menu_items[m].user_data(cbp);
+        dir_menu_items[m].flags= FL_MENU_RADIO;
+    }
+
+    dir_menu_items[m].label(NULL);	//terminate menu
+    dir_menu_items[DEFAULT_DIR].setonly();	//DEFAULT_DIR is pre-set, set checkmark accordingly
 
     directionmenu_button = new Fl_Menu_Button(0,0,buttonwidth,buttonheight,preset_direction_labels[Z_DIR]);
-//    directionmenu_button->copy(dir_menu_items);
+    directionmenu_button->copy(dir_menu_items);
 	directionmenu_button->box(FL_THIN_UP_BOX);
 	directionmenu_button->labelsize(FLTK_SMALL_LABEL);
-	pane_buttons->end();
+
+    Fl_Menu_Item blend_menu_items [NUM_BLEND_MODES+1];
+    for(m=0;m<NUM_BLEND_MODES;m++){
+//		cout<<"m="<<m<<"/"<<NUM_BLEND_MODES<<endl;
+
+        menu_callback_params * cbp=new menu_callback_params;
+        cbp->mode=(blendmode)m;
+		int rID = this->get_viewport_parent()->rendererID;
+//		rendermanagement.print_renderers();
+		cbp->rend_index = rendermanagement.find_renderer_index(rID); //might execute befor the renderer has been created...
+        
+        init_fl_menu_item(blend_menu_items[m]);
+        
+        blend_menu_items[m].label(blend_mode_labels[m]);
+        blend_menu_items[m].callback(&set_blendmode_callback);
+        blend_menu_items[m].user_data(cbp);
+        blend_menu_items[m].flags= FL_MENU_RADIO;
+        
+//        if (rendererIndex < 0)
+  //          {blend_menu_items[m].deactivate();}
+      }
+    //terminate menu
+    blend_menu_items[m].label(NULL);
+    
+    blendmenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight);
+    blendmenu_button->copy(blend_menu_items);
+    blendmenu_button->box(FL_THIN_UP_BOX);
+    blendmenu_button->labelsize(FLTK_SMALL_LABEL);
+
+
+	button_pack2->end();
+	//--------------------------------
 
 //	event_pane = new FLTK_Event_pane(0,0,W,H); //FLTKPane is a "Fl_Window" --->
 	event_pane = new FLTK_Event_pane(0,buttonheight,W,H-buttonheight);
@@ -1013,6 +1073,168 @@ void FLTK_Pt_pane::do_callback(callbackAction action)
     callback_action=CB_ACTION_NONE;
 }
 
+viewport* FLTK_Pt_pane::get_viewport_parent()
+{
+	return ((FLTKviewport*)this->parent())->viewport_parent;
+}
+
+void FLTK_Pt_pane::set_direction_callback(Fl_Widget *callingwidget, void * p )
+{
+    menu_callback_params * params = (menu_callback_params *) p;
+	params->vport->set_renderer_direction( params->direction );
+
+	params->vport->refresh();
+	viewmanagement.update_overlays();
+}
+
+void FLTK_Pt_pane::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
+{
+    menu_callback_params * params=(menu_callback_params *)p;
+    
+    rendermanagement.set_blendmode(params->rend_index,params->mode);
+}
+
+void FLTK_Pt_pane::set_direction_button_label(preset_direction direction)
+{
+	directionmenu_button->label( preset_direction_labels[direction] );
+	( (Fl_Menu_Item*)directionmenu_button->menu() )[direction].setonly(); 	//also activate the right radio-button...
+}
+
+void FLTK_Pt_pane::set_renderer_direction( preset_direction direction ) 
+{
+
+    enum { x, y, z };
+    
+    Matrix3D dir;
+	dir.SetIdentity();
+
+	image_base *im;
+    
+    /**dir[0][0]=1; //voxel direction of view x
+        *dir[2][1]=1; //voxel direction of view y
+    *dir[1][2]=1; //voxel direction of slicing*/
+    
+    //remember,
+    // A sagittal plane divides the body into left and right portions.
+    //The midsagittal plane is in the midline, i.e. it would pass through midline structures such as the navel or spine, and all other sagittal planes are parallel to it.
+    // A coronal plane divides the body into dorsal and ventral portions.
+    // A transverse plane divides the body into cranial (cephalic) and caudal portions.
+    
+	//enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG, AXIAL};
+
+    switch(direction){
+		case DEFAULT_DIR:
+        //case AXIAL:
+//            dir[x][0]=1;	// the x direction of the viewport ("0") lies in the positive ("+1") x direction ("x") of the world coordinate system
+  //          dir[y][1]=1;	// the y direction of the viewport ("1") lies in the positive ("+1") y direction ("y") of the world coordinete system
+    //        dir[z][2]=1;	// the z direction of the viewport ("2") lies in the positive ("+1") z direction ("z") of the world coordinate system
+
+			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
+			if(im!=NULL){
+				dir = im->get_dir_rendering_matrix(direction);
+			}
+            break;
+
+		case AXIAL:
+			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
+			if(im!=NULL){
+				dir = im->get_dir_rendering_matrix(direction);
+			}
+            break;
+
+		case SAGITTAL:
+			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
+			if(im!=NULL){
+				dir = im->get_dir_rendering_matrix(direction);
+			}
+            break;
+
+		case CORONAL:
+			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
+			if(im!=NULL){
+				dir = im->get_dir_rendering_matrix(direction);
+			}
+            break;
+
+	
+		case Z_DIR:
+			dir.Fill(0);
+            dir[x][0]=1;	// the x direction of the viewport ("0") lies in the positive ("+1") x direction ("x") of the world coordinate system
+            dir[y][1]=1;	// the y direction of the viewport ("1") lies in the positive ("+1") y direction ("y") of the world coordinete system
+            dir[z][2]=1;	// the z direction of the viewport ("2") lies in the positive ("+1") z direction ("z") of the world coordinate system
+            break;
+            
+        case Y_DIR:
+			dir.Fill(0);
+            dir[x][0]=1;
+            dir[z][1]=-1;
+            dir[y][2]=1;
+            break;
+            
+        case X_DIR:
+			dir.Fill(0);
+            dir[y][0]=-1;
+            dir[z][1]=-1;
+            dir[x][2]=1;
+            break;
+            
+        case Z_DIR_NEG:
+			dir.Fill(0);
+            dir[x][0]=-1;
+            dir[y][1]=1;
+            dir[z][2]=-1;
+            break;
+            
+        case Y_DIR_NEG:
+			dir.Fill(0);
+            dir[x][0]=-1;
+            dir[z][1]=-1;
+            dir[y][2]=-1;
+            break;
+            
+        case X_DIR_NEG:
+			dir.Fill(0);
+            dir[y][0]=1;
+            dir[z][1]=-1;
+            dir[x][2]=-1;
+            break;
+    }
+	
+	this->get_viewport_parent()->set_renderer_direction( dir );
+	this->set_direction_button_label(direction);
+}
+
+
+void FLTK_Pt_pane::rebuild_blendmode_menu()//update checkmark for current blend mode
+{
+    if(blendmenu_button != NULL){
+        Fl_Menu_Item *blendmodemenu=(Fl_Menu_Item *)blendmenu_button->menu();
+
+		//blend modes are different - or not available - for other renderer types (than MPR...)
+		//basic check for this:
+		//int this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
+		
+		int rendInd = this->get_viewport_parent()->rendererIndex;
+		for(int m=0; m<NUM_BLEND_MODES; m++){
+			((menu_callback_params*)(blendmodemenu[m].argument()))->rend_index = rendInd;
+			if(rendInd<0 || !rendermanagement.renderer_supports_mode(rendInd,m)){
+				blendmodemenu[m].deactivate();
+			}else{
+				blendmodemenu[m].activate();
+			}
+		}
+		if(rendInd >= 0){
+			int this_blend_mode=rendermanagement.get_blend_mode(rendInd);
+			blendmodemenu[this_blend_mode].setonly();
+			blendmenu_button->label(blend_mode_labels[this_blend_mode]);
+		}
+	}
+}
+
+void FLTK_Pt_pane::refresh_menus()
+{
+	rebuild_blendmode_menu();
+}
 
 
 //--------------------------------------------------------
@@ -1033,7 +1255,7 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 	//The factory below returnsconnects the  
 	renderermenu_button->copy(rendermanager::pane_factory.menu(cb_renderer_select3,(void*)this)); 
     renderermenu_button->user_data(NULL);
-    
+   /* 
     //direction menu is constant for each viewport
     Fl_Menu_Item dir_menu_items[NUM_DIRECTIONS+1];
     
@@ -1064,9 +1286,10 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 
     directionmenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight,preset_direction_labels[Z_DIR]);
     directionmenu_button->copy(dir_menu_items);
-    
+    */
+/*
+	int m;
     Fl_Menu_Item blend_menu_items [NUM_BLEND_MODES+1];
-    
     for(m=0;m<NUM_BLEND_MODES;m++){
 //		cout<<"m="<<m<<"/"<<NUM_BLEND_MODES<<endl;
 
@@ -1089,14 +1312,14 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
     
     blendmenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight);
     blendmenu_button->copy(blend_menu_items);
-    
+
 	//------ styling --------------
     blendmenu_button->box(FL_THIN_UP_BOX);
     blendmenu_button->labelsize(FLTK_SMALL_LABEL);
-    renderermenu_button->box(FL_THIN_UP_BOX);
+*/    renderermenu_button->box(FL_THIN_UP_BOX);
     renderermenu_button->labelsize(FLTK_SMALL_LABEL);
-    directionmenu_button->box(FL_THIN_UP_BOX);
-    directionmenu_button->labelsize(FLTK_SMALL_LABEL);
+//    directionmenu_button->box(FL_THIN_UP_BOX);
+ //   directionmenu_button->labelsize(FLTK_SMALL_LABEL);
     datamenu_button->box(FL_THIN_UP_BOX);
     datamenu_button->labelsize(FLTK_SMALL_LABEL);
 	//------ styling --------------
@@ -1145,7 +1368,7 @@ void FLTKviewport::refresh_menus()
 {
 	update_data_menu();
     rebuild_renderer_menu();
-    rebuild_blendmode_menu();
+	pane_widget->refresh_menus();
 }
 
 void FLTKviewport::refresh_overlay()
@@ -1189,6 +1412,7 @@ void FLTKviewport::rebuild_renderer_menu ()
 		}
 }
 
+/*
 void FLTKviewport::rebuild_blendmode_menu()//update checkmark for current blend mode
 {
     if (blendmenu_button != NULL)
@@ -1223,6 +1447,8 @@ void FLTKviewport::rebuild_blendmode_menu()//update checkmark for current blend 
 			}
         }
 }
+*/
+
 void FLTKviewport::update_data_menu()
 {	
     unsigned int m=0;
@@ -1483,11 +1709,6 @@ void FLTKviewport::set_direction_callback(Fl_Widget *callingwidget, void * p )
 }
 
 
-void FLTKviewport::set_direction_button_label(preset_direction direction)
-{
-	directionmenu_button->label( preset_direction_labels[direction] );
-	( (Fl_Menu_Item*)directionmenu_button->menu() )[direction].setonly(); 	//also activate the right radio-button...
-}
 
 void FLTKviewport::switch_pane(factoryIdType type)
 {
@@ -1517,6 +1738,7 @@ void FLTKviewport::switch_pane(factoryIdType type)
 	//viewmanagement.list_viewports();
 }
 
+/*
 void FLTKviewport::set_renderer_button_label(factoryIdType type)
 {
 //	renderermenu_button->label( type.c_str() ); //always keep the "Renderer" label
@@ -1529,7 +1751,7 @@ void FLTKviewport::set_renderer_button_label(factoryIdType type)
 	}
 
 }
-
+*/
 
 
 void FLTKviewport::viewport_callback(Fl_Widget *callingwidget, void *thisFLTKviewport)
@@ -1586,7 +1808,7 @@ void FLTKviewport::viewport_callback(Fl_Widget *callingwidget){
                 
                 const int *r = fp->callback_event.get_resize();
 			
-				cout<<"r="<<r[0]<<"r="<<r[1]<<endl;
+				//cout<<"r="<<r[0]<<"r="<<r[1]<<endl;
                 viewport_parent->update_viewsize(r[0] ,r[1]);
                 
 //                fp->needs_rerendering();
