@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 //	window.fullscreen();
     
     //prepare Platinum for userIO creation
-    platinum_setup(window,4,4);
+    platinum_setup(window,2,1);
     
     // *** begin userIO control definitions ***
     int create_vol_demo_ID=userIOmanagement.add_userIO("Add demo image",add_demo_image,"Add");

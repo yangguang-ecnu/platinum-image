@@ -304,14 +304,11 @@ class FLTK_Event_pane : public Fl_Widget		//This class catches events and passes
 
 //---------------------------------------------
 //---------------------------------------------
-//class FLTK_Pt_pane : public Fl_Overlay_Window
 class FLTK_Pt_pane : public FLTKpane
 {
     friend class viewport;
 	friend class FLTKviewport;
     friend class FLTK_Event_pane; //allows acces to e.g. callback_event
-//	friend class threshold_overlay;
-	//friend class viewporttool;
 	friend class histo2D_tool;
 
 	private:
@@ -319,25 +316,8 @@ class FLTK_Pt_pane : public FLTKpane
 		Fl_Menu_Button	*directionmenu_button;
 	    Fl_Menu_Button	*blendmenu_button;
 
-//		void initiate_buttons();
-
- //       void draw();                //FLTK draw call - called when FLTK wants the viewport updated
-
-//	    void draw_feedback();       //draws the cursor
-	   
-        std::string feedback_string;      //info (coordinates and such)
-		void do_callback(callbackAction action = CB_ACTION_NONE);  //do callback with specified action
-	    //Variables used by callback function to process events
-        int mouse_pos[2];
-	    int drag_dx;
-	    int drag_dy;
-	    int wheel_y;            //mouse wheel rotation
-	    int callback_action;    //which action to perform during click or drag processed by callback
-
-		viewport* get_viewport_parent();
-
 	protected:
-//	    void resize_overlay(int new_x,int new_y,int new_w,int new_h);
+		viewport* get_viewport_parent();
 
 	public:
 	    FLTK_Pt_pane();    //JK2 - Default constructor, needed for the listedfactory "Create()" function...
@@ -347,9 +327,7 @@ class FLTK_Pt_pane : public FLTKpane
 
 		void draw_overlay();
 
-//	    int handle(int event);
 	    void resize_content(int w,int h);
-
 		static void set_direction_callback(Fl_Widget *callingwidget, void *params);
 	    static void set_blendmode_callback(Fl_Widget *callingwidget, void *params);
 
@@ -364,6 +342,54 @@ class FLTK_Pt_pane : public FLTKpane
 	    void rebuild_blendmode_menu();//update checkmark for current blend mode
 		virtual void refresh_menus();
 };
+
+
+class FLTK_Pt_MPR_pane : public FLTK_Pt_pane
+{
+    friend class viewport;
+	friend class FLTKviewport;
+    friend class FLTK_Event_pane; //allows acces to e.g. callback_event
+	friend class histo2D_tool;
+
+	private:
+	    Fl_Pack			*button_pack2;		//group containing per-viewport widgets such as the image menu
+		Fl_Menu_Button	*directionmenu_button;
+	    Fl_Menu_Button	*blendmenu_button;
+   
+//		void do_callback(callbackAction action = CB_ACTION_NONE);  //do callback with specified action
+	    //Variables used by callback function to process events
+//	    int callback_action;    //which action to perform during click or drag processed by callback
+
+	protected:
+//	    void resize_overlay(int new_x,int new_y,int new_w,int new_h);
+
+	public:
+	    FLTK_Pt_MPR_pane();    //JK2 - Default constructor, needed for the listedfactory "Create()" function...
+	    FLTK_Pt_MPR_pane(int X,int Y,int W,int H);  //constructor
+        ~FLTK_Pt_MPR_pane();
+
+//		int h_pane();
+
+//		void draw_overlay();
+
+//	    void resize_content(int w,int h);
+
+		static void set_direction_callback(Fl_Widget *callingwidget, void *params);
+	    static void set_blendmode_callback(Fl_Widget *callingwidget, void *params);
+
+
+  //      static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
+    //        {return "undef";}
+
+	//	FLTK_Event_pane *event_pane; //used to catch events in the viewport...
+
+		void set_direction_button_label(preset_direction direction);
+		void set_renderer_direction( preset_direction direction );
+	    void rebuild_blendmode_menu();//update checkmark for current blend mode
+		virtual void refresh_menus();
+
+};
+
 
 
 
