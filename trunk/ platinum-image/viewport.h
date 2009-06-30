@@ -47,9 +47,11 @@ class thresholdparvalue;
 
 class viewport
 {
-private:
+    friend class FLTK_Event_pane;	//TMP
     friend class FLTKviewport;	//allow access to for example "rendererIndex"...
     friend class viewporttool;
+
+private:
 
     FLTKviewport *the_widget;	//Fl_Window
     static panefactory pfactory; //instatiated in transferfactory.cc

@@ -91,6 +91,9 @@ FLTKpane::FLTKpane(int X,int Y,int W,int H) : Fl_Overlay_Window(X,Y,W,H)
 //	this->end();
 }
 
+int FLTKpane::h_pane()
+{return 0;}
+
 
 void FLTKpane::needs_rerendering()
 {
@@ -126,6 +129,11 @@ FLTK_VTK_pane::FLTK_VTK_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 FLTK_VTK_pane::~FLTK_VTK_pane()
 {
 	delete fl_vtk_window;
+}
+
+int FLTK_VTK_pane::h_pane()
+{
+	return this->h();
 }
 
 void FLTK_VTK_pane::resize_content(int w,int h)
@@ -320,6 +328,7 @@ FLTK_VTK_Cone_pane::FLTK_VTK_Cone_pane(int X,int Y,int W,int H) : FLTK_VTK_pane(
 
 FLTK_VTK_Cone_pane::~FLTK_VTK_Cone_pane()
 {}
+
 
 void FLTK_VTK_Cone_pane::initialize_vtkRenderWindow()
 {
@@ -738,14 +747,14 @@ FLTKpane2::FLTKpane2(int X,int Y,int W,int H): FLTKpane(X,Y,W,H)
 
 FLTK_Event_pane::FLTK_Event_pane(int X,int Y,int W,int H) : Fl_Widget(X,Y,W,H)
 {
-//	cout<<"FLTK_Event_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
+	cout<<"FLTK_Event_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
 }
 
 int FLTK_Event_pane::handle(int event){
 //	cout<<"FLTK_Event_pane::handle("<<eventnames[event]<<") ";
 
-	FLTK_Pt_pane *fp = (FLTK_Pt_pane*)this->parent();
-	fp->callback_event = viewport_event(event,fp);
+//	FLTK_Pt_pane *fp = (FLTK_Pt_pane*)this->parent();
+	this->callback_event = viewport_event(event,this);
 //	cout<<"fp->w/h "<<fp->w()<<"/"<<fp->h()<<endl;
 
     switch (event)
@@ -759,11 +768,11 @@ int FLTK_Event_pane::handle(int event){
             //which is shown/hidden with these events
             //with mouse-over focus however, this can be annoying
             
-            fp->callback_event.grab();
+            this->callback_event.grab();
             break;
         }
     
-   fp->do_callback();
+   this->do_callback();
 
 /*
     if(callback_event.handled()){
@@ -779,16 +788,77 @@ int FLTK_Event_pane::handle(int event){
 return 1;//	return Fl_Widget::handle(event);
 }
 
+void FLTK_Event_pane::resize(int new_in_x,int new_in_y, int new_in_w,int new_in_h)
+{
+	cout<<"-----------------------------------------------"<<endl;
+	cout<<"FLTK_Event_pane::resize("<<new_in_x<<","<<new_in_y<<","<<new_in_w<<","<<new_in_h<<")"<<endl;
 
-void FLTK_Event_pane::draw(){}
+	Fl_Widget::resize(new_in_x,new_in_y,new_in_w,new_in_h);	//We have to update "our own" size aswell
+
+    //store new size so CB_ACTION_RESIZE will know about it (via callback)
+
+//	resize_w = new_in_w; 
+//	resize_h = new_in_h;
+	callback_event = viewport_event(pt_event::resize, this);
+    callback_event.set_resize(new_in_w,new_in_h);
+    do_callback();
+    
+    //do the actual resize - redraw will follow, eventually
+ 
+    //Update "new" size so that pixmap reevaluation won't be triggered until next resize
+//    resize_w=w(); 
+//	resize_h=h();
+}
 
 
+void FLTK_Event_pane::draw()
+{
+	cout << "Nu ska här ritas!!!" << endl;
+    callback_event = viewport_event(pt_event::draw,this);
+	do_callback(CB_ACTION_DRAW); //JK2
+}
 
+void FLTK_Event_pane::draw(unsigned char *rgbimage)
+{
+    if (w()>0 && h()>0){
+		cout<<"Nu ritar vi!!!"<<endl;
+        // do not redraw zero-sized viewport, fl_draw_image will break down
+		
+//		fl_draw_image(rgbimage,0,0,w(),h());
+//		Fl_Group::current(this); //JK-tmp
+//		Fl_Widget::current(this); //JK-tmp
+		fl_draw_image(rgbimage,this->x(),this->y(),w(),h()); //JK3
+//		this->directionmenu_button->damage(FL_DAMAGE_ALL);
+//		this->directionmenu_button->redraw();
+    }
+
+    //draw_feedback();
+}
+
+void FLTK_Event_pane::do_callback(callbackAction action)
+{
+    callback_action=action;
+    Fl_Widget::do_callback();
+    callback_action=CB_ACTION_NONE;
+}
+
+void FLTK_Event_pane::needs_rerendering()
+{
+	((FLTK_Pt_pane*)this->parent())->needs_rerendering();
+}
+
+
+//---------------------------------------------
 
 FLTK_Pt_pane::FLTK_Pt_pane():FLTKpane(0,0,100,100)
 {
 //	cout<<"FLTK_Pt_pane()"<<endl;
-	event_pane = new FLTK_Event_pane(0,0,100,100);
+    int buttonleft=0;
+	int buttonheight=20;
+	int buttonwidth=70;
+
+
+	event_pane = new FLTK_Event_pane(0,buttonheight,100,100-buttonheight);
 
 //	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane()_button");
 //	b->color(FL_BLUE);
@@ -804,9 +874,27 @@ FLTK_Pt_pane::FLTK_Pt_pane():FLTKpane(0,0,100,100)
 //FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
 FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 {
+//	cout<<"FLTK_Pt_pane()"<<endl;
+    int buttonleft=0;
+	int buttonheight=20;
+	int buttonwidth=70;
+
+//	Fl_Group::current(this);
+
+    pane_buttons = new Fl_Pack(0,0,W,buttonheight,"");
+
+    directionmenu_button = new Fl_Menu_Button(0,0,buttonwidth,buttonheight,preset_direction_labels[Z_DIR]);
+//    directionmenu_button->copy(dir_menu_items);
+	directionmenu_button->box(FL_THIN_UP_BOX);
+	directionmenu_button->labelsize(FLTK_SMALL_LABEL);
+	pane_buttons->end();
+
+//	event_pane = new FLTK_Event_pane(0,0,W,H); //FLTKPane is a "Fl_Window" --->
+	event_pane = new FLTK_Event_pane(0,buttonheight,W,H-buttonheight);
+
 //	cout<<"FLTK_Pt_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
 //	event_pane = new FLTK_Event_pane(X,Y,W,H);
-	event_pane = new FLTK_Event_pane(0,0,W,H); //FLTKPane is a "Fl_Window" --->
+//	event_pane = new FLTK_Event_pane(0,0,W,H); //FLTKPane is a "Fl_Window" --->
 
 //	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane(xywh)_button");
 //	b->color(FL_BLUE);
@@ -822,13 +910,28 @@ FLTK_Pt_pane::~FLTK_Pt_pane()
 {
 	delete event_pane;
 }
-	
+
+int FLTK_Pt_pane::h_pane()
+{
+	return event_pane->h();
+}
+/*
+void FLTK_Pt_pane::resize_overlay(int new_x,int new_y,int new_w,int new_h)
+{
+	Fl_Overlay_Window::resize(new_x,new_y,new_w,new_h);
+}
+*/
+/*
+void FLTK_Pt_pane::initiate_buttons()
+{
+}
+*/
 void FLTK_Pt_pane::draw_overlay()
 {
 	((FLTKviewport*)this->parent())->viewport_parent->paint_overlay();
 }
 
-
+/*
 void FLTK_Pt_pane::draw()
 {
     //The draw() virtual method is called when FLTK wants you to redraw your widget.
@@ -838,9 +941,10 @@ void FLTK_Pt_pane::draw()
     //callback_event.FLTK_event::attach (this);
 	//pane_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
 	do_callback(CB_ACTION_DRAW); //JK2
+	this->directionmenu_button->redraw();
 }
-
-
+*/
+/*
 void FLTK_Pt_pane::draw(unsigned char *rgbimage)
 {
 //	cout<<"FLTK_Pt_pane::draw(unsigned char *rgbimage)..."<<endl;
@@ -853,34 +957,40 @@ void FLTK_Pt_pane::draw(unsigned char *rgbimage)
     {
         // do not redraw zero-sized viewport, fl_draw_image will break down
 		
-		fl_draw_image(rgbimage,0,0,w(),h());
+//		fl_draw_image(rgbimage,0,0,w(),h());
+		Fl_Group::current(this); //JK-tmp
+		fl_draw_image(rgbimage,0,20,w(),h()-20); //JK3
+		this->directionmenu_button->damage(FL_DAMAGE_ALL);
+		this->directionmenu_button->redraw();
 
 
-/*		This code is probably not needed anymore:
+//	This code is probably not needed anymore:
 
-        #if defined(__APPLE__)
-            const int LD=w(); //size of one pixmap line
+//        #if defined(__APPLE__)
+ //           const int LD=w(); //size of one pixmap line
 			// fl_draw_image(rgbimage,x(),y(),w(),h(), D,LD) ;
-            fl_draw_image(rgbimage,0,0,w(),h(), D,LD); //JK- Drawing is done relative to the window...
-        #else
+//            fl_draw_image(rgbimage,0,0,w(),h(), D,LD); //JK- Drawing is done relative to the window...
+  //      #else
 			// fl_draw_image(rgbimage,x(),y(),w(),h(), D) ;
-            fl_draw_image(rgbimage,0,0,w(),h(), D); //JK- Drawing is done relative to the window...
-        #endif
-*/
+    //        fl_draw_image(rgbimage,0,0,w(),h(), D); //JK- Drawing is done relative to the window...
+     //   #endif
+
     }
 
     //draw_feedback();
 }
-
-
+*/
+/*
 void FLTK_Pt_pane::resize(int new_in_x,int new_in_y, int new_in_w,int new_in_h){
 //	cout<<"FLTK_Pt_pane::resize..."<<endl;
 
     //store new size so CB_ACTION_RESIZE will know about it (via callback)
     resize_w=new_in_w; resize_h=new_in_h;
-    callback_event = viewport_event(pt_event::resize, this);
-    callback_event.set_resize(resize_w,resize_h);
-    
+	event_pane->callback_event = viewport_event(pt_event::resize, this->event_pane);
+    event_pane->callback_event.set_resize(resize_w,resize_h);
+
+	//((FLTKviewport*)this->parent())->viewport_parent->update_viewsize(new_in_w ,new_in_h);	//JK ugly tmp fix
+
     do_callback();
     
     //do the actual resize - redraw will follow, eventually
@@ -889,14 +999,14 @@ void FLTK_Pt_pane::resize(int new_in_x,int new_in_y, int new_in_w,int new_in_h){
     //Update "new" size so that pixmap reevaluation won't be triggered until next resize
     resize_w=w(); resize_h=h();
 }
-
+*/
 void FLTK_Pt_pane::resize_content(int w,int h)
 {
 	cout<<"FLTK_Pt_pane::resize_content("<<w<<","<<h<<")"<<endl;
 	event_pane->resize(0,0,w,h);
 }
 
-void FLTK_Pt_pane::do_callback (callbackAction action)
+void FLTK_Pt_pane::do_callback(callbackAction action)
 {
     callback_action=action;
     Fl_Widget::do_callback();
@@ -914,8 +1024,8 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 	viewport_parent = vp_parent;
     int buttonleft=0;
 
-    viewport_buttons = new Fl_Pack(0,0,width,buttonheight,"");
-    viewport_buttons->type(FL_HORIZONTAL);
+    button_pack_top = new Fl_Pack(0,0,width,buttonheight,"");
+    button_pack_top->type(FL_HORIZONTAL);
     
     datamenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight,"Data");
     
@@ -991,19 +1101,18 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
     datamenu_button->labelsize(FLTK_SMALL_LABEL);
 	//------ styling --------------
     
-    viewport_buttons->end();
+    button_pack_top->end();
     
 
 	// -------------- pane_widget -------------------
 
-	if(viewport_parent->vp_type == PT_MPR){
+	if( (viewport_parent->vp_type == PT_MPR) || (viewport_parent->vp_type == PT_MIP) ){
 		pane_widget = new FLTK_Pt_pane(0,0+buttonheight,width,height-buttonheight);
-	}else if(viewport_parent->vp_type == PT_MIP){
-		pane_widget = new FLTK_Pt_pane(0,0+buttonheight,width,height-buttonheight);
+		((FLTK_Pt_pane*)pane_widget)->event_pane->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
+		pane_widget->callback(viewport_callback, this); //resize callbacks...
 	}else{
 		pane_widget = new FLTK_VTK_Cone_pane(0,0+buttonheight,width,height-buttonheight);
 	}
-	pane_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
 
 	// -------------- pane_widget -------------------
 
@@ -1029,7 +1138,7 @@ FLTKviewport::~FLTKviewport()
 
 int FLTKviewport::h_pane()
 {
-	return pane_widget->h();
+	return pane_widget->h_pane();
 }
 
 void FLTKviewport::refresh_menus()
@@ -1418,6 +1527,7 @@ void FLTKviewport::set_renderer_button_label(factoryIdType type)
 			item[i].setonly(); 	//also change the right radio-button...
 		}
 	}
+
 }
 
 
@@ -1428,17 +1538,17 @@ void FLTKviewport::viewport_callback(Fl_Widget *callingwidget, void *thisFLTKvie
 }
 
 void FLTKviewport::viewport_callback(Fl_Widget *callingwidget){
-    FLTK_Pt_pane *fp = (FLTK_Pt_pane*)callingwidget;
+    FLTK_Event_pane *fp = (FLTK_Event_pane*)callingwidget;
     //fp points to the same GUI toolkit-dependent widget instance as pane_widget
 
     if (fp->callback_event.type() == pt_event::draw)
         {
         fp->callback_event.grab();
 		render_if_needed();
-
-        fp->damage(FL_DAMAGE_ALL);
-        fp->draw(viewport_parent->rgbpixmap); //JK2-ööö, do this in FLTK_draw_vp???
-        fp->damage(0);
+		
+		fp->damage(FL_DAMAGE_ALL);
+		fp->draw(viewport_parent->rgbpixmap); //JK2-ööö, do this in FLTK_draw_vp???
+		fp->damage(0);
         }
 
     if (viewport_parent->busyTool == NULL)
@@ -1468,14 +1578,19 @@ void FLTKviewport::viewport_callback(Fl_Widget *callingwidget){
     switch (fp->callback_event.type())
         {
         case pt_event::resize:
-            if ((fp->resize_w != viewport_parent->rgbpixmap_size[0] || fp->resize_h != viewport_parent->rgbpixmap_size[1]))
+//			FLTK_Pt_pane *fpp = (FLTK_Pt_pane*)fp->parent();
+
+            if ((fp->w() != viewport_parent->rgbpixmap_size[0] || fp->h() != viewport_parent->rgbpixmap_size[1]))
                 {
                 //resize: just update view size, re-render but don't redraw...yet
                 
                 const int *r = fp->callback_event.get_resize();
+			
+				cout<<"r="<<r[0]<<"r="<<r[1]<<endl;
                 viewport_parent->update_viewsize(r[0] ,r[1]);
                 
-                fp->needs_rerendering();
+//                fp->needs_rerendering();
+				viewport_parent->needs_rerendering();
                 }
             break;
         }

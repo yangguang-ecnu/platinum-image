@@ -46,6 +46,7 @@ class rendergeometry_base
 };
 
 //-----------------------------------------------------
+//-----------------------------------------------------
 
 class rendergeom_image : public rendergeometry_base
 {
@@ -77,4 +78,18 @@ class rendergeom_image : public rendergeometry_base
 
 		Matrix3D get_scan_line_slop_matrix(image_base *the_image_pointer, float rgb_min_norm_div_by_zoom_constant);
 	};
+
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+
+class rendergeom_MIP : public rendergeom_image
+{
+	public:
+        rendergeom_MIP();
+
+		bool use_perspective;
+
+};
+
 #endif

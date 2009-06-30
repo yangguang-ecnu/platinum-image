@@ -22,6 +22,7 @@ extern rendermanager rendermanagement;
 
 
 //-----------------------------------------------------
+//-----------------------------------------------------
 int rendergeometry_base::new_rg_ID=1;
 
 rendergeometry_base::rendergeometry_base()
@@ -35,6 +36,7 @@ int rendergeometry_base::get_id()
 }
 
 
+//-----------------------------------------------------
 //-----------------------------------------------------
 
 rendergeom_image::rendergeom_image():rendergeometry_base()
@@ -105,4 +107,13 @@ Matrix3D rendergeom_image::get_scan_line_slop_matrix(image_base *the_image_point
 	Matrix3D orientation_inv = the_image_pointer->get_orientation().GetInverse();
 	Matrix3D inv_size = the_image_pointer->get_voxel_resize().GetInverse();
 	return (inv_size * orientation_inv)/(this->zoom * rgb_min_norm_div_by_zoom_constant);
+}
+
+
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+rendergeom_MIP::rendergeom_MIP():rendergeom_image()
+{
+   use_perspective=false;
 }

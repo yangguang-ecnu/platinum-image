@@ -58,7 +58,7 @@ void meta_tool::init()
 void meta_tool::handle(viewport_event &event)
 {
     const int * mouse2d = event.mouse_pos_local();
-    FLTK_Pt_pane *fp = event.get_FLTK_viewport();
+    FLTK_Event_pane *fp = event.get_FLTK_viewport();
 
 //	cout<<"event(type,state)=("<<event.type()<<","<<event.state()<<")";
 //	cout<<"(x,y,w,h) ("<<myPort->ROI_rectangle_x<<",";

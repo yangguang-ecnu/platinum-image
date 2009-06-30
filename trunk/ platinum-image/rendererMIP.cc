@@ -21,6 +21,7 @@
 
 rendererMIP::rendererMIP():renderer_image_base()
 {
+	the_rg = new rendergeom_MIP();
 }
 
 void rendererMIP::render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
@@ -30,13 +31,13 @@ void rendererMIP::render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
 
 std::string rendererMIP::find_typekey() const
 {
-return "MPR renderer";
+	return "MIP renderer";
 }
 
 void rendererMIP::connect_data(int dataID)
-    {
+{
     the_rc->add_data(dataID);
-	}
+}
 
 void rendererMIP::paint_overlay(int vp_w, int vp_h_pane, bool paint_rendergeometry)
 {
@@ -48,12 +49,3 @@ void rendererMIP::paint_overlay(int vp_w, int vp_h_pane, bool paint_rendergeomet
 }
 
 
-/*
-rendererMIP::rendererMIP():rendererVTK ()
-{
-    //create rendered objects from selected images/points
-    //vtkRenderer *ren1 = vtkRenderer::New();
-    //ren1‑>AddActor(actor);
-    
-}
-*/
