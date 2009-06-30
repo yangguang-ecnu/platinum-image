@@ -663,3 +663,16 @@ void viewmanager::set_vp_blend_mode(int vp_id, blendmode bm)
 {
 	this->get_viewport(vp_id)->set_blend_mode(bm);
 }
+
+std::vector<int> viewmanager::get_viewport_ids_from_same_geometry_types(const int geometry_id)
+{
+	std::vector<int> vp_ids;
+	for(int i =0; i<viewports.size();i++){
+		//compare geomatry types... (add vp_ids to vector if equal)
+		//rendergeometry *rg = rendermanagement.get_geometry(viewports[i].get_renderer_id);
+		//renderer_base *rb = rendermanagement.get_renderer(viewports[i].get_renderer_id);
+		//rb->find_typekey();
+	}
+	return vp_ids;
+}
+	 
