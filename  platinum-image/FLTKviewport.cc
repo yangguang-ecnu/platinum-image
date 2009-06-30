@@ -858,6 +858,8 @@ void FLTK_Event_pane::needs_rerendering()
 
 
 //---------------------------------------------
+//---------------------------------------------
+//---------------------------------------------
 
 FLTK_Pt_pane::FLTK_Pt_pane():FLTKpane(0,0,100,100)
 {
@@ -872,7 +874,7 @@ FLTK_Pt_pane::FLTK_Pt_pane():FLTKpane(0,0,100,100)
 //	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane()_button");
 //	b->color(FL_BLUE);
 
-	callback_action=CB_ACTION_NONE;
+//	callback_action=CB_ACTION_NONE;
  //   this->box(FL_BORDER_BOX);
 //    this->align(FL_ALIGN_CLIP);
 	this->resizable(event_pane);			//Make sure thes is resized too...
@@ -891,6 +893,7 @@ FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 //	Fl_Group::current(this);
 
 	//--------------------------------
+
     button_pack2 = new Fl_Pack(0,0,W,buttonheight,"");
     button_pack2->type(FL_HORIZONTAL);
 
@@ -950,6 +953,7 @@ FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 	//--------------------------------
 
 //	event_pane = new FLTK_Event_pane(0,0,W,H); //FLTKPane is a "Fl_Window" --->
+
 	event_pane = new FLTK_Event_pane(0,buttonheight,W,H-buttonheight);
 
 //	cout<<"FLTK_Pt_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
@@ -959,7 +963,7 @@ FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H) : FLTKpane(X,Y,W,H)
 //	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane(xywh)_button");
 //	b->color(FL_BLUE);
 
-	callback_action=CB_ACTION_NONE;
+//	callback_action=CB_ACTION_NONE;
 //    this->box(FL_BORDER_BOX);
 //    this->align(FL_ALIGN_CLIP);
 	this->resizable(event_pane);			//Make sure thes is resized too...
@@ -1065,14 +1069,14 @@ void FLTK_Pt_pane::resize_content(int w,int h)
 	cout<<"FLTK_Pt_pane::resize_content("<<w<<","<<h<<")"<<endl;
 	event_pane->resize(0,0,w,h);
 }
-
+/*
 void FLTK_Pt_pane::do_callback(callbackAction action)
 {
     callback_action=action;
     Fl_Widget::do_callback();
     callback_action=CB_ACTION_NONE;
 }
-
+*/
 viewport* FLTK_Pt_pane::get_viewport_parent()
 {
 	return ((FLTKviewport*)this->parent())->viewport_parent;
@@ -1241,6 +1245,288 @@ void FLTK_Pt_pane::refresh_menus()
 //--------------------------------------------------------
 //--------------------------------------------------------
 
+FLTK_Pt_MPR_pane::FLTK_Pt_MPR_pane():FLTK_Pt_pane()
+{
+//	cout<<"FLTK_Pt_pane()"<<endl;
+    int buttonleft=0;
+	int buttonheight=20;
+	int buttonwidth=70;
+
+	event_pane = new FLTK_Event_pane(0,buttonheight,100,100-buttonheight);
+
+	this->resizable(event_pane);			//Make sure thes is resized too...
+	this->end();
+}
+/*
+FLTK_Pt_MPR_pane::FLTK_Pt_MPR_pane(int X,int Y,int W,int H):FLTK_Pt_pane(X,Y,W,H)
+{
+//	cout<<"FLTK_Pt_pane()"<<endl;
+    int buttonleft=0;
+	int buttonheight=20;
+	int buttonwidth=70;
+
+	event_pane = new FLTK_Event_pane(0,buttonheight,100,100-buttonheight);
+
+	this->resizable(event_pane);			//Make sure thes is resized too...
+	this->end();
+}
+*/
+FLTK_Pt_MPR_pane::~FLTK_Pt_MPR_pane()
+{}
+
+//FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
+FLTK_Pt_MPR_pane::FLTK_Pt_MPR_pane(int X,int Y,int W,int H) : FLTK_Pt_pane(X,Y,W,H)
+{
+//	cout<<"FLTK_Pt_pane()"<<endl;
+    int buttonleft=0;
+	int buttonheight=20;
+	int buttonwidth=70;
+
+//	Fl_Group::current(this);
+
+	//--------------------------------
+    button_pack2 = new Fl_Pack(0,0,W,buttonheight,"");
+    button_pack2->type(FL_HORIZONTAL);
+
+	Fl_Menu_Item dir_menu_items[NUM_DIRECTIONS+1];
+    
+    int m;
+    for(m=0;m<NUM_DIRECTIONS;m++){
+        menu_callback_params * cbp=new menu_callback_params;
+        cbp->direction=(preset_direction)m;
+        cbp->vport=get_viewport_parent();
+        
+        init_fl_menu_item(dir_menu_items[m]);
+        dir_menu_items[m].label(preset_direction_labels[m]);
+        dir_menu_items[m].callback(&set_direction_callback);
+        dir_menu_items[m].user_data(cbp);
+        dir_menu_items[m].flags= FL_MENU_RADIO;
+    }
+
+    dir_menu_items[m].label(NULL);	//terminate menu
+    dir_menu_items[DEFAULT_DIR].setonly();	//DEFAULT_DIR is pre-set, set checkmark accordingly
+
+    directionmenu_button = new Fl_Menu_Button(0,0,buttonwidth,buttonheight,preset_direction_labels[Z_DIR]);
+    directionmenu_button->copy(dir_menu_items);
+	directionmenu_button->box(FL_THIN_UP_BOX);
+	directionmenu_button->labelsize(FLTK_SMALL_LABEL);
+
+    Fl_Menu_Item blend_menu_items [NUM_BLEND_MODES+1];
+    for(m=0;m<NUM_BLEND_MODES;m++){
+//		cout<<"m="<<m<<"/"<<NUM_BLEND_MODES<<endl;
+
+        menu_callback_params * cbp=new menu_callback_params;
+        cbp->mode=(blendmode)m;
+		int rID = this->get_viewport_parent()->rendererID;
+//		rendermanagement.print_renderers();
+		cbp->rend_index = rendermanagement.find_renderer_index(rID); //might execute befor the renderer has been created...
+        
+        init_fl_menu_item(blend_menu_items[m]);
+        
+        blend_menu_items[m].label(blend_mode_labels[m]);
+        blend_menu_items[m].callback(&set_blendmode_callback);
+        blend_menu_items[m].user_data(cbp);
+        blend_menu_items[m].flags= FL_MENU_RADIO;
+        
+//        if (rendererIndex < 0)
+  //          {blend_menu_items[m].deactivate();}
+      }
+    //terminate menu
+    blend_menu_items[m].label(NULL);
+    
+    blendmenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight);
+    blendmenu_button->copy(blend_menu_items);
+    blendmenu_button->box(FL_THIN_UP_BOX);
+    blendmenu_button->labelsize(FLTK_SMALL_LABEL);
+
+
+	button_pack2->end();
+	//--------------------------------
+
+//	event_pane = new FLTK_Event_pane(0,0,W,H); //FLTKPane is a "Fl_Window" --->
+	event_pane = new FLTK_Event_pane(0,buttonheight,W,H-buttonheight);
+
+//	cout<<"FLTK_Pt_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
+//	event_pane = new FLTK_Event_pane(X,Y,W,H);
+//	event_pane = new FLTK_Event_pane(0,0,W,H); //FLTKPane is a "Fl_Window" --->
+
+//	Fl_Button *b = new Fl_Button(10,50,20,200, "pt_pane(xywh)_button");
+//	b->color(FL_BLUE);
+
+//	callback_action=CB_ACTION_NONE;
+//    this->box(FL_BORDER_BOX);
+//    this->align(FL_ALIGN_CLIP);
+	this->resizable(event_pane);			//Make sure thes is resized too...
+	this->end();
+}
+
+
+
+
+
+void FLTK_Pt_MPR_pane::set_direction_callback(Fl_Widget *callingwidget, void * p )
+{
+    menu_callback_params * params = (menu_callback_params *) p;
+	params->vport->set_renderer_direction( params->direction );
+
+	params->vport->refresh();
+	viewmanagement.update_overlays();
+}
+
+void FLTK_Pt_MPR_pane::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
+{
+    menu_callback_params * params=(menu_callback_params *)p;
+    
+    rendermanagement.set_blendmode(params->rend_index,params->mode);
+}
+
+void FLTK_Pt_MPR_pane::set_direction_button_label(preset_direction direction)
+{
+	directionmenu_button->label( preset_direction_labels[direction] );
+	( (Fl_Menu_Item*)directionmenu_button->menu() )[direction].setonly(); 	//also activate the right radio-button...
+}
+
+void FLTK_Pt_MPR_pane::set_renderer_direction( preset_direction direction ) 
+{
+
+    enum { x, y, z };
+    
+    Matrix3D dir;
+	dir.SetIdentity();
+
+	image_base *im;
+    
+    /**dir[0][0]=1; //voxel direction of view x
+        *dir[2][1]=1; //voxel direction of view y
+    *dir[1][2]=1; //voxel direction of slicing*/
+    
+    //remember,
+    // A sagittal plane divides the body into left and right portions.
+    //The midsagittal plane is in the midline, i.e. it would pass through midline structures such as the navel or spine, and all other sagittal planes are parallel to it.
+    // A coronal plane divides the body into dorsal and ventral portions.
+    // A transverse plane divides the body into cranial (cephalic) and caudal portions.
+    
+	//enum preset_direction {Z_DIR, Y_DIR, X_DIR, Z_DIR_NEG, Y_DIR_NEG, X_DIR_NEG, AXIAL};
+
+    switch(direction){
+		case DEFAULT_DIR:
+        //case AXIAL:
+//            dir[x][0]=1;	// the x direction of the viewport ("0") lies in the positive ("+1") x direction ("x") of the world coordinate system
+  //          dir[y][1]=1;	// the y direction of the viewport ("1") lies in the positive ("+1") y direction ("y") of the world coordinete system
+    //        dir[z][2]=1;	// the z direction of the viewport ("2") lies in the positive ("+1") z direction ("z") of the world coordinate system
+
+			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
+			if(im!=NULL){
+				dir = im->get_dir_rendering_matrix(direction);
+			}
+            break;
+
+		case AXIAL:
+			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
+			if(im!=NULL){
+				dir = im->get_dir_rendering_matrix(direction);
+			}
+            break;
+
+		case SAGITTAL:
+			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
+			if(im!=NULL){
+				dir = im->get_dir_rendering_matrix(direction);
+			}
+            break;
+
+		case CORONAL:
+			im = rendermanagement.get_top_image_from_renderer(this->get_renderer_id());
+			if(im!=NULL){
+				dir = im->get_dir_rendering_matrix(direction);
+			}
+            break;
+
+	
+		case Z_DIR:
+			dir.Fill(0);
+            dir[x][0]=1;	// the x direction of the viewport ("0") lies in the positive ("+1") x direction ("x") of the world coordinate system
+            dir[y][1]=1;	// the y direction of the viewport ("1") lies in the positive ("+1") y direction ("y") of the world coordinete system
+            dir[z][2]=1;	// the z direction of the viewport ("2") lies in the positive ("+1") z direction ("z") of the world coordinate system
+            break;
+            
+        case Y_DIR:
+			dir.Fill(0);
+            dir[x][0]=1;
+            dir[z][1]=-1;
+            dir[y][2]=1;
+            break;
+            
+        case X_DIR:
+			dir.Fill(0);
+            dir[y][0]=-1;
+            dir[z][1]=-1;
+            dir[x][2]=1;
+            break;
+            
+        case Z_DIR_NEG:
+			dir.Fill(0);
+            dir[x][0]=-1;
+            dir[y][1]=1;
+            dir[z][2]=-1;
+            break;
+            
+        case Y_DIR_NEG:
+			dir.Fill(0);
+            dir[x][0]=-1;
+            dir[z][1]=-1;
+            dir[y][2]=-1;
+            break;
+            
+        case X_DIR_NEG:
+			dir.Fill(0);
+            dir[y][0]=1;
+            dir[z][1]=-1;
+            dir[x][2]=-1;
+            break;
+    }
+	
+	this->get_viewport_parent()->set_renderer_direction( dir );
+	this->set_direction_button_label(direction);
+}
+
+
+void FLTK_Pt_MPR_pane::rebuild_blendmode_menu()//update checkmark for current blend mode
+{
+    if(blendmenu_button != NULL){
+        Fl_Menu_Item *blendmodemenu=(Fl_Menu_Item *)blendmenu_button->menu();
+
+		//blend modes are different - or not available - for other renderer types (than MPR...)
+		//basic check for this:
+		//int this_renderer_type=rendermanagement.get_renderer_type(rendererIndex);
+		
+		int rendInd = this->get_viewport_parent()->rendererIndex;
+		for(int m=0; m<NUM_BLEND_MODES; m++){
+			((menu_callback_params*)(blendmodemenu[m].argument()))->rend_index = rendInd;
+			if(rendInd<0 || !rendermanagement.renderer_supports_mode(rendInd,m)){
+				blendmodemenu[m].deactivate();
+			}else{
+				blendmodemenu[m].activate();
+			}
+		}
+		if(rendInd >= 0){
+			int this_blend_mode=rendermanagement.get_blend_mode(rendInd);
+			blendmodemenu[this_blend_mode].setonly();
+			blendmenu_button->label(blend_mode_labels[this_blend_mode]);
+		}
+	}
+}
+
+void FLTK_Pt_MPR_pane::refresh_menus()
+{
+	rebuild_blendmode_menu();
+}
+
+
+//--------------------------------------------------------
+//--------------------------------------------------------
+//--------------------------------------------------------
+
 FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_parent, int buttonheight, int buttonwidth):Fl_Window(xpos,ypos,width,height)
 {
 	viewport_parent = vp_parent;
@@ -1331,6 +1617,7 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 
 	if( (viewport_parent->vp_type == PT_MPR) || (viewport_parent->vp_type == PT_MIP) ){
 		pane_widget = new FLTK_Pt_pane(0,0+buttonheight,width,height-buttonheight);
+//		pane_widget = new FLTK_Pt_MPR_pane(0,0+buttonheight,width,height-buttonheight);
 		((FLTK_Pt_pane*)pane_widget)->event_pane->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
 		pane_widget->callback(viewport_callback, this); //resize callbacks...
 	}else{
@@ -1529,14 +1816,12 @@ void FLTKviewport::cb_renderer_select3(Fl_Widget *o, void *v)
 	const Fl_Menu_Item *item = reinterpret_cast<Fl_Menu_*>(o)->mvalue();
     const_cast<Fl_Menu_Item*>(item)->setonly();
 
-
     listedfactory<FLTKpane>::lf_menu_params *par = reinterpret_cast<listedfactory<FLTKpane>::lf_menu_params *>(v);
     //par->receiver; //the viewport
     //par->type; //the new renderer type
 	
-	FLTKviewport *owner_FLTKviewport = (FLTKviewport*)par->receiver;
-   
-	owner_FLTKviewport->switch_pane(par->type);
+	FLTKviewport *owner = (FLTKviewport*)par->receiver;
+	owner->switch_pane(par->type);
 
 /*
 	//cout<<"Fl_Group::current()="<<Fl_Group::current()<<endl;
