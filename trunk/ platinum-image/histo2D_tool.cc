@@ -35,8 +35,8 @@ histo2D_tool::histo2D_tool(viewport_event &event,thresholdparvalue * v,viewport 
         
         //const int * mouse = event.mouse_pos_global();
         
-        overlay=new threshold_overlay(event.get_FLTK_viewport(),rendermanagement.find_renderer_index( myPort->get_renderer_id()));
-        ROI = new FLTK2Dregionofinterest(event.get_FLTK_viewport());
+        overlay=new threshold_overlay(event.get_FLTK_Event_pane(),rendermanagement.find_renderer_index( myPort->get_renderer_id()));
+        ROI = new FLTK2Dregionofinterest(event.get_FLTK_Event_pane());
         }
     }
 
@@ -64,7 +64,7 @@ void histo2D_tool::handle(viewport_event &event)
         last_global_y = mouse[1];
         }
 
-    FLTK_Event_pane *fp = event.get_FLTK_viewport();
+    FLTK_Event_pane *fp = event.get_FLTK_Event_pane();
 
     switch (event.type()) {
             case pt_event::adjust:
@@ -337,6 +337,6 @@ void FLTK2Dregionofinterest::resize (viewport_event &e)
     e.resize_point (region_start_x,region_start_y);
     e.resize_point (region_end_x,region_end_y);
     
-    canvas_size_x=e.get_FLTK_viewport()->w();
-    canvas_size_y=e.get_FLTK_viewport()->h();
+    canvas_size_x=e.get_FLTK_Event_pane()->w();
+    canvas_size_y=e.get_FLTK_Event_pane()->h();
 }
