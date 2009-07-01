@@ -296,7 +296,8 @@ void nav_tool::handle(viewport_event &event)
 //					std::cout<<"Pan..."<<std::endl;
                     event.grab();
                     myRenderer->move_view(viewSize,(last_local_x-event.mouse_pos_local()[0]),(last_local_y-event.mouse_pos_local()[1]));
-                    ((FLTK_Pt_pane*)fp->parent())->needs_rerendering();
+//                    ((FLTK_Pt_pane*)fp->parent())->needs_rerendering();
+                    fp->needs_rerendering();
 					last_local_x = event.mouse_pos_local()[0];
 					last_local_y = event.mouse_pos_local()[1];
 				}
@@ -321,7 +322,8 @@ void nav_tool::handle(viewport_event &event)
 					int dy = new_pos[1]-local_zoom_start_pos[1];
 					myRenderer->move_view(viewSize,dx,dy);
                     
-                    ((FLTK_Pt_pane*)fp->parent())->needs_rerendering();
+//                    ((FLTK_Pt_pane*)fp->parent())->needs_rerendering();
+					fp->needs_rerendering();
 				}					
 			break;
                 
