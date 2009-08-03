@@ -80,7 +80,31 @@ public:
         iterator begin() const;
         iterator end() const;
         bool empty() const;
-        image_base* top_image()const; //topmost image
+
+		template<class T> T* top_image()const{ //topmost image
+		    for (std::list<renderpair>::const_iterator itr = renderdata.begin();itr != renderdata.end();itr++){
+				T* value = dynamic_cast<T* >(itr->pointer); //->getType kan man ha och sen en enumeration med typer
+				if (value != NULL){
+					return value;
+				}
+			}
+			return NULL;
+		}
+
+		string change_top_image(int i){ //Denna har R lagt till för at testa!!!
+			if(!renderdata.empty()){
+				if(i >0){
+					renderdata.push_back(renderdata.front());
+					renderdata.pop_front();
+				}else if(i < 0){
+					renderdata.push_front(renderdata.back());
+					renderdata.pop_back();
+				}
+				//return the name of the last image to know it is the one to be configured
+				return renderdata.back().pointer->name();
+			}
+		}
+
         void add_data(int dataID);
         void toggle_data(int dataID);
 		void enable_data(int dataID);

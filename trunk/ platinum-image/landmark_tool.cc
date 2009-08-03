@@ -70,7 +70,7 @@ void landmark_tool::handle(viewport_event &event)
 			// the get_id() of the top image could be implemented as a get_top_image_id() in renderer_base
 			// image_base * top = rendermanagement.get_combination(myRenderer->combination_id())->top_image();
 			image_base * top;
-			if ( !(top = rendermanagement.get_combination(myRenderer->combination_id())->top_image()) )
+			if ( !(top = rendermanagement.get_combination(myRenderer->combination_id())->top_image<image_base>()) ) //TODO_R top
 			{
 				// TODO: use pt_error
 				std::cout << "No image in current viewport" << std::endl;

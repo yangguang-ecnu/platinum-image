@@ -25,6 +25,7 @@
 #include "userIOmanager.h"
 #include "landmark_tool.h"
 #include "meta_tool.h"
+#include "curve_tool.h"
 
 
 extern viewmanager viewmanagement;
@@ -70,8 +71,12 @@ void viewporttool::init (int posX, int posY,statusarea * s)
     viewporttool::Register<histo2D_tool>();
 	viewporttool::Register<landmark_tool>();
 	viewporttool::Register<meta_tool>();
+	viewporttool::Register<curve_tool>();
+	//TODO_R Lägg till curve_tool här sen
     
     selected = "Navigation";
+
+	//selected = "Curve manipulation tool"; //Ändra start
     
     //create toolbox widget
     const bool horizontal = true;
@@ -237,7 +242,7 @@ void nav_tool::handle(viewport_event &event)
 {
 	FLTK_Event_pane *fp = event.get_FLTK_Event_pane();
 
-    if ( event.state() == pt_event::begin )
+    if ( event.state() == pt_event::begin)
 	{
 //      cout<<"nav_tool.. begin..."<<endl;
         last_global_x = event.mouse_pos_global()[0]; //used in various functions
@@ -250,6 +255,7 @@ void nav_tool::handle(viewport_event &event)
 		//Used in zoom function 	//Note: it is important to use local mouse coordinates when using world<-->view transformations...
 		physical_zoom_start_pos = myRenderer->view_to_world(last_local_x, last_local_y, fp->w(), fp->h());
   //    cout<<"physical_zoom_start_pos="<<physical_zoom_start_pos<<endl;
+//		cout << "begin event...." << endl;
 		local_zoom_start_pos = myRenderer->world_to_view(fp->w(),fp->h(),physical_zoom_start_pos);
 //		local_zoom_start_pos = myRenderer->world_to_view(fp->w(),fp->h()+fp->y(),physical_zoom_start_pos);
 //      cout<<"local_zoom_start_pos="<<local_zoom_start_pos[0]<<" "<<local_zoom_start_pos[1]<<endl;
@@ -259,7 +265,7 @@ void nav_tool::handle(viewport_event &event)
 
 	if ( event.type() == pt_event::focus_viewports )
 	{	// double click
-		if ( rendermanagement.get_combination(myRenderer->combination_id())->top_image() != NULL )
+		if ( rendermanagement.get_combination(myRenderer->combination_id())->top_image<image_base>() != NULL ) //TODO_R top
 		{	// there is an image in current viewport
 		
 			// The coordinate of the mouse pointer in the current viewport is shown in the other viewports
@@ -316,6 +322,7 @@ void nav_tool::handle(viewport_event &event)
 					myRenderer->move_view(viewSize,0,0,0,z); 
 
 					//move....
+					cout << "adjust event...." << endl;
 					std::vector<int> new_pos = myRenderer->world_to_view(fp->w(),fp->h(),physical_zoom_start_pos);
 
 					int dx = new_pos[0]-local_zoom_start_pos[0];
@@ -473,7 +480,7 @@ void nav_tool::move_voxels( int x, int y, int z )
 void nav_tool::center3d_and_fit()
 {
 	image_base * top;
-	if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
+	if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image<image_base>() ) //TODO_R top
 	{	// there is an image in current viewport			
 		rendermanagement.center3d_and_fit(myRenderer->get_id(), top->get_id());
 		refresh_by_image_and_direction();
@@ -483,7 +490,7 @@ void nav_tool::center3d_and_fit()
 void nav_tool::center2d()
 {
 	image_base * top;
-	if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image() )
+	if ( top = rendermanagement.get_combination(myRenderer->combination_id())->top_image<image_base>() ) //TODO_R top
 	{	// there is an image in current viewport			
 		rendermanagement.center2d(myRenderer->get_id(), top->get_id());
 		refresh_by_image_and_direction();
@@ -628,6 +635,7 @@ void cursor_tool::handle(viewport_event &event)
             const int chsize = 6;
             const int chmarg = chsize + 2;
             const int chlen = 8;
+			std::cout << "draw event...." << endl;
             std::vector<int> drawC = myRenderer->world_to_view (fp->w(),fp->h(),selection->get_origin());
 
             drawC[0] += fp->x();

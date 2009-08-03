@@ -38,7 +38,8 @@ panefactory viewport::pfactory = panefactory();
 viewport::viewport(VIEWPORT_TYPE vpt)
 {
     ID = ++maxviewportID;
-    VIEWPORT_TYPE vp_type = vpt;
+    //VIEWPORT_TYPE vp_type = vpt;
+	vp_type = vpt;
 
   
     rendererID=NO_RENDERER_ID;
@@ -82,11 +83,12 @@ void viewport::initialize_viewport(int xpos, int ypos, int width, int height, VI
     const int buttonwidth=70;
    
 	int rendID;
-
 	if(vp_type == PT_MPR){	//PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
 		rendID = rendermanagement.create_renderer(RENDERER_MPR);
 	}else if(vp_type == PT_MIP){
 		rendID = rendermanagement.create_renderer(RENDERER_MIP);
+	}else if(vp_type == PT_CURVE){
+		rendID = rendermanagement.create_renderer(RENDERER_CURVE);
 	}
     //attach MPR renderer - so that all viewports can be populated for additional views
 	viewmanagement.connect_renderer_to_viewport(ID,rendID); 
@@ -143,6 +145,13 @@ void viewport::set_renderer_direction( const Matrix3D & dir )
 void viewport::set_renderer_direction( preset_direction direction ) 
 {
 	the_widget->pane_widget->set_renderer_direction(direction); 
+}
+void viewport::change_color( colors color ) 
+{
+	((FLTK_Pt_Curve_pane*)the_widget->pane_widget)->change_color(color); 
+}
+void viewport::change_line_type(char line){
+	((FLTK_Pt_Curve_pane*)the_widget->pane_widget)->change_line(line); 
 }
 
 
@@ -230,6 +239,7 @@ void viewport::enable_and_set_direction( preset_direction direction )
 void viewport::set_renderer(string renderer_type)
 {
 	the_widget->switch_pane(renderer_type);
+
 //	the_widget->set_renderer_button_label(renderer_type);
 }
 

@@ -104,15 +104,15 @@ void diff_images (int u,int p)
         
         image_integer<theIndexedPixelType, 3> * truth_in =
             dynamic_cast<image_integer<theIndexedPixelType, 3> * >(
-            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0)));
+            datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(u,0)));
             //using dynamic_cast, reason:
             //for this application the input is supposed to be an unsigned char
             //and nothing else.
             //Note that truth_in is checked below to be != NULL
         image_binary<3> * test = binary_copycast<3>(
-            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,1)));
+            datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(u,1)));
         image_binary<3> * mask = binary_copycast<3> (
-            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,2)));
+            datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(u,2)));
             //using binary_copycast for these because:
             //1. a binary image is desired
             //2. the input image is binary formatted (1/0 only)
@@ -265,7 +265,7 @@ void threshold_artifact_process (int u,int p)
         userIOmanagement.progress_update(1,"Converting data",5);
         
         image_label<3> * input_vol = label_copycast<3>(
-            datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(u,0)));
+            datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(u,0)));
             //using label_copycast, reason:
             //a binary image is suitable but
             //ITK::image cannot handle images with 'bool' value

@@ -33,6 +33,7 @@ using namespace std;
 
 
 const char * preset_direction_labels[] = {"Default","Axial","Sagittal","Coronal","Z","Y","X","-Z","-Y","-X"};
+const char * preset_color_labels[] = {"White", "Black", "Red", "Green", "Blue", "Yellow", "Magenta", "Cyan"};
 //const char * preset_direction_labels[] ={"Axial","Coronal","Sagittal","-Axial","-Coronal","-Sagittal"};
 const char * blend_mode_labels[] = {"Overwrite","Max","Min","Average","Diff","Tint","Grey+Tint","Grey+Red","Grey+Blue"};
 
@@ -42,7 +43,9 @@ struct menu_callback_params
     blendmode mode;				//for blend callback
     int vol_id;					//for image callback
     viewport *vport;			//for preset direction callback    
-    preset_direction direction;	//for preset direction callback    
+    preset_direction direction;	//for preset direction callback  
+	colors color;				//For color selection in curve
+	char line;					//Determines the line type
 };
 
 string eventnames[] =
@@ -838,13 +841,14 @@ void FLTK_Event_pane::draw()
 void FLTK_Event_pane::draw(unsigned char *rgbimage)
 {
     if (w()>0 && h()>0){
-		cout<<"Nu ritar vi!!!("<<this->x()<<","<<this->y()<<","<<w()<<","<<h()<<endl;
+	//	cout<<"Nu ritar vi!!!("<<this->x()<<","<<this->y()<<","<<w()<<","<<h()<<endl;
         // do not redraw zero-sized viewport, fl_draw_image will break down
 		
 //		fl_draw_image(rgbimage,0,0,w(),h());
 //		Fl_Group::current(this); //JK-tmp
 //		Fl_Widget::current(this); //JK-tmp
 		fl_draw_image(rgbimage,this->x(),this->y(),w(),h()); //JK3
+
     }
 }
 
@@ -916,6 +920,9 @@ void FLTK_Pt_pane::draw_overlay()
 void FLTK_Pt_pane::resize_content(int w,int h)
 {
 	cout<<"FLTK_Pt_pane::resize_content("<<w<<","<<h<<")"<<endl;
+	if(event_pane == NULL)
+		cout << "NULL!!!" << endl;
+	else
 	event_pane->resize(0,0,w,h);
 }
 
@@ -1188,9 +1195,189 @@ void FLTK_Pt_MPR_pane::refresh_menus()
 	rebuild_blendmode_menu();
 }
 
+//--------------------------------------------------------
+//--------------------------------------------------------
 
+FLTK_Pt_Curve_pane::FLTK_Pt_Curve_pane()
+{
+	cout<<"FLTK_Pt_Curve_pane()"<<endl;
+    int buttonleft=0;
+	int buttonheight=20;
+	int buttonwidth=70;
+	event_pane = new FLTK_Event_pane(0,buttonheight,100,100-buttonheight, this);
+
+	this->resizable(event_pane);			//Make sure thes is resized too...
+	this->end();
+	
+}
+
+//FLTK_Pt_pane::FLTK_Pt_pane(int X,int Y,int W,int H, viewport *vp_parent) : Fl_Overlay_Window(X,Y,W,H)
+FLTK_Pt_Curve_pane::FLTK_Pt_Curve_pane(int X,int Y,int W,int H) : FLTK_Pt_pane(X,Y,W,H)
+{
+	cout<<"FLTK_Pt_Curve_pane("<<X<<","<<Y<<","<<W<<","<<H<<")"<<endl;
+    int buttonleft=0;
+	int buttonheight=20;
+	int buttonwidth=70;
+
+	//Fl_Group::current(this);
+
+	//--------------------------------
+    button_pack2 = new Fl_Pack(0,0,W,buttonheight,"");
+    button_pack2->type(FL_HORIZONTAL);
+	Fl_Menu_Item col_menu_items[9];
+	//enum colors {WHITE, BLACK, RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN};
+    
+    int m = 0;
+    
+	for(m = 0; m<8; m++){    
+		menu_callback_params * cbp=new menu_callback_params;
+		cbp->color=(colors)m;
+		cbp->vport=get_viewport_parent();
+		init_fl_menu_item(col_menu_items[m]);
+		col_menu_items[m].label(preset_color_labels[m]);
+		col_menu_items[m].callback(&set_color_callback);
+		col_menu_items[m].user_data(cbp);
+		col_menu_items[m].flags= FL_MENU_RADIO;
+	}
+
+    col_menu_items[m].label(NULL);	//terminate menu
+    col_menu_items[RED].setonly();	//DEFAULT_DIR is pre-set, set checkmark accordingly
+
+    colormenu_button = new Fl_Menu_Button(0,0,buttonwidth,buttonheight,"color");
+    colormenu_button->copy(col_menu_items);
+	colormenu_button->box(FL_THIN_UP_BOX);
+	colormenu_button->labelsize(FLTK_SMALL_LABEL);
+	//------------------------------------
+	Fl_Menu_Item bg_menu_items [4];
+	
+	menu_callback_params * cbp=new menu_callback_params;
+	cbp->line = '.';
+	cbp->vport=get_viewport_parent();
+    init_fl_menu_item(bg_menu_items[0]);
+        
+    bg_menu_items[0].label(".");
+    bg_menu_items[0].callback(&set_line_callback);
+    bg_menu_items[0].user_data(cbp);
+    bg_menu_items[0].flags= FL_MENU_RADIO;
+
+	menu_callback_params * cb=new menu_callback_params;
+	cb->line = '-';
+	cb->vport=get_viewport_parent();
+    init_fl_menu_item(bg_menu_items[1]);
+
+	bg_menu_items[1].label("-");
+    bg_menu_items[1].callback(&set_line_callback);
+    bg_menu_items[1].user_data(cb);
+    bg_menu_items[1].flags= FL_MENU_RADIO;
+
+
+	menu_callback_params * bp=new menu_callback_params;
+	bp->line = '|';
+	bp->vport=get_viewport_parent();
+    init_fl_menu_item(bg_menu_items[2]);
+
+	bg_menu_items[2].label("|");
+    bg_menu_items[2].callback(&set_line_callback);
+    bg_menu_items[2].user_data(bp);
+    bg_menu_items[2].flags= FL_MENU_RADIO;
+
+
+        
+    bg_menu_items[3].label(NULL);    //terminate menu
+	bg_menu_items[1].setonly(); //lines
+    
+    bgmenu_button = new Fl_Menu_Button(0+(buttonleft+=buttonwidth),0,buttonwidth,buttonheight, "line");
+    bgmenu_button->copy(bg_menu_items);
+    bgmenu_button->box(FL_THIN_UP_BOX);
+    bgmenu_button->labelsize(FLTK_SMALL_LABEL);
+	//---------------------------------------
+	button_pack2->end();
+	//--------------------------------
+
+	event_pane = new FLTK_Event_pane(0,buttonheight,W,H-buttonheight,this);
+	this->resizable(event_pane);			//Make sure thes is resized too...
+	this->end();
+}
+
+FLTK_Pt_Curve_pane::~FLTK_Pt_Curve_pane()
+{}
+
+viewport* FLTK_Pt_Curve_pane::get_viewport_parent()
+{
+	return ((FLTKviewport*)this->parent())->viewport_parent;
+}
+
+
+
+void FLTK_Pt_Curve_pane::set_color_callback(Fl_Widget *callingwidget, void * p )
+{
+    menu_callback_params * params = (menu_callback_params *) p;
+	params->vport->change_color( params->color );
+	params->vport->refresh();
+	viewmanagement.update_overlays();
+}
+
+void FLTK_Pt_Curve_pane::set_line_callback(Fl_Widget *callingwidget, void * p )
+{
+    menu_callback_params * params = (menu_callback_params *) p;
+	params->vport->change_line_type( params->line );
+	params->vport->refresh();
+	viewmanagement.update_overlays();
+}
+
+void FLTK_Pt_Curve_pane::set_color_button_label(colors c)
+{
+	colormenu_button->label( preset_color_labels[c] );
+	( (Fl_Menu_Item*)colormenu_button->menu() )[c].setonly(); 	//also activate the right radio-button...
+}
 //--------------------------------------------------------
-//--------------------------------------------------------
+
+
+void FLTK_Pt_Curve_pane::change_line(char line){
+	curve_base *curve = ((rendergeom_curve *)rendermanagement.get_geometry(this->get_renderer_id()))->curve;
+	//curve_base *curve = ((renderer_curve *)rendermanagement.get_renderer(this->get_renderer_id))->get_top();
+	if(curve == NULL){
+		return;
+	}
+	curve->set_line(line);
+}
+
+void FLTK_Pt_Curve_pane::change_color(colors color){
+	curve_base *curve = ((rendergeom_curve *)rendermanagement.get_geometry(this->get_renderer_id()))->curve;
+	//curve_base *curve = ((renderer_curve *)rendermanagement.get_renderer(this->get_renderer_id))->get_top();
+	if(curve == NULL){
+		return;
+	}
+	switch(color){
+		case BLACK:
+			curve->set_color(0,0,0);
+			break;
+		case WHITE:
+			curve->set_color(255,255,255);
+			break;
+		case RED:
+			curve->set_color(255,0,0);
+			break;
+		case GREEN:
+			curve->set_color(0,255,0);
+			break;
+		case BLUE:
+			curve->set_color(0,0,255);
+			break;
+		case YELLOW:
+			curve->set_color(255,255,0);
+			break;
+		case MAGENTA:
+			curve->set_color(255,0,255);
+			break;
+		case CYAN:
+			curve->set_color(0,255,255);
+			break;
+		default:
+			curve->set_color(0,0,0);
+			break;
+	}
+}
 //--------------------------------------------------------
 
 FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_parent, int buttonheight, int buttonwidth):Fl_Window(xpos,ypos,width,height)
@@ -1288,7 +1475,10 @@ FLTKviewport::FLTKviewport(int xpos,int ypos,int width,int height, viewport *vp_
 		pane_widget = new FLTK_Pt_MPR_pane(0,0+buttonheight,width,height-buttonheight);
 		((FLTK_Pt_MPR_pane*)pane_widget)->event_pane->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
 
-	}else{
+	}else if(viewport_parent->vp_type == PT_CURVE){
+		pane_widget = new FLTK_Pt_Curve_pane(0,0+buttonheight,width,height-buttonheight);
+		((FLTK_Pt_Curve_pane*)pane_widget)->event_pane->callback(viewport_callback, this);
+	}else{ 
 		pane_widget = new FLTK_VTK_Cone_pane(0,0+buttonheight,width,height-buttonheight);
 	}
 
@@ -1609,6 +1799,8 @@ void FLTKviewport::set_blendmode_callback(Fl_Widget *callingwidget, void * p )
 
 void FLTKviewport::toggle_data_callback(Fl_Widget *callingwidget, void * params )
 {
+
+	//Här kan man sätta rendrerare!!!!!!
     menu_callback_params * widget_user_data=(menu_callback_params *)params;
 
     rendermanagement.toggle_data(widget_user_data->rend_index,widget_user_data->vol_id);
@@ -1668,11 +1860,12 @@ void FLTKviewport::switch_pane(factoryIdType type)
 	int y = this->pane_widget->y();
 	int w = this->pane_widget->w();
 	int h = this->pane_widget->h();
+
 	this->pane_widget->parent()->remove(this->pane_widget);
 	delete this->pane_widget;
 
-	Fl_Group::current(this);
-
+	Fl_Group::current(this); //TITTA HÄR!!! Dwenna körs då man byter rendrerare
+	
 	this->pane_widget = rendermanager::pane_factory.Create(type);
 
 	this->pane_widget->x(x);
@@ -1680,13 +1873,16 @@ void FLTKviewport::switch_pane(factoryIdType type)
 	this->pane_widget->w(w);
 	this->pane_widget->h(h);
 	this->pane_widget->resize_content(w,h);
+	
+
+	//Måste man inte lägga till parent igen på något sätt?
+	//Det skapas ingen ny rendrerare här. Borde det inte det???
 
 	this->pane_widget->callback(viewport_callback, this); //viewport (_not_ FLTK_Pt_pane) handles the callbacks
 
 	cout<<"shown()"<<this->pane_widget->shown()<<endl;
 	this->pane_widget->show();
 	cout<<"shown()"<<this->pane_widget->shown()<<endl;
-
 	//viewmanagement.list_viewports();
 }
 

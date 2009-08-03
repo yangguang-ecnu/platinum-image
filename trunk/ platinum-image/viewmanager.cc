@@ -278,9 +278,12 @@ void viewmanager::setup_views(int virtualview, int areawidth, int areaheight) //
             if (viewportmapping[v][h][virtualview] >= 0)
                 {
                 int VPind = find_viewport_index( viewportmapping[v][h][virtualview] );
+				VIEWPORT_TYPE vp_type = PT_MPR; //Ändra start
+
                 //Create viewport widget and set position
-                viewports[ VPind ].initialize_viewport(int(tilewidthpercentsum*areawidth),int(tileheightpercentsum*areaheight),tilewidth,tileheight,PT_MPR);
-                //viewports[ VPind ].initialize_viewport(int(tilewidthpercentsum*areawidth),int(tileheightpercentsum*areaheight),tilewidth,tileheight,PT_MIP);
+
+                viewports[ VPind ].initialize_viewport(int(tilewidthpercentsum*areawidth),int(tileheightpercentsum*areaheight),tilewidth,tileheight,vp_type);
+               // viewports[ VPind ].initialize_viewport(int(tilewidthpercentsum*areawidth),int(tileheightpercentsum*areaheight),tilewidth,tileheight,PT_MIP);
                 }
             else
                 {
@@ -591,6 +594,7 @@ void viewmanager::show_point_by_renderers ( const Vector3D & point, const std::v
 		const int sy = vp->pixmap_size()[1];
 
 		renderer_base * myRenderer = rendermanagement.get_renderer(*itr);
+		std::cout << "show_point_by_renderers" << endl; 
 		std::vector<int> point_in_view = myRenderer->world_to_view(sx, sy, point);
 		
 		Vector3D at = geometry->look_at;

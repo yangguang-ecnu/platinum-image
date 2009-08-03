@@ -262,6 +262,21 @@ void datamanager::add(image_base *im, string name, bool data_changed)
 	}
 }
 
+/* Added support for curve */
+void datamanager::add(curve_base *curve){
+	
+	pt_error::error_if_false(dataItems.size() < DATA_VECTOR_MAX,"Error when adding curve: number of data items in datamanager exceeds IMAGEVECTORMAX",pt_error::fatal);
+    
+    if(pt_error::error_if_null(curve,"Can't add curve to datamanager, pointer is NULL",pt_error::serious) != NULL){
+        dataItems.push_back(curve);
+        curve->activate();
+		//viewmanagement.show_in_empty_viewport(curve->get_id()); använder image_base specifika saker i nuläget...
+        
+        data_vector_has_changed();
+        data_has_changed(curve->get_id());
+	}
+}
+
 
 void datamanager::add(point_collection *p)
 {
@@ -513,8 +528,9 @@ data_base * datamanager::get_data (int ID)
         }
 	return NULL;//Pretty important line...
 }
-
-image_base * datamanager::get_image (int ID)
+//Denna är definierad i H filen pga template
+/*template<class T>
+T* datamanager::get_image (int ID)
     {
     vector<data_base*>::iterator itr=dataItems.begin();
 
@@ -522,17 +538,16 @@ image_base * datamanager::get_image (int ID)
         {
         if (**itr == ID)
             {
-            image_base * i = dynamic_cast<image_base *>(*itr);
+            T * i = dynamic_cast<T *>(*itr); //TODO_R Ändra denna rad och return tpe
             
             if (pt_error::error_if_null(i,"Trying to get_image when requested ID is not image type",pt_error::fatal) != NULL)
                 { return i; }
-            }
-        itr++;
         }
-
-    return NULL;
+        itr++;
     }
 
+    return NULL;
+}*/
 int datamanager::last_image()
     {
 	if(dataItems.size()==0)
@@ -612,6 +627,8 @@ Fl_Menu_Item * datamanager::object_menu ()
     while (itr != dataItems.end())
         {
         OCLASS * ptr = dynamic_cast<OCLASS *>(*itr);
+		//Plan lägg till vilkor som hämtar om den stödjs av aktuell rendrerare
+		//dynamic_cast<data_base*>(ptr).is_supported(aktuell rendrerare);
         if (ptr != NULL)
             { objects.push_back(ptr); }
         

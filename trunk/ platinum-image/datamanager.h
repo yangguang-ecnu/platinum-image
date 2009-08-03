@@ -110,6 +110,7 @@ class datamanager
 
         void add(image_base *im, string name="", bool data_changed=false);           //add image to vector, notify other managers
 //		void add(image_base &v);			//JK-test
+		void add(curve_base *curve);
 		void add(point_collection * v); 
 
 		// Use delete_data() to remove data (data_base::~data_base() calls remove_data() after the allcoated data is removed)
@@ -144,7 +145,24 @@ class datamanager
                                                                      //dimensions as argument
                                                                      //DEPRECATED: use image_base::alike instead
         int find_data_index(int uniqueID);
-        image_base * get_image (int ID);
+		
+		template<class T> T* get_image (int ID){ //TODO_R kolla så det funkar med detta
+			vector<data_base*>::iterator itr=dataItems.begin();
+
+			while (itr != dataItems.end()){
+				if (**itr == ID){
+					T * i = dynamic_cast<T *>(*itr); //TODO_R Ändra denna rad och return tpe
+            
+					 if (pt_error::error_if_null(i,"Trying to get_image when requested ID is not image type",pt_error::fatal) != NULL){
+						 return i; 
+					 }
+				}
+			itr++;
+			}
+
+			return NULL;
+		}
+
         data_base * get_data (int ID);
 		int last_image();
         

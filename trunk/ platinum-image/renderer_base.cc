@@ -115,7 +115,7 @@ void renderer_base::move_voxels(int x,int y,int z)
 void renderer_base::rotate_dir(int dx_in_vp_pixels, int dy_in_vp_pixels)
 {}
 
-std::vector<int> renderer_base::world_to_view(rendergeom_image *g, int sx, int sy, const Vector3D wpos)
+std::vector<int> renderer_base::world_to_view(rendergeometry_base *g, int sx, int sy, const Vector3D wpos)
 {
     std::vector<int> view;
     Vector3D toView = wpos;
@@ -125,8 +125,9 @@ std::vector<int> renderer_base::world_to_view(rendergeom_image *g, int sx, int s
     Matrix3D world_to_view_matrix;
     world_to_view_matrix = g->view_to_world_matrix(vmin).GetInverse();
     
-    toView = world_to_view_matrix * (toView - g->look_at);
-    	
+   // toView = world_to_view_matrix * (toView - g->look_at);
+    toView = world_to_view_matrix * (toView - g->get_lookat());
+
     view.push_back(round(toView[0]+sx/2.0));
     view.push_back(round(toView[1]+sy/2.0));
 
@@ -153,7 +154,8 @@ std::vector<float> renderer_base::world_dir_to_view_dir(rendergeom_image *rg,int
 
 std::vector<int> renderer_base::world_to_view(int sx,int sy,const Vector3D wpos) const
 {
-    return world_to_view((rendergeom_image*)the_rg,sx,sy,wpos);
+	return world_to_view(the_rg,sx,sy,wpos);
+    //return world_to_view((rendergeom_image*)the_rg,sx,sy,wpos);
 }
 
 std::map<std::string,string> renderer_base::resolve_values_view(int vx, int vy, int sx, int sy) const 
@@ -236,3 +238,14 @@ rendergeom_image* renderer_image_base::get_the_rg()
 	return ret;
 }
 */
+
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+
+renderer_curve_base::renderer_curve_base():renderer_base(){
+
+}
+
+renderer_curve_base::~renderer_curve_base(){
+
+}

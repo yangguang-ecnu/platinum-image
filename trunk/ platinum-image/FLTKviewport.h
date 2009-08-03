@@ -371,7 +371,41 @@ class FLTK_Pt_MPR_pane : public FLTK_Pt_pane
 	    void rebuild_blendmode_menu();//update checkmark for current blend mode
 		virtual void refresh_menus();
 };
+class FLTK_Pt_Curve_pane : public FLTK_Pt_pane
+{
+    friend class viewport;
+	friend class FLTKviewport;
+    friend class FLTK_Event_pane; //allows acces to e.g. callback_event
+	friend class histo2D_tool;
 
+	private:
+	    Fl_Pack			*button_pack2;		//group containing per-viewport widgets such as the image menu
+		Fl_Menu_Button	*colormenu_button;
+	    Fl_Menu_Button	*bgmenu_button;
+   
+	protected:
+
+	public:
+	    FLTK_Pt_Curve_pane();    //JK2 - Default constructor, needed for the listedfactory "Create()" function...
+	    FLTK_Pt_Curve_pane(int X,int Y,int W,int H);  //constructor
+        ~FLTK_Pt_Curve_pane();
+
+		virtual viewport* get_viewport_parent();
+
+		static void set_color_callback(Fl_Widget *callingwidget, void *params);
+		static void set_line_callback(Fl_Widget *callingwidget, void *params);
+		void change_color(colors color);
+		void change_line(char a);
+	    //static void set_blendmode_callback(Fl_Widget *callingwidget, void *params);
+
+  //      static const std::string typekey () //JK2 - Used in the listedfactory to set GUI-list-names
+    //        {return "undef";}
+
+		void set_color_button_label(colors color);
+	//	void set_renderer_direction( preset_direction direction );
+	  //  void rebuild_blendmode_menu();//update checkmark for current blend mode
+		//virtual void refresh_menus();
+};
 
 
 
@@ -385,6 +419,7 @@ class FLTKviewport : public Fl_Window   //handles the FLTK part of the viewport 
 	friend class FLTK_Event_pane;
 	friend class FLTK_Pt_pane;
 	friend class FLTK_Pt_MPR_pane;
+	friend class FLTK_Pt_Curve_pane;
 
 private:
 	viewport *viewport_parent;

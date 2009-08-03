@@ -28,15 +28,15 @@ extern datamanager datamanagement;
 
 void histogram_base::reallocate_buckets_if_necessary(int new_num_buckets)
     {
-	if (new_num_buckets >0 || this->buckets==NULL){
+	if (new_num_buckets >0 || this->bucket_vector==NULL){
         //resize(...) isn't used here because this function is called from resize, however the above condition will be false in that case
 
 		if (new_num_buckets !=0){    //change #buckets
             this->num_buckets=new_num_buckets;
 		}
-		delete []this->buckets;  
-		this->buckets = NULL;
-        this->buckets=new unsigned long [this->num_buckets];
+		this->bucket_vector->clear();  
+		this->bucket_vector = NULL;
+        this->bucket_vector=new pts_vector<unsigned long>(this->num_buckets);
 	}
     }
 
@@ -52,16 +52,18 @@ void histogram_base::clear_pixmap (uchar * image, unsigned int w,unsigned int h)
 
 histogram_base::histogram_base ()
     {
-    buckets = NULL;
+    bucket_vector = NULL;
 
     num_distinct_values =0;
 	num_elements_in_hist = 0;
+	bucket_vector = new pts_vector<unsigned long>(10);
     }
 
 histogram_base::~histogram_base ()
     {
-    if (buckets != NULL){
-		delete []buckets;	//Avoids memory loss... You might crash here if you have written outside the allocated memory
+    if (bucket_vector != NULL){
+		//delete []buckets;	//Avoids memory loss... You might crash here if you have written outside the allocated memory
+		bucket_vector->clear();
 		}
     }
 
@@ -87,13 +89,13 @@ void histogram_2D_plot::images (int image_hor,int image_vert)
 
 bool histogram_2D_plot::ready ()
     {
-    return (datamanagement.get_image(threshold.id[0]) != NULL && datamanagement.get_image(threshold.id[1]) != NULL );
+    return (datamanagement.get_image<image_base>(threshold.id[0]) != NULL && datamanagement.get_image<image_base>(threshold.id[1]) != NULL ); //TODO_R HÄR!!!!!
     }
 
 void histogram_2D_plot::calculate_from_image_data(int foo)
     {
-    image_base * vol_v= datamanagement.get_image(threshold.id[1]);
-    image_base * vol_h= datamanagement.get_image(threshold.id[0]);
+    image_base * vol_v= datamanagement.get_image<image_base>(threshold.id[1]); //TODO_R HÄR!!!!!
+    image_base * vol_h= datamanagement.get_image<image_base>(threshold.id[0]); //TODO_R HÄR!!!!!
 
     if (vol_v != NULL && vol_h != NULL)
         {
@@ -103,8 +105,8 @@ void histogram_2D_plot::calculate_from_image_data(int foo)
 
 void histogram_2D_plot::render_(uchar * image, unsigned int w,unsigned int h)
     {
-    image_base * vol_v= datamanagement.get_image(threshold.id[1]);
-    image_base * vol_h= datamanagement.get_image(threshold.id[0]);
+    image_base * vol_v= datamanagement.get_image<image_base>(threshold.id[1]); //TODO_R HÄR!!!!!
+    image_base * vol_h= datamanagement.get_image<image_base>(threshold.id[0]); //TODO_R HÄR!!!!!
 
     if (!imagesdifferinsize)
         {
@@ -148,7 +150,7 @@ histogram_2D::histogram_2D ():histogram_base()
     }
 
 histogram_2D::~histogram_2D () {
-    if (buckets != NULL)
+    if (bucket_vector != NULL)
         {delete []highlight_data;}
     }
 
@@ -169,8 +171,8 @@ thresholdparvalue histogram_2D::get_threshold (float h_min,float h_max, float v_
     {
     threshold.mode=mode;
 
-    image_base * vol_v= datamanagement.get_image(threshold.id[1]);
-    image_base * vol_h= datamanagement.get_image(threshold.id[0]);
+    image_base * vol_v= datamanagement.get_image<image_base>(threshold.id[1]); //TODO_R HÄR!!!!!
+    image_base * vol_h= datamanagement.get_image<image_base>(threshold.id[0]); //TODO_R HÄR!!!!!
 
     if (vol_h == NULL)
         {threshold.id[0]=NOT_FOUND_ID;}
@@ -198,7 +200,7 @@ thresholdparvalue histogram_2D::get_threshold (float h_min,float h_max, float v_
 
 void histogram_2D::calculate_from_image_data(int new_num_buckets)
     {
-    if (new_num_buckets !=0 || buckets==NULL)
+    if (new_num_buckets !=0 || bucket_vector==NULL)
         {
         if (new_num_buckets !=0)    //change #buckets
             {num_buckets=new_num_buckets;}
@@ -206,23 +208,23 @@ void histogram_2D::calculate_from_image_data(int new_num_buckets)
         //highlight_data is expected to be created and deleted
         //along with buckets
 
-        if (buckets != NULL)
+        if (bucket_vector != NULL)
             {
             delete [] highlight_data;
             highlight_data=NULL;
 
-            delete [] buckets; 
-            buckets=NULL;
+            bucket_vector->clear();
+            bucket_vector=NULL;
             }
 
-        buckets=new unsigned long [num_buckets*num_buckets];
+        bucket_vector=new pts_vector<unsigned long>(num_buckets*num_buckets);
         highlight_data=new bool [num_buckets*num_buckets];
         }
 
     readytorender=false;
 
-    image_base * vol_v= datamanagement.get_image(threshold.id[1]);
-    image_base * vol_h= datamanagement.get_image(threshold.id[0]);
+    image_base * vol_v= datamanagement.get_image<image_base>(threshold.id[1]); //TODO_R HÄR!!!!!
+    image_base * vol_h= datamanagement.get_image<image_base>(threshold.id[0]); //TODO_R HÄR!!!!!
 
     if (vol_v != NULL && vol_h != NULL)
         {
@@ -234,7 +236,7 @@ void histogram_2D::calculate_from_image_data(int new_num_buckets)
             {
             for (unsigned short i = 0; i < num_buckets; i++)
                 {
-                buckets[i+j*num_buckets]=0;
+                bucket_vector->at(i+j*num_buckets)=0;
                 highlight_data[i+j*num_buckets]=false;
                 }
             }
@@ -273,7 +275,7 @@ void histogram_2D::calculate_from_image_data(int new_num_buckets)
                     bucketpos_x=value_h*scalefactor_h;
                     bucketpos_y=value_v*scalefactor_v;
 
-                    bucket_max=std::max(buckets[bucketpos_x+bucketpos_y*num_buckets]++,bucket_max);
+                    bucket_max=std::max(bucket_vector->at(bucketpos_x+bucketpos_y*num_buckets)++,bucket_max);
 			
                     } while (++voxpos[0] < vol_size[0]);
                 } while (++voxpos[1] < vol_size[1]);
@@ -286,7 +288,7 @@ void histogram_2D::calculate_from_image_data(int new_num_buckets)
             {
             for (unsigned short i = 0; i < num_buckets; i++)
                 {
-                bucket_mean+=buckets[i+j*num_buckets]/(num_buckets*num_buckets);
+                bucket_mean+=bucket_vector->at(i+j*num_buckets)/(num_buckets*num_buckets);
                 }
             }
 
@@ -299,8 +301,8 @@ void histogram_2D::calculate_from_image_data(int new_num_buckets)
 
     void histogram_2D::highlight (regionofinterest * region)
         {
-        image_base * vol_v= datamanagement.get_image(threshold.id[1]);
-        image_base * vol_h= datamanagement.get_image(threshold.id[0]);
+        image_base * vol_v= datamanagement.get_image<image_base>(threshold.id[1]); //TODO_R HÄR!!!!!
+        image_base * vol_h= datamanagement.get_image<image_base>(threshold.id[0]); //TODO_R HÄR!!!!!
 
         if (readytorender!=true)
             {calculate_from_image_data();}
@@ -384,7 +386,7 @@ void histogram_2D::calculate_from_image_data(int new_num_buckets)
                     hist_pos_y=slope_y*y;
 
                     hist_index=((unsigned short) hist_pos_x)+((unsigned short) hist_pos_y)*num_buckets;
-                    intensity_value=std::min((float)buckets [hist_index]*(float)intensity_scale, (float)255.0);
+                    intensity_value=std::min((float)bucket_vector->at(hist_index)*(float)intensity_scale, (float)255.0);
 
                     image[(x+(h-y)*w)*RGB_pixmap_bpp]=(highlight_data [hist_index] ? intensity_value/2 : intensity_value);
                     image[(x+(h-y)*w)*RGB_pixmap_bpp+1]=(highlight_data [hist_index] ? intensity_value/2 + 127 : intensity_value);

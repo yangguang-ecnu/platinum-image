@@ -78,6 +78,7 @@ color.h
 colormap.h 
 cursor3D.h 
 curve.h 
+curve_tool.h
 data_base.h 
 ${WIN32_DIRENT_HEAD} 
 datamanager.h 
@@ -112,10 +113,12 @@ platinumprogram.h
 point_collection.h 
 points_seq_func1D.h 
 point.h 
+pt_vector.h
 ptconfig.h 
 rawimporter.h 
 rendercombination.h 
 renderer_base.h 
+renderer_curve.h
 rendererMIP.h 
 rendererMPR.h 
 rendererVTK.h 
@@ -128,6 +131,7 @@ threshold.h
 transfer.h 
 transferfactory.h 
 transferfactory.hxx 
+ultrasound_importer.h
 userIO.h 
 userIOmanager.h 
 viewport.h 
@@ -145,6 +149,7 @@ color.cc
 colormap.cc 
 cursor3D.cc 
 curve.hxx
+curve_tool.cc
 data_base.cc 
 datamanager.cc 
 datawidget.cc 
@@ -182,8 +187,10 @@ point.cc
 point_collection.cc 
 points_seq_func1D.hxx 
 ptconfig.cc
+pt_vector.cc
 rawimporter.cc 
 renderer_base.cc 
+renderer_curve.cc
 rendererMIP.cc 
 rendererMPR.cc 
 rendererVTK.cc 
@@ -197,6 +204,7 @@ threshold.cc
 transfer.hxx 
 transfer_interpolated.hxx 
 transferfactory.cc 
+ultrasound_importer.cc
 userIO.cc 
 userIOmanager.cc 
 viewmanager.cc 
@@ -330,6 +338,7 @@ point_collection.h
 points_seq_func1D.h 
 rawimporter.h 
 dicom_importer.h 
+ultrasound_importer.h
 voxel_tools.h
 
 curve.hxx
@@ -347,6 +356,7 @@ point.cc
 points_seq_func1D.hxx 
 rawimporter.cc 
 dicom_importer.cc
+ultrasound_importer.cc
 voxel_tools.hxx)
 
 SOURCE_GROUP(Processing FILES 
@@ -358,6 +368,7 @@ viewport.h
 FLTKviewport.h 
 viewmanager.h 
 renderer_base.h 
+renderer_curve.h
 rendererVTK.h 
 rendererMIP.h 
 rendererMPR.h 
@@ -370,6 +381,7 @@ FLTKviewport.cc
 mainwindow.cc 
 viewmanager.cc 
 renderer_base.cc 
+renderer_curve.cc
 rendererVTK.cc 
 rendererMIP.cc 
 rendererMPR.cc 
@@ -380,6 +392,7 @@ transfer.hxx
 transfer_interpolated.hxx)
 
 SOURCE_GROUP(Interaction FILES 
+curve_tool.h
 datawidget.h 
 event.h 
 userIO.h 
@@ -391,6 +404,7 @@ transferfactory.h
 transferfactory.hxx 
 userIOmanager.h 
 viewporttool.h 
+curve_tool.cc
 datawidget.cc 
 event.cc 
 userIO.cc 
@@ -419,6 +433,7 @@ filters.h
 FLTKutilities.h 
 histogram.h 
 listedfactory.h 
+pt_vector.h
 ptconfig.h
 threshold.h 
 
@@ -437,6 +452,7 @@ FLTKutilities.cc
 graph.hxx
 histogram.cc 
 histogram.hxx 
+pt_vector.cc
 ptconfig.cc
 ptmath.cc 
 stringmatrix.cc 

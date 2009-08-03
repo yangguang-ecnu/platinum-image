@@ -16,173 +16,313 @@
 //    along with the Platinum library; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#ifndef __curve_hxx__
+#define __curve_hxx__
+
 #include "curve.h"
-//#include "datawidget.h"
+#include "datawidget.h"
 
 
 
-curve_base::curve_base() : data_base()
+curve_base::curve_base(string name) : data_base()
 {
     //start empty
-    widget = new datawidget<curve_base>(this, "Untitled point_collection");
+    widget = new datawidget<curve_base>(this, name);
 }
 
 curve_base::~curve_base() {}
 
-/*
-point_collection::point_collection(const point_collection & source) // : data_base(source)
-{
-	// ID is not copied (which is correct)
-	// TODO: should meta and from_file() be copied in data_base() instead?
-	meta = source.meta;
-	from_file(source.from_file());
-	widget = new datawidget<point_collection>(this, source.name());
-	thePoints = source.thePoints;
-	active = source.active;
+void curve_base::redraw() {}
+
+/*Begin curve_scalar*/
+template<class ELEMTYPE>
+class curve_scalar : public curve_base{
+public:
+	curve_scalar(int start_size, string name, double offset, double scale);
+	double get_data(int i) const;
+	double get_max() const;
+	double get_min() const;
+	double get_scale() const;
+	double get_offset() const;
+	int get_data_size() const;
+	RGBvalue* get_color() const;
+	void set_color(int r, int g, int b);
+	char get_line() const;
+	void set_line(char type);
+	Vector2D find_closest_maxima(int location, int direction) const;
+	Vector2D find_closest_minima(int location, int direction) const;
+	vector<Vector2D> find_maximas_in_intervall(int from, int to) const;
+	vector<Vector2D> find_minimas_in_intervall(int from, int to) const;
+	void simplify_curve();
+
+	vector<double> approximate_curve(int degree) const;
+
+	void increase_resolution();
+	pt_vector<ELEMTYPE> *my_data;
+
+private:
+	RGBvalue *color;
+	char line;
+};
+
+template<class ELEMTYPE>
+curve_scalar<ELEMTYPE>::curve_scalar(int start_size, string name, double offset, double scale) : curve_base(name){
+	my_data = new pt_vector<ELEMTYPE>(start_size);
+	my_data->config_x_axis(scale, offset);
+	color = new RGBvalue();
+	color->set_rgb(255,0,0); //Default color = red
+	line = '-';
 }
 
-const point_collection & point_collection::operator=(const point_collection & source)
-{
-	if ( this != &source )	// make sure not the same object
-	{
-		// ID is not copied (which is correct)
-		// TODO: should meta and from_file() be copied in data_base() instead?
-		meta = source.meta;
-		from_file(source.from_file());
-		delete widget;
-		widget = new datawidget<point_collection>(this, source.name());
-		thePoints = source.thePoints;
-		active = source.active;
+template<class ELEMTYPE>
+double curve_scalar<ELEMTYPE>::get_data(int i) const{
+	return static_cast<double>( my_data->at(i));
+}
+
+template<class ELEMTYPE>
+double curve_scalar<ELEMTYPE>::get_min() const{
+	return static_cast<double>( my_data->get_minimum_in_range(0, my_data->size()-1));
+}
+
+template<class ELEMTYPE>
+double curve_scalar<ELEMTYPE>::get_max() const{
+	return static_cast<double>( my_data->get_maximum_in_range(0, my_data->size()-1));
+}
+template<class ELEMTYPE>
+double curve_scalar<ELEMTYPE>::get_scale() const{
+	return static_cast<double>( my_data->x_res);
+}
+template<class ELEMTYPE>
+double curve_scalar<ELEMTYPE>::get_offset() const{
+	return static_cast<double>( my_data->x_axis_start);
+}
+
+template<class ELEMTYPE>
+int curve_scalar<ELEMTYPE>::get_data_size() const{
+	return my_data->size();
+}
+template<class ELEMTYPE>
+RGBvalue* curve_scalar<ELEMTYPE>::get_color() const{
+	return color;
+}
+template<class ELEMTYPE>
+void curve_scalar<ELEMTYPE>::set_color(int r, int g, int b){
+	color->set_rgb(r,g,b);
+}
+
+template<class ELEMTYPE>
+void curve_scalar<ELEMTYPE>::set_line(char type){
+	cout << "line type: " << type << endl;
+	line = type;
+}
+
+template<class ELEMTYPE>
+char curve_scalar<ELEMTYPE>::get_line() const{
+	return line;
+}
+
+template<class ELEMTYPE>
+void curve_scalar<ELEMTYPE>::increase_resolution(){
+	pt_vector<ELEMTYPE> *temp = new pt_vector<ELEMTYPE>(my_data->size()*2-1);
+	temp->assign(0, my_data->size()*2-1);
+	temp->config_x_axis(my_data->x_res, my_data->x_axis_start);
+
+
+	for(int i = 0; i < my_data->size()-1; i++){
+		temp->push_back(my_data->at(i));
+		temp->push_back(abs(my_data->at(i) + my_data->at(i+1))/2);
 	}
-	return *this;
-}
-
-point_collection::pointStorage::const_iterator point_collection::begin() const
-{
-	return thePoints.begin();
-}
-
-point_collection::pointStorage::iterator point_collection::begin()
-{
-	return thePoints.begin();
-}
-
-point_collection::pointStorage::const_iterator point_collection::end() const
-{
-	return thePoints.end();
-}
-
-point_collection::pointStorage::iterator point_collection::end()
-{
-	return thePoints.end();
-}
-
-void point_collection::add(pointStorage::mapped_type point)
-{
-	pointStorage::key_type index = 1;
+	temp->push_back(my_data->at(i));
 	
-	if ( !thePoints.empty() )
-	{
-		pointStorage::reverse_iterator riter;
-		riter = thePoints.rbegin();
-		index = riter->first + 1;
+	my_data->clear();
+	my_data = temp;
+}
+
+
+template<class ELEMTYPE>
+Vector2D curve_scalar<ELEMTYPE>::find_closest_maxima(int location, int direction) const{
+	if(location == 0){
+		location++; //Needs one element on each side!
+	}else if(location == my_data->size() -1){
+		location--;
 	}
-	
-	add_pair (index, point);
-}
+	while((location-abs(direction) >= 0  && location+abs(direction) < my_data->size())  && 
+		(my_data->at(location)  <= my_data->at(location - direction) || my_data->at(location)  <= my_data->at(location + direction))){
+		
+		location+=direction;
+    }
 
-void point_collection::remove(pointStorage::key_type index)
-{
-	if ( thePoints.size() > 0 && thePoints.count(index) != 0)
-	{	// the point exists
-		pointStorage::iterator itr =  thePoints.find(index);
-		thePoints.erase(itr);
+	Vector2D ret_val;
+	if(location > 0  && location < my_data->size()-1){ //found maxima
+		ret_val[0] = location;
+		ret_val[1] = my_data->at(location);
+	}else{
+		ret_val[0] = -1;
+		ret_val[1] = -1;
 	}
-	else
-	{
-		pt_error::error("point_collection::remove()",pt_error::warning);
-		throw out_of_range("Unvalid key");
+	return ret_val;
+}
+
+template<class ELEMTYPE>
+Vector2D curve_scalar<ELEMTYPE>::find_closest_minima(int location, int direction) const{
+	if(location == 0){
+		location++; //Needs one element on each side!
+	}else if(location == my_data->size() -1){
+		location--;
 	}
-}
-
-void point_collection::add_pair(pointStorage::key_type index, pointStorage::mapped_type point)
-{
-	thePoints[index] = point;
-}
-
-point_collection::pointStorage::mapped_type point_collection::get_point (int i)
-{
-	if ( thePoints.size() > 0 && thePoints.count(i) != 0)
-	{	// the point exists
-		return thePoints[i];
+    while((location-abs(direction) >= 0  && location+abs(direction) < my_data->size()) && 
+		(my_data->at(location)  >= my_data->at(location - direction) || my_data->at(location)  >= my_data->at(location + direction))){
+        
+		location+=direction;
+    }
+	Vector2D ret_val;
+	if(location > 0  && location < my_data->size()-1){ //found minima
+		ret_val[0] = location;
+		ret_val[1] = my_data->at(location);
+	}else{
+		ret_val[0] = -1;
+		ret_val[1] = -1;
 	}
-	else
-	{
-		pt_error::error("point_collection::get_point()",pt_error::warning);
-		throw out_of_range("Unvalid key");
-	}
+	return ret_val;
 }
 
-void point_collection::set_active(int a)
-{
-	active = a;
+template<class ELEMTYPE>
+vector<Vector2D> curve_scalar<ELEMTYPE>::find_maximas_in_intervall(int from, int to) const{
+        
+        vector<Vector2D> ret_vec;
+        Vector2D new_pos;
+		
+		if(from < 0){
+			return ret_vec;
+		}
+		new_pos[0] = from;
+		new_pos[1] = my_data->at(from);
+
+        while (new_pos[0] <= to){
+                new_pos = find_closest_maxima(new_pos[0] + 1, 1);
+                if(new_pos[0] != -1 && new_pos[0] <= to){
+                       ret_vec.push_back(new_pos);
+                }else{
+                    return ret_vec;
+                }
+        }
+		return ret_vec;
 }
-
-int point_collection::get_active()
-{
-	return active;
+template<class ELEMTYPE>
+vector<Vector2D> curve_scalar<ELEMTYPE>::find_minimas_in_intervall(int from, int to) const{
+        
+        vector<Vector2D> ret_vec;
+        Vector2D new_pos;
+		new_pos[0] = from;
+		new_pos[1] = my_data->at(from);
+		if(from < 0){
+			return ret_vec;
+		}
+        while (new_pos[0] <= to){
+                new_pos = find_closest_minima(new_pos[0] + 1, 1);
+                if(new_pos[0] != -1 && new_pos[0] <= to){
+                        ret_vec.push_back(new_pos);
+                }else{
+                        return ret_vec;
+                }
+        }
+		return ret_vec;
 }
-
-void point_collection::clear()
-{
-	thePoints.clear();
-}
-
-bool point_collection::contains( pointStorage::key_type index )
-{
-	if ( thePoints.count(index) != 0 )
-		{ return true; }
-
-	return false;
-}
-
-bool point_collection::empty()
-{
-	if ( thePoints.empty() )
-		{ return true; }
-	return false;
-}
-
-int point_collection::size() const
-{
-	return thePoints.size();
-}
-
-void point_collection::info()
-{
-	std::cout << std::endl;
-	std::cout << "ID = " << ID << std::endl;
-	if ( widget == NULL ) { std::cout << "widget = NULL" << endl; }
-	else { std::cout << "widget.name() = " << widget->name() << std::endl; }
-	std::cout << "thePoints.size() = " << size() << std::endl;
-	std::cout << "active = " << active << std::endl;
-	//std::cout << "from_file() = " << from_file() << std::endl;
-	std::cout << std::endl;
-}
-
-void point_collection::save_histogram_to_txt_file(const std::string filename, const std::string separator)
-{
-	pt_error::pt_error ("Attempt to save_histogram_to_txt_file on a point_collection object",pt_error::warning);
-}
-
-string point_collection::resolve_tooltip()
-{
-	return this->resolve_tooltip_data_base() + this->resolve_tooltip_point_collection();
-}
-
-string point_collection::resolve_tooltip_point_collection()
-{
-	return "point_collection: size="+int2str(this->size());
-}
-
+/**
+	Reduces the points to minima/maxima points (with fillers in between)
 */
+template<class ELEMTYPE>
+void curve_scalar<ELEMTYPE>::simplify_curve(){
+        
+        vector<Vector2D> maximas;
+		vector<Vector2D> minimas;
+		int min_loc, max_loc, index;
+		min_loc = max_loc = 0;
+		bool save;
+
+        maximas = find_maximas_in_intervall(0, my_data->size());
+		minimas = find_minimas_in_intervall(0, my_data->size());
+
+		//my_data->assign(0, my_data->size());
+		for(int i = 0; i < my_data->size(); i++){
+			save = false;
+			for(int x = min_loc; x < minimas.size(); x++){
+				if(round(minimas.at(x)[0]) == i){
+					save = true;
+					min_loc = x;
+					break;
+				}
+			}
+			if(!save){
+				for(int y = max_loc; y < maximas.size(); y++){
+					if(round(maximas.at(y)[0]) == i){
+						save = true;
+						max_loc = y;
+						break;
+					}
+				}
+			}
+			if(!save){
+				my_data->at(i) = 0;
+			}
+
+		}
+}
+/* Fit points to polynomial curve with least square approximation. Can be slow due to matrix inverse calculation*/
+template<class ELEMTYPE>
+vector<double> curve_scalar<ELEMTYPE>::approximate_curve(int degree) const{
+	vnl_matrix<double> A;
+	A.set_size(my_data->size(), degree+1);
+
+	vnl_vector<double> b(my_data->size());
+	vnl_vector<double> ans(degree+1);
+	vector<double> ret_vec;
+
+	double scale, offset;
+	//double y;
+	double x;
+
+	scale = get_scale();
+	offset = get_offset();
+
+	//Build A and b 
+	for(int i = 0; i < my_data->size(); i++){
+		//y = my_data->at(i);
+		b[i] = my_data->at(i);
+		x = i*scale + offset;
+
+		A[i][degree] = 1; //x^0
+		A[i][degree - 1] = x; //x^1
+
+		for(int j = 0; j<degree -1; j++){
+			A[i][j] = pow(x, degree - j);
+		}
+	}
+	//ans = (A^T*A)^-1 *A^T*b
+	ans = vnl_matrix_inverse<double>(A.transpose()*A)*A.transpose()*b;
+
+	for(int t = 0; t<= degree ; t++)
+		ret_vec.push_back(ans[t]);
+	return ret_vec;
+}
+
+/* End curve_scalar*/
+
+/*Begin curve_integer*/
+
+template<class ELEMTYPE>
+class curve_integer : public curve_scalar<ELEMTYPE>{
+public:
+	curve_integer(int start_size, string name);
+	curve_integer(int start_size, int r, int g, int b);
+};
+
+template<class ELEMTYPE>
+curve_integer<ELEMTYPE>::curve_integer(int start_size, string name) : curve_scalar<ELEMTYPE>(start_size, name){
+	//Empty contructor
+}
+template<class ELEMTYPE>
+curve_integer<ELEMTYPE>::curve_integer(int start_size, int r, int g, int b) : curve_scalar<ELEMTYPE>(start_size, r, g, b){
+	//Empty contructor
+}
+#endif
