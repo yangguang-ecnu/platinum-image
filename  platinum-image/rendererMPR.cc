@@ -85,13 +85,13 @@ Vector3D rendererMPR::view_to_voxel(int vx, int vy,int sx,int sy,int imageID) co
 {
     if (imageID != -1)
         {
-        return datamanagement.get_image(imageID)->world_to_voxel (view_to_world(vx, vy,sx,sy));
+        return datamanagement.get_image<image_base>(imageID)->world_to_voxel (view_to_world(vx, vy,sx,sy)); //TODO_R HÄR!!!!!
         }
     else
         {    
         Vector3D v;
         
-        image_base * image = the_rc->top_image();
+        image_base * image = the_rc->top_image<image_base>(); //TODO_R top
         
         if (image !=NULL)
             {
@@ -166,7 +166,7 @@ void rendererMPR::render_position(unsigned char *rgb, int rgb_sx, int rgb_sy)
 //render orthogonal slices using memory-order scanline
 void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_image *rg, rendercombination *rc, thresholdparvalue * threshold)
 {
-//	cout<<"render_("<<rgb_sx<<" "<<rgb_sy<<"...)"<<endl;
+	cout<<"render_("<<rgb_sx<<" "<<rgb_sy<<"...)"<<endl;
 
     if(rc->empty()){       //*** no images: exit ***
         return;
@@ -219,8 +219,8 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_imag
         bool OKrender = the_image_pointer != NULL;
         
         if(blend_mode == RENDER_THRESHOLD){
-            the_image_pointer       = datamanagement.get_image (threshold->id[0]);
-            the_other_image_pointer = datamanagement.get_image (threshold->id[1]);
+            the_image_pointer       = datamanagement.get_image<image_base>(threshold->id[0]); //TODO_R HÄR!!!!!
+            the_other_image_pointer = datamanagement.get_image<image_base>(threshold->id[1]); //TODO_R HÄR!!!!!
             
             OKrender = the_image_pointer != NULL && the_other_image_pointer != NULL;
         }
@@ -328,7 +328,7 @@ void rendererMPR::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_imag
 
 
                         else{ 
-							the_image_pointer->get_display_voxel(value,vox[0],vox[1],vox[2]);
+							the_image_pointer->get_display_voxel(value,vox[0],vox[1],vox[2]); //TODO kolla vad denna gör egentligen
 						}
                         
                         
@@ -721,7 +721,7 @@ void rendererMPR::paint_slice_locators_to_overlay(int h_offset, int vp_w, int vp
 
 void rendererMPR::paint_rendergeometry_to_overlay(int h_offset, int vp_w, int vp_h_pane, rendergeom_image *rg, rendercombination *rc)
 {
-	if(rc->top_image()!=NULL){
+	if(rc->top_image<image_base>()!=NULL){
 		fl_font(FL_COURIER, 10);
 		fl_color(FL_RED);
 		fl_draw(Matrix3Drow2str(rg->dir,0).c_str(), 5, h_offset+15);
@@ -732,7 +732,6 @@ void rendererMPR::paint_rendergeometry_to_overlay(int h_offset, int vp_w, int vp
 		string tmp = Vector3D2str(rg->look_at);
 		fl_measure(tmp.c_str(),str_w,str_h);
 		fl_draw(tmp.c_str(), vp_w-str_w-5, h_offset+15);
-
 		tmp = float2str(rg->zoom);
 		fl_measure(tmp.c_str(),str_w,str_h);
 		fl_draw(tmp.c_str(), vp_w-str_w-5, h_offset+45);
@@ -924,7 +923,7 @@ void rendererMPR::move_voxels(int x,int y,int z)
     //positions and orientation), here it is defined that
     //move_voxels will move by the voxels of the topmost image
     
-    image_base* image = the_rc->top_image();
+    image_base* image = the_rc->top_image<image_base>(); //TODO_R top
     
     dir = ((rendergeom_image*)the_rg)->dir*dir;
     Matrix3D reOrient;

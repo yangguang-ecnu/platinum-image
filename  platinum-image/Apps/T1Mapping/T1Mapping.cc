@@ -70,7 +70,7 @@ void slc_reorg_function (int userIO_ID,int par_num)
 {
 	if (par_num == USERIO_CB_OK)
 	{
-		image_integer<unsigned short,3> *vol = dynamic_cast<image_integer<unsigned short,3>*>(datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,0)));
+		image_integer<unsigned short,3> *vol = dynamic_cast<image_integer<unsigned short,3>*>(datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,0)));
 		long int nc = userIOmanagement.get_parameter<long int>(userIO_ID,1);
 		long int nd = userIOmanagement.get_parameter<long int>(userIO_ID,2);
 		if(vol!=NULL && nc >0 && nd>0)
@@ -85,7 +85,7 @@ void reslice_function(int userIO_ID,int par_num)
 {
 	if (par_num == USERIO_CB_OK)
 	{
-		image_integer<unsigned short,3> *im = dynamic_cast<image_integer<unsigned short,3>*>(datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,0)));
+		image_integer<unsigned short,3> *im = dynamic_cast<image_integer<unsigned short,3>*>(datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,0)));
 		long int dir = userIOmanagement.get_parameter<long int>(userIO_ID,1);
 		long int start = userIOmanagement.get_parameter<long int>(userIO_ID,2);
 		long int every = userIOmanagement.get_parameter<long int>(userIO_ID,3);
@@ -110,13 +110,13 @@ void t1_mapping_function (int userIO_ID,int par_num)
 {
 	if (par_num == USERIO_CB_OK)
 	{
-		image_integer<unsigned short,3> *large = dynamic_cast<image_integer<unsigned short,3>*>(datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,0)));
+		image_integer<unsigned short,3> *large = dynamic_cast<image_integer<unsigned short,3>*>(datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,0)));
 		float tr = userIOmanagement.get_parameter<float>(userIO_ID,1);
 		float te = userIOmanagement.get_parameter<float>(userIO_ID,2);
 		long int large_flip = userIOmanagement.get_parameter<long int>(userIO_ID,3);
 		std::string large_dcm = userIOmanagement.get_parameter<std::string>(userIO_ID,4);
 
-		image_integer<unsigned short,3> *small = dynamic_cast<image_integer<unsigned short,3>*>(datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,5)));
+		image_integer<unsigned short,3> *small = dynamic_cast<image_integer<unsigned short,3>*>(datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,5)));
 		long int small_flip = userIOmanagement.get_parameter<long int>(userIO_ID,6);
 		std::string small_dcm = userIOmanagement.get_parameter<std::string>(userIO_ID,7);
 
@@ -205,7 +205,7 @@ void t1_multiflip_function(int userIO_ID,int par_num)
 
 		vector<image_scalar<unsigned short,3> *> v;
 
-		image_scalar<unsigned short,3> *f1 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,2)));
+		image_scalar<unsigned short,3> *f1 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,2)));
 		flip = userIOmanagement.get_parameter<long int>(userIO_ID,3);
 		cout<<"flip="<<flip<<endl;
 		f1->meta.set_data_float(DCM_FLIP,flip);
@@ -213,13 +213,13 @@ void t1_multiflip_function(int userIO_ID,int par_num)
 		//		f1->meta.print_all();
 		v.push_back(f1);
 
-		image_scalar<unsigned short,3> *f2 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,4)));
+		image_scalar<unsigned short,3> *f2 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,4)));
 		flip = userIOmanagement.get_parameter<long int>(userIO_ID,5);
 		cout<<"flip="<<flip<<endl;
 		f2->meta.set_data_float(DCM_FLIP,flip);
 		v.push_back(f2);
 
-		image_scalar<unsigned short,3> *f3 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,6)));
+		image_scalar<unsigned short,3> *f3 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,6)));
 		if(f3!=NULL){
 			flip = userIOmanagement.get_parameter<long int>(userIO_ID,7);
 			cout<<"flip="<<flip<<endl;
@@ -227,7 +227,7 @@ void t1_multiflip_function(int userIO_ID,int par_num)
 			v.push_back(f3);
 		}
 
-		image_scalar<unsigned short,3> *f4 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,8)));
+		image_scalar<unsigned short,3> *f4 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,8)));
 		if(f4!=NULL){
 			flip = userIOmanagement.get_parameter<long int>(userIO_ID,9);
 			cout<<"flip="<<flip<<endl;
@@ -248,8 +248,8 @@ void hist_function(int userIO_ID,int par_num)
 {
 	if (par_num == USERIO_CB_OK)
 	{
-		image_scalar<unsigned short,3> *f1 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,0)));
-		f1->save_histogram_to_txt_file("C:/Joel/TMP/hist/hist01.txt");
+		image_scalar<unsigned short,3> *f1 = dynamic_cast<image_scalar<unsigned short,3>* >(datamanagement.get_image<image_base>(userIOmanagement.get_parameter<imageIDtype>(userIO_ID,0)));
+		f1->save_histogram_to_txt_file("C:/Joel/TMP/hist/hist01.txt", ";"); //Richard la till ett semikolon så att det gick att kompilera. Hoppas det inte sabbar till nåt
 	}
 }
 

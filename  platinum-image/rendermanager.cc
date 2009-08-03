@@ -24,6 +24,7 @@
 #include "rendermanager.h"
 #include "rendererMPR.h"
 #include "rendererMIP.h"
+#include "renderer_curve.h"
 #include "viewmanager.h"
 #include "datamanager.h"
 
@@ -38,9 +39,10 @@ using namespace std;
 
 rendermanager::rendermanager()
 {
-    pane_factory.Register<FLTK_Pt_pane>("MPR");			//JK2
+    pane_factory.Register<FLTK_Pt_MPR_pane>("MPR");			//JK2 //Bytte från PT_pane
     pane_factory.Register<FLTK_VTK_Cone_pane>("VTK-Cone");	//JK2
     pane_factory.Register<FLTK_VTK_MIP_pane>("VTK-MIP");	//JK2
+	pane_factory.Register<FLTK_Pt_Curve_pane>("Curve");	//Hmm...
 
 	//---- Old version ---
 //    renderer_factory.Register<rendererMPR>();	//JK2
@@ -365,22 +367,27 @@ void rendermanager::print_renderers()
 int rendermanager::create_renderer(RENDERER_TYPE rendertype)
     {
     renderer_base *arenderer;
-
     switch(rendertype)
         {
         case RENDERER_MPR:
             arenderer = new rendererMPR();
+			geometries.push_back(new rendergeom_image());
             break;
         case RENDERER_MIP:
             arenderer = new rendererMIP();
+			geometries.push_back(new rendergeom_image());
             break;
+		case RENDERER_CURVE:
+			arenderer = new renderer_curve();
+			geometries.push_back(new rendergeom_curve());
+			break;
         default:
             arenderer=NULL;
             pt_error::error("Unknown renderer. Not initialized.",pt_error::fatal); break;
         }
     renderers.push_back(arenderer);
 
-    geometries.push_back(new rendergeom_image());
+    //geometries.push_back(new rendergeom_image());
     arenderer->connect_geometry (geometries[geometries.size()-1]);
 
     combinations.push_back(new rendercombination());
@@ -550,7 +557,7 @@ rendercombination* rendermanager::get_combination (int ID)
 image_base* rendermanager::get_top_image_from_renderer(int r_id)
 {
 	int cid = this->get_renderer(r_id)->combination_id();
-	return this->get_combination(cid)->top_image();
+	return this->get_combination(cid)->top_image<image_base>(); //TODO_R top
 }
 
 
@@ -561,7 +568,7 @@ void rendermanager::set_blendmode(int renderer_index,blendmode mode)
 
 Vector3D rendermanager::center_of_image(const int imageID) const
 {
-	image_base * image = datamanagement.get_image(imageID);
+	image_base * image = datamanagement.get_image<image_base>(imageID); //TODO_R HÄR!!!!!
 	return image->get_origin() + image->get_orientation() * (image->get_physical_size() / 2);
 }
 
@@ -578,7 +585,7 @@ void rendermanager::center2d(const int rendererID, const int imageID)
 
 void rendermanager::center3d_and_fit(const int rendererID, const int imageID)
 {
-	image_base * image = datamanagement.get_image(imageID);
+	image_base * image = datamanagement.get_image<image_base>(imageID); //TODO_R HÄR!!!!!
 
 //	cout<<"center3d_and_fit..."<<endl;
     int r_ind = find_renderer_index(rendererID);

@@ -78,18 +78,20 @@ bool rendercombination::empty() const
     return renderdata.empty();    
 }
 
-image_base* rendercombination::top_image () const
+/* Flyttad till h filen pga template
+template<class T>
+T* rendercombination::top_image () const
 {
     for (std::list<renderpair>::const_iterator itr = renderdata.begin();itr != renderdata.end();itr++)
         {
-        image_base* value = dynamic_cast<image_base* >(itr->pointer);
-        
+        T* value = dynamic_cast<T* >(itr->pointer); //->getType kan man ha och sen en enumeration med typer
+        //TODO_R här måste man kolla om det är en curve eller en image och göra return type generisk
         if (value != NULL)
             { return value;}
         }
     
     return NULL;
-}
+}*/
 
 void rendercombination::add_data(int dataID)
 {
@@ -100,7 +102,6 @@ void rendercombination::add_data(int dataID)
 void rendercombination::toggle_data(int dataID)
 {
     bool removed=false;
-
     for(std::list<renderpair>::iterator itr = renderdata.begin();itr != renderdata.end() && removed == false;itr++){
         if (itr->ID==dataID){
             remove_data(dataID);
@@ -112,7 +113,7 @@ void rendercombination::toggle_data(int dataID)
 		add_data(dataID);
 
         image_base * image = dynamic_cast<image_base *>( datamanagement.get_data(dataID) );
-        if(image != NULL){	// it is an image
+        if(image != NULL){	// it is an image and if it´s a curve everything works fine :D
 			rendermanagement.center3d_and_fit( rendermanagement.renderer_from_combination(get_id()), image->get_id() );
 		}
 	}

@@ -27,6 +27,7 @@
 #define __histogram__
 
 #include "ptmath.h"
+#include "pt_vector.h"
 #include "threshold.h"
 #include "global.h"
 #include <vnl/vnl_cost_function.h>
@@ -51,7 +52,8 @@ struct regionofinterest
 class histogram_base
     {
     protected:
-        unsigned long *buckets;         //stores histogram "frequency"
+       // unsigned long *buckets;         //stores histogram "frequency"
+		pts_vector<unsigned long> *bucket_vector;
         unsigned long num_distinct_values;
         
         unsigned short num_buckets;     //buckets per dimension, ie. actual #buckets = num_buckets^2 for 2D histogram
@@ -70,6 +72,7 @@ class histogram_base
         histogram_base();
 
 	public:
+		
         virtual ~histogram_base();
         void render(unsigned char * image, unsigned int width,unsigned int height)   //use calculated data to render the histogram image
             {

@@ -18,8 +18,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
-
-
 // *** histogram_typed ***
 
 template <class ELEMTYPE>
@@ -39,7 +37,8 @@ void histogram_typed<ELEMTYPE>::fill(unsigned long val)
 {
 	for(unsigned short i=0; i<this->num_buckets; i++)
 	{
-		this->buckets[i] = val;
+		//this->buckets[i] = val;
+		this->bucket_vector->at(i) = val;
 	}
 }
 
@@ -51,15 +50,17 @@ void histogram_typed<ELEMTYPE>::calc_bucket_max(bool ignore_zero_and_one)
 	if(ignore_zero_and_one){
 		for(unsigned short i=0; i<this->num_buckets; i++)
 		{
-			if(this->buckets[i] != 0 && this->buckets[i] != 1){ //! feature: ignore 0 and true to get more sensible display scaling
-				this->bucket_max = std::max(this->buckets[i], this->bucket_max);
+			if(this->bucket_vector->at(i) != 0 && this->bucket_vector->at(i) != 1){ //! feature: ignore 0 and true to get more sensible display scaling
+				this->bucket_max = std::max(this->bucket_vector->at(i), this->bucket_max);
 			}
 		}
 	}else{
-		for(unsigned short i=0; i<this->num_buckets; i++)
+		/*for(unsigned short i=0; i<this->num_buckets; i++)
 		{
-			this->bucket_max = std::max(this->buckets[i], this->bucket_max);
-		}
+			this->bucket_max = std::max(this->bucket_vector->at(i), this->bucket_max);
+			
+		}*/
+		this->bucket_vector->get_maximum_in_range(0,this->bucket_vector->size()-1);
 	}
 }
 
@@ -67,11 +68,12 @@ void histogram_typed<ELEMTYPE>::calc_bucket_max(bool ignore_zero_and_one)
 template <class ELEMTYPE>
 void histogram_typed<ELEMTYPE>::calc_bucket_mean()
 {
-	this->bucket_mean=0;
+	this->bucket_mean=this->bucket_vector->get_mean_in_range(0, this->num_buckets);
+	/*this->bucket_mean = 0;
 	for(unsigned short i=0; i<this->num_buckets; i++)
 	{
-		this->bucket_mean += this->buckets[i]/(this->num_buckets);
-	}
+		this->bucket_mean += this->bucket_vector->at(i)/(this->num_buckets);
+	}*/
 }
 
 template <class ELEMTYPE>
@@ -80,7 +82,7 @@ void histogram_typed<ELEMTYPE>::calc_num_distinct_values()
 	this->num_distinct_values=0;
 	for(unsigned short i=0; i<this->num_buckets; i++)
 	{
-		if(this->buckets[i] != 0)
+		if(this->bucket_vector->at(i) != 0)
 		{
 			this->num_distinct_values++;
 		}
@@ -93,7 +95,7 @@ void histogram_typed<ELEMTYPE>::calc_num_elements_in_hist()
 	this->num_elements_in_hist=0;
 	for(unsigned short i=0; i<this->num_buckets; i++)
 	{
-		this->num_elements_in_hist += this->buckets[i];
+		this->num_elements_in_hist += this->bucket_vector->at(i);
 	}
 }
 
@@ -129,12 +131,12 @@ void histogram_1D<ELEMTYPE>::resize (unsigned long newNum)
 
     this->num_buckets = newNum;
 
-	if(this->buckets != NULL){	//JK - Prevent memory loss....
+	if(this->bucket_vector != NULL){	//JK - Prevent memory loss....
 //		cout<<"...delete buckets...."<<endl;
-		delete []this->buckets;  
-		this->buckets = NULL;
+		this->bucket_vector = NULL;
 	}
-    this->buckets = new unsigned long [this->num_buckets];
+   // this->buckets = new unsigned long [this->num_buckets];
+	this->bucket_vector = new pts_vector<unsigned long>(this->num_buckets);
 
 	//resize() is called from the constructor
     calculate_from_image_data(this->num_buckets);	 //the new number of buckets needs to be sent as argument
@@ -236,7 +238,8 @@ histogram_1D<ELEMTYPE>::histogram_1D (image_storage<ELEMTYPE> *image_data, image
 				
 				//NOT VERY good to write outside allocated memory
 				if(bucketpos>=0 && bucketpos<this->num_buckets){	
-					this->buckets[bucketpos]++;
+					//this->buckets[bucketpos]++;
+					this->bucket_vector->at(bucketpos)++;
 				}else{
 					pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
 					cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
@@ -275,8 +278,10 @@ histogram_1D<ELEMTYPE>::histogram_1D(string hist_text_file_path, std::string sep
 //		myfile.getline(buffer,10000);	this->readytorender = atof( get_csv_item(string(buffer),1,separator).c_str() );
 		this->readytorender = true;
 
-		delete []this->buckets;  
-		this->buckets = NULL;
+		//delete []this->buckets;
+		//this->buckets = NULL;
+		this->bucket_vector->clear();
+		this->bucket_vector = NULL;
 		this->reallocate_buckets_if_necessary(this->num_buckets);
 /*		if(this->num_buckets >=0){
 			if(this->buckets!=NULL){
@@ -300,7 +305,7 @@ histogram_1D<ELEMTYPE>::histogram_1D(string hist_text_file_path, std::string sep
 		int i=0;
 		while( !myfile.eof() ){
 			myfile.getline(buffer,10000);
-			this->buckets[i] = atof( get_csv_item(string(buffer),2,separator).c_str() );
+			this->bucket_vector->at(i) = atof( get_csv_item(string(buffer),2,separator).c_str() );
 //			cout<<this->buckets[i]<<" "<<endl;
 			i++;
 		}
@@ -384,7 +389,8 @@ void histogram_1D<ELEMTYPE>::refill_bucket_data()
 		{
 			bucketpos = intensity_to_bucketpos(*voxel);
 			if(bucketpos<this->num_buckets){				//NOT VERY good to write outside allocated memory
-				this->buckets[bucketpos]++;
+				//this->buckets[bucketpos]++;
+				this->bucket_vector->at(bucketpos)++;
 			}else{
 				pt_error::error("histogram_1D<ELEMTYPE >::calculate - bucketpos out of range",pt_error::debug);
 				cout<<" histogram_1D<ELEMTYPE >::calculate - bucketpos out of range... bucketpos="<<bucketpos<<endl;
@@ -451,9 +457,9 @@ void histogram_1D<ELEMTYPE>::render(unsigned char * image, unsigned int width, u
 	typedef IMGELEMCOMPTYPE RGBpixel[RGB_pixmap_bpp];
     RGBpixel * pixels = reinterpret_cast<RGBpixel *>(image);
     
-    if (this->buckets != NULL && this->bucket_max > 0){
+    if (this->bucket_vector != NULL && this->bucket_max > 0){
         for (unsigned int x = 0; x < width; x ++){
-            unsigned int b = height-(this->buckets[(x*this->num_buckets)/width] * height)/this->bucket_max;
+            unsigned int b = height-(this->bucket_vector->at((x*this->num_buckets)/width) * height)/this->bucket_max;
             unsigned int y;
             for (y = 0; y < b; y ++){                //background
                 pixels [x+y*width][RADDR] = pixels [x+y*width][GADDR] = pixels [x+y*width][BADDR] = 0;
@@ -516,7 +522,7 @@ void histogram_1D<ELEMTYPE>::save_histogram_to_txt_file(std::string filepath, ve
 
 		myfile<<"bucket"<<separator<<"intensity"<<separator<<"bucketvalue\n";
 		for(unsigned short i=0; i<this->num_buckets; i++){
-			myfile<<i<<separator<<bucketpos_to_intensity(i)<<separator<<this->buckets[i];
+			myfile<<i<<separator<<bucketpos_to_intensity(i)<<separator<<this->bucket_vector->at(i);
 			//myfile<<separator<<get_norm_frequency_in_bucket(i)<<separator<<get_norm_p_log_p_frequency_in_bucket(i);
 			//myfile<<separator<<get_norm_p_log_p_gradient(i);
 			for(int g=0;g<v.size();g++){
@@ -556,7 +562,7 @@ template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::add_histogram_data(histogram_1D<ELEMTYPE> *hist2){
 	if(this->num_buckets == hist2->num_buckets){
 		for(int i=0;i<this->num_buckets;i++){
-			this->buckets[i] += hist2->buckets[i];
+			this->bucket_vector.at(i) += hist2->buckets[i];
 		}
 	}else{
 		pt_error::error("histogram_1D - add_histogram_data - not same size...",pt_error::debug);
@@ -567,7 +573,8 @@ template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::clear_zero_intentisty_bucket(){
 	int zero_bucket_pos = this->intensity_to_bucketpos(0);
 	if(zero_bucket_pos>=0 && zero_bucket_pos<this->num_buckets){
-		this->buckets[zero_bucket_pos] = 0;
+		//this->buckets[zero_bucket_pos] = 0;
+		this->bucket_vector->at(zero_bucket_pos) = 0;
 	}
 }
 
@@ -576,7 +583,8 @@ template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::set_sum_of_bucket_contents_to_value(double value){ //often requires the ELEMTYPEs float or double.
 	double scale_factor = value / double(this->num_elements_in_hist);
 	for(int i=0;i<this->num_buckets;i++){
-		this->buckets[i] *= scale_factor;
+		//this->buckets[i] *= scale_factor;
+		this->bucket_vector.at(i) *= scale_factor;
 	}
 }
 
@@ -590,12 +598,12 @@ void histogram_1D<ELEMTYPE>::logarithm(int zero_handling)
 	{zero_handling=0;}
 
 	for(int i=0;i<this->num_buckets;i++){
-		if (this->buckets[i]>0)
-			{this->buckets[i] = log(double(this->buckets[i]));}
+		if (this->bucket_vector->at(i)>0)
+			{this->bucket_vector->at(i) = log(double(this->bucket_vector->at(i)));}
 		else if (zero_handling==1) 
-			{this->buckets[i] = 0;}
+			{this->bucket_vector->at(i) = 0;}
 		else if (zero_handling==2) 
-			{this->buckets[i] = std::numeric_limits<ELEMTYPE>::min();}
+			{this->bucket_vector->at(i) = std::numeric_limits<ELEMTYPE>::min();}
 	}
 
 }
@@ -616,7 +624,7 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 
 	unsigned long * res = new unsigned long[this->num_buckets];
 	for(int i=0;i<this->num_buckets;i++){
-		res[i] = this->buckets[i];
+		res[i] = this->bucket_vector->at(i);
 	}
 
 	if(nr_of_neighbours>=3 && to_bucket > (from_bucket + 3)){
@@ -637,7 +645,7 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 			for(int i=start_filt;i<end_filt;i++){
 				tmp=0;
 				for(int j=start_sum;j<end_sum;j++){
-					tmp += this->buckets[i+j];
+					tmp += this->bucket_vector->at(i+j);
 				}
 //				cout<<"i="<<i<<" res1="<<res[i];
 				res[i] = float(tmp)/float(nr_of_neighbours);
@@ -646,7 +654,7 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 			}
 			for(int i=0;i<this->num_buckets;i++){
 //				cout<<"buckets[i]="<<buckets[i]<<" res[i]="<<res[i]<<endl;
-				this->buckets[i] = res[i];
+				this->bucket_vector->at(i) = res[i];
 			}
 		}
 		//the start and the end have to be smoothed with a smaller filter....
@@ -662,12 +670,12 @@ void histogram_1D<ELEMTYPE>::smooth_mean(int nr_of_neighbours, int nr_of_times, 
 
 template <class ELEMTYPE>
 float histogram_1D<ELEMTYPE>::get_norm_frequency_in_bucket(int bucket){
-	return float(this->buckets[bucket])/float(this->num_elements_in_hist);
+	return float(this->bucket_vector->at(bucket))/float(this->num_elements_in_hist);
 }
 
 template <class ELEMTYPE>
 float histogram_1D<ELEMTYPE>::get_norm_frequency_for_intensity(ELEMTYPE intensity){
-	return float(this->buckets[this->intensity_to_bucketpos(intensity)])/float(this->num_elements_in_hist);
+	return float(this->bucket_vector->at(this->intensity_to_bucketpos(intensity)))/float(this->num_elements_in_hist);
 }
 
 template <class ELEMTYPE>
@@ -723,7 +731,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_lower_percentile(float 
 
 	float num_elem_limit=0;
 	if( ignore_zero_intensity && (the_zero_bucket>=0) && (the_zero_bucket<this->num_buckets) ){
-		num_elem_limit = float(this->num_elements_in_hist - this->buckets[the_zero_bucket] )*percentile;
+		num_elem_limit = float(this->num_elements_in_hist - this->bucket_vector->at(the_zero_bucket) )*percentile;
 	}else{
 		num_elem_limit = float(this->num_elements_in_hist)*percentile;
 	}
@@ -732,7 +740,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_lower_percentile(float 
 	if(ignore_zero_intensity){
 		for(unsigned short i=0; i<this->num_buckets; i++){
 			if(i!=the_zero_bucket){
-				sum_elements += this->buckets[i];
+				sum_elements += this->bucket_vector->at(i);
 				if(sum_elements>=num_elem_limit){
 					return i;
 				}
@@ -740,7 +748,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_lower_percentile(float 
 		}
 	}else{
 		for(unsigned short i=0; i<this->num_buckets; i++){
-			sum_elements += this->buckets[i];
+			sum_elements += this->bucket_vector->at(i);
 			if(sum_elements>=num_elem_limit){
 				return i;
 			}

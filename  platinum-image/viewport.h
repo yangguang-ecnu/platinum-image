@@ -50,6 +50,7 @@ class viewport
     friend class FLTKviewport;	//allow access to for example "rendererIndex"...
     friend class FLTK_Pt_pane;	//allow access to for example "set_renderer_direction"...
     friend class FLTK_Pt_MPR_pane;	//allow access to for example "set_renderer_direction"...
+	friend class FLTK_Pt_Curve_pane;
     friend class FLTK_Event_pane;	//TMP
     friend class viewporttool;
 
@@ -59,7 +60,7 @@ private:
     static panefactory pfactory; //instatiated in transferfactory.cc
 
 	int ID;						//viewport ID
-	VIEWPORT_TYPE vp_type;		//{PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF};
+	VIEWPORT_TYPE vp_type;		//{PT_MPR, PT_MIP, VTK_EXAMPLE, VTK_MIP, VTK_ISOSURF, PT_CURVE};
 
     static int maxviewportID;	//keeps track of how many has been created...
 	int rendererID;				//this guy will render for us (each renderer instance contains an unique ID)
@@ -75,6 +76,8 @@ private:
 //	Matrix3D get_renderer_direction();
 	void set_renderer_direction(const Matrix3D &dir);
 	void set_renderer_direction(preset_direction direction); 
+	void change_color( colors color ); //Used in curve
+	void change_line_type(char type); //Used in curve
 
 	bool paint_rendergeometry;
 	

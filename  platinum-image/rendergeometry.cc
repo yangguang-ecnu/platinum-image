@@ -46,10 +46,23 @@ rendergeom_image::rendergeom_image():rendergeometry_base()
     zoom=1;					//intialize zoom to 100%
 }
 
-Matrix3D rendergeom_image::view_to_world_matrix(int viewminsize)
+Matrix3D rendergeom_image::view_to_world_matrix(int viewminsize) const
 {
 //    return dir*renderer_base::display_scale/(viewminsize*zoom);
-    return dir*ZOOM_CONSTANT/(viewminsize*zoom);
+	float val;
+	Matrix3D ret;
+	//ret = dir*ZOOM_CONSTANT;
+	ret.SetIdentity();
+
+	val = viewminsize*zoom*(1.0/ZOOM_CONSTANT);
+	for(int i = 0; i <3 ; i++)
+		for(int j = 0; j<3; j++)
+			ret[i][j] = dir[i][j]*val;
+    //return dir*ZOOM_CONSTANT/(viewminsize*zoom);
+	return ret;
+}
+Vector3D rendergeom_image::get_lookat() const {
+	return look_at;
 }
 
 void rendergeom_image::refresh_viewports()
@@ -108,7 +121,102 @@ Matrix3D rendergeom_image::get_scan_line_slop_matrix(image_base *the_image_point
 	Matrix3D inv_size = the_image_pointer->get_voxel_resize().GetInverse();
 	return (inv_size * orientation_inv)/(this->zoom * rgb_min_norm_div_by_zoom_constant);
 }
+//-----------------------------------------------------
+//-----------------------------------------------------
+rendergeom_curve::rendergeom_curve():rendergeometry_base(){
 
+	cx = cy = 0;
+	start_y = 0;
+	qx = qy = 1.0;  //Just in case transform is executed before set_borders in some case
+	zoom = 1.0;
+	curve = NULL;
+
+	//These are for drawing the axis later
+	x_offset = 200;
+	x_scale = 0.1;
+	
+	//This is for drawing the vertical line at te mouse pointer location
+	mouse_location[0] = 0;
+	mouse_location[1] = 0;
+
+	//This is for measure line
+	measure_location[0] = -1;
+	measure_location[1] = -1;
+
+	color = new RGBvalue();
+	color->set_rgb(255,0,0);
+}
+void rendergeom_curve::set_borders(curve_base *the_curve_pointer, int width, int height){
+	double dx, dy;
+	dx = (the_curve_pointer->get_data_size());
+	dy = (the_curve_pointer->get_max() - the_curve_pointer->get_min() + 1);
+	qx = (width/dx);//*zoom;
+	qy = (height/dy);//*zoom;
+	x_offset = the_curve_pointer->get_offset();
+	x_scale = the_curve_pointer->get_scale();
+
+	start_y = the_curve_pointer->get_min();
+
+}
+void rendergeom_curve::set_curve(curve_base *the_curve_pointer){
+	curve = the_curve_pointer;
+}
+
+/*int rendergeom_curve::transform(int x, double y, int row_length, int col_length){
+	int rows;
+	int addr;
+	int x_hat, y_hat;
+	x_hat = round(qx*zoom*x) + cx;
+	y_hat = round(qy*zoom*y) + cy;
+	if(x_hat < 0 ||x_hat > row_length || y_hat < 0 || y_hat > col_length)
+		return -1;
+	rows = (col_length - y_hat -1);
+	addr = rows*row_length + x_hat;
+	return addr;
+}*/
+Vector3D rendergeom_curve::view_to_curve(int x_hat, int y_hat, int width, int height){
+	Vector3D val;
+	val[0] = round((x_hat - cx)/(qx*zoom));
+	val[1] = -((y_hat - cy - height + 1)/(qy*zoom)) + (start_y/qy);
+	val[2] = 0;
+	return val;
+}
+Vector3D rendergeom_curve::curve_to_view(int x, double y, int width, int height){
+	Vector3D val;
+	val[0] = round(qx*zoom*x) + cx;
+	val[1] = (height - round(qy*zoom*y) + cy - 1)  + (qy*start_y);
+	val[2] = 0;
+	return val;
+}
+
+void rendergeom_curve::get_value(int x_hat, double* val){
+
+	double y = 0.0;
+	int x;
+	if(curve == NULL){
+		val[0] = -1;
+		val[1] = -1;
+	}else{
+		x = round((x_hat - cx)/(qx*zoom));
+		val[1] = 0;
+		if(x < curve->get_data_size() && x >= 0){
+			val[1] = curve->get_data(x);
+		}
+		val[0] = x*x_scale + x_offset;
+	}
+}
+
+Matrix3D rendergeom_curve::view_to_world_matrix(int viewminsize) const
+{
+	Matrix3D dummy;
+	dummy.SetIdentity();
+    return dummy;
+}
+Vector3D rendergeom_curve::get_lookat() const {
+	Vector3D dummy;
+	dummy.Fill(1);
+	return dummy;
+}
 
 //-----------------------------------------------------
 //-----------------------------------------------------

@@ -63,7 +63,7 @@ private:
     template <class TOOL>
         static viewporttool *CreateObject(viewport_event &event);
 protected:
-    image_base *    image; //do dynamic_cast to whatever class that is needed
+    image_base *    image; //do dynamic_cast to whatever class that is needed //TITTA HÄR!!!
     viewport *      myPort;
     renderer_base * myRenderer; 
 public:
@@ -148,6 +148,7 @@ public:
     static void init (); //initialize controls in statusArea
     virtual void handle(viewport_event &);
 };
+
 
 class freeform_ROI_tool : public viewporttool
 {

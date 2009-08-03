@@ -27,6 +27,7 @@
 #define __curve_base__
 
 #include "data_base.h"
+#include "pt_vector.h"
 
 class curve_base : public data_base
 {
@@ -39,8 +40,31 @@ class curve_base : public data_base
 		int active;	// This variable is set from FLTKuserIOpar_landmarks and is used in rendererMPR 
 */		
 	public:
-        curve_base();
+        curve_base(string name);
 		~curve_base();
+
+		virtual void redraw();
+		virtual void save_to_DCM_file(const std::string, const bool useCompression = true, const bool anonymize = true){};
+		virtual void save_to_VTK_file(const std::string, const bool useCompression = true){};
+		virtual double get_data(int i) const = 0;
+		virtual int get_data_size() const = 0;
+		virtual RGBvalue* get_color() const = 0;
+		virtual char get_line() const = 0;
+		virtual double get_max() const = 0;
+		virtual double get_min() const = 0;
+		virtual double get_scale() const = 0;
+		virtual double get_offset() const = 0;
+		virtual void set_color(int r, int g, int b){};
+		virtual void set_line(char type){};
+		virtual void increase_resolution(){};
+		virtual Vector2D find_closest_maxima(int location, int direction) const = 0;
+		virtual Vector2D find_closest_minima(int location, int direction) const = 0;
+		virtual vector<Vector2D> find_maximas_in_intervall(int from, int to) const = 0;
+		virtual vector<Vector2D> find_minimas_in_intervall(int from, int to) const = 0;
+
+		virtual vector<double> approximate_curve(int degree) const = 0;
+
+		virtual void simplify_curve(){};
 /*
 		point_collection(const point_collection & source);	// copy constructor
 		const point_collection & operator=(const point_collection & source);

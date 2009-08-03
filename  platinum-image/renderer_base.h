@@ -39,7 +39,7 @@
 
 class image_base;
 
-enum RENDERER_TYPE {RENDERER_MPR=0, RENDERER_MIP=1, NUM_RENDERER_TYPES, NUM_RENDERER_TYPES_PLUS_END};
+enum RENDERER_TYPE {RENDERER_MPR=0, RENDERER_MIP=1, NUM_RENDERER_TYPES, NUM_RENDERER_TYPES_PLUS_END, RENDERER_CURVE = 2};
 //const std::string renderer_labels[] = {"MPR renderer"}; //name strings for renderer types
 
 
@@ -80,7 +80,7 @@ public:
     
     //result is deterministic regardless of what's visible, no virtual:
     std::vector<int> world_to_view(int view_size_x,int view_size_y,const Vector3D wpos) const;
-    static std::vector<int> world_to_view(rendergeom_image *rg,int sx,int sy,const Vector3D wpos);
+	static std::vector<int> world_to_view(rendergeometry_base *rg,int sx,int sy,const Vector3D wpos);
     static std::vector<float> world_dir_to_view_dir(rendergeom_image *rg,int sx,int sy,const Vector3D w_dir);
 
     virtual void look_at(float x, float y, float z);
@@ -140,5 +140,14 @@ public:
     virtual ~renderer_image_base();
 
 };
+
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+class renderer_curve_base:public renderer_base{
+public:
+	renderer_curve_base();
+	virtual ~renderer_curve_base();
+};
+
 
 #endif
