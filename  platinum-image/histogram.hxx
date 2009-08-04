@@ -562,7 +562,8 @@ template <class ELEMTYPE>
 void histogram_1D<ELEMTYPE>::add_histogram_data(histogram_1D<ELEMTYPE> *hist2){
 	if(this->num_buckets == hist2->num_buckets){
 		for(int i=0;i<this->num_buckets;i++){
-			this->bucket_vector.at(i) += hist2->buckets[i];
+//			this->bucket_vector->at(i) += hist2->buckets[i];
+			this->bucket_vector->at(i) += hist2->bucket_vector->at(i);
 		}
 	}else{
 		pt_error::error("histogram_1D - add_histogram_data - not same size...",pt_error::debug);
@@ -584,7 +585,7 @@ void histogram_1D<ELEMTYPE>::set_sum_of_bucket_contents_to_value(double value){ 
 	double scale_factor = value / double(this->num_elements_in_hist);
 	for(int i=0;i<this->num_buckets;i++){
 		//this->buckets[i] *= scale_factor;
-		this->bucket_vector.at(i) *= scale_factor;
+		this->bucket_vector->at(i) *= scale_factor;
 	}
 }
 
@@ -777,7 +778,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_higher_percentile(float
 
 	float num_elem_limit=0;
 	if( ignore_zero_intensity && (the_zero_bucket>=0) && (the_zero_bucket<this->num_buckets) ){//the "zero_bucket" might be missing (the histogram might for example be created from a masked region...)
-		num_elem_limit = float(this->num_elements_in_hist - this->buckets[the_zero_bucket] )*percentile;
+		num_elem_limit = float(this->num_elements_in_hist - this->bucket_vector->at(the_zero_bucket))*percentile;
 	}else{
 		num_elem_limit = float(this->num_elements_in_hist)*percentile;
 	}
@@ -787,7 +788,8 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_higher_percentile(float
 	if(ignore_zero_intensity){
 		for(unsigned short i = this->num_buckets-1; i>=0; i--){
 			if(i!=the_zero_bucket) {
-				sum_elements += this->buckets[i];
+//				sum_elements += this->buckets[i];
+				sum_elements += this->bucket_vector->at(i);
 				if(sum_elements>=num_elem_limit){
 					return i;
 				}
@@ -795,7 +797,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_bucket_at_histogram_higher_percentile(float
 		}
 	}else{
 		for(unsigned short i = this->num_buckets-1; i>=0; i--){
-			sum_elements += this->buckets[i];
+			sum_elements += this->bucket_vector->at(i);
 			if(sum_elements>=num_elem_limit){
 				return i;
 			}
@@ -822,7 +824,7 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_intensity_at_included_num_pix_from_lower_in
 	float sum_elements=0;
 
 	for (unsigned short i = start_bucket; i < this->num_buckets; i++){
-		sum_elements += this->buckets[i];
+		sum_elements += this->bucket_vector->at(i);
 		if(sum_elements>=num_pix){
 			return bucketpos_to_intensity(i);
 		}
@@ -1021,7 +1023,7 @@ double histogram_1D<ELEMTYPE>::get_sum_square_diff_between_buckets(vector<gaussi
 	for(int j=from_bucket;j<=to_bucket;j++){
 		//it is very important to use the intensity, and not the bucket position...
 
-		if(this->buckets[j]>0 || !ignore_zeros){
+		if(this->bucket_vector->at(j)>0 || !ignore_zeros){
 			if(j != zero_intensity_bucket){ //dont include the commonly seen peak at zero intensity
 
 				val=0;
@@ -1033,7 +1035,7 @@ double histogram_1D<ELEMTYPE>::get_sum_square_diff_between_buckets(vector<gaussi
 				if(j<0){
 					error += pow(val - 0, 2);
 				}else{
-					error += pow(val - float(this->buckets[j]), 2);
+					error += pow(val - float(this->bucket_vector->at(j)), 2);
 				}
 			}
 
@@ -1253,12 +1255,12 @@ double histogram_1D<ELEMTYPE>::get_sum_square_diff_from_buckets(rayleighian r, i
 	for(int j=from_bucket;j<=to_bucket;j++){
 		//it is very important to use the intensity, and not the bucket position...
 
-		if(this->buckets[j]>0 || !ignore_zeros){
+		if(this->bucket_vector->at(j)>0 || !ignore_zeros){
 			if(j != zero_intensity_bucket){ //dont include the commonly seen peak at zero intensity
 
 				ELEMTYPE intensity = bucketpos_to_intensity(j);
 				val = r.evaluate_at(intensity);	
-				error += pow(val - float(this->buckets[j]), 2);
+				error += pow(val - float(this->bucket_vector->at(j)), 2);
 			}
 		}
 	}
@@ -1280,8 +1282,8 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_min_value_in_bucket_range(int from, int to,
 	ELEMTYPE min_v = std::numeric_limits<ELEMTYPE>::max();
 
 	for(int i=from; i<=to; i++){
-		if(this->buckets[i]<min_v){
-			min_v = this->buckets[i];
+		if(this->bucket_vector->at(i)<min_v){
+			min_v = this->bucket_vector->at(i);
 			min_val_bucket_pos = i;
 		}
 	}
@@ -1304,9 +1306,9 @@ ELEMTYPE histogram_1D<ELEMTYPE>::get_max_value_in_bucket_range(int from, int to,
 	ELEMTYPE max_value = std::numeric_limits<ELEMTYPE>::min();
 
 	for(int i=from; i<=to; i++){
-		if(this->buckets[i]>max_value){
+		if(this->bucket_vector->at(i)>max_value){
 			max_val_bucket_pos = i;
-			max_value = this->buckets[i];
+			max_value = this->bucket_vector->at(i);
 		}
 	}
 
@@ -1320,8 +1322,8 @@ float histogram_1D<ELEMTYPE>::get_mean_intensity_in_bucket_range(int from, int t
 	float num_values=0;
 	for(int i=from; i<=to; i++){
 		//this number of pixels with this intensity
-		intensity_sum += this->buckets[i]*bucketpos_to_intensity(i);
-		num_values += this->buckets[i];
+		intensity_sum += this->bucket_vector->at(i)*bucketpos_to_intensity(i);
+		num_values += this->bucket_vector->at(i);
 	}
 	return intensity_sum/num_values;
 }
@@ -1341,8 +1343,8 @@ float histogram_1D<ELEMTYPE>::get_variance_in_bucket_range(int from, int to)
 	float diff=0;
 	for(int i=from; i<=to; i++){
 		diff = mean-bucketpos_to_intensity(i);
-		sum += float(this->buckets[i])*diff*diff; //this number of pixels with this (mean_intensity_diff)^2...
-		num_values += this->buckets[i];
+		sum += float(this->bucket_vector->at(i))*diff*diff; //this number of pixels with this (mean_intensity_diff)^2...
+		num_values += float(this->bucket_vector->at(i));
 	}
 	return sum/num_values;
 }
