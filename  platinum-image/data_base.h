@@ -44,14 +44,17 @@ class data_base
         void set_parameters();
         
         static int data_next_ID;
+		vector<RENDERER_TYPE> supported_renderers;
+
     protected:
         int ID;
         datawidget_base *widget;
 
         void name_from_path(std::string filepath);   //sets image name from name portion of path
     
-        data_base();
-        data_base(data_base * const);
+		data_base(vector<RENDERER_TYPE> supported);
+		data_base();
+		data_base(data_base * const, vector<RENDERER_TYPE> supported);
 		//data_base(const data_base & source);		// copy constructor
 
     public:
@@ -59,6 +62,13 @@ class data_base
         virtual ~data_base();
 		
 		//virtual const data_base & operator=(const data_base & source);
+		bool is_supported(RENDERER_TYPE type){
+			for(int i = 0; i < supported_renderers.size(); i++){
+				if(type == supported_renderers.at(i))
+					return true;
+			}
+			return false;
+		}
 
         //virtual const data_base &operator=(const data_base &k) { return k; }
         bool virtual operator<<(const data_base &k)

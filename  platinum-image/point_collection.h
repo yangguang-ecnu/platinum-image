@@ -43,6 +43,8 @@ class point_collection : public data_base
 
 		point_collection(const point_collection & source);	// copy constructor
 		const point_collection & operator=(const point_collection & source);
+
+		static vector<RENDERER_TYPE> get_supported_renderers();
          
 		pointStorage::const_iterator begin() const;
         pointStorage::iterator begin();

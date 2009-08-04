@@ -24,10 +24,16 @@
 
 
 
-curve_base::curve_base(string name) : data_base()
+curve_base::curve_base(string name) : data_base(get_supported_renderers())
 {
     //start empty
     widget = new datawidget<curve_base>(this, name);
+}
+
+vector<RENDERER_TYPE> curve_base::get_supported_renderers(){
+	vector<RENDERER_TYPE> vec;
+	vec.push_back(RENDERER_CURVE);
+	return vec;
 }
 
 curve_base::~curve_base() {}
@@ -81,12 +87,12 @@ double curve_scalar<ELEMTYPE>::get_data(int i) const{
 
 template<class ELEMTYPE>
 double curve_scalar<ELEMTYPE>::get_min() const{
-	return static_cast<double>( my_data->get_minimum_in_range(0, my_data->size()-1));
+	return static_cast<double>( my_data->get_minimum_in_range(0, my_data->size()-1)[1]);
 }
 
 template<class ELEMTYPE>
 double curve_scalar<ELEMTYPE>::get_max() const{
-	return static_cast<double>( my_data->get_maximum_in_range(0, my_data->size()-1));
+	return static_cast<double>( my_data->get_maximum_in_range(0, my_data->size()-1)[1]);
 }
 template<class ELEMTYPE>
 double curve_scalar<ELEMTYPE>::get_scale() const{

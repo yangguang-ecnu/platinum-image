@@ -62,6 +62,8 @@ class curve_base : public data_base
 		virtual vector<Vector2D> find_maximas_in_intervall(int from, int to) const = 0;
 		virtual vector<Vector2D> find_minimas_in_intervall(int from, int to) const = 0;
 
+		static vector<RENDERER_TYPE> get_supported_renderers();
+
 		virtual vector<double> approximate_curve(int degree) const = 0;
 
 		virtual void simplify_curve(){};
