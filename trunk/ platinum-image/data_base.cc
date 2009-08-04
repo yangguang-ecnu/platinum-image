@@ -68,8 +68,18 @@ const string data_base::name() const
     return ( "(untitled)" );
     }
 
+data_base::data_base(vector<RENDERER_TYPE> support)
+    {
+		supported_renderers = support;
+    ID = data_next_ID++;
+    widget = NULL;
+    from_file(false);
+
+	meta = metadata();
+    }
 data_base::data_base()
     {
+	supported_renderers.push_back(RENDERER_MPR); //Defaults to MPR, but for clarity this should not be used!
     ID = data_next_ID++;
     widget = NULL;
     from_file(false);
@@ -77,10 +87,10 @@ data_base::data_base()
 	meta = metadata();
     }
 
-data_base::data_base (data_base * const source)
+data_base::data_base (data_base * const source, vector<RENDERER_TYPE> support)
     {
     pt_error::error_if_null(source,"Attempting to copyconstruct data object from NULL object");
-
+	supported_renderers = support;
     ID = data_next_ID++;
     widget = NULL;
     from_file(source->from_file());

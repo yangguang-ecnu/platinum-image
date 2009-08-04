@@ -27,12 +27,17 @@ using namespace std;
 //		set_parameters();
 //	}
 
-bias_base::bias_base():data_base()
+bias_base::bias_base():data_base(get_supported_renderers())
     {
 		cout<<"bias_base()-constructor"<<endl;
 //		set_parameters();
 	}
-
+vector<RENDERER_TYPE> bias_base::get_supported_renderers(){
+	vector<RENDERER_TYPE> vec;
+	vec.push_back(RENDERER_MPR);
+	vec.push_back(RENDERER_MIP);
+	return vec;
+}
 /*
 bias_base::bias_base(bias_base* const b):data_base(b)
     {

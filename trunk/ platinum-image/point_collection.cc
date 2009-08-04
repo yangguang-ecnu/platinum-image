@@ -19,7 +19,7 @@
 //#include "point_base.h"
 #include "datawidget.h"
 
-point_collection::point_collection() : data_base()
+point_collection::point_collection() : data_base(get_supported_renderers())
 {
     //start empty
     widget = new datawidget<point_collection>(this, "Untitled point_collection");
@@ -28,8 +28,7 @@ point_collection::point_collection() : data_base()
 
 point_collection::~point_collection() {}
 
-point_collection::point_collection(const point_collection & source) // : data_base(source)
-{
+point_collection::point_collection(const point_collection & source){ // : data_base(source)
 	// ID is not copied (which is correct)
 	// TODO: should meta and from_file() be copied in data_base() instead?
 	meta = source.meta;
@@ -37,6 +36,12 @@ point_collection::point_collection(const point_collection & source) // : data_ba
 	widget = new datawidget<point_collection>(this, source.name());
 	thePoints = source.thePoints;
 	active = source.active;
+}
+
+vector<RENDERER_TYPE> point_collection::get_supported_renderers(){
+	vector<RENDERER_TYPE> vec;
+	vec.push_back(RENDERER_MPR);
+	return vec;
 }
 
 const point_collection & point_collection::operator=(const point_collection & source)

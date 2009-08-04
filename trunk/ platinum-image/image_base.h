@@ -89,6 +89,7 @@ class image_base : public data_base
 
 
     public:
+		static vector<RENDERER_TYPE> get_supported_renderers();
         virtual image_base * alike (imageDataType unit) = 0;
        
         virtual void initialize_dataset(int w, int h, int d) = 0; // create empty dataset

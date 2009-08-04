@@ -53,7 +53,7 @@ class bias_base : public data_base
     public:
         bias_base();
 //        bias_base(bias_base* const b);
-
+		static vector<RENDERER_TYPE> get_supported_renderers();
 //        virtual void data_has_changed(bool stats_refresh = true) = 0;
         virtual void data_has_changed(bool stats_refresh = true);
         virtual void save_to_DCM_file(const std::string, const bool useCompression = true, const bool anonymize = true);

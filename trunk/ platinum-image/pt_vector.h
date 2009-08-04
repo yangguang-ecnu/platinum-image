@@ -38,8 +38,8 @@ public:
 	pt_vector(int);
 	~pt_vector(void);
 	void config_x_axis(double resolution, double start);
-	ELEMTYPE get_maximum_in_range(int from, int to);
-	ELEMTYPE get_minimum_in_range(int from, int to);
+	ELEMTYPE* get_maximum_in_range(int from, int to);
+	ELEMTYPE* get_minimum_in_range(int from, int to);
 	void mean_value_smoothing(int filter_size);
 	double get_mean_in_range(int from, int to);
 	double get_slope_at_location(int location);
@@ -74,29 +74,37 @@ void pt_vector<ELEMTYPE>::config_x_axis(double resolution, double start){
 
 /* Looks in a specified range and returns the maximum value found */
 template<class ELEMTYPE>
-ELEMTYPE pt_vector<ELEMTYPE>::get_maximum_in_range(int from, int to){
-	
-	ELEMTYPE maximum = numeric_limits<ELEMTYPE>::min();
+ELEMTYPE* pt_vector<ELEMTYPE>::get_maximum_in_range(int from, int to){
+	ELEMTYPE *maximum = new ELEMTYPE[2];
+	maximum[1] = numeric_limits<ELEMTYPE>::min();
 	if(size() < from)
 		return NULL;
-	maximum = at(from);
-	for(int i = from; i<=to && i<size(); i++)
-		if(at(i) > maximum)
-			maximum = at(i);
+	maximum[1] = at(from);
+	for(int i = from; i<=to && i<size(); i++){
+		if(at(i) > maximum[1]){
+			maximum[1] = at(i);
+			maximum[0] = i;
+		}
+	}
 	return maximum;
 }
 
 /* Looks in a specified range and returns the minimum value found */
 template<class ELEMTYPE>
-ELEMTYPE pt_vector<ELEMTYPE>::get_minimum_in_range(int from, int to){
+ELEMTYPE* pt_vector<ELEMTYPE>::get_minimum_in_range(int from, int to){
 	
-	ELEMTYPE minimum = numeric_limits<ELEMTYPE>::max();
+	ELEMTYPE *minimum = new ELEMTYPE[2];
+	minimum[1] = numeric_limits<ELEMTYPE>::max();
 	if(size() < from)
 		return NULL;
-	minimum = at(from);
-	for(int i = from; i<=to && i<size(); i++)
-		if(at(i) < minimum)
-			minimum = at(i);
+	minimum[1] = at(from);
+	minimum[0] = from;
+	for(int i = from; i<=to && i<size(); i++){
+		if(at(i) < minimum[1]){
+			minimum[1] = at(i);
+			minimum[0] = i;
+		}
+	}
 
 	return minimum;
 }

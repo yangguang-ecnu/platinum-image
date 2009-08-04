@@ -38,10 +38,10 @@ extern datamanager datamanagement;
 extern rendermanager rendermanagement;
 extern viewmanager viewmanagement;
 
-image_base::image_base():data_base()
+image_base::image_base():data_base(get_supported_renderers())
     {set_parameters();}
 
-image_base::image_base(image_base* const s):data_base(s)
+image_base::image_base(image_base* const s):data_base(s, get_supported_renderers())
     {
     set_parameters();
     //setting copy name at the root would be neat,
@@ -54,7 +54,12 @@ image_base::image_base(image_base* const s):data_base(s)
     name ("Copy of " + s->name());
     }
 
-
+vector<RENDERER_TYPE> image_base::get_supported_renderers(){
+	vector<RENDERER_TYPE> vec;
+	vec.push_back(RENDERER_MPR);
+	vec.push_back(RENDERER_MIP);
+	return vec;
+}
 void image_base::set_parameters ()    
     {
     ostringstream namestream;

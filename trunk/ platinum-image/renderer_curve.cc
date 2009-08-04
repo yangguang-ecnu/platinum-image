@@ -142,7 +142,7 @@ void renderer_curve::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_c
     //TODO sätt parametrar i rg från den sista kurvan  i paiarItr 
     #pragma mark *** Per-image render loop ***
 
-	rendercombination::iterator pairItr = rc->begin();
+	/*rendercombination::iterator pairItr = rc->begin();
 	if(rc->begin() != rc->end()){
 		pairItr = rc->end();
 		pairItr --;
@@ -151,19 +151,22 @@ void renderer_curve::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_c
         the_curve_pointer = dynamic_cast<curve_base *> (pairItr->pointer);
 		if(the_curve_pointer != NULL)
 			rg->set_borders(the_curve_pointer, rgb_sx, rgb_sy);
-	}
+	}*/
+	bool first = true;
 
 	for(rendercombination::iterator pairItr = rc->begin();pairItr != rc->end();pairItr++){//den sista klammern ska flyttas långt ner 
         curve_base *the_curve_pointer;
 		pt_error::error_if_null(pairItr->pointer,"Rendered data object is NULL");//Crash here when closing an image
         the_curve_pointer = dynamic_cast<curve_base *> (pairItr->pointer);
-		bool OKrender = the_curve_pointer != NULL;
+		bool OKrender = the_curve_pointer != NULL;// && the_curve_pointer->is_supported(renderer_type());
 
         if(OKrender){
 			
 			RGBvalue *curve_color = the_curve_pointer->get_color();
-
-			//rg->set_borders(the_curve_pointer, rgb_sx, rgb_sy);
+			if(first){
+				rg->set_borders(the_curve_pointer, rgb_sx, rgb_sy);
+				first = false;
+			}
 			char type = the_curve_pointer->get_line();
 
 			//Kolla om curve_pointer är uppdaterad här
