@@ -692,7 +692,12 @@ void image_general<ELEMTYPE, IMAGEDIM>::save_to_DCM_file_series(const std::strin
   tagkey = "0008|0064"; // Conversion Type
   value = "DV";
   itk::EncapsulateMetaData<std::string>(dict, tagkey, value);
-
+  tagkey = DCM_PATIENT_NAME; // Patient name
+  value = (this->meta).get_data_string(tagkey);
+  itk::EncapsulateMetaData<std::string>(dict, tagkey, value);
+  tagkey = DCM_PATIENT_ID; // Patient ID
+  value = (this->meta).get_data_string(tagkey);
+  itk::EncapsulateMetaData<std::string>(dict, tagkey, value);
 
   typedef itk::ImageSeriesWriter< theImageType , theImageType2D >  SeriesWriterType;
   typename SeriesWriterType::Pointer seriesWriter = SeriesWriterType::New();

@@ -41,7 +41,7 @@ class curve_base : public data_base
 */		
 	public:
         curve_base(string name);
-		~curve_base();
+		virtual ~curve_base();
 
 		virtual void redraw();
 		virtual void save_to_DCM_file(const std::string, const bool useCompression = true, const bool anonymize = true){};
