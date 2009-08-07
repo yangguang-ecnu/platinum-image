@@ -3385,7 +3385,7 @@ void image_scalar<ELEMTYPE, IMAGEDIM>::save_uchar2D_to_TIF_file(const std::strin
 	string s = file_path_base+"_"+slice+".tif";
 	theTifWriterType::Pointer writer = theTifWriterType::New();
 	writer->SetFileName(s.c_str());
-	writer->SetInput(get_image_as_itk_output());
+	writer->SetInput(this->get_image_as_itk_output());
 	try{
 		writer->Update();
 	}catch (itk::ExceptionObject &ex){

@@ -117,8 +117,8 @@ line2D rendergeom_image::get_physical_line_of_intersection_projected(rendergeom_
 
 Matrix3D rendergeom_image::get_scan_line_slop_matrix(image_base *the_image_pointer, float rgb_min_norm_div_by_zoom_constant)
 {
-	Matrix3D orientation_inv = the_image_pointer->get_orientation().GetInverse();
-	Matrix3D inv_size = the_image_pointer->get_voxel_resize().GetInverse();
+	Matrix3D orientation_inv = Matrix3D(the_image_pointer->get_orientation().GetInverse());
+	Matrix3D inv_size = Matrix3D(the_image_pointer->get_voxel_resize().GetInverse());
 	return (inv_size * orientation_inv)/(this->zoom * rgb_min_norm_div_by_zoom_constant);
 }
 //-----------------------------------------------------

@@ -102,7 +102,7 @@ bool renderer_curve::supports_mode (int m)
             return false;
         }
 		*/
-	cout << "Frågar om " << m << endl;
+	cout << "FrÃ‚gar om " << m << endl;
 	return m == BLEND_OVERWRITE;
 }
 
@@ -135,11 +135,11 @@ void renderer_curve::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_c
     
     blendmode blend_mode = rc->blend_mode();
 
-	//Sätter bakgrunden till vit tror jag. RGB_pixmap_bpp betyder rgb utan alphavärde (alltså 3 bytes per pixel)
+	//Sâ€°tter bakgrunden till vit tror jag. RGB_pixmap_bpp betyder rgb utan alphavâ€°rde (alltsÃ‚ 3 bytes per pixel)
 	for(long p=0; p < rgb_sx*rgb_sy*RGB_pixmap_bpp; p +=RGB_pixmap_bpp){
 		pixels[p] = pixels[p + 1] = pixels[p + 2]=255;
 	}
-    //TODO sätt parametrar i rg från den sista kurvan  i paiarItr 
+    //TODO sâ€°tt parametrar i rg frÃ‚n den sista kurvan  i paiarItr 
     #pragma mark *** Per-image render loop ***
 
 	/*rendercombination::iterator pairItr = rc->begin();
@@ -154,10 +154,11 @@ void renderer_curve::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_c
 	}*/
 	bool first = true;
 
-	for(rendercombination::iterator pairItr = rc->begin();pairItr != rc->end();pairItr++){//den sista klammern ska flyttas långt ner 
-        curve_base *the_curve_pointer;
+	for(rendercombination::iterator pairItr = rc->begin();pairItr != rc->end();pairItr++){//den sista klammern ska flyttas lÃ‚ngt ner 
+        curve_base *the_curve_pointer = NULL;
 		pt_error::error_if_null(pairItr->pointer,"Rendered data object is NULL");//Crash here when closing an image
         the_curve_pointer = dynamic_cast<curve_base *> (pairItr->pointer);
+		
 		bool OKrender = the_curve_pointer != NULL;// && the_curve_pointer->is_supported(renderer_type());
 
         if(OKrender){
@@ -169,7 +170,7 @@ void renderer_curve::render_(uchar *pixels, int rgb_sx, int rgb_sy, rendergeom_c
 			}
 			char type = the_curve_pointer->get_line();
 
-			//Kolla om curve_pointer är uppdaterad här
+			//Kolla om curve_pointer â€°r uppdaterad hâ€°r
 		   /* Om uppdaterad
 			*
 			*/
@@ -263,7 +264,7 @@ void renderer_curve::draw_axes(uchar *pixels, curve_base *curve, rendergeom_curv
 	double y_step = height/10.0;
 	double x_step = width/10.0;
 
-	//TODO_R gör så man kan variera färg.
+	//TODO_R gË†r sÃ‚ man kan variera fâ€°rg.
 	vector<int> col;
 	col.push_back(0); //Black
 	col.push_back(0);
@@ -289,7 +290,7 @@ void renderer_curve::draw_axes(uchar *pixels, curve_base *curve, rendergeom_curv
 	for(int j = 30; j < width; j+=x_step){
 		s.str("");
 		draw_line(pixels, width, height, j, height-15, j, height-25, col);
-		s << std::fixed << std::setprecision(2) << (rg->view_to_curve(j,0, width, height)[0]*rg->x_scale + rg->x_offset); //Lägg in scale m.m i view_to_curve osv
+		s << std::fixed << std::setprecision(2) << (rg->view_to_curve(j,0, width, height)[0]*rg->x_scale + rg->x_offset); //Lâ€°gg in scale m.m i view_to_curve osv
 		//s = float2str(rg->view_to_curve(j,0, width, height)[0]*rg->x_scale + rg->x_offset);
 		fl_draw(s.str().c_str(),j-5,height + button_offset);
 	}
