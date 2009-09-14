@@ -18,9 +18,9 @@
 =3. Build (Windows)=
 _Note: Windows instructions only, see below for Unix/Linux/Mac_
 ==ITK==
-  # Decompress ”!InsightToolkit-3.4.0.zip” _(suggested location:   C:\Lib\InsightToolkit-3.4.0)_ 
+  # Decompress ”!InsightToolkit-3.14.0.zip” _(suggested location:   C:\Lib\InsightToolkit-3.14.0)_ 
   # Run CMake
-  # Set source: ”C:\Lib\!InsightToolkit-3.4.0”
+  # Set source: ”C:\Lib\!InsightToolkit-3.14.0”
   # Set build: ”C:\Lib\Bin\ITK”
     # Press `Configure…` (may take some time)
   # Set the following options:
