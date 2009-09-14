@@ -3,7 +3,7 @@
 
 =1. Download=
 
-  # Install a development environment, such as VS.net
+  # Install a development environment, such as [http://www.microsoft.com/express/vc/ VS.net]
   # Download the following additional source code:
     * [http://www.cmake.org/HTML/Download.html CMake 2.4.7]
     * [http://www.fltk.org/software.php FLTK 1.1.7]
